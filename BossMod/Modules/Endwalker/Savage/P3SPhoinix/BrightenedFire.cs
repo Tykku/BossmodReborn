@@ -19,7 +19,7 @@ class BrightenedFire(BossModule module) : Components.CastCounter(module, ActionI
             hints.Add($"Get to correct position {_playerOrder[slot]}!");
         }
 
-        int numHitAdds = Module.Enemies(OID.DarkenedFire).InRadius(actor.Position, _aoeRange).Count();
+        var numHitAdds = Module.Enemies(OID.DarkenedFire).InRadius(actor.Position, _aoeRange).Count();
         if (numHitAdds < 2)
         {
             hints.Add("Get closer to adds!");
@@ -32,24 +32,24 @@ class BrightenedFire(BossModule module) : Components.CastCounter(module, ActionI
             return;
 
         var pos = PositionForOrder(_playerOrder[pcSlot]);
-        Arena.AddCircle(pos, 1, ArenaColor.Safe);
+        Arena.AddCircle(pos, 1, Colors.Safe);
 
         // draw all adds
-        int addIndex = 0;
+        var addIndex = 0;
         foreach (var fire in Module.Enemies(OID.DarkenedFire).SortedByRange(pos))
         {
-            Arena.Actor(fire, addIndex++ < 2 ? ArenaColor.Danger : ArenaColor.PlayerGeneric);
+            Arena.Actor(fire, addIndex++ < 2 ? Colors.Danger : Colors.PlayerGeneric);
         }
 
         // draw range circle
-        Arena.AddCircle(pc.Position, _aoeRange, ArenaColor.Danger);
+        Arena.AddCircle(pc.Position, _aoeRange, Colors.Danger);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID)
     {
         if (iconID is >= 268 and <= 275)
         {
-            int slot = Raid.FindSlot(actor.InstanceID);
+            var slot = Raid.FindSlot(actor.InstanceID);
             if (slot >= 0)
                 _playerOrder[slot] = (int)iconID - 267;
         }

@@ -74,9 +74,9 @@ public class D101EvilDreamers(WorldState ws, Actor primary) : BossModule(ws, pri
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actor(_evilDreamer2, ArenaColor.Enemy);
-        Arena.Actor(_evilDreamer3, ArenaColor.Enemy);
-        Arena.Actor(_evilDreamer4, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actor(_evilDreamer2);
+        Arena.Actor(_evilDreamer3);
+        Arena.Actor(_evilDreamer4);
     }
 }

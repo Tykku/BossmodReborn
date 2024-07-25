@@ -45,7 +45,7 @@ class GraspingRancor : Components.LocationTargetedAOEs
 
     public GraspingRancor(BossModule module) : base(module, ActionID.MakeSpell(AID.PurifyingLight), 12)
     {
-        Color = ArenaColor.SafeFromAOE;
+        Color = Colors.SafeFromAOE;
         Risky = false;
         _hands = module.Enemies(OID.GraspingRancor);
     }
@@ -58,8 +58,8 @@ class GraspingRancor : Components.LocationTargetedAOEs
             var hand = _hands.FirstOrDefault(h => h.Tether.Target == actor.InstanceID);
             if (hand != null)
             {
-                bool shouldBeFrozen = Shape.Check(hand.Position, Casters[0].CastInfo!.LocXZ);
-                bool isFrozen = hand.Tether.ID == (uint)TetherID.Frozen;
+                var shouldBeFrozen = Shape.Check(hand.Position, Casters[0].CastInfo!.LocXZ);
+                var isFrozen = hand.Tether.ID == (uint)TetherID.Frozen;
                 hints.Add(shouldBeFrozen ? "Face the hand!" : "Look away from hand and kite into safezone!", shouldBeFrozen != isFrozen);
             }
         }
@@ -70,9 +70,9 @@ class GraspingRancor : Components.LocationTargetedAOEs
         var hand = _hands.FirstOrDefault(h => h.Tether.Target == pc.InstanceID);
         if (hand != null)
         {
-            bool isFrozen = hand.Tether.ID == (uint)TetherID.Frozen;
-            Arena.Actor(hand, ArenaColor.Object, true);
-            Arena.AddLine(hand.Position, pc.Position, isFrozen ? ArenaColor.Safe : ArenaColor.Danger);
+            var isFrozen = hand.Tether.ID == (uint)TetherID.Frozen;
+            Arena.Actor(hand, Colors.Object, true);
+            Arena.AddLine(hand.Position, pc.Position, isFrozen ? Colors.Safe : Colors.Danger);
         }
     }
 }

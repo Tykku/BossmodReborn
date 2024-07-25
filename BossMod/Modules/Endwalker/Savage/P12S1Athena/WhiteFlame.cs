@@ -23,7 +23,7 @@ class WhiteFlame(BossModule module) : Components.GenericBaitAway(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
-        Arena.Actors(_sources, ArenaColor.Object, true);
+        Arena.Actors(_sources, Colors.Object, true);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

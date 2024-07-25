@@ -44,17 +44,17 @@ class Ballast(BossModule module) : Components.GenericAOEs(module)
     {
         if (casting2)
         {
-            yield return new(cone1, Module.PrimaryActor.Position, _rotation, _activation, ArenaColor.Danger);
+            yield return new(cone1, Module.PrimaryActor.Position, _rotation, _activation, Colors.Danger);
             yield return new(cone2, Module.PrimaryActor.Position, _rotation, _activation.AddSeconds(1.6f));
             yield return new(cone3, Module.PrimaryActor.Position, _rotation, _activation.AddSeconds(3.2f));
         }
         if (casting3 && !casting2)
         {
-            yield return new(cone2, Module.PrimaryActor.Position, _rotation, _activation.AddSeconds(1.6f), ArenaColor.Danger);
+            yield return new(cone2, Module.PrimaryActor.Position, _rotation, _activation.AddSeconds(1.6f), Colors.Danger);
             yield return new(cone3, Module.PrimaryActor.Position, _rotation, _activation.AddSeconds(3.2f));
         }
         if (casting4 && !casting3)
-            yield return new(cone3, Module.PrimaryActor.Position, _rotation, _activation.AddSeconds(3.2f), ArenaColor.Danger);
+            yield return new(cone3, Module.PrimaryActor.Position, _rotation, _activation.AddSeconds(3.2f), Colors.Danger);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -166,11 +166,9 @@ public class Stage15 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Shabti))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.Serpent))
-            Arena.Actor(s, ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Shabti), Colors.Object);
+        Arena.Actors(Enemies(OID.Serpent), Colors.Object);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

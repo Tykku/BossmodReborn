@@ -40,7 +40,7 @@ class P2BeyondDefense(BossModule module) : Components.UniformStackSpread(module,
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actor(_source, ArenaColor.Object, true);
+        Arena.Actor(_source, Colors.Object, true);
         base.DrawArenaForeground(pcSlot, pc);
     }
 

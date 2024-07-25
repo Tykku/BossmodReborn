@@ -4,12 +4,12 @@ public enum OID : uint
 {
     Boss = 0x302D, //R=2.34
     BossAdd = 0x302E, //R=1.05
-    BossHelper = 0x233C,
-    SecretQueen = 0x3021, // R0.840, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
-    SecretGarlic = 0x301F, // R0.840, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
-    SecretTomato = 0x3020, // R0.840, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
-    SecretOnion = 0x301D, // R0.840, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
-    SecretEgg = 0x301E, // R0.840, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    SecretQueen = 0x3021, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
+    SecretGarlic = 0x301F, // R0.84, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
+    SecretTomato = 0x3020, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
+    SecretOnion = 0x301D, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
+    SecretEgg = 0x301E, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -34,7 +34,7 @@ public enum AID : uint
     HeirloomScream = 6451, // 2A09->self, 3.5s cast, range 6+R circle
     PluckAndPrune = 6449, // 2A07->self, 3.5s cast, range 6+R circle
     PungentPirouette = 6450, // 2A08->self, 3.5s cast, range 6+R circle
-    Telega = 9630, // BonusAdds->self, no cast, single-target, bonus adds disappear
+    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
 class Earthquake(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Earthquake));
@@ -43,7 +43,7 @@ class HeavyStrike1 : Components.SelfTargetedAOEs
 {
     public HeavyStrike1(BossModule module) : base(module, ActionID.MakeSpell(AID.HeavyStrike1), new AOEShapeDonutSector(0.5f, 6.5f, 135.Degrees()))
     {
-        Color = ArenaColor.Danger;
+        Color = Colors.Danger;
     }
 }
 
@@ -52,10 +52,7 @@ class HeavyStrike2(BossModule module) : Components.SelfTargetedAOEs(module, Acti
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         base.OnCastFinished(caster, spell);
-        if ((AID)spell.Action.ID == AID.HeavyStrike1)
-            Color = ArenaColor.Danger;
-        else
-            Color = ArenaColor.AOE;
+        Color = (AID)spell.Action.ID == AID.HeavyStrike1 ? Colors.Danger : Colors.AOE;
     }
 }
 
@@ -64,10 +61,7 @@ class HeavyStrike3(BossModule module) : Components.SelfTargetedAOEs(module, Acti
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         base.OnCastFinished(caster, spell);
-        if ((AID)spell.Action.ID == AID.HeavyStrike2)
-            Color = ArenaColor.Danger;
-        else
-            Color = ArenaColor.AOE;
+        Color = (AID)spell.Action.ID == AID.HeavyStrike2 ? Colors.Danger : Colors.AOE;
     }
 }
 
@@ -108,19 +102,13 @@ public class Basket(WorldState ws, Actor primary) : BossModule(ws, primary, new(
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossAdd))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.SecretEgg))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.SecretTomato))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.SecretQueen))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.SecretGarlic))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.SecretOnion))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
+        Arena.Actors(Enemies(OID.SecretEgg), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretTomato), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretQueen), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretGarlic), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretOnion), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

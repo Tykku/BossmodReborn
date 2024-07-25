@@ -12,9 +12,9 @@ class Quintessence(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (NumCasts < _forms.Length && _forms[NumCasts] is var imminent && imminent.shape != null && imminent.origin != default)
-            yield return new(imminent.shape, imminent.origin, imminent.rotation, imminent.activation, ArenaColor.Danger);
+            yield return new(imminent.shape, imminent.origin, imminent.rotation, imminent.activation, Colors.Danger);
         if (NumCasts + 1 < _forms.Length && _forms[NumCasts + 1] is var future && future.shape != null && future.origin != default)
-            yield return new(future.shape, future.origin, future.rotation, future.activation, ArenaColor.AOE, false);
+            yield return new(future.shape, future.origin, future.rotation, future.activation, Colors.AOE, false);
     }
 
     public override void OnEventEnvControl(byte index, uint state)

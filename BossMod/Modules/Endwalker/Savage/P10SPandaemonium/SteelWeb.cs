@@ -43,7 +43,7 @@ class SteelWebTethers(BossModule module) : BossComponent(module)
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
         if ((TetherID)tether.ID is TetherID.Web or TetherID.WebFail && WorldState.Actors.Find(tether.Target) is var target && target != null)
-            _webs.Add((source, target, (TetherID)tether.ID == TetherID.Web ? ArenaColor.Danger : ArenaColor.Enemy));
+            _webs.Add((source, target, (TetherID)tether.ID == TetherID.Web ? Colors.Danger : Colors.Enemy));
     }
 
     public override void OnUntethered(Actor source, ActorTetherInfo tether)

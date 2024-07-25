@@ -17,7 +17,7 @@ class P2InfernalFetters(BossModule module) : BossComponent(module)
             var from = Raid[Fetters.LowestSetBit()];
             var to = Raid[Fetters.HighestSetBit()];
             if (from != null && to != null)
-                Arena.AddLine(from.Position, to.Position, _fettersStrength > 1 ? ArenaColor.Danger : ArenaColor.Safe);
+                Arena.AddLine(from.Position, to.Position, _fettersStrength > 1 ? Colors.Danger : Colors.Safe);
         }
     }
 

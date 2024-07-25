@@ -15,12 +15,9 @@ public class A23Construct7(WorldState ws, Actor primary) : BossModule(ws, primar
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Construct711))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Construct712))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Construct713))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Construct711));
+        Arena.Actors(Enemies(OID.Construct712));
+        Arena.Actors(Enemies(OID.Construct713));
     }
 }

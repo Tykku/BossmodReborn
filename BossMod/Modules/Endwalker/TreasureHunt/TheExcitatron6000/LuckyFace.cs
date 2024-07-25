@@ -101,12 +101,12 @@ public class LuckyFace(WorldState ws, Actor primary) : BossModule(ws, primary, n
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.ExcitingEgg), ArenaColor.Vulnerable);
-        Arena.Actors(Enemies(OID.ExcitingTomato), ArenaColor.Vulnerable);
-        Arena.Actors(Enemies(OID.ExcitingGarlic), ArenaColor.Vulnerable);
-        Arena.Actors(Enemies(OID.ExcitingQueen), ArenaColor.Vulnerable);
-        Arena.Actors(Enemies(OID.ExcitingOnion), ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.ExcitingEgg), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.ExcitingTomato), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.ExcitingGarlic), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.ExcitingQueen), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.ExcitingOnion), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

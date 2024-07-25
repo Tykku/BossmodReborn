@@ -26,7 +26,7 @@ class RightArmRayBuffed(BossModule module) : Components.GenericAOEs(module)
         foreach (var s in _spheres.Where(s => s.NumCastsLeft > 1))
             yield return new(_shape, s.Sphere.Position, s.RotNext + s.RotIncrement, _activation, Risky: false);
         foreach (var s in _spheres)
-            yield return new(_shape, s.Sphere.Position, s.RotNext, _activation, ArenaColor.Danger);
+            yield return new(_shape, s.Sphere.Position, s.RotNext, _activation, Colors.Danger);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
@@ -46,7 +46,7 @@ class RightArmRayBuffed(BossModule module) : Components.GenericAOEs(module)
                         var midpointOffset = (ccwOffset + cwOffset) * 0.5f;
                         if (midpointOffset.OrthoL().Dot(ccwOffset) < 0)
                         {
-                            Arena.AddCircle(Module.Center + midpointOffset, 1, ArenaColor.Safe);
+                            Arena.AddCircle(Module.Center + midpointOffset, 1, Colors.Safe);
                         }
                     }
                 }

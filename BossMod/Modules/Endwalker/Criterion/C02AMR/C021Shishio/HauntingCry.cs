@@ -41,10 +41,10 @@ class HauntingCryReisho(BossModule module) : Components.GenericAOEs(module)
     {
         foreach (var g in _ghosts)
         {
-            Arena.Actor(g, ArenaColor.Object, true);
+            Arena.Actor(g, Colors.Object, true);
             var target = WorldState.Actors.Find(g.Tether.Target);
             if (target != null)
-                Arena.AddLine(g.Position, target.Position, ArenaColor.Danger);
+                Arena.AddLine(g.Position, target.Position, Colors.Danger);
         }
     }
 

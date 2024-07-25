@@ -22,10 +22,10 @@ public sealed class PendingEffects
             Timestamp = ts;
             Source = source;
             Event = ev;
-            for (int i = 0; i < ev.Targets.Count; ++i)
+            for (var i = 0; i < ev.Targets.Count; ++i)
             {
-                bool confirmSource = false;
-                bool confirmTarget = false;
+                var confirmSource = false;
+                var confirmTarget = false;
                 foreach (var eff in ev.Targets[i].Effects)
                 {
                     if (eff.Type is ActionEffectType.Damage or ActionEffectType.BlockedDamage or ActionEffectType.ParriedDamage or ActionEffectType.Heal or ActionEffectType.ApplyStatusEffectTarget or ActionEffectType.ApplyStatusEffectSource or ActionEffectType.RecoveredFromStatusEffect)
@@ -104,7 +104,7 @@ public sealed class PendingEffects
         var minRemaining = ts.AddSeconds(-3);
         _entries.RemoveAll(e =>
         {
-            bool expired = e.Timestamp < minRemaining;
+            var expired = e.Timestamp < minRemaining;
             // note: this can happen if we misjudge and assume event required confirmation, but get none
             //if (expired)
             //    Service.Log($"[PendingEffects] Expired #{e.Event.GlobalSequence} {e.Event.Action} from {e.Source:X} without confirmations");
@@ -114,7 +114,7 @@ public sealed class PendingEffects
 
     public int PendingHPDifference(ulong target)
     {
-        int res = 0;
+        var res = 0;
         foreach (var eff in PendingEffectsAtTarget(_entries, target))
         {
             if (eff.Type is ActionEffectType.Damage or ActionEffectType.BlockedDamage or ActionEffectType.ParriedDamage)
@@ -150,7 +150,7 @@ public sealed class PendingEffects
             {
                 foreach (var i in e.UnconfirmedSource.SetBits())
                 {
-                    bool selfTargeted = e.Event.Targets[i].ID == e.Source;
+                    var selfTargeted = e.Event.Targets[i].ID == e.Source;
                     foreach (var eff in e.Event.Targets[i].Effects)
                     {
                         if (selfTargeted || eff.AtSource)

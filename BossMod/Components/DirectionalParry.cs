@@ -28,7 +28,7 @@ public class DirectionalParry(BossModule module, uint actorOID) : Adds(module, a
             var forbiddenSides = ActiveSides(targetState) | ImminentSides(targetState);
             var attackDir = (actor.Position - target.Position).Normalized();
             var facing = target.Rotation.ToDirection();
-            bool attackingFromForbidden = attackDir.Dot(facing) switch
+            var attackingFromForbidden = attackDir.Dot(facing) switch
             {
                 > 0.7071067f => forbiddenSides.HasFlag(Side.Front),
                 < -0.7071067f => forbiddenSides.HasFlag(Side.Back),
@@ -84,9 +84,9 @@ public class DirectionalParry(BossModule module, uint actorOID) : Adds(module, a
     private void DrawParry(Actor actor, Angle offset, Side active, Side imminent, Side check)
     {
         if (active.HasFlag(check))
-            DrawParry(actor, offset, ArenaColor.Enemy);
+            DrawParry(actor, offset, Colors.Enemy);
         else if (imminent.HasFlag(check))
-            DrawParry(actor, offset, ArenaColor.Danger);
+            DrawParry(actor, offset, Colors.Danger);
     }
 
     private void DrawParry(Actor actor, Angle offset, uint color)

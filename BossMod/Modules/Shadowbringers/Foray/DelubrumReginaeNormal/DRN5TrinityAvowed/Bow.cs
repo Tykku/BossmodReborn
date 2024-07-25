@@ -51,7 +51,7 @@ class ShimmeringShot(BossModule module, float spawnToActivation) : TemperatureAO
 
         var xOffset = _pattern is Pattern.EWNormal or Pattern.EWInverted ? -20 : +20;
         var zOffset = 10 * (cell - 2);
-        yield return new(_shapeCell, Module.Center + new WDir(xOffset, zOffset), new(), _activation, ArenaColor.SafeFromAOE, false);
+        yield return new(_shapeCell, Module.Center + new WDir(xOffset, zOffset), new(), _activation, Colors.SafeFromAOE, false);
     }
 
     public override void Update()
@@ -96,7 +96,7 @@ class ShimmeringShot(BossModule module, float spawnToActivation) : TemperatureAO
 
         if (_arrowsInited.Raw != 0x1B)
             return false; // no arrows yet, any position is safe
-        int row = RowIndex(pos);
+        var row = RowIndex(pos);
         return _slotTempAdjustments[row] != -Temperature(actor);
     }
 

@@ -30,7 +30,7 @@ class Dominion : Components.UniformStackSpread
 
         if (NumDeformations >= 4 && ShouldSoak(pcSlot))
             foreach (var tower in ActiveTowers())
-                Arena.AddCircle(tower.Position, _towerRadius, ArenaColor.Danger, 2);
+                Arena.AddCircle(tower.Position, _towerRadius, Colors.Danger, 2);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

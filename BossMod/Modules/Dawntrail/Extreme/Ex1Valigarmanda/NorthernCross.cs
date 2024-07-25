@@ -6,7 +6,11 @@ class NorthernCross(BossModule module) : Components.GenericAOEs(module)
 
     private static readonly AOEShapeRect _shape = new(25, 30);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(AOE);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var component = Module.FindComponent<ChillingCataclysm>(); // prevent NotherCross from hiding the safespot
+        return component == null || !component.ActiveAOEs(slot, actor).Any() ? Utils.ZeroOrOne(AOE) : ([]);
+    }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
@@ -19,7 +23,7 @@ class NorthernCross(BossModule module) : Components.GenericAOEs(module)
             _ => default
         };
         if (offset != default)
-            AOE = new(_shape, Module.Center, -127.Degrees() + offset, WorldState.FutureTime(9.2f));
+            AOE = new(_shape, Module.Center, -126.875f.Degrees() + offset, WorldState.FutureTime(9.2f));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

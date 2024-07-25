@@ -24,16 +24,16 @@ class Border(BossModule module) : BossComponent(module)
     {
         if (!_threePlatforms)
         {
-            Arena.AddCircle(Module.Center, LargePlatformRadius, ArenaColor.Border);
+            Arena.AddCircle(Module.Center, LargePlatformRadius, Colors.Border);
         }
         else
         {
             var cs = Module.Center + PlatformSOffset;
             var ce = Module.Center + PlatformEOffset;
             var cw = Module.Center + PlatformWOffset;
-            Arena.AddCircle(cs, SmallPlatformRadius, ArenaColor.Border);
-            Arena.AddCircle(ce, SmallPlatformRadius, ArenaColor.Border);
-            Arena.AddCircle(cw, SmallPlatformRadius, ArenaColor.Border);
+            Arena.AddCircle(cs, SmallPlatformRadius, Colors.Border);
+            Arena.AddCircle(ce, SmallPlatformRadius, Colors.Border);
+            Arena.AddCircle(cw, SmallPlatformRadius, Colors.Border);
             if (_bridgeN)
             {
                 DrawBridge(ce, cw, false);
@@ -94,8 +94,8 @@ class Border(BossModule module) : BossComponent(module)
         var p1adj = p1 + dir * BridgeStartOffset;
         var p2adj = p2 - dir * (p2center ? BridgeCenterOffset : BridgeStartOffset);
         var ortho = dir.OrthoL() * BridgeHalfWidth;
-        Arena.AddLine(p1adj + ortho, p2adj + ortho, ArenaColor.Border);
-        Arena.AddLine(p1adj - ortho, p2adj - ortho, ArenaColor.Border);
+        Arena.AddLine(p1adj + ortho, p2adj + ortho, Colors.Border);
+        Arena.AddLine(p1adj - ortho, p2adj - ortho, Colors.Border);
     }
 
     private void BridgeEnvControl(ref bool bridge, uint state)

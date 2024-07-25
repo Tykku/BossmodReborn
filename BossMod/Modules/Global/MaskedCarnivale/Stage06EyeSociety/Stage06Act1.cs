@@ -121,10 +121,8 @@ public class Stage06Act1 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        foreach (var s in Enemies(OID.Boss))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Mandragora))
-            Arena.Actor(s, ArenaColor.Object);
+        Arena.Actors(Enemies(OID.Boss));
+        Arena.Actors(Enemies(OID.Mandragora), Colors.Object);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

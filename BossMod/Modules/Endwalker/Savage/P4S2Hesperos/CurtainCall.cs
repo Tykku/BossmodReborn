@@ -30,24 +30,24 @@ class CurtainCall(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         // draw other players
-        foreach ((int slot, var player) in Raid.WithSlot().Exclude(pc))
-            Arena.Actor(player, _playerOrder[slot] == _numCasts + 1 ? ArenaColor.Danger : ArenaColor.PlayerGeneric);
+        foreach ((var slot, var player) in Raid.WithSlot().Exclude(pc))
+            Arena.Actor(player, _playerOrder[slot] == _numCasts + 1 ? Colors.Danger : Colors.PlayerGeneric);
 
         // tether
         var tetherTarget = WorldState.Actors.Find(pc.Tether.Target);
         if (tetherTarget != null)
-            Arena.AddLine(pc.Position, tetherTarget.Position, pc.Tether.ID == (uint)TetherID.WreathOfThorns ? ArenaColor.Danger : ArenaColor.Safe);
+            Arena.AddLine(pc.Position, tetherTarget.Position, pc.Tether.ID == (uint)TetherID.WreathOfThorns ? Colors.Danger : Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
         if ((SID)status.ID == SID.Thornpricked)
         {
-            int slot = Raid.FindSlot(actor.InstanceID);
+            var slot = Raid.FindSlot(actor.InstanceID);
             if (slot >= 0)
             {
                 _playerOrder[slot] = 2 * (int)((status.ExpireAt - WorldState.CurrentTime).TotalSeconds / 10); // 2/4/6/8
-                bool ddFirst = Service.Config.Get<P4S2Config>().CurtainCallDDFirst;
+                var ddFirst = Service.Config.Get<P4S2Config>().CurtainCallDDFirst;
                 if (ddFirst != actor.Role is Role.Tank or Role.Healer)
                     --_playerOrder[slot];
                 _playersInBreakOrder = null;

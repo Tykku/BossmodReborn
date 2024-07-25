@@ -47,7 +47,7 @@ class PyricBreath(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         for (var i = 0; i < _aoes.Count; i++)
-            yield return new AOEInstance(_aoes[i].Shape, _aoes[i].Origin, _aoes[i].Rotation, _aoes[i].Activation, i == 0 && NumCasts > 0 ? ArenaColor.Danger : ArenaColor.AOE);
+            yield return new AOEInstance(_aoes[i].Shape, _aoes[i].Origin, _aoes[i].Rotation, _aoes[i].Activation, i == 0 && NumCasts > 0 ? Colors.Danger : Colors.AOE);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

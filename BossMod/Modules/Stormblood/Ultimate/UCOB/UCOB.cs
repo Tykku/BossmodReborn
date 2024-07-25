@@ -26,8 +26,8 @@ public class UCOB(WorldState ws, Actor primary) : BossModule(ws, primary, new(0,
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(Twintania(), ArenaColor.Enemy);
-        Arena.Actor(Nael(), ArenaColor.Enemy);
-        Arena.Actor(BahamutPrime(), ArenaColor.Enemy);
+        Arena.Actor(Twintania());
+        Arena.Actor(Nael());
+        Arena.Actor(BahamutPrime());
     }
 }

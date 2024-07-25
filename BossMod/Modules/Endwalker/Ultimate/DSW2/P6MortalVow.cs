@@ -27,14 +27,14 @@ class P6MortalVow : Components.UniformStackSpread
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
         if (_vow != null && _target != null && (actor == _vow || actor == _target))
-            movementHints.Add(actor.Position, (actor == _vow ? _target : _vow).Position, ArenaColor.Safe);
+            movementHints.Add(actor.Position, (actor == _vow ? _target : _vow).Position, Colors.Safe);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
         if (_vow != null && _target != null && (pc == _vow || pc == _target))
-            Arena.AddCircle(Module.Center, 1, ArenaColor.Safe);
+            Arena.AddCircle(Module.Center, 1, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

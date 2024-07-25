@@ -36,8 +36,8 @@ class TrailOfCondemnation(BossModule module) : BossComponent(module)
                 hints.Add("GTFO from aoe!");
             }
             // note: sparks either target all tanks & healers or all dds - so correct pairings are always dd+tank/healer
-            int numStacked = 0;
-            bool goodPair = false;
+            var numStacked = 0;
+            var goodPair = false;
             foreach (var pair in Raid.WithoutSlot().InRadiusExcluding(actor, _aoeRadius))
             {
                 ++numStacked;
@@ -62,13 +62,13 @@ class TrailOfCondemnation(BossModule module) : BossComponent(module)
         var dir = (Module.Center - Module.PrimaryActor.Position).Normalized();
         if (_isCenter)
         {
-            Arena.ZoneRect(Module.PrimaryActor.Position, dir, 2 * Module.Bounds.Radius, 0, _halfWidth, ArenaColor.AOE);
+            Arena.ZoneRect(Module.PrimaryActor.Position, dir, 2 * Module.Bounds.Radius, 0, _halfWidth, Colors.AOE);
         }
         else
         {
             var offset = _sidesOffset * dir.OrthoR();
-            Arena.ZoneRect(Module.PrimaryActor.Position + offset, dir, 2 * Module.Bounds.Radius, 0, _halfWidth, ArenaColor.AOE);
-            Arena.ZoneRect(Module.PrimaryActor.Position - offset, dir, 2 * Module.Bounds.Radius, 0, _halfWidth, ArenaColor.AOE);
+            Arena.ZoneRect(Module.PrimaryActor.Position + offset, dir, 2 * Module.Bounds.Radius, 0, _halfWidth, Colors.AOE);
+            Arena.ZoneRect(Module.PrimaryActor.Position - offset, dir, 2 * Module.Bounds.Radius, 0, _halfWidth, Colors.AOE);
         }
     }
 
@@ -77,12 +77,12 @@ class TrailOfCondemnation(BossModule module) : BossComponent(module)
         // draw all raid members, to simplify positioning
         foreach (var player in Raid.WithoutSlot().Exclude(pc))
         {
-            bool inRange = player.Position.InCircle(pc.Position, _aoeRadius);
-            Arena.Actor(player, inRange ? ArenaColor.PlayerInteresting : ArenaColor.PlayerGeneric);
+            var inRange = player.Position.InCircle(pc.Position, _aoeRadius);
+            Arena.Actor(player, inRange ? Colors.PlayerInteresting : Colors.PlayerGeneric);
         }
 
         // draw circle around pc
-        Arena.AddCircle(pc.Position, _aoeRadius, ArenaColor.Danger);
+        Arena.AddCircle(pc.Position, _aoeRadius, Colors.Danger);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

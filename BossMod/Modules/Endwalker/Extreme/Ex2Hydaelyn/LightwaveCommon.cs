@@ -36,6 +36,6 @@ class LightwaveCommon(BossModule module) : Components.CastCounter(module, Action
         var dist = toBlock.Length();
         var center = Angle.FromDirection(toBlock);
         var halfAngle = Angle.Asin(_losRadius / dist);
-        Arena.ZoneCone(origin, dist, 40, center, halfAngle, ArenaColor.SafeFromAOE);
+        Arena.ZoneCone(origin, dist, 40, center, halfAngle, Colors.SafeFromAOE);
     }
 }

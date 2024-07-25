@@ -51,7 +51,7 @@ public abstract class BossModule : IDisposable
         // execute callbacks for existing state
         foreach (var actor in WorldState.Actors)
         {
-            bool nonPlayer = actor.Type is not ActorType.Player and not ActorType.Pet and not ActorType.Chocobo and not ActorType.Buddy;
+            var nonPlayer = actor.Type is not ActorType.Player and not ActorType.Pet and not ActorType.Chocobo and not ActorType.Buddy;
             if (nonPlayer)
             {
                 comp.OnActorCreated(actor);
@@ -60,7 +60,7 @@ public abstract class BossModule : IDisposable
             }
             if (actor.Tether.ID != 0)
                 comp.OnTethered(actor, actor.Tether);
-            for (int i = 0; i < actor.Statuses.Length; ++i)
+            for (var i = 0; i < actor.Statuses.Length; ++i)
                 if (actor.Statuses[i].ID != 0)
                     comp.OnStatusGain(actor, actor.Statuses[i]);
         }
@@ -68,7 +68,7 @@ public abstract class BossModule : IDisposable
 
     public void DeactivateComponent<T>() where T : BossComponent
     {
-        int count = _components.RemoveAll(x => x is T);
+        var count = _components.RemoveAll(x => x is T);
         if (count == 0)
             ReportError(null, $"State {StateMachine.ActiveState?.ID:X}: Could not find a component of type {typeof(T)} to deactivate");
     }
@@ -173,7 +173,7 @@ public abstract class BossModule : IDisposable
 
         // draw borders
         if (WindowConfig.ShowBorder)
-            Arena.Border(haveRisks && WindowConfig.ShowBorderRisk ? ArenaColor.Enemy : ArenaColor.Border);
+            Arena.Border(haveRisks && WindowConfig.ShowBorderRisk ? Colors.Enemy : Colors.Border);
         if (WindowConfig.ShowCardinals)
             Arena.CardinalNames();
         if (WindowConfig.ShowWaymarks)
@@ -189,7 +189,7 @@ public abstract class BossModule : IDisposable
 
         // draw enemies & player
         DrawEnemies(pcSlot, pc);
-        Arena.Actor(pc, ArenaColor.PC, true);
+        Arena.Actor(pc, Colors.PC, true);
     }
 
     public BossComponent.TextHints CalculateHintsForRaidMember(int slot, Actor actor)
@@ -248,7 +248,7 @@ public abstract class BossModule : IDisposable
     // called at the very end to draw important enemies, default implementation draws primary actor
     protected virtual void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor, Colors.Enemy);
     }
 
     private void DrawGlobalHints(BossComponent.GlobalHints hints)
@@ -265,9 +265,9 @@ public abstract class BossModule : IDisposable
 
     private void DrawPlayerHints(BossComponent.TextHints hints)
     {
-        foreach ((var hint, bool risk) in hints)
+        foreach ((var hint, var risk) in hints)
         {
-            ImGui.PushStyleColor(ImGuiCol.Text, risk ? ArenaColor.Danger : ArenaColor.Safe);
+            ImGui.PushStyleColor(ImGuiCol.Text, risk ? Colors.Danger : Colors.Safe);
             ImGui.TextUnformatted(hint);
             ImGui.PopStyleColor();
             ImGui.SameLine();
@@ -277,14 +277,14 @@ public abstract class BossModule : IDisposable
 
     private void DrawWaymarks()
     {
-        DrawWaymark(WorldState.Waymarks[Waymark.A], "A", 0xff964ee5);
-        DrawWaymark(WorldState.Waymarks[Waymark.B], "B", 0xff11a2c6);
-        DrawWaymark(WorldState.Waymarks[Waymark.C], "C", 0xffe29f30);
-        DrawWaymark(WorldState.Waymarks[Waymark.D], "D", 0xffbc567a);
-        DrawWaymark(WorldState.Waymarks[Waymark.N1], "1", 0xff964ee5);
-        DrawWaymark(WorldState.Waymarks[Waymark.N2], "2", 0xff11a2c6);
-        DrawWaymark(WorldState.Waymarks[Waymark.N3], "3", 0xffe29f30);
-        DrawWaymark(WorldState.Waymarks[Waymark.N4], "4", 0xffbc567a);
+        DrawWaymark(WorldState.Waymarks[Waymark.A], "A", Colors.WaymarkA);
+        DrawWaymark(WorldState.Waymarks[Waymark.B], "B", Colors.WaymarkB);
+        DrawWaymark(WorldState.Waymarks[Waymark.C], "C", Colors.WaymarkC);
+        DrawWaymark(WorldState.Waymarks[Waymark.D], "D", Colors.WaymarkD);
+        DrawWaymark(WorldState.Waymarks[Waymark.N1], "1", Colors.Waymark1);
+        DrawWaymark(WorldState.Waymarks[Waymark.N2], "2", Colors.Waymark2);
+        DrawWaymark(WorldState.Waymarks[Waymark.N3], "3", Colors.Waymark3);
+        DrawWaymark(WorldState.Waymarks[Waymark.N4], "4", Colors.Waymark4);
     }
 
     private void DrawWaymark(Vector3? pos, string text, uint color)
@@ -292,7 +292,7 @@ public abstract class BossModule : IDisposable
         if (pos != null)
         {
             if (WindowConfig.ShowOutlinesAndShadows)
-                Arena.TextWorld(new(pos.Value.XZ()), text, 0xFF000000, 25);
+                Arena.TextWorld(new(pos.Value.XZ()), text, Colors.Shadows, 25);
             Arena.TextWorld(new(pos.Value.XZ()), text, color, 22);
         }
     }
@@ -309,10 +309,10 @@ public abstract class BossModule : IDisposable
             {
                 color = prio switch
                 {
-                    BossComponent.PlayerPriority.Interesting => ArenaColor.PlayerInteresting,
-                    BossComponent.PlayerPriority.Danger => ArenaColor.Danger,
-                    BossComponent.PlayerPriority.Critical => ArenaColor.Vulnerable, // TODO: select some better color...
-                    _ => ArenaColor.PlayerGeneric
+                    BossComponent.PlayerPriority.Interesting => Colors.PlayerInteresting,
+                    BossComponent.PlayerPriority.Danger => Colors.Danger,
+                    BossComponent.PlayerPriority.Critical => Colors.Vulnerable,
+                    _ => Colors.PlayerGeneric
                 };
             }
             Arena.Actor(player, color);
@@ -411,7 +411,7 @@ public abstract class BossModule : IDisposable
 
     private void OnActorEAnim(Actor actor, ushort p1, ushort p2)
     {
-        uint state = ((uint)p1 << 16) | p2;
+        var state = ((uint)p1 << 16) | p2;
         foreach (var comp in _components)
             comp.OnActorEAnim(actor, state);
     }

@@ -66,7 +66,7 @@ public struct NavigationDecision
         // TODO: skip pathfinding if there are no forbidden zones, just find closest point in circle/cone...
 
         var imminent = ImminentExplosionTime(ws.CurrentTime);
-        int numImminentZones = hints.ForbiddenZones.FindIndex(z => z.activation > imminent);
+        var numImminentZones = hints.ForbiddenZones.FindIndex(z => z.activation > imminent);
         if (numImminentZones < 0)
             numImminentZones = hints.ForbiddenZones.Count;
 
@@ -82,14 +82,14 @@ public struct NavigationDecision
                 if (!inside)
                     AddBlockerZone(ctx.Map, imminent, zf.activation, zf.shapeDistance, forbiddenZoneCushion);
 
-            bool inImminentForbiddenZone = inZone.Take(numImminentZones).Any(inside => inside);
+            var inImminentForbiddenZone = inZone.Take(numImminentZones).Any(inside => inside);
             if (!inImminentForbiddenZone)
             {
                 ctx.Map2.Init(ctx.Map, ctx.Map.Center);
                 foreach (var (zf, inside) in hints.ForbiddenZones.Zip(inZone))
                     if (inside)
                         AddBlockerZone(ctx.Map2, imminent, zf.activation, zf.shapeDistance, forbiddenZoneCushion);
-                int maxGoal = targetPos != null ? AddTargetGoal(ctx.Map2, targetPos.Value, targetRadius, targetRot, positional, 0) : 0;
+                var maxGoal = targetPos != null ? AddTargetGoal(ctx.Map2, targetPos.Value, targetRadius, targetRot, positional, 0) : 0;
                 var res = FindPathFromUnsafe(ctx.ThetaStar, ctx.Map2, player.Position, 0, maxGoal, targetPos, targetRot, positional, playerSpeed);
                 if (res != null)
                     return res.Value;
@@ -119,12 +119,12 @@ public struct NavigationDecision
                 hints.Bounds.PathfindMap(ctx.Map, hints.Center);
                 foreach (var (shape, activation) in hints.ForbiddenZones)
                     AddBlockerZone(ctx.Map, imminent, activation, shape, forbiddenZoneCushion);
-                int maxGoal = AddTargetGoal(ctx.Map, targetPos.Value, targetRadius, targetRot, Positional.Any, 0);
+                var maxGoal = AddTargetGoal(ctx.Map, targetPos.Value, targetRadius, targetRot, Positional.Any, 0);
                 if (maxGoal != 0)
                 {
                     // try to find a path to target
                     ctx.ThetaStar.Start(ctx.Map, maxGoal, player.Position, 1.0f / playerSpeed);
-                    int res = ctx.ThetaStar.Execute();
+                    var res = ctx.ThetaStar.Execute();
                     if (res >= 0)
                         return new() { Destination = GetFirstWaypoint(ctx.ThetaStar, res), LeewaySeconds = float.MaxValue, TimeToGoal = ctx.ThetaStar.NodeByIndex(res).GScore, Map = ctx.Map, MapGoal = maxGoal, DecisionType = Decision.SafeToUptime };
                 }
@@ -148,7 +148,7 @@ public struct NavigationDecision
                 return new() { Destination = null, LeewaySeconds = float.MaxValue, TimeToGoal = 0, Map = ctx.Map, MapGoal = maxGoal, DecisionType = Decision.SafeBlocked };
             }
 
-            bool inPositional = positional switch
+            var inPositional = positional switch
             {
                 Positional.Flank => MathF.Abs(targetRot.ToDirection().Dot((targetPos.Value - player.Position).Normalized())) < 0.7071067f,
                 Positional.Rear => targetRot.ToDirection().Dot((targetPos.Value - player.Position).Normalized()) < -0.7071068f,
@@ -162,12 +162,12 @@ public struct NavigationDecision
                 ctx.Map.BlockPixelsInside(ShapeDistance.InvertedCircle(targetPos.Value, targetRadius), 0, 0);
                 foreach (var (shape, activation) in hints.ForbiddenZones)
                     AddBlockerZone(ctx.Map, imminent, activation, shape, forbiddenZoneCushion);
-                int maxGoal = AddPositionalGoal(ctx.Map, targetPos.Value, targetRadius, targetRot, positional, 0);
+                var maxGoal = AddPositionalGoal(ctx.Map, targetPos.Value, targetRadius, targetRot, positional, 0);
                 if (maxGoal > 0)
                 {
                     // try to find a path to quadrant
                     ctx.ThetaStar.Start(ctx.Map, maxGoal, player.Position, 1.0f / playerSpeed);
-                    int res = ctx.ThetaStar.Execute();
+                    var res = ctx.ThetaStar.Execute();
                     if (res >= 0)
                     {
                         var dest = IncreaseDestinationPrecision(GetFirstWaypoint(ctx.ThetaStar, res), targetPos, targetRot, positional);
@@ -275,7 +275,7 @@ public struct NavigationDecision
         {
             // try finding path to flanking position
             pathfind.Start(map, maxGoal, startPos, 1.0f / speed);
-            int res = pathfind.Execute();
+            var res = pathfind.Execute();
             if (res >= 0)
             {
                 var dest = IncreaseDestinationPrecision(GetFirstWaypoint(pathfind, res), targetPos, targetRot, positional);
@@ -288,7 +288,7 @@ public struct NavigationDecision
         {
             // try finding path to uptime position
             pathfind.Start(map, maxGoal, startPos, 1.0f / speed);
-            int res = pathfind.Execute();
+            var res = pathfind.Execute();
             if (res >= 0)
                 return new() { Destination = GetFirstWaypoint(pathfind, res), LeewaySeconds = pathfind.NodeByIndex(res).PathLeeway, TimeToGoal = pathfind.NodeByIndex(res).GScore, Map = map, MapGoal = maxGoal, DecisionType = Decision.UnsafeToUptime };
             --maxGoal;
@@ -298,7 +298,7 @@ public struct NavigationDecision
         {
             // try finding path to any safe spot
             pathfind.Start(map, maxGoal, startPos, 1.0f / speed);
-            int res = pathfind.Execute();
+            var res = pathfind.Execute();
             if (res >= 0)
                 return new() { Destination = GetFirstWaypoint(pathfind, res), LeewaySeconds = pathfind.NodeByIndex(res).PathLeeway, TimeToGoal = pathfind.NodeByIndex(res).GScore, Map = map, MapGoal = maxGoal, DecisionType = Decision.UnsafeToSafe };
         }
@@ -309,7 +309,7 @@ public struct NavigationDecision
     public static NavigationDecision FindPathFromImminent(ThetaStar pathfind, Map map, WPos startPos, float speed = 6)
     {
         pathfind.Start(map, 0, startPos, 1.0f / speed);
-        int res = pathfind.Execute();
+        var res = pathfind.Execute();
         if (res >= 0)
         {
             return new() { Destination = GetFirstWaypoint(pathfind, res), LeewaySeconds = 0, TimeToGoal = pathfind.NodeByIndex(res).GScore, Map = map, MapGoal = 0, DecisionType = Decision.ImminentToSafe };
@@ -330,7 +330,7 @@ public struct NavigationDecision
         do
         {
             ref var node = ref pf.NodeByIndex(cell);
-            int parent = pf.CellIndex(node.ParentX, node.ParentY);
+            var parent = pf.CellIndex(node.ParentX, node.ParentY);
             if (pf.NodeByIndex(parent).GScore == 0)
                 return pf.CellCenter(cell);
             cell = parent;

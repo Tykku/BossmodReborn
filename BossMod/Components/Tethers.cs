@@ -14,7 +14,7 @@ public class TankbusterTether(BossModule module, ActionID aid, uint tetherID, fl
     public override void Update()
     {
         _inAnyAOE = new();
-        foreach (int slot in _tetheredPlayers.SetBits())
+        foreach (var slot in _tetheredPlayers.SetBits())
         {
             var target = Raid[slot];
             if (target != null)
@@ -70,11 +70,11 @@ public class TankbusterTether(BossModule module, ActionID aid, uint tetherID, fl
         foreach (var side in _tethers)
         {
             if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddLine(side.Enemy.Position, side.Player.Position, 0xFF000000, 2);
-            Arena.AddLine(side.Enemy.Position, side.Player.Position, side.Player.Role == Role.Tank ? ArenaColor.Safe : ArenaColor.Danger);
+                Arena.AddLine(side.Enemy.Position, side.Player.Position, Colors.Shadows, 2);
+            Arena.AddLine(side.Enemy.Position, side.Player.Position, side.Player.Role == Role.Tank ? Colors.Safe : Colors.Danger);
             if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddCircle(side.Player.Position, Radius, 0xFF000000, 2);
-            Arena.AddCircle(side.Player.Position, Radius, ArenaColor.Danger);
+                Arena.AddCircle(side.Player.Position, Radius, Colors.Shadows, 2);
+            Arena.AddCircle(side.Player.Position, Radius, Colors.Danger);
         }
     }
 
@@ -150,8 +150,8 @@ public class InterceptTether(BossModule module, ActionID aid, uint tetherID) : C
         foreach (var side in _tethers)
         {
             if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddLine(side.Enemy.Position, side.Player.Position, 0xFF000000, 2);
-            Arena.AddLine(side.Enemy.Position, side.Player.Position, side.Player.Type is ActorType.Player or ActorType.Buddy ? ArenaColor.Safe : ArenaColor.Danger);
+                Arena.AddLine(side.Enemy.Position, side.Player.Position, Colors.Shadows, 2);
+            Arena.AddLine(side.Enemy.Position, side.Player.Position, side.Player.Type is ActorType.Player or ActorType.Buddy ? Colors.Safe : Colors.Danger);
         }
     }
 
@@ -281,9 +281,9 @@ public class StretchTetherDuo(BossModule module, uint tetherIDBad, uint tetherID
         if (!IsImmune(pcSlot, ActiveBaits.FirstOrDefault(x => x.Target == pc).Activation))
         {
             if (IsTether(pc, TIDBad))
-                DrawTetherLines(pc, ArenaColor.Danger);
+                DrawTetherLines(pc, Colors.Danger);
             else if (IsTether(pc, TIDGood))
-                DrawTetherLines(pc, ArenaColor.Safe);
+                DrawTetherLines(pc, Colors.Safe);
         }
     }
 

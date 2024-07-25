@@ -40,8 +40,8 @@ class KegExplosion(BossModule module) : Components.GenericStackSpread(module)
         foreach (var p in Module.Enemies(OID.Keg).Where(x => !x.IsDead))
         {
             if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddCircle(p.Position, 10, 0xFF000000, 2);
-            Arena.AddCircle(p.Position, 10, ArenaColor.Danger);
+                Arena.AddCircle(p.Position, 10, Colors.Shadows, 2);
+            Arena.AddCircle(p.Position, 10, Colors.Danger);
         }
     }
 
@@ -90,10 +90,8 @@ public class Stage18Act2 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        foreach (var s in Enemies(OID.Boss))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Keg))
-            Arena.Actor(s, ArenaColor.Object);
+        Arena.Actors(Enemies(OID.Boss));
+        Arena.Actors(Enemies(OID.Keg), Colors.Object);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

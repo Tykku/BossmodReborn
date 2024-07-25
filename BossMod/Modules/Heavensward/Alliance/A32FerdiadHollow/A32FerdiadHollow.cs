@@ -34,7 +34,7 @@ public class A32FerdiadHollow(WorldState ws, Actor primary) : BossModule(ws, pri
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.FerdiadsFool), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.FerdiadsFool));
     }
 }

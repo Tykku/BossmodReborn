@@ -82,7 +82,7 @@ public class StateMachine(List<StateMachine.Phase> phases)
         _curTime = now;
         while (ActivePhase != null)
         {
-            bool transition = ActivePhase.Update?.Invoke() ?? false;
+            var transition = ActivePhase.Update?.Invoke() ?? false;
             if (!transition)
                 break;
             Service.Log($"[StateMachine] Phase transition from {ActivePhaseIndex} '{ActivePhase.Name}', time={TimeSincePhaseEnter:f2}");

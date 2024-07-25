@@ -78,7 +78,7 @@ class CrimsonStreak(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_casters.Count > 0)
-            yield return new(_casters[0].shape, _casters[0].source, _casters[0].direction, _casters[0].activation, ArenaColor.Danger);
+            yield return new(_casters[0].shape, _casters[0].source, _casters[0].direction, _casters[0].activation, Colors.Danger);
         if (_casters.Count > 1)
             yield return new(_casters[1].shape, _casters[1].source, _casters[1].direction, _casters[1].activation);
     }
@@ -112,19 +112,19 @@ class Eruption2(BossModule module) : Components.GenericAOEs(module)
         if (NumCasts < 10)
         {
             if (NumCasts < 6 ? _casters.Count > 2 : _casters.Count > 3)
-                for (int i = 0; NumCasts < 6 ? i < 3 : i < 4; ++i)
-                    yield return new(circle, _casters[i].position, default, _casters[i].activation, ArenaColor.Danger);
+                for (var i = 0; NumCasts < 6 ? i < 3 : i < 4; ++i)
+                    yield return new(circle, _casters[i].position, default, _casters[i].activation, Colors.Danger);
             if (NumCasts < 3 ? _casters.Count > 5 : _casters.Count > 6)
-                for (int i = 3; NumCasts < 3 ? i < 6 : i < 7; ++i)
+                for (var i = 3; NumCasts < 3 ? i < 6 : i < 7; ++i)
                     yield return new(circle, _casters[i].position, default, _casters[i].activation);
         }
         if (NumCasts >= 10)
         {
             if (_casters.Count > 3)
-                for (int i = 0; _casters.Count > 6 ? i < 4 : i < 6; ++i)
-                    yield return new(circle, _casters[i].position, default, _casters[i].activation, ArenaColor.Danger);
+                for (var i = 0; _casters.Count > 6 ? i < 4 : i < 6; ++i)
+                    yield return new(circle, _casters[i].position, default, _casters[i].activation, Colors.Danger);
             if (_casters.Count > 7)
-                for (int i = 4; _casters.Count > 10 ? i < 8 : i < 10; ++i)
+                for (var i = 4; _casters.Count > 10 ? i < 8 : i < 10; ++i)
                     yield return new(circle, _casters[i].position, default, _casters[i].activation);
         }
     }
@@ -180,7 +180,7 @@ class BurningStrike(BossModule module) : BossComponent(module)
     {
         var defendtargetable = Module.Enemies(OID.DefendClive).FirstOrDefault(x => x.IsTargetable);
         if (defendtargetable != null)
-            Arena.AddCircle(defendtargetable.Position, 1.4f, ArenaColor.Safe);
+            Arena.AddCircle(defendtargetable.Position, 1.4f, Colors.Safe);
     }
 }
 
@@ -217,12 +217,9 @@ public class InfernalShadow(WorldState ws, Actor primary) : BossModule(ws, prima
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Clive))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.InfernalSword))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.DefendClive))
-            Arena.Actor(s, ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Clive), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.InfernalSword));
+        Arena.Actors(Enemies(OID.DefendClive), Colors.Object);
     }
 }

@@ -180,7 +180,7 @@ class SoullessStreamFireBlizzardCombo(BossModule module) : Components.GenericAOE
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = ArenaColor.Danger };
+            yield return _aoes[0] with { Color = Colors.Danger };
         if (_aoes.Count > 1)
             yield return _aoes[1] with { Risky = false };
     }

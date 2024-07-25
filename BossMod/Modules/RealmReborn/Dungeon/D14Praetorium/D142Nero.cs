@@ -70,8 +70,7 @@ public class D142Nero(WorldState ws, Actor primary) : BossModule(ws, primary, ne
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var claw in Enemies(OID.MagitekDeathClaw))
-            Arena.Actor(claw, ArenaColor.Danger);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.MagitekDeathClaw), Colors.Danger);
     }
 }

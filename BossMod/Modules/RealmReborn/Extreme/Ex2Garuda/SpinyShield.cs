@@ -25,6 +25,6 @@ class SpinyShield(BossModule module) : BossComponent(module)
     {
         var shield = ActiveShield;
         if (shield != null)
-            Arena.ZoneCircle(shield.Position, _radius, ArenaColor.SafeFromAOE);
+            Arena.ZoneCircle(shield.Position, _radius, Colors.SafeFromAOE);
     }
 }

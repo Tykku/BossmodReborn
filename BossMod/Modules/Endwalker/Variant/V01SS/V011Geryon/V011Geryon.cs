@@ -50,8 +50,8 @@ public class V011Geryon(WorldState ws, Actor primary) : BossModule(ws, primary, 
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.PowderKegRed), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.PowderKegBlue), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.PowderKegRed));
+        Arena.Actors(Enemies(OID.PowderKegBlue));
     }
 }

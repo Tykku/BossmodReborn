@@ -49,7 +49,7 @@ class Shatter(BossModule module) : Components.GenericAOEs(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var s in _crystals)
-            Arena.Actor(s, ArenaColor.Object, true);
+            Arena.Actor(s, Colors.Object, true);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

@@ -71,7 +71,7 @@ class Geocrush(BossModule module) : Components.GenericAOEs(module, ActionID.Make
     {
         if (spell.Action == WatchedAction)
         {
-            float outerRadius = ++_currentCast switch
+            var outerRadius = ++_currentCast switch
             {
                 1 => 23,
                 2 => 20,

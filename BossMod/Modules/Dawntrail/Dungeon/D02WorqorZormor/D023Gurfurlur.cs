@@ -106,7 +106,7 @@ class AuraSphere(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var orb in ActiveOrbs)
-            Arena.AddCircle(orb.Position, 1.4f, ArenaColor.Safe);
+            Arena.AddCircle(orb.Position, 1.4f, Colors.Safe);
     }
 }
 
@@ -152,16 +152,16 @@ class Allfire(BossModule module) : Components.GenericAOEs(module)
         {
             if (_aoesWave1.Count > 0)
                 foreach (var a in _aoesWave1)
-                    yield return new(a.Shape, a.Origin, a.Rotation, a.Activation, ArenaColor.Danger);
+                    yield return new(a.Shape, a.Origin, a.Rotation, a.Activation, Colors.Danger);
             if (_aoesWave2.Count > 0)
                 foreach (var a in _aoesWave2)
-                    yield return new(a.Shape, a.Origin, a.Rotation, a.Activation, _aoesWave1.Count > 0 ? ArenaColor.AOE : ArenaColor.Danger, _aoesWave1.Count == 0);
+                    yield return new(a.Shape, a.Origin, a.Rotation, a.Activation, _aoesWave1.Count > 0 ? Colors.AOE : Colors.Danger, _aoesWave1.Count == 0);
             if (_aoesWave1.Count == 0 && _aoesWave3.Count > 0)
                 foreach (var a in _aoesWave3)
-                    yield return new(a.Shape, a.Origin, a.Rotation, a.Activation, _aoesWave2.Count > 0 ? ArenaColor.AOE : ArenaColor.Danger, _aoesWave2.Count == 0);
+                    yield return new(a.Shape, a.Origin, a.Rotation, a.Activation, _aoesWave2.Count > 0 ? Colors.AOE : Colors.Danger, _aoesWave2.Count == 0);
         }
         else if ((_aoesWave3.Count > 0 || _aoesWave1.Count > 0) && (source != default || Module.FindComponent<GreatFlood>()!.Data.Item3 > Module.WorldState.CurrentTime))
-            yield return new(safespot, data.Item1, data.Item2, data.Item3, ArenaColor.SafeFromAOE);
+            yield return new(safespot, data.Item1, data.Item2, data.Item3, Colors.SafeFromAOE);
 
     }
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

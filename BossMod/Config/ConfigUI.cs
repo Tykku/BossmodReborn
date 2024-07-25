@@ -90,10 +90,15 @@ public sealed class ConfigUI : IDisposable
         { "follow name", "Follows the specified party member by name." },
         { "ui", "Toggles the AI menu." },
         { "forbidactions", "Toggles the forbidding of actions. (only for autorotation)" },
+        { "forbidactions on/off", "Sets forbid actions to on or off. (only for autorotation)" },
         { "forbidmovement", "Toggles the forbidding of movement." },
+        { "forbidmovement on/off", "Sets forbid movement to on or off." },
         { "followcombat", "Toggles following during combat." },
+        { "followcombat on/off", "Sets following following during combat to on or off." },
         { "followmodule", "Toggles following during active boss module." },
+        { "followmodule on/off", "Sets following following during active boss module to on or off." },
         { "followoutofcombat", "Toggles following during out of combat." },
+        { "followoutofcombat on/off", "Sets following target out of combat to on or off." },
         { "followtarget", "Toggles following targets during combat." },
         { "followtarget on/off", "Sets following target during combat to on or off." },
         { "positional X", "Switch to positional when following targets. (any, rear, flank, front)" },
@@ -113,6 +118,7 @@ public sealed class ConfigUI : IDisposable
     private static readonly Dictionary<string, string> _availableOtherCommands = new()
     {
         { "restorerotation", "Toggle restore character orientation after action use setting." },
+        { "resetcolors", "Resets all colors to their default values." },
         { "d", "Opens the debug menu." },
         { "r", "Opens the replay menu." },
         { "gc", "Triggers the garbage collection." },
@@ -327,7 +333,7 @@ public sealed class ConfigUI : IDisposable
     private static bool DrawProperty(string label, ConfigNode node, FieldInfo member, Color[] v)
     {
         var modified = false;
-        for (int i = 0; i < v.Length; ++i)
+        for (var i = 0; i < v.Length; ++i)
         {
             var col = v[i].ToFloat4();
             if (ImGui.ColorEdit4($"{label} {i}", ref col, ImGuiColorEditFlags.PickerHueWheel))
@@ -357,11 +363,11 @@ public sealed class ConfigUI : IDisposable
                 ImGui.TableSetupColumn("----");
                 ImGui.TableSetupColumn("Name");
                 ImGui.TableHeadersRow();
-                for (int i = 0; i < (int)PartyRolesConfig.Assignment.Unassigned; ++i)
+                for (var i = 0; i < (int)PartyRolesConfig.Assignment.Unassigned; ++i)
                 {
                     var r = (PartyRolesConfig.Assignment)i;
                     ImGui.TableNextRow();
-                    for (int c = 0; c < group.Names.Length; ++c)
+                    for (var c = 0; c < group.Names.Length; ++c)
                     {
                         ImGui.TableNextColumn();
                         if (ImGui.RadioButton($"###{r}:{c}", v[r] == c))
@@ -377,7 +383,7 @@ public sealed class ConfigUI : IDisposable
                         modified = true;
                     }
 
-                    string name = r.ToString();
+                    var name = r.ToString();
                     if (assignments.Length > 0)
                         name += $" ({ws.Party[assignments[i]]?.Name})";
                     ImGui.TableNextColumn();
@@ -395,7 +401,7 @@ public sealed class ConfigUI : IDisposable
         {
             if (ImGui.MenuItem(preset.Name))
             {
-                for (int i = 0; i < preset.Preset.Length; ++i)
+                for (var i = 0; i < preset.Preset.Length; ++i)
                     v.Assignments[i] = preset.Preset[i];
                 node.Modified.Fire();
             }

@@ -11,8 +11,8 @@ public class A11BoneDragon(WorldState ws, Actor primary) : BossModule(ws, primar
     private static readonly ArenaBoundsComplex arena = new([new Circle(new(-450, 30), 15), new Rectangle(new(-450, 0), 20, 10, 90.Degrees())]);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Platinal), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.RottingEye), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Platinal));
+        Arena.Actors(Enemies(OID.RottingEye));
     }
 }

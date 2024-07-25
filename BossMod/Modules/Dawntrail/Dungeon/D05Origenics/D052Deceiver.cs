@@ -191,7 +191,7 @@ class SurgeHint(BossModule module) : Components.GenericAOEs(module)
         var activeSafeWalls = Module.FindComponent<Surge>()!.ActiveSafeWalls;
         if (component)
             foreach (var w in activeSafeWalls)
-                yield return new(rect, new(Module.Center.X, w.Vertex1.Z - 5), w.Vertex1.X == -187.5f ? -90.Degrees() : 90.Degrees(), default, ArenaColor.SafeFromAOE, false);
+                yield return new(rect, new(Module.Center.X, w.Vertex1.Z - 5), w.Vertex1.X == -187.5f ? -90.Degrees() : 90.Degrees(), default, Colors.SafeFromAOE, false);
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -230,10 +230,8 @@ public class D052Deceiver(WorldState ws, Actor primary) : BossModule(ws, primary
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.OrigenicsSentryG92))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.OrigenicsSentryG91))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.OrigenicsSentryG92));
+        Arena.Actors(Enemies(OID.OrigenicsSentryG91));
     }
 }

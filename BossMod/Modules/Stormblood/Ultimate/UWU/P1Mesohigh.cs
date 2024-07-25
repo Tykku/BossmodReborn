@@ -13,8 +13,8 @@ class P1Mesohigh(BossModule module) : Components.CastCounter(module, ActionID.Ma
             var tetherTarget = WorldState.Actors.Find(s.Tether.Target);
             if (tetherTarget != null)
             {
-                Arena.AddLine(s.Position, tetherTarget.Position, ArenaColor.Danger);
-                Arena.AddCircle(tetherTarget.Position, _radius, ArenaColor.Danger);
+                Arena.AddLine(s.Position, tetherTarget.Position, Colors.Danger);
+                Arena.AddCircle(tetherTarget.Position, _radius, Colors.Danger);
             }
         }
     }

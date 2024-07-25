@@ -39,15 +39,8 @@ class D052ForgivenApathyStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 659, NameID = 8267)]
-public class D052ForgivenApathy : BossModule
+public class D052ForgivenApathy(WorldState ws, Actor primary) : BossModule(ws, primary, primary.Position.Z > -106 ? arena2.Center : arena1.Center, primary.Position.Z > -106 ? arena2 : arena1)
 {
-    public D052ForgivenApathy(WorldState ws, Actor primary) : base(ws, primary, primary.Position.Z > -106 ? arena2.Center : arena1.Center, primary.Position.Z > -106 ? arena2 : arena1)
-    {
-        ForgivenPrejudice = Enemies(OID.ForgivenPrejudice);
-        ForgivenExtortion = Enemies(OID.ForgivenExtortion);
-        ForgivenConformity = Enemies(OID.ForgivenConformity);
-    }
-
     private static readonly List<WPos> arenacoords1 = [new(21, -215.1f), new(16.3f, -213.2f), new(9.8f, -208.8f), new(4.4f, -206.3f), new(0.2f, -204.8f), new(-9.6f, -202.8f), new(-10, -202.5f),
     new(-10.7f, -201.9f), new(-11.5f, -201.4f), new(-13.2f, -200.9f), new(-8.1f, -186.8f), new(-3.7f, -188.5f), new(-1.9f, -188.7f), new(2.5f, -190f), new(9.3f, -193.5f), new(18.8f, -198.8f),
     new(27.1f, -203.2f)];
@@ -59,15 +52,11 @@ public class D052ForgivenApathy : BossModule
     public static readonly ArenaBoundsComplex arena1 = new([new PolygonCustom(arenacoords1)]);
     public static readonly ArenaBoundsComplex arena2 = new([new PolygonCustom(arenacoords2)]);
 
-    public readonly IReadOnlyList<Actor> ForgivenPrejudice;
-    public readonly IReadOnlyList<Actor> ForgivenExtortion;
-    public readonly IReadOnlyList<Actor> ForgivenConformity;
-
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(ForgivenPrejudice, ArenaColor.Enemy);
-        Arena.Actors(ForgivenConformity, ArenaColor.Enemy);
-        Arena.Actors(ForgivenExtortion, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.ForgivenPrejudice));
+        Arena.Actors(Enemies(OID.ForgivenExtortion));
+        Arena.Actors(Enemies(OID.ForgivenConformity));
     }
 }

@@ -27,7 +27,7 @@ class AetherialLight(BossModule module) : Components.SelfTargetedAOEs(module, Ac
 {
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        return ActiveCasters.Select((c, i) => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), (NumCasts > 2 && i < 2) ? ArenaColor.Danger : ArenaColor.AOE));
+        return ActiveCasters.Select((c, i) => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), (NumCasts > 2 && i < 2) ? Colors.Danger : Colors.AOE));
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -59,8 +59,8 @@ public class Lampas(WorldState ws, Actor primary) : BossModule(ws, primary, new(
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.BonusAddLampas), ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BonusAddLampas), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

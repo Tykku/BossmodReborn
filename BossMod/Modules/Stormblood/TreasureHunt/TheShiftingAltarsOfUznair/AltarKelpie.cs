@@ -4,14 +4,14 @@ public enum OID : uint
 {
     Boss = 0x2537, //R=5.4
     Hydrosphere = 0x255B, //R=1.2
-    BossHelper = 0x233C,
-    BonusAddAltarMatanga = 0x2545, // R3.420
-    BonusAddGoldWhisker = 0x2544, // R0.540
-    AltarQueen = 0x254A, // R0.840, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
-    AltarGarlic = 0x2548, // R0.840, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
-    AltarTomato = 0x2549, // R0.840, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
-    AltarOnion = 0x2546, // R0.840, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
-    AltarEgg = 0x2547, // R0.840, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    BonusAddAltarMatanga = 0x2545, // R3.42
+    BonusAddGoldWhisker = 0x2544, // R0.54
+    AltarQueen = 0x254A, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
+    AltarGarlic = 0x2548, // R0.84, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
+    AltarTomato = 0x2549, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
+    AltarOnion = 0x2546, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
+    AltarEgg = 0x2547, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -34,7 +34,7 @@ public enum AID : uint
     TearyTwirl = 6448, // AltarOnion->self, 3.5s cast, range 6+R circle
     Pollen = 6452, // AltarQueen->self, 3.5s cast, range 6+R circle
     HeirloomScream = 6451, // AltarTomato->self, 3.5s cast, range 6+R circle
-    Telega = 9630, // BonusAdds->self, no cast, single-target, bonus adds disappear
+    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
 class Innocence(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Innocence), 5);
@@ -115,21 +115,14 @@ public class Kelpie(WorldState ws, Actor primary) : BossModule(ws, primary, new(
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BonusAddGoldWhisker))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.BonusAddAltarMatanga))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.AltarEgg))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.AltarTomato))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.AltarQueen))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.AltarGarlic))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.AltarOnion))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.AltarEgg), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.AltarTomato), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.AltarQueen), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.AltarGarlic), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.AltarOnion), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.BonusAddAltarMatanga), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.BonusAddGoldWhisker), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

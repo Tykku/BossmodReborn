@@ -58,20 +58,13 @@ public class D062Bellwether(WorldState ws, Actor primary) : BossModule(ws, prima
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.TerminusRoiler))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.TerminusShriver))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.TerminusFlesher))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.TerminusDetonator))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.TerminusBeholder))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.TerminusCrier))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.TerminusSprinter))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.TerminusRoiler));
+        Arena.Actors(Enemies(OID.TerminusShriver));
+        Arena.Actors(Enemies(OID.TerminusFlesher));
+        Arena.Actors(Enemies(OID.TerminusDetonator));
+        Arena.Actors(Enemies(OID.TerminusBeholder));
+        Arena.Actors(Enemies(OID.TerminusCrier));
+        Arena.Actors(Enemies(OID.TerminusSprinter));
     }
 }

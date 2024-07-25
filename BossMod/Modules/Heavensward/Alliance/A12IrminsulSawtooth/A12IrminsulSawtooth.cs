@@ -32,8 +32,8 @@ public class A12IrminsulSawtooth(WorldState ws, Actor primary) : BossModule(ws, 
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actor(_sawtooth, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.ArkKed), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actor(_sawtooth);
+        Arena.Actors(Enemies(OID.ArkKed));
     }
 }

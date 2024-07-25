@@ -18,8 +18,8 @@ public class A33ProtoUltima(WorldState ws, Actor primary) : BossModule(ws, prima
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.AllaganDreadnaught), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.AetherCollector), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.AllaganDreadnaught));
+        Arena.Actors(Enemies(OID.AetherCollector));
     }
 }

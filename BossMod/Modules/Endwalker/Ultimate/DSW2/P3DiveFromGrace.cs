@@ -8,7 +8,7 @@ class P3Geirskogul(BossModule module) : Components.SelfTargetedAOEs(module, Acti
     {
         foreach (var p in _predicted)
         {
-            Arena.Actor(p, ArenaColor.Object, true);
+            Arena.Actor(p, Colors.Object, true);
             var target = Raid.WithoutSlot().Closest(p.Position);
             if (target != null)
                 Shape.Outline(Arena, p.Position, Angle.FromDirection(target.Position - p.Position));
@@ -41,7 +41,7 @@ class P3GnashAndLash(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        (AOEShape? first, AOEShape? second) = (AID)spell.Action.ID switch
+        (var first, var second) = (AID)spell.Action.ID switch
         {
             AID.GnashAndLash => (_aoeGnash, _aoeLash),
             AID.LashAndGnash => (_aoeLash, _aoeGnash),
@@ -117,7 +117,7 @@ class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionI
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
         foreach (var s in SafeSpots(slot))
-            movementHints.Add(actor.Position, s, ArenaColor.Safe);
+            movementHints.Add(actor.Position, s, Colors.Safe);
     }
 
     public override void AddGlobalHints(GlobalHints hints)
@@ -139,14 +139,14 @@ class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionI
         foreach (var (slot, player) in Raid.WithSlot(true).WhereSlot(i => _playerStates[i].JumpOrder == baitOrder))
         {
             var pos = player.Position + _playerStates[slot].JumpDirection * player.Rotation.ToDirection() * _towerOffset;
-            Arena.AddCircle(pos, Radius, ArenaColor.Object);
+            Arena.AddCircle(pos, Radius, Colors.Object);
             if (slot == pcSlot)
-                Arena.AddLine(pc.Position, pos, ArenaColor.Object);
+                Arena.AddLine(pc.Position, pos, Colors.Object);
         }
 
         // safe spots
         foreach (var s in SafeSpots(pcSlot))
-            Arena.AddCircle(s, 1, ArenaColor.Safe);
+            Arena.AddCircle(s, 1, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -205,7 +205,7 @@ class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionI
 
     private void AssignJumpOrder(Actor actor, int order)
     {
-        int slot = Raid.FindSlot(actor.InstanceID);
+        var slot = Raid.FindSlot(actor.InstanceID);
         if (slot >= 0)
         {
             _playerStates[slot].JumpOrder = order;
@@ -216,7 +216,7 @@ class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionI
     private void AssignJumpDirection(Actor actor, int direction)
     {
         _haveDirections = true;
-        int slot = Raid.FindSlot(actor.InstanceID);
+        var slot = Raid.FindSlot(actor.InstanceID);
         if (slot >= 0)
         {
             _playerStates[slot].JumpDirection = direction;

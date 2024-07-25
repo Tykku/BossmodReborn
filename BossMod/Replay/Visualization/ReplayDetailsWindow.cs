@@ -230,7 +230,7 @@ class ReplayDetailsWindow : UIWindow
         var posX = actor.Position.X;
         var posZ = actor.Position.Z;
         var rot = actor.Rotation.Deg;
-        bool modified = false;
+        var modified = false;
         ImGui.TableNextColumn();
         modified |= ImGui.DragFloat("###X", ref posX, 0.25f, 80, 120);
         ImGui.TableNextColumn();
@@ -243,7 +243,7 @@ class ReplayDetailsWindow : UIWindow
         ImGui.TableNextColumn();
         if (actor.HPMP.MaxHP > 0)
         {
-            float frac = Math.Min((float)(actor.HPMP.CurHP + actor.HPMP.Shield) / actor.HPMP.MaxHP, 1);
+            var frac = Math.Min((float)(actor.HPMP.CurHP + actor.HPMP.Shield) / actor.HPMP.MaxHP, 1);
             ImGui.ProgressBar(frac, new(ImGui.GetColumnWidth(), 0), $"{frac * 100:f1}% ({actor.HPMP.CurHP} + {actor.HPMP.Shield} / {actor.HPMP.MaxHP})");
         }
 
@@ -288,12 +288,12 @@ class ReplayDetailsWindow : UIWindow
         ImGui.TableSetupColumn("Statuses", ImGuiTableColumnFlags.None, 100);
         ImGui.TableSetupColumn("Hints", ImGuiTableColumnFlags.None, 250);
         ImGui.TableHeadersRow();
-        foreach ((int slot, var player) in _player.WorldState.Party.WithSlot(true))
+        foreach ((var slot, var player) in _player.WorldState.Party.WithSlot(true))
         {
             ImGui.PushID((int)player.InstanceID);
             ImGui.TableNextRow();
 
-            bool isPOV = _povSlot == slot;
+            var isPOV = _povSlot == slot;
             ImGui.TableNextColumn();
             if (ImGui.Checkbox("###POV", ref isPOV) && isPOV)
             {
@@ -310,7 +310,7 @@ class ReplayDetailsWindow : UIWindow
             if (_mgr.ActiveModule != null)
             {
                 var hints = _mgr.ActiveModule.CalculateHintsForRaidMember(slot, player);
-                foreach ((var hint, bool risk) in hints)
+                foreach ((var hint, var risk) in hints)
                 {
                     ImGui.PushStyleColor(ImGuiCol.Text, risk ? 0xff00ffff : 0xff00ff00);
                     ImGui.TextUnformatted(hint);
@@ -409,7 +409,7 @@ class ReplayDetailsWindow : UIWindow
         }
         _pfVisu.Draw(_pfTree);
 
-        bool rebuild = false;
+        var rebuild = false;
         //rebuild |= ImGui.SliderFloat("Zone cushion", ref _pfCushion, 0.1f, 5);
         rebuild |= ImGui.SliderFloat("Ability range", ref _pfTargetRadius, 3, 25);
         rebuild |= UICombo.Enum("Ability positional", ref _pfPositional);

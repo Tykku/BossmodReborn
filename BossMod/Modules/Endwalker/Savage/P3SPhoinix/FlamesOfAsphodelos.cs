@@ -17,17 +17,17 @@ class FlamesOfAsphodelos(BossModule module) : BossComponent(module)
     {
         if (_directions[0] != null)
         {
-            DrawZone(_directions[0], ArenaColor.Danger);
-            DrawZone(_directions[1], ArenaColor.AOE);
+            DrawZone(_directions[0], Colors.Danger);
+            DrawZone(_directions[1], Colors.AOE);
         }
         else if (_directions[1] != null)
         {
-            DrawZone(_directions[1], ArenaColor.Danger);
-            DrawZone(_directions[2], ArenaColor.AOE);
+            DrawZone(_directions[1], Colors.Danger);
+            DrawZone(_directions[2], Colors.AOE);
         }
         else
         {
-            DrawZone(_directions[2], ArenaColor.Danger);
+            DrawZone(_directions[2], Colors.Danger);
         }
     }
 

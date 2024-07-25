@@ -17,7 +17,7 @@ public class Ex2Lakshmi : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(DreamingKshatriya, ArenaColor.Enemy);
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(DreamingKshatriya);
     }
 }

@@ -18,7 +18,7 @@ class P2BroadSwing(BossModule module) : Components.GenericAOEs(module, ActionID.
         };
         if (rot != default)
         {
-            _aoes.Add(new(_aoe, caster.Position, spell.Rotation + rot, Module.CastFinishAt(spell, 0.8f), ArenaColor.Danger));
+            _aoes.Add(new(_aoe, caster.Position, spell.Rotation + rot, Module.CastFinishAt(spell, 0.8f), Colors.Danger));
             _aoes.Add(new(_aoe, caster.Position, spell.Rotation - rot, Module.CastFinishAt(spell, 1.8f)));
             _aoes.Add(new(_aoe, caster.Position, spell.Rotation + 180.Degrees(), Module.CastFinishAt(spell, 2.8f)));
         }
@@ -32,7 +32,7 @@ class P2BroadSwing(BossModule module) : Components.GenericAOEs(module, ActionID.
             if (_aoes.Count > 0)
                 _aoes.RemoveAt(0);
             if (_aoes.Count > 0)
-                _aoes.AsSpan()[0].Color = ArenaColor.Danger;
+                _aoes.AsSpan()[0].Color = Colors.Danger;
         }
     }
 }

@@ -51,7 +51,7 @@ class StateTransitionTimings
                 }
 
                 var enter = enc.Time.Start;
-                for (int i = 0; i < enc.States.Count; ++i)
+                for (var i = 0; i < enc.States.Count; ++i)
                 {
                     var from = enc.States[i];
                     _metrics[from.ID].Transitions.GetOrAdd(i < enc.States.Count - 1 ? enc.States[i + 1].ID : uint.MaxValue).Instances.Add(new TransitionMetric((from.Exit - enter).TotalSeconds, replay, enc, enter));
@@ -98,14 +98,14 @@ class StateTransitionTimings
                 var name = $"{from.Name} -> {destName}";
                 var value = $"avg={kv.Value.AvgTime:f2}-{from.ExpectedTime:f2}={kv.Value.AvgTime - from.ExpectedTime:f2} +- {kv.Value.StdDev:f2}, [{kv.Value.MinTime:f2}, {kv.Value.MaxTime:f2}] range, {kv.Value.Instances.Count} seen";
                 //bool warn = from.ExpectedTime < Math.Round(m.MinTime, 1) || from.ExpectedTime > Math.Round(m.MaxTime, 1);
-                bool warn = Math.Abs(from.ExpectedTime - kv.Value.AvgTime) > Math.Ceiling(kv.Value.StdDev * 10) / 10;
+                var warn = Math.Abs(from.ExpectedTime - kv.Value.AvgTime) > Math.Ceiling(kv.Value.StdDev * 10) / 10;
                 return new($"{name}: {value}###{name}", false, warn ? 0xff00ffff : 0xffffffff);
             }
             foreach (var (toID, m) in tree.Nodes(from.Transitions, map, kv => TransitionContextMenu(from, kv.Key, kv.Value, tree, ref actions), select: kv => _selected = kv.Value))
             {
                 foreach (var inst in m.Instances)
                 {
-                    bool warn = Math.Abs(inst.Duration - m.AvgTime) > m.StdDev;
+                    var warn = Math.Abs(inst.Duration - m.AvgTime) > m.StdDev;
                     tree.LeafNode($"{inst.Duration:f2}: {LocationString(inst.Replay, inst.Encounter, inst.Time)}", warn ? 0xff00ffff : 0xffffffff, () => TransitionInstanceContextMenu(from, toID, m, inst, ref actions), select: () => _selected = inst);
                 }
             }

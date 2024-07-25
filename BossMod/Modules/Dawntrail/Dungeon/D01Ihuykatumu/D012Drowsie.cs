@@ -81,7 +81,7 @@ public class D012Drowsie(WorldState ws, Actor primary) : BossModule(ws, primary,
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
         Arena.Actors(Enemies(OID.Mimiclot1));
         Arena.Actors(Enemies(OID.Mimiclot2));
         Arena.Actors(Enemies(OID.Mimiclot3));

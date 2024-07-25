@@ -41,10 +41,11 @@ class Axioma(BossModule module) : Components.GenericAOEs(module)
     private static readonly List<Shape> union = [shapeCustom1, shapeCustom2, shapeCustom3, shapeCustom4, shapeCustom5, shapeCustom6];
     private static readonly AOEShapeCustom risky = new(union);
     private static readonly AOEShapeCustom notRisky = new(union, InvertForbiddenZone: true);
+
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (active)
-            yield return new(ShouldBeInZone ? notRisky : risky, Module.Arena.Center, Color: ShouldBeInZone ? ArenaColor.SafeFromAOE : ArenaColor.AOE);
+            yield return new(ShouldBeInZone ? notRisky : risky, Module.Arena.Center, Color: ShouldBeInZone ? Colors.SafeFromAOE : Colors.AOE);
     }
 
     public override void OnEventEnvControl(byte index, uint state)

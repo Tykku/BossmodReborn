@@ -16,8 +16,8 @@ class RadiantRhythm(BossModule module) : Components.GenericAOEs(module)
         // assumption: we always have 4 moves
         if (NumCasts < 8)
         {
-            yield return new(_shape, Module.Center, _nextAngle, _activation, ArenaColor.Danger);
-            yield return new(_shape, Module.Center, _nextAngle + 180.Degrees(), _activation, ArenaColor.Danger);
+            yield return new(_shape, Module.Center, _nextAngle, _activation, Colors.Danger);
+            yield return new(_shape, Module.Center, _nextAngle + 180.Degrees(), _activation, Colors.Danger);
         }
         if (NumCasts < 6)
         {

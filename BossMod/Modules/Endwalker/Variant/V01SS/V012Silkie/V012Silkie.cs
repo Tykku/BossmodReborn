@@ -40,7 +40,7 @@ class EasternEwers(BossModule module) : Components.Exaflare(module, 4)
     {
         if ((AID)spell.Action.ID is AID.BrimOver or AID.Rinse)
         {
-            int index = Lines.FindIndex(item => Math.Abs(item.Next.X - caster.Position.X) < 1);
+            var index = Lines.FindIndex(item => Math.Abs(item.Next.X - caster.Position.X) < 1);
             if (index == -1)
             {
                 ReportError($"Failed to find entry for {caster.InstanceID:X}");

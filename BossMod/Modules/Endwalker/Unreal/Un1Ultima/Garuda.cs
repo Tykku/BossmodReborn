@@ -39,8 +39,8 @@ class Garuda(BossModule module) : BossComponent(module)
         var adjPos = _vulcanBurstImminent ? Arena.ClampToBounds(Components.Knockback.AwayFromSource(pc.Position, _mistralSong, 30)) : pc.Position;
         if (adjPos != pc.Position)
         {
-            Arena.AddLine(pc.Position, adjPos, ArenaColor.Danger);
-            Arena.Actor(adjPos, 0.Degrees(), ArenaColor.Danger);
+            Arena.AddLine(pc.Position, adjPos, Colors.Danger);
+            Arena.Actor(adjPos, 0.Degrees(), Colors.Danger);
         }
     }
 

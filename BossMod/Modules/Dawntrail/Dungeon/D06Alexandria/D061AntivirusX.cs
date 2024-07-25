@@ -67,7 +67,7 @@ class PathoCircuitCrossPurge(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = _aoes.Count > 1 ? ArenaColor.Danger : ArenaColor.AOE };
+            yield return _aoes[0] with { Color = _aoes.Count > 1 ? Colors.Danger : Colors.AOE };
         if (_aoes.Count > 1)
         {
             var isDonuts = _aoes[0].Shape == donut && _aoes[1].Shape == donut;

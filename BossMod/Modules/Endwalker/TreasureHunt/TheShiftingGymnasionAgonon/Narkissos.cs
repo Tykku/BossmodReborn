@@ -83,7 +83,7 @@ class SapShower : Components.LocationTargetedAOEs
 {
     public SapShower(BossModule module) : base(module, ActionID.MakeSpell(AID.SapShower2), 8)
     {
-        Color = ArenaColor.Danger;
+        Color = Colors.Danger;
     }
 }
 
@@ -118,9 +118,9 @@ public class Narkissos(WorldState ws, Actor primary) : BossModule(ws, primary, n
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.BonusAddLampas), ArenaColor.Vulnerable);
-        Arena.Actors(Enemies(OID.BonusAddLyssa), ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BonusAddLampas), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.BonusAddLyssa), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

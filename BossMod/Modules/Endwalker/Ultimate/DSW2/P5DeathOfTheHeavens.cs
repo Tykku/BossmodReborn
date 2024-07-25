@@ -78,7 +78,7 @@ class P5DeathOfTheHeavensHeavensflame(BossModule module) : Components.Knockback(
         if (Raid.WithSlot().Exclude(actor).WhereSlot(s => _playerAdjustedPositions[s].InCircle(actorAdjPos, _aoeRadius)).Any())
             hints.Add("Spread!");
 
-        int partner = FindTetheredPartner(slot);
+        var partner = FindTetheredPartner(slot);
         if (partner >= 0 && _playerAdjustedPositions[partner].InCircle(actorAdjPos, _tetherBreakDistance))
             hints.Add("Aim to break tether!");
     }
@@ -96,16 +96,16 @@ class P5DeathOfTheHeavensHeavensflame(BossModule module) : Components.Knockback(
             return;
 
         foreach (var hint in PositionHints(pcSlot))
-            Arena.AddCircle(hint, 1, ArenaColor.Safe);
+            Arena.AddCircle(hint, 1, Colors.Safe);
 
-        int partner = FindTetheredPartner(pcSlot);
+        var partner = FindTetheredPartner(pcSlot);
         if (partner >= 0)
-            Arena.AddLine(pc.Position, Raid[partner]!.Position, ArenaColor.Safe);
+            Arena.AddLine(pc.Position, Raid[partner]!.Position, Colors.Safe);
 
         DrawKnockback(pc, _playerAdjustedPositions[pcSlot], Arena);
 
         foreach (var (slot, _) in Raid.WithSlot().Exclude(pc))
-            Arena.AddCircle(_playerAdjustedPositions[slot], _aoeRadius, ArenaColor.Danger);
+            Arena.AddCircle(_playerAdjustedPositions[slot], _aoeRadius, Colors.Danger);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -138,7 +138,7 @@ class P5DeathOfTheHeavensHeavensflame(BossModule module) : Components.Knockback(
 
     public override void OnEventIcon(Actor actor, uint iconID)
     {
-        int icon = (IconID)iconID switch
+        var icon = (IconID)iconID switch
         {
             IconID.HeavensflameCircle => 1,
             IconID.HeavensflameTriangle => 2,
@@ -160,7 +160,7 @@ class P5DeathOfTheHeavensHeavensflame(BossModule module) : Components.Knockback(
             return -1;
         if (_playerIcons[slot] == 0)
             return -1;
-        for (int i = 0; i < _playerIcons.Length; ++i)
+        for (var i = 0; i < _playerIcons.Length; ++i)
             if (i != slot && _playerIcons[i] == _playerIcons[slot])
                 return i;
         return -1;

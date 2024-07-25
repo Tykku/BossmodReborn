@@ -71,8 +71,7 @@ public class Stage13Act2 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Succubus))
-            Arena.Actor(s, ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Succubus), Colors.Object);
     }
 }

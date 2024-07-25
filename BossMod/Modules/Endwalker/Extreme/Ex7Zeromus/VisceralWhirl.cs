@@ -64,7 +64,7 @@ class BondsOfDarkness(BossModule module) : BossComponent(module)
     {
         var partner = Raid[_partners[pcSlot]];
         if (partner != null)
-            Arena.AddLine(pc.Position, partner.Position, ArenaColor.Danger);
+            Arena.AddLine(pc.Position, partner.Position, Colors.Danger);
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)

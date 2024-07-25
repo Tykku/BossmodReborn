@@ -96,17 +96,17 @@ class WreathOfThorns4(BossModule module) : BossComponent(module)
             return;
         var nextAOE = NextAOE();
         if (nextAOE != null)
-            Arena.ZoneCircle(nextAOE.Position, P4S2.WreathAOERadius, ArenaColor.AOE);
+            Arena.ZoneCircle(nextAOE.Position, P4S2.WreathAOERadius, Colors.AOE);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         // draw other players
-        foreach ((int slot, var player) in Raid.WithSlot().Exclude(pc))
+        foreach ((var slot, var player) in Raid.WithSlot().Exclude(pc))
         {
             var icon = _playerIcons[slot];
-            bool nextBreaking = _doneTowers < 4 ? icon == IconID.AkanthaiWater : (icon == IconID.AkanthaiDark && NextAOE()?.Tether.Target == player.InstanceID);
-            Arena.Actor(player, nextBreaking ? ArenaColor.Danger : ArenaColor.PlayerGeneric);
+            var nextBreaking = _doneTowers < 4 ? icon == IconID.AkanthaiWater : (icon == IconID.AkanthaiDark && NextAOE()?.Tether.Target == player.InstanceID);
+            Arena.Actor(player, nextBreaking ? Colors.Danger : Colors.PlayerGeneric);
         }
 
         // tether
@@ -122,23 +122,23 @@ class WreathOfThorns4(BossModule module) : BossComponent(module)
             if (pcIcon == IconID.AkanthaiWater)
             {
                 // if player has blue => show AOE radius around him and single safe spot
-                Arena.AddCircle(pc.Position, _waterExplosionRange, ArenaColor.Danger);
-                Arena.AddCircle(DetermineWaterSafeSpot(pcTetherSource), 1, ArenaColor.Safe);
+                Arena.AddCircle(pc.Position, _waterExplosionRange, Colors.Danger);
+                Arena.AddCircle(DetermineWaterSafeSpot(pcTetherSource), 1, Colors.Safe);
             }
             else
             {
                 // if player has dark => show AOE radius around blue players and single tower to soak
-                for (int i = 0; i < _playerIcons.Length; ++i)
+                for (var i = 0; i < _playerIcons.Length; ++i)
                 {
                     if (_playerIcons[i] == IconID.AkanthaiWater && Raid[i] is var player && player != null)
                     {
-                        Arena.AddCircle(player.Position, _waterExplosionRange, ArenaColor.Danger);
+                        Arena.AddCircle(player.Position, _waterExplosionRange, Colors.Danger);
                     }
                 }
                 var tower = DetermineTowerToSoak(pcTetherSource);
                 if (tower != null)
                 {
-                    Arena.AddCircle(tower.Position, P4S2.WreathTowerRadius, ArenaColor.Safe);
+                    Arena.AddCircle(tower.Position, P4S2.WreathTowerRadius, Colors.Safe);
                 }
             }
         }
@@ -198,21 +198,21 @@ class WreathOfThorns4(BossModule module) : BossComponent(module)
 
     private WPos DetermineWaterSafeSpot(Actor source)
     {
-        bool ccw = Service.Config.Get<P4S2Config>().Act4WaterBreakCCW;
+        var ccw = Service.Config.Get<P4S2Config>().Act4WaterBreakCCW;
         var dir = (ccw ? -3 : 3) * 45.Degrees();
         return RotateCW(source.Position, dir, 18);
     }
 
     private Actor? DetermineTowerToSoak(Actor source)
     {
-        bool ccw = Service.Config.Get<P4S2Config>().Act4DarkSoakCCW;
+        var ccw = Service.Config.Get<P4S2Config>().Act4DarkSoakCCW;
         var pos = RotateCW(source.Position, (ccw ? -1 : 1) * 45.Degrees(), 18);
         return _playerTetherSource.Where(x => x != null && x.Position.InCircle(pos, 4)).FirstOrDefault();
     }
 
     private Actor? NextAOE()
     {
-        int nextIndex = Math.Max(0, 4 - _activeTethers);
+        var nextIndex = Math.Max(0, 4 - _activeTethers);
         return _darkOrder != null && nextIndex < _darkOrder.Count ? _darkOrder[nextIndex] : null;
     }
 }

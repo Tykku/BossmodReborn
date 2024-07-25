@@ -10,8 +10,8 @@ class A23Headstone(WorldState ws, Actor primary) : BossModule(ws, primary, arena
     private static readonly ArenaBoundsComplex arena = new([new Circle(new(-168, 225), 20), new Circle(new(-152.53f, 252.76f), 20), new Circle(new(-184.63f, 197.09f), 20)]);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Parthenope), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.VoidFire), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Parthenope));
+        Arena.Actors(Enemies(OID.VoidFire));
     }
 }

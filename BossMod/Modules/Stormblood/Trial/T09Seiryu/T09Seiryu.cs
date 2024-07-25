@@ -105,10 +105,8 @@ public class T09Seiryu(WorldState ws, Actor primary) : BossModule(ws, primary, n
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.DoroNoShiki))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.NumaNoShiki))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.DoroNoShiki));
+        Arena.Actors(Enemies(OID.NumaNoShiki));
     }
 }

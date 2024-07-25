@@ -150,7 +150,7 @@ public sealed class LegacyWAR : LegacyModule
         };
 
         // TODO: refactor all that, it's kinda senseless now
-        WAR.AID gcd = GetNextBestGCD(strategy, aoe);
+        var gcd = GetNextBestGCD(strategy, aoe);
         PushResult(gcd, primaryTarget);
 
         ActionID ogcd = default;
@@ -305,11 +305,11 @@ public sealed class LegacyWAR : LegacyModule
                     // - if next GCD could give us >50 gauge, we'd need one more GCD to cast FC (which would also reduce cd by extra 5 seconds), so add 7.5s
                     // - if IR is imminent, we delay infuriate now, cast some GCD that gives us >50 gauge, we'd need to cast 3xFCs, which would add extra 22.5s
                     // - if IR is active, we delay infuriate now, we might need to spend remaining GCDs on FCs, which would add extra N * 7.5s
-                    float maxInfuriateCD = _state.GCD + 2.5f;
-                    int gaugeCap = _state.ComboLastMove == WAR.AID.None ? 50 : (_state.ComboLastMove == WAR.AID.HeavySwing ? 40 : 30);
+                    var maxInfuriateCD = _state.GCD + 2.5f;
+                    var gaugeCap = _state.ComboLastMove == WAR.AID.None ? 50 : (_state.ComboLastMove == WAR.AID.HeavySwing ? 40 : 30);
                     if (_state.Gauge > gaugeCap)
                         maxInfuriateCD += 7.5f;
-                    bool irImminent = _state.CD(WAR.AID.InnerRelease) < _state.GCD + 2.5;
+                    var irImminent = _state.CD(WAR.AID.InnerRelease) < _state.GCD + 2.5;
                     maxInfuriateCD += (irImminent ? 3 : _state.InnerReleaseStacks) * 7.5f;
                     if (_state.CD(WAR.AID.Infuriate) <= maxInfuriateCD)
                         return true;
@@ -431,7 +431,7 @@ public sealed class LegacyWAR : LegacyModule
                     return false; // forbidden due to _state flags
                 if (_state.SurgingTempestLeft <= _state.AnimationLock)
                     return false; // delay until ST, even if overcapping charges
-                float chargeCapIn = _state.CD(WAR.AID.Onslaught) - (_state.Unlocked(WAR.TraitID.EnhancedOnslaught) ? 0 : 30);
+                var chargeCapIn = _state.CD(WAR.AID.Onslaught) - (_state.Unlocked(WAR.TraitID.EnhancedOnslaught) ? 0 : 30);
                 if (chargeCapIn < _state.GCD + 2.5)
                     return true; // if we won't onslaught now, we risk overcapping charges
                 if (strategy != OnslaughtStrategy.NoReserve && _state.CD(WAR.AID.Onslaught) > 30 + _state.AnimationLock)
@@ -467,24 +467,24 @@ public sealed class LegacyWAR : LegacyModule
         if (strategyGCD == GCDStrategy.PenultimateComboThenSpend && _state.ComboLastMove != WAR.AID.Maim && _state.ComboLastMove != WAR.AID.Overpower && (_state.ComboLastMove != WAR.AID.HeavySwing || _state.Gauge <= 90))
             return aoe ? WAR.AID.Overpower : _state.ComboLastMove == WAR.AID.HeavySwing ? WAR.AID.Maim : WAR.AID.HeavySwing;
         // forced gauge spender
-        bool canUseFC = _state.Gauge >= 50 || _state.InnerReleaseStacks > 0 && _state.Unlocked(WAR.AID.InnerRelease);
+        var canUseFC = _state.Gauge >= 50 || _state.InnerReleaseStacks > 0 && _state.Unlocked(WAR.AID.InnerRelease);
         if (strategyGCD == GCDStrategy.ForceSpend && canUseFC)
             return GetNextFCAction(aoe);
 
         // forbid automatic PR when out of melee range, to avoid fucking up player positioning when avoiding mechanics
-        float primalRendWindow = (strategyPR == OffensiveStrategy.Delay || _state.RangeToTarget > 3) ? 0 : MathF.Min(_state.PrimalRendLeft, _state.PositionLockIn);
-        float primalRuinationWindow = _state.PrimalRuinationLeft; // TODO: reconsider
+        var primalRendWindow = (strategyPR == OffensiveStrategy.Delay || _state.RangeToTarget > 3) ? 0 : MathF.Min(_state.PrimalRendLeft, _state.PositionLockIn);
+        var primalRuinationWindow = _state.PrimalRuinationLeft; // TODO: reconsider
         var irCD = _state.CD(_state.Unlocked(WAR.AID.InnerRelease) ? WAR.AID.InnerRelease : WAR.AID.Berserk);
 
-        bool spendGauge = ShouldSpendGauge(strategyGCD, aoe);
+        var spendGauge = ShouldSpendGauge(strategyGCD, aoe);
         if (!_state.Unlocked(WAR.AID.InnerRelease))
             spendGauge &= irCD > 5; // TODO: improve...
 
         // 1. if it is the last CD possible for PR/NC, don't waste them
-        bool aggressive = false; // TODO: strategy? or don't care?
-        float gcdDelay = _state.GCD + (aggressive ? 0 : 2.5f);
-        float secondGCDIn = gcdDelay + 2.5f;
-        float thirdGCDIn = gcdDelay + 5f;
+        var aggressive = false; // TODO: strategy? or don't care?
+        var gcdDelay = _state.GCD + (aggressive ? 0 : 2.5f);
+        var secondGCDIn = gcdDelay + 2.5f;
+        var thirdGCDIn = gcdDelay + 5f;
         if (primalRendWindow > _state.GCD && primalRendWindow < secondGCDIn)
             return WAR.AID.PrimalRend;
         if (primalRuinationWindow > _state.GCD && primalRuinationWindow < secondGCDIn)
@@ -500,7 +500,7 @@ public sealed class LegacyWAR : LegacyModule
             if (_state.Unlocked(WAR.AID.InnerRelease))
             {
                 // only consider not casting FC action if delaying won't cost IR stack
-                int fcCastsLeft = _state.InnerReleaseStacks;
+                var fcCastsLeft = _state.InnerReleaseStacks;
                 if (_state.NascentChaosLeft > _state.GCD)
                     ++fcCastsLeft;
                 if (_state.InnerReleaseLeft <= _state.GCD + fcCastsLeft * 2.5f)
@@ -581,7 +581,7 @@ public sealed class LegacyWAR : LegacyModule
     {
         // 0. onslaught as a gap-filler - this should be used asap even if we're delaying GCD, since otherwise we'll probably end up delaying it even more
         var strategyOnslaught = strategy.Option(Track.Onslaught).As<OnslaughtStrategy>();
-        bool wantOnslaught = _state.Unlocked(WAR.AID.Onslaught) && _state.TargetingEnemy && ShouldUseOnslaught(strategyOnslaught);
+        var wantOnslaught = _state.Unlocked(WAR.AID.Onslaught) && _state.TargetingEnemy && ShouldUseOnslaught(strategyOnslaught);
         if (wantOnslaught && _state.RangeToTarget > 3)
             return ActionID.MakeSpell(WAR.AID.Onslaught);
 
@@ -616,7 +616,7 @@ public sealed class LegacyWAR : LegacyModule
             return ActionID.MakeSpell(WAR.AID.Infuriate);
 
         // 5. onslaught, if surging tempest up and not forbidden
-        bool onslaughtHeadroom = true; // TODO: customize via strategy?..
+        var onslaughtHeadroom = true; // TODO: customize via strategy?..
         if (wantOnslaught && _state.CanWeave(_state.CD(WAR.AID.Onslaught) - 60, onslaughtHeadroom ? 0.8f : 0.6f, deadline))
             return ActionID.MakeSpell(WAR.AID.Onslaught);
 

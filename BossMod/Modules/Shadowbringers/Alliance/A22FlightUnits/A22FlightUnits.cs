@@ -36,8 +36,8 @@ public class A22FlightUnits(WorldState ws, Actor primary) : BossModule(ws, prima
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actor(_beta, ArenaColor.Enemy);
-        Arena.Actor(_chi, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actor(_beta);
+        Arena.Actor(_chi);
     }
 }

@@ -46,7 +46,7 @@ class ElevateAndEviscerateHint(BossModule module) : Components.GenericAOEs(modul
         {
             var tiles = Module.FindComponent<ArenaChanges>()!.DamagedTiles;
             foreach (var t in tiles.OfType<Square>())
-                yield return new(rect, t.Center, Color: ArenaColor.FutureVulnerable, Risky: false);
+                yield return new(rect, t.Center, Color: Colors.FutureVulnerable, Risky: false);
         }
     }
 }

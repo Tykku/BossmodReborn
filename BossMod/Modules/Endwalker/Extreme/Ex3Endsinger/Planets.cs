@@ -46,8 +46,8 @@ class Planets(BossModule module) : BossComponent(module)
         if (_planetsAzure.Count > 0)
         {
             var offsetLocation = Components.Knockback.AwayFromSource(pc.Position, _planetsAzure[0], _knockbackDistance);
-            Arena.AddLine(pc.Position, offsetLocation, ArenaColor.Danger);
-            Arena.Actor(offsetLocation, pc.Rotation, ArenaColor.Danger);
+            Arena.AddLine(pc.Position, offsetLocation, Colors.Danger);
+            Arena.Actor(offsetLocation, pc.Rotation, Colors.Danger);
         }
     }
 
@@ -102,7 +102,7 @@ class Planets(BossModule module) : BossComponent(module)
     {
         var origin = Module.Center + _planetOffset * caster.Rotation.ToDirection();
         var planets = azure ? _planetsAzure : _planetsFiery;
-        int index = firstOfPair ? 0 : planets.Count;
+        var index = firstOfPair ? 0 : planets.Count;
         planets.Insert(index, origin);
     }
 }

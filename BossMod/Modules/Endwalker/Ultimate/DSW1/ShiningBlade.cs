@@ -24,7 +24,7 @@ class ShiningBladeKnockback(BossModule module) : Components.KnockbackFromCastTar
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         foreach (var p in _tears)
-            Arena.ZoneCircle(p.Position, _tearRadius, ArenaColor.AOE);
+            Arena.ZoneCircle(p.Position, _tearRadius, Colors.AOE);
     }
 }
 
@@ -112,7 +112,7 @@ class ShiningBladeExecution(BossModule module) : Components.CastCounter(module, 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (_target != null)
-            Arena.AddCircle(_target.Position, _executionRadius, ArenaColor.Danger);
+            Arena.AddCircle(_target.Position, _executionRadius, Colors.Danger);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

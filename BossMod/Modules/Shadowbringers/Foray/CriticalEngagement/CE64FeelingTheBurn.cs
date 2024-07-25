@@ -100,7 +100,7 @@ class ChainCannonEscort(BossModule module) : Components.GenericAOEs(module)
             var index = _casters.FindIndex(c => c.caster.Position.AlmostEqual(caster.Position, 1));
             if (index >= 0)
             {
-                int numCasts = _casters[index].numCasts + 1;
+                var numCasts = _casters[index].numCasts + 1;
                 if (numCasts >= 6)
                     _casters.RemoveAt(index);
                 else
@@ -176,6 +176,6 @@ public class CE64FeelingTheBurn : BossModule
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(Escorts, ArenaColor.Enemy);
+        Arena.Actors(Escorts, Colors.Enemy);
     }
 }

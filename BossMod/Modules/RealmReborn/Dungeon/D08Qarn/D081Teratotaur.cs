@@ -67,7 +67,7 @@ class MortalRay(BossModule module) : BossComponent(module)
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         if (_dooms[pcSlot])
-            _platformShape.Draw(Arena, ActivePlatform, ArenaColor.SafeFromAOE);
+            _platformShape.Draw(Arena, ActivePlatform, Colors.SafeFromAOE);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -119,8 +119,7 @@ public class D081Teratotaur(WorldState ws, Actor primary) : BossModule(ws, prima
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.DungWespe))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.DungWespe));
     }
 }

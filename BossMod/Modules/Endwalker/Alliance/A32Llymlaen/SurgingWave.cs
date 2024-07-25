@@ -26,8 +26,8 @@ public class SurgingWaveFrothingSea : Components.Exaflare
 {
     public SurgingWaveFrothingSea(BossModule module) : base(module, new AOEShapeRect(6, 20, 80))
     {
-        ImminentColor = ArenaColor.AOE;
-        FutureColor = ArenaColor.Danger;
+        ImminentColor = Colors.AOE;
+        FutureColor = Colors.Danger;
     }
 
     private static readonly Angle _rot1 = 90.Degrees();

@@ -58,7 +58,7 @@ class TurretTour(BossModule module) : Components.GenericAOEs(module)
         foreach (var c in _knights)
         {
             yield return new(rect, c.Position + 2 * c.Rotation.ToDirection(), c.Rotation);
-            yield return new(circle, c.Position, c.Rotation, Color: ArenaColor.Danger);
+            yield return new(circle, c.Position, c.Rotation, Color: Colors.Danger);
         }
     }
 
@@ -93,7 +93,7 @@ public class D043SerCharibert(WorldState ws, Actor primary) : BossModule(ws, pri
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.HolyFlame), ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.HolyFlame), Colors.Object);
     }
 }

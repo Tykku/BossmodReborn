@@ -82,9 +82,9 @@ class GoldChaser(BossModule module) : Components.GenericAOEs(module)
             if (_casters.Count > 2)
             {
                 if (NumCasts == 0)
-                    yield return new(rect, _casters[0].Position, default, _activation.AddSeconds(7.1f), ArenaColor.Danger);
+                    yield return new(rect, _casters[0].Position, default, _activation.AddSeconds(7.1f), Colors.Danger);
                 if (NumCasts is 0 or 1)
-                    yield return new(rect, _casters[1].Position, default, _activation.AddSeconds(7.6f), ArenaColor.Danger);
+                    yield return new(rect, _casters[1].Position, default, _activation.AddSeconds(7.6f), Colors.Danger);
             }
             if (_casters.Count > 4 && NumCasts is 0 or 1)
             {
@@ -94,9 +94,9 @@ class GoldChaser(BossModule module) : Components.GenericAOEs(module)
             if (_casters.Count > 4)
             {
                 if (NumCasts == 2)
-                    yield return new(rect, _casters[2].Position, default, _activation.AddSeconds(8.1f), ArenaColor.Danger);
+                    yield return new(rect, _casters[2].Position, default, _activation.AddSeconds(8.1f), Colors.Danger);
                 if (NumCasts is 2 or 3)
-                    yield return new(rect, _casters[3].Position, default, _activation.AddSeconds(8.6f), ArenaColor.Danger);
+                    yield return new(rect, _casters[3].Position, default, _activation.AddSeconds(8.6f), Colors.Danger);
             }
             if (_casters.Count == 6 && NumCasts is 2 or 3)
             {
@@ -106,9 +106,9 @@ class GoldChaser(BossModule module) : Components.GenericAOEs(module)
             if (_casters.Count == 6)
             {
                 if (NumCasts == 4)
-                    yield return new(rect, _casters[4].Position, default, _activation.AddSeconds(9.1f), ArenaColor.Danger);
+                    yield return new(rect, _casters[4].Position, default, _activation.AddSeconds(9.1f), Colors.Danger);
                 if (NumCasts is 4 or 5)
-                    yield return new(rect, _casters[5].Position, default, _activation.AddSeconds(11.1f), ArenaColor.Danger);
+                    yield return new(rect, _casters[5].Position, default, _activation.AddSeconds(11.1f), Colors.Danger);
             }
         }
         else if (AreCastersInPositions(positionsSet3) || AreCastersInPositions(positionsSet4))
@@ -116,9 +116,9 @@ class GoldChaser(BossModule module) : Components.GenericAOEs(module)
             if (_casters.Count > 2)
             {
                 if (NumCasts == 0)
-                    yield return new(rect, _casters[0].Position, default, _activation.AddSeconds(7.1f), ArenaColor.Danger);
+                    yield return new(rect, _casters[0].Position, default, _activation.AddSeconds(7.1f), Colors.Danger);
                 if (NumCasts is 0 or 1)
-                    yield return new(rect, _casters[1].Position, default, _activation.AddSeconds(7.1f), ArenaColor.Danger);
+                    yield return new(rect, _casters[1].Position, default, _activation.AddSeconds(7.1f), Colors.Danger);
             }
             if (_casters.Count > 4 && NumCasts is 0 or 1)
             {
@@ -128,9 +128,9 @@ class GoldChaser(BossModule module) : Components.GenericAOEs(module)
             if (_casters.Count > 4)
             {
                 if (NumCasts == 2)
-                    yield return new(rect, _casters[2].Position, default, _activation.AddSeconds(8.1f), ArenaColor.Danger);
+                    yield return new(rect, _casters[2].Position, default, _activation.AddSeconds(8.1f), Colors.Danger);
                 if (NumCasts is 2 or 3)
-                    yield return new(rect, _casters[3].Position, default, _activation.AddSeconds(8.1f), ArenaColor.Danger);
+                    yield return new(rect, _casters[3].Position, default, _activation.AddSeconds(8.1f), Colors.Danger);
             }
             if (_casters.Count == 6 && NumCasts is 2 or 3)
             {
@@ -140,9 +140,9 @@ class GoldChaser(BossModule module) : Components.GenericAOEs(module)
             if (_casters.Count == 6)
             {
                 if (NumCasts == 4)
-                    yield return new(rect, _casters[4].Position, default, _activation.AddSeconds(11.1f), ArenaColor.Danger);
+                    yield return new(rect, _casters[4].Position, default, _activation.AddSeconds(11.1f), Colors.Danger);
                 if (NumCasts is 4 or 5)
-                    yield return new(rect, _casters[5].Position, default, _activation.AddSeconds(11.1f), ArenaColor.Danger);
+                    yield return new(rect, _casters[5].Position, default, _activation.AddSeconds(11.1f), Colors.Danger);
             }
         }
     }
@@ -240,6 +240,6 @@ public class D055ForgivenObscenity(WorldState ws, Actor primary) : BossModule(ws
     public static readonly ArenaBounds arenaCircle = new ArenaBoundsCircle(15);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy, true);
+        Arena.Actor(PrimaryActor, Colors.Enemy, true);
     }
 }

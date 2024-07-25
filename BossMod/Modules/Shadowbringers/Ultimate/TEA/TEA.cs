@@ -64,21 +64,21 @@ public class TEA : BossModule
         {
             case -1:
             case 0:
-                Arena.Actor(BossP1(), ArenaColor.Enemy);
-                Arena.Actor(LiquidHand(), ArenaColor.Enemy);
+                Arena.Actor(BossP1());
+                Arena.Actor(LiquidHand());
                 break;
             case 1:
-                Arena.Actor(_bruteJustice, ArenaColor.Enemy, true);
-                Arena.Actor(_cruiseChaser, ArenaColor.Enemy, true);
+                Arena.Actor(_bruteJustice, Colors.Enemy, true);
+                Arena.Actor(_cruiseChaser, Colors.Enemy, true);
                 break;
             case 2:
-                Arena.Actor(_alexPrime, ArenaColor.Enemy);
-                Arena.Actor(TrueHeart(), ArenaColor.Enemy);
-                Arena.Actor(_bruteJustice, ArenaColor.Enemy);
-                Arena.Actor(_cruiseChaser, ArenaColor.Enemy);
+                Arena.Actor(_alexPrime);
+                Arena.Actor(TrueHeart());
+                Arena.Actor(_bruteJustice);
+                Arena.Actor(_cruiseChaser);
                 break;
             case 3:
-                Arena.Actor(_perfectAlex, ArenaColor.Enemy);
+                Arena.Actor(_perfectAlex);
                 break;
         }
     }

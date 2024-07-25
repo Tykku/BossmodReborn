@@ -62,18 +62,18 @@ class P4WaveCannonStack : BossComponent
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
         if (SafeDir(slot) is var safeDir && safeDir != default)
-            movementHints.Add(actor.Position, Module.Center + 12 * safeDir.ToDirection(), ArenaColor.Safe);
+            movementHints.Add(actor.Position, Module.Center + 12 * safeDir.ToDirection(), Colors.Safe);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (Imminent)
             foreach (var (_, p) in Raid.WithSlot(true).IncludedInMask(_targets))
-                _shape.Outline(Arena, Module.Center, Angle.FromDirection(p.Position - Module.Center), ArenaColor.Safe);
+                _shape.Outline(Arena, Module.Center, Angle.FromDirection(p.Position - Module.Center), Colors.Safe);
 
         var safeDir = SafeDir(pcSlot);
         if (safeDir != default)
-            Arena.AddCircle(Module.Center + 12 * safeDir.ToDirection(), 1, ArenaColor.Safe);
+            Arena.AddCircle(Module.Center + 12 * safeDir.ToDirection(), 1, Colors.Safe);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -96,7 +96,7 @@ class P4WaveCannonStack : BossComponent
     private void InitWestStack()
     {
         int e4 = -1, w4 = -1, maxTarget = -1;
-        for (int i = 0; i < _playerGroups.Length; ++i)
+        for (var i = 0; i < _playerGroups.Length; ++i)
         {
             var g = _playerGroups[i];
             if ((g & 1) == 0)

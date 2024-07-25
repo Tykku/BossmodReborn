@@ -26,13 +26,13 @@ class P6WrothFlames : Components.GenericAOEs
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
         if (ShowStartingSpot)
-            movementHints.Add(actor.Position, _startingSpot, ArenaColor.Safe);
+            movementHints.Add(actor.Position, _startingSpot, Colors.Safe);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (ShowStartingSpot)
-            Arena.AddCircle(_startingSpot, 1, ArenaColor.Safe);
+            Arena.AddCircle(_startingSpot, 1, Colors.Safe);
     }
 
     public override void OnActorCreated(Actor actor)
@@ -85,14 +85,14 @@ class P6SpreadingEntangledFlames(BossModule module) : Components.UniformStackSpr
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
         foreach (var p in SafeSpots(actor))
-            movementHints.Add(actor.Position, p, ArenaColor.Safe);
+            movementHints.Add(actor.Position, p, Colors.Safe);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
         foreach (var p in SafeSpots(pc))
-            Arena.AddCircle(p, 1, ArenaColor.Safe);
+            Arena.AddCircle(p, 1, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -129,7 +129,7 @@ class P6SpreadingEntangledFlames(BossModule module) : Components.UniformStackSpr
         if (_wingTail == null)
             yield break;
 
-        float z = Module.Center.Z + (_wingTail.NumAOEs != 1 ? 0 : _voidzonesNorth ? 10 : -10);
+        var z = Module.Center.Z + (_wingTail.NumAOEs != 1 ? 0 : _voidzonesNorth ? 10 : -10);
         if (IsSpreadTarget(actor))
         {
             yield return new WPos(Module.Center.X - 18, z);

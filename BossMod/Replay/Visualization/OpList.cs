@@ -34,7 +34,7 @@ class OpList(Replay replay, ModuleRegistry.Info? moduleInfo, IEnumerable<WorldSt
         if (!_nodesUpToDate)
         {
             _nodes.Clear();
-            int i = 0;
+            var i = 0;
             foreach (var op in ops)
             {
                 if (FilterOp(op))

@@ -107,13 +107,13 @@ public class T08ThornmarchH(WorldState ws, Actor primary) : BossModule(ws, prima
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.RuffletuftKuptaKapa), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.WoolywartKupquKogi), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.FurryfootKupliKipp), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.PuksiPikoTheShaggysong), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.PuklaPukiThePomburner), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.PuknaPakoTheTailturner), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.GoodKingMoggleMogXII), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.RuffletuftKuptaKapa));
+        Arena.Actors(Enemies(OID.WoolywartKupquKogi));
+        Arena.Actors(Enemies(OID.FurryfootKupliKipp));
+        Arena.Actors(Enemies(OID.PuksiPikoTheShaggysong));
+        Arena.Actors(Enemies(OID.PuklaPukiThePomburner));
+        Arena.Actors(Enemies(OID.PuknaPakoTheTailturner));
+        Arena.Actors(Enemies(OID.GoodKingMoggleMogXII));
     }
 }

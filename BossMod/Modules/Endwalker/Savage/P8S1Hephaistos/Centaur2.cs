@@ -85,23 +85,23 @@ class BlazingFootfalls(BossModule module) : BossComponent(module)
         if (NumMechanicsDone == 0)
         {
             // draw first trailblaze
-            Arena.ZoneRect(Module.Center, new WDir(0, 1), Module.Bounds.Radius, Module.Bounds.Radius, _trailblazeHalfWidth, ArenaColor.AOE);
+            Arena.ZoneRect(Module.Center, new WDir(0, 1), Module.Bounds.Radius, Module.Bounds.Radius, _trailblazeHalfWidth, Colors.AOE);
         }
         if (NumMechanicsDone == 2)
         {
             // draw second trailblaze
-            Arena.ZoneRect(Module.Center, new WDir(1, 0), Module.Bounds.Radius, Module.Bounds.Radius, _trailblazeHalfWidth, ArenaColor.AOE);
+            Arena.ZoneRect(Module.Center, new WDir(1, 0), Module.Bounds.Radius, Module.Bounds.Radius, _trailblazeHalfWidth, Colors.AOE);
         }
 
         if (_firstCrush && NumMechanicsDone < 2)
         {
             // draw first crush
-            Arena.ZoneCircle(Module.Center + Module.Bounds.Radius * new WDir(_firstSafeLeft ? 1 : -1, 0), _crushRadius, ArenaColor.AOE);
+            Arena.ZoneCircle(Module.Center + Module.Bounds.Radius * new WDir(_firstSafeLeft ? 1 : -1, 0), _crushRadius, Colors.AOE);
         }
         if (!_firstCrush && NumMechanicsDone is >= 2 and < 4)
         {
             // draw second crush
-            Arena.ZoneCircle(Module.Center + Module.Bounds.Radius * new WDir(0, _secondSafeTop ? 1 : -1), _crushRadius, ArenaColor.AOE);
+            Arena.ZoneCircle(Module.Center + Module.Bounds.Radius * new WDir(0, _secondSafeTop ? 1 : -1), _crushRadius, Colors.AOE);
         }
     }
 
@@ -110,12 +110,12 @@ class BlazingFootfalls(BossModule module) : BossComponent(module)
         if (NumMechanicsDone < 2 && _seenVisuals > 0)
         {
             // draw first safespot
-            Arena.AddCircle(Module.Center + _safespotOffset * new WDir(_firstSafeLeft ? -1 : 1, 0), _safespotRadius, ArenaColor.Safe, 2);
+            Arena.AddCircle(Module.Center + _safespotOffset * new WDir(_firstSafeLeft ? -1 : 1, 0), _safespotRadius, Colors.Safe, 2);
         }
         if (NumMechanicsDone < 4 && _seenVisuals > 1)
         {
             // draw second safespot
-            Arena.AddCircle(Module.Center + _safespotOffset * new WDir(0, _secondSafeTop ? -1 : 1), _safespotRadius, ArenaColor.Safe, 2);
+            Arena.AddCircle(Module.Center + _safespotOffset * new WDir(0, _secondSafeTop ? -1 : 1), _safespotRadius, Colors.Safe, 2);
         }
 
         if (NumMechanicsDone == 0)

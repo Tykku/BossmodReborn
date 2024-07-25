@@ -8,7 +8,7 @@ class LovesLight(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (AOEs.Count > 0)
-            yield return AOEs[0] with { Color = ArenaColor.Danger };
+            yield return AOEs[0] with { Color = Colors.Danger };
         if (AOEs.Count > 1)
             yield return AOEs[1];
     }

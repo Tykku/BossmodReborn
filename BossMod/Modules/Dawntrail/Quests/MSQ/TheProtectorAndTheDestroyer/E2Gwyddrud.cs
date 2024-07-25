@@ -63,7 +63,7 @@ class VioletVoltage(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = ArenaColor.Danger };
+            yield return _aoes[0] with { Color = Colors.Danger };
         if (_aoes.Count > 1)
             yield return _aoes[1] with { Risky = _aoes[1].Rotation.AlmostEqual(_aoes[0].Rotation + 180.Degrees(), Helpers.RadianConversion) };
     }
@@ -110,7 +110,7 @@ class RoaringBoltKB(BossModule module) : Components.KnockbackFromCastTarget(modu
 
 class RollingThunder(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RollingThunder2), new AOEShapeCone(20, 22.5f.Degrees()), 6)
 {
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => ActiveCasters.Select((c, i) => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), i < 2 ? ArenaColor.Danger : ArenaColor.AOE));
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => ActiveCasters.Select((c, i) => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), i < 2 ? Colors.Danger : Colors.AOE));
 }
 
 class RoaringBolt(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RoaringBolt), 6);
@@ -159,10 +159,8 @@ public class Gwyddrud(WorldState ws, Actor primary) : BossModule(ws, primary, ne
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BallOfLevin))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.SuperchargedLevin))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BallOfLevin));
+        Arena.Actors(Enemies(OID.SuperchargedLevin));
     }
 }

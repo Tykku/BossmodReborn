@@ -113,12 +113,9 @@ public class D030RonkanDreamer(WorldState ws, Actor primary) : BossModule(ws, pr
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.RonkanVessel))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var e in Enemies(OID.RonkanThorn))
-            Arena.Actor(e, ArenaColor.Object);
-        foreach (var e in Enemies(OID.RonkanIdol))
-            Arena.Actor(e, ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.RonkanVessel), Colors.Object);
+        Arena.Actors(Enemies(OID.RonkanThorn), Colors.Object);
+        Arena.Actors(Enemies(OID.RonkanIdol), Colors.Object);
     }
 }

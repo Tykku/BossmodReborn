@@ -57,9 +57,9 @@ public class D040VanguardAerostat2 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Turret, ArenaColor.Enemy);
-        Arena.Actors(SentryS7, ArenaColor.Enemy);
-        Arena.Actors(SentryG7, ArenaColor.Enemy);
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
+        Arena.Actors(Turret);
+        Arena.Actors(SentryS7);
+        Arena.Actors(SentryG7);
+        Arena.Actor(PrimaryActor);
     }
 }

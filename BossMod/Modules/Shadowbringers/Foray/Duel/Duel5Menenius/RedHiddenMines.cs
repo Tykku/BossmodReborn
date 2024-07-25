@@ -11,7 +11,7 @@ class RedHiddenMines(BossModule module) : Components.GenericAOEs(module)
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if ((AID)spell.Action.ID is AID.ActivateRedMine)
-            _mines.Add(new(_shapeTrigger, caster.Position, Color: ArenaColor.Trap));
+            _mines.Add(new(_shapeTrigger, caster.Position, Color: Colors.Trap));
         if ((AID)spell.Action.ID is AID.DetonateRedMine or AID.Explosion)
             _mines.RemoveAll(t => t.Origin.AlmostEqual(caster.Position, 1));
     }
@@ -22,7 +22,7 @@ class RedHiddenMines(BossModule module) : Components.GenericAOEs(module)
         {
             List<AOEInstance> _detonatingMines = [];
             for (var i = 0; i < _mines.Count; i++)
-                _detonatingMines.Add(new(_shapeExplosion, _mines[i].Origin, Color: ArenaColor.AOE));
+                _detonatingMines.Add(new(_shapeExplosion, _mines[i].Origin, Color: Colors.AOE));
             _mines = _detonatingMines;
         }
     }

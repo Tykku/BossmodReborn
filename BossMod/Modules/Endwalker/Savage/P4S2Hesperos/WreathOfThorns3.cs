@@ -31,7 +31,7 @@ class WreathOfThorns3(BossModule module) : BossComponent(module)
         }
         else
         {
-            foreach ((int i, var player) in Raid.WithSlot().SortedByRange(Module.PrimaryActor.Position).Take(3))
+            foreach ((var i, var player) in Raid.WithSlot().SortedByRange(Module.PrimaryActor.Position).Take(3))
             {
                 _coneTargets.Set(i);
                 if (player.Position != Module.PrimaryActor.Position)
@@ -48,7 +48,7 @@ class WreathOfThorns3(BossModule module) : BossComponent(module)
         if (CurState != State.Done)
         {
             // TODO: consider raid comps with 3+ melee or ranged...
-            bool shouldSoakTower = CurState == State.RangedTowers ? actor.Role is Role.Ranged or Role.Healer : actor.Role is Role.Melee or Role.Tank;
+            var shouldSoakTower = CurState == State.RangedTowers ? actor.Role is Role.Ranged or Role.Healer : actor.Role is Role.Melee or Role.Tank;
             var soakedTower = (CurState == State.RangedTowers ? RangedTowers : MeleeTowers).InRadius(actor.Position, P4S2.WreathTowerRadius).FirstOrDefault();
             if (shouldSoakTower)
             {
@@ -87,25 +87,25 @@ class WreathOfThorns3(BossModule module) : BossComponent(module)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        foreach ((int i, var player) in Raid.WithSlot())
-            Arena.Actor(player, _playersInAOE[i] ? ArenaColor.PlayerInteresting : ArenaColor.PlayerGeneric);
+        foreach ((var i, var player) in Raid.WithSlot())
+            Arena.Actor(player, _playersInAOE[i] ? Colors.PlayerInteresting : Colors.PlayerGeneric);
 
         if (CurState != State.Done)
         {
-            foreach (var tower in (CurState == State.RangedTowers ? RangedTowers : MeleeTowers))
-                Arena.AddCircle(tower.Position, P4S2.WreathTowerRadius, ArenaColor.Safe);
+            foreach (var tower in CurState == State.RangedTowers ? RangedTowers : MeleeTowers)
+                Arena.AddCircle(tower.Position, P4S2.WreathTowerRadius, Colors.Safe);
         }
 
         if (NumCones != NumJumps)
         {
             foreach ((_, var player) in Raid.WithSlot().IncludedInMask(_coneTargets))
-                Arena.Actor(player, ArenaColor.Danger);
-            Arena.Actor(_jumpTarget, ArenaColor.Vulnerable);
+                Arena.Actor(player, Colors.Danger);
+            Arena.Actor(_jumpTarget, Colors.Vulnerable);
         }
         else if (_jumpTarget != null)
         {
-            Arena.Actor(_jumpTarget, ArenaColor.Danger);
-            Arena.AddCircle(_jumpTarget.Position, _jumpAOERadius, ArenaColor.Danger);
+            Arena.Actor(_jumpTarget, Colors.Danger);
+            Arena.AddCircle(_jumpTarget.Position, _jumpAOERadius, Colors.Danger);
         }
     }
 

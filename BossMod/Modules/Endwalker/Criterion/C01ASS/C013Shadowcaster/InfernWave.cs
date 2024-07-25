@@ -42,7 +42,7 @@ class InfernWave(BossModule module, bool savage, bool showHints, int maxActive) 
             return;
 
         bool clipping = false, clipped = false;
-        int numBaits = 0;
+        var numBaits = 0;
         foreach (var b in ActiveBeacons())
         {
             foreach (var t in b.Targets)
@@ -80,7 +80,7 @@ class InfernWave(BossModule module, bool savage, bool showHints, int maxActive) 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var b in ActiveBeacons())
-            Arena.Actor(b.Source, ArenaColor.Object, true);
+            Arena.Actor(b.Source, Colors.Object, true);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

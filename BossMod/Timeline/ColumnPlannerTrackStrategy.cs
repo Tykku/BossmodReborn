@@ -20,7 +20,7 @@ public class ColumnPlannerTrackStrategy(Timeline timeline, StateMachineTree tree
     protected override Element CreateElement(Entry window)
     {
         var res = new OverrideElement(window);
-        for (int i = 1; i < config.Options.Count; ++i)
+        for (var i = 1; i < config.Options.Count; ++i)
         {
             if (level >= config.Options[i].MinLevel && level <= config.Options[i].MaxLevel)
             {

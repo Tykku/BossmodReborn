@@ -15,8 +15,8 @@ class Fireworks(BossModule module) : Components.UniformStackSpread(module, 3, 20
     {
         if (TetheredAdds[pcSlot] is var add && add != null)
         {
-            Arena.Actor(add, ArenaColor.Object, true);
-            Arena.AddLine(add.Position, pc.Position, ArenaColor.Danger);
+            Arena.Actor(add, Colors.Object, true);
+            Arena.AddLine(add.Position, pc.Position, Colors.Danger);
         }
         base.DrawArenaForeground(pcSlot, pc);
     }
@@ -74,7 +74,7 @@ class BurningChains(BossModule module) : BossComponent(module)
         {
             var partner = Raid[_chains.WithoutBit(pcSlot).LowestSetBit()];
             if (partner != null)
-                Arena.AddLine(pc.Position, partner.Position, ArenaColor.Safe, 1);
+                Arena.AddLine(pc.Position, partner.Position, Colors.Safe, 1);
         }
     }
 
@@ -114,7 +114,7 @@ class FireSpread(BossModule module) : Components.GenericAOEs(module)
             var rot = s.NextRotation + _rotation;
             var act = s.NextActivation.AddSeconds(1.1f);
             var max = Math.Min(s.RemainingExplosions, _maxShownExplosions);
-            for (int i = 1; i < max; ++i)
+            for (var i = 1; i < max; ++i)
             {
                 yield return new(_shape, Module.Center, rot, act);
                 rot += _rotation;
@@ -127,7 +127,7 @@ class FireSpread(BossModule module) : Components.GenericAOEs(module)
         {
             if (s.RemainingExplosions > 0)
             {
-                yield return new(_shape, Module.Center, s.NextRotation, s.NextActivation, ArenaColor.Danger);
+                yield return new(_shape, Module.Center, s.NextRotation, s.NextActivation, Colors.Danger);
             }
         }
     }
@@ -271,12 +271,12 @@ class Fireworks1Hints(BossModule module) : BossComponent(module)
         {
             var safeSpots = (OID)add.OID is OID.NSurprisingClaw or OID.SSurprisingClaw ? _safeSpotsClaw : _safeSpotsMissile;
             foreach (var p in safeSpots)
-                Arena.AddCircle(p, 1, ArenaColor.Safe);
+                Arena.AddCircle(p, 1, Colors.Safe);
         }
         else
         {
             foreach (var p in _safeSpotsClaw)
-                Arena.AddCircle(p, 1, ArenaColor.Enemy);
+                Arena.AddCircle(p, 1, Colors.Enemy);
         }
     }
 
@@ -305,12 +305,12 @@ class Fireworks2Hints(BossModule module) : BossComponent(module)
         if (_fireworks?.Spreads.Count > 0)
         {
             foreach (var dir in SafeSpots(pcSlot, pc))
-                Arena.AddCircle(Module.Center + 19 * dir.ToDirection(), 1, ArenaColor.Safe);
+                Arena.AddCircle(Module.Center + 19 * dir.ToDirection(), 1, Colors.Safe);
         }
         else if (_relNorth != null)
         {
             // show rel north before assignments are done
-            Arena.AddCircle(Module.Center + 19 * _relNorth.Value.ToDirection(), 1, ArenaColor.Enemy);
+            Arena.AddCircle(Module.Center + 19 * _relNorth.Value.ToDirection(), 1, Colors.Enemy);
         }
     }
 
@@ -321,7 +321,7 @@ class Fireworks2Hints(BossModule module) : BossComponent(module)
             if (_fireworks.IsSpreadTarget(actor))
             {
                 // spreads always go slightly S of rel E/W
-                bool west = actor.Class.IsDD(); // note: this is arbitrary
+                var west = actor.Class.IsDD(); // note: this is arbitrary
                 yield return _relNorth.Value + (west ? 95 : -95).Degrees();
             }
             else if (!_dartboard.Bullseye[slot])
@@ -331,7 +331,7 @@ class Fireworks2Hints(BossModule module) : BossComponent(module)
             }
             else if (Raid[_dartboard.Bullseye.WithoutBit(slot).LowestSetBit()] is var partner && partner != null)
             {
-                bool west = actor.Class.IsDD(); // note: this is arbitrary
+                var west = actor.Class.IsDD(); // note: this is arbitrary
                 if (_fireworks.IsSpreadTarget(partner) && partner.Class.IsDD() == west)
                     west = !west; // adjust to opposite color
                 yield return _relNorth.Value + (west ? 5 : -5).Degrees();

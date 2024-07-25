@@ -187,7 +187,7 @@ public sealed class LegacyBRD : LegacyModule
         (_state.BestRainOfDeathTarget, _state.NumRainOfDeathTargets) = _state.Unlocked(BRD.AID.RainOfDeath) ? CheckAOETargeting(aoeStrategy, primaryTarget, 8, NumTargetsHitByRainOfDeath, IsHitByRainOfDeath) : (null, 0);
 
         // TODO: refactor all that, it's kinda senseless now
-        BRD.AID gcd = GetNextBestGCD(strategy);
+        var gcd = GetNextBestGCD(strategy);
         PushResult(gcd, gcd is BRD.AID.QuickNock or BRD.AID.Ladonsbite ? _state.BestLadonsbiteTarget : primaryTarget);
 
         ActionID ogcd = default;
@@ -274,7 +274,7 @@ public sealed class LegacyBRD : LegacyModule
             return false; // outside buff window, so no more reasons to extend early
 
         // under buffs, we might want to do early IJ, so that AA can be slightly delayed, or so that we don't risk proc overwrites
-        int maxRemainingGCDs = 1; // by default, refresh on last possible GCD before we either drop dots or drop major buffs
+        var maxRemainingGCDs = 1; // by default, refresh on last possible GCD before we either drop dots or drop major buffs
         if (_state.StraightShotLeft <= _state.GCD)
             ++maxRemainingGCDs; // 1 extra gcd if we don't have RA proc (if we don't refresh early, we might use filler, which could give us a proc; then on next gcd we'll be forced to IJ to avoid dropping dots, which might give another proc)
         // if we're almost at the gauge cap, we want to delay AA/BA (but still fit them into buff window), so we want to IJ earlier
@@ -423,7 +423,7 @@ public sealed class LegacyBRD : LegacyModule
                 // - if barrage is about to come off CD, we don't want to delay it needlessly
                 // - if delaying RA would force us to IJ on next gcd (potentially overwriting proc)
                 // we only do that if there are no explicit AA/BA force strategies (in that case we assume just doing AA/BA is more important than wasting a proc)
-                bool highPriorityRA = _state.StraightShotLeft > _state.GCD // RA ready
+                var highPriorityRA = _state.StraightShotLeft > _state.GCD // RA ready
                     && strategyAA is ApexArrowStrategy.Automatic or ApexArrowStrategy.Delay // no forced AA
                     && strategyBA != OffensiveStrategy.Force // no forced BA
                     && (_state.CD(BRD.AID.Barrage) < _state.GCD + 2.5f || CanRefreshDOTsIn(2)); // either barrage coming off cd or dots falling off imminent
@@ -562,7 +562,7 @@ public sealed class LegacyBRD : LegacyModule
             // if we're at PP2 and EA is about to come off cd, we might be in a situation where waiting for PP3 would have us choose between delaying EA or wasting its guaranteed proc; in such case we want to PP2 early
             if (_state.Repertoire == 2)
             {
-                bool usePP2 = false;
+                var usePP2 = false;
                 if (_state.CanWeave(BRD.AID.EmpyrealArrow, 0.6f, _state.GCD))
                 {
                     // we're going to use EA in next ogcd slot before GCD => use PP2 if we won't be able to wait until tick and weave before EA

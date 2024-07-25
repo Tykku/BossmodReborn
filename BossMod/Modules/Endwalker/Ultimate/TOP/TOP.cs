@@ -36,11 +36,11 @@ public class TOP(WorldState ws, Actor primary) : BossModule(ws, primary, new(100
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actor(_omegaM, ArenaColor.Enemy);
-        Arena.Actor(_omegaF, ArenaColor.Enemy);
-        Arena.Actor(_bossP3, ArenaColor.Enemy);
-        Arena.Actor(_bossP5, ArenaColor.Enemy);
-        Arena.Actor(_bossP6, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actor(_omegaM);
+        Arena.Actor(_omegaF);
+        Arena.Actor(_bossP3);
+        Arena.Actor(_bossP5);
+        Arena.Actor(_bossP6);
     }
 }

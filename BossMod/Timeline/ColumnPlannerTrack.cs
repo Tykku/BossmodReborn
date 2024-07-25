@@ -67,7 +67,7 @@ public abstract class ColumnPlannerTrack(Timeline timeline, StateMachineTree tre
             }
             else
             {
-                float windowStart = _edit.Element.Window.TimeSinceGlobalStart(Tree);
+                var windowStart = _edit.Element.Window.TimeSinceGlobalStart(Tree);
                 windowStart += dt;
                 (_edit.Element.Window.AttachNode, _edit.Element.Window.Delay) = Tree.AbsoluteTimeToNodeAndDelay(windowStart, PhaseBranches);
             }
@@ -78,7 +78,7 @@ public abstract class ColumnPlannerTrack(Timeline timeline, StateMachineTree tre
             if (_edit != null)
             {
                 // finish editing
-                float minTime = _edit.Element.Window.AttachNode.PhaseID == 0 && _edit.Element.Window.AttachNode.Predecessor == null ? Timeline.MinTime : 0;
+                var minTime = _edit.Element.Window.AttachNode.PhaseID == 0 && _edit.Element.Window.AttachNode.Predecessor == null ? Timeline.MinTime : 0;
                 _edit.Element.Window.Delay = Math.Max(MathF.Round(_edit.Element.Window.Delay, 1), minTime);
                 _edit.Element.Window.Duration = Math.Max(MathF.Round(_edit.Element.Window.Duration, 1), 0.1f);
                 UpdateElement(_edit.Element);

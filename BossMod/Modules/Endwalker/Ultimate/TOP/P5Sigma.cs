@@ -39,11 +39,11 @@ class P5Sigma(BossModule module) : BossComponent(module)
         {
             var distSq = (partner.Position - pc.Position).LengthSq();
             var range = DistanceRange;
-            Arena.AddLine(pc.Position, partner.Position, distSq < range.min * range.min || distSq > range.max * range.max ? ArenaColor.Danger : ArenaColor.Safe);
+            Arena.AddLine(pc.Position, partner.Position, distSq < range.min * range.min || distSq > range.max * range.max ? Colors.Danger : Colors.Safe);
         }
 
         foreach (var safeSpot in SafeSpotOffsets(pcSlot))
-            Arena.AddCircle(Module.Center + safeSpot, 1, ArenaColor.Safe);
+            Arena.AddCircle(Module.Center + safeSpot, 1, Colors.Safe);
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
@@ -132,14 +132,14 @@ class P5Sigma(BossModule module) : BossComponent(module)
     {
         var northAngle = Angle.FromDirection(_waveCannonNorthDir);
         var waveCannonsPerPair = new BitMask[4];
-        for (int i = 0; i < Players.Length; ++i)
+        for (var i = 0; i < Players.Length; ++i)
         {
             var ps = Players[i];
             if (ps.WaveCannonTarget && ps.Order > 0)
                 waveCannonsPerPair[ps.Order - 1].Set(i);
         }
-        int nextSingle = 0;
-        int nextDouble = 0;
+        var nextSingle = 0;
+        var nextDouble = 0;
         foreach (var mask in waveCannonsPerPair)
         {
             if (mask.NumSetBits() == 2)
@@ -210,7 +210,7 @@ class P5SigmaHyperPulse(BossModule module) : Components.BaitAwayTethers(module, 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var b in CurrentBaits)
-            Arena.Actor(b.Source, ArenaColor.Object, true);
+            Arena.Actor(b.Source, Colors.Object, true);
         base.DrawArenaForeground(pcSlot, pc);
     }
 }
@@ -306,7 +306,7 @@ class P5SigmaTowers(BossModule module) : Components.GenericTowers(module)
 
     private void AssignPlayers(P5Sigma sigma, ref Tower tower, params Angle[] angles)
     {
-        for (int i = 0; i < sigma.Players.Length; ++i)
+        for (var i = 0; i < sigma.Players.Length; ++i)
             if (!angles.Any(a => a.AlmostEqual(sigma.Players[i].SpreadAngle, 0.1f)))
                 tower.ForbiddenSoakers.Set(i);
     }
@@ -326,10 +326,10 @@ class P5SigmaRearLasers(BossModule module) : Components.GenericAOEs(module)
     {
         if (!Active)
             yield break;
-        for (int i = NumCasts + 1; i < 14; ++i)
+        for (var i = NumCasts + 1; i < 14; ++i)
             yield return new(_shape, Module.Center, StartingDir + i * Rotation, _activation.AddSeconds(0.6 * i), Risky: false);
         if (NumCasts < 14)
-            yield return new(_shape, Module.Center, StartingDir + NumCasts * Rotation, _activation.AddSeconds(0.6 * NumCasts), ArenaColor.Danger);
+            yield return new(_shape, Module.Center, StartingDir + NumCasts * Rotation, _activation.AddSeconds(0.6 * NumCasts), Colors.Danger);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID)
@@ -395,7 +395,7 @@ class P5SigmaNearDistantWorld(BossModule module) : P5NearDistantWorld(module)
     {
         base.DrawArenaForeground(pcSlot, pc);
         foreach (var p in SafeSpots(pcSlot, pc))
-            Arena.AddCircle(p, 1, ArenaColor.Safe);
+            Arena.AddCircle(p, 1, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

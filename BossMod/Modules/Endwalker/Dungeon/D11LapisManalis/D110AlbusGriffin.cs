@@ -53,8 +53,8 @@ public class D110AlbusGriffin : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(AlbusGriffin, ArenaColor.Enemy);
-        Arena.Actors(Caladrius, ArenaColor.Enemy);
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
+        Arena.Actors(AlbusGriffin);
+        Arena.Actors(Caladrius);
+        Arena.Actor(PrimaryActor);
     }
 }

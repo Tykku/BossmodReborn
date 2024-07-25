@@ -12,7 +12,7 @@ public class DemoModule : BossModule
 
         public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
         {
-            movementHints.Add(actor.Position, actor.Position + new WDir(10, 10), ArenaColor.Danger);
+            movementHints.Add(actor.Position, actor.Position + new WDir(10, 10), Colors.Danger);
         }
 
         public override void AddGlobalHints(GlobalHints hints)
@@ -22,12 +22,12 @@ public class DemoModule : BossModule
 
         public override void DrawArenaBackground(int pcSlot, Actor pc)
         {
-            Arena.ZoneCircle(Module.Center, 10, ArenaColor.AOE);
+            Arena.ZoneCircle(Module.Center, 10, Colors.AOE);
         }
 
         public override void DrawArenaForeground(int pcSlot, Actor pc)
         {
-            Arena.Actor(Module.Center, 0.Degrees(), ArenaColor.PC);
+            Arena.Actor(Module.Center, 0.Degrees(), Colors.PC);
         }
     }
 

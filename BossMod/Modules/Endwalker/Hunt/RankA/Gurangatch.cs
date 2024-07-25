@@ -33,17 +33,17 @@ class Slammer(BossModule module) : Components.GenericRotatingAOE(module)
             case AID.OctupleSlammerLCW:
             case AID.OctupleSlammerRCW:
                 Sequences.Add(new(_shape, caster.Position, spell.Rotation, 90.Degrees(), Module.CastFinishAt(spell), 3.7f, 8));
-                ImminentColor = ArenaColor.Danger;
+                ImminentColor = Colors.Danger;
                 break;
             case AID.OctupleSlammerLCCW:
             case AID.OctupleSlammerRCCW:
                 Sequences.Add(new(_shape, caster.Position, spell.Rotation, -90.Degrees(), Module.CastFinishAt(spell), 3.7f, 8));
-                ImminentColor = ArenaColor.Danger;
+                ImminentColor = Colors.Danger;
                 break;
             case AID.LeftHammerSlammer:
             case AID.RightHammerSlammer:
                 Sequences.Add(new(_shape, caster.Position, spell.Rotation, 180.Degrees(), Module.CastFinishAt(spell), 3.6f, 2, 1));
-                ImminentColor = ArenaColor.AOE;
+                ImminentColor = Colors.AOE;
                 break;
         }
     }

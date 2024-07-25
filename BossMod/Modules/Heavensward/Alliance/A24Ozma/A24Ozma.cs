@@ -33,11 +33,11 @@ public class A24Ozma(WorldState ws, Actor primary) : BossModule(ws, primary, new
     new Rectangle(new(300, -422), 5, 12, -120.Degrees())]);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.SingularityFragment), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.SingularityEcho), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.SingularityRipple), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Ozmasphere), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Ozmashade), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SingularityFragment));
+        Arena.Actors(Enemies(OID.SingularityEcho));
+        Arena.Actors(Enemies(OID.SingularityRipple));
+        Arena.Actors(Enemies(OID.Ozmasphere));
+        Arena.Actors(Enemies(OID.Ozmashade));
     }
 }

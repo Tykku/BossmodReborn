@@ -11,7 +11,7 @@ class Tangle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.M
         var tether = _tethers[pcSlot];
         if (tether != null)
         {
-            Arena.AddCircle(tether.Position, 8, ArenaColor.Object);
+            Arena.AddCircle(tether.Position, 8, Colors.Object);
         }
     }
 

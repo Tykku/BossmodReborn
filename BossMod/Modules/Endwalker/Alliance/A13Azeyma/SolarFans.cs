@@ -12,13 +12,13 @@ class RadiantRhythm(BossModule module) : Components.GenericAOEs(module, ActionID
     {
         if (_aoes.Count > 0)
         {
-            yield return new(_aoes[0].Shape, _aoes[0].Origin, _aoes[0].Rotation, _aoes[0].Activation, ArenaColor.Danger);
-            yield return new(_aoes2[0].Shape, _aoes2[0].Origin, _aoes2[0].Rotation, _aoes2[0].Activation, ArenaColor.Danger);
+            yield return _aoes[0] with { Color = Colors.Danger };
+            yield return _aoes2[0] with { Color = Colors.Danger };
         }
         if (_aoes.Count > 1)
         {
-            yield return new(_aoes[1].Shape, _aoes[1].Origin, _aoes[1].Rotation, _aoes[1].Activation);
-            yield return new(_aoes2[1].Shape, _aoes2[1].Origin, _aoes2[1].Rotation, _aoes2[1].Activation);
+            yield return _aoes[1];
+            yield return _aoes2[1];
         }
     }
 
@@ -33,7 +33,7 @@ class RadiantRhythm(BossModule module) : Components.GenericAOEs(module, ActionID
                     _aoes.Add(new(_shape, Arena.Center, (225 + i * 90).Degrees(), _activation.AddSeconds(1.3f * (i - 1))));
                     _aoes2.Add(new(_shape, Arena.Center, (45 + i * 90).Degrees(), _activation.AddSeconds(1.3f * (i - 1))));
                 }
-            if (spell.LocXZ.AlmostEqual(new(-750, -775), 1))
+            else if (spell.LocXZ.AlmostEqual(new(-750, -775), 1))
                 for (var i = 1; i < 6; ++i)
                 {
                     _aoes.Add(new(_shape, Arena.Center, (135 + i * 90).Degrees(), _activation.AddSeconds(1.3f * (i - 1))));
@@ -49,7 +49,7 @@ class RadiantRhythm(BossModule module) : Components.GenericAOEs(module, ActionID
             _aoes.Clear();
             _aoes2.Clear();
         }
-        if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.RadiantFlight && ++NumCasts % 2 == 0)
+        else if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.RadiantFlight && ++NumCasts % 2 == 0)
         {
             _aoes.RemoveAt(0);
             _aoes2.RemoveAt(0);
@@ -69,7 +69,7 @@ class RadiantFlourish(BossModule module) : Components.GenericAOEs(module)
     {
         if ((AID)spell.Action.ID == AID.SolarFansAOE)
             _aoes.Add(new(circle, spell.LocXZ, default, WorldState.FutureTime(16.6f)));
-        if ((AID)spell.Action.ID == AID.RadiantFlourish)
+        else if ((AID)spell.Action.ID == AID.RadiantFlourish)
         {
             _aoes.Clear();
             teleportcounter = 0;

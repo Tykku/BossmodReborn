@@ -68,7 +68,7 @@ public class StateMachineTree
             var n = StartingNode;
             while (n.Successors.Count > 0)
             {
-                int nextIndex = n.Successors.FindIndex(n => n.BranchID > StartingNode.BranchID + branchOffset);
+                var nextIndex = n.Successors.FindIndex(n => n.BranchID > StartingNode.BranchID + branchOffset);
                 if (nextIndex == -1)
                     nextIndex = n.Successors.Count;
                 n = n.Successors[nextIndex - 1];
@@ -100,7 +100,7 @@ public class StateMachineTree
 
     public StateMachineTree(StateMachine sm)
     {
-        for (int i = 0; i < sm.Phases.Count; ++i)
+        for (var i = 0; i < sm.Phases.Count; ++i)
         {
             var (startingNode, maxTime) = LayoutNodeAndSuccessors(0, i, TotalBranches, sm.Phases[i].InitialState, null);
             _phases.Add(new(sm.Phases[i], startingNode, maxTime));
@@ -118,7 +118,7 @@ public class StateMachineTree
             foreach (var (p, t) in Phases.Zip(phaseDurations))
                 p.Duration = Math.Min(t, p.MaxTime);
 
-        for (int i = 1; i < Phases.Count; ++i)
+        for (var i = 1; i < Phases.Count; ++i)
             Phases[i].StartTime = Phases[i - 1].StartTime + Phases[i - 1].Duration;
 
         var lastPhase = Phases[^1];
@@ -128,7 +128,7 @@ public class StateMachineTree
     // find phase index that corresponds to specified time; assumes ApplyTimings was called before
     public int FindPhaseAtTime(float t)
     {
-        int next = _phases.FindIndex(p => p.StartTime > t);
+        var next = _phases.FindIndex(p => p.StartTime > t);
         return next switch
         {
             < 0 => _phases.Count - 1,
@@ -139,7 +139,7 @@ public class StateMachineTree
 
     public (Node, float) AbsoluteTimeToNodeAndDelay(float t, List<int> phaseBranches)
     {
-        int phaseIndex = FindPhaseAtTime(t);
+        var phaseIndex = FindPhaseAtTime(t);
         var phase = Phases[phaseIndex];
         t -= phase.StartTime;
         var node = phase.TimeToBranchNode(phaseBranches[phaseIndex], t);

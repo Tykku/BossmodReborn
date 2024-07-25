@@ -128,9 +128,9 @@ public class Lyssa(WorldState ws, Actor primary) : BossModule(ws, primary, new(1
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.BonusAddLyssa), ArenaColor.Vulnerable);
-        Arena.Actors(Enemies(OID.BonusAddLampas), ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BonusAddLyssa), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.BonusAddLampas), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

@@ -48,7 +48,7 @@ public class D040VanguardSentryR7 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(SentryR7, ArenaColor.Enemy);
-        Arena.Actors(SentryR72, ArenaColor.Enemy);
+        Arena.Actors(SentryR7);
+        Arena.Actors(SentryR72);
     }
 }

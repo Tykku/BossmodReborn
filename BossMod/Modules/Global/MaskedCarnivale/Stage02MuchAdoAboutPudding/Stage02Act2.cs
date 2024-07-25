@@ -44,10 +44,8 @@ public class Stage02Act2(WorldState ws, Actor primary) : BossModule(ws, primary,
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Flan))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Licorice))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Flan));
+        Arena.Actors(Enemies(OID.Licorice));
     }
 }

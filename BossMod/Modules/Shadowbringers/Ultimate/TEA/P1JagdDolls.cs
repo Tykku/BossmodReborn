@@ -29,17 +29,17 @@ class P1JagdDolls(BossModule module) : BossComponent(module)
     {
         foreach (var doll in ActiveDolls)
         {
-            Arena.Actor(doll, doll.HPMP.CurHP < doll.HPMP.MaxHP / 4 ? ArenaColor.Enemy : ArenaColor.Vulnerable);
+            Arena.Actor(doll, doll.HPMP.CurHP < doll.HPMP.MaxHP / 4 ? Colors.Enemy : Colors.Vulnerable);
 
             var tether = WorldState.Actors.Find(doll.Tether.Target);
             if (tether != null)
             {
-                Arena.AddLine(doll.Position, tether.Position, ArenaColor.Danger);
+                Arena.AddLine(doll.Position, tether.Position, Colors.Danger);
             }
 
             if (NumExhausts < 2)
             {
-                Arena.AddCircle(doll.Position, _exhaustRadius, ArenaColor.Safe);
+                Arena.AddCircle(doll.Position, _exhaustRadius, Colors.Safe);
             }
         }
     }

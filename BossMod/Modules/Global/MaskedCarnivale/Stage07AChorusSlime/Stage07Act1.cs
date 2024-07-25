@@ -19,8 +19,8 @@ class SlimeExplosion(BossModule module) : Components.GenericStackSpread(module)
         if (!Module.PrimaryActor.IsDead)
         {
             if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddCircle(Module.PrimaryActor.Position, 7.6f, 0xFF000000, 2);
-            Arena.AddCircle(Module.PrimaryActor.Position, 7.6f, ArenaColor.Danger);
+                Arena.AddCircle(Module.PrimaryActor.Position, 7.6f, Colors.Shadows, 2);
+            Arena.AddCircle(Module.PrimaryActor.Position, 7.6f, Colors.Danger);
         }
     }
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -71,8 +71,7 @@ public class Stage07Act1 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Sprite))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Sprite));
     }
 }

@@ -15,7 +15,7 @@ class RightArmComet(BossModule module, AID aid, float distance) : Components.Kno
     {
         base.DrawArenaForeground(pcSlot, pc);
         foreach (var c in Casters)
-            Arena.AddCircle(c.Position, _radius, pc.Position.InCircle(c.Position, _radius) ? ArenaColor.Safe : ArenaColor.Danger, 2);
+            Arena.AddCircle(c.Position, _radius, pc.Position.InCircle(c.Position, _radius) ? Colors.Safe : Colors.Danger, 2);
     }
 }
 class RightArmCometShort(BossModule module) : RightArmComet(module, AID.RightArmCometKnockbackShort, 12);

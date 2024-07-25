@@ -32,7 +32,7 @@ abstract class PetrifactionCommon(BossModule module) : Components.GenericGaze(mo
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var g in Module.Enemies(OID.Gorgon).Where(g => !g.IsDead))
-            Arena.Actor(g, ArenaColor.Enemy, true);
+            Arena.Actor(g, Colors.Enemy, true);
         base.DrawArenaForeground(pcSlot, pc);
     }
 
@@ -66,6 +66,6 @@ abstract class PetrifactionCommon(BossModule module) : Components.GenericGaze(mo
         }
     }
 
-    public void DrawPetrify(Actor source, bool delayed) => Arena.AddCone(source.Position, 25, source.Rotation, 45.Degrees(), delayed ? ArenaColor.Safe : ArenaColor.Danger);
-    public void DrawExplode(Actor source, bool delayed) => Arena.AddCircle(source.Position, 5, delayed ? ArenaColor.Safe : ArenaColor.Danger);
+    public void DrawPetrify(Actor source, bool delayed) => Arena.AddCone(source.Position, 25, source.Rotation, 45.Degrees(), delayed ? Colors.Safe : Colors.Danger);
+    public void DrawExplode(Actor source, bool delayed) => Arena.AddCircle(source.Position, 5, delayed ? Colors.Safe : Colors.Danger);
 }

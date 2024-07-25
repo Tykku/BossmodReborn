@@ -17,6 +17,6 @@ public class DRS3(WorldState ws, Actor primary) : BossModule(ws, primary, new(82
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(Enemies(OID.CrownedMarchosias), ArenaColor.Enemy);
+        Arena.Actors(Enemies(OID.CrownedMarchosias));
     }
 }

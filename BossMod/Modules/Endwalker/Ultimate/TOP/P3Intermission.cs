@@ -18,7 +18,7 @@ class P3SniperCannon(BossModule module) : Components.UniformStackSpread(module, 
     {
         base.DrawArenaForeground(pcSlot, pc);
         foreach (var s in EnumerateSafeSpots(pcSlot))
-            Arena.AddCircle(s, 1, ArenaColor.Safe);
+            Arena.AddCircle(s, 1, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -61,7 +61,7 @@ class P3SniperCannon(BossModule module) : Components.UniformStackSpread(module, 
 
         _haveSafeSpots = true;
 
-        int[] slotsInPriorityOrder = Utils.MakeArray(PartyState.MaxPartySize, -1);
+        var slotsInPriorityOrder = Utils.MakeArray(PartyState.MaxPartySize, -1);
         foreach (var a in _config.P3IntermissionAssignments.Resolve(Raid))
             slotsInPriorityOrder[a.group] = a.slot;
 

@@ -20,7 +20,7 @@ class EngravementOfSouls1Spread(BossModule module) : Components.UniformStackSpre
 
         var safespot = CalculateSafeSpot(pcSlot);
         if (safespot != default)
-            Arena.AddCircle(safespot, 1, ArenaColor.Safe);
+            Arena.AddCircle(safespot, 1, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

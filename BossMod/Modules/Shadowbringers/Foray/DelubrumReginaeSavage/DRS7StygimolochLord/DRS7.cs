@@ -26,8 +26,8 @@ public class DRS7 : BossModule
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(_monks, ArenaColor.Enemy);
-        Arena.Actors(_ballsEarth, ArenaColor.Object);
-        Arena.Actors(_ballsFire, ArenaColor.Object);
+        Arena.Actors(_monks);
+        Arena.Actors(_ballsEarth, Colors.Object);
+        Arena.Actors(_ballsFire, Colors.Object);
     }
 }

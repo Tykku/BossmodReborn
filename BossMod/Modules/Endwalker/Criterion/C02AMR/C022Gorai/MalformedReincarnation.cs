@@ -25,7 +25,7 @@ class MalformedPrayer2(BossModule module) : Components.GenericTowers(module)
         base.DrawArenaForeground(pcSlot, pc);
         if (!_baitsDone)
             foreach (var p in Raid.WithoutSlot())
-                Arena.AddCircle(p.Position, TowerRadius, ArenaColor.Danger);
+                Arena.AddCircle(p.Position, TowerRadius, Colors.Danger);
     }
 
     public override void OnActorCreated(Actor actor)

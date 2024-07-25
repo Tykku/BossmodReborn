@@ -15,8 +15,8 @@ public class Exaflare(BossModule module, AOEShape shape, ActionID aid = default)
     }
 
     public AOEShape Shape { get; init; } = shape;
-    public uint ImminentColor = ArenaColor.Danger;
-    public uint FutureColor = ArenaColor.AOE;
+    public uint ImminentColor = Colors.Danger;
+    public uint FutureColor = Colors.AOE;
     protected List<Line> Lines = [];
 
     public bool Active => Lines.Count > 0;
@@ -37,10 +37,10 @@ public class Exaflare(BossModule module, AOEShape shape, ActionID aid = default)
     {
         foreach (var l in Lines)
         {
-            int num = Math.Min(l.ExplosionsLeft, l.MaxShownExplosions);
+            var num = Math.Min(l.ExplosionsLeft, l.MaxShownExplosions);
             var pos = l.Next;
             var time = l.NextExplosion > WorldState.CurrentTime ? l.NextExplosion : WorldState.CurrentTime;
-            for (int i = 1; i < num; ++i)
+            for (var i = 1; i < num; ++i)
             {
                 pos += l.Advance;
                 time = time.AddSeconds(l.TimeToMove);

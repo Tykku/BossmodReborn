@@ -63,20 +63,20 @@ class AetheroChemicalLaserCombo(BossModule module) : Components.GenericAOEs(modu
             if (icon.Value != null && icon.Value.Count > 0)
             {
                 foreach (var c in icon.Value)
-                    yield return new(c.Shape, c.Origin, c.Rotation, c.Activation, ArenaColor.Danger);
+                    yield return new(c.Shape, c.Origin, c.Rotation, c.Activation, Colors.Danger);
                 var nextIcon = _icons.FirstOrDefault(x => x.Key == icon.Key + 1).Value;
                 if (nextIcon != null)
                 {
                     foreach (var c in nextIcon)
-                        yield return new(c.Shape, c.Origin, c.Rotation, c.Activation, ArenaColor.AOE, false);
+                        yield return new(c.Shape, c.Origin, c.Rotation, c.Activation, Colors.AOE, false);
                 }
                 if (_boss != default)
-                    yield return new(_boss.Shape, _boss.Origin, _boss.Rotation, _boss.Activation, ArenaColor.AOE, false);
+                    yield return new(_boss.Shape, _boss.Origin, _boss.Rotation, _boss.Activation, Colors.AOE, false);
                 yield break;
             }
         }
         if (_boss != default)
-            yield return new(_boss.Shape, _boss.Origin, _boss.Rotation, _boss.Activation, ArenaColor.Danger);
+            yield return new(_boss.Shape, _boss.Origin, _boss.Rotation, _boss.Activation, Colors.Danger);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID)
@@ -131,8 +131,8 @@ class AetherLaserLine(BossModule module) : Components.SelfTargetedAOEs(module, A
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         return !Module.FindComponent<AetheroChemicalLaserCombo>()!.ActiveAOEs(slot, actor).Any()
-            ? ActiveCasters.Select(c => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), ArenaColor.Danger, Risky)).Take(2)
-            .Concat(ActiveCasters.Select(c => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), ArenaColor.AOE, Risky)).Take(4).Skip(2))
+            ? ActiveCasters.Select(c => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), Colors.Danger, Risky)).Take(2)
+            .Concat(ActiveCasters.Select(c => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), Colors.AOE, Risky)).Take(4).Skip(2))
             : ([]);
     }
 }

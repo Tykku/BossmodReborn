@@ -31,6 +31,6 @@ class Hints(BossModule module) : BossComponent(module)
         var converter = Module.Enemies(OID.Converter).FirstOrDefault();
         var convertertargetable = Module.Enemies(OID.Converter).FirstOrDefault(x => x.IsTargetable);
         if (converter != null && convertertargetable != null)
-            Arena.AddCircle(converter.Position, 1.4f, ArenaColor.Safe);
+            Arena.AddCircle(converter.Position, 1.4f, Colors.Safe);
     }
 }

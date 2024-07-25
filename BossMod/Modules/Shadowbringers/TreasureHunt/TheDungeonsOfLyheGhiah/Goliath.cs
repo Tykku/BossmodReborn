@@ -4,13 +4,13 @@ public enum OID : uint
 {
     Boss = 0x2BA5, //R=5.25
     BossAdd = 0x2BA6, //R=2.1
-    BossHelper = 0x233C,
-    DungeonQueen = 0x2A0A, // R0.840, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
-    DungeonGarlic = 0x2A08, // R0.840, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
-    DungeonTomato = 0x2A09, // R0.840, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
-    DungeonOnion = 0x2A06, // R0.840, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
-    DungeonEgg = 0x2A07, // R0.840, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
-    BonusAddKeeperOfKeys = 0x2A05, // R3.230
+    DungeonQueen = 0x2A0A, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
+    DungeonGarlic = 0x2A08, // R0.84, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
+    DungeonTomato = 0x2A09, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
+    DungeonOnion = 0x2A06, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
+    DungeonEgg = 0x2A07, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    BonusAddKeeperOfKeys = 0x2A05, // R3.23
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -33,7 +33,7 @@ public enum AID : uint
     Mash = 17852, // 2A05->self, 2.5s cast, range 12+R width 4 rect
     Scoop = 17853, // 2A05->self, 4.0s cast, range 15 120-degree cone
     Inhale = 17855, // 2A05->self, no cast, range 20 120-degree cone, attract 25 between hitboxes, shortly before Spin
-    Spin = 17854, // 2A05->self, 2.5s cast, range 11 circle
+    Spin = 17854 // 2A05->self, 2.5s cast, range 11 circle
 }
 
 class Wellbore(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wellbore), new AOEShapeCircle(15));
@@ -77,21 +77,14 @@ public class Goliath(WorldState ws, Actor primary) : BossModule(ws, primary, new
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossAdd))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.DungeonEgg))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.DungeonTomato))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.DungeonQueen))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.DungeonGarlic))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.DungeonOnion))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.BonusAddKeeperOfKeys))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
+        Arena.Actors(Enemies(OID.DungeonEgg), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.DungeonTomato), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.DungeonQueen), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.DungeonGarlic), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.DungeonOnion), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.BonusAddKeeperOfKeys), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

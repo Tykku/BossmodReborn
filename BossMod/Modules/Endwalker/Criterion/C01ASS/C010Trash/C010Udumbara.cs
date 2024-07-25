@@ -63,8 +63,8 @@ public class C010NUdumbara(WorldState ws, Actor primary) : SimpleBossModule(ws, 
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.NSapria), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.NSapria));
     }
 }
 
@@ -73,7 +73,7 @@ public class C010SUdumbara(WorldState ws, Actor primary) : SimpleBossModule(ws, 
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.SSapria), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SSapria));
     }
 }

@@ -22,7 +22,7 @@ class FreedomOfBozja : TemperatureAOE
     {
         var playerTemp = Temperature(actor);
         foreach (var o in _orbs)
-            yield return new(_shape, o.orb.Position, o.orb.Rotation, _activation, o.temperature == -playerTemp ? ArenaColor.SafeFromAOE : ArenaColor.AOE, _risky);
+            yield return new(_shape, o.orb.Position, o.orb.Rotation, _activation, o.temperature == -playerTemp ? Colors.SafeFromAOE : Colors.AOE, _risky);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

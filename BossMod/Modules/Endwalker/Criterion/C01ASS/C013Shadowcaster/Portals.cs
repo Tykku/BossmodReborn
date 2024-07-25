@@ -10,7 +10,7 @@ static class Portals
         if ((OID)actor.OID != OID.Portal)
             return null;
 
-        int rotation = state switch
+        var rotation = state switch
         {
             0x00400080 => -90, // CW arrows appear
             0x01000200 => +90, // CCW arrows appear
@@ -66,7 +66,7 @@ class PortalsWave(BossModule module) : BossComponent(module)
         {
             foreach (var p in _portals)
             {
-                Arena.AddCircle(dir > 0 ? p.s : p.n, 1, ArenaColor.Safe, 2);
+                Arena.AddCircle(dir > 0 ? p.s : p.n, 1, Colors.Safe, 2);
             }
         }
     }

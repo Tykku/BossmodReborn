@@ -38,13 +38,13 @@ class Paradeigma(BossModule module) : BossComponent(module)
         foreach (var s in RotatedSnakes())
             _snakeAOE.Draw(Arena, s.Item1, s.Item2);
         foreach (var c in _fireLine)
-            Arena.ZoneTri(Module.Center + c, RotatedPosition(c), Module.Center, ArenaColor.AOE);
+            Arena.ZoneTri(Module.Center + c, RotatedPosition(c), Module.Center, Colors.AOE);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (_fireLine.Count == 2)
-            Arena.AddLine(Module.Center + _fireLine[0], Module.Center + _fireLine[1], ArenaColor.Danger);
+            Arena.AddLine(Module.Center + _fireLine[0], Module.Center + _fireLine[1], Colors.Danger);
     }
 
     public override void OnEventEnvControl(byte index, uint state)

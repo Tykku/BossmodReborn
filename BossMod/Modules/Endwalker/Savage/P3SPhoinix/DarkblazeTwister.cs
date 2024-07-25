@@ -33,8 +33,8 @@ class DarkblazeTwister(BossModule module) : BossComponent(module)
     {
         foreach (var twister in BurningTwisters())
         {
-            Arena.ZoneCircle(twister.Position, _aoeInnerRadius, ArenaColor.AOE);
-            Arena.ZoneDonut(twister.Position, _aoeMiddleRadius, _aoeOuterRadius, ArenaColor.AOE);
+            Arena.ZoneCircle(twister.Position, _aoeInnerRadius, Colors.AOE);
+            Arena.ZoneDonut(twister.Position, _aoeMiddleRadius, _aoeOuterRadius, Colors.AOE);
         }
     }
 
@@ -47,8 +47,8 @@ class DarkblazeTwister(BossModule module) : BossComponent(module)
         var adjPos = Components.Knockback.AwayFromSource(pc.Position, darkTwister, _knockbackRange);
         if (adjPos != pc.Position)
         {
-            Arena.AddLine(pc.Position, adjPos, ArenaColor.Danger);
-            Arena.Actor(adjPos, pc.Rotation, ArenaColor.Danger);
+            Arena.AddLine(pc.Position, adjPos, Colors.Danger);
+            Arena.Actor(adjPos, pc.Rotation, Colors.Danger);
         }
 
         var safeOffset = _knockbackRange + (_aoeInnerRadius + _aoeMiddleRadius) / 2;
@@ -58,7 +58,7 @@ class DarkblazeTwister(BossModule module) : BossComponent(module)
             var dir = burningTwister.Position - darkTwister.Position;
             var len = dir.Length();
             dir /= len;
-            Arena.AddCircle(darkTwister.Position + dir * (len - safeOffset), safeRadius, ArenaColor.Safe);
+            Arena.AddCircle(darkTwister.Position + dir * (len - safeOffset), safeRadius, Colors.Safe);
         }
     }
 }

@@ -217,8 +217,8 @@ public class ThetaStar
 
     private void PercolateUp(int heapIndex)
     {
-        int nodeIndex = _openList[heapIndex];
-        int parent = (heapIndex - 1) >> 1;
+        var nodeIndex = _openList[heapIndex];
+        var parent = (heapIndex - 1) >> 1;
         while (heapIndex > 0 && HeapLess(nodeIndex, _openList[parent]))
         {
             _openList[heapIndex] = _openList[parent];

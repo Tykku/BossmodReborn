@@ -38,7 +38,7 @@ public sealed class ActorState : IEnumerable<Actor>
                 yield return new OpTether(act.InstanceID, act.Tether);
             if (act.CastInfo != null)
                 yield return new OpCastInfo(act.InstanceID, act.CastInfo);
-            for (int i = 0; i < act.Statuses.Length; ++i)
+            for (var i = 0; i < act.Statuses.Length; ++i)
                 if (act.Statuses[i].ID != 0)
                     yield return new OpStatus(act.InstanceID, i, act.Statuses[i]);
         }
@@ -108,7 +108,7 @@ public sealed class ActorState : IEnumerable<Actor>
                 ws.Actors.CastFinished.Fire(actor);
                 actor.CastInfo = null;
             }
-            for (int i = 0; i < actor.Statuses.Length; ++i)
+            for (var i = 0; i < actor.Statuses.Length; ++i)
             {
                 if (actor.Statuses[i].ID != 0) // clear statuses
                 {

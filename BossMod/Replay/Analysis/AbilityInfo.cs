@@ -68,7 +68,7 @@ class AbilityInfo : CommonEnumInfo
                     var angle = MathF.Acos(toTarget.Dot(dir));
                     if (toTarget.Dot(left) < 0)
                         angle = -angle;
-                    bool hit = a.Targets.Any(t => t.Target.InstanceID == target.InstanceID);
+                    var hit = a.Targets.Any(t => t.Target.InstanceID == target.InstanceID);
                     _points.Add((r, a, target, angle / MathF.PI * 180, dist, hit));
                 }
             }
@@ -104,7 +104,7 @@ class AbilityInfo : CommonEnumInfo
                     // TODO: take target hitbox size into account...
                     var pos = new WPos(target.PosRotAt(a.Timestamp).XZ());
                     var toTarget = pos - origin;
-                    bool hit = a.Targets.Any(t => t.Target.InstanceID == target.InstanceID);
+                    var hit = a.Targets.Any(t => t.Target.InstanceID == target.InstanceID);
                     _points.Add((r, a, target, toTarget.Dot(left), toTarget.Dot(dir), hit));
                 }
             }
@@ -172,7 +172,7 @@ class AbilityInfo : CommonEnumInfo
                         angle.Rad -= 2 * MathF.PI;
                     if (angle.Rad < -MathF.PI)
                         angle.Rad += 2 * MathF.PI;
-                    bool hit = !target.Effects.All(eff => eff.Type is ActionEffectType.Miss or ActionEffectType.StartActionCombo);
+                    var hit = !target.Effects.All(eff => eff.Type is ActionEffectType.Miss or ActionEffectType.StartActionCombo);
                     _points.Add((r, a, target.Target, angle, hit));
                 }
             }
@@ -205,7 +205,7 @@ class AbilityInfo : CommonEnumInfo
             {
                 foreach (var target in a.Targets)
                 {
-                    bool hasKnockbacks = false;
+                    var hasKnockbacks = false;
                     foreach (var eff in target.Effects)
                     {
                         switch (eff.Type)
@@ -303,7 +303,7 @@ class AbilityInfo : CommonEnumInfo
             {
                 var pos = a.Source.PosRotAt(a.Timestamp).XYZ();
 
-                float minDistance = float.MaxValue;
+                var minDistance = float.MaxValue;
                 foreach (var other in r.Participants.Where(p => p != a.Source && p.OID == a.Source.OID && p.ExistsInWorldAt(a.Timestamp)))
                 {
                     var otherPos = other.PosRotAt(a.Timestamp).XYZ();
@@ -559,7 +559,7 @@ class AbilityInfo : CommonEnumInfo
     private string EnumMemberString(ActionID aid, ActionData data)
     {
         var ldata = aid.Type == ActionType.Spell ? Service.LuminaRow<Lumina.Excel.GeneratedSheets.Action>(aid.ID) : null;
-        string name = aid.Type != ActionType.Spell ? $"// {aid}" : _aidType?.GetEnumName(aid.ID) ?? $"_{Utils.StringToIdentifier(ldata?.ActionCategory?.Value?.Name ?? "")}_{Utils.StringToIdentifier(ldata?.Name ?? $"Ability{aid.ID}")}";
+        var name = aid.Type != ActionType.Spell ? $"// {aid}" : _aidType?.GetEnumName(aid.ID) ?? $"_{Utils.StringToIdentifier(ldata?.ActionCategory?.Value?.Name ?? "")}_{Utils.StringToIdentifier(ldata?.Name ?? $"Ability{aid.ID}")}";
         return $"{name} = {aid.ID}, // {OIDListString(data.CasterOIDs)}->{JoinStrings(ActionTargetStrings(data))}, {CastTimeString(data, ldata)}, {DescribeShape(ldata)}";
     }
 

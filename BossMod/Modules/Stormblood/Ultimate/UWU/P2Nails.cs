@@ -9,6 +9,6 @@ class P2Nails(BossModule module) : BossComponent(module)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actors(_nails, ArenaColor.Enemy);
+        Arena.Actors(_nails, Colors.Enemy);
     }
 }

@@ -9,7 +9,7 @@ class ForbiddenFruit4(BossModule module) : ForbiddenFruitCommon(module, ActionID
         base.DrawArenaForeground(pcSlot, pc);
         if (NumAssignedTethers > 0 && !MinotaursBaited && TetherSources[pcSlot] == null)
         {
-            Arena.AddCircle(Module.Center - 2 * PlatformDirection(_bullPlatform).ToDirection(), 2, ArenaColor.Safe);
+            Arena.AddCircle(Module.Center - 2 * PlatformDirection(_bullPlatform).ToDirection(), 2, Colors.Safe);
         }
     }
 

@@ -47,7 +47,7 @@ public sealed class PartyState
     // select non-null and optionally alive raid members
     public IEnumerable<Actor> WithoutSlot(bool includeDead = false)
     {
-        for (int i = 0; i < _actors.Length; ++i)
+        for (var i = 0; i < _actors.Length; ++i)
         {
             var player = _actors[i];
             if (player == null)
@@ -60,7 +60,7 @@ public sealed class PartyState
 
     public IEnumerable<(int, Actor)> WithSlot(bool includeDead = false)
     {
-        for (int i = 0; i < _actors.Length; ++i)
+        for (var i = 0; i < _actors.Length; ++i)
         {
             var player = _actors[i];
             if (player == null)
@@ -76,7 +76,7 @@ public sealed class PartyState
 
     public IEnumerable<WorldState.Operation> CompareToInitial()
     {
-        for (int i = 0; i < Members.Length; ++i)
+        for (var i = 0; i < Members.Length; ++i)
             if (Members[i].IsValid())
                 yield return new OpModify(i, Members[i]);
         if (LimitBreakCur != 0 || LimitBreakMax != 10000)

@@ -27,7 +27,7 @@ class P2Cauterize(BossModule module) : Components.GenericAOEs(module)
         {
             foreach (var d in DragonsForOrder(BaitOrder[pcSlot]))
             {
-                Arena.Actor(d, ArenaColor.Object, true);
+                Arena.Actor(d, Colors.Object, true);
                 _shape.Outline(Arena, d.Position, Angle.FromDirection(pc.Position - d.Position));
             }
             // TODO: safe spots

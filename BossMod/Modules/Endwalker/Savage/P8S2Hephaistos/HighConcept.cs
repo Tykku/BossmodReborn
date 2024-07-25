@@ -116,10 +116,10 @@ class HighConceptCommon(BossModule module) : BossComponent(module)
     {
         var source = Raid[slot];
         if (source != null)
-            Arena.AddCircle(source.Position, radius, safe ? ArenaColor.Safe : ArenaColor.Danger);
+            Arena.AddCircle(source.Position, radius, safe ? Colors.Safe : Colors.Danger);
     }
 
-    protected void DrawTower(WPos pos, bool assigned) => Arena.AddCircle(pos, TowerRadius, assigned ? ArenaColor.Safe : ArenaColor.Danger, 2);
+    protected void DrawTower(WPos pos, bool assigned) => Arena.AddCircle(pos, TowerRadius, assigned ? Colors.Safe : Colors.Danger, 2);
     protected void DrawTower(float offsetZ, bool assigned) => DrawTower(Module.Center + new WDir(0, offsetZ), assigned);
 
     protected void DrawTether(int slot1, int slot2, int pcSlot)
@@ -127,7 +127,7 @@ class HighConceptCommon(BossModule module) : BossComponent(module)
         var a1 = Raid[slot1];
         var a2 = Raid[slot2];
         if (a1 != null && a2 != null)
-            Arena.AddLine(a1.Position, a2.Position, pcSlot == slot1 || pcSlot == slot2 ? ArenaColor.Safe : ArenaColor.Danger);
+            Arena.AddLine(a1.Position, a2.Position, pcSlot == slot1 || pcSlot == slot2 ? Colors.Safe : Colors.Danger);
     }
 }
 

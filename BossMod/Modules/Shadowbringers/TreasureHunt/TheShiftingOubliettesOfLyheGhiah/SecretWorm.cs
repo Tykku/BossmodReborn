@@ -4,12 +4,12 @@ public enum OID : uint
 {
     Boss = 0x3029, //R=6.0
     Bubble = 0x302A, //R=1.5
-    BossHelper = 0x233C,
     SecretQueen = 0x3021, // R0.840, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
     SecretGarlic = 0x301F, // R0.840, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
     SecretTomato = 0x3020, // R0.840, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
     SecretOnion = 0x301D, // R0.840, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
     SecretEgg = 0x301E, // R0.840, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -27,7 +27,7 @@ public enum AID : uint
     HeirloomScream = 6451, // 2A09->self, 3.5s cast, range 6+R circle
     PluckAndPrune = 6449, // 2A07->self, 3.5s cast, range 6+R circle
     PungentPirouette = 6450, // 2A08->self, 3.5s cast, range 6+R circle
-    Telega = 9630, // BonusAdds->self, no cast, single-target, bonus adds disappear
+    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
 public enum IconID : uint
@@ -112,17 +112,12 @@ public class Worm(WorldState ws, Actor primary) : BossModule(ws, primary, new(10
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.SecretEgg))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.SecretTomato))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.SecretQueen))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.SecretGarlic))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.SecretOnion))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SecretEgg), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretTomato), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretQueen), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretGarlic), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretOnion), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

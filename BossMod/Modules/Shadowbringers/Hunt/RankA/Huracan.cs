@@ -36,11 +36,11 @@ class Combos(BossModule module) : Components.GenericAOEs(module)
         {
             if (NumCasts == 0)
             {
-                yield return new(_shape, Module.PrimaryActor.Position, _rotation, _activation, ArenaColor.Danger);
+                yield return new(_shape, Module.PrimaryActor.Position, _rotation, _activation, Colors.Danger);
                 yield return new(rect2, Module.PrimaryActor.Position, Module.PrimaryActor.Rotation, _activation.AddSeconds(3.1f), Risky: false);
             }
             if (NumCasts == 1)
-                yield return new(rect2, Module.PrimaryActor.Position, Module.PrimaryActor.Rotation, _activation.AddSeconds(3.1f), ArenaColor.Danger);
+                yield return new(rect2, Module.PrimaryActor.Position, Module.PrimaryActor.Rotation, _activation.AddSeconds(3.1f), Colors.Danger);
         }
     }
 

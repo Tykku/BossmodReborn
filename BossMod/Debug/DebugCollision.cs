@@ -366,7 +366,7 @@
 //     private void DrawObject(CollisionObjectBase* obj)
 //     {
 //         var type = obj->Vtbl->GetObjectType(obj);
-//         foreach (var n3 in _tree.Node($"{type} {(nint)obj:X}, layers={obj->LayerMask:X8}, refs={obj->NumRefs}", color: _slaveShapes.Contains((nint)obj) ? ArenaColor.Safe : 0xffffffff, select: MakeSelect(() => VisualizeObject(obj), obj)))
+//         foreach (var n3 in _tree.Node($"{type} {(nint)obj:X}, layers={obj->LayerMask:X8}, refs={obj->NumRefs}", color: _slaveShapes.Contains((nint)obj) ? Colors.Safe : 0xffffffff, select: MakeSelect(() => VisualizeObject(obj), obj)))
 //         {
 //             switch (type)
 //             {
@@ -523,12 +523,12 @@
 //         _drawExtra = (sel, (nint)ctx);
 //     };
 
-//     private void VisualizeSphere(Vector4 sphere) => Camera.Instance?.DrawWorldSphere(new(sphere.X, sphere.Y, sphere.Z), sphere.W, ArenaColor.Safe);
-//     private void VisualizeAABB(Vector3 min, Vector3 max) => Camera.Instance?.DrawWorldOBB(min, max, SharpDX.Matrix.Identity, ArenaColor.Safe);
-//     private void VisualizeOBB(Vector3 min, Vector3 max, CollisionObjectShape* obj) => Camera.Instance?.DrawWorldOBB(min, max, obj->World.M, ArenaColor.Safe);
-//     private void VisualizeVertex(Vector3 v, CollisionObjectShape* obj) => Camera.Instance?.DrawWorldSphere(SharpDX.Vector3.TransformCoordinate(new(v.X, v.Y, v.Z), obj->World.M).ToSystem(), 0.1f, ArenaColor.Danger);
+//     private void VisualizeSphere(Vector4 sphere) => Camera.Instance?.DrawWorldSphere(new(sphere.X, sphere.Y, sphere.Z), sphere.W, Colors.Safe);
+//     private void VisualizeAABB(Vector3 min, Vector3 max) => Camera.Instance?.DrawWorldOBB(min, max, SharpDX.Matrix.Identity, Colors.Safe);
+//     private void VisualizeOBB(Vector3 min, Vector3 max, CollisionObjectShape* obj) => Camera.Instance?.DrawWorldOBB(min, max, obj->World.M, Colors.Safe);
+//     private void VisualizeVertex(Vector3 v, CollisionObjectShape* obj) => Camera.Instance?.DrawWorldSphere(SharpDX.Vector3.TransformCoordinate(new(v.X, v.Y, v.Z), obj->World.M).ToSystem(), 0.1f, Colors.Danger);
 
-//     private void VisualizePrimitive(CollisionShapePCBData* data, int iPrim, CollisionObjectShape* obj, uint color = ArenaColor.Danger)
+//     private void VisualizePrimitive(CollisionShapePCBData* data, int iPrim, CollisionObjectShape* obj, uint color = Colors.Danger)
 //     {
 //         var pRaw = (float*)(data + 1);
 //         var pCompr = (ushort*)(pRaw + 3 * data->NumVertsRaw);
@@ -546,7 +546,7 @@
 //         Camera.Instance?.DrawWorldLine(w3, w1, color);
 //     }
 
-//     private void VisualizeShape(CollisionShapePCBData* data, CollisionObjectShape* obj, uint color = ArenaColor.Danger)
+//     private void VisualizeShape(CollisionShapePCBData* data, CollisionObjectShape* obj, uint color = Colors.Danger)
 //     {
 //         for (int i = 0; i < data->NumPrims; ++i)
 //             VisualizePrimitive(data, i, obj, color);
@@ -569,7 +569,7 @@
 //                         {
 //                             var elem = castObj->Elements + i;
 //                             if (elem->Shape != null && elem->Shape->Shape != null && (nint)elem->Shape->Shape->Vtbl == _typeinfoCollisionShapePCB && elem->Shape->Shape->Data != null)
-//                                 VisualizeShape(elem->Shape->Shape->Data, elem->Shape, ArenaColor.Safe);
+//                                 VisualizeShape(elem->Shape->Shape->Data, elem->Shape, Colors.Safe);
 //                         }
 //                     }
 //                 }
@@ -578,25 +578,25 @@
 //                 {
 //                     var castObj = (CollisionObjectShape*)obj;
 //                     if (castObj->Shape != null && (nint)castObj->Shape->Vtbl == _typeinfoCollisionShapePCB && castObj->Shape->Data != null)
-//                         VisualizeShape(castObj->Shape->Data, castObj, _slaveShapes.Contains((nint)obj) ? ArenaColor.Safe : ArenaColor.Danger);
+//                         VisualizeShape(castObj->Shape->Data, castObj, _slaveShapes.Contains((nint)obj) ? Colors.Safe : Colors.Danger);
 //                 }
 //                 break;
 //             case CollisionObjectType.Box:
 //                 {
 //                     var castObj = (CollisionObjectBox*)obj;
-//                     Camera.Instance?.DrawWorldOBB(new(-1), new(+1), castObj->World.M, ArenaColor.Enemy);
+//                     Camera.Instance?.DrawWorldOBB(new(-1), new(+1), castObj->World.M, Colors.Enemy);
 //                 }
 //                 break;
 //             case CollisionObjectType.Cylinder:
 //                 {
 //                     var castObj = (CollisionObjectCylinder*)obj;
-//                     Camera.Instance?.DrawWorldUnitCylinder(castObj->World.M, ArenaColor.Enemy);
+//                     Camera.Instance?.DrawWorldUnitCylinder(castObj->World.M, Colors.Enemy);
 //                 }
 //                 break;
 //             case CollisionObjectType.Sphere:
 //                 {
 //                     var castObj = (CollisionObjectSphere*)obj;
-//                     Camera.Instance?.DrawWorldSphere(castObj->Translation, castObj->Scale.X, ArenaColor.Enemy);
+//                     Camera.Instance?.DrawWorldSphere(castObj->Translation, castObj->Scale.X, Colors.Enemy);
 //                 }
 //                 break;
 //             case CollisionObjectType.Plane:
@@ -608,10 +608,10 @@
 //                     var b = SharpDX.Vector3.TransformCoordinate(new(-1, -1, 0), m).ToSystem();
 //                     var c = SharpDX.Vector3.TransformCoordinate(new(+1, -1, 0), m).ToSystem();
 //                     var d = SharpDX.Vector3.TransformCoordinate(new(+1, +1, 0), m).ToSystem();
-//                     Camera.Instance?.DrawWorldLine(a, b, ArenaColor.Enemy);
-//                     Camera.Instance?.DrawWorldLine(b, c, ArenaColor.Enemy);
-//                     Camera.Instance?.DrawWorldLine(c, d, ArenaColor.Enemy);
-//                     Camera.Instance?.DrawWorldLine(d, a, ArenaColor.Enemy);
+//                     Camera.Instance?.DrawWorldLine(a, b, Colors.Enemy);
+//                     Camera.Instance?.DrawWorldLine(b, c, Colors.Enemy);
+//                     Camera.Instance?.DrawWorldLine(c, d, Colors.Enemy);
+//                     Camera.Instance?.DrawWorldLine(d, a, Colors.Enemy);
 //                 }
 //                 break;
 //         }

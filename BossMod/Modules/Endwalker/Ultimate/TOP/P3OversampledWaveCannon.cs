@@ -25,19 +25,19 @@ class P3OversampledWaveCannon(BossModule module) : BossComponent(module)
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
         foreach (var p in SafeSpots(slot).Where(p => p.assigned))
-            movementHints.Add(actor.Position, p.pos, ArenaColor.Safe);
+            movementHints.Add(actor.Position, p.pos, Colors.Safe);
     }
 
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         foreach (var a in AOEs(pcSlot))
-            _shape.Draw(Arena, a.origin, a.rot, a.safe ? ArenaColor.SafeFromAOE : ArenaColor.AOE);
+            _shape.Draw(Arena, a.origin, a.rot, a.safe ? Colors.SafeFromAOE : Colors.AOE);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var p in SafeSpots(pcSlot))
-            Arena.AddCircle(p.pos, 1, p.assigned ? ArenaColor.Safe : ArenaColor.Danger);
+            Arena.AddCircle(p.pos, 1, p.assigned ? Colors.Safe : Colors.Danger);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -129,7 +129,7 @@ class P3OversampledWaveCannon(BossModule module) : BossComponent(module)
     private IEnumerable<(Actor? origin, Angle offset, int order)> AOEs()
     {
         yield return (_boss, _bossAngle, 0);
-        for (int i = 0; i < _monitorOrder.Count; ++i)
+        for (var i = 0; i < _monitorOrder.Count; ++i)
         {
             var slot = _monitorOrder[i];
             yield return (Raid[slot], _playerAngles[slot], i + 1);

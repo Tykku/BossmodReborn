@@ -29,7 +29,7 @@ class EndOfDaysTethered(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var t in _tethers)
-            Arena.AddLine(t.source.Position, t.target.Position, ArenaColor.Danger);
+            Arena.AddLine(t.source.Position, t.target.Position, Colors.Danger);
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)

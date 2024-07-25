@@ -73,9 +73,9 @@ public abstract class GenericLineOfSightAOE(BossModule module, ActionID aid, flo
         // TODO: reconsider, this looks like shit...
         if (Origin != null)
         {
-            Arena.ZoneDonut(Origin.Value, MaxRange, 1000, ArenaColor.SafeFromAOE);
+            Arena.ZoneDonut(Origin.Value, MaxRange, 1000, Colors.SafeFromAOE);
             foreach (var v in Visibility)
-                Arena.ZoneCone(Origin.Value, v.Distance, 1000, v.Dir, v.HalfWidth, ArenaColor.SafeFromAOE);
+                Arena.ZoneCone(Origin.Value, v.Distance, 1000, v.Dir, v.HalfWidth, Colors.SafeFromAOE);
         }
     }
 }
@@ -147,7 +147,7 @@ public abstract class GenericLineOfSightRectAOE(BossModule module, ActionID aid)
                 UnionShapes.Add(new RectangleSE(b.Position, b.Position + 1000 * caster.Rotation.ToDirection(), b.HitboxRadius));
                 DifferenceShapes.Add(new Circle(b.Position, b.HitboxRadius));
             }
-            InvertedAOE.Add(new(new AOEShapeCustom(CopyShapes(UnionShapes), CopyShapes(DifferenceShapes), true), Module.Arena.Center, default, Module.CastFinishAt(spell), ArenaColor.SafeFromAOE));
+            InvertedAOE.Add(new(new AOEShapeCustom(CopyShapes(UnionShapes), CopyShapes(DifferenceShapes), true), Module.Arena.Center, default, Module.CastFinishAt(spell), Colors.SafeFromAOE));
             UnionShapes.Clear();
             DifferenceShapes.Clear();
         }

@@ -30,8 +30,8 @@ public class Duel6Lyon(WorldState ws, Actor primary) : BossModule(ws, primary, n
         {
             foreach (var caster in tasteOfBlood.Casters)
             {
-                bool isDueler = tasteOfBlood.Duelers.Contains(caster);
-                Arena.Actor(caster, isDueler ? ArenaColor.Danger : ArenaColor.Enemy, true);
+                var isDueler = tasteOfBlood.Duelers.Contains(caster);
+                Arena.Actor(caster, isDueler ? Colors.Danger : Colors.Enemy, true);
             }
         }
         else

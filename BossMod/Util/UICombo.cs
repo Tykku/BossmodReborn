@@ -13,7 +13,7 @@ public static class UICombo
 
     public static bool Enum<T>(string label, ref T v) where T : Enum
     {
-        bool res = false;
+        var res = false;
         ImGui.SetNextItemWidth(200);
         if (ImGui.BeginCombo(label, EnumString(v)))
         {
@@ -32,11 +32,11 @@ public static class UICombo
 
     public static bool Int(string label, string[] values, ref int v)
     {
-        bool res = false;
+        var res = false;
         ImGui.SetNextItemWidth(200);
         if (ImGui.BeginCombo(label, v < values.Length ? values[v] : v.ToString()))
         {
-            for (int i = 0; i < values.Length; ++i)
+            for (var i = 0; i < values.Length; ++i)
             {
                 if (ImGui.Selectable(values[i], v == i))
                 {
@@ -51,7 +51,7 @@ public static class UICombo
 
     public static bool Bool(string label, string[] values, ref bool v)
     {
-        int val = v ? 1 : 0;
+        var val = v ? 1 : 0;
         if (!Int(label, values, ref val))
             return false;
         v = val != 0;

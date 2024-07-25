@@ -21,7 +21,7 @@ class PlanarTactics(BossModule module) : Components.GenericAOEs(module)
         ref var p = ref Players[pcSlot];
         if (p.StartingOffsets != null)
             foreach (var off in p.StartingOffsets)
-                Arena.AddCircle(Module.Center + off, 1, ArenaColor.Safe);
+                Arena.AddCircle(Module.Center + off, 1, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

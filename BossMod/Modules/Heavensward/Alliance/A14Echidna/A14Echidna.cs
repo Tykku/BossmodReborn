@@ -18,9 +18,9 @@ public class A14Echidna(WorldState ws, Actor primary) : BossModule(ws, primary, 
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Dexter), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Sinister), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Bloodguard), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Dexter));
+        Arena.Actors(Enemies(OID.Sinister));
+        Arena.Actors(Enemies(OID.Bloodguard));
     }
 }

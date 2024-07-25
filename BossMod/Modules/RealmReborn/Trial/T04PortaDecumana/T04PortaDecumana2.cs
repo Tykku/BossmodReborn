@@ -98,7 +98,7 @@ class Aetheroplasm(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var orb in ActiveOrbs)
-            Arena.AddCircle(orb.Position, 1.4f, ArenaColor.Safe);
+            Arena.AddCircle(orb.Position, 1.4f, Colors.Safe);
     }
 }
 
@@ -143,8 +143,7 @@ public class T04PortaDecumana2(WorldState ws, Actor primary) : BossModule(ws, pr
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy, true);
-        foreach (var s in Enemies(OID.Aetheroplasm).Where(x => !x.IsDead))
-            Arena.Actor(s, ArenaColor.Object, true);
+        Arena.Actor(PrimaryActor, Colors.Enemy, true);
+        Arena.Actors(Enemies(OID.Aetheroplasm).Where(x => !x.IsDead), Colors.Object, true);
     }
 }

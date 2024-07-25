@@ -56,10 +56,10 @@ public class UWU : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(Garuda(), ArenaColor.Enemy);
-        Arena.Actor(Ifrit(), ArenaColor.Enemy);
-        Arena.Actor(Titan(), ArenaColor.Enemy);
-        Arena.Actor(Lahabrea(), ArenaColor.Enemy);
-        Arena.Actor(Ultima(), ArenaColor.Enemy);
+        Arena.Actor(Garuda());
+        Arena.Actor(Ifrit());
+        Arena.Actor(Titan());
+        Arena.Actor(Lahabrea());
+        Arena.Actor(Ultima());
     }
 }

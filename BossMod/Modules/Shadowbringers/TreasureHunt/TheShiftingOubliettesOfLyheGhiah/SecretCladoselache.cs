@@ -4,8 +4,8 @@ public enum OID : uint
 {
     Boss = 0x3027, //R=2.47
     BossAdd = 0x3028, //R=3.0 
-    BossHelper = 0x233C,
     BonusAddKeeperOfKeys = 0x3034, // R3.230
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -24,14 +24,14 @@ public enum AID : uint
     Mash = 21767, // 3034->self, 3.0s cast, range 13 width 4 rect
     Inhale = 21770, // 3034->self, no cast, range 20 120-degree cone, attract 25 between hitboxes, shortly before Spin
     Spin = 21769, // 3034->self, 4.0s cast, range 11 circle
-    Scoop = 21768, // 3034->self, 4.0s cast, range 15 120-degree cone
+    Scoop = 21768 // 3034->self, 4.0s cast, range 15 120-degree cone
 }
 
 public enum IconID : uint
 {
     spreadmarker = 135, // player
     RotateCCW = 168, // Boss
-    RotateCW = 167, // Boss
+    RotateCW = 167 // Boss
 }
 
 class PelagicCleaverRotation(BossModule module) : Components.GenericRotatingAOE(module)
@@ -116,11 +116,9 @@ public class Cladoselache(WorldState ws, Actor primary) : BossModule(ws, primary
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossAdd))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.BonusAddKeeperOfKeys))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
+        Arena.Actors(Enemies(OID.BonusAddKeeperOfKeys), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

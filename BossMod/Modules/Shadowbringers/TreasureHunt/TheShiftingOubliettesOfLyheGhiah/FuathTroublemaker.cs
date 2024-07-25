@@ -4,8 +4,8 @@ public enum OID : uint
 {
     Boss = 0x302F, //R=3.25
     BossAdd = 0x3019, //R=1.8
-    BossHelper = 0x233C,
     BonusAddFuathTrickster = 0x3033, // R0.750
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -18,7 +18,7 @@ public enum AID : uint
     CroakingChorus = 21738, // Boss->self, 3.0s cast, single-target, calls adds
     ToyHammer = 21734, // Boss->player, 4.0s cast, single-target
     Hydrocannon = 21737, // Boss->players, 5.0s cast, range 6 circle
-    Telega = 9630, // BonusAdds->self, no cast, single-target, bonus adds disappear
+    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
 class CroakingChorus(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.CroakingChorus), "Calls adds");
@@ -46,11 +46,9 @@ public class FuathTroublemaker(WorldState ws, Actor primary) : BossModule(ws, pr
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossAdd))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.BonusAddFuathTrickster))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
+        Arena.Actors(Enemies(OID.BonusAddFuathTrickster), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

@@ -10,7 +10,7 @@ public class StayMove(BossModule module) : BossComponent(module)
 
     public override void Update()
     {
-        for (int i = 0; i < _lastPositions.Length; ++i)
+        for (var i = 0; i < _lastPositions.Length; ++i)
             _lastPositions[i] = (_lastPositions[i].curr, Raid[i]?.PosRot.XYZ() ?? default);
     }
 

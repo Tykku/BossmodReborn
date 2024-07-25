@@ -84,7 +84,7 @@ public class D161Psycheflayer(WorldState ws, Actor primary) : BossModule(ws, pri
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actor(_bossP2, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actor(_bossP2);
     }
 }

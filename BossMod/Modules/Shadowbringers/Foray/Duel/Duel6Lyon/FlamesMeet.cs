@@ -11,7 +11,7 @@ class FlamesMeet(BossModule module) : Components.GenericAOEs(module)
         {
             var aoe = _aoes[i];
             if (i == 0)
-                aoe.Color = ArenaColor.Danger;
+                aoe.Color = Colors.Danger;
             yield return aoe;
             // Only show the first 2 so it's obvious which one to go to.
             if (i == 1)

@@ -49,7 +49,7 @@ class WreathOfThorns1(BossModule module) : BossComponent(module)
     {
         if (CurState is State.FirstAOEs or State.LastAOEs)
             foreach (var aoe in CurState == State.FirstAOEs ? FirstAOEs : LastAOEs)
-                Arena.ZoneCircle(aoe.Position, P4S2.WreathAOERadius, ArenaColor.AOE);
+                Arena.ZoneCircle(aoe.Position, P4S2.WreathAOERadius, Colors.AOE);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
@@ -57,9 +57,9 @@ class WreathOfThorns1(BossModule module) : BossComponent(module)
         if (CurState == State.Towers)
         {
             foreach (var tower in Towers)
-                Arena.AddCircle(tower.Position, P4S2.WreathTowerRadius, ArenaColor.Safe);
+                Arena.AddCircle(tower.Position, P4S2.WreathTowerRadius, Colors.Safe);
             foreach (var player in Raid.WithoutSlot())
-                Arena.Actor(player, ArenaColor.PlayerGeneric);
+                Arena.Actor(player, Colors.PlayerGeneric);
         }
     }
 

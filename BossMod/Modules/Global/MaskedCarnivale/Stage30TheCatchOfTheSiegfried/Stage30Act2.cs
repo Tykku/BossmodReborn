@@ -39,7 +39,7 @@ public class Sparksteel2 : Components.LocationTargetedAOEs
 {
     public Sparksteel2(BossModule module) : base(module, ActionID.MakeSpell(AID.Sparksteel2), 8)
     {
-        Color = ArenaColor.Danger;
+        Color = Colors.Danger;
     }
 }
 
@@ -48,7 +48,7 @@ class Sparksteel3(BossModule module) : Components.LocationTargetedAOEs(module, A
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         base.OnCastFinished(caster, spell);
-        Color = (AID)spell.Action.ID == AID.Sparksteel2 ? ArenaColor.Danger : ArenaColor.AOE;
+        Color = (AID)spell.Action.ID == AID.Sparksteel2 ? Colors.Danger : Colors.AOE;
     }
 }
 

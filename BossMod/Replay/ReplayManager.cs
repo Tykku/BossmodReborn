@@ -4,11 +4,10 @@ using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace BossMod;
 
-public sealed class ReplayManager(RotationDatabase rotationDB, string fileDialogStartPath) : IDisposable
+public sealed class ReplayManager(RotationDatabase rotationDB, string logDirectory) : IDisposable
 {
     private sealed class ReplayEntry : IDisposable
     {
@@ -72,6 +71,13 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string fileDialog
     private int _nextAnalysisId;
     private string _path = "";
     private FileDialog? _fileDialog;
+    private string _logDirectory = logDirectory;
+    private readonly RotationDatabase _rotationDB = rotationDB;
+
+    public void SetLogDirectory(string logDirectory)
+    {
+        _logDirectory = logDirectory;
+    }
 
     public void Dispose()
     {
@@ -92,7 +98,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string fileDialog
         {
             if (e.AutoShowWindow && e.Window == null && e.Replay.IsCompletedSuccessfully && e.Replay.Result.Ops.Count > 0)
             {
-                e.Show(rotationDB);
+                e.Show(_rotationDB);
             }
         }
         // auto-show analysis windows that are now ready, auto dispose entries that had their windows closed
@@ -120,7 +126,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string fileDialog
             if (_fileDialog.GetIsOk())
             {
                 _path = _fileDialog.GetResults().FirstOrDefault() ?? "";
-                fileDialogStartPath = _fileDialog.GetCurrentPath();
+                _logDirectory = _fileDialog.GetCurrentPath();
             }
             _fileDialog.Hide();
             _fileDialog = null;
@@ -156,7 +162,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string fileDialog
                 if (popup)
                 {
                     if (ImGui.MenuItem("Show"))
-                        e.Show(rotationDB);
+                        e.Show(_rotationDB);
                     if (ImGui.MenuItem("Convert to verbose"))
                         ConvertLog(e.Replay.Result, ReplayLogFormat.TextVerbose);
                     if (ImGui.MenuItem("Convert to short text"))
@@ -187,7 +193,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string fileDialog
             return;
 
         var numSelected = _replayEntries.Count(e => e.Selected);
-        bool shouldSelectAll = _replayEntries.Count == 0 || numSelected < _replayEntries.Count;
+        var shouldSelectAll = _replayEntries.Count == 0 || numSelected < _replayEntries.Count;
         if (ImGui.Button(shouldSelectAll ? "Select all" : "Unselect all", new(80, 0)))
         {
             foreach (var e in _replayEntries)
@@ -198,7 +204,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string fileDialog
             ImGui.SameLine();
             if (ImGui.Button("Analyze selected"))
             {
-                _analysisEntries.Add(new((++_nextAnalysisId).ToString(), [.. _replayEntries.Where(e => e.Selected)]));
+                _analysisEntries.Add(new((++_nextAnalysisId).ToString(), _replayEntries.Where(e => e.Selected).ToList()));
             }
             ImGui.SameLine();
             if (ImGui.Button("Unload selected"))
@@ -225,7 +231,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string fileDialog
         ImGui.SameLine();
         if (ImGui.Button("..."))
         {
-            _fileDialog ??= new("select_log", "Select file or directory", "Log files{.log},All files{.*}", fileDialogStartPath, "", ".log", 1, false, ImGuiFileDialogFlags.SelectOnly);
+            _fileDialog ??= new FileDialog("select_log", "Select file or directory", "Log files{.log},All files{.*}", _logDirectory, "", ".log", 1, false, ImGuiFileDialogFlags.SelectOnly);
             _fileDialog.Show();
         }
         ImGui.SameLine();
@@ -294,7 +300,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string fileDialog
 
         var player = new ReplayPlayer(r);
         player.WorldState.Frame.Timestamp = r.Ops[0].Timestamp; // so that we get correct name etc.
-        using var relogger = new ReplayRecorder(player.WorldState, format, false, new FileInfo(r.Path).Directory!, format.ToString());
+        using var relogger = new ReplayRecorder(player.WorldState, format, false, new DirectoryInfo(_logDirectory), format.ToString());
         player.AdvanceTo(DateTime.MaxValue, () => { });
     }
 }

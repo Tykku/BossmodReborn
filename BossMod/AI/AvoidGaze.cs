@@ -37,11 +37,11 @@ static class AvoidGaze
         }
 
         // select midpoint of largest allowed segment
-        float bestWidth = list.Segments[0].Min + 2 * MathF.PI - list.Segments[^1].Max;
-        float bestMidpoint = (list.Segments[0].Min + 2 * MathF.PI + list.Segments[^1].Max) / 2;
-        for (int i = 1; i < list.Segments.Count; ++i)
+        var bestWidth = list.Segments[0].Min + 2 * MathF.PI - list.Segments[^1].Max;
+        var bestMidpoint = (list.Segments[0].Min + 2 * MathF.PI + list.Segments[^1].Max) / 2;
+        for (var i = 1; i < list.Segments.Count; ++i)
         {
-            float width = list.Segments[i].Min - list.Segments[i - 1].Max;
+            var width = list.Segments[i].Min - list.Segments[i - 1].Max;
             if (width > bestWidth)
             {
                 bestWidth = width;

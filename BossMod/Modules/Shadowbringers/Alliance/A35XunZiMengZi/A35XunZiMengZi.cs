@@ -17,7 +17,7 @@ public class A35XunZiMengZi(WorldState ws, Actor primary) : BossModule(ws, prima
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actor(_mengZi, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actor(_mengZi);
     }
 }

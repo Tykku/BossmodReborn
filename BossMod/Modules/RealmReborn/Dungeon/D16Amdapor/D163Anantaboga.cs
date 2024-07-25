@@ -122,11 +122,9 @@ public class D163Anantaboga(WorldState ws, Actor primary) : BossModule(ws, prima
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var add in Enemies(OID.DarkHelot))
-            Arena.Actor(add, ArenaColor.Enemy);
-        foreach (var p in ActivePillars())
-            Arena.Actor(p, ArenaColor.Object, true);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.DarkHelot));
+        Arena.Actors(ActivePillars(), Colors.Object, true);
     }
 
     // TODO: blocker coordinates are slightly different, find out correct coords...

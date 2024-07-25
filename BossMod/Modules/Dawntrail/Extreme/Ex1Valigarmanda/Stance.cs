@@ -5,7 +5,7 @@ class Stance(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
 
-    private static readonly AOEShapeCone _shapeCone = new(50, 45.Degrees()); // TODO: verify angle & origin
+    private static readonly AOEShapeCone _shapeCone = new(50, 40.Degrees()); // TODO: verify origin
     private static readonly AOEShapeCone _shapeOut = new(24, 90.Degrees());
     private static readonly AOEShapeDonut _shapeIn = new(8, 30);
 
@@ -14,7 +14,7 @@ class Stance(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         // TODO: origin should be spell.LocXZ (once it's fully fixed)
-        (AOEShape? shape, WPos origin) = (AID)spell.Action.ID switch
+        (var shape, var origin) = (AID)spell.Action.ID switch
         {
             AID.SusurrantBreathAOE => (_shapeCone, new(100, 75)),
             AID.SlitheringStrikeAOE => (_shapeOut, caster.Position),
@@ -64,8 +64,8 @@ class ChillingCataclysm(BossModule module) : Components.GenericAOEs(module, Acti
     {
         if ((OID)actor.OID == OID.ChillingCataclysmArcaneSphere)
         {
-            _aoes.Add(new(_shape, actor.Position, 0.Degrees(), WorldState.FutureTime(5.6f)));
-            _aoes.Add(new(_shape, actor.Position, 45.Degrees(), WorldState.FutureTime(5.6f)));
+            _aoes.Add(new(_shape, actor.Position, -0.003f.Degrees(), WorldState.FutureTime(5.6f)));
+            _aoes.Add(new(_shape, actor.Position, 44.998f.Degrees(), WorldState.FutureTime(5.6f)));
         }
     }
 }

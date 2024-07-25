@@ -171,7 +171,7 @@ class Ex4IfritAINormal(BossModule module) : Ex4IfritAICommon(module)
         if (Module.PrimaryActor.TargetID == pc.InstanceID)
         {
             // cone to help mt with proper positioning
-            Arena.AddCone(Module.PrimaryActor.Position, 2, Angle.FromDirection(Module.PrimaryActor.Position - Module.Center), Incinerate.CleaveShape.HalfAngle, ArenaColor.Safe);
+            Arena.AddCone(Module.PrimaryActor.Position, 2, Angle.FromDirection(Module.PrimaryActor.Position - Module.Center), Incinerate.CleaveShape.HalfAngle, Colors.Safe);
         }
     }
 }
@@ -252,7 +252,7 @@ class Ex4IfritAINails : Ex4IfritAINormal
             }
             else if (Module.PrimaryActor.TargetID != actor.InstanceID)
             {
-                bool invertedSW = NailKillOrder.Count <= MinNailsForCWSearingWinds;
+                var invertedSW = NailKillOrder.Count <= MinNailsForCWSearingWinds;
                 if (IsSearingWindTarget(actor))
                 {
                     var dir = !actor.Position.InCircle(Module.Center, 10) ? Angle.FromDirection(actor.Position - Module.Center)
@@ -287,7 +287,7 @@ class Ex4IfritAINails : Ex4IfritAINormal
         base.DrawArenaForeground(pcSlot, pc);
         var nextNail = NailKillOrder.FirstOrDefault();
         if (nextNail != null)
-            Arena.AddCircle(nextNail.Position, 2, ArenaColor.Safe);
+            Arena.AddCircle(nextNail.Position, 2, Colors.Safe);
     }
 
     private (float, float) NailDirDist(WDir offset, Angle startingDir)
@@ -386,7 +386,7 @@ class Ex4IfritAIHellfire : Ex4IfritAICommon
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.AddCircle(Module.Center + _safespotOffset, 2, ArenaColor.Safe);
+        Arena.AddCircle(Module.Center + _safespotOffset, 2, Colors.Safe);
     }
 }
 class Ex4IfritAIHellfire1(BossModule module) : Ex4IfritAIHellfire(module, 150.Degrees(), PartyRolesConfig.Assignment.MT);

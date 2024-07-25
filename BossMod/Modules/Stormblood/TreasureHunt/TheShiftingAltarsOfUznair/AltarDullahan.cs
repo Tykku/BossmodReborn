@@ -4,25 +4,25 @@ public enum OID : uint
 {
     Boss = 0x2533, //R=3.8
     BossAdd = 0x2563, //R=1.8
-    BossHelper = 0x233C,
-    AltarQueen = 0x254A, // R0.840, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
-    AltarGarlic = 0x2548, // R0.840, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
-    AltarTomato = 0x2549, // R0.840, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
-    AltarOnion = 0x2546, // R0.840, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
-    AltarEgg = 0x2547, // R0.840, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    AltarQueen = 0x254A, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
+    AltarGarlic = 0x2548, // R0.84, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
+    AltarTomato = 0x2549, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
+    AltarOnion = 0x2546, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
+    AltarEgg = 0x2547, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
     BonusAddAltarMatanga = 0x2545, // R3.420
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
-    AutoAttack = 870, // 2533->player, no cast, single-target
+    AutoAttack = 870, // Boss->player, no cast, single-target
     AutoAttack2 = 872, // BonusAddAltarMatanga/BonusAdd_Mandragoras->player, no cast, single-target
-    AutoAttack3 = 6497, // 2563->player, no cast, single-target
-    IronJustice = 13316, // 2533->self, 3.0s cast, range 8+R 120-degree cone
-    Cloudcover = 13477, // 2533->location, 3.0s cast, range 6 circle
-    TerrorEye = 13644, // 2563->location, 3.5s cast, range 6 circle
-    StygianRelease = 13314, // 2533->self, 3.5s cast, range 50+R circle, small raidwide dmg, knockback 20 from source
-    VillainousRebuke = 13315, // 2533->players, 4.5s cast, range 6 circle
+    AutoAttack3 = 6497, // BossAdd->player, no cast, single-target
+    IronJustice = 13316, // Boss->self, 3.0s cast, range 8+R 120-degree cone
+    Cloudcover = 13477, // Boss->location, 3.0s cast, range 6 circle
+    TerrorEye = 13644, // BossAdd->location, 3.5s cast, range 6 circle
+    StygianRelease = 13314, // Boss->self, 3.5s cast, range 50+R circle, small raidwide dmg, knockback 20 from source
+    VillainousRebuke = 13315, // Boss->players, 4.5s cast, range 6 circle
 
     PluckAndPrune = 6449, // AltarEgg->self, 3.5s cast, range 6+R circle
     PungentPirouette = 6450, // AltarGarlic->self, 3.5s cast, range 6+R circle
@@ -33,8 +33,7 @@ public enum AID : uint
     Spin = 8599, // BonusAddAltarMatanga->self, no cast, range 6+R 120-degree cone
     RaucousScritch = 8598, // BonusAddAltarMatanga->self, 2.5s cast, range 5+R 120-degree cone
     Hurl = 5352, // BonusAddAltarMatanga->location, 3.0s cast, range 6 circle
-
-    Telega = 9630, // bonusadds->self, no cast, single-target, bonus add disappear
+    Telega = 9630 // bonusadds->self, no cast, single-target, bonus add disappear
 }
 
 class IronJustice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IronJustice), new AOEShapeCone(11.8f, 60.Degrees()));
@@ -85,21 +84,14 @@ public class Dullahan(WorldState ws, Actor primary) : BossModule(ws, primary, ne
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossAdd))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.AltarEgg))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.AltarTomato))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.AltarQueen))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.AltarGarlic))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.AltarOnion))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.BonusAddAltarMatanga))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
+        Arena.Actors(Enemies(OID.AltarEgg), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.AltarTomato), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.AltarQueen), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.AltarGarlic), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.AltarOnion), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.BonusAddAltarMatanga), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

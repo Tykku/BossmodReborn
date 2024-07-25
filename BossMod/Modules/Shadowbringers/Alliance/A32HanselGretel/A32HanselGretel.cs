@@ -42,7 +42,7 @@ public class A32HanselGretel(WorldState ws, Actor primary) : BossModule(ws, prim
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actor(_hansel, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actor(_hansel);
     }
 }

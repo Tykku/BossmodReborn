@@ -113,7 +113,7 @@ class RapidRotary(BossModule module) : Components.GenericAOEs(module)
         for (var i = 0; i < Math.Clamp(_aoes.Count, 0, 7); i++)
         {
             var aoe = _aoes[i];
-            yield return new AOEInstance(aoe.Shape, aoe.Origin, aoe.Rotation, aoe.Activation, i < 2 ? ArenaColor.Danger : ArenaColor.AOE);
+            yield return new AOEInstance(aoe.Shape, aoe.Origin, aoe.Rotation, aoe.Activation, i < 2 ? Colors.Danger : Colors.AOE);
         }
     }
 

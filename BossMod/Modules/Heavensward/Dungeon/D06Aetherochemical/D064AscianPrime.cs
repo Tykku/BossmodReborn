@@ -150,7 +150,7 @@ class AncientCircle(BossModule module) : Components.UniformStackSpread(module, 3
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         foreach (var c in actors)
-            donut.Draw(Arena, c.Position, default, ArenaColor.AOE);
+            donut.Draw(Arena, c.Position, default, Colors.AOE);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc) { }
@@ -291,8 +291,7 @@ public class D064AscianPrime(WorldState ws, Actor primary) : BossModule(ws, prim
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.ArcaneSphere))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.ArcaneSphere));
     }
 }

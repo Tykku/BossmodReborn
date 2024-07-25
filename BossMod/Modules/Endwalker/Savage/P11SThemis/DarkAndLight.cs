@@ -27,7 +27,7 @@ class DarkAndLight(BossModule module) : BossComponent(module)
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
         if (Safespot(slot, actor) is var safespot && safespot != null)
-            movementHints.Add(actor.Position, safespot.Value, ArenaColor.Safe);
+            movementHints.Add(actor.Position, safespot.Value, Colors.Safe);
     }
 
     public override PlayerPriority CalcPriority(int pcSlot, Actor pc, int playerSlot, Actor player, ref uint customColor)
@@ -40,9 +40,9 @@ class DarkAndLight(BossModule module) : BossComponent(module)
     {
         var pcState = _states[pcSlot];
         if (pcState.Tether != TetherType.None && Raid[pcState.PartnerSlot] is var partner && partner != null)
-            Arena.AddLine(pc.Position, partner.Position, pcState.TetherBad ? ArenaColor.Danger : ArenaColor.Safe);
+            Arena.AddLine(pc.Position, partner.Position, pcState.TetherBad ? Colors.Danger : Colors.Safe);
         if (Safespot(pcSlot, pc) is var safespot && safespot != null)
-            Arena.AddCircle(safespot.Value, 1, ArenaColor.Safe);
+            Arena.AddCircle(safespot.Value, 1, Colors.Safe);
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
@@ -81,8 +81,8 @@ class DarkAndLight(BossModule module) : BossComponent(module)
         if (!ShowSafespots || tether == TetherType.None)
             return null;
 
-        bool isFar = tether == TetherType.Far;
-        Angle dir = actor.Role switch
+        var isFar = tether == TetherType.Far;
+        var dir = actor.Role switch
         {
             Role.Tank => isFar ? 180.Degrees() : -90.Degrees(),
             Role.Healer => isFar ? 0.Degrees() : 90.Degrees(),

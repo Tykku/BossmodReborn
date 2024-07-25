@@ -64,7 +64,7 @@ class SlipperySoapCharge(BossModule module) : Components.Knockback(module)
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         if (_chargeTarget != null)
-            _chargeShape.Draw(Arena, Module.PrimaryActor.Position, _chargeDir, ArenaColor.SafeFromAOE);
+            _chargeShape.Draw(Arena, Module.PrimaryActor.Position, _chargeDir, Colors.SafeFromAOE);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

@@ -38,6 +38,6 @@ public class DRN2Dahu(WorldState ws, Actor primary) : BossModule(ws, primary, ne
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(Enemies(OID.Marchosias), ArenaColor.Enemy);
+        Arena.Actors(Enemies(OID.Marchosias));
     }
 }

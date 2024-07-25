@@ -3,8 +3,8 @@ namespace BossMod.Stormblood.TreasureHunt.ShiftingAltarsOfUznair.TheGreatGoldWhi
 public enum OID : uint
 {
     Boss = 0x2541, //R=2.4
-    BossHelper = 0x233C,
-    BonusAddGoldWhisker = 0x2544, // R0.540
+    BonusAddGoldWhisker = 0x2544, // R0.54
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -13,7 +13,7 @@ public enum AID : uint
     TripleTrident = 13364, // Boss->players, 3.0s cast, single-target
     Tingle = 13365, // Boss->self, 4.0s cast, range 10+R circle
     FishOutOfWater = 13366, // Boss->self, 3.0s cast, single-target
-    Telega = 9630, // BonusAddGoldWhisker->self, no cast, single-target
+    Telega = 9630 // BonusAddGoldWhisker->self, no cast, single-target
 }
 
 class TripleTrident(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.TripleTrident));
@@ -37,9 +37,8 @@ public class TheGreatGoldWhisker(WorldState ws, Actor primary) : BossModule(ws, 
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BonusAddGoldWhisker))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BonusAddGoldWhisker), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

@@ -100,7 +100,7 @@ class HydraulicRam(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = ArenaColor.Danger };
+            yield return _aoes[0] with { Color = Colors.Danger };
         for (var i = 1; i < _aoes.Count; ++i)
             yield return _aoes[i];
     }
@@ -130,7 +130,7 @@ class Hydrobomb(BossModule module) : Components.GenericAOEs(module)
     {
         if (_aoes.Count > 1)
             for (var i = 0; i < 2; ++i)
-                yield return _aoes[i] with { Color = ArenaColor.Danger };
+                yield return _aoes[i] with { Color = Colors.Danger };
         for (var i = 1; i < _aoes.Count; ++i)
             yield return _aoes[i];
     }
@@ -204,7 +204,7 @@ public class D113Cagnazzo(WorldState ws, Actor primary) : BossModule(ws, primary
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.FearsomeFlotsam), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.FearsomeFlotsam));
     }
 }

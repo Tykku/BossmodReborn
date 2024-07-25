@@ -127,7 +127,7 @@ public class JsonPlanConverter : JsonConverter<Plan>
         {
             var md = RotationModuleRegistry.Modules[m.Key].Definition;
             writer.WriteStartObject(m.Key.FullName!);
-            for (int iTrack = 0; iTrack < m.Value.Count; ++iTrack)
+            for (var iTrack = 0; iTrack < m.Value.Count; ++iTrack)
             {
                 var track = m.Value[iTrack];
                 if (track.Count == 0)

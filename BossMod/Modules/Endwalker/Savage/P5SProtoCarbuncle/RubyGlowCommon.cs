@@ -38,7 +38,7 @@ abstract class RubyGlowCommon(BossModule module, ActionID watchedAction = defaul
     {
         var c = QuadrantCenter(q);
         var w = Waymark.Count;
-        float wd = float.MaxValue;
+        var wd = float.MaxValue;
         for (var i = Waymark.A; i < Waymark.Count; i++)
         {
             var pos = WorldState.Waymarks[i];
@@ -63,14 +63,14 @@ abstract class RubyGlowCommon(BossModule module, ActionID watchedAction = defaul
         switch (State)
         {
             case ArenaState.Cells:
-                Arena.AddLine(Module.Center - new WDir(Module.Bounds.Radius, 0), Module.Center + new WDir(Module.Bounds.Radius, 0), ArenaColor.Border);
-                Arena.AddLine(Module.Center - new WDir(0, Module.Bounds.Radius), Module.Center + new WDir(0, Module.Bounds.Radius), ArenaColor.Border);
+                Arena.AddLine(Module.Center - new WDir(Module.Bounds.Radius, 0), Module.Center + new WDir(Module.Bounds.Radius, 0), Colors.Border);
+                Arena.AddLine(Module.Center - new WDir(0, Module.Bounds.Radius), Module.Center + new WDir(0, Module.Bounds.Radius), Colors.Border);
                 break;
             case ArenaState.DiagNW:
-                Arena.AddLine(Module.Center - new WDir(Module.Bounds.Radius, Module.Bounds.Radius), Module.Center + new WDir(Module.Bounds.Radius, Module.Bounds.Radius), ArenaColor.Border);
+                Arena.AddLine(Module.Center - new WDir(Module.Bounds.Radius, Module.Bounds.Radius), Module.Center + new WDir(Module.Bounds.Radius, Module.Bounds.Radius), Colors.Border);
                 break;
             case ArenaState.DiagNE:
-                Arena.AddLine(Module.Center - new WDir(Module.Bounds.Radius, -Module.Bounds.Radius), Module.Center + new WDir(Module.Bounds.Radius, -Module.Bounds.Radius), ArenaColor.Border);
+                Arena.AddLine(Module.Center - new WDir(Module.Bounds.Radius, -Module.Bounds.Radius), Module.Center + new WDir(Module.Bounds.Radius, -Module.Bounds.Radius), Colors.Border);
                 break;
         }
     }
@@ -159,11 +159,11 @@ abstract class RubyGlowRecolor(BossModule module, int expectedMagicStones) : Rub
         if (CurRecolorState == RecolorState.BeforeRecolor)
             foreach (var o in MagicStones)
                 if (QuadrantForPosition(o.Position) != AOEQuadrant)
-                    Arena.Actor(o, ArenaColor.Vulnerable, true);
+                    Arena.Actor(o, Colors.Vulnerable, true);
 
         if (VenomPoolActive)
             foreach (var a in Raid.WithoutSlot().Where(a => a.Role == Role.Healer))
-                Arena.AddCircle(a.Position, _recolorRadius, ArenaColor.Safe);
+                Arena.AddCircle(a.Position, _recolorRadius, Colors.Safe);
     }
 
     public override void OnActorEAnim(Actor actor, uint state)
@@ -174,7 +174,7 @@ abstract class RubyGlowRecolor(BossModule module, int expectedMagicStones) : Rub
             case RecolorState.BeforeStones:
                 if (MagicStones.Count() == _expectedMagicStones)
                 {
-                    int[] counts = new int[4];
+                    var counts = new int[4];
                     foreach (var o in MagicStones)
                         ++counts[QuadrantForPosition(o.Position)];
                     AOEQuadrant = Array.IndexOf(counts, 3);

@@ -42,7 +42,7 @@ class P2Nisi : BossComponent
         var partner = Raid[PassPartnerSlot(pcSlot)];
         if (partner != null)
         {
-            Arena.AddLine(pc.Position, partner.Position, ArenaColor.Danger);
+            Arena.AddLine(pc.Position, partner.Position, Colors.Danger);
         }
     }
 

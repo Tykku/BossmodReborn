@@ -20,8 +20,8 @@ class P2SanctityOfTheWard1Sever(BossModule module) : Components.UniformStackSpre
 
         if (Stacks.Count == 2 && Source != null)
         {
-            Arena.Actor(Source, ArenaColor.Enemy, true);
-            Arena.AddLine(Source.Position, Stacks[NumCasts % 2].Target.Position, ArenaColor.Danger);
+            Arena.Actor(Source, Colors.Enemy, true);
+            Arena.AddLine(Source.Position, Stacks[NumCasts % 2].Target.Position, Colors.Danger);
         }
     }
 
@@ -74,7 +74,7 @@ class P2SanctityOfTheWard1Flares(BossModule module) : Components.GenericAOEs(mod
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actors(Charges.Where(c => c.ChargeAOEs.Count > 0).Select(c => c.Source), ArenaColor.Enemy, true);
+        Arena.Actors(Charges.Where(c => c.ChargeAOEs.Count > 0).Select(c => c.Source), Colors.Enemy, true);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -125,9 +125,9 @@ class P2SanctityOfTheWard1Flares(BossModule module) : Components.GenericAOEs(mod
         if (!Utils.AlmostEqual(MathF.Abs(actor.Position.X - Module.Center.X), 5, 1))
             return default;
 
-        bool right = actor.Position.X > Module.Center.X;
-        bool facingSouth = Utils.AlmostEqual(actor.Rotation.Rad, 0, 0.1f);
-        bool cw = right == facingSouth;
+        var right = actor.Position.X > Module.Center.X;
+        var facingSouth = Utils.AlmostEqual(actor.Rotation.Rad, 0, 0.1f);
+        var cw = right == facingSouth;
         var res = new ChargeInfo(actor);
         var firstPointDir = actor.Rotation;
         var angleBetweenPoints = (cw ? -1 : 1) * 112.5f.Degrees();
@@ -220,8 +220,8 @@ class P2SanctityOfTheWard1Hints(BossModule module) : BossComponent(module)
             var severDirEast = _severStartDir;
             if (severDirEast.Rad < 0)
                 severDirEast += 180.Degrees();
-            bool severDiagonalSE = severDirEast.Rad < MathF.PI / 2;
-            bool chargeCW = _flares.ChargeAngle.Rad < 0;
+            var severDiagonalSE = severDirEast.Rad < MathF.PI / 2;
+            var chargeCW = _flares.ChargeAngle.Rad < 0;
             _chargeEarly = severDiagonalSE == chargeCW;
         }
     }
@@ -231,13 +231,13 @@ class P2SanctityOfTheWard1Hints(BossModule module) : BossComponent(module)
         if (_groupEast.Any())
         {
             var from = actor.Position;
-            var color = ArenaColor.Safe;
+            var color = Colors.Safe;
             foreach (var safespot in MovementHintOffsets(slot))
             {
                 var to = Module.Center + safespot;
                 movementHints.Add(from, to, color);
                 from = to;
-                color = ArenaColor.Danger;
+                color = Colors.Danger;
             }
         }
     }
@@ -256,15 +256,15 @@ class P2SanctityOfTheWard1Hints(BossModule module) : BossComponent(module)
     {
         foreach (var safespot in MovementHintOffsets(pcSlot).Take(1))
         {
-            Arena.AddCircle(Module.Center + safespot, 1, ArenaColor.Safe);
+            Arena.AddCircle(Module.Center + safespot, 1, Colors.Safe);
             if (_groupEast.None())
-                Arena.AddCircle(Module.Center - safespot, 1, ArenaColor.Safe); // if there are no valid assignments, draw spots for both groups
+                Arena.AddCircle(Module.Center - safespot, 1, Colors.Safe); // if there are no valid assignments, draw spots for both groups
         }
     }
 
     private void AssignmentReassignIfNeeded(Actor player, bool shouldGoEast)
     {
-        int slot = Raid.FindSlot(player.InstanceID);
+        var slot = Raid.FindSlot(player.InstanceID);
         if (shouldGoEast == _groupEast[slot])
             return; // target is already assigned to correct position, no need to swap
         _groupEast.Toggle(slot);
@@ -272,7 +272,7 @@ class P2SanctityOfTheWard1Hints(BossModule module) : BossComponent(module)
 
     private void AssignmentSwapWithRolePartner(Role[] effRoles, Actor player, bool shouldGoEast)
     {
-        int slot = Raid.FindSlot(player.InstanceID);
+        var slot = Raid.FindSlot(player.InstanceID);
         if (shouldGoEast == _groupEast[slot])
             return; // target is already assigned to correct position, no need to swap
         var role = effRoles[slot];

@@ -74,9 +74,9 @@ public class C020NFuko(WorldState ws, Actor primary) : C020Trash1(ws, primary)
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.NPenghou), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.NYuki), ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.NPenghou));
+        Arena.Actors(Enemies(OID.NYuki));
     }
 }
 
@@ -85,8 +85,8 @@ public class C020SFuko(WorldState ws, Actor primary) : C020Trash1(ws, primary)
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.SPenghou), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.SYuki), ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SPenghou));
+        Arena.Actors(Enemies(OID.SYuki));
     }
 }

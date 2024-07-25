@@ -161,12 +161,12 @@ class OverwhelmingCharge(BossModule module) : Components.GenericAOEs(module)
             if (componentActive)
             {
                 var safezone = component.Data.FirstOrDefault(x => _aoe.Rotation.AlmostEqual(x.Item2 + 180.Degrees(), Helpers.RadianConversion));
-                yield return new(rect, safezone.Item1, safezone.Item2, component.Activation, ArenaColor.SafeFromAOE, false);
+                yield return new(rect, safezone.Item1, safezone.Item2, component.Activation, Colors.SafeFromAOE, false);
             }
         }
         else if (componentActive)
             foreach (var c in component.Data)
-                yield return new(rect, c.Item1, c.Item2, component.Activation, ArenaColor.SafeFromAOE, false);
+                yield return new(rect, c.Item1, c.Item2, component.Activation, Colors.SafeFromAOE, false);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -216,7 +216,7 @@ class Rush(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = ArenaColor.Danger };
+            yield return _aoes[0] with { Color = Colors.Danger };
         for (var i = 1; i < _aoes.Count; ++i)
             yield return _aoes[i];
     }
@@ -267,7 +267,7 @@ public class D053Ambrose(WorldState ws, Actor primary) : BossModule(ws, primary,
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
         Arena.Actors(Enemies(OID.Superfluity));
         Arena.Actors(Enemies(OID.OrigenicsEyeborg));
     }

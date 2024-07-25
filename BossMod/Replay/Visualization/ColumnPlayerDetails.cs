@@ -109,7 +109,7 @@ public class ColumnPlayerDetails : Timeline.ColumnGroup
         using (ImRaii.Disabled(_planner?.Modified ?? false))
             selection = UIPlanDatabaseEditor.DrawPlanCombo(list, selection, "###planner");
 
-        bool isDefault = selection == list.SelectedIndex;
+        var isDefault = selection == list.SelectedIndex;
         ImGui.SameLine();
         if (ImGui.Checkbox("Default", ref isDefault))
         {
@@ -175,7 +175,7 @@ public class ColumnPlayerDetails : Timeline.ColumnGroup
 
     private void DrawResourceColumnToggle(IToggleableColumn col, string name)
     {
-        bool visible = col.Visible;
+        var visible = col.Visible;
         if (ImGui.Checkbox(name, ref visible))
         {
             col.Visible = visible;

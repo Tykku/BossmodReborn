@@ -65,7 +65,7 @@ class ForbiddenFruitCommon(BossModule module, ActionID watchedAction) : Componen
             Arena.AddLine(tetherSource.Position, pc.Position, TetherColor(tetherSource));
 
         foreach (var platform in SafePlatforms[pcSlot].SetBits())
-            Arena.AddCircle(Module.Center + PlatformDirection(platform).ToDirection() * Border.SmallPlatformOffset, Border.SmallPlatformRadius, ArenaColor.Safe);
+            Arena.AddCircle(Module.Center + PlatformDirection(platform).ToDirection() * Border.SmallPlatformOffset, Border.SmallPlatformRadius, Colors.Safe);
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
@@ -127,7 +127,7 @@ class ForbiddenFruitCommon(BossModule module, ActionID watchedAction) : Componen
     {
         if ((TetherID)tether.ID is TetherID.Bull or TetherID.MinotaurClose or TetherID.MinotaurFar or TetherID.Bird)
         {
-            int slot = Raid.FindSlot(tether.Target);
+            var slot = Raid.FindSlot(tether.Target);
             if (slot >= 0)
             {
                 TetherSources[slot] = source;

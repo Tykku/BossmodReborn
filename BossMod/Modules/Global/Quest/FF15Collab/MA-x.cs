@@ -40,10 +40,8 @@ public class MAx(WorldState ws, Actor primary) : BossModule(ws, primary, new(295
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Noctis))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.MagitekTrooper))
-            Arena.Actor(s, ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Noctis), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.MagitekTrooper), Colors.Object);
     }
 }

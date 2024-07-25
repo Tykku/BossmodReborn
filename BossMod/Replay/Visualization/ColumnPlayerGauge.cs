@@ -36,7 +36,7 @@ public class ColumnPlayerGaugeWAR : ColumnPlayerGauge
         _gauge = Add(new ColumnGenericHistory(timeline, tree, phaseBranches));
 
         var ir = replay.EncounterStatuses(enc).Where(s => s.ID == (uint)WAR.SID.InnerRelease && s.Target == player).ToList();
-        int prevGauge = 0;
+        var prevGauge = 0;
         var prevTime = enc.Time.Start;
         foreach (var a in replay.EncounterActions(enc).Where(a => a.Source == player && a.ID.Type == ActionType.Spell))
         {

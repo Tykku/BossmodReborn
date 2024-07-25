@@ -6,14 +6,14 @@ public enum OID : uint
     BossAdd = 0x3019, //R=1.8
     PixieDouble = 0x304C, //R=1.6
     PixieDouble2 = 0x304D, //R=1.6
-    BossHelper = 0x233C,
-    SecretQueen = 0x3021, // R0.840, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
-    SecretGarlic = 0x301F, // R0.840, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
-    SecretTomato = 0x3020, // R0.840, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
-    SecretOnion = 0x301D, // R0.840, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
-    SecretEgg = 0x301E, // R0.840, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
-    BonusAddKeeperOfKeys = 0x3034, // R3.230
-    BonusAddFuathTrickster = 0x3033, // R0.750
+    SecretQueen = 0x3021, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
+    SecretGarlic = 0x301F, // R0.84, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
+    SecretTomato = 0x3020, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
+    SecretOnion = 0x301D, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
+    SecretEgg = 0x301E, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    BonusAddKeeperOfKeys = 0x3034, // R3.23
+    BonusAddFuathTrickster = 0x3033, // R0.75
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -37,7 +37,7 @@ public enum AID : uint
     Mash = 21767, // 3034->self, 3.0s cast, range 13 width 4 rect
     Inhale = 21770, // 3034->self, no cast, range 20 120-degree cone, attract 25 between hitboxes, shortly before Spin
     Spin = 21769, // 3034->self, 4.0s cast, range 11 circle
-    Scoop = 21768, // 3034->self, 4.0s cast, range 15 120-degree cone
+    Scoop = 21768 // 3034->self, 4.0s cast, range 15 120-degree cone
 }
 
 class Windrune(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WindRune), new AOEShapeRect(40, 4));
@@ -85,23 +85,15 @@ public class GreedyPixie(WorldState ws, Actor primary) : BossModule(ws, primary,
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossAdd))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.SecretEgg))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.SecretTomato))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.SecretQueen))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.SecretGarlic))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.SecretOnion))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.BonusAddKeeperOfKeys))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.BonusAddFuathTrickster))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
+        Arena.Actors(Enemies(OID.SecretEgg), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretTomato), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretQueen), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretGarlic), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretOnion), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.BonusAddKeeperOfKeys), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.BonusAddFuathTrickster), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

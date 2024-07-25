@@ -111,12 +111,9 @@ public class T06GarudaH : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var m in ActiveMonoliths)
-            Arena.Actor(m, ArenaColor.Object, true);
-        foreach (var e in Enemies(OID.Suparna))
-            Arena.Actor(e, ArenaColor.Enemy);
-        foreach (var e in Enemies(OID.Chirada))
-            Arena.Actor(e, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(ActiveMonoliths, Colors.Object, true);
+        Arena.Actors(Enemies(OID.Suparna));
+        Arena.Actors(Enemies(OID.Chirada));
     }
 }

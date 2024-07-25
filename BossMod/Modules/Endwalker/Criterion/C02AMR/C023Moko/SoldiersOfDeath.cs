@@ -25,7 +25,7 @@ class IronRainStorm(BossModule module) : Components.GenericAOEs(module)
                 var safespot = Module.Center + 19 * dir;
                 if (!AOEs.Any(aoe => aoe.Check(safespot)))
                 {
-                    Arena.AddCircle(safespot + offset * dir.OrthoR(), 1, ArenaColor.Safe);
+                    Arena.AddCircle(safespot + offset * dir.OrthoR(), 1, Colors.Safe);
                 }
             }
         }
@@ -33,7 +33,7 @@ class IronRainStorm(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        AOEShapeCircle? shape = (AID)spell.Action.ID switch
+        var shape = (AID)spell.Action.ID switch
         {
             AID.NIronRainFirst or AID.SIronRainFirst => _shapeRain,
             AID.NIronStormFirst or AID.SIronStormFirst => _shapeStorm,

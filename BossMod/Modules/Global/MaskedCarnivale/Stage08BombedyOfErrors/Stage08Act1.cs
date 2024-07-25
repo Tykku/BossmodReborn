@@ -23,20 +23,20 @@ class Selfdetonations(BossModule module) : BossComponent(module)
         if (!Module.PrimaryActor.IsDead)
         {
             if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddCircle(Module.PrimaryActor.Position, 10, 0xFF000000, 2);
-            Arena.AddCircle(Module.PrimaryActor.Position, 10, ArenaColor.Danger);
+                Arena.AddCircle(Module.PrimaryActor.Position, 10, Colors.Shadows, 2);
+            Arena.AddCircle(Module.PrimaryActor.Position, 10, Colors.Danger);
         }
         foreach (var p in Module.Enemies(OID.Bomb).Where(x => !x.IsDead))
         {
             if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddCircle(p.Position, 6, 0xFF000000, 2);
-            Arena.AddCircle(p.Position, 6, ArenaColor.Danger);
+                Arena.AddCircle(p.Position, 6, Colors.Shadows, 2);
+            Arena.AddCircle(p.Position, 6, Colors.Danger);
         }
         foreach (var p in Module.Enemies(OID.Snoll).Where(x => !x.IsDead))
         {
             if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddCircle(p.Position, 6, 0xFF000000, 2);
-            Arena.AddCircle(p.Position, 6, ArenaColor.Danger);
+                Arena.AddCircle(p.Position, 6, Colors.Shadows, 2);
+            Arena.AddCircle(p.Position, 6, Colors.Danger);
         }
     }
 
@@ -93,11 +93,9 @@ public class Stage08Act1 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Bomb))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Snoll))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Bomb));
+        Arena.Actors(Enemies(OID.Snoll));
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

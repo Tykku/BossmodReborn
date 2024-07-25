@@ -11,7 +11,7 @@ class Comet(BossModule module) : Components.Adds(module, (uint)OID.Comet)
     {
         foreach (var c in Actors.Where(a => !IsFinished(a)))
         {
-            Arena.Actor(c, IsActive(c) ? ArenaColor.Enemy : ArenaColor.Object, true);
+            Arena.Actor(c, IsActive(c) ? Colors.Enemy : Colors.Object, true);
         }
     }
 }

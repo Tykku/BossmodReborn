@@ -46,7 +46,7 @@ class P3Inception3Debuffs(BossModule module) : Components.GenericStackSpread(mod
         base.DrawArenaForeground(pcSlot, pc);
 
         if (_tethered[pcSlot] && FindPartner(pcSlot) is var partner && partner != null)
-            Arena.AddLine(pc.Position, partner.Position, (partner.Position - pc.Position).LengthSq() < 30 * 30 ? ArenaColor.Danger : ArenaColor.Safe);
+            Arena.AddLine(pc.Position, partner.Position, (partner.Position - pc.Position).LengthSq() < 30 * 30 ? Colors.Danger : Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

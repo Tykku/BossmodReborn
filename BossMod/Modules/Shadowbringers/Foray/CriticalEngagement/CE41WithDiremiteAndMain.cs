@@ -112,7 +112,7 @@ class Hailfire(BossModule module) : Components.GenericAOEs(module, ActionID.Make
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (NextTarget == pc)
-            _shape.Outline(Arena, Module.PrimaryActor.Position, Angle.FromDirection(pc.Position - Module.PrimaryActor.Position), ArenaColor.Danger);
+            _shape.Outline(Arena, Module.PrimaryActor.Position, Angle.FromDirection(pc.Position - Module.PrimaryActor.Position), Colors.Danger);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -177,7 +177,7 @@ public class CE41WithDiremiteAndMain : BossModule
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(_dimCrystals.Where(c => !c.IsDead), ArenaColor.Object, true);
-        Arena.Actors(_corruptedCrystals.Where(c => !c.IsDead), ArenaColor.Object, true);
+        Arena.Actors(_dimCrystals.Where(c => !c.IsDead), Colors.Object, true);
+        Arena.Actors(_corruptedCrystals.Where(c => !c.IsDead), Colors.Object, true);
     }
 }

@@ -107,8 +107,7 @@ public class D042SerGrinnaux(WorldState ws, Actor primary) : BossModule(ws, prim
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.SerGrinnauxTheBull))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SerGrinnauxTheBull));
     }
 }

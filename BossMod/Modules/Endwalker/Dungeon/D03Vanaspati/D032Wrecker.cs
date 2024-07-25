@@ -31,7 +31,7 @@ class QueerBubble(BossModule module) : Components.GenericAOEs(module)
     {
         if (_aoes.Count > 0)
             foreach (var a in _aoes.Where(x => !x.IsDead))
-                yield return new(circle, a.Position, default, default, Module.FindComponent<AetherSprayFire>()!.Active ? ArenaColor.SafeFromAOE : ArenaColor.AOE);
+                yield return new(circle, a.Position, default, default, Module.FindComponent<AetherSprayFire>()!.Active ? Colors.SafeFromAOE : Colors.AOE);
     }
 
     public override void OnActorCreated(Actor actor)

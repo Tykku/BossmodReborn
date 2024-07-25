@@ -51,14 +51,14 @@ public abstract class GenericGaze(BossModule module, ActionID aid = new(), bool 
             var dl = ImGui.GetWindowDrawList();
             dl.PathArcTo(eyeCenter - new Vector2(0, _eyeOffsetV), _eyeOuterR, MathF.PI / 2 + _eyeHalfAngle, MathF.PI / 2 - _eyeHalfAngle);
             dl.PathArcTo(eyeCenter + new Vector2(0, _eyeOffsetV), _eyeOuterR, -MathF.PI / 2 + _eyeHalfAngle, -MathF.PI / 2 - _eyeHalfAngle);
-            dl.PathFillConvex(danger ? ArenaColor.Enemy : ArenaColor.PC);
-            dl.AddCircleFilled(eyeCenter, _eyeInnerR, ArenaColor.Border);
+            dl.PathFillConvex(danger ? Colors.Enemy : Colors.PC);
+            dl.AddCircleFilled(eyeCenter, _eyeInnerR, Colors.Border);
 
             if (eye.Risky)
             {
                 var (min, max) = Inverted ? (45, 315) : (-45, 45);
                 Arena.PathArcTo(pc.Position, 1, (pc.Rotation + eye.Forward + min.Degrees()).Rad, (pc.Rotation + eye.Forward + max.Degrees()).Rad);
-                MiniArena.PathStroke(false, ArenaColor.Enemy);
+                MiniArena.PathStroke(false, Colors.Enemy);
             }
         }
     }

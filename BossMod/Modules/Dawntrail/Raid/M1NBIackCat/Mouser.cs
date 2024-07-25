@@ -81,7 +81,7 @@ class Mouser(BossModule module) : Components.GenericAOEs(module)
             for (var i = aoeCount; i < _aoes.Count; i++)
                 yield return _aoes[i];
             for (var i = 0; i < aoeCount; i++)
-                yield return _aoes[i] with { Color = ArenaColor.Danger };
+                yield return _aoes[i] with { Color = Colors.Danger };
         }
     }
 

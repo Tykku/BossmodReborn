@@ -106,17 +106,12 @@ public class Stage28 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.UndeadSerf))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.UndeadSerf2))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.UndeadGravekeeper))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.UndeadSoldier))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.UndeadWarrior))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.UndeadSerf));
+        Arena.Actors(Enemies(OID.UndeadSerf2));
+        Arena.Actors(Enemies(OID.UndeadGravekeeper));
+        Arena.Actors(Enemies(OID.UndeadSoldier));
+        Arena.Actors(Enemies(OID.UndeadWarrior));
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

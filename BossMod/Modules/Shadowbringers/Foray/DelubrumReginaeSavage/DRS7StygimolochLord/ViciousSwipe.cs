@@ -10,6 +10,6 @@ class ViciousSwipe(BossModule module) : Components.Knockback(module, ActionID.Ma
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.AddCircle(Module.PrimaryActor.Position, _shape.Radius, ArenaColor.Danger);
+        Arena.AddCircle(Module.PrimaryActor.Position, _shape.Radius, Colors.Danger);
     }
 }

@@ -15,7 +15,7 @@ class FlamespireClaw(BossModule module) : Components.GenericBaitAway(module, Act
         if (order != 0 && NumCasts < 8)
         {
             hints.Add($"Order: {order}", false);
-            bool shouldBeTethered = order switch
+            var shouldBeTethered = order switch
             {
                 1 => NumCasts is 1 or 2,
                 2 => NumCasts is 2 or 3,
@@ -35,7 +35,7 @@ class FlamespireClaw(BossModule module) : Components.GenericBaitAway(module, Act
     {
         base.DrawArenaForeground(pcSlot, pc);
         foreach (var (_, player) in Raid.WithSlot(true).IncludedInMask(_tethers))
-            Arena.AddLine(player.Position, Module.PrimaryActor.Position, ArenaColor.Danger);
+            Arena.AddLine(player.Position, Module.PrimaryActor.Position, Colors.Danger);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

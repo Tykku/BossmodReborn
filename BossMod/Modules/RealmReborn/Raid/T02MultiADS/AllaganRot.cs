@@ -55,7 +55,7 @@ class AllaganRot(BossModule module) : BossComponent(module)
                     _rotExpiration[_rotHolderSlot] = status.ExpireAt;
                 break;
             case SID.AllaganImmunity:
-                int slot = Raid.FindSlot(actor.InstanceID);
+                var slot = Raid.FindSlot(actor.InstanceID);
                 if (slot >= 0)
                     _immunityExpiration[slot] = status.ExpireAt;
                 break;
@@ -75,7 +75,7 @@ class AllaganRot(BossModule module) : BossComponent(module)
 
         foreach (var next in _rotPriority)
         {
-            int nextSlot = assignments[(int)next];
+            var nextSlot = assignments[(int)next];
             if (nextSlot != _rotHolderSlot && _immunityExpiration[nextSlot] < deadline && !(Raid[nextSlot]?.IsDead ?? true))
                 return next == assignment;
         }

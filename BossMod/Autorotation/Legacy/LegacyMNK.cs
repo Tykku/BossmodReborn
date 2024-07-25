@@ -267,7 +267,7 @@ public sealed class LegacyMNK : LegacyModule
         _state.UpdatePositionals(primaryTarget, GetNextPositional(strategy), _state.TrueNorthLeft > _state.GCD);
 
         // TODO: refactor all that, it's kinda senseless now
-        MNK.AID gcd = GetNextBestGCD(strategy);
+        var gcd = GetNextBestGCD(strategy);
         PushResult(gcd, primaryTarget);
 
         ActionID ogcd = default;

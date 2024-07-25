@@ -166,8 +166,7 @@ public class D063LahabreaIgeyorhm(WorldState ws, Actor primary) : BossModule(ws,
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Igeyorhm))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Igeyorhm));
     }
 }

@@ -123,8 +123,8 @@ public static partial class Utils
         int first = 0, size = list.Count;
         while (size > 0)
         {
-            int step = size / 2;
-            int mid = first + step;
+            var step = size / 2;
+            var mid = first + step;
             if (list.Keys[mid].CompareTo(test) < 0)
             {
                 first = mid + 1;
@@ -144,8 +144,8 @@ public static partial class Utils
         int first = 0, size = list.Count;
         while (size > 0)
         {
-            int step = size / 2;
-            int mid = first + step;
+            var step = size / 2;
+            var mid = first + step;
             if (list.Keys[mid].CompareTo(test) <= 0)
             {
                 first = mid + 1;
@@ -196,8 +196,8 @@ public static partial class Utils
     {
         list.Sort();
         var span = list.AsSpan();
-        int last = 0;
-        for (int i = 1; i < list.Count; ++i)
+        var last = 0;
+        for (var i = 1; i < list.Count; ++i)
         {
             if (!span[i].Equals(span[last]))
             {
@@ -217,7 +217,7 @@ public static partial class Utils
         if (span.Length == 0)
             return;
         var first = span[0];
-        for (int i = 1; i < span.Length; ++i)
+        for (var i = 1; i < span.Length; ++i)
             span[i - 1] = span[i];
         span[^1] = first;
     }
@@ -228,7 +228,7 @@ public static partial class Utils
         if (span.Length == 0)
             return;
         var last = span[^1];
-        for (int i = span.Length - 1; i > 0; --i)
+        for (var i = span.Length - 1; i > 0; --i)
             span[i] = span[i - 1];
         span[0] = last;
     }

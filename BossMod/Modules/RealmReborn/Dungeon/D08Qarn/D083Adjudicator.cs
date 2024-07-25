@@ -53,10 +53,8 @@ public class D083Adjudicator(WorldState ws, Actor primary) : BossModule(ws, prim
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.MythrilVerge))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.SunJuror))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.MythrilVerge));
+        Arena.Actors(Enemies(OID.SunJuror));
     }
 }

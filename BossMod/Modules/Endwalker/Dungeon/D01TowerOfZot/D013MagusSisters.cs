@@ -212,9 +212,9 @@ class D013MagusSisters(WorldState ws, Actor primary) : BossModule(ws, primary, n
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Minduruva), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Sanduruva), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Minduruva));
+        Arena.Actors(Enemies(OID.Sanduruva));
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

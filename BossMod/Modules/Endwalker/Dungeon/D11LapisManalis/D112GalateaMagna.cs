@@ -55,10 +55,10 @@ class ScarecrowChase(BossModule module) : Components.GenericAOEs(module)
     {
         var activation = 3 * (_casters.Count - _casterssorted.Count);
         if (_casterssorted.Count == 1)
-            yield return new(cross, _casterssorted[0].Position, 45.Degrees(), _activation.AddSeconds(activation), ArenaColor.Danger);
+            yield return new(cross, _casterssorted[0].Position, 45.Degrees(), _activation.AddSeconds(activation), Colors.Danger);
         if (_casterssorted.Count > 1)
         {
-            yield return new(cross, _casterssorted[0].Position, 45.Degrees(), _activation.AddSeconds(activation), ArenaColor.Danger);
+            yield return new(cross, _casterssorted[0].Position, 45.Degrees(), _activation.AddSeconds(activation), Colors.Danger);
             yield return new(cross, _casterssorted[1].Position, 45.Degrees(), _activation.AddSeconds(3 + activation));
         }
     }

@@ -89,23 +89,15 @@ public class Meganereis(WorldState ws, Actor primary) : BossModule(ws, primary, 
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossAdd))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.GymnasticEggplant))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.GymnasticTomato))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.GymnasticQueen))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.GymnasticGarlic))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.GymnasticOnion))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.BonusAddLampas))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.BonusAddLyssa))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
+        Arena.Actors(Enemies(OID.GymnasticEggplant), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.GymnasticTomato), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.GymnasticQueen), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.GymnasticGarlic), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.GymnasticOnion), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.BonusAddLampas), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.BonusAddLyssa), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

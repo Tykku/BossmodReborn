@@ -86,7 +86,7 @@ class P3HelloWorld(BossModule module) : Components.GenericTowers(module)
             return PlayerPriority.Irrelevant; // mechanic not started yet
         if (initialPCRole == initialPlayerRole)
         {
-            customColor = ArenaColor.Vulnerable;
+            customColor = Colors.Vulnerable;
             return PlayerPriority.Interesting; // partner
         }
         var avoidPlayer = (RoleForNextTowers(initialPCRole), RoleForNextTowers(initialPlayerRole)) switch
@@ -117,19 +117,19 @@ class P3HelloWorld(BossModule module) : Components.GenericTowers(module)
                     _ => (0, PlayerRole.None)
                 };
                 if (radius != 0)
-                    Arena.AddCircle(p.Position, radius, pcRole == share ? ArenaColor.Safe : ArenaColor.Danger);
+                    Arena.AddCircle(p.Position, radius, pcRole == share ? Colors.Safe : Colors.Danger);
             }
 
             // draw safespots for next towers
             foreach (var p in PositionsForTowers(pcSlot))
-                Arena.AddCircle(p, 1, ArenaColor.Safe);
+                Arena.AddCircle(p, 1, Colors.Safe);
         }
         else if (NumRotExplodes < NumCasts)
         {
             // draw rot 'spreads' (rots will explode on players who used to have defamation/stack role and thus now have one of the tether roles)
             foreach (var (i, p) in Raid.WithSlot(true))
                 if (PendingRot(i))
-                    Arena.AddCircle(p.Position, 5, ArenaColor.Danger);
+                    Arena.AddCircle(p.Position, 5, Colors.Danger);
         }
 
         if (NumTetherBreaks < 16)
@@ -138,10 +138,10 @@ class P3HelloWorld(BossModule module) : Components.GenericTowers(module)
             //bool useRoleForNextTowers = NumTetherBreaks >= NumCasts;
             //var pcRole = RoleForNextTowers(pcSlot, useRoleForNextTowers ? 0 : -1);
             //if (pcRole is PlayerRole.RemoteTether or PlayerRole.LocalTether &&  is var partner && partner != null)
-            //    Arena.AddLine(pc.Position, partner.Position, ArenaColor.Danger);
+            //    Arena.AddLine(pc.Position, partner.Position, Colors.Danger);
             var partner = Raid[PartnerSlot(pcSlot)];
             if (partner != null && (pc.Tether.Target == partner.InstanceID || partner.Tether.Target == pc.InstanceID))
-                Arena.AddLine(pc.Position, partner.Position, ArenaColor.Danger);
+                Arena.AddLine(pc.Position, partner.Position, Colors.Danger);
         }
     }
 
@@ -302,7 +302,7 @@ class P3HelloWorld(BossModule module) : Components.GenericTowers(module)
         var role = _initialRoles[slot];
         if (role == PlayerRole.None)
             return -1;
-        for (int i = 0; i < _initialRoles.Length; ++i)
+        for (var i = 0; i < _initialRoles.Length; ++i)
             if (i != slot && _initialRoles[i] == role)
                 return i;
         return -1;
@@ -312,7 +312,7 @@ class P3HelloWorld(BossModule module) : Components.GenericTowers(module)
     {
         // find midpoint for defamation towers
         WDir defamationMid = default;
-        foreach (int i in _defamationTowers.SetBits())
+        foreach (var i in _defamationTowers.SetBits())
             defamationMid += Towers[i].Position - Module.Center;
         var defamationMidDir = Angle.FromDirection(defamationMid);
 

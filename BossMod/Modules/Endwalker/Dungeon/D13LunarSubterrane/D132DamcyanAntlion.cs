@@ -105,9 +105,9 @@ class AntlionMarch(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoes.Count > 0)
-            yield return new(_aoes[0].Shape, _aoes[0].Origin, _aoes[0].Rotation, _activation, ArenaColor.Danger);
-        for (var i = 1; i < _aoes.Count; ++i)
-            yield return new(_aoes[i].Shape, _aoes[i].Origin, _aoes[i].Rotation, _activation);
+            yield return _aoes[0] with { Activation = _activation, Color = Colors.Danger };
+        if (_aoes.Count > 1)
+            yield return _aoes[1] with { Activation = _activation };
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

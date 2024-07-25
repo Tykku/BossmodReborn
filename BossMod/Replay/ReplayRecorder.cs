@@ -87,7 +87,7 @@ public sealed class ReplayRecorder : IDisposable
             foreach (var t in v)
             {
                 EmitActor(t.ID);
-                for (int i = 0; i < ActionEffects.MaxCount; ++i)
+                for (var i = 0; i < ActionEffects.MaxCount; ++i)
                     if (t.Effects[i] != 0)
                         _dest.Write($"!{t.Effects[i]:X16}");
             }
@@ -148,7 +148,7 @@ public sealed class ReplayRecorder : IDisposable
             foreach (var t in v)
             {
                 _dest.Write(t.ID);
-                for (int i = 0; i < ActionEffects.MaxCount; ++i)
+                for (var i = 0; i < ActionEffects.MaxCount; ++i)
                     _dest.Write(t.Effects[i]);
             }
             return this;

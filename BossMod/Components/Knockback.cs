@@ -64,10 +64,10 @@ public abstract class Knockback(BossModule module, ActionID aid = new(), bool ig
     {
         if (from != to)
         {
-            arena.ActorProjected(from, to, rot, ArenaColor.Danger);
+            arena.ActorProjected(from, to, rot, Colors.Danger);
             if (arena.Config.ShowOutlinesAndShadows)
-                arena.AddLine(from, to, 0xFF000000, 2);
-            arena.AddLine(from, to, ArenaColor.Danger);
+                arena.AddLine(from, to, Colors.Shadows, 2);
+            arena.AddLine(from, to, Colors.Danger);
         }
     }
     public static void DrawKnockback(Actor actor, WPos adjPos, MiniArena arena) => DrawKnockback(actor.Position, adjPos, actor.Rotation, arena);
@@ -146,7 +146,7 @@ public abstract class Knockback(BossModule module, ActionID aid = new(), bool ig
             yield break;
 
         var from = actor.Position;
-        int count = 0;
+        var count = 0;
         foreach (var s in Sources(slot, actor))
         {
             if (IsImmune(slot, s.Activation))

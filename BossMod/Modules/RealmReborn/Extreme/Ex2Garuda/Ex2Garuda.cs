@@ -33,12 +33,12 @@ public class Ex2Garuda : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Monoliths.Where(a => !a.IsDead), ArenaColor.Object, true);
-        Arena.Actors(RazorPlumes, ArenaColor.Enemy);
-        Arena.Actors(SpinyPlumes, ArenaColor.Enemy);
-        Arena.Actors(SatinPlumes, ArenaColor.Enemy);
-        Arena.Actors(Chirada, ArenaColor.Enemy);
-        Arena.Actors(Suparna, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Monoliths.Where(a => !a.IsDead), Colors.Object, true);
+        Arena.Actors(RazorPlumes);
+        Arena.Actors(SpinyPlumes);
+        Arena.Actors(SatinPlumes);
+        Arena.Actors(Chirada);
+        Arena.Actors(Suparna);
     }
 }

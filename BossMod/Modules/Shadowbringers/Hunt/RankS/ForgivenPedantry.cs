@@ -34,11 +34,11 @@ class LeftRightCheek(BossModule module) : Components.GenericAOEs(module)
         {
             if (NumCasts == 0)
             {
-                yield return new(cone, Module.PrimaryActor.Position, _rotation, _activation, ArenaColor.Danger);
+                yield return new(cone, Module.PrimaryActor.Position, _rotation, _activation, Colors.Danger);
                 yield return new(cone, Module.PrimaryActor.Position, _rotation + 180.Degrees(), _activation.AddSeconds(3.1f), Risky: false);
             }
             if (NumCasts == 1)
-                yield return new(cone, Module.PrimaryActor.Position, _rotation + 180.Degrees(), _activation.AddSeconds(3.1f), ArenaColor.Danger);
+                yield return new(cone, Module.PrimaryActor.Position, _rotation + 180.Degrees(), _activation.AddSeconds(3.1f), Colors.Danger);
         }
     }
 

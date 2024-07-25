@@ -52,7 +52,7 @@ class ChannelingFlow(BossModule module) : BossComponent(module)
     {
         foreach (var (player, dir) in ActiveArrows())
         {
-            Arena.ZoneRect(player.Position, dir, 50, 0, _typhoonHalfWidth, ArenaColor.AOE);
+            Arena.ZoneRect(player.Position, dir, 50, 0, _typhoonHalfWidth, Colors.AOE);
         }
     }
 

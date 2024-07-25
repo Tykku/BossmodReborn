@@ -126,7 +126,7 @@ public sealed class LegacyDRG : LegacyModule
         _state.UpdatePositionals(primaryTarget, GetNextPositional(), _state.TrueNorthLeft > _state.GCD || _state.RightEyeLeft > _state.GCD);
 
         // TODO: refactor all that, it's kinda senseless now
-        DRG.AID gcd = GetNextBestGCD(strategy);
+        var gcd = GetNextBestGCD(strategy);
         PushResult(gcd, gcd is DRG.AID.DoomSpike or DRG.AID.DraconianFury or DRG.AID.SonicThrust or DRG.AID.CoerthanTorment ? _state.BestAOEGCDTarget : primaryTarget);
 
         ActionID ogcd = default;
@@ -216,7 +216,7 @@ public sealed class LegacyDRG : LegacyModule
 
         if (_state.Unlocked(DRG.TraitID.EnhancedLifeSurge))
         {
-            float chargeCapIn = _state.CD(DRG.AID.LifeSurge) - (_state.Unlocked(DRG.TraitID.EnhancedLifeSurge) ? 0 : 40);
+            var chargeCapIn = _state.CD(DRG.AID.LifeSurge) - (_state.Unlocked(DRG.TraitID.EnhancedLifeSurge) ? 0 : 40);
             if (_state.RightEyeLeft > _state.GCD
                 && _state.LanceChargeLeft > _state.GCD
                 && ((_state.WheelInMotionLeft > _state.GCD) || (_state.FangAndClawBaredLeft > _state.GCD))
@@ -372,7 +372,7 @@ public sealed class LegacyDRG : LegacyModule
 
     private bool ShouldUseWyrmWindThrust()
     {
-        bool nextGCDisRaiden = _state.DraconianFireLeft > _state.AnimationLock && (_state.ComboLastMove == DRG.AID.WheelingThrust || _state.ComboLastMove == DRG.AID.FangAndClaw) && _state.WheelInMotionLeft < _state.AnimationLock && _state.FangAndClawBaredLeft < _state.AnimationLock;
+        var nextGCDisRaiden = _state.DraconianFireLeft > _state.AnimationLock && (_state.ComboLastMove == DRG.AID.WheelingThrust || _state.ComboLastMove == DRG.AID.FangAndClaw) && _state.WheelInMotionLeft < _state.AnimationLock && _state.FangAndClawBaredLeft < _state.AnimationLock;
         if (_state.FirstmindFocusCount >= 2 && _state.CD(DRG.AID.LanceCharge) > 10)
             return true;
         if (_state.FirstmindFocusCount >= 2 && _state.LanceChargeLeft > _state.AnimationLock)
@@ -418,8 +418,8 @@ public sealed class LegacyDRG : LegacyModule
         if (!_state.TargetingEnemy)
             return default;
 
-        bool canJump = _state.PositionLockIn > _state.AnimationLock;
-        bool wantSpineShatter = _state.Unlocked(DRG.AID.SpineshatterDive) && _state.TargetingEnemy && UseSpineShatterDive(strategy.Option(Track.SpineshatterDive).As<SpineshatterStrategy>());
+        var canJump = _state.PositionLockIn > _state.AnimationLock;
+        var wantSpineShatter = _state.Unlocked(DRG.AID.SpineshatterDive) && _state.TargetingEnemy && UseSpineShatterDive(strategy.Option(Track.SpineshatterDive).As<SpineshatterStrategy>());
 
         if (_state.PowerSurgeLeft > _state.GCD)
         {

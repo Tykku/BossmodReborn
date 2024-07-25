@@ -31,7 +31,7 @@ class P2StrengthOfTheWard2SpreadStack : Components.UniformStackSpread
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
         foreach (var safespot in EnumSafeSpots(actor))
-            movementHints.Add(actor.Position, safespot, ArenaColor.Safe);
+            movementHints.Add(actor.Position, safespot, Colors.Safe);
     }
 
     public override PlayerPriority CalcPriority(int pcSlot, Actor pc, int playerSlot, Actor player, ref uint customColor) => PlayerPriority.Normal;
@@ -40,7 +40,7 @@ class P2StrengthOfTheWard2SpreadStack : Components.UniformStackSpread
     {
         base.DrawArenaForeground(pcSlot, pc);
         foreach (var safespot in EnumSafeSpots(pc))
-            Arena.AddCircle(safespot, 1, ArenaColor.Safe);
+            Arena.AddCircle(safespot, 1, Colors.Safe);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -132,7 +132,7 @@ class P2StrengthOfTheWard2Charges(BossModule module) : Components.CastCounter(mo
             var target = WorldState.Actors.Find(source.Tether.Target);
             if (target != null)
             {
-                Arena.ZoneRect(source.Position, target.Position, _chargeHalfWidth, ArenaColor.AOE);
+                Arena.ZoneRect(source.Position, target.Position, _chargeHalfWidth, Colors.AOE);
             }
         }
     }
@@ -142,10 +142,10 @@ class P2StrengthOfTheWard2Charges(BossModule module) : Components.CastCounter(mo
         // draw tethers
         foreach (var source in _chargeSources)
         {
-            Arena.Actor(source, ArenaColor.Enemy, true);
+            Arena.Actor(source, Colors.Enemy, true);
             var target = WorldState.Actors.Find(source.Tether.Target);
             if (target != null)
-                Arena.AddLine(source.Position, target.Position, ArenaColor.Danger);
+                Arena.AddLine(source.Position, target.Position, Colors.Danger);
         }
     }
 

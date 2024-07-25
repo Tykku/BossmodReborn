@@ -46,7 +46,7 @@ public class D053Graffias(WorldState ws, Actor primary) : BossModule(ws, primary
     {
         base.CalculateAIHints(slot, actor, assignment, hints);
 
-        bool haveTail = Enemies(OID.GraffiasTail).Count > 0;
+        var haveTail = Enemies(OID.GraffiasTail).Count > 0;
         foreach (var e in hints.PotentialTargets)
         {
             e.Priority = (OID)e.Actor.OID switch

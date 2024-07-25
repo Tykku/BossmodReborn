@@ -38,7 +38,7 @@ class P3TemporalStasis(BossModule module) : Components.GenericBaitAway(module, A
 
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
-        movementHints.Add(actor.Position, SafeSpot(slot, actor), ArenaColor.Safe);
+        movementHints.Add(actor.Position, SafeSpot(slot, actor), Colors.Safe);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
@@ -49,17 +49,17 @@ class P3TemporalStasis(BossModule module) : Components.GenericBaitAway(module, A
         {
             case Mechanic.StayClose:
                 if (FindPartner(pcSlot) is var partner1 && partner1 != null)
-                    Arena.AddLine(pc.Position, partner1.Position, (partner1.Position - pc.Position).LengthSq() > 5 * 5 ? ArenaColor.Danger : ArenaColor.Safe);
+                    Arena.AddLine(pc.Position, partner1.Position, (partner1.Position - pc.Position).LengthSq() > 5 * 5 ? Colors.Danger : Colors.Safe);
                 break;
             case Mechanic.StayFar:
                 if (FindPartner(pcSlot) is var partner2 && partner2 != null)
-                    Arena.AddLine(pc.Position, partner2.Position, (partner2.Position - pc.Position).LengthSq() < 30 * 30 ? ArenaColor.Danger : ArenaColor.Safe);
+                    Arena.AddLine(pc.Position, partner2.Position, (partner2.Position - pc.Position).LengthSq() < 30 * 30 ? Colors.Danger : Colors.Safe);
                 break;
         }
 
-        Arena.Actor(BJ(), ArenaColor.Enemy, true);
-        Arena.Actor(CC(), ArenaColor.Enemy, true);
-        Arena.AddCircle(SafeSpot(pcSlot, pc), 1, ArenaColor.Safe);
+        Arena.Actor(BJ(), Colors.Enemy, true);
+        Arena.Actor(CC(), Colors.Enemy, true);
+        Arena.AddCircle(SafeSpot(pcSlot, pc), 1, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -85,7 +85,7 @@ class P3TemporalStasis(BossModule module) : Components.GenericBaitAway(module, A
     private Actor? FindPartner(int slot)
     {
         var partnerSlot = -1;
-        for (int i = 0; i < _playerMechanics.Length; ++i)
+        for (var i = 0; i < _playerMechanics.Length; ++i)
             if (i != slot && _playerMechanics[i] == _playerMechanics[slot])
                 partnerSlot = i;
         return Raid[partnerSlot];

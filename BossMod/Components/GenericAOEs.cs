@@ -3,7 +3,7 @@
 // generic component that shows arbitrary shapes representing avoidable aoes
 public abstract class GenericAOEs(BossModule module, ActionID aid = default, string warningText = "GTFO from aoe!") : CastCounter(module, aid)
 {
-    public record struct AOEInstance(AOEShape Shape, WPos Origin, Angle Rotation = default, DateTime Activation = default, uint Color = ArenaColor.AOE, bool Risky = true)
+    public record struct AOEInstance(AOEShape Shape, WPos Origin, Angle Rotation = default, DateTime Activation = default, uint Color = 0, bool Risky = true)
     {
         public readonly bool Check(WPos pos) => Shape.Check(pos, Origin, Rotation);
     }
@@ -28,12 +28,12 @@ public abstract class GenericAOEs(BossModule module, ActionID aid = default, str
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         foreach (var c in ActiveAOEs(pcSlot, pc))
-            c.Shape.Draw(Arena, c.Origin, c.Rotation, c.Color);
+            c.Shape.Draw(Arena, c.Origin, c.Rotation, c.Color == 0 ? Colors.AOE : c.Color);
     }
 }
 
 // self-targeted aoe that happens at the end of the cast
-public class SelfTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, int maxCasts = int.MaxValue, uint color = ArenaColor.AOE) : GenericAOEs(module, aid)
+public class SelfTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, int maxCasts = int.MaxValue, uint color = 0) : GenericAOEs(module, aid)
 {
     public AOEShape Shape { get; init; } = shape;
     public int MaxCasts = maxCasts; // used for staggered aoes, when showing all active would be pointless
@@ -43,7 +43,7 @@ public class SelfTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, i
 
     public IEnumerable<Actor> ActiveCasters => Casters.Take(MaxCasts);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => ActiveCasters.Select(c => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), Color, Risky));
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => ActiveCasters.Select(c => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), Color == 0 ? Colors.AOE : Color, Risky));
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -87,7 +87,7 @@ public class LocationTargetedAOEs(BossModule module, ActionID aid, float radius,
 {
     public AOEShapeCircle Shape { get; init; } = new(radius);
     public int MaxCasts = maxCasts; // used for staggered aoes, when showing all active would be pointless
-    public uint Color = ArenaColor.AOE; // can be customized if needed
+    public uint Color = Colors.AOE; // can be customized if needed
     public bool Risky = true; // can be customized if needed
     public readonly List<Actor> Casters = [];
 

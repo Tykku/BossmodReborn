@@ -54,7 +54,7 @@ public static class UIStrategyValue
         {
             if (combo)
             {
-                for (int i = 0; i < cfg.Options.Count; ++i)
+                for (var i = 0; i < cfg.Options.Count; ++i)
                 {
                     var opt = cfg.Options[i];
                     if (level < opt.MinLevel || level > opt.MaxLevel)
@@ -95,7 +95,7 @@ public static class UIStrategyValue
         if (overridePriority)
         {
             var priority = value.PriorityOverride;
-            int upperBound = Array.FindIndex(PriorityBaselines, b => b.Value > priority);
+            var upperBound = Array.FindIndex(PriorityBaselines, b => b.Value > priority);
             var baselineIndex = upperBound switch
             {
                 -1 => PriorityBaselines.Length - 1,
@@ -110,7 +110,7 @@ public static class UIStrategyValue
             {
                 if (combo)
                 {
-                    for (int i = 0; i < PriorityBaselines.Length; ++i)
+                    for (var i = 0; i < PriorityBaselines.Length; ++i)
                     {
                         if (ImGui.Selectable(PriorityBaselines[i].Name, i == baselineIndex))
                         {

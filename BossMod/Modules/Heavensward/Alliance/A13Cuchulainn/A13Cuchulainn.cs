@@ -14,7 +14,7 @@ public class A13Cuchulainn(WorldState ws, Actor primary) : BossModule(ws, primar
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Foobar), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Foobar));
     }
 }

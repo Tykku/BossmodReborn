@@ -14,9 +14,9 @@ public class A33Cerberus(WorldState ws, Actor primary) : BossModule(ws, primary,
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.GastricJuice), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.StomachWall), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Wolfsbane), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.GastricJuice));
+        Arena.Actors(Enemies(OID.StomachWall));
+        Arena.Actors(Enemies(OID.Wolfsbane));
     }
 }

@@ -79,9 +79,9 @@ class WindEarthShot(BossModule module) : Components.GenericAOEs(module)
             else if (index == 0x1F)
                 _aoe = new(donut, new(-63, -57), default, activation);
             else if (index == 0x20)
-                _aoe = new(ENVC20Inverted, Module.Center, default, activation, ArenaColor.SafeFromAOE);
+                _aoe = new(ENVC20Inverted, Module.Center, default, activation, Colors.SafeFromAOE);
             else if (index == 0x21)
-                _aoe = new(ENVC21Inverted, Module.Center, default, activation, ArenaColor.SafeFromAOE);
+                _aoe = new(ENVC21Inverted, Module.Center, default, activation, Colors.SafeFromAOE);
         }
         else if (state == 0x00200010)
         {
@@ -175,7 +175,7 @@ class WindShotStack(BossModule module) : Components.UniformStackSpread(module, 2
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         foreach (var c in actors)
-            donut.Draw(Arena, c.Position, default, ArenaColor.AOE);
+            donut.Draw(Arena, c.Position, default, Colors.AOE);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc) { }
@@ -217,8 +217,8 @@ public class D022Kahderyor(WorldState ws, Actor primary) : BossModule(ws, primar
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.CrystallineDebris), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.CrystallineDebris));
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

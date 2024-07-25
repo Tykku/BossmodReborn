@@ -71,7 +71,7 @@ class PuffTethers(BossModule module, bool originAtBoss) : BossComponent(module)
         var source = puffs.Find(p => p.Tether.Target == player.InstanceID);
         if (source != null)
         {
-            Arena.AddLine(source.Position, player.Position, ArenaColor.Danger);
+            Arena.AddLine(source.Position, player.Position, Colors.Danger);
         }
     }
 }

@@ -89,7 +89,7 @@ class DeathRay : Components.SelfTargetedAOEs
 {
     public DeathRay(BossModule module) : base(module, ActionID.MakeSpell(AID.DeathRay2), new AOEShapeRect(40, 1))
     {
-        Color = ArenaColor.Danger;
+        Color = Colors.Danger;
     }
 }
 
@@ -142,8 +142,7 @@ public class Iseultalon(WorldState ws, Actor primary) : BossModule(ws, primary, 
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Noctis))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Noctis), Colors.Vulnerable);
     }
 }

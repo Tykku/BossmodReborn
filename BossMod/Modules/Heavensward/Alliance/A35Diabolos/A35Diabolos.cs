@@ -11,8 +11,8 @@ public class A35Diabolos(WorldState ws, Actor primary) : BossModule(ws, primary,
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Deathgate), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Lifegate), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Deathgate));
+        Arena.Actors(Enemies(OID.Lifegate));
     }
 }

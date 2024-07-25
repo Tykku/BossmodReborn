@@ -33,7 +33,7 @@ class ViscousAetheroplasm(BossModule module) : Components.Cleave(module, ActionI
 
     private void UpdateStacks(Actor actor, int stacks)
     {
-        int slot = Raid.FindSlot(actor.InstanceID);
+        var slot = Raid.FindSlot(actor.InstanceID);
         if (slot >= 0)
             _stacks[slot] = stacks;
     }

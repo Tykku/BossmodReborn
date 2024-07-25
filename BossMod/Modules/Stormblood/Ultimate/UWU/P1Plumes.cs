@@ -10,8 +10,8 @@ class P1Plumes(BossModule module) : BossComponent(module)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actors(_razor, ArenaColor.Enemy);
-        Arena.Actors(_spiny, ArenaColor.Enemy);
-        Arena.Actors(_satin, ArenaColor.Enemy);
+        Arena.Actors(_razor);
+        Arena.Actors(_spiny);
+        Arena.Actors(_satin);
     }
 }

@@ -33,10 +33,10 @@ class RokujoRevel(BossModule module) : Components.GenericAOEs(module)
                 firstFutureIndex = _pendingCircles.Count;
             }
             foreach (var p in _pendingCircles.Take(firstFutureIndex))
-                yield return new(shapeCircle, p.origin, default, p.activation, ArenaColor.Danger);
+                yield return new(shapeCircle, p.origin, default, p.activation, Colors.Danger);
         }
         if (_pendingLines.Count > 0)
-            yield return new(_shapeLine, Module.Center, _pendingLines[0].dir, _pendingLines[0].activation, ArenaColor.Danger);
+            yield return new(_shapeLine, Module.Center, _pendingLines[0].dir, _pendingLines[0].activation, Colors.Danger);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

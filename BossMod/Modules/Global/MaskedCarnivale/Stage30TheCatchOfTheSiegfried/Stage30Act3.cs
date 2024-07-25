@@ -62,7 +62,7 @@ public class Sparksteel2 : Components.LocationTargetedAOEs
 {
     public Sparksteel2(BossModule module) : base(module, ActionID.MakeSpell(AID.Sparksteel2), 8)
     {
-        Color = ArenaColor.Danger;
+        Color = Colors.Danger;
     }
 }
 
@@ -71,7 +71,7 @@ class Sparksteel3(BossModule module) : Components.LocationTargetedAOEs(module, A
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         base.OnCastFinished(caster, spell);
-        Color = (AID)spell.Action.ID == AID.Sparksteel2 ? ArenaColor.Danger : ArenaColor.AOE;
+        Color = (AID)spell.Action.ID == AID.Sparksteel2 ? Colors.Danger : Colors.AOE;
     }
 }
 
@@ -184,12 +184,9 @@ public class Stage30Act3(WorldState ws, Actor primary) : BossModule(ws, primary,
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.SiegfriedCloneIce))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.SiegfriedCloneWind))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.SiegfriedCloneFire))
-            Arena.Actor(s, ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SiegfriedCloneIce), Colors.Object);
+        Arena.Actors(Enemies(OID.SiegfriedCloneWind), Colors.Object);
+        Arena.Actors(Enemies(OID.SiegfriedCloneFire), Colors.Object);
     }
 }

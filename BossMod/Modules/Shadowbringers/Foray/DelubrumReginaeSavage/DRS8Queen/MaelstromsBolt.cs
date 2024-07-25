@@ -10,12 +10,12 @@ class MaelstromsBolt(BossModule module) : Components.CastCounter(module, ActionI
     {
         foreach (var b in _ballLightnings.Where(b => !b.IsDead))
         {
-            Arena.Actor(b, ArenaColor.Object, true);
-            Arena.AddCircle(b.Position, 8, ArenaColor.Object);
+            Arena.Actor(b, Colors.Object, true);
+            Arena.AddCircle(b.Position, 8, Colors.Object);
         }
         foreach (var d in _domes)
         {
-            Arena.AddCircle(d.Position, 8, ArenaColor.Safe);
+            Arena.AddCircle(d.Position, 8, Colors.Safe);
         }
     }
 }

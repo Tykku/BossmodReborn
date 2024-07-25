@@ -21,7 +21,7 @@ class CrypticFlames(BossModule module) : BossComponent(module)
         {
             var dir = l.laser.Rotation.ToDirection();
             var extent = 2 * dir * dir.Dot(Module.Center - l.laser.Position);
-            var color = l.order != _playerOrder[pcSlot] ? ArenaColor.Enemy : order == CurrentBreakOrder ? ArenaColor.Safe : ArenaColor.Danger;
+            var color = l.order != _playerOrder[pcSlot] ? Colors.Enemy : order == CurrentBreakOrder ? Colors.Safe : Colors.Danger;
             Arena.AddLine(l.laser.Position, l.laser.Position + extent, color, 2);
         }
     }
@@ -74,7 +74,7 @@ class CrypticFlames(BossModule module) : BossComponent(module)
 
     private void SetPlayerOrder(Actor player, int order)
     {
-        int slot = Raid.FindSlot(player.InstanceID);
+        var slot = Raid.FindSlot(player.InstanceID);
         if (slot >= 0 && slot < _playerOrder.Length)
             _playerOrder[slot] = order;
     }

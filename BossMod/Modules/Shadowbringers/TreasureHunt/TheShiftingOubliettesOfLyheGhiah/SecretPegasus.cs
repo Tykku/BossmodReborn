@@ -4,8 +4,8 @@ public enum OID : uint
 {
     Boss = 0x3016, //R=2.5
     Thunderhead = 0x3017, //R=1.0, untargetable
-    BossHelper = 0x233C,
-    BonusAddKeeperOfKeys = 0x3034, // R3.230
+    BonusAddKeeperOfKeys = 0x3034, // R3.23
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -21,7 +21,7 @@ public enum AID : uint
     Mash = 21767, // 3034->self, 3.0s cast, range 13 width 4 rect
     Inhale = 21770, // 3034->self, no cast, range 20 120-degree cone, attract 25 between hitboxes, shortly before Spin
     Spin = 21769, // 3034->self, 4.0s cast, range 11 circle
-    Scoop = 21768, // 3034->self, 4.0s cast, range 15 120-degree cone
+    Scoop = 21768 // 3034->self, 4.0s cast, range 15 120-degree cone
 }
 
 class BurningBright(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BurningBright), new AOEShapeRect(47, 3));
@@ -53,11 +53,9 @@ public class Pegasus(WorldState ws, Actor primary) : BossModule(ws, primary, new
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Thunderhead).Where(x => !x.IsDead))
-            Arena.Actor(s, ArenaColor.Object, true);
-        foreach (var s in Enemies(OID.BonusAddKeeperOfKeys))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Thunderhead).Where(x => !x.IsDead), Colors.Object, true);
+        Arena.Actors(Enemies(OID.BonusAddKeeperOfKeys), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

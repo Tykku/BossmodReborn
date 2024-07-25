@@ -32,7 +32,6 @@ public class Stage05 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        foreach (var s in Enemies(OID.Boss))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actors(Enemies(OID.Boss));
     }
 }

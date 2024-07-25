@@ -23,7 +23,7 @@ sealed class IPCList(Replay replay, IEnumerable<WorldState.Operation> ops, Actio
 
     public void Draw(UITree tree, DateTime reference)
     {
-        int index = 0;
+        var index = 0;
         _nodes ??= [.. ops.OfType<NetworkState.OpServerIPC>().Where(FilterOp).Select(op => (++index, op, _decoder.Decode(op.Packet, op.Timestamp)))];
 
         var timeRef = ImGui.GetIO().KeyShift && _relativeTS != default ? _relativeTS : reference;

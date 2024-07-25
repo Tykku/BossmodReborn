@@ -123,10 +123,10 @@ class UltimaBlow(BossModule module) : Components.CastCounter(module, ActionID.Ma
     {
         foreach (var t in _tethers)
         {
-            Arena.Actor(t.source, ArenaColor.Object, true);
-            Arena.AddLine(t.source.Position, t.target.Position, ArenaColor.Danger);
+            Arena.Actor(t.source, Colors.Object, true);
+            Arena.AddLine(t.source.Position, t.target.Position, Colors.Danger);
             if (t.target == pc || !_vulnerable[pcSlot])
-                _shape.Outline(Arena, t.source.Position, Angle.FromDirection(t.target.Position - t.source.Position), t.target == pc ? ArenaColor.Safe : ArenaColor.Danger); // TODO: reconsider...
+                _shape.Outline(Arena, t.source.Position, Angle.FromDirection(t.target.Position - t.source.Position), t.target == pc ? Colors.Safe : Colors.Danger); // TODO: reconsider...
         }
     }
 

@@ -17,7 +17,7 @@ class VoidAeroII(BossModule module) : BossComponent(module)
         if ((_greenTargets | _purpleTargets).None())
             return;
 
-        bool clippedByGreen = Raid.WithSlot().Exclude(slot).IncludedInMask(_greenTargets).InRadius(actor.Position, _greenRadius).Any();
+        var clippedByGreen = Raid.WithSlot().Exclude(slot).IncludedInMask(_greenTargets).InRadius(actor.Position, _greenRadius).Any();
         hints.Add($"Spread! (debuff: {(_greenTargets[slot] ? "green" : _purpleTargets[slot] ? "purple" : "none")})", clippedByGreen);
     }
 
@@ -67,7 +67,7 @@ public class A31DeathgazeHollow(WorldState ws, Actor primary) : BossModule(ws, p
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.VoidSprite), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.VoidSprite));
     }
 }

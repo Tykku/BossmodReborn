@@ -90,9 +90,8 @@ public class Stage16Act2 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Cyclops))
-            Arena.Actor(s, ArenaColor.Object, false);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Cyclops), Colors.Object);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

@@ -67,7 +67,7 @@ public class D061Regula(WorldState ws, Actor primary) : BossModule(ws, primary, 
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.MagitekTurretI), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.MagitekTurretI));
     }
 }

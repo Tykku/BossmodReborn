@@ -78,7 +78,7 @@ class RockThrow(BossModule module) : Components.GenericAOEs(module, ActionID.Mak
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (_target != null)
-            Arena.AddCircle(_target.Position, _shape.Radius, ArenaColor.Danger);
+            Arena.AddCircle(_target.Position, _shape.Radius, Colors.Danger);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

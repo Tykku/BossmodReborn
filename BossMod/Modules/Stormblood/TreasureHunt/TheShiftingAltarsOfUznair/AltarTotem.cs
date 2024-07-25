@@ -4,9 +4,9 @@ public enum OID : uint
 {
     Boss = 0x2534, //R=5.06
     BossAdd = 0x2566, //R=2.2
-    BossHelper = 0x233C,
     FireVoidzone = 0x1EA8BB,
-    BonusAddAltarMatanga = 0x2545, // R3.420
+    BonusAddAltarMatanga = 0x2545, // R3.42
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -24,12 +24,12 @@ public enum AID : uint
     Spin = 8599, // BonusAddAltarMatanga->self, no cast, range 6+R 120-degree cone
     RaucousScritch = 8598, // BonusAddAltarMatanga->self, 2.5s cast, range 5+R 120-degree cone
     Hurl = 5352, // BonusAddAltarMatanga->location, 3.0s cast, range 6 circle
-    Telega = 9630, // BonusAdds->self, no cast, single-target, bonus adds disappear
+    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
 public enum IconID : uint
 {
-    Baitaway = 23, // player
+    Baitaway = 23 // player
 }
 
 class FlurryOfRage(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FlurryOfRage), new AOEShapeCone(13.06f, 60.Degrees()));
@@ -108,11 +108,9 @@ public class Totem(WorldState ws, Actor primary) : BossModule(ws, primary, new(1
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossAdd))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.BonusAddAltarMatanga))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
+        Arena.Actors(Enemies(OID.BonusAddAltarMatanga), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

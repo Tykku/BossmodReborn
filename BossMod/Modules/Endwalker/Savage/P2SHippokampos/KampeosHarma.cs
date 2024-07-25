@@ -21,7 +21,7 @@ class KampeosHarma(BossModule module) : Components.CastCounter(module, ActionID.
         var safePos = GetSafeZone(slot);
         if (safePos != null && !actor.Position.InCircle(safePos.Value, 2))
         {
-            movementHints.Add(actor.Position, safePos.Value, ArenaColor.Danger);
+            movementHints.Add(actor.Position, safePos.Value, Colors.Danger);
         }
     }
 
@@ -29,7 +29,7 @@ class KampeosHarma(BossModule module) : Components.CastCounter(module, ActionID.
     {
         var pos = GetSafeZone(pcSlot);
         if (pos != null)
-            Arena.AddCircle(pos.Value, 1, ArenaColor.Safe);
+            Arena.AddCircle(pos.Value, 1, Colors.Safe);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID)
@@ -38,7 +38,7 @@ class KampeosHarma(BossModule module) : Components.CastCounter(module, ActionID.
         {
             _startingOffset = Module.PrimaryActor.Position - Module.Center;
 
-            int slot = Raid.FindSlot(actor.InstanceID);
+            var slot = Raid.FindSlot(actor.InstanceID);
             if (slot >= 0)
                 _playerOrder[slot] = (int)(iconID - 144);
         }

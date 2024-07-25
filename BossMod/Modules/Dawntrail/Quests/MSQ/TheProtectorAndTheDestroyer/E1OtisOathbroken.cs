@@ -54,7 +54,7 @@ class Rush(BossModule module) : Components.GenericAOEs(module)
     {
         if (_aoes.Count > 0)
             for (var i = 0; i < Math.Clamp(_aoes.Count, 0, 2); ++i)
-                yield return _aoes[i] with { Color = ArenaColor.Danger };
+                yield return _aoes[i] with { Color = Colors.Danger };
         if (_aoes.Count > 2)
             for (var i = 2; i < 4; ++i)
                 yield return _aoes[i];
@@ -102,16 +102,11 @@ public class OtisOathbroken(WorldState ws, Actor primary) : BossModule(ws, prima
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.EverkeepAerostat))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.EverkeepAerostat2))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.EverkeepSentryG10))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.EverkeepSentryR10))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.EverkeepTurret))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.EverkeepAerostat));
+        Arena.Actors(Enemies(OID.EverkeepAerostat2));
+        Arena.Actors(Enemies(OID.EverkeepSentryG10));
+        Arena.Actors(Enemies(OID.EverkeepSentryR10));
+        Arena.Actors(Enemies(OID.EverkeepTurret));
     }
 }

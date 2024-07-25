@@ -41,7 +41,7 @@ class P2PartySynergy(BossModule module) : CommonAssignments(module)
         {
             var distSq = (partner.Position - pc.Position).LengthSq();
             var range = DistanceRange;
-            Arena.AddLine(pc.Position, partner.Position, distSq < range.min * range.min || distSq > range.max * range.max ? ArenaColor.Danger : ArenaColor.Safe);
+            Arena.AddLine(pc.Position, partner.Position, distSq < range.min * range.min || distSq > range.max * range.max ? Colors.Danger : Colors.Safe);
         }
     }
 
@@ -184,10 +184,10 @@ class P2PartySynergyOpticalLaser(BossModule module) : Components.GenericAOEs(mod
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actor(_source, ArenaColor.Object, true);
+        Arena.Actor(_source, Colors.Object, true);
         var pos = AssignedPosition(pcSlot);
         if (pos != default)
-            Arena.AddCircle(Module.Center + pos, 1, ArenaColor.Safe);
+            Arena.AddCircle(Module.Center + pos, 1, Colors.Safe);
     }
 
     private WDir AssignedPosition(int slot)
@@ -253,7 +253,7 @@ class P2PartySynergyEfficientBladework : Components.GenericAOEs
     {
         var pos = AssignedPosition(pcSlot);
         if (pos != default)
-            Arena.AddCircle(Module.Center + pos, 1, ArenaColor.Safe);
+            Arena.AddCircle(Module.Center + pos, 1, Colors.Safe);
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
@@ -293,11 +293,11 @@ class P2PartySynergyEfficientBladework : Components.GenericAOEs
                     // need adjust
                     var s1Order = _synergy.GetNorthSouthOrder(s1);
                     var s2Order = _synergy.GetNorthSouthOrder(s2);
-                    int adjustOrder = _config.P2PartySynergyStackSwapSouth
+                    var adjustOrder = _config.P2PartySynergyStackSwapSouth
                         ? s1Order > s2Order ? s1.Order : s2.Order // south = higher order will swap
                         : s1Order > s2Order ? s2.Order : s1.Order; // north = lower
 
-                    for (int s = 0; s < _synergy.PlayerStates.Length; ++s)
+                    for (var s = 0; s < _synergy.PlayerStates.Length; ++s)
                     {
                         if (_synergy.PlayerStates[s].Order == adjustOrder)
                         {

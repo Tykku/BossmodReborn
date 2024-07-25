@@ -41,7 +41,7 @@ class UITest
         //Service.Device = (SharpDX.Direct3D11.Device?)scene.Renderer.GetType().GetField("_device", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(scene.Renderer);
 
         // esc should close focused window
-        bool escDown = false;
+        var escDown = false;
         scene.Window.OnSDLEvent += (ref SDL_Event sdlEvent) =>
         {
             if (sdlEvent.type == SDL_EventType.SDL_KEYDOWN && sdlEvent.key.keysym.scancode == SDL_Scancode.SDL_SCANCODE_ESCAPE && !escDown)

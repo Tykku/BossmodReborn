@@ -5,14 +5,14 @@ class P5WrathOfTheHeavensSkywardLeap(BossModule module) : Components.UniformStac
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
         if (IsSpreadTarget(actor) && SafeSpot() is var safespot && safespot != default)
-            movementHints.Add(actor.Position, safespot, ArenaColor.Safe);
+            movementHints.Add(actor.Position, safespot, Colors.Safe);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
         if (IsSpreadTarget(pc) && SafeSpot() is var safespot && safespot != default)
-            Arena.AddCircle(safespot, 1, ArenaColor.Safe);
+            Arena.AddCircle(safespot, 1, Colors.Safe);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID)
@@ -43,14 +43,14 @@ class P5WrathOfTheHeavensSpiralPierce(BossModule module) : Components.BaitAwayTe
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
         if (SafeSpot(actor) is var safespot && safespot != default)
-            movementHints.Add(actor.Position, safespot, ArenaColor.Safe);
+            movementHints.Add(actor.Position, safespot, Colors.Safe);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
         if (SafeSpot(pc) is var safespot && safespot != default)
-            Arena.AddCircle(safespot, 1, ArenaColor.Safe);
+            Arena.AddCircle(safespot, 1, Colors.Safe);
     }
 
     private WPos SafeSpot(Actor actor)
@@ -140,13 +140,13 @@ class P5WrathOfTheHeavensCauterizeBait(BossModule module) : BossComponent(module
     {
         if (_target != actor)
             return;
-        movementHints.Add(actor.Position, SafeSpot(), ArenaColor.Safe);
+        movementHints.Add(actor.Position, SafeSpot(), Colors.Safe);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (_target == pc)
-            Arena.AddCircle(SafeSpot(), 1, ArenaColor.Safe);
+            Arena.AddCircle(SafeSpot(), 1, Colors.Safe);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID)
@@ -181,7 +181,7 @@ class P5WrathOfTheHeavensEmptyDimension(BossModule module) : Components.SelfTarg
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (Casters.Count == 0 && KnowPosition)
-            Arena.AddCircle(_predicted, 6, ArenaColor.Safe, 2);
+            Arena.AddCircle(_predicted, 6, Colors.Safe, 2);
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)

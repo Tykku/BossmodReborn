@@ -3,9 +3,9 @@ namespace BossMod.Stormblood.TreasureHunt.ShiftingAltarsOfUznair.AltarAiravata;
 public enum OID : uint
 {
     Boss = 0x2543, //R=4.75
-    BonusAddAltarMatanga = 0x2545, // R3.420
-    BonusAddGoldWhisker = 0x2544, // R0.540
-    BossHelper = 0x233C,
+    BonusAddAltarMatanga = 0x2545, // R3.42
+    BonusAddGoldWhisker = 0x2544, // R0.54
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -22,12 +22,12 @@ public enum AID : uint
     Spin = 8599, // BonusAddAltarMatanga->self, no cast, range 6+R 120-degree cone
     RaucousScritch = 8598, // BonusAddAltarMatanga->self, 2.5s cast, range 5+R 120-degree cone
     Hurl = 5352, // BonusAddAltarMatanga->location, 3.0s cast, range 6 circle
-    Telega = 9630, // BonusAdds->self, no cast, single-target, bonus adds disappear
+    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
 public enum IconID : uint
 {
-    BuffetTarget = 23, // player
+    BuffetTarget = 23 // player
 }
 
 class HurlBoss(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HurlBoss), 6);
@@ -128,11 +128,9 @@ public class Airavata(WorldState ws, Actor primary) : BossModule(ws, primary, ne
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BonusAddGoldWhisker))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.BonusAddAltarMatanga))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BonusAddGoldWhisker), Colors.Object);
+        Arena.Actors(Enemies(OID.BonusAddAltarMatanga), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

@@ -28,10 +28,10 @@ public class DRN3QueensGuard : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(Knight(), ArenaColor.Enemy);
-        Arena.Actor(Warrior(), ArenaColor.Enemy);
-        Arena.Actor(Soldier(), ArenaColor.Enemy);
-        Arena.Actor(Gunner(), ArenaColor.Enemy);
-        Arena.Actors(GunTurrets, ArenaColor.Enemy);
+        Arena.Actor(Knight());
+        Arena.Actor(Warrior());
+        Arena.Actor(Soldier());
+        Arena.Actor(Gunner());
+        Arena.Actors(GunTurrets);
     }
 }

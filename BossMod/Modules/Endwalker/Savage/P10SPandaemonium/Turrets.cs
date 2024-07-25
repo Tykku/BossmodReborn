@@ -39,13 +39,13 @@ class Turrets(BossModule module) : Components.Knockback(module, ActionID.MakeSpe
     {
         foreach (var t in ImminentTurretsWithTargets())
         {
-            Arena.Actor(t.source, ArenaColor.Enemy, true);
+            Arena.Actor(t.source, Colors.Enemy, true);
             if (t.source != null && t.target != null)
                 _shape.Outline(Arena, t.source.Position, Angle.FromDirection(t.target.Position - t.source.Position));
         }
 
         foreach (var t in FutureTurrets())
-            Arena.Actor(t, ArenaColor.Object, true);
+            Arena.Actor(t, Colors.Object, true);
 
         base.DrawArenaForeground(pcSlot, pc);
     }

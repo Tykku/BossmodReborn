@@ -117,8 +117,8 @@ class ExplosionMissile(BossModule module) : BossComponent(module)
     {
         foreach (var m in _activeMissiles)
         {
-            Arena.Actor(m, ArenaColor.Object, true);
-            Arena.AddCircle(m.Position, 6, ArenaColor.Danger);
+            Arena.Actor(m, Colors.Object, true);
+            Arena.AddCircle(m.Position, 6, Colors.Danger);
         }
     }
 

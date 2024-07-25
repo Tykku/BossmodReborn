@@ -81,7 +81,7 @@ class CloneMerge(BossModule module) : BossComponent(module)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actor(Clone, ArenaColor.Enemy);
+        Arena.Actor(Clone);
     }
 }
 

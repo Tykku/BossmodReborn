@@ -1,4 +1,5 @@
 ﻿using BossMod.Autorotation;
+using Dalamud.Interface.ImGuiFileDialog;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using System.IO;
@@ -8,13 +9,14 @@ namespace BossMod;
 public class ReplayManagementWindow : UIWindow
 {
     private readonly WorldState _ws;
-    private readonly DirectoryInfo _logDir;
+    private DirectoryInfo _logDir;
     private readonly ReplayManagementConfig _config;
     private readonly ReplayManager _manager;
     private readonly EventSubscriptions _subscriptions;
     private ReplayRecorder? _recorder;
     private string _message = "";
     private bool _autoRecording;
+    private FileDialog? _folderDialog;
 
     private const string _windowID = "###Replay recorder";
 
@@ -26,10 +28,13 @@ public class ReplayManagementWindow : UIWindow
         _manager = new(rotationDB, logDir.FullName);
         _subscriptions = new
         (
-            _config.Modified.ExecuteAndSubscribe(() => IsOpen = _config.ShowUI),
+            _config.Modified.ExecuteAndSubscribe(() =>
+            {
+                IsOpen = _config.ShowUI;
+                UpdateLogDirectory();
+            }),
             _ws.CurrentZoneChanged.Subscribe(op => UpdateAutoRecord(op.CFCID))
         );
-
         if (!UpdateAutoRecord(_ws.CurrentCFCID))
             UpdateTitle();
 
@@ -67,7 +72,23 @@ public class ReplayManagementWindow : UIWindow
             else
                 StopRecording();
         }
+        ImGui.SameLine();
+        if (ImGui.Button("Select replay folder"))
+        {
+            _folderDialog ??= new FileDialog("select_replay_folder", "Select replay folder", "", _config.ReplayFolder, "", "", 1, false, ImGuiFileDialogFlags.SelectOnly);
+            _folderDialog.Show();
+        }
 
+        if (_folderDialog?.Draw() ?? false)
+        {
+            if (_folderDialog.GetIsOk())
+            {
+                _config.ReplayFolder = _folderDialog.GetResults().FirstOrDefault() ?? "";
+                _config.Modified.Fire();
+            }
+            _folderDialog.Hide();
+            _folderDialog = null;
+        }
         if (_recorder != null)
         {
             ImGui.InputText("###msg", ref _message, 1024);
@@ -93,7 +114,8 @@ public class ReplayManagementWindow : UIWindow
         {
             try
             {
-                var replays = _logDir.GetFiles();
+                var replayFolder = new DirectoryInfo(_config.ReplayFolder);
+                var replays = replayFolder.GetFiles();
                 replays.SortBy(f => f.LastWriteTime);
                 foreach (var f in replays.Take(replays.Length - _config.MaxReplays))
                     f.Delete();
@@ -106,7 +128,8 @@ public class ReplayManagementWindow : UIWindow
 
         try
         {
-            _recorder = new(_ws, _config.WorldLogFormat, true, _logDir, GetPrefix());
+            var replayFolder = string.IsNullOrEmpty(_config.ReplayFolder) ? _logDir : new DirectoryInfo(_config.ReplayFolder);
+            _recorder = new(_ws, _config.WorldLogFormat, true, replayFolder, GetPrefix());
         }
         catch (Exception ex)
         {
@@ -152,6 +175,13 @@ public class ReplayManagementWindow : UIWindow
         }
 
         return false;
+    }
+
+    public void UpdateLogDirectory()
+    {
+        var newLogDir = string.IsNullOrEmpty(_config.ReplayFolder) ? _logDir : new DirectoryInfo(_config.ReplayFolder);
+        _logDir = newLogDir;
+        _manager.SetLogDirectory(_logDir.FullName);
     }
 
     private unsafe string GetPrefix()

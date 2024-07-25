@@ -14,12 +14,12 @@ class ProjectionOfTurmoil(BossModule module) : Components.CastCounter(module, Ac
         {
             var actor = Raid[slot];
             if (actor != null)
-                Arena.AddCircle(actor.Position, 8, ArenaColor.Safe);
+                Arena.AddCircle(actor.Position, 8, Colors.Safe);
         }
         foreach (var l in _line)
         {
             var off = new WDir(28.28427f - Math.Abs(l.Position.Z - Module.Center.Z), 0);
-            Arena.AddLine(l.Position - off, l.Position + off, ArenaColor.Danger);
+            Arena.AddLine(l.Position - off, l.Position + off, Colors.Danger);
         }
     }
 

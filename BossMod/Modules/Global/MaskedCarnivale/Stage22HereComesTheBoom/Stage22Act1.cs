@@ -48,8 +48,7 @@ public class Stage22Act1 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        foreach (var s in Enemies(OID.Boss))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actors(Enemies(OID.Boss));
     }
 
     protected override bool CheckPull() => (PrimaryActor.IsTargetable && PrimaryActor.InCombat || Enemies(OID.Boss).Any(e => e.IsDead)) && !Enemies(OID.BossAct2).Any(e => e.InCombat);

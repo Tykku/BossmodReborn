@@ -88,8 +88,7 @@ public class D041GreaterArmadillo(WorldState ws, Actor primary) : BossModule(ws,
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.PackArmadillo))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.PackArmadillo));
     }
 }

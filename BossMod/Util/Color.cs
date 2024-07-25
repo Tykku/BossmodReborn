@@ -48,3 +48,32 @@ public class JsonColorConverter : JsonConverter<Color>
         writer.WriteStringValue($"#{value.ToRGBA():X8}");
     }
 }
+
+public static class Colors
+{
+    private static readonly ColorConfig _config = Service.Config.Get<ColorConfig>();
+
+    public static uint Background => _config.ArenaBackground.ABGR;
+    public static uint Border => _config.ArenaBorder.ABGR;
+    public static uint AOE => _config.ArenaAOE.ABGR;
+    public static uint SafeFromAOE => _config.ArenaSafeFromAOE.ABGR;
+    public static uint Danger => _config.ArenaDanger.ABGR;
+    public static uint Safe => _config.ArenaSafe.ABGR;
+    public static uint Trap => _config.ArenaTrap.ABGR;
+    public static uint PC => _config.ArenaPC.ABGR;
+    public static uint Enemy => _config.ArenaEnemy.ABGR;
+    public static uint Object => _config.ArenaObject.ABGR;
+    public static uint PlayerInteresting => _config.ArenaPlayerInteresting.ABGR;
+    public static uint PlayerGeneric => _config.ArenaPlayerGeneric.ABGR;
+    public static uint Vulnerable => _config.ArenaVulnerable.ABGR;
+    public static uint FutureVulnerable => _config.ArenaFutureVulnerable.ABGR;
+    public static uint Shadows => _config.Shadows.ABGR;
+    public static uint WaymarkA => _config.WaymarkA.ABGR;
+    public static uint WaymarkB => _config.WaymarkB.ABGR;
+    public static uint WaymarkC => _config.WaymarkC.ABGR;
+    public static uint WaymarkD => _config.WaymarkD.ABGR;
+    public static uint Waymark1 => _config.Waymark1.ABGR;
+    public static uint Waymark2 => _config.Waymark2.ABGR;
+    public static uint Waymark3 => _config.Waymark3.ABGR;
+    public static uint Waymark4 => _config.Waymark4.ABGR;
+}

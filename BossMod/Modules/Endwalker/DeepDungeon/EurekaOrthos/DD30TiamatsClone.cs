@@ -55,7 +55,7 @@ class CreatureOfDarkness(BossModule module) : Components.GenericAOEs(module)
         foreach (var c in _heads)
         {
             yield return new(rect, c.Position + 2 * c.Rotation.ToDirection(), c.Rotation);
-            yield return new(circle, c.Position, c.Rotation, Color: ArenaColor.Danger);
+            yield return new(circle, c.Position, c.Rotation, Color: Colors.Danger);
         }
     }
 

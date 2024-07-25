@@ -191,7 +191,7 @@ public sealed class ActionDefinitions : IDisposable
         BitMask res = default;
         var cjc = _cjcSheet?.GetRowParser(data?.ClassJobCategory.Row ?? 0);
         if (cjc != null)
-            for (int i = 1; i < _cjcSheet!.ColumnCount; ++i)
+            for (var i = 1; i < _cjcSheet!.ColumnCount; ++i)
                 res[i - 1] = cjc.ReadColumn<bool>(i);
         return res;
     }
@@ -209,7 +209,7 @@ public sealed class ActionDefinitions : IDisposable
     // see ActionManager.CanUseActionOnTarget
     public ActionTargets SpellAllowedTargets(Lumina.Excel.GeneratedSheets.Action? data)
     {
-        ActionTargets res = ActionTargets.None;
+        var res = ActionTargets.None;
         if (data != null)
         {
             if (data.CanTargetSelf)
@@ -346,7 +346,7 @@ public sealed class ActionDefinitions : IDisposable
     private void RegisterBozja(BozjaHolsterID id)
     {
         var normalAction = BozjaActionID.GetNormal(id);
-        bool isItem = normalAction == BozjaActionID.GetHolster(id);
+        var isItem = normalAction == BozjaActionID.GetHolster(id);
         RegisterSpell(normalAction, instantAnimLock: isItem ? 1.1f : 0.6f);
         if (!isItem)
         {

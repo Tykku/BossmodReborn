@@ -34,13 +34,13 @@ class BlackHole(BossModule module) : BossComponent(module)
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         if (Voidzone != null)
-            Arena.ZoneCircle(Voidzone.Position, _growthStart == default ? _startingRadius : Math.Min(_maxRadius, _startingRadius + _growthPerSecond * (float)(WorldState.CurrentTime - _growthStart).TotalSeconds), ArenaColor.AOE);
+            Arena.ZoneCircle(Voidzone.Position, _growthStart == default ? _startingRadius : Math.Min(_maxRadius, _startingRadius + _growthPerSecond * (float)(WorldState.CurrentTime - _growthStart).TotalSeconds), Colors.AOE);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (Baiter != null)
-            Arena.AddCircle(Baiter.Position, _startingRadius, ArenaColor.Danger);
+            Arena.AddCircle(Baiter.Position, _startingRadius, Colors.Danger);
     }
 
     public override void OnActorCreated(Actor actor)
@@ -91,10 +91,10 @@ class FracturedEventide(BossModule module) : Components.GenericAOEs(module)
         if (_source == null)
             yield break;
 
-        for (int i = NumCasts + 1; i < _maxCasts; ++i)
+        for (var i = NumCasts + 1; i < _maxCasts; ++i)
             yield return new(_shape, _source.Position, _startingRotation + i * _increment, _startingActivation.AddSeconds(0.5f * i));
         if (NumCasts < _maxCasts)
-            yield return new(_shape, _source.Position, _startingRotation + NumCasts * _increment, _startingActivation.AddSeconds(0.5f * NumCasts), ArenaColor.Danger);
+            yield return new(_shape, _source.Position, _startingRotation + NumCasts * _increment, _startingActivation.AddSeconds(0.5f * NumCasts), Colors.Danger);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

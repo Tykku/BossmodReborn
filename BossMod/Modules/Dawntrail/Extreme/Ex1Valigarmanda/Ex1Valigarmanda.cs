@@ -16,5 +16,27 @@ class TulidisasterEnrage2(BossModule module) : Components.CastCounter(module, Ac
 class TulidisasterEnrage3(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.TulidisasterEnrageAOE3));
 
 // TODO: investigate how exactly are omens drawn for northern cross & susurrant breath
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 833, NameID = 12854, PlanLevel = 100)]
-public class Ex1Valigarmanda(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsRect(20, 15));
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 833, NameID = 12854, PlanLevel = 100)]
+public class Ex1Valigarmanda(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsRect(20, 15))
+{
+    protected override void DrawEnemies(int pcSlot, Actor pc)
+    {
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.IceBoulderJail));
+    }
+
+    public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        base.CalculateAIHints(slot, actor, assignment, hints);
+        foreach (var e in hints.PotentialTargets)
+        {
+            e.Priority = (OID)e.Actor.OID switch
+            {
+                OID.IceBoulderJail => 2,
+                OID.Boss => 1,
+                _ => 0
+            };
+        }
+    }
+}
+

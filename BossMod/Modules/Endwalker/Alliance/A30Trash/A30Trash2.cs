@@ -46,8 +46,8 @@ public class A30Trash2Pack1(WorldState ws, Actor primary) : BossModule(ws, prima
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.AngelosMikros), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.AngelosMikros));
     }
 }
 
@@ -67,6 +67,6 @@ public class A30Trash2Pack2(WorldState ws, Actor primary) : BossModule(ws, prima
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.AngelosPack2), ArenaColor.Enemy);
+        Arena.Actors(Enemies(OID.AngelosPack2));
     }
 }

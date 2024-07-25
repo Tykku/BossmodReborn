@@ -61,8 +61,8 @@ public class C010NDryad(WorldState ws, Actor primary) : SimpleBossModule(ws, pri
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.NOdqan), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.NOdqan));
     }
 }
 
@@ -71,7 +71,7 @@ public class C010SDryad(WorldState ws, Actor primary) : SimpleBossModule(ws, pri
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.SOdqan), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SOdqan));
     }
 }

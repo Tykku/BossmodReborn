@@ -73,18 +73,12 @@ public class Stage09 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Licorice))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.Flan))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.Pudding))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.Marshmallow))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.Bavarois))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.Gelato))
-            Arena.Actor(s, ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Licorice), Colors.Object);
+        Arena.Actors(Enemies(OID.Flan), Colors.Object);
+        Arena.Actors(Enemies(OID.Pudding), Colors.Object);
+        Arena.Actors(Enemies(OID.Marshmallow), Colors.Object);
+        Arena.Actors(Enemies(OID.Bavarois), Colors.Object);
+        Arena.Actors(Enemies(OID.Gelato), Colors.Object);
     }
 }

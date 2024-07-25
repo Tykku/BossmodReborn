@@ -18,7 +18,7 @@ class P2Fireball(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (Target != null)
-            Arena.AddCircle(Target.Position, Radius, ArenaColor.Safe);
+            Arena.AddCircle(Target.Position, Radius, Colors.Safe);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -105,7 +105,7 @@ class P2AI(BossModule module) : BossComponent(module)
         }
         else if (_deathSentence?.TankRole != assignment)
         {
-            bool stayLeft = actor.Role switch
+            var stayLeft = actor.Role switch
             {
                 Role.Healer => true,
                 Role.Ranged => false,
@@ -120,7 +120,7 @@ class P2AI(BossModule module) : BossComponent(module)
 
         if (_fireball?.Target != null)
         {
-            bool hitHealers = _fireball.Target.Role == Role.Healer;
+            var hitHealers = _fireball.Target.Role == Role.Healer;
             var hitPlayers = Raid.WithSlot().WhereActor(a => a.Role switch
             {
                 Role.Healer => hitHealers,

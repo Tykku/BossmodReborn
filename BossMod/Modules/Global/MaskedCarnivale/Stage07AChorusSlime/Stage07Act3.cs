@@ -22,8 +22,8 @@ class SlimeExplosion(BossModule module) : Components.GenericStackSpread(module)
         foreach (var p in Module.Enemies(OID.Slime).Where(x => !x.IsDead))
         {
             if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddCircle(p.Position, 7.6f, 0xFF000000, 2);
-            Arena.AddCircle(p.Position, 7.6f, ArenaColor.Danger);
+                Arena.AddCircle(p.Position, 7.6f, Colors.Shadows, 2);
+            Arena.AddCircle(p.Position, 7.6f, Colors.Danger);
         }
     }
 
@@ -66,9 +66,7 @@ public class Stage07Act3 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        foreach (var s in Enemies(OID.Boss))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Slime))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actors(Enemies(OID.Boss));
+        Arena.Actors(Enemies(OID.Slime));
     }
 }

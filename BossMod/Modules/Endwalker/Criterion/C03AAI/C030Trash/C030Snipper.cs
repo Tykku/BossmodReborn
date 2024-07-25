@@ -78,8 +78,8 @@ public class C030NSnipper(WorldState ws, Actor primary) : C030Trash1(ws, primary
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.NCrab), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.NCrab));
     }
 }
 
@@ -88,7 +88,7 @@ public class C030SSnipper(WorldState ws, Actor primary) : C030Trash1(ws, primary
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.SCrab), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SCrab));
     }
 }

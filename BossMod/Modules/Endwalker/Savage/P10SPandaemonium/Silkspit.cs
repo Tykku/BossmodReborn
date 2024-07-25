@@ -14,7 +14,7 @@ class Silkspit(BossModule module) : Components.UniformStackSpread(module, 0, 7)
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         base.DrawArenaBackground(pcSlot, pc);
-        Arena.Actors(_pillars, ArenaColor.Object, true);
+        Arena.Actors(_pillars, Colors.Object, true);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

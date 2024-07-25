@@ -17,7 +17,7 @@ class VengefulBelone(BossModule module) : BossComponent(module)
         if (_orbTargets.Count == 0 || _orbsExploded == _orbTargets.Count)
             return; // inactive
 
-        int ruinCount = _playerRuinCount[slot];
+        var ruinCount = _playerRuinCount[slot];
         if (ruinCount > 2 || (ruinCount == 2 && _playerActingRole[slot] != Role.None))
         {
             hints.Add("Failed orbs...");
@@ -51,13 +51,13 @@ class VengefulBelone(BossModule module) : BossComponent(module)
             if (orbRole == Role.None)
                 continue; // this orb has already exploded
 
-            bool lethal = IsOrbLethal(pcSlot, pc, orbRole);
-            Arena.Actor(orb, lethal ? ArenaColor.Enemy : ArenaColor.Danger, true);
+            var lethal = IsOrbLethal(pcSlot, pc, orbRole);
+            Arena.Actor(orb, lethal ? Colors.Enemy : Colors.Danger, true);
 
             var target = WorldState.Actors.Find(orb.Tether.Target);
             if (target != null)
             {
-                Arena.AddLine(orb.Position, target.Position, ArenaColor.Danger);
+                Arena.AddLine(orb.Position, target.Position, Colors.Danger);
             }
 
             int goodInRange = 0, badInRange = 0;
@@ -69,14 +69,14 @@ class VengefulBelone(BossModule module) : BossComponent(module)
                     ++goodInRange;
             }
 
-            bool goodToExplode = goodInRange == 2 && badInRange == 0;
-            Arena.AddCircle(orb.Position, _burstRadius, goodToExplode ? ArenaColor.Safe : ArenaColor.Danger);
+            var goodToExplode = goodInRange == 2 && badInRange == 0;
+            Arena.AddCircle(orb.Position, _burstRadius, goodToExplode ? Colors.Safe : Colors.Danger);
         }
 
-        foreach ((int i, var player) in Raid.WithSlot())
+        foreach ((var i, var player) in Raid.WithSlot())
         {
-            bool nearLethalOrb = orbs.Where(orb => IsOrbLethal(i, player, OrbTarget(orb.InstanceID))).InRadius(player.Position, _burstRadius).Any();
-            Arena.Actor(player, nearLethalOrb ? ArenaColor.PlayerInteresting : ArenaColor.PlayerGeneric);
+            var nearLethalOrb = orbs.Where(orb => IsOrbLethal(i, player, OrbTarget(orb.InstanceID))).InRadius(player.Position, _burstRadius).Any();
+            Arena.Actor(player, nearLethalOrb ? Colors.PlayerInteresting : Colors.PlayerGeneric);
         }
     }
 
@@ -139,7 +139,7 @@ class VengefulBelone(BossModule module) : BossComponent(module)
 
     private bool IsOrbLethal(int slot, Actor player, Role orbRole)
     {
-        int ruinCount = _playerRuinCount[slot];
+        var ruinCount = _playerRuinCount[slot];
         if (ruinCount >= 2)
             return true; // any orb is now lethal
 
@@ -153,14 +153,14 @@ class VengefulBelone(BossModule module) : BossComponent(module)
 
     private void ModifyRuinStacks(Actor actor, ushort count)
     {
-        int slot = Raid.FindSlot(actor.InstanceID);
+        var slot = Raid.FindSlot(actor.InstanceID);
         if (slot >= 0)
             _playerRuinCount[slot] = count;
     }
 
     private void ModifyActingRole(Actor actor, Role role)
     {
-        int slot = Raid.FindSlot(actor.InstanceID);
+        var slot = Raid.FindSlot(actor.InstanceID);
         if (slot >= 0)
             _playerActingRole[slot] = role;
     }

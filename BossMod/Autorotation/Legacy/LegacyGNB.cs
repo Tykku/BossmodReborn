@@ -129,7 +129,7 @@ public sealed class LegacyGNB : LegacyModule
         };
 
         // TODO: refactor all that, it's kinda senseless now
-        GNB.AID gcd = GetNextBestGCD(strategy, aoe);
+        var gcd = GetNextBestGCD(strategy, aoe);
         PushResult(gcd, primaryTarget);
 
         ActionID ogcd = default;
@@ -276,7 +276,7 @@ public sealed class LegacyGNB : LegacyModule
         // Lv30-53 NM proc ST
         if (_state.Unlocked(GNB.AID.NoMercy))
         {
-            bool canUseBurstStrike = !_state.Unlocked(GNB.AID.FatedCircle) &&
+            var canUseBurstStrike = !_state.Unlocked(GNB.AID.FatedCircle) &&
                                      !_state.Unlocked(GNB.AID.DoubleDown) &&
                                      !_state.Unlocked(GNB.AID.Bloodfest) &&
                                      !_state.Unlocked(GNB.AID.Continuation) &&
@@ -556,23 +556,23 @@ public sealed class LegacyGNB : LegacyModule
         else
         {
             var gnbConfig = Service.Config.Get<GNBConfig>();
-            bool isEarlyNoMercy = gnbConfig.EarlyNoMercy;
+            var isEarlyNoMercy = gnbConfig.EarlyNoMercy;
 
-            bool isGnashingFangReady = _state.CD(GNB.AID.GnashingFang) < 2.5 && _state.Unlocked(GNB.AID.GnashingFang);
-            bool isSonicBreakReady = _state.CD(GNB.AID.NoMercy) >= 40 && _state.Unlocked(GNB.AID.SonicBreak) && _state.ReadyToBreak > 0;
-            bool isDoubleDownReady = _state.CD(GNB.AID.DoubleDown) < 2.5 && _state.Unlocked(GNB.AID.DoubleDown);
-            bool justusewhenever = !_state.Unlocked(GNB.AID.BurstStrike) && _state.TargetingEnemy && _state.RangeToTarget < 5;
+            var isGnashingFangReady = _state.CD(GNB.AID.GnashingFang) < 2.5 && _state.Unlocked(GNB.AID.GnashingFang);
+            var isSonicBreakReady = _state.CD(GNB.AID.NoMercy) >= 40 && _state.Unlocked(GNB.AID.SonicBreak) && _state.ReadyToBreak > 0;
+            var isDoubleDownReady = _state.CD(GNB.AID.DoubleDown) < 2.5 && _state.Unlocked(GNB.AID.DoubleDown);
+            var justusewhenever = !_state.Unlocked(GNB.AID.BurstStrike) && _state.TargetingEnemy && _state.RangeToTarget < 5;
 
-            bool shouldUseEarlyNoMercy = _state.TargetingEnemy && ((!isEarlyNoMercy && _state.ComboLastMove == GNB.AID.BrutalShell) || (isEarlyNoMercy && _state.ComboLastMove == GNB.AID.KeenEdge)) && _state.Unlocked(GNB.AID.Bloodfest) && (_state.Ammo == 0 || _state.Ammo == _state.MaxCartridges) && ((_state.GCD < 0.8 && gnbConfig.Skscheck) || (!gnbConfig.Skscheck));
+            var shouldUseEarlyNoMercy = _state.TargetingEnemy && ((!isEarlyNoMercy && _state.ComboLastMove == GNB.AID.BrutalShell) || (isEarlyNoMercy && _state.ComboLastMove == GNB.AID.KeenEdge)) && _state.Unlocked(GNB.AID.Bloodfest) && (_state.Ammo == 0 || _state.Ammo == _state.MaxCartridges) && ((_state.GCD < 0.8 && gnbConfig.Skscheck) || (!gnbConfig.Skscheck));
 
-            bool shouldUseRegularNoMercy = (!gnbConfig.Skscheck
+            var shouldUseRegularNoMercy = (!gnbConfig.Skscheck
                 && (isGnashingFangReady || isSonicBreakReady || isDoubleDownReady)
                 && _state.TargetingEnemy
                 && ((_state.Ammo == _state.MaxCartridges)
                 || (_state.Ammo == _state.MaxCartridges - 1 && _state.ComboLastMove == GNB.AID.BrutalShell && _state.CD(GNB.AID.Bloodfest) > 20)
                 || (_state.CD(GNB.AID.Bloodfest) < 15 && _state.Ammo == 1 && _state.Unlocked(GNB.AID.Bloodfest)))) || shouldUseEarlyNoMercy;
 
-            bool shouldUseSksCheck = (gnbConfig.Skscheck && _state.GCD < 0.8
+            var shouldUseSksCheck = (gnbConfig.Skscheck && _state.GCD < 0.8
                 && (isGnashingFangReady || isSonicBreakReady || isDoubleDownReady)
                 && _state.TargetingEnemy
                 && (_state.Ammo == _state.MaxCartridges
@@ -610,7 +610,7 @@ public sealed class LegacyGNB : LegacyModule
         }
         else
         {
-            bool inNoMercy = _state.NoMercyLeft > _state.AnimationLock && _state.Unlocked(GNB.AID.Bloodfest);
+            var inNoMercy = _state.NoMercyLeft > _state.AnimationLock && _state.Unlocked(GNB.AID.Bloodfest);
             return inNoMercy && _state.Ammo == 0;
         }
     }

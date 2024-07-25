@@ -14,11 +14,11 @@ class Thundercall(BossModule module) : Components.GenericAOEs(module)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actors(_orbs, ArenaColor.Object, true);
+        Arena.Actors(_orbs, Colors.Object, true);
         if (_miniTarget != null)
-            Arena.AddCircle(_miniTarget.Position, 3, ArenaColor.Danger);
+            Arena.AddCircle(_miniTarget.Position, 3, Colors.Danger);
         if (_safeOrb != null)
-            Arena.AddCircle(_safeOrb.Position, 1, ArenaColor.Safe);
+            Arena.AddCircle(_safeOrb.Position, 1, Colors.Safe);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

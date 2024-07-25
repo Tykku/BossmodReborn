@@ -70,15 +70,15 @@ public sealed class ManualActionQueueTweak(WorldState ws, AIHints hints)
         if (def == null)
             return false; // unknown action, let native queue handle it instead
 
-        bool isGCD = def.IsGCD;
-        float expire = isGCD ? 1.0f : 3.0f;
+        var isGCD = def.IsGCD;
+        var expire = isGCD ? 1.0f : 3.0f;
         if (def.ReadyIn(ws.Client.Cooldowns) > expire)
             return false; // don't bother trying to queue something that's on cd
 
         if (!ResolveTarget(def, player, targetId, getAreaTarget, allowTargetOverride, out var target, out var targetPos))
             return false; // failed to resolve target
 
-        Angle? angleOverride = def.TransformAngle?.Invoke(ws, player, target, hints);
+        var angleOverride = def.TransformAngle?.Invoke(ws, player, target, hints);
 
         var expireAt = ws.CurrentTime.AddSeconds(expire);
         var index = _queue.FindIndex(e => e.Definition.MainCooldownGroup == def.MainCooldownGroup); // TODO: what about alt groups?..

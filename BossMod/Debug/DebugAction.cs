@@ -132,8 +132,8 @@ sealed class DebugAction(WorldState ws, ActionManagerEx amex) : IDisposable
         }
         else if (Service.GameGui.HoveredItem != 0)
         {
-            uint itemID = (uint)Service.GameGui.HoveredItem % 1000000;
-            bool isHQ = Service.GameGui.HoveredItem / 1000000 > 0;
+            var itemID = (uint)Service.GameGui.HoveredItem % 1000000;
+            var isHQ = Service.GameGui.HoveredItem / 1000000 > 0;
             ImGui.TextUnformatted($"Hover item: {Service.GameGui.HoveredItem}");
             ImGui.TextUnformatted($"Name: {Service.LuminaRow<Lumina.Excel.GeneratedSheets.Item>(itemID)?.Name}{(isHQ ? " (HQ)" : "")}");
             ImGui.TextUnformatted($"Count: {FFXIVClientStructs.FFXIV.Client.Game.InventoryManager.Instance()->GetInventoryItemCount(itemID, isHQ, false, false)}");

@@ -57,8 +57,8 @@ public class C030NRay(WorldState ws, Actor primary) : C030Trash1(ws, primary)
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.NPaddleBiter), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.NPaddleBiter));
     }
 }
 
@@ -67,7 +67,7 @@ public class C030SRay(WorldState ws, Actor primary) : C030Trash1(ws, primary)
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.SPaddleBiter), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SPaddleBiter));
     }
 }

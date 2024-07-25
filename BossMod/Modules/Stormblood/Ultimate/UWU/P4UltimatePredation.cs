@@ -64,12 +64,12 @@ class P4UltimatePredation(BossModule module) : BossComponent(module)
 
     private IEnumerable<(WPos from, WPos to, uint color)> EnumerateHints(WPos starting)
     {
-        uint color = ArenaColor.Safe;
+        var color = Colors.Safe;
         foreach (var p in _hints)
         {
             yield return (starting, p, color);
             starting = p;
-            color = ArenaColor.Danger;
+            color = Colors.Danger;
         }
     }
 

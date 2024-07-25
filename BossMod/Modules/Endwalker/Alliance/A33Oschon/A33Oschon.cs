@@ -33,7 +33,7 @@ public class A33Oschon(WorldState ws, Actor primary) : BossModule(ws, primary, n
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actor(_bossP2, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actor(_bossP2);
     }
 }

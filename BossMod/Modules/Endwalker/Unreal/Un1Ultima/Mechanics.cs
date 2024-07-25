@@ -94,30 +94,30 @@ class Mechanics(BossModule module) : BossComponent(module)
     {
         var mt = WorldState.Actors.Find(Module.PrimaryActor.TargetID);
         foreach (var player in Raid.WithoutSlot().Exclude(pc))
-            Arena.Actor(player, _orbKiters.Contains(player.InstanceID) ? ArenaColor.Danger : player == mt ? ArenaColor.PlayerInteresting : ArenaColor.PlayerGeneric);
+            Arena.Actor(player, _orbKiters.Contains(player.InstanceID) ? Colors.Danger : player == mt ? Colors.PlayerInteresting : Colors.PlayerGeneric);
         if (mt != null)
-            Arena.AddCircle(mt.Position, _aoeCleave.Radius, ArenaColor.Danger);
+            Arena.AddCircle(mt.Position, _aoeCleave.Radius, Colors.Danger);
 
         //if (pc.Role is Role.Healer or Role.Ranged)
-        //    Arena.AddCircle(Module.PrimaryActor.Position, _ceruleumVentRange, ArenaColor.Danger);
+        //    Arena.AddCircle(Module.PrimaryActor.Position, _ceruleumVentRange, Colors.Danger);
 
         foreach (var orb in Module.Enemies(OID.Ultimaplasm).Where(orb => !_orbsSharedExploded.Contains(orb.InstanceID)))
         {
             // TODO: line between paired orbs
-            Arena.Actor(orb, ArenaColor.Danger, true);
-            Arena.AddCircle(orb.Position, _orbSharedRange, ArenaColor.Safe);
+            Arena.Actor(orb, Colors.Danger, true);
+            Arena.AddCircle(orb.Position, _orbSharedRange, Colors.Safe);
         }
 
         foreach (var orb in Module.Enemies(OID.Aetheroplasm).Where(orb => !_orbsKitedExploded.Contains(orb.InstanceID)))
         {
             // TODO: line from corresponding target
-            Arena.Actor(orb, ArenaColor.Danger, true);
-            Arena.AddCircle(orb.Position, _orbFixateRange, ArenaColor.Danger);
+            Arena.Actor(orb, Colors.Danger, true);
+            Arena.AddCircle(orb.Position, _orbFixateRange, Colors.Danger);
         }
 
         foreach (var bit in Module.Enemies(OID.MagitekBit))
         {
-            Arena.Actor(bit, ArenaColor.Danger);
+            Arena.Actor(bit, Colors.Danger);
         }
     }
 
@@ -173,7 +173,7 @@ class Mechanics(BossModule module) : BossComponent(module)
 
     private void SetTankStacks(Actor actor, int stacks)
     {
-        int slot = Raid.FindSlot(actor.InstanceID);
+        var slot = Raid.FindSlot(actor.InstanceID);
         if (slot >= 0)
             _tankStacks[slot] = stacks;
     }

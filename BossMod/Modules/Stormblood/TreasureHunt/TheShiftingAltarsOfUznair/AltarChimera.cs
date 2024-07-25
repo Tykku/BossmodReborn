@@ -4,33 +4,33 @@ public enum OID : uint
 {
     Boss = 0x2539, //R=5.92
     BossAdd = 0x256A, //R=2.07
-    BossHelper = 0x233C,
     IceVoidzone = 0x1E8D9C,
-    BonusAddAltarMatanga = 0x2545, // R3.420
+    BonusAddAltarMatanga = 0x2545, // R3.42
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
-    AutoAttack = 870, // 2539->player, no cast, single-target
+    AutoAttack = 870, // Boss->player, no cast, single-target
     AutoAttack2 = 872, // BonusAddAltarMatanga->player, no cast, single-target
 
-    AutoAttack3 = 6499, // 256A->player, no cast, single-target
-    TheScorpionsSting = 13393, // 2539->self, 3.5s cast, range 6+R 90-degree cone
-    TheRamsVoice = 13394, // 2539->self, 5.0s cast, range 4+R circle, interruptible, deep freeze + frostbite
-    TheLionsBreath = 13392, // 2539->self, 3.5s cast, range 6+R 120-degree cone, burn
-    LanguorousGaze = 13742, // 256A->self, 3.0s cast, range 6+R 90-degree cone
-    TheRamsKeeper = 13396, // 2539->location, 3.5s cast, range 6 circle, voidzone
-    TheDragonsVoice = 13395, // 2539->self, 5.0s cast, range 8-30 donut, interruptible, paralaysis
+    AutoAttack3 = 6499, // BossAdd->player, no cast, single-target
+    TheScorpionsSting = 13393, // Boss->self, 3.5s cast, range 6+R 90-degree cone
+    TheRamsVoice = 13394, // Boss->self, 5.0s cast, range 4+R circle, interruptible, deep freeze + frostbite
+    TheLionsBreath = 13392, // Boss->self, 3.5s cast, range 6+R 120-degree cone, burn
+    LanguorousGaze = 13742, // BossAdd->self, 3.0s cast, range 6+R 90-degree cone
+    TheRamsKeeper = 13396, // Boss->location, 3.5s cast, range 6 circle, voidzone
+    TheDragonsVoice = 13395, // Boss->self, 5.0s cast, range 8-30 donut, interruptible, paralaysis
     unknown = 9636, // BonusAddAltarMatanga->self, no cast, single-target
     Spin = 8599, // BonusAddAltarMatanga->self, no cast, range 6+R 120-degree cone
     RaucousScritch = 8598, // BonusAddAltarMatanga->self, 2.5s cast, range 5+R 120-degree cone
     Hurl = 5352, // BonusAddAltarMatanga->location, 3.0s cast, range 6 circle
-    Telega = 9630, // bonusadds->self, no cast, single-target, bonus add disappear
+    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus add disappear
 }
 
 public enum IconID : uint
 {
-    Baitaway = 23, // player
+    Baitaway = 23 // player
 }
 
 class TheScorpionsSting(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheScorpionsSting), new AOEShapeCone(11.92f, 45.Degrees()));
@@ -113,11 +113,9 @@ public class Chimera(WorldState ws, Actor primary) : BossModule(ws, primary, new
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossAdd))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.BonusAddAltarMatanga))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
+        Arena.Actors(Enemies(OID.BonusAddAltarMatanga), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

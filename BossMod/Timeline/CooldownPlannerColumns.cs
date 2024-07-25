@@ -166,7 +166,7 @@ public class CooldownPlannerColumns : Timeline.ColumnGroup
     public void SyncCreateImport()
     {
         // add data for missing phases
-        for (int i = Plan.PhaseDurations.Count; i < _tree.Phases.Count; ++i)
+        for (var i = Plan.PhaseDurations.Count; i < _tree.Phases.Count; ++i)
             Plan.PhaseDurations.Add(_tree.Phases[i].Duration);
         if (_syncTimings)
             _tree.ApplyTimings(Plan.PhaseDurations);
@@ -202,7 +202,7 @@ public class CooldownPlannerColumns : Timeline.ColumnGroup
         var tracks = Plan.Modules[t];
         List<int> uiOrder = [.. Enumerable.Range(0, tracks.Count)];
         uiOrder.SortByReverse(i => md.Configs[i].UIPriority);
-        foreach (int i in uiOrder)
+        foreach (var i in uiOrder)
         {
             var col = AddBefore(new ColumnPlannerTrackStrategy(Timeline, _tree, _phaseBranches, md.Configs[i], Plan.Level, moduleInfo), _colTarget);
             col.Width = md.Configs[i].UIPriority >= 0 ? _trackWidth : 0;

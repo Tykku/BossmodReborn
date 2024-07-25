@@ -22,7 +22,7 @@ class Pairs(BossModule module) : BossComponent(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        bool atRisk = _players1[slot] ? AtRisk(actor, _players1, _players2) : _players2[slot] && AtRisk(actor, _players2, _players1);
+        var atRisk = _players1[slot] ? AtRisk(actor, _players1, _players2) : _players2[slot] && AtRisk(actor, _players2, _players1);
         if (atRisk)
             hints.Add("Stack with opposite color!");
     }
@@ -30,9 +30,9 @@ class Pairs(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var p in Raid.WithSlot().IncludedInMask(_players1).Exclude(pc))
-            Arena.AddCircle(p.Item2.Position, _radius, _players1[pcSlot] ? ArenaColor.Danger : ArenaColor.Safe);
+            Arena.AddCircle(p.Item2.Position, _radius, _players1[pcSlot] ? Colors.Danger : Colors.Safe);
         foreach (var p in Raid.WithSlot().IncludedInMask(_players2).Exclude(pc))
-            Arena.AddCircle(p.Item2.Position, _radius, _players2[pcSlot] ? ArenaColor.Danger : ArenaColor.Safe);
+            Arena.AddCircle(p.Item2.Position, _radius, _players2[pcSlot] ? Colors.Danger : Colors.Safe);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID)

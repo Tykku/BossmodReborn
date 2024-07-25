@@ -83,15 +83,15 @@ public class Sphinx(WorldState ws, Actor primary) : BossModule(ws, primary, new(
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.BossAdd), ArenaColor.Object);
-        Arena.Actors(Enemies(OID.GymnasticEggplant), ArenaColor.Vulnerable);
-        Arena.Actors(Enemies(OID.GymnasticTomato), ArenaColor.Vulnerable);
-        Arena.Actors(Enemies(OID.GymnasticQueen), ArenaColor.Vulnerable);
-        Arena.Actors(Enemies(OID.GymnasticGarlic), ArenaColor.Vulnerable);
-        Arena.Actors(Enemies(OID.GymnasticOnion), ArenaColor.Vulnerable);
-        Arena.Actors(Enemies(OID.BonusAddLampas), ArenaColor.Vulnerable);
-        Arena.Actors(Enemies(OID.BonusAddLyssa), ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
+        Arena.Actors(Enemies(OID.GymnasticEggplant), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.GymnasticTomato), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.GymnasticQueen), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.GymnasticGarlic), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.GymnasticOnion), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.BonusAddLampas), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.BonusAddLyssa), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

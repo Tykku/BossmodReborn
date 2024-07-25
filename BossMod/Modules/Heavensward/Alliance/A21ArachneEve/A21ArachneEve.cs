@@ -16,12 +16,12 @@ public class A21ArachneEve(WorldState ws, Actor primary) : BossModule(ws, primar
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Keyknot), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Webmaiden), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.SpittingSpider), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.SkitteringSpider), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.EarthAether), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.DeepEarthAether), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Keyknot));
+        Arena.Actors(Enemies(OID.Webmaiden));
+        Arena.Actors(Enemies(OID.SpittingSpider));
+        Arena.Actors(Enemies(OID.SkitteringSpider));
+        Arena.Actors(Enemies(OID.EarthAether));
+        Arena.Actors(Enemies(OID.DeepEarthAether));
     }
 }

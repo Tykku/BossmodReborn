@@ -79,7 +79,7 @@ class SlitherbaneBurstCombo(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = ArenaColor.Danger };
+            yield return _aoes[0] with { Color = Colors.Danger };
         if (_aoes.Count > 1)
             yield return _aoes[1] with { Risky = !_aoes[0].Rotation.AlmostEqual(_aoes[1].Rotation + offset, Helpers.RadianConversion) };
     }
@@ -173,8 +173,7 @@ public class D043Zander(WorldState ws, Actor primary) : BossModule(ws, primary, 
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossP2))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossP2));
     }
 }

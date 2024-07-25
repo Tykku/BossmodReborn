@@ -13,9 +13,9 @@ class P1FlameThrower(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         foreach (var c in Casters.Skip(2))
-            yield return new(_shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), ArenaColor.AOE, false);
+            yield return new(_shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), Colors.AOE, false);
         foreach (var c in Casters.Take(2))
-            yield return new(_shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), ArenaColor.Danger, true);
+            yield return new(_shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), Colors.Danger, true);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
@@ -33,11 +33,11 @@ class P1FlameThrower(BossModule module) : Components.GenericAOEs(module)
 
             var dir = flame1Dir.Normalized().Deg switch
             {
-                (> 15 and < 45) or (> -165 and < -135) => -60.Degrees(),
-                (> 45 and < 75) or (> -135 and < -105) => -30.Degrees(),
-                (> 75 and < 105) or (> -105 and < -75) => 0.Degrees(),
-                (> 105 and < 135) or (> -75 and < -45) => 30.Degrees(),
-                (> 135 and < 165) or (> -45 and < -15) => 60.Degrees(),
+                > 15 and < 45 or > -165 and < -135 => -60.Degrees(),
+                > 45 and < 75 or > -135 and < -105 => -30.Degrees(),
+                > 75 and < 105 or > -105 and < -75 => 0.Degrees(),
+                > 105 and < 135 or > -75 and < -45 => 30.Degrees(),
+                > 135 and < 165 or > -45 and < -15 => 60.Degrees(),
                 _ => -90.Degrees(), // assume groups go CW
             };
             // undo direction adjustment to correct target safe spot
@@ -45,7 +45,7 @@ class P1FlameThrower(BossModule module) : Components.GenericAOEs(module)
                 dir -= 60.Degrees();
             var offset = 12 * (Module.PrimaryActor.Rotation + dir).ToDirection();
             var pos = group == 1 ? Module.Center + offset : Module.Center - offset;
-            Arena.AddCircle(pos, 1, ArenaColor.Safe);
+            Arena.AddCircle(pos, 1, Colors.Safe);
         }
     }
 
@@ -114,11 +114,11 @@ class P1Pantokrator(BossModule module) : P1CommonAssignments(module)
             var order = PlayerStates[i].Order;
             if (order == spreadOrder)
             {
-                Arena.AddCircle(p.Position, _spreadRadius, i == pcSlot ? ArenaColor.Safe : ArenaColor.Danger);
+                Arena.AddCircle(p.Position, _spreadRadius, i == pcSlot ? Colors.Safe : Colors.Danger);
             }
             else if (order == stackOrder)
             {
-                _stackShape.Outline(Arena, Module.PrimaryActor.Position, Angle.FromDirection(p.Position - Module.PrimaryActor.Position), i == pcSlot ? ArenaColor.Safe : ArenaColor.Danger);
+                _stackShape.Outline(Arena, Module.PrimaryActor.Position, Angle.FromDirection(p.Position - Module.PrimaryActor.Position), i == pcSlot ? Colors.Safe : Colors.Danger);
             }
         }
     }

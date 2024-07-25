@@ -64,7 +64,7 @@ class ChasmicNails(BossModule module) : Components.GenericAOEs(module)
         foreach (var a in _angles.Skip(1).Take(2))
             yield return new(_shape, Module.PrimaryActor.Position, a.rot, a.activation);
         if (_angles.Count > 0)
-            yield return new(_shape, Module.PrimaryActor.Position, _angles[0].rot, _angles[0].activation, ArenaColor.Danger);
+            yield return new(_shape, Module.PrimaryActor.Position, _angles[0].rot, _angles[0].activation, Colors.Danger);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

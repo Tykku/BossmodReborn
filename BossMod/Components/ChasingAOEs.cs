@@ -89,8 +89,8 @@ public class StandardChasingAOEs(BossModule module, AOEShape shape, ActionID act
         foreach (var c in Chasers)
         {
             if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddLine(c.PrevPos, c.Target.Position, 0xFF000000, 2);
-            Arena.AddLine(c.PrevPos, c.Target.Position, ArenaColor.Danger);
+                Arena.AddLine(c.PrevPos, c.Target.Position, Colors.Shadows, 2);
+            Arena.AddLine(c.PrevPos, c.Target.Position, Colors.Danger);
         }
     }
 

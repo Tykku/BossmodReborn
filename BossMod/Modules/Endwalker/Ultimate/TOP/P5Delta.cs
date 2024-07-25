@@ -46,10 +46,10 @@ class P5Delta(BossModule module) : BossComponent(module)
         var p = Players[pcSlot];
         var partner = p.TetherBroken ? null : Raid[p.PartnerSlot];
         if (partner != null)
-            Arena.AddLine(pc.Position, partner.Position, ArenaColor.Danger);
+            Arena.AddLine(pc.Position, partner.Position, Colors.Danger);
 
         foreach (var safeSpot in SafeSpotOffsets(pcSlot))
-            Arena.AddCircle(Module.Center + safeSpot, 1, ArenaColor.Safe);
+            Arena.AddCircle(Module.Center + safeSpot, 1, Colors.Safe);
     }
 
     public override void OnActorCreated(Actor actor)
@@ -386,7 +386,7 @@ class P5DeltaExplosion(BossModule module) : Components.LocationTargetedAOEs(modu
         var ps = _delta.Players[pcSlot];
         var partner = Raid.WithSlot(true).WhereSlot(i => _delta.Players[i].IsLocal == ps.IsLocal && i != ps.PartnerSlot && _delta.Players[i].RocketPunch?.OID != ps.RocketPunch?.OID).FirstOrDefault().Item2;
         if (partner != null)
-            Arena.AddCircle(partner.Position, Shape.Radius, ArenaColor.Safe);
+            Arena.AddCircle(partner.Position, Shape.Radius, Colors.Safe);
     }
 }
 
@@ -409,13 +409,13 @@ class P5DeltaHyperPulse(BossModule module) : Components.GenericAOEs(module)
         }
         else if (_delta != null)
         {
-            for (int i = 0; i < _delta.ArmRotations.Length; ++i)
+            for (var i = 0; i < _delta.ArmRotations.Length; ++i)
             {
                 var pos = Module.Center + _delta.ArmOffset(i);
                 if (Raid.WithoutSlot().Closest(pos) == actor)
                 {
                     var angle = Angle.FromDirection(actor.Position - pos);
-                    for (int j = 0; j < _numRepeats; ++j)
+                    for (var j = 0; j < _numRepeats; ++j)
                     {
                         yield return new(_shape, pos, angle + j * _delta.ArmRotations[i], Risky: false);
                     }
@@ -429,7 +429,7 @@ class P5DeltaHyperPulse(BossModule module) : Components.GenericAOEs(module)
         if ((AID)spell.Action.ID == AID.DeltaHyperPulseFirst && _delta != null)
         {
             var rot = _delta.ArmRotations[_delta.ArmIndex(caster.Position - Module.Center)];
-            for (int i = 0; i < _numRepeats; ++i)
+            for (var i = 0; i < _numRepeats; ++i)
             {
                 _aoes.Add(new(_shape, caster.Position, (spell.Rotation + i * rot).Normalized(), Module.CastFinishAt(spell, i * 0.6f)));
             }
@@ -487,9 +487,9 @@ class P5DeltaOversampledWaveCannon(BossModule module) : Components.UniformStackS
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         if (_boss != null)
-            _shape.Draw(Arena, _boss.Position, _boss.Rotation + _bossAngle, _bossIntendedTargets[pcSlot] ? ArenaColor.SafeFromAOE : ArenaColor.AOE);
+            _shape.Draw(Arena, _boss.Position, _boss.Rotation + _bossAngle, _bossIntendedTargets[pcSlot] ? Colors.SafeFromAOE : Colors.AOE);
         if (_player != null)
-            _shape.Draw(Arena, _player.Position, _player.Rotation + _playerAngle, _playerIntendedTargets[pcSlot] ? ArenaColor.SafeFromAOE : ArenaColor.AOE);
+            _shape.Draw(Arena, _player.Position, _player.Rotation + _playerAngle, _playerIntendedTargets[pcSlot] ? Colors.SafeFromAOE : Colors.AOE);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

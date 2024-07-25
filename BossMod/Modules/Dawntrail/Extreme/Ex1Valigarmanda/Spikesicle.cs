@@ -7,7 +7,13 @@ class Spikesicle(BossModule module) : Components.GenericAOEs(module)
 
     private static readonly AOEShape[] _shapes = [new AOEShapeDonut(20, 25), new AOEShapeDonut(25, 30), new AOEShapeDonut(30, 35), new AOEShapeDonut(35, 40), new AOEShapeRect(40, 2.5f)]; // TODO: verify inner radius
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Skip(NumCasts).Take(1);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        if (_aoes.Count > 0)
+            yield return _aoes[0] with { Color = Colors.Danger };
+        if (_aoes.Count > 1)
+            yield return _aoes[1];
+    }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
@@ -36,6 +42,7 @@ class Spikesicle(BossModule module) : Components.GenericAOEs(module)
         if ((AID)spell.Action.ID is AID.SpikesicleAOE1 or AID.SpikesicleAOE2 or AID.SpikesicleAOE3 or AID.SpikesicleAOE4 or AID.SpikesicleAOE5)
         {
             ++NumCasts;
+            _aoes.RemoveAt(0);
         }
     }
 }
@@ -46,11 +53,26 @@ class SphereShatter(BossModule module) : Components.GenericAOEs(module, ActionID
 
     private static readonly AOEShapeCircle _shape = new(13);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Skip(NumCasts).Take(1);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        if (_aoes.Count > 0)
+            yield return _aoes[0] with { Color = Colors.Danger };
+        if (_aoes.Count > 1)
+            yield return _aoes[1];
+    }
 
     public override void OnActorCreated(Actor actor)
     {
         if ((OID)actor.OID == OID.IceBoulder)
             _aoes.Add(new(_shape, actor.Position, default, WorldState.FutureTime(6.5f)));
+    }
+
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    {
+        if ((AID)spell.Action.ID == AID.SphereShatter)
+        {
+            ++NumCasts;
+            _aoes.RemoveAt(0);
+        }
     }
 }

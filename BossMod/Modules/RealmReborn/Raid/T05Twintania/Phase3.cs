@@ -48,7 +48,7 @@ class P3Adds(BossModule module) : BossComponent(module)
     {
         var nextHygieia = ActiveHygieia.MinBy(a => a.InstanceID); // select next add to kill by lowest hp
         var asclepiusVuln = Asclepius.FirstOrDefault()?.FindStatus(SID.Disseminate);
-        bool killHygieia = asclepiusVuln == null || (asclepiusVuln.Value.ExpireAt - WorldState.CurrentTime).TotalSeconds < 10;
+        var killHygieia = asclepiusVuln == null || (asclepiusVuln.Value.ExpireAt - WorldState.CurrentTime).TotalSeconds < 10;
         foreach (var e in hints.PotentialTargets)
         {
             switch ((OID)e.Actor.OID)
@@ -60,7 +60,7 @@ class P3Adds(BossModule module) : BossComponent(module)
                         : predictedHP < 0.3f * e.Actor.HPMP.MaxHP ? -1
                         : 1;
                     e.ShouldBeTanked = assignment == PartyRolesConfig.Assignment.OT;
-                    bool gtfo = predictedHP <= (e.ShouldBeTanked ? 1 : 0.1f * e.Actor.HPMP.MaxHP);
+                    var gtfo = predictedHP <= (e.ShouldBeTanked ? 1 : 0.1f * e.Actor.HPMP.MaxHP);
                     if (gtfo)
                         hints.AddForbiddenZone(ShapeDistance.Circle(e.Actor.Position, 9));
                     break;
@@ -83,11 +83,10 @@ class P3Adds(BossModule module) : BossComponent(module)
     {
         foreach (var a in ActiveHygieia)
         {
-            Arena.Actor(a, ArenaColor.Enemy);
-            Arena.AddCircle(a.Position, _explosionRadius, ArenaColor.Danger);
+            Arena.Actor(a);
+            Arena.AddCircle(a.Position, _explosionRadius, Colors.Danger);
         }
-        foreach (var a in Asclepius)
-            Arena.Actor(a, ArenaColor.Enemy);
+        Arena.Actors(Asclepius);
     }
 }
 
@@ -102,8 +101,8 @@ class P3AethericProfusion(BossModule module) : Components.CastCounter(module, Ac
         var closerNeurolink = neurolinks.Closest(Module.PrimaryActor.Position);
         foreach (var neurolink in neurolinks)
         {
-            bool isClosest = neurolink == closerNeurolink;
-            bool stayAtClosest = assignment != PartyRolesConfig.Assignment.MT;
+            var isClosest = neurolink == closerNeurolink;
+            var stayAtClosest = assignment != PartyRolesConfig.Assignment.MT;
             if (isClosest == stayAtClosest)
                 hints.AddForbiddenZone(ShapeDistance.InvertedCircle(neurolink.Position, T05Twintania.NeurolinkRadius), _activation);
         }
@@ -122,6 +121,6 @@ class P3AethericProfusion(BossModule module) : Components.CastCounter(module, Ac
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var neurolink in Module.Enemies(OID.Neurolink))
-            Arena.AddCircle(neurolink.Position, T05Twintania.NeurolinkRadius, ArenaColor.Safe);
+            Arena.AddCircle(neurolink.Position, T05Twintania.NeurolinkRadius, Colors.Safe);
     }
 }

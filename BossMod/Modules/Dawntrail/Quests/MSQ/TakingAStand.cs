@@ -242,18 +242,12 @@ public class TakingAStand(WorldState ws, Actor primary) : BossModule(ws, primary
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.HiredThug1))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.HiredThug2))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.HiredThug3))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.HoobigoGuardian))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.HoobigoLancer))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.DopproIllusionist))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.HiredThug1));
+        Arena.Actors(Enemies(OID.HiredThug2));
+        Arena.Actors(Enemies(OID.HiredThug3));
+        Arena.Actors(Enemies(OID.HoobigoGuardian));
+        Arena.Actors(Enemies(OID.HoobigoLancer));
+        Arena.Actors(Enemies(OID.DopproIllusionist));
     }
 }

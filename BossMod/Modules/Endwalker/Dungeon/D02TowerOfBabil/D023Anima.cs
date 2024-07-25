@@ -183,7 +183,7 @@ public class D023Anima(WorldState ws, Actor primary) : BossModule(ws, primary, U
     public static readonly WPos LowerArenaCenter = new(0, -400);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Boss), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.LowerAnima), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.LowerAnima));
     }
 }

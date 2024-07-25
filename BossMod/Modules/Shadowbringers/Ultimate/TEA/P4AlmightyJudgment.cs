@@ -17,7 +17,7 @@ class P4AlmightyJudgment(BossModule module) : Components.GenericAOEs(module)
             var deadlineFuture = _casters[0].activation.AddSeconds(3);
             foreach (var c in Enumerable.Reverse(_casters).SkipWhile(c => c.activation > deadlineFuture))
             {
-                yield return new(_shape, c.pos, default, c.activation, c.activation < deadlineImminent ? ArenaColor.Danger : ArenaColor.AOE);
+                yield return new(_shape, c.pos, default, c.activation, c.activation < deadlineImminent ? Colors.Danger : Colors.AOE);
             }
         }
     }

@@ -27,8 +27,8 @@ public class DAL3SaunionDawon : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Boss, ArenaColor.Enemy);
-        Arena.Actors(Dawon, ArenaColor.Enemy);
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
+        Arena.Actors(Boss);
+        Arena.Actors(Dawon);
+        Arena.Actor(PrimaryActor);
     }
 }

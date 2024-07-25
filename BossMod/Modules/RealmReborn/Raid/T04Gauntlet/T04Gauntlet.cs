@@ -111,17 +111,11 @@ public class T04Gauntlet : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        foreach (var e in P1Bugs)
-            Arena.Actor(e, ArenaColor.Enemy);
-        foreach (var e in Bugs)
-            Arena.Actor(e, ArenaColor.Enemy);
-        foreach (var e in Soldiers)
-            Arena.Actor(e, ArenaColor.Enemy);
-        foreach (var e in Knights)
-            Arena.Actor(e, ArenaColor.Enemy);
-        foreach (var e in Rooks)
-            Arena.Actor(e, ArenaColor.Enemy);
-        foreach (var e in Dreadnaughts)
-            Arena.Actor(e, ArenaColor.Enemy);
+        Arena.Actors(P1Bugs);
+        Arena.Actors(Bugs);
+        Arena.Actors(Soldiers);
+        Arena.Actors(Knights);
+        Arena.Actors(Rooks);
+        Arena.Actors(Dreadnaughts);
     }
 }

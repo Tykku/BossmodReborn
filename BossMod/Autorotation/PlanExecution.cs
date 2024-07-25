@@ -40,7 +40,7 @@ public sealed class PlanExecution
         tree.ApplyTimings(plan?.PhaseDurations);
 
         StateData? nextPhaseStart = null;
-        for (int i = tree.Phases.Count - 1; i >= 0; i--)
+        for (var i = tree.Phases.Count - 1; i >= 0; i--)
             nextPhaseStart = ProcessState(tree, tree.Phases[i].StartingNode, null, nextPhaseStart);
         UpdateTransitions(Pull, nextPhaseStart);
 
@@ -87,7 +87,7 @@ public sealed class PlanExecution
         var t = GetVirtualTime(s);
         var data = Strategies[module];
         var res = new StrategyValues(RotationModuleRegistry.Modules[module].Definition.Configs);
-        for (int i = 0; i < data.Count; ++i)
+        for (var i = 0; i < data.Count; ++i)
         {
             var entry = GetEntryAt(data[i], t, s);
             if (entry != null)

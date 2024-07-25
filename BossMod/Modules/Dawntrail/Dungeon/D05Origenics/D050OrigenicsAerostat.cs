@@ -52,10 +52,10 @@ public class D050OrigenicsAerostat : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Aerostat2, ArenaColor.Enemy);
-        Arena.Actors(OrigenicsSentryG10, ArenaColor.Enemy);
-        Arena.Actors(OrigenicsSentryS92, ArenaColor.Enemy);
-        Arena.Actors(OrigenicsSentryS9, ArenaColor.Enemy);
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
+        Arena.Actors(Aerostat2);
+        Arena.Actors(OrigenicsSentryG10);
+        Arena.Actors(OrigenicsSentryS92);
+        Arena.Actors(OrigenicsSentryS9);
+        Arena.Actor(PrimaryActor);
     }
 }

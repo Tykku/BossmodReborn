@@ -16,10 +16,10 @@ public class A23Amon(WorldState ws, Actor primary) : BossModule(ws, primary, new
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.KumKum), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Kichiknebik), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.ExperimentalByProduct66), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.ExperimentalByProduct33), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.KumKum));
+        Arena.Actors(Enemies(OID.Kichiknebik));
+        Arena.Actors(Enemies(OID.ExperimentalByProduct66));
+        Arena.Actors(Enemies(OID.ExperimentalByProduct33));
     }
 }

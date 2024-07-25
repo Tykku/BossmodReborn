@@ -25,15 +25,15 @@ class P4Hatebound(BossModule module) : BossComponent(module)
     {
         foreach (var o in _orbs.Where(o => !o.exploded))
         {
-            Arena.Actor(o.orb, ArenaColor.Object, true);
+            Arena.Actor(o.orb, Colors.Object, true);
             if (OrbReady(o.orb))
-                Arena.AddCircle(o.orb.Position, 6, _playerColors[pcSlot] == Color.Red ? ArenaColor.Safe : ArenaColor.Danger);
+                Arena.AddCircle(o.orb.Position, 6, _playerColors[pcSlot] == Color.Red ? Colors.Safe : Colors.Danger);
         }
     }
 
     public override void OnActorCreated(Actor actor)
     {
-        Color color = (OID)actor.OID switch
+        var color = (OID)actor.OID switch
         {
             OID.AzurePrice => Color.Blue,
             OID.GildedPrice => Color.Red,
@@ -95,11 +95,11 @@ class P4MirageDive(BossModule module) : Components.CastCounter(module, ActionID.
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        bool pcCanSwap = !_forbidden[pcSlot] && !_baiters[pcSlot];
+        var pcCanSwap = !_forbidden[pcSlot] && !_baiters[pcSlot];
         foreach (var (slot, player) in Raid.WithSlot(true).IncludedInMask(_baiters))
         {
-            bool canSwap = pcCanSwap && _forbidden[slot];
-            Arena.AddCircle(player.Position, _radius, canSwap ? ArenaColor.Safe : ArenaColor.Danger);
+            var canSwap = pcCanSwap && _forbidden[slot];
+            Arena.AddCircle(player.Position, _radius, canSwap ? Colors.Safe : Colors.Danger);
         }
     }
 
@@ -122,7 +122,7 @@ class P4MirageDive(BossModule module) : Components.CastCounter(module, ActionID.
         {
             _targets.Add(Raid.FindSlot(spell.MainTargetID));
             _forbidden.Reset();
-            foreach (int i in _targets.TakeLast(4))
+            foreach (var i in _targets.TakeLast(4))
                 _forbidden.Set(i);
         }
     }

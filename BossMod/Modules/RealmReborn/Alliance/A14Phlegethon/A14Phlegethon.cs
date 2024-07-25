@@ -13,8 +13,8 @@ public class A14Phlegethon(WorldState ws, Actor primary) : BossModule(ws, primar
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.IronClaws), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.IronGiant), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.IronClaws));
+        Arena.Actors(Enemies(OID.IronGiant));
     }
 }

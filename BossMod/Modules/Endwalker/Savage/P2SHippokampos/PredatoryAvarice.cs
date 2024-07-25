@@ -19,7 +19,7 @@ class PredatoryAvarice(BossModule module) : BossComponent(module)
         if (!Active)
             return;
 
-        foreach ((int i, var player) in Raid.WithSlot())
+        foreach ((var i, var player) in Raid.WithSlot())
         {
             if (_playersWithTides[i])
             {
@@ -51,7 +51,7 @@ class PredatoryAvarice(BossModule module) : BossComponent(module)
                 hints.Add("GTFO from avarice!");
             }
 
-            bool warnToStack = _playersWithDepths[slot]
+            var warnToStack = _playersWithDepths[slot]
                 ? _playersInDepths.NumSetBits() < 6
                 : !_playersInDepths[slot];
             if (warnToStack)
@@ -66,27 +66,27 @@ class PredatoryAvarice(BossModule module) : BossComponent(module)
         if (!Active)
             return;
 
-        bool pcHasTides = _playersWithTides[pcSlot];
-        bool pcHasDepths = _playersWithDepths[pcSlot];
-        foreach ((int i, var actor) in Raid.WithSlot())
+        var pcHasTides = _playersWithTides[pcSlot];
+        var pcHasDepths = _playersWithDepths[pcSlot];
+        foreach ((var i, var actor) in Raid.WithSlot())
         {
             if (_playersWithTides[i])
             {
                 // tides are always drawn
-                Arena.AddCircle(actor.Position, _tidesRadius, ArenaColor.Danger);
-                Arena.Actor(actor, ArenaColor.Danger);
+                Arena.AddCircle(actor.Position, _tidesRadius, Colors.Danger);
+                Arena.Actor(actor, Colors.Danger);
             }
             else if (_playersWithDepths[i] && !pcHasTides)
             {
                 // depths are drawn only if pc has no tides - otherwise it is to be considered a generic player
-                Arena.AddCircle(actor.Position, _tidesRadius, ArenaColor.Safe);
-                Arena.Actor(actor, ArenaColor.Danger);
+                Arena.AddCircle(actor.Position, _tidesRadius, Colors.Safe);
+                Arena.Actor(actor, Colors.Danger);
             }
             else if (pcHasTides || pcHasDepths)
             {
                 // other players are only drawn if pc has some debuff
-                bool playerInteresting = pcHasTides ? _playersInTides[i] : _playersInDepths[i];
-                Arena.Actor(actor.Position, actor.Rotation, playerInteresting ? ArenaColor.PlayerInteresting : ArenaColor.PlayerGeneric);
+                var playerInteresting = pcHasTides ? _playersInTides[i] : _playersInDepths[i];
+                Arena.Actor(actor.Position, actor.Rotation, playerInteresting ? Colors.PlayerInteresting : Colors.PlayerGeneric);
             }
         }
     }

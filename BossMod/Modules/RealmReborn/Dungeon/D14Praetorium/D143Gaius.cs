@@ -85,8 +85,7 @@ public class D143Gaius(WorldState ws, Actor primary) : BossModule(ws, primary, n
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var add in Enemies(OID.PhantomGaiusAdd))
-            Arena.Actor(add, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.PhantomGaiusAdd));
     }
 }

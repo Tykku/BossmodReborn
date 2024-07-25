@@ -9,7 +9,7 @@ class WitchHunt(BossModule module) : Components.GenericAOEs(module)
     {
         if (_aoes.Count > 0)
             for (var i = 0; i < _aoes.Count / 2; ++i)
-                yield return _aoes[i] with { Color = ArenaColor.Danger };
+                yield return _aoes[i] with { Color = Colors.Danger };
         for (var i = _aoes.Count / 2; i < _aoes.Count; ++i)
             yield return _aoes[i] with { Risky = _aoes.Count < 12 };
     }

@@ -261,7 +261,7 @@ public class ConfigRoot
             {
                 if (config?["CooldownPlans"] is not JsonObject plans)
                     continue;
-                bool isTEA = k == typeof(Shadowbringers.Ultimate.TEA.TEAConfig).FullName;
+                var isTEA = k == typeof(Shadowbringers.Ultimate.TEA.TEAConfig).FullName;
                 foreach (var (cls, planList) in plans)
                 {
                     if (planList?["Available"] is not JsonArray avail)
@@ -340,7 +340,7 @@ public class ConfigRoot
             if (jChild is not JsonObject jChildObj)
                 continue;
 
-            string realTypeName = isV0 ? (jChildObj["__type__"]?.ToString() ?? childTypeName) : childTypeName;
+            var realTypeName = isV0 ? (jChildObj["__type__"]?.ToString() ?? childTypeName) : childTypeName;
             ConvertV1GatherChildren(result, jChildObj, isV0);
             result.Add(realTypeName, jChild);
         }

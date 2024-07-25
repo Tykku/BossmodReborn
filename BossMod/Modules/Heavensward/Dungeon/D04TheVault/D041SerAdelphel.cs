@@ -58,9 +58,9 @@ class BrightSphere(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoes.Count > 0)
-            yield return new(_aoes[0].Shape, _aoes[0].Origin, _aoes[0].Rotation, _aoes[0].Activation, ArenaColor.Danger);
-        for (var i = 1; i < _aoes.Count; ++i)
-            yield return new(_aoes[i].Shape, _aoes[i].Origin, _aoes[i].Rotation, _aoes[i].Activation);
+            yield return _aoes[0] with { Color = Colors.Danger };
+        foreach (var a in _aoes.Skip(1).Take(_aoes.Count - 1))
+            yield return a;
     }
 
     public override void OnActorCreated(Actor actor)
@@ -102,9 +102,9 @@ class ShiningBlade(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoes.Count > 0)
-            yield return new(_aoes[0].Shape, _aoes[0].Origin, _aoes[0].Rotation, _aoes[0].Activation, ArenaColor.Danger);
-        for (var i = 1; i < _aoes.Count; ++i)
-            yield return new(_aoes[i].Shape, _aoes[i].Origin, _aoes[i].Rotation, _aoes[i].Activation);
+            yield return _aoes[0] with { Color = Colors.Danger };
+        foreach (var a in _aoes.Skip(1).Take(_aoes.Count - 1))
+            yield return a;
     }
 
     public override void OnActorNpcYell(Actor actor, ushort id)
@@ -178,12 +178,9 @@ public class D041SerAdelphel(WorldState ws, Actor primary) : BossModule(ws, prim
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.SerAdelphelBrightblade))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.VaultDeacon))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.VaultOstiary))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SerAdelphelBrightblade));
+        Arena.Actors(Enemies(OID.VaultDeacon));
+        Arena.Actors(Enemies(OID.VaultOstiary));
     }
 }

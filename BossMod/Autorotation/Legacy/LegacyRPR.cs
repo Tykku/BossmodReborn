@@ -168,7 +168,7 @@ public sealed class LegacyRPR : LegacyModule
         _state.UpdatePositionals(primaryTarget, GetNextPositional(), _state.TrueNorthLeft > _state.GCD);
 
         // TODO: refactor all that, it's kinda senseless now
-        RPR.AID gcd = GetNextBestGCD(strategy, aoe);
+        var gcd = GetNextBestGCD(strategy, aoe);
         PushResult(gcd, primaryTarget);
 
         ActionID ogcd = default;
@@ -275,8 +275,8 @@ public sealed class LegacyRPR : LegacyModule
 
     private bool ShouldUseBloodstalk(StrategyValues strategy, bool aoe)
     {
-        bool soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
-        bool enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
+        var soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
+        var enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
         switch (strategy.Option(Track.Bloodstalk).As<OffensiveStrategy>())
         {
             case OffensiveStrategy.Delay:
@@ -315,8 +315,8 @@ public sealed class LegacyRPR : LegacyModule
 
     private bool ShouldUseGrimSwathe(StrategyValues strategy, bool aoe)
     {
-        bool soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
-        bool enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
+        var soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
+        var enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
         switch (strategy.Option(Track.Bloodstalk).As<OffensiveStrategy>())
         {
             case OffensiveStrategy.Delay:
@@ -347,9 +347,9 @@ public sealed class LegacyRPR : LegacyModule
 
     private bool ShouldUseGluttony(StrategyValues strategy)
     {
-        bool soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
-        bool enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
-        bool plentifulReady = _state.Unlocked(RPR.AID.PlentifulHarvest) && ((_state.ImmortalSacrificeLeft > _state.AnimationLock) || (_state.CircleofSacrificeLeft > _state.AnimationLock));
+        var soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
+        var enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
+        var plentifulReady = _state.Unlocked(RPR.AID.PlentifulHarvest) && ((_state.ImmortalSacrificeLeft > _state.AnimationLock) || (_state.CircleofSacrificeLeft > _state.AnimationLock));
         switch (strategy.Option(Track.Gluttony).As<OffensiveStrategy>())
         {
             case OffensiveStrategy.Delay:
@@ -383,8 +383,8 @@ public sealed class LegacyRPR : LegacyModule
 
     private bool ShouldUseEnshroud(StrategyValues strategy)
     {
-        bool soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
-        bool enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
+        var soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
+        var enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
         switch (strategy.Option(Track.Enshroud).As<OffensiveStrategy>())
         {
             case OffensiveStrategy.Delay:
@@ -416,8 +416,8 @@ public sealed class LegacyRPR : LegacyModule
 
     private bool ShouldUseArcaneCircle(StrategyValues strategy)
     {
-        bool soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
-        bool enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
+        var soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
+        var enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
 
         if (strategy.Option(Track.ArcaneCircle).As<OffensiveStrategy>() == OffensiveStrategy.Delay)
             return false;
@@ -496,8 +496,8 @@ public sealed class LegacyRPR : LegacyModule
     private bool ShouldUseSoulSlice(StrategyValues strategy, bool aoe)
     {
         //bool plentifulReady = _state.Unlocked(RPR.AID.PlentifulHarvest) && _state.ImmortalSacrificeLeft > _state.AnimationLock && _state.CircleofSacrificeLeft < _state.GCD;
-        bool soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
-        bool enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
+        var soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
+        var enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
         switch (strategy.Option(Track.SoulSlice).As<OffensiveStrategy>())
         {
             case OffensiveStrategy.Delay:
@@ -526,9 +526,9 @@ public sealed class LegacyRPR : LegacyModule
         if (!_state.TargetingEnemy)
             return RPR.AID.None;
 
-        bool plentifulReady = _state.Unlocked(RPR.AID.PlentifulHarvest) && _state.ImmortalSacrificeLeft > _state.AnimationLock && _state.CircleofSacrificeLeft < _state.GCD;
-        bool soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
-        bool enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
+        var plentifulReady = _state.Unlocked(RPR.AID.PlentifulHarvest) && _state.ImmortalSacrificeLeft > _state.AnimationLock && _state.CircleofSacrificeLeft < _state.GCD;
+        var soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
+        var enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
         // prepull
         if (_state.CountdownRemaining > 4.2f && !_state.HasSoulsow)
             return RPR.AID.SoulSow;
@@ -638,7 +638,7 @@ public sealed class LegacyRPR : LegacyModule
             return default;
 
         //bool soulReaver = _state.Unlocked(RPR.AID.BloodStalk) && _state.SoulReaverLeft > _state.AnimationLock;
-        bool enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
+        var enshrouded = _state.Unlocked(RPR.AID.Enshroud) && _state.EnshroudedLeft > _state.AnimationLock;
         //var (positional, shouldUsePositional) = GetNextPositional();
         //if (strategy.Option(Track.ArcaneCircle).As<OffensiveStrategy>() == Strategy.ArcaneCircleUse.Delay)
         //    return ActionID.MakeSpell(RPR.AID.Enshroud);

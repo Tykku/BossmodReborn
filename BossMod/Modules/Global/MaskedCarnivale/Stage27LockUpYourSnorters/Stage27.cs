@@ -167,11 +167,9 @@ public class Stage27 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Bomb))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.MagitekExplosive))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Bomb), Colors.Object);
+        Arena.Actors(Enemies(OID.MagitekExplosive), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

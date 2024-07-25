@@ -206,7 +206,7 @@ public sealed class LegacyDNC : LegacyModule
         _state.NumStarfallTargets = primaryTarget == null ? 0 : NumStarfallTargets(primaryTarget);
 
         // TODO: refactor all that, it's kinda senseless now
-        DNC.AID gcd = GetNextBestGCD(strategy);
+        var gcd = GetNextBestGCD(strategy);
         PushResult(gcd, primaryTarget);
 
         var deadline = _state.GCD > 0 && gcd != default ? _state.GCD : float.MaxValue;

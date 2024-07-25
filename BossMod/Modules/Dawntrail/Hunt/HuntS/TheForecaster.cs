@@ -57,7 +57,7 @@ class ForecastClimateChange(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = ArenaColor.Danger };
+            yield return _aoes[0] with { Color = Colors.Danger };
         if (_aoes.Count > 1)
             yield return _aoes[1] with { Risky = false };
     }
@@ -109,9 +109,9 @@ class ForecastClimateChange(BossModule module) : Components.GenericAOEs(module)
             AdjustShape(GetShapeForForecast(currentForecast, 2)),
         ];
 
-        _aoes.Add(new AOEInstance(shapes[0], position, spell.Rotation, Module.CastFinishAt(spell)));
-        _aoes.Add(new AOEInstance(shapes[1], position, spell.Rotation, Module.CastFinishAt(spell, 3.1f)));
-        _aoes.Add(new AOEInstance(shapes[2], position, spell.Rotation, Module.CastFinishAt(spell, 6.1f)));
+        _aoes.Add(new(shapes[0], position, spell.Rotation, Module.CastFinishAt(spell)));
+        _aoes.Add(new(shapes[1], position, spell.Rotation, Module.CastFinishAt(spell, 3.1f)));
+        _aoes.Add(new(shapes[2], position, spell.Rotation, Module.CastFinishAt(spell, 6.1f)));
         currentClimateChange = ClimateChange.None;
     }
 
@@ -178,5 +178,5 @@ class TheForecasterStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.Hunt, GroupID = (uint)BossModuleInfo.HuntRank.SS, NameID = 13437)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.Hunt, GroupID = (uint)BossModuleInfo.HuntRank.S, NameID = 13437)]
 public class TheForecaster(WorldState ws, Actor primary) : SimpleBossModule(ws, primary);

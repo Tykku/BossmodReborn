@@ -130,7 +130,7 @@ sealed class DebugClassDefinitions : IDisposable
         if (player == null)
             return;
 
-        for (int i = 1; i < _classes.Length; ++i)
+        for (var i = 1; i < _classes.Length; ++i)
         {
             var c = (Class)i;
             foreach (var cn in _tree.Node(c.ToString(), false, c == player.Class ? 0xff00ff00 : 0xffffffff))
@@ -212,8 +212,8 @@ sealed class DebugClassDefinitions : IDisposable
             foreach (var action in cd.Actions)
             {
                 var aidEnum = cd.AIDType?.GetEnumName(action.RowId) ?? Utils.StringToIdentifier(action.Name);
-                float defaultAnimLock = action.Cast100ms == 0 ? 0.6f : 0.1f;
-                float animLock = _seenActionLocks.GetValueOrDefault(new ActionID(ActionType.Spell, action.RowId), defaultAnimLock);
+                var defaultAnimLock = action.Cast100ms == 0 ? 0.6f : 0.1f;
+                var animLock = _seenActionLocks.GetValueOrDefault(new ActionID(ActionType.Spell, action.RowId), defaultAnimLock);
                 var animLockStr = animLock == defaultAnimLock ? "" : $", {animLock:f3}f";
                 var cg = action.CooldownGroup - 1;
                 if (cg == ActionDefinitions.GCDGroup)
@@ -440,7 +440,7 @@ sealed class DebugClassDefinitions : IDisposable
                 data.Classes.Add(actor.Class);
                 data.Actions.Add(ev.Action);
 
-                bool onTarget = eff.Type == ActionEffectType.ApplyStatusEffectTarget && t.ID != actor.InstanceID && !eff.AtSource;
+                var onTarget = eff.Type == ActionEffectType.ApplyStatusEffectTarget && t.ID != actor.InstanceID && !eff.AtSource;
                 if (onTarget)
                     data.OnTarget = true;
                 else

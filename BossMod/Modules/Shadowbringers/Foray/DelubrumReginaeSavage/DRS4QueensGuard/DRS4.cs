@@ -40,12 +40,12 @@ public class DRS4 : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(Knight(), ArenaColor.Enemy);
-        Arena.Actor(Warrior(), ArenaColor.Enemy);
-        Arena.Actor(Soldier(), ArenaColor.Enemy);
-        Arena.Actor(Gunner(), ArenaColor.Enemy);
-        Arena.Actors(GunTurrets, ArenaColor.Enemy);
-        Arena.Actors(AuraSpheres, ArenaColor.Enemy);
-        Arena.Actors(SpiritualSpheres, ArenaColor.Object);
+        Arena.Actor(Knight());
+        Arena.Actor(Warrior());
+        Arena.Actor(Soldier());
+        Arena.Actor(Gunner());
+        Arena.Actors(GunTurrets);
+        Arena.Actors(AuraSpheres);
+        Arena.Actors(SpiritualSpheres);
     }
 }

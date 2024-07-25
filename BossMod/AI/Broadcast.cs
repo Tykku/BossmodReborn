@@ -23,10 +23,10 @@ internal sealed partial class Broadcast
         if (!_config.BroadcastToSlaves)
             return;
 
-        for (int i = 0; i < _broadcasts.Count; ++i)
+        for (var i = 0; i < _broadcasts.Count; ++i)
         {
             var vk = _broadcasts[i].Item1;
-            bool pressed = (GetKeyState((int)vk) & 0x8000) == 0x8000;
+            var pressed = (GetKeyState((int)vk) & 0x8000) == 0x8000;
             if (pressed != _broadcasts[i].Item2)
             {
                 foreach (var w in EnumerateSlaves())
@@ -69,7 +69,7 @@ internal sealed partial class Broadcast
 
     private unsafe static string WindowName(IntPtr hwnd)
     {
-        int size = GetWindowTextLengthW(hwnd);
+        var size = GetWindowTextLengthW(hwnd);
         if (size <= 0)
             return "";
 

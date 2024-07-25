@@ -135,7 +135,7 @@ class PurifyingLight : Components.LocationTargetedAOEs
 {
     public PurifyingLight(BossModule module) : base(module, ActionID.MakeSpell(AID.PurifyingLight), 12)
     {
-        Color = ArenaColor.SafeFromAOE;
+        Color = Colors.SafeFromAOE;
         Risky = false;
     }
 }
@@ -168,8 +168,8 @@ public class CE42FromBeyondTheGrave(WorldState ws, Actor primary) : BossModule(w
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(Enemies(OID.WarWraith), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.HernaisTheTenacious), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.DyunbuTheAccursed), ArenaColor.Enemy);
+        Arena.Actors(Enemies(OID.WarWraith));
+        Arena.Actors(Enemies(OID.HernaisTheTenacious));
+        Arena.Actors(Enemies(OID.DyunbuTheAccursed));
     }
 }

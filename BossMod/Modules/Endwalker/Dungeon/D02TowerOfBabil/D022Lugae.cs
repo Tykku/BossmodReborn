@@ -49,13 +49,13 @@ class DownpourMagitekChakram(BossModule module) : Components.GenericAOEs(module)
         if (CurrentMechanic == Mechanic.Downpour)
         {
             var breathless = actor.FindStatus(SID.Breathless) != null;
-            yield return new(breathless ? squareSafe : squareRisky, toad, Color: breathless ? ArenaColor.SafeFromAOE : ArenaColor.AOE);
+            yield return new(breathless ? squareSafe : squareRisky, toad, Color: breathless ? Colors.SafeFromAOE : Colors.AOE);
             yield return new(squareRisky, mini);
         }
         else if (CurrentMechanic == Mechanic.Chakram)
         {
             var minimum = !avoidSquares && actor.FindStatus(SID.Minimum) == null;
-            yield return new(minimum ? squareSafe : squareRisky, mini, Color: minimum ? ArenaColor.SafeFromAOE : ArenaColor.AOE);
+            yield return new(minimum ? squareSafe : squareRisky, mini, Color: minimum ? Colors.SafeFromAOE : Colors.AOE);
             yield return new(squareRisky, toad);
         }
     }

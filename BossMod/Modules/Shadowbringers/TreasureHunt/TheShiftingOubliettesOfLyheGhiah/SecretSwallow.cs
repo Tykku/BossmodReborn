@@ -4,7 +4,7 @@ public enum OID : uint
 {
     Boss = 0x302B, //R=4.0
     BossAdd = 0x302C, //R=2.0 
-    BossHelper = 0x233C,
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -16,7 +16,7 @@ public enum AID : uint
     Ceras = 21716, // 302B->player, 4.0s cast, single-target, applies poison
     SeventhWave = 21719, // 302B->self, 4.5s cast, range 11 circle
     BodySlam = 21718, // 302B->location, 4.0s cast, range 10 circle, knockback 20, away from source
-    PrevailingCurrent = 21717, // 302C->self, 3.0s cast, range 22+R width 6 rect
+    PrevailingCurrent = 21717 // 302C->self, 3.0s cast, range 22+R width 6 rect
 }
 
 class ElectricWhorl(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SeventhWave), new AOEShapeCircle(11));
@@ -52,9 +52,8 @@ public class Swallow(WorldState ws, Actor primary) : BossModule(ws, primary, new
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossAdd))
-            Arena.Actor(s, ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

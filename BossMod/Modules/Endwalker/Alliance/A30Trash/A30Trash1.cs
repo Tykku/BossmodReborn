@@ -53,9 +53,9 @@ public class A30Trash1(WorldState ws, Actor primary) : BossModule(ws, primary, n
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Serpent), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Triton), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.DivineSprite), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.WaterSprite), ArenaColor.Enemy);
+        Arena.Actors(Enemies(OID.Serpent));
+        Arena.Actors(Enemies(OID.Triton));
+        Arena.Actors(Enemies(OID.DivineSprite));
+        Arena.Actors(Enemies(OID.WaterSprite));
     }
 }

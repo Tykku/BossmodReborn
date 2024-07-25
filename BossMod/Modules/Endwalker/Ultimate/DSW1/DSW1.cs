@@ -23,8 +23,8 @@ public class DSW1(WorldState ws, Actor primary) : BossModule(ws, primary, new(10
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(SerAdelphel(), ArenaColor.Enemy);
-        Arena.Actor(SerGrinnaux(), ArenaColor.Enemy);
-        Arena.Actor(SerCharibert(), ArenaColor.Enemy);
+        Arena.Actor(SerAdelphel());
+        Arena.Actor(SerGrinnaux());
+        Arena.Actor(SerCharibert());
     }
 }

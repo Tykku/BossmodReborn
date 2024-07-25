@@ -137,14 +137,14 @@ class P5OmegaOversampledWaveCannon(BossModule module) : Components.UniformStackS
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         if (_boss != null)
-            _shape.Draw(Arena, _boss.Position, _boss.Rotation + _bossAngle, ArenaColor.AOE);
+            _shape.Draw(Arena, _boss.Position, _boss.Rotation + _bossAngle, Colors.AOE);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
         foreach (var p in SafeSpots(pcSlot, pc))
-            Arena.AddCircle(p, 1, ArenaColor.Safe);
+            Arena.AddCircle(p, 1, Colors.Safe);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -212,7 +212,7 @@ class P5OmegaBlaster : Components.BaitAwayTethers
     {
         base.DrawArenaForeground(pcSlot, pc);
         foreach (var p in SafeSpots(pcSlot, pc))
-            Arena.AddCircle(p, 1, ArenaColor.Safe);
+            Arena.AddCircle(p, 1, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

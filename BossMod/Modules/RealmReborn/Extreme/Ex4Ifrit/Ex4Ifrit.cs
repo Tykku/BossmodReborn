@@ -24,8 +24,8 @@ public class Ex4Ifrit : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(SmallNails, ArenaColor.Object);
-        Arena.Actors(LargeNails, ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(SmallNails, Colors.Object);
+        Arena.Actors(LargeNails, Colors.Object);
     }
 }

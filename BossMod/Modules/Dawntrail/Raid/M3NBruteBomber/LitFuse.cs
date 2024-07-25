@@ -12,7 +12,7 @@ public class LitFuse(BossModule module) : Components.GenericAOEs(module)
         var towers = Module.FindComponent<BarbarousBarrageTower>()!.Towers;
         if (_aoes.Count > 3)
             for (var i = 0; i < 4; i++)
-                yield return _aoes[i] with { Color = ArenaColor.Danger, Risky = towers.Count == 0 };
+                yield return _aoes[i] with { Color = Colors.Danger, Risky = towers.Count == 0 };
         if (_aoes.Count > 7)
             for (var i = 4; i < 8; i++)
                 yield return _aoes[i] with { Risky = false };

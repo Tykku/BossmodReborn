@@ -104,8 +104,8 @@ public class D103Scarmiglione(WorldState ws, Actor primary) : BossModule(ws, pri
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Necroserf1), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Necroserf2), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Necroserf1));
+        Arena.Actors(Enemies(OID.Necroserf2));
     }
 }

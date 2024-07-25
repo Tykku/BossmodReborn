@@ -154,8 +154,7 @@ public class T05Twintania : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy, true);
-        foreach (var a in ScourgeOfMeracydia)
-            Arena.Actor(a, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor, Colors.Enemy, true);
+        Arena.Actors(ScourgeOfMeracydia);
     }
 }

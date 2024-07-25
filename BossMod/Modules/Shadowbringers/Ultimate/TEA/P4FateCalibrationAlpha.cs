@@ -108,14 +108,14 @@ class P4FateCalibrationAlphaSacrament(BossModule module) : Components.GenericAOE
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
         if (_safespots != null)
-            movementHints.Add(actor.Position, _safespots[slot], ArenaColor.Safe);
+            movementHints.Add(actor.Position, _safespots[slot], Colors.Safe);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
         if (_safespots != null)
-            Arena.AddCircle(_safespots[pcSlot], 1, ArenaColor.Safe);
+            Arena.AddCircle(_safespots[pcSlot], 1, Colors.Safe);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -143,7 +143,7 @@ class P4FateCalibrationAlphaSacrament(BossModule module) : Components.GenericAOE
 
         var dirToSafe = (safeClone.Position - Module.Center).Normalized();
         _safespots = new WPos[PartyState.MaxPartySize];
-        for (int i = 0; i < _safespots.Length; ++i)
+        for (var i = 0; i < _safespots.Length; ++i)
         {
             _safespots[i] = Module.Center + debuffs.Debuffs[i] switch
             {

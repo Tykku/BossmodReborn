@@ -54,7 +54,7 @@ class TheQueensWaltz2(BossModule module) : Components.GenericAOEs(module)
             for (var i = aoeCount; i < _aoes.Count; i++)
                 yield return _aoes[i];
             for (var i = 0; i < aoeCount; i++)
-                yield return _aoes[i] with { Color = ArenaColor.AOE };
+                yield return _aoes[i] with { Color = Colors.AOE };
         }
     }
 
@@ -123,11 +123,11 @@ class TheGame(BossModule module) : Components.GenericAOEs(module)
             {
                 if (i == _safeTile)
                 {
-                    yield return _aoes[i] with { Color = ArenaColor.SafeFromAOE };
+                    yield return _aoes[i] with { Color = Colors.SafeFromAOE };
                 }
                 else
                 {
-                    yield return _aoes[i] with { Color = ArenaColor.AOE };
+                    yield return _aoes[i] with { Color = Colors.AOE };
                 }
             }
         }

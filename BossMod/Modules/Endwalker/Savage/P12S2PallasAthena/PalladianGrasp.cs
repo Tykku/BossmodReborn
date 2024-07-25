@@ -34,7 +34,7 @@ class PalladianGrasp(BossModule module) : Components.CastCounter(module, default
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         if (Target() is var target && target != default)
-            _shape.Draw(Arena, Origin(target), default, pc.InstanceID == target.InstanceID ? ArenaColor.SafeFromAOE : ArenaColor.AOE);
+            _shape.Draw(Arena, Origin(target), default, pc.InstanceID == target.InstanceID ? Colors.SafeFromAOE : Colors.AOE);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

@@ -18,7 +18,7 @@ class InfralateralArc(BossModule module) : Components.CastCounter(module, Action
         var pcRole = EffectiveRole(pc);
         var pcDir = Angle.FromDirection(pc.Position - Module.PrimaryActor.Position);
         foreach (var actor in Raid.WithoutSlot().Where(a => EffectiveRole(a) != pcRole))
-            Arena.Actor(actor, actor.Position.InCone(Module.PrimaryActor.Position, pcDir, _coneHalfAngle) ? ArenaColor.Danger : ArenaColor.PlayerGeneric);
+            Arena.Actor(actor, actor.Position.InCone(Module.PrimaryActor.Position, pcDir, _coneHalfAngle) ? Colors.Danger : Colors.PlayerGeneric);
     }
 
     private static Role EffectiveRole(Actor a) => a.Role == Role.Ranged ? Role.Melee : a.Role;

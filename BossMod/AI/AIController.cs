@@ -58,9 +58,9 @@ sealed class AIController(ActionManagerEx amex)
         }
 
         // TODO this checks whether movement keys are pressed, we need a better solution
-        bool moveRequested = _amex.InputOverride.IsMoveRequested();
-        bool castInProgress = player.CastInfo != null && !player.CastInfo.EventHappened;
-        bool forbidMovement = moveRequested || !AllowInterruptingCastByMovement && _amex.MoveMightInterruptCast;
+        var moveRequested = _amex.InputOverride.IsMoveRequested();
+        var castInProgress = player.CastInfo != null && !player.CastInfo.EventHappened;
+        var forbidMovement = moveRequested || !AllowInterruptingCastByMovement && _amex.MoveMightInterruptCast;
         if (NaviTargetPos != null && !forbidMovement && (NaviTargetPos.Value - player.Position).LengthSq() > 0.01f)
         {
             movement.DesiredPosition = NaviTargetPos;

@@ -80,9 +80,9 @@ public class C020NRaiko(WorldState ws, Actor primary) : C020Trash1(ws, primary)
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.NFurutsubaki), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.NYuki), ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.NFurutsubaki));
+        Arena.Actors(Enemies(OID.NYuki));
     }
 }
 
@@ -91,8 +91,8 @@ public class C020SRaiko(WorldState ws, Actor primary) : C020Trash1(ws, primary)
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.SFurutsubaki), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.SYuki), ArenaColor.Object);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SFurutsubaki));
+        Arena.Actors(Enemies(OID.SYuki));
     }
 }

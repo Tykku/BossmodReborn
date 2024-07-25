@@ -23,8 +23,8 @@ public class GenericTowers(BossModule module, ActionID aid = default) : CastCoun
     public static void DrawTower(MiniArena arena, WPos pos, float radius, bool safe)
     {
         if (arena.Config.ShowOutlinesAndShadows)
-            arena.AddCircle(pos, radius, 0xFF000000, 3);
-        arena.AddCircle(pos, radius, safe ? ArenaColor.Safe : ArenaColor.Danger, 2);
+            arena.AddCircle(pos, radius, Colors.Shadows, 3);
+        arena.AddCircle(pos, radius, safe ? Colors.Safe : Colors.Danger, 2);
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)

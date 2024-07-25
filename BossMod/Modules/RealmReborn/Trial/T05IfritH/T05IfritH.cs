@@ -27,7 +27,7 @@ class Hints(BossModule module) : BossComponent(module)
 
     public override void AddGlobalHints(GlobalHints hints)
     {
-        bool nailsActive = ((T05IfritH)Module).ActiveNails.Any();
+        var nailsActive = ((T05IfritH)Module).ActiveNails.Any();
         if (_nailSpawn == default && nailsActive)
         {
             _nailSpawn = WorldState.CurrentTime;
@@ -108,8 +108,7 @@ public class T05IfritH : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var n in ActiveNails)
-            Arena.Actor(n, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(ActiveNails);
     }
 }

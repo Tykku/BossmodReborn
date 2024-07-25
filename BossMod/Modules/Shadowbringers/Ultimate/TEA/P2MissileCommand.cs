@@ -58,7 +58,7 @@ class P2HiddenMinefield(BossModule module) : Components.SelfTargetedAOEs(module,
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var m in _mines)
-            Arena.Actor(m, default, ArenaColor.Object);
+            Arena.Actor(m, default, Colors.Object);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

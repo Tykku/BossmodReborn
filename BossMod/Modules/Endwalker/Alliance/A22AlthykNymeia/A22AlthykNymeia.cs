@@ -20,7 +20,7 @@ public class A22AlthykNymeia(WorldState ws, Actor primary) : BossModule(ws, prim
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actor(_nymeia, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actor(_nymeia);
     }
 }

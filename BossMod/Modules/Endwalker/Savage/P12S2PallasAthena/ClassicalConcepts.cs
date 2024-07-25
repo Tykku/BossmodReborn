@@ -46,16 +46,16 @@ class ClassicalConcepts(BossModule module, bool invert) : BossComponent(module)
     {
         if (PlayerShapes(pcSlot) is var shapes && shapes.hexa != default && shapes.linked != default)
         {
-            Arena.Actor(shapes.hexa, default, ArenaColor.Object);
-            Arena.Actor(shapes.linked, default, ArenaColor.Object);
+            Arena.Actor(shapes.hexa, default, Colors.Object);
+            Arena.Actor(shapes.linked, default, Colors.Object);
             var safespot = shapes.hexa + (shapes.linked - shapes.hexa) / 3;
-            Arena.AddCircle(safespot, 1, ArenaColor.Safe);
+            Arena.AddCircle(safespot, 1, Colors.Safe);
             if (_invert)
-                Arena.AddCircle(InvertedPos(safespot), 1, ArenaColor.Danger);
+                Arena.AddCircle(InvertedPos(safespot), 1, Colors.Danger);
         }
         if (_showTethers && Raid[_states[pcSlot].PartnerSlot] is var partner && partner != null)
         {
-            Arena.AddLine(pc.Position, partner.Position, ArenaColor.Safe);
+            Arena.AddLine(pc.Position, partner.Position, Colors.Safe);
         }
     }
 
@@ -63,7 +63,7 @@ class ClassicalConcepts(BossModule module, bool invert) : BossComponent(module)
     {
         if ((OID)actor.OID is OID.ConceptOfFire or OID.ConceptOfWater or OID.ConceptOfEarth && _hexa.Count + _tri.Count + _sq.Count == 12)
         {
-            for (int col = 0; col < _resolvedShapes.Length; ++col)
+            for (var col = 0; col < _resolvedShapes.Length; ++col)
             {
                 var hexa = _hexa.FirstOrDefault(h => Utils.AlmostEqual(h.PosRot.X, 88 + col * 8, 1));
                 if (hexa == null)

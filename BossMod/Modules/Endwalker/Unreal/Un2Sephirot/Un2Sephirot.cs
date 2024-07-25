@@ -30,8 +30,8 @@ public class Un2Sephirot(WorldState ws, Actor primary) : BossModule(ws, primary,
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         if (StateMachine.ActivePhaseIndex <= 0)
-            Arena.Actor(PrimaryActor, ArenaColor.Enemy);
+            Arena.Actor(PrimaryActor);
         else if (StateMachine.ActivePhaseIndex == 2)
-            Arena.Actor(_bossP3, ArenaColor.Enemy);
+            Arena.Actor(_bossP3);
     }
 }

@@ -85,7 +85,7 @@ public class CE11ShadowOfDeathHand(WorldState ws, Actor primary) : BossModule(ws
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(Enemies(OID.Beastmaster), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.TamedCarrionCrow), ArenaColor.Enemy);
+        Arena.Actors(Enemies(OID.Beastmaster));
+        Arena.Actors(Enemies(OID.TamedCarrionCrow));
     }
 }

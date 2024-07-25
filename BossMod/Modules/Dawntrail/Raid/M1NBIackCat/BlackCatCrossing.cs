@@ -13,7 +13,7 @@ public class BlackCatCrossing(BossModule module) : Components.GenericAOEs(module
     {
         if (_aoes.Count > 3)
             for (var i = 0; i < 4; i++)
-                yield return _aoes[i] with { Color = ArenaColor.Danger };
+                yield return _aoes[i] with { Color = Colors.Danger };
         if (_aoes.Count > 7)
             for (var i = 4; i < 8; i++)
                 yield return _aoes[i] with { Risky = false };

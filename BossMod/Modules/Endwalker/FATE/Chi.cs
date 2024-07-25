@@ -58,7 +58,7 @@ class Bunkerbuster(BossModule module) : Components.GenericAOEs(module)
     {
         if (_casters.Count >= 3)
             for (var i = 0; i < 3; ++i)
-                yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation, ArenaColor.Danger);
+                yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation, Colors.Danger);
         if (_casters.Count >= 6)
             for (var i = 3; i < 6; ++i)
                 yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation.AddSeconds(1.9f));
@@ -119,37 +119,37 @@ class BouncingBomb(BossModule module) : Components.GenericAOEs(module)
         if (bombcount == 1)
         {
             if (_casters.Count >= 1 && NumCasts == 0)
-                yield return new(rect, _casters[0].Position, _casters[0].Rotation, _activation, ArenaColor.Danger);
+                yield return new(rect, _casters[0].Position, _casters[0].Rotation, _activation, Colors.Danger);
             if (_casters.Count >= 4 && NumCasts == 0)
                 for (var i = 1; i < 4; ++i)
                     yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation.AddSeconds(2.8f));
             if (_casters.Count >= 3 && NumCasts == 1)
                 for (var i = 0; i < 3; ++i)
-                    yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation, ArenaColor.Danger);
+                    yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation, Colors.Danger);
             if (_casters.Count >= 8 && NumCasts == 1)
                 for (var i = 3; i < 8; ++i)
                     yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation.AddSeconds(2.8f));
             if (_casters.Count >= 5 && NumCasts == 4)
                 for (var i = 0; i < 5; ++i)
-                    yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation, ArenaColor.Danger);
+                    yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation, Colors.Danger);
         }
         if (bombcount == 2)
         {
             if (_casters.Count >= 2 && NumCasts == 0)
                 for (var i = 0; i < 2; ++i)
-                    yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation, ArenaColor.Danger);
+                    yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation, Colors.Danger);
             if (_casters.Count >= 7 && NumCasts == 0)
                 for (var i = 2; i < 7; ++i)
                     yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation.AddSeconds(2.8f), Risky: false);
             if (_casters.Count >= 5 && NumCasts == 2)
                 for (var i = 0; i < 5; ++i)
-                    yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation, ArenaColor.Danger);
+                    yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation, Colors.Danger);
             if (_casters.Count >= 13 && NumCasts == 2)
                 for (var i = 5; i < 13; ++i)
                     yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation.AddSeconds(2.8f), Risky: false);
             if (_casters.Count >= 8 && NumCasts == 7)
                 for (var i = 0; i < 8; ++i)
-                    yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation, ArenaColor.Danger);
+                    yield return new(rect, _casters[i].Position, _casters[i].Rotation, _activation, Colors.Danger);
         }
     }
 
@@ -202,7 +202,7 @@ class Combos(BossModule module) : Components.GenericAOEs(module)
         {
             if (NumCasts == 0)
             {
-                yield return new(combo.shape1, Module.PrimaryActor.Position, combo.rotation, combo.activation1, ArenaColor.Danger);
+                yield return new(combo.shape1, Module.PrimaryActor.Position, combo.rotation, combo.activation1, Colors.Danger);
                 yield return !combo.offset
                     ? new(combo.shape2, Module.PrimaryActor.Position, combo.rotation, combo.activation2, Risky: combo.shape1 != combo.shape2)
                     : new(combo.shape2, Module.PrimaryActor.Position, combo.rotation + Angle180, combo.activation2, Risky: combo.shape1 != combo.shape2);
@@ -210,8 +210,8 @@ class Combos(BossModule module) : Components.GenericAOEs(module)
             if (NumCasts == 1)
             {
                 yield return !combo.offset
-                    ? new(combo.shape2, Module.PrimaryActor.Position, combo.rotation, combo.activation2, ArenaColor.Danger)
-                    : new(combo.shape2, Module.PrimaryActor.Position, combo.rotation + Angle180, combo.activation2, ArenaColor.Danger);
+                    ? new(combo.shape2, Module.PrimaryActor.Position, combo.rotation, combo.activation2, Colors.Danger)
+                    : new(combo.shape2, Module.PrimaryActor.Position, combo.rotation + Angle180, combo.activation2, Colors.Danger);
             }
         }
     }

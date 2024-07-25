@@ -176,7 +176,7 @@ public sealed class UIPresetEditor
         {
             if (list)
             {
-                for (int i = 0; i < ms.Count; ++i)
+                for (var i = 0; i < ms.Count; ++i)
                 {
                     ref var m = ref ms.Ref(i);
                     var cfg = md.Configs[m.Track];
@@ -277,7 +277,7 @@ public sealed class UIPresetEditor
 
     private bool DrawModifier(ref Preset.Modifier mod, Preset.Modifier flag, string label)
     {
-        bool value = mod.HasFlag(flag);
+        var value = mod.HasFlag(flag);
         if (ImGui.Checkbox(label, ref value))
         {
             if (value)
@@ -291,7 +291,7 @@ public sealed class UIPresetEditor
 
     private bool CheckNameConflict()
     {
-        for (int i = 0; i < _db.Presets.Count; ++i)
+        for (var i = 0; i < _db.Presets.Count; ++i)
             if (i != _sourcePresetIndex && _db.Presets[i].Name == Preset.Name)
                 return true;
         return false;

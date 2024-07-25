@@ -30,7 +30,7 @@ class ArcanePoint(BossModule module) : BossComponent(module)
             return;
         var spot = CurrentSafeSpot(pc.Position);
         if (spot != null)
-            ArcaneArrayPlot.Shape.Draw(Arena, spot.Value, default, ArenaColor.SafeFromAOE);
+            ArcaneArrayPlot.Shape.Draw(Arena, spot.Value, default, Colors.SafeFromAOE);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

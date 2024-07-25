@@ -70,21 +70,21 @@ class Coherence(BossModule module) : Components.CastCounter(module, ActionID.Mak
     {
         // TODO: i'm not sure what are the exact mechanics - flare is probably distance-based, and ray is probably shared damage cast at closest target?..
         var head = Module.Enemies(OID.CataractHead).FirstOrDefault();
-        foreach ((int i, var player) in Raid.WithSlot())
+        foreach ((var i, var player) in Raid.WithSlot())
         {
             if (head?.Tether.Target == player.InstanceID)
             {
-                Arena.AddLine(player.Position, Module.PrimaryActor.Position, ArenaColor.Danger);
-                Arena.Actor(player, ArenaColor.Danger);
-                Arena.AddCircle(player.Position, _aoeRadius, ArenaColor.Danger);
+                Arena.AddLine(player.Position, Module.PrimaryActor.Position, Colors.Danger);
+                Arena.Actor(player, Colors.Danger);
+                Arena.AddCircle(player.Position, _aoeRadius, Colors.Danger);
             }
             else if (player == _rayTarget)
             {
-                Arena.Actor(player, ArenaColor.Danger);
+                Arena.Actor(player, Colors.Danger);
             }
             else if (player != _tetherTarget)
             {
-                Arena.Actor(player, _inRay[i] ? ArenaColor.PlayerInteresting : ArenaColor.PlayerGeneric);
+                Arena.Actor(player, _inRay[i] ? Colors.PlayerInteresting : Colors.PlayerGeneric);
             }
         }
     }

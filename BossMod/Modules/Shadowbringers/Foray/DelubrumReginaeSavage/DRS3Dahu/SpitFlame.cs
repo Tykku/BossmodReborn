@@ -24,7 +24,7 @@ class SpitFlame(BossModule module) : Components.UniformStackSpread(module, 0, 4,
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actors(_adds, ArenaColor.Object, true);
+        Arena.Actors(_adds, Colors.Object, true);
         base.DrawArenaForeground(pcSlot, pc);
     }
 

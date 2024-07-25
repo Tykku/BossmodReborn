@@ -45,14 +45,14 @@ class MeteorImpactCharge(BossModule module) : BossComponent(module)
         {
             ref var state = ref _playerStates.AsSpan()[pcSlot];
             state.DangerZone ??= BuildShadowZone(source.Position - Module.Center);
-            Arena.Zone(state.DangerZone, ArenaColor.AOE);
+            Arena.Zone(state.DangerZone, Colors.AOE);
         }
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var m in _meteors)
-            Arena.AddCircle(m, _radius, ArenaColor.Object);
+            Arena.AddCircle(m, _radius, Colors.Object);
 
         foreach (var (slot, target) in Raid.WithSlot(true))
         {
@@ -66,15 +66,15 @@ class MeteorImpactCharge(BossModule module) : BossComponent(module)
                     Arena.PathArcTo(target.Position, 2, (rot + 90.Degrees()).Rad, (rot - 90.Degrees()).Rad);
                     Arena.PathLineTo(source.Position - norm);
                     Arena.PathLineTo(source.Position + norm);
-                    MiniArena.PathStroke(true, _playerStates[slot].NonClipping ? ArenaColor.Safe : ArenaColor.Danger, thickness);
-                    Arena.AddLine(source.Position, target.Position, _playerStates[slot].Stretched ? ArenaColor.Safe : ArenaColor.Danger, thickness);
+                    MiniArena.PathStroke(true, _playerStates[slot].NonClipping ? Colors.Safe : Colors.Danger, thickness);
+                    Arena.AddLine(source.Position, target.Position, _playerStates[slot].Stretched ? Colors.Safe : Colors.Danger, thickness);
                 }
             }
         }
 
         // circle showing approximate min stretch distance; for second order, we might be forced to drop meteor there and die to avoid wipe
         if (SourceIfActive(pcSlot) is var pcSource && pcSource != null)
-            Arena.AddCircle(pcSource.Position, 26, ArenaColor.Danger);
+            Arena.AddCircle(pcSource.Position, 26, Colors.Danger);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

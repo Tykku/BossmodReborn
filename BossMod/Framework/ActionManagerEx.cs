@@ -132,17 +132,17 @@ public unsafe sealed class ActionManagerEx : IDisposable
     {
         // [0,80) are stored in actionmanager, [80,81) are stored in director
         var rg = _inst->GetRecastGroupDetail(0);
-        for (int i = 0; i < 80; ++i)
+        for (var i = 0; i < 80; ++i)
             GetCooldown(ref cooldowns[i], rg++);
         rg = _inst->GetRecastGroupDetail(80);
         if (rg != null)
         {
-            for (int i = 80; i < 82; ++i)
+            for (var i = 80; i < 82; ++i)
                 GetCooldown(ref cooldowns[i], rg++);
         }
         else
         {
-            for (int i = 80; i < 82; ++i)
+            for (var i = 80; i < 82; ++i)
                 cooldowns[i] = default;
         }
     }
@@ -182,6 +182,11 @@ public unsafe sealed class ActionManagerEx : IDisposable
 
     public int GetRecastGroup(ActionID action)
         => _inst->GetRecastGroup((int)action.Type, action.ID);
+
+    // see ActionEffectHandler.Receive - there are a few hardcoded actions here
+    private bool ExpectAnimationLockUpdate(ActionEffectHandler.Header* header)
+        => header->SourceSequence != 0 && !(header->ActionType == CSActionType.Action && (NIN.AID)header->ActionId is NIN.AID.Ten1 or NIN.AID.Chi1 or NIN.AID.Jin1 or NIN.AID.Ten2 or NIN.AID.Chi2 or NIN.AID.Jin2)
+        || header->ForceAnimationLock;
 
     // perform some action transformations to simplify implementation of queueing; UseActionLocation expects some normalization to be already done
     private ActionID NormalizeActionForQueue(ActionID action)
@@ -249,7 +254,7 @@ public unsafe sealed class ActionManagerEx : IDisposable
         // check whether movement is safe; block movement if not and if desired
         MoveMightInterruptCast &= CastTimeRemaining > 0; // previous cast could have ended without action effect
         MoveMightInterruptCast |= imminentActionAdj && CastTimeRemaining <= 0 && _inst->AnimationLock < 0.1f && GetAdjustedCastTime(imminentActionAdj) > 0 && GCD() < 0.1f; // if we're not casting, but will start soon, moving might interrupt future cast
-        bool blockMovement = Config.PreventMovingWhileCasting && MoveMightInterruptCast;
+        var blockMovement = Config.PreventMovingWhileCasting && MoveMightInterruptCast;
 
         // restore rotation logic; note that movement abilities (like charge) can take multiple frames until they allow changing facing
         var player = GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
@@ -301,7 +306,7 @@ public unsafe sealed class ActionManagerEx : IDisposable
         // if mouseover mode is enabled AND target is a usual primary target AND current mouseover is valid target for action, then we override target to mouseover
         var primaryTarget = TargetSystem.Instance()->Target;
         var primaryTargetId = primaryTarget != null ? primaryTarget->GetGameObjectId() : 0xE0000000;
-        bool targetOverridden = targetId != primaryTargetId;
+        var targetOverridden = targetId != primaryTargetId;
         if (Config.PreferMouseover && !targetOverridden)
         {
             var mouseoverTarget = PronounModule.Instance()->UiMouseOverTarget;
@@ -320,7 +325,7 @@ public unsafe sealed class ActionManagerEx : IDisposable
         if (mode == ActionManager.UseActionMode.None && action.Type is ActionType.Spell or ActionType.Item && _manualQueue.Push(action, targetId, !targetOverridden, getAreaTarget))
             return false;
 
-        bool areaTargeted = false;
+        var areaTargeted = false;
         var res = _useActionHook.Original(self, actionType, actionId, targetId, extraParam, mode, comboRouteId, &areaTargeted);
         if (outOptAreaTargeted != null)
             *outOptAreaTargeted = areaTargeted;
@@ -378,10 +383,10 @@ public unsafe sealed class ActionManagerEx : IDisposable
             GlobalSequence = header->GlobalSequence,
         };
         var rawEffects = (ulong*)effects;
-        for (int i = 0; i < header->NumTargets; ++i)
+        for (var i = 0; i < header->NumTargets; ++i)
         {
             var targetEffects = new ActionEffects();
-            for (int j = 0; j < ActionEffects.MaxCount; ++j)
+            for (var j = 0; j < ActionEffects.MaxCount; ++j)
                 targetEffects[j] = rawEffects[i * 8 + j];
             info.Targets.Add(new(targets[i], targetEffects));
         }
@@ -393,11 +398,10 @@ public unsafe sealed class ActionManagerEx : IDisposable
         _processPacketActionEffectHook.Original(casterID, casterObj, targetPos, header, effects, targets);
         var currAnimLock = _inst->AnimationLock;
 
-        if (casterID != UIState.Instance()->PlayerState.EntityId || header->SourceSequence == 0 && !header->ForceAnimationLock)
+        if (casterID != UIState.Instance()->PlayerState.EntityId || !ExpectAnimationLockUpdate(header))
         {
             // this action is either executed by non-player, or is non-player-initiated
             // TODO: reconsider the condition:
-            // - some actions with SourceSequence != 0 are special-cased in code (NIN's ten/chi/jin) and apparently don't trigger anim-lock, verify
             // - do we want to do non-anim-lock related things (eg unblock movement override) when we get action with 'force anim lock' flag?
             if (currAnimLock != prevAnimLock)
                 Service.Log($"[AMEx] Animation lock updated by non-player-initiated action: #{header->SourceSequence} {casterID:X} {info.Action} {prevAnimLock:f3} -> {currAnimLock:f3}");

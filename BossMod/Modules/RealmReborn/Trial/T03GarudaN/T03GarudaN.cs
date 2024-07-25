@@ -93,8 +93,7 @@ public class T03GarudaN(WorldState ws, Actor primary) : BossModule(ws, primary, 
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var m in Enemies(OID.Monolith))
-            Arena.Actor(m, ArenaColor.Danger, true);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Monolith), Colors.Danger, true);
     }
 }

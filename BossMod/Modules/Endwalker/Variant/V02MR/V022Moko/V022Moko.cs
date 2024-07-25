@@ -121,7 +121,7 @@ public class V022Moko(WorldState ws, Actor primary) : BossModule(ws, primary, ne
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actor(_bossPath2, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actor(_bossPath2);
     }
 }

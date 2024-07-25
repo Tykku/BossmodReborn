@@ -39,15 +39,15 @@ class MagitekBitLasers(BossModule module) : Components.GenericAOEs(module)
                 if (Type == Types.DiffractiveLaser && WorldState.CurrentTime > _times[0] || Type == Types.LaserShower)
                 {
                     if (NumCasts < 5 && p.Rotation.AlmostEqual(startrotation, maxError))
-                        yield return new(rect, p.Position, p.Rotation, _times[1], ArenaColor.Danger);
+                        yield return new(rect, p.Position, p.Rotation, _times[1], Colors.Danger);
                     if (NumCasts < 5 && (p.Rotation.AlmostEqual(startrotation + 90.Degrees(), maxError) || p.Rotation.AlmostEqual(startrotation - 90.Degrees(), maxError)))
                         yield return new(rect, p.Position, p.Rotation, _times[2]);
                     if (NumCasts >= 5 && NumCasts < 9 && (p.Rotation.AlmostEqual(startrotation + 90.Degrees(), maxError) || p.Rotation.AlmostEqual(startrotation - 90.Degrees(), maxError)))
-                        yield return new(rect, p.Position, p.Rotation, _times[2], ArenaColor.Danger);
+                        yield return new(rect, p.Position, p.Rotation, _times[2], Colors.Danger);
                     if (NumCasts >= 5 && NumCasts < 9 && p.Rotation.AlmostEqual(startrotation + 180.Degrees(), maxError))
                         yield return new(rect, p.Position, p.Rotation, _times[3]);
                     if (NumCasts >= 9 && p.Rotation.AlmostEqual(startrotation + 180.Degrees(), maxError))
-                        yield return new(rect, p.Position, p.Rotation, _times[3], ArenaColor.Danger);
+                        yield return new(rect, p.Position, p.Rotation, _times[3], Colors.Danger);
                 }
             }
     }
@@ -115,9 +115,7 @@ public class CE31MetalFoxChaos(WorldState ws, Actor primary) : BossModule(ws, pr
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        foreach (var s in Enemies(OID.Boss))
-            Arena.Actor(s, ArenaColor.Enemy, false);
-        foreach (var s in Enemies(OID.MagitekBit))
-            Arena.Actor(s, ArenaColor.Vulnerable, true);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.MagitekBit), Colors.Vulnerable, true);
     }
 }

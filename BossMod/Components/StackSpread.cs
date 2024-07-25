@@ -45,8 +45,8 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
         else if (Stacks.FindIndex(s => s.Target == actor) is var iStack && iStack >= 0)
         {
             var stack = Stacks[iStack];
-            int numStacked = 1; // always stacked with self
-            bool stackedWithOtherStackOrAvoid = false;
+            var numStacked = 1; // always stacked with self
+            var stackedWithOtherStackOrAvoid = false;
             foreach (var (j, other) in Raid.WithSlot().InRadiusExcluding(actor, stack.Radius))
             {
                 ++numStacked;
@@ -56,8 +56,8 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
         }
         else
         {
-            int numParticipatingStacks = 0;
-            int numUnsatisfiedStacks = 0;
+            var numParticipatingStacks = 0;
+            var numUnsatisfiedStacks = 0;
             foreach (var s in ActiveStacks.Where(s => !s.ForbiddenPlayers[slot]))
             {
                 if (actor.Position.InCircle(s.Target.Position, s.Radius))
@@ -141,7 +141,7 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
         var shouldStack = IsStackTarget(player);
         var shouldAvoid = !shouldSpread && !shouldStack && ActiveStacks.Any(s => s.ForbiddenPlayers[playerSlot]);
         if (shouldAvoid)
-            customColor = ArenaColor.Vulnerable;
+            customColor = Colors.Vulnerable;
         return shouldAvoid || shouldSpread ? PlayerPriority.Danger
             : shouldStack ? PlayerPriority.Interesting
             : Active ? PlayerPriority.Normal : PlayerPriority.Irrelevant;
@@ -152,7 +152,7 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
         if (!AlwaysShowSpreads && Spreads.FindIndex(s => s.Target == pc) is var iSpread && iSpread >= 0)
         {
             // draw only own circle - no one should be inside, this automatically resolves mechanic for us
-            Arena.AddCircle(pc.Position, Spreads[iSpread].Radius, ArenaColor.Danger);
+            Arena.AddCircle(pc.Position, Spreads[iSpread].Radius, Colors.Danger);
         }
         else
         {
@@ -160,14 +160,14 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
             foreach (var s in ActiveStacks)
             {
                 if (Arena.Config.ShowOutlinesAndShadows)
-                    Arena.AddCircle(s.Target.Position, s.Radius, 0xFF000000, 2);
-                Arena.AddCircle(s.Target.Position, s.Radius, ArenaColor.Safe);
+                    Arena.AddCircle(s.Target.Position, s.Radius, Colors.Shadows, 2);
+                Arena.AddCircle(s.Target.Position, s.Radius, Colors.Safe);
             }
             foreach (var s in ActiveSpreads)
             {
                 if (Arena.Config.ShowOutlinesAndShadows)
-                    Arena.AddCircle(s.Target.Position, s.Radius, 0xFF000000, 2);
-                Arena.AddCircle(s.Target.Position, s.Radius, ArenaColor.Danger);
+                    Arena.AddCircle(s.Target.Position, s.Radius, Colors.Shadows, 2);
+                Arena.AddCircle(s.Target.Position, s.Radius, Colors.Danger);
             }
         }
     }
@@ -381,7 +381,7 @@ public class LineStack(BossModule module, ActionID aidMarker, ActionID aidResolv
 
         foreach (var bait in ActiveBaits)
         {
-            var color = isBaitTarget && bait.Target == pc || !isBaitTarget && bait.Target != pc ? ArenaColor.SafeFromAOE : ArenaColor.AOE;
+            var color = isBaitTarget && bait.Target == pc || !isBaitTarget && bait.Target != pc ? Colors.SafeFromAOE : Colors.AOE;
             bait.Shape.Draw(Arena, BaitOrigin(bait), bait.Rotation, color);
         }
     }

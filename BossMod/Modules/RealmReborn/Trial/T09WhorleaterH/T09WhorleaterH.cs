@@ -25,12 +25,12 @@ public class T09WhorleaterH(WorldState ws, Actor primary) : BossModule(ws, prima
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy, true);
-        Arena.Actors(Enemies(OID.Spume), ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor, Colors.Enemy, true);
+        Arena.Actors(Enemies(OID.Spume), Colors.Vulnerable);
         Arena.Actors(Enemies(OID.Tail));
         Arena.Actors(Enemies(OID.Sahagin));
         Arena.Actors(Enemies(OID.DangerousSahagins));
-        Arena.Actor(Enemies(OID.Converter).FirstOrDefault(), ArenaColor.Object);
+        Arena.Actor(Enemies(OID.Converter).FirstOrDefault(), Colors.Object);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

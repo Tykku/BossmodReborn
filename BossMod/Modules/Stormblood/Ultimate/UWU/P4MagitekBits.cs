@@ -8,6 +8,6 @@ class P4MagitekBits(BossModule module) : BossComponent(module)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actors(_bits, ArenaColor.Enemy);
+        Arena.Actors(_bits, Colors.Enemy);
     }
 }

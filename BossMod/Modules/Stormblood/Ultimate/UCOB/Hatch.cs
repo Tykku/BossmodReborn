@@ -43,14 +43,14 @@ class Hatch : Components.CastCounter
     {
         if (Active)
             foreach (var o in _orbs.Where(o => !o.IsDead))
-                Arena.ZoneCircle(o.Position, 1, ArenaColor.AOE);
+                Arena.ZoneCircle(o.Position, 1, Colors.AOE);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (Active)
             foreach (var neurolink in _neurolinks)
-                Arena.AddCircle(neurolink.Position, 2, _targets[pcSlot] ? ArenaColor.Safe : ArenaColor.Danger);
+                Arena.AddCircle(neurolink.Position, 2, _targets[pcSlot] ? Colors.Safe : Colors.Danger);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID)

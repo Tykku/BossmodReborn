@@ -31,7 +31,7 @@ class FlukeGale(BossModule module) : Components.Knockback(module)
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         foreach (var c in SafeZones(pcSlot))
-            _safeZone.Draw(Arena, c, default, ArenaColor.SafeFromAOE);
+            _safeZone.Draw(Arena, c, default, Colors.SafeFromAOE);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

@@ -9,10 +9,10 @@ class P3QuickmarchTrio(BossModule module) : BossComponent(module)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actor(_relNorth, ArenaColor.Object, true);
+        Arena.Actor(_relNorth, Colors.Object, true);
         var safespot = _safeSpots[pcSlot];
         if (safespot != default)
-            Arena.AddCircle(safespot, 1, ArenaColor.Safe);
+            Arena.AddCircle(safespot, 1, Colors.Safe);
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
@@ -23,8 +23,8 @@ class P3QuickmarchTrio(BossModule module) : BossComponent(module)
             var dirToNorth = Angle.FromDirection(actor.Position - Module.Center);
             foreach (var p in Service.Config.Get<UCOBConfig>().P3QuickmarchTrioAssignments.Resolve(Raid))
             {
-                bool left = p.group < 4;
-                int order = p.group & 3;
+                var left = p.group < 4;
+                var order = p.group & 3;
                 var offset = (60 + order * 20).Degrees();
                 var dir = dirToNorth + (left ? offset : -offset);
                 _safeSpots[p.slot] = Module.Center + 20 * dir.ToDirection();

@@ -73,11 +73,11 @@ class Snake2(BossModule module) : PetrifactionCommon(module)
         {
             // show circle around assigned snake
             if (_players[pcSlot].AssignedSnake >= 0)
-                Arena.AddCircle(ActiveGorgons[_players[pcSlot].AssignedSnake].caster.Position, 2, ArenaColor.Safe);
+                Arena.AddCircle(ActiveGorgons[_players[pcSlot].AssignedSnake].caster.Position, 2, Colors.Safe);
 
             foreach (var (slot, player) in Raid.WithSlot())
                 if (_players[slot].HasBreath)
-                    Arena.AddCircle(player.Position, _breathRadius, ArenaColor.Safe);
+                    Arena.AddCircle(player.Position, _breathRadius, Colors.Safe);
         }
     }
 
@@ -111,7 +111,7 @@ class Snake2(BossModule module) : PetrifactionCommon(module)
         // 5th gorgospit => find snakes that will survive it
         List<int> survivingSnakes = [];
         var normal = actor.Rotation.ToDirection().OrthoL();
-        for (int i = 0; i < ActiveGorgons.Count; ++i)
+        for (var i = 0; i < ActiveGorgons.Count; ++i)
             if (Math.Abs(normal.Dot(ActiveGorgons[i].caster.Position - actor.Position)) > 5)
                 survivingSnakes.Add(i);
         if (survivingSnakes.Count != 2)
@@ -120,13 +120,13 @@ class Snake2(BossModule module) : PetrifactionCommon(module)
         var (option1, option2) = AssignSnakesToGroups(survivingSnakes[0], survivingSnakes[1]);
 
         // both TH and DD should always get exactly 2 debuffs of same type
-        bool flexTH = _players[assignedSlots[0]].HasDebuff == _players[assignedSlots[2]].HasDebuff;
+        var flexTH = _players[assignedSlots[0]].HasDebuff == _players[assignedSlots[2]].HasDebuff;
         _players[assignedSlots[0]].AssignedSnake = flexTH ? option2 : option1;
         _players[assignedSlots[1]].AssignedSnake = flexTH ? option1 : option2;
         _players[assignedSlots[2]].AssignedSnake = option1;
         _players[assignedSlots[3]].AssignedSnake = option2;
 
-        bool flexDD = _players[assignedSlots[4]].HasDebuff == _players[assignedSlots[6]].HasDebuff;
+        var flexDD = _players[assignedSlots[4]].HasDebuff == _players[assignedSlots[6]].HasDebuff;
         _players[assignedSlots[4]].AssignedSnake = flexDD ? option2 : option1;
         _players[assignedSlots[5]].AssignedSnake = flexDD ? option1 : option2;
         _players[assignedSlots[6]].AssignedSnake = option1;

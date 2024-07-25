@@ -120,7 +120,7 @@ class RawSteel(BossModule module) : Components.BaitAwayChargeCast(module, Action
     {
         foreach (var bait in ActiveBaitsOn(pc))
         {
-            bait.Shape.Outline(Arena, BaitOrigin(bait), bait.Rotation, bait.Target.Position.InCircle(bait.Source.Position, 15) ? ArenaColor.Danger : ArenaColor.Safe);
+            bait.Shape.Outline(Arena, BaitOrigin(bait), bait.Rotation, bait.Target.Position.InCircle(bait.Source.Position, 15) ? Colors.Danger : Colors.Safe);
         }
     }
 }
@@ -160,6 +160,6 @@ public class CE53HereComesTheCavalry(WorldState ws, Actor primary) : BossModule(
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(Enemies(OID.Cavalry), ArenaColor.Enemy);
+        Arena.Actors(Enemies(OID.Cavalry));
     }
 }

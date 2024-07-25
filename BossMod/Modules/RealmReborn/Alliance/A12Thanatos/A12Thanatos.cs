@@ -10,9 +10,9 @@ public class A12Thanatos(WorldState ws, Actor primary) : BossModule(ws, primary,
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.MagicPot), ArenaColor.Object);
-        Arena.Actors(Enemies(OID.Nemesis), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.Sandman), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.MagicPot), Colors.Object);
+        Arena.Actors(Enemies(OID.Nemesis));
+        Arena.Actors(Enemies(OID.Sandman));
     }
 }

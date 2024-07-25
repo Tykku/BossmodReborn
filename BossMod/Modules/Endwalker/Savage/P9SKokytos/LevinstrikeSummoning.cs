@@ -44,7 +44,7 @@ class LevinstrikeSummoningFiremeld(BossModule module) : Components.GenericBaitAw
 
     public override void OnEventIcon(Actor actor, uint iconID)
     {
-        int order = (IconID)iconID switch
+        var order = (IconID)iconID switch
         {
             IconID.Icon2 => 0,
             IconID.Icon4 => 1,
@@ -108,8 +108,8 @@ class LevinstrikeSummoningShock(BossModule module) : Components.GenericAOEs(modu
 
         if (NumTowers < NumCasts)
         {
-            bool inTower = actor.Position.InCircle(_explodeOrder[NumTowers], 3);
-            bool shouldSoak = _soakerOrder[NumTowers] == actor;
+            var inTower = actor.Position.InCircle(_explodeOrder[NumTowers], 3);
+            var shouldSoak = _soakerOrder[NumTowers] == actor;
             if (shouldSoak != inTower)
                 hints.Add(shouldSoak ? "Soak the tower!" : "GTFO from tower!");
         }
@@ -120,7 +120,7 @@ class LevinstrikeSummoningShock(BossModule module) : Components.GenericAOEs(modu
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (NumTowers < NumCasts)
-            Arena.AddCircle(_explodeOrder[NumTowers], 3, _soakerOrder[NumTowers] == pc ? ArenaColor.Safe : ArenaColor.Danger, 2);
+            Arena.AddCircle(_explodeOrder[NumTowers], 3, _soakerOrder[NumTowers] == pc ? Colors.Safe : Colors.Danger, 2);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID)

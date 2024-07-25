@@ -68,9 +68,9 @@ abstract class P6HallowedPlume(BossModule module) : Components.GenericBaitAway(m
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        bool shouldBait = actor.Role == Role.Tank;
-        bool isBaiting = ActiveBaitsOn(actor).Any();
-        bool stayFar = shouldBait == _far;
+        var shouldBait = actor.Role == Role.Tank;
+        var isBaiting = ActiveBaitsOn(actor).Any();
+        var stayFar = shouldBait == _far;
         hints.Add(stayFar ? "Stay far!" : "Stay close!", shouldBait != isBaiting);
 
         if (shouldBait == isBaiting)
@@ -91,7 +91,7 @@ abstract class P6HallowedPlume(BossModule module) : Components.GenericBaitAway(m
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
         foreach (var p in SafeSpots(actor))
-            movementHints.Add(actor.Position, p, ArenaColor.Safe);
+            movementHints.Add(actor.Position, p, Colors.Safe);
     }
 
     public override void AddGlobalHints(GlobalHints hints)
@@ -104,7 +104,7 @@ abstract class P6HallowedPlume(BossModule module) : Components.GenericBaitAway(m
     {
         base.DrawArenaForeground(pcSlot, pc);
         foreach (var p in SafeSpots(pc))
-            Arena.AddCircle(p, 1, ArenaColor.Safe);
+            Arena.AddCircle(p, 1, Colors.Safe);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -138,8 +138,8 @@ class P6HallowedPlume1(BossModule module) : P6HallowedPlume(module)
         safeSpotCenter.Z -= _wings.AOE.Value.Origin.Z - Module.Center.Z;
         safeSpotCenter.X -= _cauterize.AOE.Value.Origin.X - Module.Center.X;
 
-        bool shouldBait = actor.Role == Role.Tank;
-        bool stayFar = shouldBait == _far;
+        var shouldBait = actor.Role == Role.Tank;
+        var stayFar = shouldBait == _far;
         float xOffset = stayFar ? -9 : +9; // assume hraesvelgr is always at +22
         if (shouldBait)
         {
@@ -163,7 +163,7 @@ class P6HallowedPlume2(BossModule module) : P6HallowedPlume(module)
         if (_wings?.AOE == null || _wingTail == null)
             yield break;
 
-        float zCoeff = _wingTail.NumAOEs switch
+        var zCoeff = _wingTail.NumAOEs switch
         {
             1 => 15.75f / 11,
             2 => 4.0f / 11,
@@ -172,8 +172,8 @@ class P6HallowedPlume2(BossModule module) : P6HallowedPlume(module)
         var safeSpotCenter = Module.Center;
         safeSpotCenter.Z -= zCoeff * (_wings.AOE.Value.Origin.Z - Module.Center.Z);
 
-        bool shouldBait = actor.Role == Role.Tank;
-        bool stayFar = shouldBait == _far;
+        var shouldBait = actor.Role == Role.Tank;
+        var stayFar = shouldBait == _far;
         float xOffset = stayFar ? -20 : +20; // assume hraesvelgr is always at +22
         if (shouldBait)
         {

@@ -8,7 +8,7 @@ class P3BlackfireTrio(BossModule module) : BossComponent(module)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actor(_nael, ArenaColor.Object, true);
+        Arena.Actor(_nael, Colors.Object, true);
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)

@@ -12,7 +12,7 @@ class TorrentialTridentAOE(BossModule module) : Components.GenericAOEs(module)
         foreach (var aoe in AOEs.Skip(1).Take(4))
             yield return aoe;
         if (AOEs.Count > 0)
-            yield return AOEs[0] with { Color = ArenaColor.Danger };
+            yield return AOEs[0] with { Color = Colors.Danger };
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

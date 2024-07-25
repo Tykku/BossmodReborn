@@ -22,8 +22,8 @@ class Geocrush(BossModule module, float radius) : Components.CastCounter(module,
 
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
-        Arena.ZoneDonut(Module.Center, _radius, 25, ArenaColor.AOE);
-        Arena.ZoneDonut(Module.Center, _radius - _ringWidth, _radius, ArenaColor.SafeFromAOE);
+        Arena.ZoneDonut(Module.Center, _radius, 25, Colors.AOE);
+        Arena.ZoneDonut(Module.Center, _radius - _ringWidth, _radius, Colors.SafeFromAOE);
     }
 }
 

@@ -36,7 +36,7 @@ class P4Twisters(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var twister in ActiveTwisters)
-            Arena.AddCircle(twister.Position, twister.HitboxRadius, ArenaColor.Danger);
+            Arena.AddCircle(twister.Position, twister.HitboxRadius, Colors.Danger);
     }
 }
 
@@ -78,9 +78,9 @@ class P4Dreadknights(BossModule module) : BossComponent(module)
     {
         foreach (var a in ActiveDreadknights)
         {
-            Arena.Actor(a, ArenaColor.Enemy);
+            Arena.Actor(a);
             if (_target != null)
-                Arena.AddLine(a.Position, _target.Position, ArenaColor.Danger);
+                Arena.AddLine(a.Position, _target.Position, Colors.Danger);
         }
     }
 

@@ -86,7 +86,7 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
         ImGui.GetWindowDrawList().PushClipRect(Vector2.Max(cursor, wmin), Vector2.Min(cursor + fullSize, wmax));
         if (Config.OpaqueArenaBackground)
         {
-            Zone(Bounds.ShapeTriangulation, ArenaColor.Background);
+            Zone(Bounds.ShapeTriangulation, Colors.Background);
         }
     }
 
@@ -298,10 +298,10 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
         var offCenter = ScreenHalfSize + ScreenMarginSize / 2;
         var offS = RotatedCoords(new(0, offCenter));
         var offE = RotatedCoords(new(offCenter, 0));
-        TextScreen(ScreenCenter - offS, "N", ArenaColor.Border, Config.CardinalsFontSize);
-        TextScreen(ScreenCenter + offS, "S", ArenaColor.Border, Config.CardinalsFontSize);
-        TextScreen(ScreenCenter + offE, "E", ArenaColor.Border, Config.CardinalsFontSize);
-        TextScreen(ScreenCenter - offE, "W", ArenaColor.Border, Config.CardinalsFontSize);
+        TextScreen(ScreenCenter - offS, "N", Colors.Border, Config.CardinalsFontSize);
+        TextScreen(ScreenCenter + offS, "S", Colors.Border, Config.CardinalsFontSize);
+        TextScreen(ScreenCenter + offE, "E", Colors.Border, Config.CardinalsFontSize);
+        TextScreen(ScreenCenter - offE, "W", Colors.Border, Config.CardinalsFontSize);
     }
 
     // draw actor representation
@@ -349,16 +349,16 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
             ActorOutsideBounds(ClampToBounds(position), rotation, color);
     }
 
-    public void Actor(Actor? actor, uint color = ArenaColor.Enemy, bool allowDeadAndUntargetable = false)
+    public void Actor(Actor? actor, uint color = 0, bool allowDeadAndUntargetable = false)
     {
         if (actor != null && !actor.IsDestroyed && (allowDeadAndUntargetable || actor.IsTargetable && !actor.IsDead))
-            Actor(actor.Position, actor.Rotation, color);
+            Actor(actor.Position, actor.Rotation, color == 0 ? Colors.Enemy : color);
     }
 
-    public void Actors(IEnumerable<Actor> actors, uint color = ArenaColor.Enemy, bool allowDeadAndUntargetable = false)
+    public void Actors(IEnumerable<Actor> actors, uint color = 0, bool allowDeadAndUntargetable = false)
     {
         foreach (var a in actors)
-            Actor(a, color, allowDeadAndUntargetable);
+            Actor(a, color == 0 ? Colors.Enemy : color, allowDeadAndUntargetable);
     }
 
     public static void End()

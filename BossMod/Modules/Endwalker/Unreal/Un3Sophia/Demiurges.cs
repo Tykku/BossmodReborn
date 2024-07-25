@@ -11,8 +11,8 @@ class Demiurges(BossModule module) : Components.DirectionalParry(module, (uint)O
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
-        Arena.Actors(_second, ArenaColor.Enemy);
-        Arena.Actors(_third, ArenaColor.Enemy);
+        Arena.Actors(_second);
+        Arena.Actors(_third);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

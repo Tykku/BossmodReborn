@@ -41,7 +41,7 @@ class Knockback : BossComponent
             hints.Add("About to be knocked into wall!");
         }
 
-        float aoeRange = _isFlare ? _flareRange : _holyRange;
+        var aoeRange = _isFlare ? _flareRange : _holyRange;
         if (Module.PrimaryActor.TargetID == actor.InstanceID)
         {
             // i'm the current tank - i should gtfo from raid if i'll get the flare -or- if i'm vulnerable (assuming i'll pop invul not to die)
@@ -101,8 +101,8 @@ class Knockback : BossComponent
     {
         if (Module.PrimaryActor.CastInfo != null && pc == _knockbackTarget && pc.Position != _knockbackPos)
         {
-            Arena.AddLine(pc.Position, _knockbackPos, ArenaColor.Danger);
-            Arena.Actor(_knockbackPos, pc.Rotation, ArenaColor.Danger);
+            Arena.AddLine(pc.Position, _knockbackPos, Colors.Danger);
+            Arena.Actor(_knockbackPos, pc.Rotation, Colors.Danger);
         }
 
         var target = WorldState.Actors.Find(Module.PrimaryActor.TargetID);
@@ -110,23 +110,23 @@ class Knockback : BossComponent
             return;
 
         var targetPos = target == _knockbackTarget ? _knockbackPos : target.Position;
-        float aoeRange = _isFlare ? _flareRange : _holyRange;
+        var aoeRange = _isFlare ? _flareRange : _holyRange;
         if (target == pc)
         {
             // there will be AOE around me, draw all players to help with positioning - note that we use position adjusted for knockback
             foreach (var player in Raid.WithoutSlot())
-                Arena.Actor(player, player.Position.InCircle(targetPos, aoeRange) ? ArenaColor.PlayerInteresting : ArenaColor.PlayerGeneric);
+                Arena.Actor(player, player.Position.InCircle(targetPos, aoeRange) ? Colors.PlayerInteresting : Colors.PlayerGeneric);
         }
         else
         {
             // draw AOE source
             Arena.Actor(targetPos, target.Rotation, _colorAOETarget);
         }
-        Arena.AddCircle(targetPos, aoeRange, ArenaColor.Danger);
+        Arena.AddCircle(targetPos, aoeRange, Colors.Danger);
 
         // draw vulnerable target
         if (_knockbackTarget != pc && _knockbackTarget != target)
-            Arena.Actor(_knockbackTarget, ArenaColor.Vulnerable);
+            Arena.Actor(_knockbackTarget, Colors.Vulnerable);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

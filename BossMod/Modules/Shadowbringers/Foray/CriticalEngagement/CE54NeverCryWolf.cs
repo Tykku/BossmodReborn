@@ -165,7 +165,7 @@ class AgeOfEndlessFrost(BossModule module) : Components.GenericAOEs(module)
             }
 
             ++NumCasts;
-            for (int i = 0; i < _angles.Count; ++i)
+            for (var i = 0; i < _angles.Count; ++i)
                 _angles[i] += _increment;
         }
     }
@@ -208,6 +208,6 @@ public class CE54NeverCryWolf : BossModule
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(_adds, ArenaColor.Enemy);
+        Arena.Actors(_adds, Colors.Enemy);
     }
 }

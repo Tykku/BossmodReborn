@@ -103,20 +103,20 @@ class Platforms(BossModule module) : BossComponent(module)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        foreach (int i in (ActivePlatforms ^ AllPlatforms).SetBits())
-            Arena.AddPolygon(PlatformPoly(i), ArenaColor.Border);
-        foreach (int i in ActivePlatforms.SetBits())
-            Arena.AddPolygon(PlatformPoly(i), ArenaColor.Enemy);
+        foreach (var i in (ActivePlatforms ^ AllPlatforms).SetBits())
+            Arena.AddPolygon(PlatformPoly(i), Colors.Border);
+        foreach (var i in ActivePlatforms.SetBits())
+            Arena.AddPolygon(PlatformPoly(i), Colors.Enemy);
     }
 
     public override void OnActorEState(Actor actor, ushort state)
     {
         if (actor.OID == (uint)OID.Platform)
         {
-            int i = Array.FindIndex(HexaPlatformCenters, c => actor.Position.InCircle(c, 2));
+            var i = Array.FindIndex(HexaPlatformCenters, c => actor.Position.InCircle(c, 2));
             if (i == -1)
                 i = HexaPlatformCenters.Length;
-            bool active = state == 2;
+            var active = state == 2;
             ActivePlatforms[i] = active;
             if (active)
                 ExplosionAt = WorldState.FutureTime(6);

@@ -68,7 +68,7 @@ class TimeEruptionBombReproduce(BossModule module) : Components.GenericAOEs(modu
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         foreach (var p in _eruptionSafeSpots)
-            _shapeEruption.Draw(Arena, p, new(), ArenaColor.SafeFromAOE);
+            _shapeEruption.Draw(Arena, p, new(), Colors.SafeFromAOE);
         base.DrawArenaBackground(pcSlot, pc);
     }
 

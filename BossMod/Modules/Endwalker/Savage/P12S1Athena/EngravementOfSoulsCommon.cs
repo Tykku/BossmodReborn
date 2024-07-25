@@ -27,11 +27,11 @@ class EngravementOfSoulsTethers(BossModule module) : Components.GenericBaitAway(
         base.DrawArenaForeground(pcSlot, pc);
 
         foreach (var b in CurrentBaits)
-            Arena.Actor(b.Source, ArenaColor.Object, true);
+            Arena.Actor(b.Source, Colors.Object, true);
 
         // TODO: consider drawing safespot based on configured strategy and mechanic order
         if (NumCasts == 0 && States[pcSlot] is var state && state.Source != null)
-            Arena.AddLine(state.Source.Position, pc.Position, state.TooClose ? ArenaColor.Danger : ArenaColor.Safe);
+            Arena.AddLine(state.Source.Position, pc.Position, state.TooClose ? Colors.Danger : Colors.Safe);
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)

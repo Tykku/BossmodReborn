@@ -58,7 +58,7 @@ class ArchaicRockbreakerCombination(BossModule module) : Components.GenericAOEs(
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
         foreach (var p in SafeSpots())
-            movementHints.Add(actor.Position, p, ArenaColor.Safe);
+            movementHints.Add(actor.Position, p, Colors.Safe);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

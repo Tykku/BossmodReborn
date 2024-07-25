@@ -36,13 +36,13 @@ class Fireplume(BossModule module) : BossComponent(module)
     {
         if (_singlePos != null)
         {
-            Arena.ZoneCircle(_singlePos.Value, _singleRadius, ArenaColor.AOE);
+            Arena.ZoneCircle(_singlePos.Value, _singleRadius, Colors.AOE);
         }
 
         if (_multiStartedCasts > _multiFinishedCasts)
         {
             if (_multiFinishedCasts > 0) // don't draw center aoe before first explosion, it's confusing - but start drawing it immediately after first explosion, to simplify positioning
-                Arena.ZoneCircle(Module.Center, _multiRadius, _multiFinishedCasts >= 6 ? ArenaColor.Danger : ArenaColor.AOE);
+                Arena.ZoneCircle(Module.Center, _multiRadius, _multiFinishedCasts >= 6 ? Colors.Danger : Colors.AOE);
 
             // don't draw more than two next pairs
             if (_multiFinishedCasts < 8)
@@ -97,7 +97,7 @@ class Fireplume(BossModule module) : BossComponent(module)
     private void DrawPair(Angle direction, bool imminent)
     {
         var offset = _multiPairOffset * direction.ToDirection();
-        Arena.ZoneCircle(Module.Center + offset, _multiRadius, imminent ? ArenaColor.Danger : ArenaColor.AOE);
-        Arena.ZoneCircle(Module.Center - offset, _multiRadius, imminent ? ArenaColor.Danger : ArenaColor.AOE);
+        Arena.ZoneCircle(Module.Center + offset, _multiRadius, imminent ? Colors.Danger : Colors.AOE);
+        Arena.ZoneCircle(Module.Center - offset, _multiRadius, imminent ? Colors.Danger : Colors.AOE);
     }
 }

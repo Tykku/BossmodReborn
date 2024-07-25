@@ -11,7 +11,7 @@ class VoidStardust(BossModule module) : Components.GenericAOEs(module)
         foreach (var aoe in _aoes.Skip(NumCasts + 2).Take(10))
             yield return new(_shape, aoe.pos, default, aoe.activation);
         foreach (var aoe in _aoes.Skip(NumCasts).Take(2))
-            yield return new(_shape, aoe.pos, default, aoe.activation, ArenaColor.Danger);
+            yield return new(_shape, aoe.pos, default, aoe.activation, Colors.Danger);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

@@ -64,7 +64,7 @@ class EngravementOfSouls2Lines(BossModule module) : BossComponent(module)
     private void DrawOutline(Actor? target, bool safe)
     {
         if (target != null)
-            _shape.Outline(Arena, Module.PrimaryActor.Position, Angle.FromDirection(target.Position - Module.PrimaryActor.Position), safe ? ArenaColor.Safe : ArenaColor.Danger);
+            _shape.Outline(Arena, Module.PrimaryActor.Position, Angle.FromDirection(target.Position - Module.PrimaryActor.Position), safe ? Colors.Safe : Colors.Danger);
     }
 }
 

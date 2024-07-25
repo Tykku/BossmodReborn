@@ -23,14 +23,14 @@ class P6TouchdownCauterize(BossModule module) : BossComponent(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        bool nidhoggSide = actor.Position.X < Module.Center.X; // note: assume nidhogg cleaves whole left side, hraes whole right side
+        var nidhoggSide = actor.Position.X < Module.Center.X; // note: assume nidhogg cleaves whole left side, hraes whole right side
         var forbiddenMask = nidhoggSide ? _boiling : _freezing;
         if (forbiddenMask[slot])
             hints.Add("GTFO from wrong side!");
 
         // note: assume both dragons are always at north side
-        bool isClosest = Raid.WithoutSlot().Where(p => (p.Position.X < Module.Center.X) == nidhoggSide).MinBy(p => p.PosRot.Z) == actor;
-        bool shouldBeClosest = actor.Role == Role.Tank;
+        var isClosest = Raid.WithoutSlot().Where(p => (p.Position.X < Module.Center.X) == nidhoggSide).MinBy(p => p.PosRot.Z) == actor;
+        var shouldBeClosest = actor.Role == Role.Tank;
         if (isClosest != shouldBeClosest)
             hints.Add(shouldBeClosest ? "Move closer to dragons!" : "Move away from dragons!");
     }

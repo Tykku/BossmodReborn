@@ -90,7 +90,7 @@ class EventList(Replay r, Action<DateTime> scrollTo, PlanDatabase planDB)
             }
         }
 
-        bool haveActions = actions.Any();
+        var haveActions = actions.Any();
         bool actionIsCrap(Replay.Action a) => a.Source.Type is ActorType.Player or ActorType.Pet or ActorType.Chocobo or ActorType.Buddy;
         foreach (var n in _tree.Node("Interesting actions", !haveActions))
         {
@@ -101,7 +101,7 @@ class EventList(Replay r, Action<DateTime> scrollTo, PlanDatabase planDB)
             DrawActions(actions.Where(actionIsCrap), tp, aidType);
         }
 
-        bool haveStatuses = statuses.Any();
+        var haveStatuses = statuses.Any();
         bool statusIsCrap(Replay.Status s) => s.Source?.Type is ActorType.Player or ActorType.Pet or ActorType.Chocobo or ActorType.Buddy || s.Target.Type is ActorType.Pet or ActorType.Chocobo;
         foreach (var n in _tree.Node("Interesting statuses", !haveStatuses))
         {
@@ -237,7 +237,7 @@ class EventList(Replay r, Action<DateTime> scrollTo, PlanDatabase planDB)
         if (ImGui.Button("Show timeline"))
             OpenTimeline(enc, new());
         ImGui.SameLine();
-        for (int i = 0; i < enc.PartyMembers.Count; i++)
+        for (var i = 0; i < enc.PartyMembers.Count; i++)
         {
             var (p, c, l) = enc.PartyMembers[i];
             if (ImGui.Button($"{c}{l} {p.NameHistory.FirstOrDefault().Value.name}"))

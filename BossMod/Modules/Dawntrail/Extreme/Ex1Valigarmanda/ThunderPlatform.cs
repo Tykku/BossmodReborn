@@ -19,15 +19,15 @@ class ThunderPlatform(BossModule module) : BossComponent(module)
         if (RequireHint[pcSlot])
         {
             var highlightLevitate = RequireLevitating[pcSlot];
-            for (int x = 0; x < 2; ++x)
+            for (var x = 0; x < 2; ++x)
             {
-                for (int z = 0; z < 3; ++z)
+                for (var z = 0; z < 3; ++z)
                 {
                     var cellLevitating = ((x ^ z) & 1) != 0;
                     if (cellLevitating != highlightLevitate)
                     {
-                        _shape.Draw(Arena, Module.Center + new WDir(-5 - 10 * x, -10 + 10 * z), default, ArenaColor.AOE);
-                        _shape.Draw(Arena, Module.Center + new WDir(+5 + 10 * x, -10 + 10 * z), default, ArenaColor.AOE);
+                        _shape.Draw(Arena, Module.Center + new WDir(-5 - 10 * x, -10 + 10 * z), default, Colors.AOE);
+                        _shape.Draw(Arena, Module.Center + new WDir(+5 + 10 * x, -10 + 10 * z), default, Colors.AOE);
                     }
                 }
             }

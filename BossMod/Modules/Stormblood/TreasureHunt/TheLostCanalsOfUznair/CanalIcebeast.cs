@@ -3,10 +3,10 @@ namespace BossMod.Stormblood.TreasureHunt.LostCanalsOfUznair.CanalIcebeast;
 public enum OID : uint
 {
     Boss = 0x1F15, //R=7.5
-    BossHelper = 0x233C,
-    BossAdd1 = 0x1F0E, // R1.560
-    BossAdd2 = 0x1F0F, // R1.600
-    BonusAddAbharamu = 0x1EBF, // R3.420
+    BossAdd1 = 0x1F0E, // R1.56
+    BossAdd2 = 0x1F0F, // R1.6
+    BonusAddAbharamu = 0x1EBF, // R3.42
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -24,7 +24,7 @@ public enum AID : uint
     Spin = 8599, // BonusAddAbharamu->self, no cast, range 6+R 120-degree cone
     RaucousScritch = 8598, // BonusAddAbharamu->self, 2.5s cast, range 5+R 120-degree cone
     Hurl = 5352, // BonusAddAbharamu->location, 3.0s cast, range 6 circle
-    Telega = 9630, // BonusAdds->self, no cast, single-target, bonus adds disappear
+    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
 class Eyeshine(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.Eyeshine));
@@ -56,13 +56,10 @@ public class Icebeast(WorldState ws, Actor primary) : BossModule(ws, primary, ne
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossAdd1))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.BossAdd2))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.BonusAddAbharamu))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd1), Colors.Object);
+        Arena.Actors(Enemies(OID.BossAdd2), Colors.Object);
+        Arena.Actors(Enemies(OID.BonusAddAbharamu), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

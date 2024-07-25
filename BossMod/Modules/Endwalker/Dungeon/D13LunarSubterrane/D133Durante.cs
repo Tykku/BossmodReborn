@@ -76,7 +76,7 @@ class DuplicitousBattery(BossModule module) : Components.GenericAOEs(module)
         for (var i = 0; i < clampedCount; ++i)
         {
             var isRisky = i < MaxInitialAOEs;
-            yield return new AOEInstance(circle, _aoes[i].Origin, default, _aoes[i].Activation, isRisky ? ArenaColor.Danger : ArenaColor.AOE, isRisky);
+            yield return new AOEInstance(circle, _aoes[i].Origin, default, _aoes[i].Activation, isRisky ? Colors.Danger : Colors.AOE, isRisky);
         }
     }
 

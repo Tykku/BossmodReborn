@@ -173,7 +173,7 @@ class SilverFlame1(BossModule module) : Components.GenericAOEs(module)
         for (var i = NumCasts + 1; i < _maxCasts; ++i)
             yield return new(_shape, _source.Position, _startingRotation + i * _increment, _startingActivation.AddSeconds(0.5f * i));
         if (NumCasts < _maxCasts)
-            yield return new(_shape, _source.Position, _startingRotation + NumCasts * _increment, _startingActivation.AddSeconds(0.5f * NumCasts), ArenaColor.Danger);
+            yield return new(_shape, _source.Position, _startingRotation + NumCasts * _increment, _startingActivation.AddSeconds(0.5f * NumCasts), Colors.Danger);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -212,7 +212,7 @@ class SilverFlame2(BossModule module) : Components.GenericAOEs(module)
         for (var i = NumCasts + 1; i < _maxCasts; ++i)
             yield return new(_shape, _source.Position, _startingRotation + i * _increment, _startingActivation.AddSeconds(0.5f * i));
         if (NumCasts < _maxCasts)
-            yield return new(_shape, _source.Position, _startingRotation + NumCasts * _increment, _startingActivation.AddSeconds(0.5f * NumCasts), ArenaColor.Danger);
+            yield return new(_shape, _source.Position, _startingRotation + NumCasts * _increment, _startingActivation.AddSeconds(0.5f * NumCasts), Colors.Danger);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

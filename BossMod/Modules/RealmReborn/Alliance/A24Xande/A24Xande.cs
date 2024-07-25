@@ -13,8 +13,8 @@ public class A24Xande(WorldState ws, Actor primary) : BossModule(ws, primary, ne
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.StonefallCircle), ArenaColor.Enemy);
-        Arena.Actors(Enemies(OID.StarfallCircle), ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.StonefallCircle));
+        Arena.Actors(Enemies(OID.StarfallCircle));
     }
 }

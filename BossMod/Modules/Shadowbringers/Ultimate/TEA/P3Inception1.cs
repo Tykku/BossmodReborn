@@ -42,14 +42,14 @@ class P3Inception1(BossModule module) : Components.CastCounter(module, ActionID.
             {
                 if (!sphere.IsDead)
                 {
-                    Arena.Actor(sphere, ArenaColor.Object, true);
-                    Arena.AddLine(sphere.Position, player.Position, slot == pcSlot ? ArenaColor.Safe : ArenaColor.Danger);
-                    Arena.AddCircle(player.Position, _sphereRadius, ArenaColor.Danger);
+                    Arena.Actor(sphere, Colors.Object, true);
+                    Arena.AddLine(sphere.Position, player.Position, slot == pcSlot ? Colors.Safe : Colors.Danger);
+                    Arena.AddCircle(player.Position, _sphereRadius, Colors.Danger);
                 }
             }
             else if (!CrystalsDone)
             {
-                Arena.AddCircle(player.Position, _crystalRadius, ArenaColor.Danger);
+                Arena.AddCircle(player.Position, _crystalRadius, Colors.Danger);
             }
         }
 
@@ -58,15 +58,15 @@ class P3Inception1(BossModule module) : Components.CastCounter(module, ActionID.
         {
             if (!pcSphere.IsDead)
             {
-                Arena.AddCircle(_assignedPositions[pcSlot], 1, ArenaColor.Safe);
+                Arena.AddCircle(_assignedPositions[pcSlot], 1, Colors.Safe);
             }
         }
         else if (!CrystalsDone)
         {
-            Arena.AddCircle(_assignedPositions[pcSlot] + new WDir(-5, -5), 1, ArenaColor.Safe);
-            Arena.AddCircle(_assignedPositions[pcSlot] + new WDir(-5, +5), 1, ArenaColor.Safe);
-            Arena.AddCircle(_assignedPositions[pcSlot] + new WDir(+5, -5), 1, ArenaColor.Safe);
-            Arena.AddCircle(_assignedPositions[pcSlot] + new WDir(+5, +5), 1, ArenaColor.Safe);
+            Arena.AddCircle(_assignedPositions[pcSlot] + new WDir(-5, -5), 1, Colors.Safe);
+            Arena.AddCircle(_assignedPositions[pcSlot] + new WDir(-5, +5), 1, Colors.Safe);
+            Arena.AddCircle(_assignedPositions[pcSlot] + new WDir(+5, -5), 1, Colors.Safe);
+            Arena.AddCircle(_assignedPositions[pcSlot] + new WDir(+5, +5), 1, Colors.Safe);
         }
     }
 
@@ -88,9 +88,9 @@ class P3Inception1(BossModule module) : Components.CastCounter(module, ActionID.
     {
         // alex is either at N or S cardinal; 2 spheres are E and 2 spheres are W
         // for tethered player, assign 45-degree spot on alex's side, as far away from source as possible
-        bool alexNorth = ((TEA)Module).AlexPrime()?.Position.Z < Module.Center.Z;
+        var alexNorth = ((TEA)Module).AlexPrime()?.Position.Z < Module.Center.Z;
         var boxPos = Module.Center + new WDir(0, alexNorth ? 13 : -13);
-        for (int slot = 0; slot < _tetherSources.Length; ++slot)
+        for (var slot = 0; slot < _tetherSources.Length; ++slot)
         {
             var sphere = _tetherSources[slot];
             if (sphere != null)

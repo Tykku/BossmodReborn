@@ -4,13 +4,13 @@ class P7ExaflaresEdge : Components.Exaflare
 {
     public P7ExaflaresEdge(BossModule module) : base(module, 6)
     {
-        ImminentColor = ArenaColor.AOE;
+        ImminentColor = Colors.AOE;
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var p in SafeSpots())
-            Arena.AddCircle(p, 1, ArenaColor.Safe);
+            Arena.AddCircle(p, 1, Colors.Safe);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -46,7 +46,7 @@ class P7ExaflaresEdge : Components.Exaflare
 
     private IEnumerable<Line> MainLines()
     {
-        for (int i = 0; i < Lines.Count; i += 3)
+        for (var i = 0; i < Lines.Count; i += 3)
             yield return Lines[i];
     }
 

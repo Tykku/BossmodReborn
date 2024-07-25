@@ -73,7 +73,7 @@ class PalladionArena(BossModule module) : BossComponent(module)
     {
         for (var i = 0; i < 8; ++i)
             Arena.PathLineTo(Module.Center + 14 * (i * 45).Degrees().ToDirection());
-        MiniArena.PathStroke(true, ArenaColor.Border, 2);
+        MiniArena.PathStroke(true, Colors.Border, 2);
     }
 }
 
@@ -105,7 +105,7 @@ class PalladionShockwave(BossModule module) : Components.GenericAOEs(module)
         if (_palladion != null && NumCasts < _palladion.JumpTargets.Length && _palladion.JumpTargets[NumCasts] is var target && target != null && (pc == target || pc == _palladion.Partners[NumCasts]))
         {
             var toTarget = target.Position - _origin;
-            Arena.AddRect(_origin, toTarget.Normalized(), toTarget.Length(), 0, 2, ArenaColor.Safe);
+            Arena.AddRect(_origin, toTarget.Normalized(), toTarget.Length(), 0, 2, Colors.Safe);
         }
     }
 
@@ -198,7 +198,7 @@ class PalladionWhiteFlame : Components.GenericBaitAway
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (CurrentBaits.Count > 0)
-            Arena.Actor(Module.Center, default, ArenaColor.Object);
+            Arena.Actor(Module.Center, default, Colors.Object);
         base.DrawArenaForeground(pcSlot, pc);
     }
 

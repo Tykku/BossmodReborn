@@ -4,10 +4,10 @@ public enum OID : uint
 {
     Boss = 0x253A, //R=6.6
     BossAdd = 0x256F, //R=4.0
-    BossHelper = 0x233C,
     BonusAddAltarMatanga = 0x2545, // R3.420
     BonusAddGoldWhisker = 0x2544, // R0.540
     FireVoidzone = 0x1EA140,
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -27,12 +27,12 @@ public enum AID : uint
     Spin = 8599, // BonusAddAltarMatanga->self, no cast, range 6+R 120-degree cone
     RaucousScritch = 8598, // BonusAddAltarMatanga->self, 2.5s cast, range 5+R 120-degree cone
     Hurl = 5352, // BonusAddAltarMatanga->location, 3.0s cast, range 6 circle
-    Telega = 9630, // BonusAdds->self, no cast, single-target, bonus adds disappear
+    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
 public enum IconID : uint
 {
-    Baitaway = 23, // player
+    Baitaway = 23 // player
 }
 
 class DeadlyHold(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.DeadlyHold));
@@ -115,13 +115,10 @@ public class Diresaur(WorldState ws, Actor primary) : BossModule(ws, primary, ne
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossAdd))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.BonusAddGoldWhisker))
-            Arena.Actor(s, ArenaColor.Vulnerable);
-        foreach (var s in Enemies(OID.BonusAddAltarMatanga))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
+        Arena.Actors(Enemies(OID.BonusAddGoldWhisker), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.BonusAddAltarMatanga), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

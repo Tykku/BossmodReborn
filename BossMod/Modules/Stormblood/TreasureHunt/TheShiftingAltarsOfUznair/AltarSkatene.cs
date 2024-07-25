@@ -4,8 +4,8 @@ public enum OID : uint
 {
     Boss = 0x2535, //R=4.48
     BossAdd = 0x255E, //R=0.9
-    BossHelper = 0x233C,
-    BonusAddAltarMatanga = 0x2545, // R3.420
+    BonusAddAltarMatanga = 0x2545, // R3.42
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -22,7 +22,7 @@ public enum AID : uint
     Spin = 8599, // BonusAddAltarMatanga->self, no cast, range 6+R 120-degree cone
     RaucousScritch = 8598, // BonusAddAltarMatanga->self, 2.5s cast, range 5+R 120-degree cone
     Hurl = 5352, // BonusAddAltarMatanga->location, 3.0s cast, range 6 circle
-    Telega = 9630, // BonusAdds->self, no cast, single-target, bonus adds disappear
+    Telega = 963, // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
 class Chirp(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Chirp), new AOEShapeCircle(12.48f));
@@ -55,11 +55,9 @@ public class Skatene(WorldState ws, Actor primary) : BossModule(ws, primary, new
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.BossAdd))
-            Arena.Actor(s, ArenaColor.Object);
-        foreach (var s in Enemies(OID.BonusAddAltarMatanga))
-            Arena.Actor(s, ArenaColor.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
+        Arena.Actors(Enemies(OID.BonusAddAltarMatanga), Colors.Vulnerable);
     }
 
     public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

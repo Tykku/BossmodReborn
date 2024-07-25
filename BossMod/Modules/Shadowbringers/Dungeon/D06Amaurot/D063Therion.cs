@@ -60,7 +60,7 @@ class Border(BossModule module) : Components.GenericAOEs(module, warningText: "P
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         foreach (var p in BreakingPlatforms)
-            yield return new(_square, p.Origin, Color: ArenaColor.FutureVulnerable, Risky: Module.FindComponent<Apokalypsis>()!.NumCasts == 0);
+            yield return new(_square, p.Origin, Color: Colors.FutureVulnerable, Risky: Module.FindComponent<Apokalypsis>()!.NumCasts == 0);
     }
 
     public override void OnActorEAnim(Actor actor, uint state)
@@ -81,7 +81,7 @@ class Border(BossModule module) : Components.GenericAOEs(module, warningText: "P
                         Module.Arena.Bounds = arena;
                         Module.Arena.Center = arena.Center;
                     }
-                    BreakingPlatforms.Remove(new(_square, positions[i], Color: ArenaColor.FutureVulnerable));
+                    BreakingPlatforms.Remove(new(_square, positions[i], Color: Colors.FutureVulnerable));
                 }
             }
         }
@@ -90,7 +90,7 @@ class Border(BossModule module) : Components.GenericAOEs(module, warningText: "P
             for (var i = 0; i < 8; i++)
             {
                 if (actor.Position.AlmostEqual(positions[i], MaxError))
-                    BreakingPlatforms.Add(new(_square, positions[i], Color: ArenaColor.FutureVulnerable));
+                    BreakingPlatforms.Add(new(_square, positions[i], Color: Colors.FutureVulnerable));
             }
         }
     }
@@ -189,9 +189,9 @@ class DeathlyRayFaces(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         foreach (var a in _aoesFirst)
-            yield return new(a.Shape, a.Origin, a.Rotation, default, ArenaColor.Danger);
+            yield return new(a.Shape, a.Origin, a.Rotation, default, Colors.Danger);
         foreach (var a in _aoesRest)
-            yield return new(a.Shape, a.Origin, a.Rotation, a.Activation, _aoesFirst.Count > 0 ? ArenaColor.AOE : ArenaColor.Danger, _aoesFirst.Count == 0);
+            yield return new(a.Shape, a.Origin, a.Rotation, a.Activation, _aoesFirst.Count > 0 ? Colors.AOE : Colors.Danger, _aoesFirst.Count == 0);
 
     }
 

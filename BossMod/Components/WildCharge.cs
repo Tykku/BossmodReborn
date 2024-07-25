@@ -36,8 +36,8 @@ public class GenericWildCharge(BossModule module, float halfWidth, ActionID aid 
                 break;
             case PlayerRole.Share:
             case PlayerRole.ShareNotFirst:
-                bool badShare = false;
-                int numShares = 0;
+                var badShare = false;
+                var numShares = 0;
                 foreach (var aoe in EnumerateAOEs().Where(aoe => InAOE(aoe, actor)))
                 {
                     if (++numShares > 1)
@@ -74,7 +74,7 @@ public class GenericWildCharge(BossModule module, float halfWidth, ActionID aid 
         foreach (var aoe in EnumerateAOEs())
         {
             var dangerous = PlayerRoles[pcSlot] == PlayerRole.Avoid; // TODO: reconsider this condition
-            Arena.ZoneRect(aoe.origin, aoe.dir, aoe.length, 0, HalfWidth, dangerous ? ArenaColor.AOE : ArenaColor.SafeFromAOE);
+            Arena.ZoneRect(aoe.origin, aoe.dir, aoe.length, 0, HalfWidth, dangerous ? Colors.AOE : Colors.SafeFromAOE);
         }
     }
 

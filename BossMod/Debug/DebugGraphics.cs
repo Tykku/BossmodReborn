@@ -38,15 +38,15 @@ class DebugGraphics
         {
             var nodeText = $"{SceneNodeText(o)}###{(IntPtr)o}";
             ImGuiTreeNodeFlags nodeFlags = (o->ChildObject != null ? ImGuiTreeNodeFlags.None : ImGuiTreeNodeFlags.Leaf) | ImGuiTreeNodeFlags.OpenOnArrow;
-            bool showNode = !_showGraphicsLeafCharactersOnly || o->ChildObject != null || o->GetObjectType() == FFXIVClientStructs.FFXIV.Client.Graphics.Scene.ObjectType.CharacterBase;
+            var showNode = !_showGraphicsLeafCharactersOnly || o->ChildObject != null || o->GetObjectType() == FFXIVClientStructs.FFXIV.Client.Graphics.Scene.ObjectType.CharacterBase;
             if (showNode && ImGui.TreeNodeEx(nodeText, nodeFlags))
             {
                 if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
                 {
-                    bool watched = _watchedRenderObjects.ContainsKey((IntPtr)o);
+                    var watched = _watchedRenderObjects.ContainsKey((IntPtr)o);
                     if (!watched)
                     {
-                        int size = 0x80;
+                        var size = 0x80;
                         switch (o->GetObjectType())
                         {
                             case FFXIVClientStructs.FFXIV.Client.Graphics.Scene.ObjectType.CharacterBase:
@@ -126,7 +126,7 @@ class DebugGraphics
             return;
 
         var w = new WatchedRenderObject();
-        for (int i = 0; i < size / 4; ++i)
+        for (var i = 0; i < size / 4; ++i)
             w.Data.Add(((uint*)o)[i]);
         _watchedRenderObjects.Add((IntPtr)o, w);
     }
@@ -136,7 +136,7 @@ class DebugGraphics
         var start = o;
         do
         {
-            WatchedRenderObject? watch = _watchedRenderObjects.GetValueOrDefault((IntPtr)o);
+            var watch = _watchedRenderObjects.GetValueOrDefault((IntPtr)o);
             if (watch != null)
                 UpdateWatchedMod(o, watch);
 
@@ -151,10 +151,10 @@ class DebugGraphics
     {
         w.Live = true;
 
-        int start = 0;
-        for (int i = 0; i < w.Modifications.Count; ++i)
+        var start = 0;
+        for (var i = 0; i < w.Modifications.Count; ++i)
         {
-            (int end, int nextStart) = w.Modifications[i];
+            (var end, var nextStart) = w.Modifications[i];
             var mods = CheckUnmodRange((uint*)o, w, start, end);
             if (mods != null)
             {
@@ -168,7 +168,7 @@ class DebugGraphics
         if (endMods != null)
             w.Modifications.AddRange(endMods);
 
-        for (int i = 0; i < w.Data.Count; ++i)
+        for (var i = 0; i < w.Data.Count; ++i)
             w.Data[i] = ((uint*)o)[i];
     }
 
@@ -182,7 +182,7 @@ class DebugGraphics
         List<(int, int)> res = [];
         while (start < end)
         {
-            int m = start + 1;
+            var m = start + 1;
             while (m < end && o[m] != w.Data[m])
                 ++m;
 
@@ -196,7 +196,7 @@ class DebugGraphics
 
     private void DrawMods(WatchedRenderObject w)
     {
-        int start = 0;
+        var start = 0;
         var sb = new StringBuilder();
         foreach ((var end, var nextStart) in w.Modifications)
         {
@@ -356,12 +356,12 @@ class DebugGraphics
             var center = new Vector3(_overlayCenter.X, y, _overlayCenter.Y);
             for (var ir = 0; ir <= mx; ++ir)
             {
-                Camera.Instance.DrawWorldCircle(center, ir * _overlayStep.X, ArenaColor.PC);
+                Camera.Instance.DrawWorldCircle(center, ir * _overlayStep.X, Colors.PC);
             }
             for (var ia = 0; ia < 8; ++ia)
             {
                 var offset = ((ia * 22.5f.Degrees()).ToDirection() * _overlayMaxOffset.X).ToVec3();
-                Camera.Instance.DrawWorldLine(center - offset, center + offset, ArenaColor.PC);
+                Camera.Instance.DrawWorldLine(center - offset, center + offset, Colors.PC);
             }
         }
         else
@@ -371,14 +371,14 @@ class DebugGraphics
                 var x = _overlayCenter.X + ix * _overlayStep.X;
                 var start = TransformPoint(new Vector2(x, _overlayCenter.Y - _overlayMaxOffset.Y));
                 var end = TransformPoint(new Vector2(x, _overlayCenter.Y + _overlayMaxOffset.Y));
-                Camera.Instance.DrawWorldLine(new(start.X, y, start.Y), new(end.X, y, end.Y), ArenaColor.PC);
+                Camera.Instance.DrawWorldLine(new(start.X, y, start.Y), new(end.X, y, end.Y), Colors.PC);
             }
             for (var iz = -mz; iz <= mz; ++iz)
             {
                 var z = _overlayCenter.Y + iz * _overlayStep.Y;
                 var start = TransformPoint(new Vector2(_overlayCenter.X - _overlayMaxOffset.X, z));
                 var end = TransformPoint(new Vector2(_overlayCenter.X + _overlayMaxOffset.X, z));
-                Camera.Instance.DrawWorldLine(new(start.X, y, start.Y), new(end.X, y, end.Y), ArenaColor.PC);
+                Camera.Instance.DrawWorldLine(new(start.X, y, start.Y), new(end.X, y, end.Y), Colors.PC);
             }
         }
     }

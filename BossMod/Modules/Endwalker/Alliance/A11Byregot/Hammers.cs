@@ -14,14 +14,14 @@ class HammersCells(BossModule module) : Components.GenericAOEs(module, ActionID.
         if (!Active)
             yield break;
 
-        for (int z = -2; z <= 2; ++z)
+        for (var z = -2; z <= 2; ++z)
         {
-            for (int x = -2; x <= 2; ++x)
+            for (var x = -2; x <= 2; ++x)
             {
                 if (CellDangerous(x, z, true))
-                    yield return new(_shape, CellCenter(x, z), Color: ArenaColor.AOE);
+                    yield return new(_shape, CellCenter(x, z), Color: Colors.AOE);
                 else if (CellDangerous(x, z, false))
-                    yield return new(_shape, CellCenter(x, z), Color: ArenaColor.SafeFromAOE);
+                    yield return new(_shape, CellCenter(x, z), Color: Colors.SafeFromAOE);
             }
         }
     }
@@ -31,14 +31,14 @@ class HammersCells(BossModule module) : Components.GenericAOEs(module, ActionID.
         if (!Active)
             return;
 
-        Arena.AddLine(Module.Center + new WDir(-15, -25), Module.Center + new WDir(-15, +25), ArenaColor.Border);
-        Arena.AddLine(Module.Center + new WDir(-05, -25), Module.Center + new WDir(-05, +25), ArenaColor.Border);
-        Arena.AddLine(Module.Center + new WDir(+05, -25), Module.Center + new WDir(+05, +25), ArenaColor.Border);
-        Arena.AddLine(Module.Center + new WDir(+15, -25), Module.Center + new WDir(+15, +25), ArenaColor.Border);
-        Arena.AddLine(Module.Center + new WDir(-25, -15), Module.Center + new WDir(+25, -15), ArenaColor.Border);
-        Arena.AddLine(Module.Center + new WDir(-25, -05), Module.Center + new WDir(+25, -05), ArenaColor.Border);
-        Arena.AddLine(Module.Center + new WDir(-25, +05), Module.Center + new WDir(+25, +05), ArenaColor.Border);
-        Arena.AddLine(Module.Center + new WDir(-25, +15), Module.Center + new WDir(+25, +15), ArenaColor.Border);
+        Arena.AddLine(Module.Center + new WDir(-15, -25), Module.Center + new WDir(-15, +25), Colors.Border);
+        Arena.AddLine(Module.Center + new WDir(-05, -25), Module.Center + new WDir(-05, +25), Colors.Border);
+        Arena.AddLine(Module.Center + new WDir(+05, -25), Module.Center + new WDir(+05, +25), Colors.Border);
+        Arena.AddLine(Module.Center + new WDir(+15, -25), Module.Center + new WDir(+15, +25), Colors.Border);
+        Arena.AddLine(Module.Center + new WDir(-25, -15), Module.Center + new WDir(+25, -15), Colors.Border);
+        Arena.AddLine(Module.Center + new WDir(-25, -05), Module.Center + new WDir(+25, -05), Colors.Border);
+        Arena.AddLine(Module.Center + new WDir(-25, +05), Module.Center + new WDir(+25, +05), Colors.Border);
+        Arena.AddLine(Module.Center + new WDir(-25, +15), Module.Center + new WDir(+25, +15), Colors.Border);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -51,7 +51,7 @@ class HammersCells(BossModule module) : Components.GenericAOEs(module, ActionID.
     {
         if (index is >= 7 and <= 11)
         {
-            int i = index - 7;
+            var i = index - 7;
             (_lineOffset[i], _lineMovement[i]) = state switch
             {
                 0x00020001 => (00, +1),
@@ -67,7 +67,7 @@ class HammersCells(BossModule module) : Components.GenericAOEs(module, ActionID.
         else if (index == 26)
         {
             MovementPending = false;
-            for (int i = 0; i < 5; ++i)
+            for (var i = 0; i < 5; ++i)
             {
                 _lineOffset[i] += _lineMovement[i];
                 _lineMovement[i] = 0;
@@ -85,7 +85,7 @@ class HammersCells(BossModule module) : Components.GenericAOEs(module, ActionID.
 
     private bool CellDangerous(int x, int z, bool future)
     {
-        int off = _lineOffset[z + 2];
+        var off = _lineOffset[z + 2];
         if (future)
             off += _lineMovement[z + 2];
         return Math.Abs(x - off) > 1;

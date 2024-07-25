@@ -64,16 +64,16 @@ public class DSW2(WorldState ws, Actor primary) : BossModule(ws, primary, new(10
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy, true);
-        Arena.Actor(_bossP3, ArenaColor.Enemy);
-        Arena.Actor(_leftEyeP4, ArenaColor.Enemy);
-        Arena.Actor(_rightEyeP4, ArenaColor.Enemy);
-        Arena.Actor(_nidhoggP4, ArenaColor.Enemy);
-        Arena.Actor(_serCharibert, ArenaColor.Enemy);
-        Arena.Actor(_spear, ArenaColor.Enemy);
-        Arena.Actor(_bossP5, ArenaColor.Enemy);
-        Arena.Actor(_nidhoggP6, ArenaColor.Enemy);
-        Arena.Actor(_hraesvelgrP6, ArenaColor.Enemy);
-        Arena.Actor(_bossP7, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor, Colors.Enemy, true);
+        Arena.Actor(_bossP3);
+        Arena.Actor(_leftEyeP4);
+        Arena.Actor(_rightEyeP4);
+        Arena.Actor(_nidhoggP4);
+        Arena.Actor(_serCharibert);
+        Arena.Actor(_spear);
+        Arena.Actor(_bossP5);
+        Arena.Actor(_nidhoggP6);
+        Arena.Actor(_hraesvelgrP6);
+        Arena.Actor(_bossP7);
     }
 }

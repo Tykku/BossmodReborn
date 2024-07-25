@@ -73,12 +73,9 @@ public class T01ADS(WorldState ws, Actor primary) : BossModule(ws, primary, new(
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var e in Enemies(OID.PatrolNode))
-            Arena.Actor(e, ArenaColor.Enemy);
-        foreach (var e in Enemies(OID.AttackNode))
-            Arena.Actor(e, ArenaColor.Enemy);
-        foreach (var e in Enemies(OID.DefenseNode))
-            Arena.Actor(e, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.PatrolNode));
+        Arena.Actors(Enemies(OID.AttackNode));
+        Arena.Actors(Enemies(OID.DefenseNode));
     }
 }

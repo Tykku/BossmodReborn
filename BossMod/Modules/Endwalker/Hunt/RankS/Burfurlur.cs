@@ -34,7 +34,7 @@ class QuintupleSneeze(BossModule module) : Components.GenericAOEs(module)
             if (_pendingOffsets.Count > 1)
                 yield return new(_shape, Module.PrimaryActor.Position, _referenceAngle + _pendingOffsets[1], _nextSneeze.AddSeconds(2.2f));
             if (_pendingOffsets.Count > 0)
-                yield return new(_shape, Module.PrimaryActor.Position, _referenceAngle + _pendingOffsets[0], _nextSneeze, ArenaColor.Danger);
+                yield return new(_shape, Module.PrimaryActor.Position, _referenceAngle + _pendingOffsets[0], _nextSneeze, Colors.Danger);
         }
     }
 

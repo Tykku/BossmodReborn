@@ -25,12 +25,12 @@ class GoldenSilverFlame(BossModule module) : BossComponent(module)
     {
         if (Active)
             foreach (var c in SafeCenters(_debuffs[pcSlot]))
-                Arena.ZoneRect(c, new WDir(1, 0), _shape.HalfWidth, _shape.HalfWidth, _shape.HalfWidth, ArenaColor.SafeFromAOE);
+                Arena.ZoneRect(c, new WDir(1, 0), _shape.HalfWidth, _shape.HalfWidth, _shape.HalfWidth, Colors.SafeFromAOE);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        int debuff = (SID)status.ID switch
+        var debuff = (SID)status.ID switch
         {
             SID.GildedFate => status.Extra,
             SID.SilveredFate => status.Extra << 16,
@@ -69,8 +69,8 @@ class GoldenSilverFlame(BossModule module) : BossComponent(module)
         var limit = Module.Center + new WDir(Module.Bounds.Radius, Module.Bounds.Radius);
         var first = Module.Center - new WDir(Module.Bounds.Radius - _shape.HalfWidth, Module.Bounds.Radius - _shape.HalfWidth);
         var advance = 2 * _shape.HalfWidth;
-        for (float x = first.X; x < limit.X; x += advance)
-            for (float z = first.Z; z < limit.Z; z += advance)
+        for (var x = first.X; x < limit.X; x += advance)
+            for (var z = first.Z; z < limit.Z; z += advance)
                 if (DebuffsAtPosition(new WPos(x, z)) == debuff)
                     yield return new(x, z);
     }

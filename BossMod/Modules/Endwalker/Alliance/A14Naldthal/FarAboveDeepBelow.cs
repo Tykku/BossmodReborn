@@ -58,7 +58,7 @@ class DeepestPit(BossModule module) : Components.GenericAOEs(module, default, "G
     {
         if (_real)
             foreach (var t in _targets)
-                Arena.AddCircle(t.Position, _shape.Radius, ArenaColor.Danger);
+                Arena.AddCircle(t.Position, _shape.Radius, Colors.Danger);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

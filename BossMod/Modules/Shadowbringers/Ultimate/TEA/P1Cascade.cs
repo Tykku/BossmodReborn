@@ -4,6 +4,6 @@ class P1Cascade(BossModule module) : Components.PersistentVoidzone(module, 8, m 
 {
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actors(Module.Enemies(OID.Embolus), ArenaColor.Object, true);
+        Arena.Actors(Module.Enemies(OID.Embolus), Colors.Object, true);
     }
 }

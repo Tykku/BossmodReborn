@@ -8,13 +8,13 @@ class FocusedTremorSmall : Components.SelfTargetedAOEs
 {
     public FocusedTremorSmall(BossModule module) : base(module, ActionID.MakeSpell(AID.FocusedTremorAOESmall), new AOEShapeRect(5, 5, 5), 1)
     {
-        Color = ArenaColor.SafeFromAOE;
+        Color = Colors.SafeFromAOE;
         Risky = false;
     }
 
     public void Activate()
     {
-        Color = ArenaColor.AOE;
+        Color = Colors.AOE;
         Risky = true;
         MaxCasts = 3;
     }

@@ -13,9 +13,9 @@ class WickedHypercannon(BossModule module) : Components.GenericAOEs(module)
         {
             var activation = Module.CastFinishAt(spell, 0.6f);
             if (Arena.Center == ArenaChanges.eastremovedCenter)
-                _aoe = new(rect, new(85, 80), default, activation, ArenaColor.SafeFromAOE, false);
+                _aoe = new(rect, new(85, 80), default, activation, Colors.SafeFromAOE, false);
             else if (Arena.Center == ArenaChanges.westRemovedCenter)
-                _aoe = new(rect, new(115, 80), default, activation, ArenaColor.SafeFromAOE, false);
+                _aoe = new(rect, new(115, 80), default, activation, Colors.SafeFromAOE, false);
         }
     }
 

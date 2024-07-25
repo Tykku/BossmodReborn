@@ -20,12 +20,9 @@ public class A24Yiazmat(WorldState ws, Actor primary) : BossModule(ws, primary, 
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.HeartOfTheDragon))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.Archaeodemon))
-            Arena.Actor(s, ArenaColor.Enemy);
-        foreach (var s in Enemies(OID.WindAzer))
-            Arena.Actor(s, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.HeartOfTheDragon));
+        Arena.Actors(Enemies(OID.Archaeodemon));
+        Arena.Actors(Enemies(OID.WindAzer));
     }
 }

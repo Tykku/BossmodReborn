@@ -35,11 +35,11 @@ public class MapVisualizer
         var dl = ImGui.GetWindowDrawList();
 
         // blocked squares / goal
-        int nodeIndex = 0;
-        int pfPathNode = -1;
-        for (int y = 0; y < Map.Height; ++y)
+        var nodeIndex = 0;
+        var pfPathNode = -1;
+        for (var y = 0; y < Map.Height; ++y)
         {
-            for (int x = 0; x < Map.Width; ++x, ++nodeIndex)
+            for (var x = 0; x < Map.Width; ++x, ++nodeIndex)
             {
                 var corner = tl + new Vector2(x, y) * ScreenPixelSize;
                 var cornerEnd = corner + new Vector2(ScreenPixelSize, ScreenPixelSize);
@@ -48,14 +48,14 @@ public class MapVisualizer
                 if (pix.MaxG < float.MaxValue)
                 {
                     var alpha = 1 - (pix.MaxG > 0 ? pix.MaxG / Map.MaxG : 0);
-                    uint c = 128 + (uint)(alpha * 127);
+                    var c = 128 + (uint)(alpha * 127);
                     c = c | (c << 8) | 0xff000000;
                     dl.AddRectFilled(corner, cornerEnd, c);
                 }
                 else if (pix.Priority > 0)
                 {
                     var alpha = pix.Priority / Map.MaxPriority;
-                    uint c = 128 + (uint)(alpha * 127);
+                    var c = 128 + (uint)(alpha * 127);
                     c = (c << 8) | 0xff000000;
                     dl.AddRectFilled(corner, cornerEnd, c);
                 }
@@ -104,12 +104,12 @@ public class MapVisualizer
         dl.AddLine(bl, tl, 0xffffffff, 2);
 
         // grid
-        for (int x = 1; x < Map.Width; ++x)
+        for (var x = 1; x < Map.Width; ++x)
         {
             var off = new Vector2(x * ScreenPixelSize, 0);
             dl.AddLine(tl + off, bl + off, 0xffffffff, 1);
         }
-        for (int y = 1; y < Map.Height; ++y)
+        for (var y = 1; y < Map.Height; ++y)
         {
             var off = new Vector2(0, y * ScreenPixelSize);
             dl.AddLine(tl + off, tr + off, 0xffffffff, 1);
@@ -177,7 +177,7 @@ public class MapVisualizer
         }
         else
         {
-            float sDir = MathF.PI / 2 - dir.Rad;
+            var sDir = MathF.PI / 2 - dir.Rad;
             dl.PathArcTo(sCenter, ir / Map.Resolution * ScreenPixelSize, sDir + halfWidth.Rad, sDir - halfWidth.Rad);
             dl.PathArcTo(sCenter, or / Map.Resolution * ScreenPixelSize, sDir - halfWidth.Rad, sDir + halfWidth.Rad);
             dl.PathStroke(0xff0000ff, ImDrawFlags.Closed, 1);
@@ -189,11 +189,11 @@ public class MapVisualizer
         if (startingIndex < 0)
             return;
 
-        int from = startingIndex;
-        int x1 = startingIndex % Map.Width;
-        int y1 = startingIndex / Map.Width;
-        int x2 = _pathfind.NodeByIndex(from).ParentX;
-        int y2 = _pathfind.NodeByIndex(from).ParentY;
+        var from = startingIndex;
+        var x1 = startingIndex % Map.Width;
+        var y1 = startingIndex / Map.Width;
+        var x2 = _pathfind.NodeByIndex(from).ParentX;
+        var y2 = _pathfind.NodeByIndex(from).ParentY;
         while (x1 != x2 || y1 != y2)
         {
             dl.AddLine(tl + new Vector2(x1 + 0.5f, y1 + 0.5f) * ScreenPixelSize, tl + new Vector2(x2 + 0.5f, y2 + 0.5f) * ScreenPixelSize, 0xffff00ff, 2);

@@ -24,7 +24,7 @@ class ScreamOfTheFallen(BossModule module) : Components.UniformStackSpread(modul
         base.DrawArenaForeground(pcSlot, pc);
         if (!IsSpreadTarget(pc))
             foreach (var t in ActiveTowers(_second[pcSlot]))
-                Arena.AddCircle(t.Position, _towerRadius, ArenaColor.Safe, 2);
+                Arena.AddCircle(t.Position, _towerRadius, Colors.Safe, 2);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

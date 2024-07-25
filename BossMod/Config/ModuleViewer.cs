@@ -74,8 +74,8 @@ public sealed class ModuleViewer : IDisposable
         _iconHunt = (uint)(playStyle?.GetRow(10)?.Icon ?? 0);
 
         _groups = new List<ModuleGroup>[(int)BossModuleInfo.Expansion.Count, (int)BossModuleInfo.Category.Count];
-        for (int i = 0; i < (int)BossModuleInfo.Expansion.Count; ++i)
-            for (int j = 0; j < (int)BossModuleInfo.Category.Count; ++j)
+        for (var i = 0; i < (int)BossModuleInfo.Expansion.Count; ++i)
+            for (var j = 0; j < (int)BossModuleInfo.Category.Count; ++j)
                 _groups[i, j] = [];
 
         foreach (var info in ModuleRegistry.RegisteredModules.Values)
@@ -188,11 +188,11 @@ public sealed class ModuleViewer : IDisposable
         if (!table)
             return;
 
-        for (int i = 0; i < (int)BossModuleInfo.Expansion.Count; ++i)
+        for (var i = 0; i < (int)BossModuleInfo.Expansion.Count; ++i)
         {
             if (_filterExpansions[i])
                 continue;
-            for (int j = 0; j < (int)BossModuleInfo.Category.Count; ++j)
+            for (var j = 0; j < (int)BossModuleInfo.Category.Count; ++j)
             {
                 if (_filterCategories[j])
                     continue;

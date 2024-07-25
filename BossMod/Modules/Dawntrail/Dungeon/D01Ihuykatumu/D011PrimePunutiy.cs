@@ -173,7 +173,7 @@ public class D011PrimePunutiy(WorldState ws, Actor primary) : BossModule(ws, pri
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
+        Arena.Actor(PrimaryActor);
         Arena.Actors(Enemies(OID.Punutiy));
         Arena.Actors(Enemies(OID.PetitPunutiy));
         Arena.Actors(Enemies(OID.ProdigiousPunutiy));

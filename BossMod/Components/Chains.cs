@@ -21,7 +21,7 @@ public class Chains(BossModule module, uint tetherID, ActionID aid = default) : 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (_partner[pcSlot] is var partner && partner != null)
-            Arena.AddLine(pc.Position, partner.Position, ArenaColor.Danger);
+            Arena.AddLine(pc.Position, partner.Position, Colors.Danger);
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)

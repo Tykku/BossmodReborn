@@ -98,8 +98,8 @@ public class DAL1Sartauvoir : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Boss, ArenaColor.Enemy);
-        Arena.Actors(BossP2, ArenaColor.Enemy);
-        Arena.Actor(PrimaryActor, ArenaColor.Enemy);
+        Arena.Actors(Boss);
+        Arena.Actors(BossP2);
+        Arena.Actor(PrimaryActor);
     }
 }

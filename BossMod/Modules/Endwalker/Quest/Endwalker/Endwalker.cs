@@ -48,12 +48,12 @@ class WyrmsTongue(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 
 class NineNightsAvatar : Components.SelfTargetedAOEs
 {
-    public NineNightsAvatar(BossModule module) : base(module, ActionID.MakeSpell(AID.NineNightsAvatar), new AOEShapeCircle(10)) { Color = ArenaColor.Danger; }
+    public NineNightsAvatar(BossModule module) : base(module, ActionID.MakeSpell(AID.NineNightsAvatar), new AOEShapeCircle(10)) { Color = Colors.Danger; }
 }
 
 class NineNightsHelpers(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.NineNightsHelpers), new AOEShapeCircle(10), 6)
 {
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => ActiveCasters.Select((c, i) => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), i < 2 ? ArenaColor.Danger : ArenaColor.AOE));
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => ActiveCasters.Select((c, i) => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), i < 2 ? Colors.Danger : Colors.AOE));
 }
 
 class VeilAsunder(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.VeilAsunderHelper), 6);
@@ -67,7 +67,7 @@ class TheEdgeUnbound2(BossModule module) : Components.SelfTargetedAOEs(module, A
 
 class UnmovingDvenadkatik(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.UnmovingDvenadkatikVisual), new AOEShapeCone(50, 15.Degrees()), 10)
 {
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => ActiveCasters.Select((c, i) => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), i < 2 ? ArenaColor.Danger : ArenaColor.AOE));
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => ActiveCasters.Select((c, i) => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), i < 2 ? Colors.Danger : Colors.AOE));
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "croizat", PrimaryActorOID = (uint)OID.ZenosP1, GroupType = BossModuleInfo.GroupType.Quest, GroupID = 70000, NameID = 10393)]
@@ -88,10 +88,10 @@ public class Endwalker : BossModule
         switch (StateMachine.ActivePhaseIndex)
         {
             case 0:
-                Arena.Actor(ZenosP1(), ArenaColor.Enemy);
+                Arena.Actor(ZenosP1(), Colors.Enemy);
                 break;
             case 1:
-                Arena.Actor(ZenosP2(), ArenaColor.Enemy);
+                Arena.Actor(ZenosP2(), Colors.Enemy);
                 break;
         }
     }
