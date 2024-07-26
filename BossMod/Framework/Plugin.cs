@@ -198,7 +198,7 @@ public sealed class Plugin : IDalamudPlugin
         currentConfig.Waymark4 = defaultConfig.Waymark4;
 
         currentConfig.Modified.Fire();
-        Service.ChatGui.Print("Colors have been reset to default values.");
+        Service.Log("Colors have been reset to default values.");
     }
 
     private bool ToggleRestoreRotation()
@@ -206,7 +206,7 @@ public sealed class Plugin : IDalamudPlugin
         var config = Service.Config.Get<ActionTweaksConfig>();
         config.RestoreRotation = !config.RestoreRotation;
         config.Modified.Fire();
-        Service.ChatGui.Print($"Restore character orientation after action use is now {(config.RestoreRotation ? "enabled" : "disabled")}");
+        Service.Log($"Restore character orientation after action use is now {(config.RestoreRotation ? "enabled" : "disabled")}");
         return true;
     }
 

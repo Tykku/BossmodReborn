@@ -150,7 +150,7 @@ sealed class AIManager : IDisposable
                 SwitchToIdle();
                 break;
             default:
-                Service.Log($"[AI] Unknown command: {messageData[1]}");
+                Service.ChatGui.Print($"[AI] Unknown command: {messageData[1]}");
                 break;
         }
     }
@@ -279,7 +279,7 @@ sealed class AIManager : IDisposable
     private bool ToggleDebugMenu()
     {
         _config.DrawUI = !_config.DrawUI;
-        Service.ChatGui.Print($"[AI] AI menu is now {(_config.DrawUI ? "enabled" : "disabled")}");
+        Service.Log($"[AI] AI menu is now {(_config.DrawUI ? "enabled" : "disabled")}");
         return true;
     }
 
@@ -302,7 +302,7 @@ sealed class AIManager : IDisposable
                     return _config.ForbidActions;
             }
         }
-        Service.ChatGui.Print($"[AI] Forbid actions is now {(_config.ForbidActions ? "enabled" : "disabled")}");
+        Service.Log($"[AI] Forbid actions is now {(_config.ForbidActions ? "enabled" : "disabled")}");
         return _config.ForbidActions;
     }
 
@@ -325,7 +325,7 @@ sealed class AIManager : IDisposable
                     return _config.ForbidMovement;
             }
         }
-        Service.ChatGui.Print($"[AI] Forbid movement is now {(_config.ForbidMovement ? "enabled" : "disabled")}");
+        Service.Log($"[AI] Forbid movement is now {(_config.ForbidMovement ? "enabled" : "disabled")}");
         return _config.ForbidMovement;
     }
 
@@ -348,7 +348,7 @@ sealed class AIManager : IDisposable
                     return _config.FollowOutOfCombat;
             }
         }
-        Service.ChatGui.Print($"[AI] Follow out of combat is now {(_config.FollowOutOfCombat ? "enabled" : "disabled")}");
+        Service.Log($"[AI] Follow out of combat is now {(_config.FollowOutOfCombat ? "enabled" : "disabled")}");
         return _config.FollowOutOfCombat;
     }
 
@@ -380,8 +380,8 @@ sealed class AIManager : IDisposable
                     return _config.FollowDuringCombat;
             }
         }
-        Service.ChatGui.Print($"[AI] Follow during combat is now {(_config.FollowDuringCombat ? "enabled" : "disabled")}");
-        Service.ChatGui.Print($"[AI] Follow during active boss module is now {(_config.FollowDuringActiveBossModule ? "enabled" : "disabled")}");
+        Service.Log($"[AI] Follow during combat is now {(_config.FollowDuringCombat ? "enabled" : "disabled")}");
+        Service.Log($"[AI] Follow during active boss module is now {(_config.FollowDuringActiveBossModule ? "enabled" : "disabled")}");
         return _config.FollowDuringCombat;
     }
 
@@ -409,8 +409,8 @@ sealed class AIManager : IDisposable
                     return _config.FollowDuringActiveBossModule;
             }
         }
-        Service.ChatGui.Print($"[AI] Follow during active boss module is now {(_config.FollowDuringActiveBossModule ? "enabled" : "disabled")}");
-        Service.ChatGui.Print($"[AI] Follow during combat is now {(_config.FollowDuringCombat ? "enabled" : "disabled")}");
+        Service.Log($"[AI] Follow during active boss module is now {(_config.FollowDuringActiveBossModule ? "enabled" : "disabled")}");
+        Service.Log($"[AI] Follow during combat is now {(_config.FollowDuringCombat ? "enabled" : "disabled")}");
         return _config.FollowDuringActiveBossModule;
     }
 
@@ -433,7 +433,7 @@ sealed class AIManager : IDisposable
                     return _config.FollowTarget;
             }
         }
-        Service.ChatGui.Print($"[AI] Following targets is now {(_config.FollowTarget ? "enabled" : "disabled")}");
+        Service.Log($"[AI] Following targets is now {(_config.FollowTarget ? "enabled" : "disabled")}");
         return _config.FollowTarget;
     }
 
@@ -468,7 +468,7 @@ sealed class AIManager : IDisposable
                 Service.ChatGui.Print($"[AI] Unknown positional: {positional}");
                 return;
         }
-        Service.ChatGui.Print($"[AI] Desired positional set to {_config.DesiredPositional}");
+        Service.Log($"[AI] Desired positional set to {_config.DesiredPositional}");
     }
 
     private bool HandleMaxDistanceTargetCommand(string[] messageData)
@@ -485,7 +485,7 @@ sealed class AIManager : IDisposable
             return false;
         }
         _config.MaxDistanceToTarget = distance;
-        Service.ChatGui.Print($"[AI] Max distance to target set to {distance}");
+        Service.Log($"[AI] Max distance to target set to {distance}");
         return true;
     }
 
@@ -503,7 +503,7 @@ sealed class AIManager : IDisposable
             return false;
         }
         _config.MaxDistanceToSlot = distance;
-        Service.ChatGui.Print($"[AI] Max distance to slot set to {distance}");
+        Service.Log($"[AI] Max distance to slot set to {distance}");
         return true;
     }
 
