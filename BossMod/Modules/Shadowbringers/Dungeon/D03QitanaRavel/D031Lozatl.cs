@@ -3,7 +3,7 @@ namespace BossMod.Shadowbringers.Dungeon.D03QitanaRavel.D031Lozatl;
 public enum OID : uint
 {
     Boss = 0x27AF, //R=4.4
-    Helper = 0x233C, //R=0.5
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -17,7 +17,7 @@ public enum AID : uint
     HeatUp = 15502, // 27AF->self, 3.0s cast, single-target
     HeatUp2 = 15501, // 27AF->self, 3.0s cast, single-target
     LozatlsFuryA = 15504, // 27AF->self, 4.0s cast, range 60 width 20 rect
-    LozatlsFuryB = 15503, // 27AF->self, 4.0s cast, range 60 width 20 rect
+    LozatlsFuryB = 15503 // 27AF->self, 4.0s cast, range 60 width 20 rect
 }
 
 class LozatlsFuryA(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LozatlsFuryA), new AOEShapeRect(60, 20, 0, 90.Degrees())); // TODO: verify; there should not be an offset in reality here..., also double halfwidth is strange
@@ -39,7 +39,7 @@ class RonkanLight(BossModule module) : Components.GenericAOEs(module)
         {
             if (actor.Position.AlmostEqual(new(8, 328), 1))
                 _aoe = new(rect, Module.Center, 90.Degrees(), WorldState.FutureTime(8));
-            if (actor.Position.AlmostEqual(new(-7, 328), 1))
+            else if (actor.Position.AlmostEqual(new(-7, 328), 1))
                 _aoe = new(rect, Module.Center, -90.Degrees(), WorldState.FutureTime(8));
         }
     }

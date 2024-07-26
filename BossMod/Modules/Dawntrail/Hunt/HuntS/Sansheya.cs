@@ -2,7 +2,7 @@
 
 public enum OID : uint
 {
-    Boss = 0x43DD, // R4.0
+    Boss = 0x43DD // R4.0
 }
 
 public enum AID : uint
@@ -15,19 +15,23 @@ public enum AID : uint
     TwinscorchedVeil2 = 39290, // Boss->self, 5.0s cast, range 40 180-degree cone, visual left then right then circle
     TwinscorchedHalo1 = 39289, // Boss->self, 5.0s cast, range 40 180-degree cone, visual, left then right then donut
     TwinscorchedHalo2 = 39291, // Boss->self, 5.0s cast, range 40 180-degree cone, visual, right then left then donut
+    Twinscorch1 = 39601, // Boss->self, 4.0s cast, range 40 180-degree cone, left then right
+    Twinscorch2 = 39602, // Boss->self, 4.0s cast, range 40 180-degree cone, right then left
     ScorchingLeft1 = 39528, // Boss->self, 1.0s cast, range 40 180-degree cone
     ScorchingLeft2 = 39557, // Boss->self, no cast, range 40 180-degree cone
     ScorchingRight1 = 39558, // Boss->self, no cast, range 40 180-degree cone
     ScorchingRight2 = 39529, // Boss->self, 1.0s cast, range 40 180-degree cone
-    VeilOfHeat = 39293, // Boss->self, 1.0s cast, range 15 circle
+    VeilOfHeat1 = 39283, // Boss->self, 5.0s cast, range 15 circle
+    VeilOfHeat2 = 39293, // Boss->self, 1.0s cast, range 15 circle
     CaptiveBolt = 39296, // Boss->players, 5.0s cast, range 6 circle, stack
-    HaloOfHeat = 39294, // Boss->self, 1.0s cast, range 10-40 donut
+    HaloOfHeat1 = 39284, // Boss->self, 5.0s cast, range 10-40 donut
+    HaloOfHeat2 = 39294 // Boss->self, 1.0s cast, range 10-40 donut
 }
 
 public enum SID : uint
 {
     Boiling = 4140, // Boss->player, extra=0x0
-    Pyretic = 960, // none->player, extra=0x0
+    Pyretic = 960 // none->player, extra=0x0
 }
 
 class Boiling(BossModule module) : Components.StayMove(module)
@@ -127,15 +131,20 @@ class TwinscorchedHaloVeil(BossModule module) : Components.GenericAOEs(module)
             case AID.TwinscorchedHalo2:
                 AddAOEs(donut, spell);
                 break;
+            case AID.Twinscorch1:
+            case AID.Twinscorch2:
+                AddAOEs(null, spell);
+                break;
         }
     }
 
-    private void AddAOEs(AOEShape secondaryShape, ActorCastInfo spell)
+    private void AddAOEs(AOEShape? secondaryShape, ActorCastInfo spell)
     {
         var position = Module.PrimaryActor.Position;
         _aoes.Add(new(cone, position, spell.Rotation, Module.CastFinishAt(spell)));
         _aoes.Add(new(cone, position, spell.Rotation + 180.Degrees(), Module.CastFinishAt(spell, 2.3f)));
-        _aoes.Add(new(secondaryShape, position, default, Module.CastFinishAt(spell, 4.5f)));
+        if (secondaryShape != null)
+            _aoes.Add(new(secondaryShape, position, default, Module.CastFinishAt(spell, 4.5f)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -144,8 +153,8 @@ class TwinscorchedHaloVeil(BossModule module) : Components.GenericAOEs(module)
             return;
         switch ((AID)spell.Action.ID)
         {
-            case AID.HaloOfHeat:
-            case AID.VeilOfHeat:
+            case AID.HaloOfHeat2:
+            case AID.VeilOfHeat2:
             case AID.ScorchingLeft1:
             case AID.ScorchingLeft2:
             case AID.ScorchingRight1:
@@ -156,6 +165,8 @@ class TwinscorchedHaloVeil(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
+class HaloOfHeat1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HaloOfHeat1), new AOEShapeDonut(10, 40));
+class VeilOfHeat1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.VeilOfHeat1), new AOEShapeCircle(15));
 class FiresDomain(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.FiresDomain), 3);
 class CaptiveBolt(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.CaptiveBolt), 6, 8);
 class PyreOfRebirth(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PyreOfRebirth));
@@ -166,6 +177,8 @@ class SansheyaStates : StateMachineBuilder
     public SansheyaStates(BossModule module) : base(module)
     {
         TrivialPhase()
+            .ActivateOnEnter<HaloOfHeat1>()
+            .ActivateOnEnter<VeilOfHeat1>()
             .ActivateOnEnter<TwinscorchedHaloVeil>()
             .ActivateOnEnter<FiresDomain>()
             .ActivateOnEnter<PyreOfRebirth>()

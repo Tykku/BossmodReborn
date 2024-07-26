@@ -47,7 +47,7 @@ class PyricBreath(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         for (var i = 0; i < _aoes.Count; i++)
-            yield return new AOEInstance(_aoes[i].Shape, _aoes[i].Origin, _aoes[i].Rotation, _aoes[i].Activation, i == 0 && NumCasts > 0 ? Colors.Danger : Colors.AOE);
+            yield return new(_aoes[i].Shape, _aoes[i].Origin, _aoes[i].Rotation, _aoes[i].Activation, i == 0 && NumCasts > 0 ? Colors.Danger : Colors.AOE);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -66,9 +66,9 @@ class PyricBreath(BossModule module) : Components.GenericAOEs(module)
                 var activation = Module.CastFinishAt(spell, 2.1f);
                 if (buffs[1] == (uint)SID.RightHead)
                     _aoes.Add(new(cone, caster.Position, spell.Rotation + (buffs[0] == (uint)SID.MiddleHead ? -angle : -2 * angle), activation));
-                if (buffs[1] == (uint)SID.LeftHead)
+                else if (buffs[1] == (uint)SID.LeftHead)
                     _aoes.Add(new(cone, caster.Position, spell.Rotation + (buffs[0] == (uint)SID.MiddleHead ? angle : 2 * angle), activation));
-                if (buffs[1] == (uint)SID.MiddleHead)
+                else if (buffs[1] == (uint)SID.MiddleHead)
                     _aoes.Add(new(cone, caster.Position, spell.Rotation + (buffs[0] == (uint)SID.LeftHead ? -angle : angle), activation));
             }
         }

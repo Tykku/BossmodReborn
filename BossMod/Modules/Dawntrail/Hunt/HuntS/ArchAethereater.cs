@@ -252,5 +252,9 @@ class ArchAethereaterStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.Hunt, GroupID = (uint)BossModuleInfo.HuntRank.SS, NameID = 13406)]
 public class ArchAethereater(WorldState ws, Actor primary) : SimpleBossModule(ws, primary)
 {
-    public override bool NeedToJump(WPos from, WDir dir) => FindComponent<ColdSweats>()!.ExpiresAt.AddSeconds(-0.1f) <= WorldState.CurrentTime;
+    public override bool NeedToJump(WPos from, WDir dir)
+    {
+        var component = FindComponent<ColdSweats>()!;
+        return component.ExpiresAt != default && component.ExpiresAt.AddSeconds(-0.1f) <= WorldState.CurrentTime;
+    }
 }

@@ -4,7 +4,7 @@ public enum OID : uint
 {
     Boss = 0x3AE2, //R=8.0
     FearsomeFlotsam = 0x3AE3, //R=2.4
-    Helper = 0x233C,
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -37,25 +37,25 @@ public enum AID : uint
     VoidMiasma = 32691, // Helper->self, 3.0s cast, range 50 30-degree cone
     Lifescleaver = 31112, // Boss->self, 4.0s cast, single-target
     Lifescleaver2 = 31113, // Helper->self, 5.0s cast, range 50 30-degree cone
-    VoidTorrent = 31118, // Boss->self/player, 5.0s cast, range 60 width 8 rect
+    VoidTorrent = 31118 // Boss->self/player, 5.0s cast, range 60 width 8 rect
 }
 
 public enum IconID : uint
 {
     Stackmarker = 161, // player
     Spreadmarker = 139, // player
-    Tankbuster = 230, // player
+    Tankbuster = 230 // player
 }
 
 public enum TetherID : uint
 {
     LimitBreakCharger = 3, // FearsomeFlotsam->Boss
-    BaitAway = 1, // 3E97->player
+    BaitAway = 1 // 3E97->player
 }
 
 public enum NPCYell : uint
 {
-    LimitBreakStart = 15175,
+    LimitBreakStart = 15175
 }
 
 class VoidTorrent(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.VoidTorrent), new AOEShapeRect(60, 4))

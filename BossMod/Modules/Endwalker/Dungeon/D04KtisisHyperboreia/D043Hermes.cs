@@ -2,10 +2,10 @@
 
 public enum OID : uint
 {
-    Boss = 0x348A, // R4.200, x1
-    Helper = 0x233C, // R0.500, x12, 523 type
-    Meteor = 0x348C, // R2.400, x0 (spawn during fight)
-    Karukeion = 0x348B, // R1.000, x8
+    Boss = 0x348A, // R4.2
+    Meteor = 0x348C, // R2.4
+    Karukeion = 0x348B, // R1.0
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -41,13 +41,35 @@ public enum AID : uint
     TrueTornado2 = 25903, // Boss->self, no cast, single-target
     TrueTornado3 = 25904, // Boss->self, no cast, single-target
     TrueTornado4 = 25905, // Helper->player, no cast, range 4 circle
-    TrueTornadoAOE = 25906, // Helper->location, 2.5s cast, range 4 circle
+    TrueTornadoAOE = 25906 // Helper->location, 2.5s cast, range 4 circle
 }
 
 public enum IconID : uint
 {
     Tankbuster = 218, // player
-    Spreadmarker = 139, // player
+    Spreadmarker = 139 // player
+}
+
+class TrismegistosArenaChange(BossModule module) : Components.GenericAOEs(module)
+{
+    private static readonly AOEShapeDonut donut = new(20, 22.5f);
+    private AOEInstance? _aoe;
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID == AID.Trismegistos && Module.Arena.Bounds == D043Hermes.StartingBounds)
+            _aoe = new(donut, Module.Center, default, Module.CastFinishAt(spell, 0.5f));
+    }
+
+    public override void OnEventEnvControl(byte index, uint state)
+    {
+        if (state == 0x00020001 && index == 0x08)
+        {
+            Module.Arena.Bounds = D043Hermes.DefaultBounds;
+            _aoe = null;
+        }
+    }
 }
 
 class TrueBraveryInterruptHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.TrueBravery));
@@ -91,11 +113,21 @@ class TrueAeroIVLOS(BossModule module) : Components.GenericLineOfSightRectAOE(mo
     public override IEnumerable<Actor> BlockerActors() => Module.Enemies(OID.Meteor).Count > 0 ? Module.Enemies(OID.Meteor).Where(x => x.ModelState.AnimState2 != 1) : (IEnumerable<Actor>)Module.Enemies(OID.Meteor);
 }
 
+class StayInBounds(BossModule module) : BossComponent(module)
+{
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        if (!Module.InBounds(actor.Position))
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 3));
+    }
+}
+
 class D043HermesStates : StateMachineBuilder
 {
     public D043HermesStates(BossModule module) : base(module)
     {
         TrivialPhase()
+            .ActivateOnEnter<TrismegistosArenaChange>()
             .ActivateOnEnter<TrueBraveryInterruptHint>()
             .ActivateOnEnter<CosmicKiss>()
             .ActivateOnEnter<TrueAeroFirst>()
@@ -107,9 +139,14 @@ class D043HermesStates : StateMachineBuilder
             .ActivateOnEnter<TrueAeroIV3>()
             .ActivateOnEnter<TrueTornadoTankbuster>()
             .ActivateOnEnter<TrueTornadoAOE>()
-            .ActivateOnEnter<Trismegistos>();
+            .ActivateOnEnter<Trismegistos>()
+            .ActivateOnEnter<StayInBounds>();
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 787, NameID = 10363)]
-public class D043Hermes(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, -50), new ArenaBoundsCircle(20));
+public class D043Hermes(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, -50), StartingBounds)
+{
+    public static readonly ArenaBounds StartingBounds = new ArenaBoundsCircle(21.5f);
+    public static readonly ArenaBounds DefaultBounds = new ArenaBoundsCircle(20);
+}
