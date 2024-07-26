@@ -3,7 +3,10 @@ namespace BossMod.Shadowbringers.Dungeon.D03QitanaRavel.D032Batsquatch;
 public enum OID : uint
 {
     Boss = 0x27B0, //R=3.2
-    Helper = 0x233C, //R=0.5
+    StalactiteBig = 0x1EAACD, //R=0.5
+    StalactiteSmall1 = 0x1EAACC, //R=0.5
+    StalactiteSmall2 = 0x1EAACB, //R=0.5
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -16,10 +19,43 @@ public enum AID : uint
     FallingRock = 15510, // 233C->self, 2.0s cast, range 3 circle
     FallingRock2 = 15509, // 233C->self, 2.0s cast, range 2 circle
     FallingBoulder = 15511, // 233C->self, 2.0s cast, range 4 circle
-    Towerfall = 15512, // 233C->self, 3.0s cast, range 15 30-degree cone
+    Towerfall = 15512 // 233C->self, 3.0s cast, range 15 30.5-degree cone
 }
 
-class Towerfall(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Towerfall), new AOEShapeCone(15, 15.Degrees()));
+class Towerfall(BossModule module) : Components.GenericAOEs(module)
+{
+    private static readonly AOEShapeCone cone = new(15, 15.25f.Degrees());
+    public List<AOEInstance> _aoes = [];
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
+
+    public override void OnActorCreated(Actor actor)
+    {
+        if ((OID)actor.OID == OID.StalactiteBig)
+            _aoes.Add(new(cone, actor.Position, actor.Rotation, WorldState.FutureTime(12)));
+    }
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID == AID.Soundwave)
+        {
+            var updatedAOEs = new List<AOEInstance>();
+            foreach (var a in _aoes)
+            {
+                var updatedAOE = new AOEInstance(a.Shape, a.Origin, a.Rotation, Module.CastFinishAt(spell, 3.7f));
+                updatedAOEs.Add(updatedAOE);
+            }
+            _aoes = updatedAOEs;
+        }
+    }
+
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID == AID.Towerfall)
+            _aoes.Clear();
+    }
+}
+
 class Soundwave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Soundwave), "Raidwide + towers fall");
 class Subsonics(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Subsonics), "Raidwide x11");
 class RipperFang(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.RipperFang));

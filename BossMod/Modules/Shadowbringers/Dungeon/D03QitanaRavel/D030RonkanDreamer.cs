@@ -7,7 +7,7 @@ public enum OID : uint
     //trash that can be pulled into miniboss room
     RonkanVessel = 0x28DD, //R=3.0
     RonkanIdol = 0x28DC, //R=2.04
-    RonkanThorn = 0x28E3, //R=2.4
+    RonkanThorn = 0x28E3 //R=2.4
 }
 
 public enum AID : uint
@@ -20,12 +20,12 @@ public enum AID : uint
     RonkanAbyss = 17387, // 2A40->location, 3.0s cast, range 6 circle
     AutoAttack = 872, // 28DD/28DC->player, no cast, single-target
     AutoAttack2 = 17949, // 28E3->player, no cast, single-target
-    BurningBeam = 15923, // 28E3->self, 3.0s cast, range 15 width 4 rect
+    BurningBeam = 15923 // 28E3->self, 3.0s cast, range 15 width 4 rect
 }
 
 public enum TetherID : uint
 {
-    StatueActivate = 37, // 28E8->Boss
+    StatueActivate = 37 // 28E8->Boss
 }
 
 class RonkanFire(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.RonkanFire));
@@ -34,32 +34,32 @@ class RonkanAbyss(BossModule module) : Components.LocationTargetedAOEs(module, A
 class WrathOfTheRonka(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<Actor> _casters = [];
-    private static readonly AOEShapeRect RectShort = new(12, 4);
-    private static readonly AOEShapeRect RectMedium = new(22, 4);
-    private static readonly AOEShapeRect RectLong = new(35, 4);
+    private static readonly AOEShapeRect rectShort = new(12, 4);
+    private static readonly AOEShapeRect rectMedium = new(22, 4);
+    private static readonly AOEShapeRect rectLong = new(35, 4);
     private DateTime _activation;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         foreach (var c in _casters)
         {
-            if (Module.PrimaryActor.Position.AlmostEqual(new(0, 634), 1))
+            if (Module.PrimaryActor.Position.Z > 550)
             {
-                if (c.Position.AlmostEqual(new(-17, 657), 1) || c.Position.AlmostEqual(new(-17, 650), 1) || c.Position.AlmostEqual(new(-17, 635), 1) || c.Position.AlmostEqual(new(-17, 620), 1) || c.Position.AlmostEqual(new(17, 657), 1) || c.Position.AlmostEqual(new(17, 650), 1) || c.Position.AlmostEqual(new(17, 635), 1) || c.Position.AlmostEqual(new(17, 620), 1))
-                    yield return new(RectLong, c.Position, c.Rotation, _activation);
                 if (c.Position.AlmostEqual(new(-17, 627), 1) || c.Position.AlmostEqual(new(17, 642), 1))
-                    yield return new(RectMedium, c.Position, c.Rotation, _activation);
-                if (c.Position.AlmostEqual(new(-17, 642), 1) || c.Position.AlmostEqual(new(17, 627), 1))
-                    yield return new(RectShort, c.Position, c.Rotation, _activation);
+                    yield return new(rectMedium, c.Position, c.Rotation, _activation);
+                else if (c.Position.AlmostEqual(new(-17, 642), 1) || c.Position.AlmostEqual(new(17, 627), 1))
+                    yield return new(rectShort, c.Position, c.Rotation, _activation);
+                else
+                    yield return new(rectLong, c.Position, c.Rotation, _activation);
             }
-            if (Module.PrimaryActor.Position.AlmostEqual(new(0, 428), 1))
+            else
             {
-                if (c.Position.AlmostEqual(new(17, 451), 1) || c.Position.AlmostEqual(new(17, 444), 1) || c.Position.AlmostEqual(new(17, 414), 1) || c.Position.AlmostEqual(new(17, 429), 1) || c.Position.AlmostEqual(new(-17, 451), 1) || c.Position.AlmostEqual(new(-17, 444), 1) || c.Position.AlmostEqual(new(-17, 414), 1) || c.Position.AlmostEqual(new(-17, 429), 1))
-                    yield return new(RectLong, c.Position, c.Rotation, _activation);
                 if (c.Position.AlmostEqual(new(-17, 436), 1) || c.Position.AlmostEqual(new(17, 421), 1))
-                    yield return new(RectMedium, c.Position, c.Rotation, _activation);
-                if (c.Position.AlmostEqual(new(17, 436), 1) || c.Position.AlmostEqual(new(-17, 421), 1))
-                    yield return new(RectShort, c.Position, c.Rotation, _activation);
+                    yield return new(rectMedium, c.Position, c.Rotation, _activation);
+                else if (c.Position.AlmostEqual(new(17, 436), 1) || c.Position.AlmostEqual(new(-17, 421), 1))
+                    yield return new(rectShort, c.Position, c.Rotation, _activation);
+                else
+                    yield return new(rectLong, c.Position, c.Rotation, _activation);
             }
         }
     }

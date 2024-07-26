@@ -37,8 +37,7 @@ public enum AID : uint
     DeathsJourney3 = 35872, // Helper->self, 6.5s cast, range 30 30-degree cone, visual
 }
 
-class OldMagic(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.OldMagic));
-class OldMagicVoidzone(BossModule module) : Components.GenericAOEs(module)
+class OldMagicArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeDonut donut = new(20, 22.5f);
     private AOEInstance? _aoe;
@@ -60,6 +59,7 @@ class OldMagicVoidzone(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
+class OldMagic(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.OldMagic));
 class ArcaneEdge(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ArcaneEdge));
 class Contrapasso(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Contrapasso));
 
@@ -119,7 +119,7 @@ class D133DuranteStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<StayInBounds>()
-            .ActivateOnEnter<OldMagicVoidzone>()
+            .ActivateOnEnter<OldMagicArenaChange>()
             .ActivateOnEnter<OldMagic>()
             .ActivateOnEnter<ArcaneEdge>()
             .ActivateOnEnter<Contrapasso>()
