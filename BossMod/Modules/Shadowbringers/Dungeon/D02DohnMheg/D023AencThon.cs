@@ -184,9 +184,8 @@ public class D033AencThon(WorldState ws, Actor primary) : BossModule(ws, primary
     new(-115.51f, -244.47f), new(-129.9f, -242.73f), new(-140.47f, -246.47f), new(-141.19f, -246.74f), new(-143.12f, -233.92f)])];
     public static readonly ArenaBounds chasmArena = new ArenaBoundsComplex(union, difference2, union2);
 
-    public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        base.CalculateAIHints(slot, actor, assignment, hints);
         foreach (var e in hints.PotentialTargets)
         {
             e.Priority = (OID)e.Actor.OID switch

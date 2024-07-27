@@ -39,9 +39,8 @@ public class D082TempleGuardian(WorldState ws, Actor primary) : BossModule(ws, p
     new(56.5f, 14.8f), new(63.6f, 7.1f), new(64.7f, 3.3f), new(70.3f, -3.9f), new(72.6f, -33.3f)])];
     public static readonly ArenaBounds arena = new ArenaBoundsComplex(shape);
 
-    public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        base.CalculateAIHints(slot, actor, assignment, hints);
         foreach (var e in hints.PotentialTargets)
         {
             e.Priority = (OID)e.Actor.OID switch

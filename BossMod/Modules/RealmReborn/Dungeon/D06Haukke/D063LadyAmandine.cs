@@ -51,9 +51,8 @@ public class D063LadyAmandine(WorldState ws, Actor primary) : BossModule(ws, pri
     new(8.5f, 21.4f), new(17.2f, 20.5f), new(16.7f, 8.7f), new(20.6f, 3.2f)])];
     public static readonly ArenaBounds arena = new ArenaBoundsComplex(shape);
 
-    public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        base.CalculateAIHints(slot, actor, assignment, hints);
         foreach (var e in hints.PotentialTargets)
         {
             e.Priority = (OID)e.Actor.OID switch
