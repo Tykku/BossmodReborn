@@ -72,9 +72,8 @@ public class D041GreaterArmadillo(WorldState ws, Actor primary) : BossModule(ws,
     private static readonly List<Shape> difference = [new Rectangle(new(278, 223.75f), 20, 1)];
     private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
 
-    public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        base.CalculateAIHints(slot, actor, assignment, hints);
         foreach (var e in hints.PotentialTargets)
         {
             e.Priority = (OID)e.Actor.OID switch

@@ -66,9 +66,8 @@ public class Mandragoras(WorldState ws, Actor primary) : BossModule(ws, primary,
         Arena.Actors(Enemies(OID.GymnasticOnion), Colors.Vulnerable);
     }
 
-    public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        base.CalculateAIHints(slot, actor, assignment, hints);
         foreach (var e in hints.PotentialTargets)
         {
             e.Priority = (OID)e.Actor.OID switch

@@ -56,9 +56,8 @@ public class D113Batraal(WorldState ws, Actor primary) : BossModule(ws, primary,
     new(59.4f, -164.6f), new(60.8f, -159), new(58.4f, -158.1f), new(56f, -154.1f)])];
     public static readonly ArenaBounds arena = new ArenaBoundsComplex(shape);
 
-    public override void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        base.CalculateAIHints(slot, actor, assignment, hints);
         foreach (var e in hints.PotentialTargets)
         {
             e.Priority = (OID)e.Actor.OID switch
