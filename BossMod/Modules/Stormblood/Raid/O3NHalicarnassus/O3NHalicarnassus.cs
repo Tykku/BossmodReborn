@@ -123,7 +123,7 @@ class TheGame(BossModule module) : Components.GenericAOEs(module)
             {
                 if (i == _safeTile)
                 {
-                    yield return _aoes[i] with { Color = Colors.SafeFromAOE };
+                    //yield return _aoes[i] with { Color = Colors.SafeFromAOE };
                 }
                 else
                 {

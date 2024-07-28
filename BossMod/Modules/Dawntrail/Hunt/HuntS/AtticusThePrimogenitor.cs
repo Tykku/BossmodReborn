@@ -45,6 +45,7 @@ public enum NPCYell : ushort
     RightHead7 = 16901,
     RightHead8 = 16878,
     RightHead9 = 16902,
+    RightHead10 = 16890,
     LeftHead1 = 16883,
     LeftHead2 = 16880,
     LeftHead3 = 16884,
@@ -53,7 +54,8 @@ public enum NPCYell : ushort
     LeftHead6 = 16895,
     LeftHead7 = 16899,
     LeftHead8 = 16877,
-    LeftHead9 = 16898
+    LeftHead9 = 16898,
+    LeftHead10 = 16891
 }
 
 class PyricBlast(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.PyricBlast), 6, 8);
@@ -100,6 +102,7 @@ class BreathSequence(BossModule module) : Components.GenericAOEs(module)
             case (ushort)NPCYell.LeftHead7:
             case (ushort)NPCYell.LeftHead8:
             case (ushort)NPCYell.LeftHead9:
+            case (ushort)NPCYell.LeftHead10:
                 _aoes.Add(new(cone, actor.Position, actor.Rotation + angle, activation));
                 break;
             case (ushort)NPCYell.RightHead1:
@@ -111,6 +114,7 @@ class BreathSequence(BossModule module) : Components.GenericAOEs(module)
             case (ushort)NPCYell.RightHead7:
             case (ushort)NPCYell.RightHead8:
             case (ushort)NPCYell.RightHead9:
+            case (ushort)NPCYell.RightHead10:
                 _aoes.Add(new(cone, actor.Position, actor.Rotation - angle, activation));
                 break;
         }

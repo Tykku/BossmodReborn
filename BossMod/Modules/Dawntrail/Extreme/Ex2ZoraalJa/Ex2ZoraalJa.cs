@@ -9,12 +9,13 @@ class HalfCircuitRect(BossModule module) : Components.SelfTargetedAOEs(module, A
 class HalfCircuitDonut(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HalfCircuitAOEDonut), new AOEShapeDonut(10, 30));
 class HalfCircuitCircle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HalfCircuitAOECircle), new AOEShapeCircle(10));
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 996, NameID = 12882, PlanLevel = 100)]
-public class Ex2ZoraalJa(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), NormalBounds)
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 996, NameID = 12882, PlanLevel = 100)]
+public class Ex2ZoraalJa(WorldState ws, Actor primary) : BossModule(ws, primary, NormalCenter, NormalBounds)
 {
+    public static readonly Angle ArenaRotation = 45.Degrees();
     public static readonly WPos NormalCenter = new(100, 100);
-    public static readonly ArenaBoundsRect NormalBounds = new(20, 20, 45.Degrees());
-    public static readonly ArenaBoundsRect SmallBounds = new(10, 10, 45.Degrees());
+    public static readonly ArenaBoundsSquare NormalBounds = new(20, ArenaRotation);
+    public static readonly ArenaBoundsSquare SmallBounds = new(10, ArenaRotation);
     public static readonly ArenaBoundsCustom NWPlatformBounds = BuildTwoPlatformsBounds(135.Degrees());
     public static readonly ArenaBoundsCustom NEPlatformBounds = BuildTwoPlatformsBounds(-135.Degrees());
 

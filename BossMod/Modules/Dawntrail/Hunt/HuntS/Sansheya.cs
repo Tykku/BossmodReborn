@@ -116,7 +116,7 @@ class TwinscorchedHaloVeil(BossModule module) : Components.GenericAOEs(module)
         if (_aoes.Count > 0)
             yield return _aoes[0] with { Color = Colors.Danger };
         if (_aoes.Count > 1)
-            yield return _aoes[1] with { Risky = false };
+            yield return _aoes[1] with { Risky = _aoes.Count == 2 };
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -188,5 +188,5 @@ class SansheyaStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.Hunt, GroupID = (uint)BossModuleInfo.HuntRank.S, NameID = 11399)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.Hunt, GroupID = (uint)BossModuleInfo.HuntRank.S, NameID = 13399)]
 public class Sansheya(WorldState ws, Actor primary) : SimpleBossModule(ws, primary);
