@@ -207,7 +207,18 @@ class BatteryCircuit(BossModule module) : Components.GenericRotatingAOE(module)
 class HeavyBlastCannon(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.HeavyBlastCannonMarker), ActionID.MakeSpell(AID.HeavyBlastCannon), 8, 36);
 class RapidThunder(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.RapidThunder));
 class Electrowave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Electrowave));
-class BlastCannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlastCannon), new AOEShapeRect(26, 2));
+class BlastCannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlastCannon), new AOEShapeRect(26, 2))
+{
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var aoes = ActiveCasters.Select((c, index) =>
+            new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo),
+            index < 2 ? Colors.Danger : Colors.AOE, index < 2));
+
+        return aoes;
+    }
+}
+
 class Shock(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Shock), 3);
 class HomingCannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HomingCannon), new AOEShapeRect(50, 1));
 class Bombardment(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Bombardment), 5);

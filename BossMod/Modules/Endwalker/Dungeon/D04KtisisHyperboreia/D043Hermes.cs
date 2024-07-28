@@ -111,6 +111,13 @@ class CosmicKiss(BossModule module) : Components.SelfTargetedAOEs(module, Action
 class TrueAeroIVLOS(BossModule module) : Components.GenericLineOfSightRectAOE(module, ActionID.MakeSpell(AID.TrueAeroIVLOS))
 {
     public override IEnumerable<Actor> BlockerActors() => Module.Enemies(OID.Meteor).Count > 0 ? Module.Enemies(OID.Meteor).Where(x => x.ModelState.AnimState2 != 1) : (IEnumerable<Actor>)Module.Enemies(OID.Meteor);
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        base.AddAIHints(slot, actor, assignment, hints);
+        if (BlockerActors().Any()) // force AI to move closer to the meteor as soon as it spawns
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(BlockerActors().First().Position, 8));
+    }
 }
 
 class StayInBounds(BossModule module) : BossComponent(module)

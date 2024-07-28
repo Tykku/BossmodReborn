@@ -183,7 +183,7 @@ class PendulumFlare(BossModule module) : Components.GenericBaitAway(module, cent
     {
         base.AddAIHints(slot, actor, assignment, hints);
         if (targets.Contains(actor))
-            hints.AddForbiddenZone(ShapeDistance.Circle(Module.Center, 18.5f));
+            hints.AddForbiddenZone(ShapeDistance.Circle(D013Philia.ArenaCenter, 18.5f));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -208,7 +208,7 @@ class CatONineTails(BossModule module) : Components.GenericRotatingAOE(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.FierceBeating1)
-            Sequences.Add(new(_shape, Module.Center, spell.Rotation + 180.Degrees(), -45.Degrees(), Module.CastFinishAt(spell), 2, 8));
+            Sequences.Add(new(_shape, D013Philia.ArenaCenter, spell.Rotation + 180.Degrees(), -45.Degrees(), Module.CastFinishAt(spell), 2, 8));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
@@ -234,9 +234,9 @@ class FierceBeating(BossModule module) : Components.Exaflare(module, 4)
         foreach (var (c, t, r) in ImminentAOEs())
             yield return new(Shape, c, r, t, ImminentColor);
         if (Lines.Count > 0 && linesstartedcount1 < 8)
-            yield return new(circle, Helpers.RotateAroundOrigin(linesstartedcount1 * 45, Module.Center, _casters[0]), default, _activation.AddSeconds(linesstartedcount1 * 3.7f));
+            yield return new(circle, Helpers.RotateAroundOrigin(linesstartedcount1 * 45, D013Philia.ArenaCenter, _casters[0]), default, _activation.AddSeconds(linesstartedcount1 * 3.7f));
         if (Lines.Count > 1 && linesstartedcount2 < 8)
-            yield return new(circle, Helpers.RotateAroundOrigin(linesstartedcount2 * 45, Module.Center, _casters[1]), default, _activation.AddSeconds(linesstartedcount2 * 3.7f));
+            yield return new(circle, Helpers.RotateAroundOrigin(linesstartedcount2 * 45, D013Philia.ArenaCenter, _casters[1]), default, _activation.AddSeconds(linesstartedcount2 * 3.7f));
     }
 
     public override void Update()
@@ -321,7 +321,8 @@ class D013PhiliaStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 676, NameID = 8301)]
 public class D013Philia(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> union = [new Circle(new(134, -465), 19.5f)];
+    public static readonly WPos ArenaCenter = new(134, -465); // slightly different from calculated center due to difference operation
+    private static readonly List<Shape> union = [new Circle(ArenaCenter, 19.5f)];
     private static readonly List<Shape> difference = [new Rectangle(new(134, -445), 20, 1.5f)];
     private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
 

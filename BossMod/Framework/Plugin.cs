@@ -1,5 +1,4 @@
-﻿using BossMod.AI;
-using BossMod.Autorotation;
+﻿using BossMod.Autorotation;
 using Dalamud.Common;
 using Dalamud.Game;
 using Dalamud.Game.ClientState.Conditions;
@@ -25,8 +24,8 @@ public sealed class Plugin : IDalamudPlugin
     private readonly ActionManagerEx _amex;
     private readonly WorldStateGameSync _wsSync;
     private readonly RotationModuleManager _rotation;
-    private readonly AIManager _ai;
-    private readonly Broadcast _broadcast;
+    private readonly AI.AIManager _ai;
+    private readonly AI.Broadcast _broadcast;
     private readonly IPCProvider _ipc;
     private TimeSpan _prevUpdateTime;
 
@@ -60,7 +59,7 @@ public sealed class Plugin : IDalamudPlugin
         MultiboxUnlock.Exec();
         Network.IDScramble.Initialize();
         Camera.Instance = new();
-        AIMove.Instance = new();
+        MovementOverride.Instance = new();
 
         Service.Config.Initialize();
         Service.Config.LoadFromFile(dalamud.ConfigFile);
@@ -225,7 +224,8 @@ public sealed class Plugin : IDalamudPlugin
         _bossmod.Update();
         _hintsBuilder.Update(_hints, PartyState.PlayerSlot);
         _amex.QueueManualActions();
-        _rotation.Update(_amex.AnimationLockDelayEstimate, _amex.InputOverride.IsMoveRequested() ? 0 : _ai.ForceMovementIn);
+        var userPreventingCast = _amex.InputOverride.IsMoveRequested() && !_amex.Config.PreventMovingWhileCasting;
+        _rotation.Update(_amex.AnimationLockDelayEstimate, userPreventingCast ? 0 : _ai.ForceMovementIn);
         _ai.Update();
         _broadcast.Update();
         _amex.FinishActionGather();

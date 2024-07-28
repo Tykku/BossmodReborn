@@ -11,10 +11,11 @@ public enum AID : uint
     Aethermodynamics1 = 39840, // Boss->self, 5.0s cast, range 40 circle
     Aethermodynamics2 = 39512, // Boss->self, 5.0s cast, range 40 circle
     Aethermodynamics3 = 39511, // Boss->self, 5.0s cast, range 40 circle
+    Aethermodynamics4 = 39839, // Boss->self, 5.0s cast, range 40 circle
     FireIV1 = 39829, // Boss->self, 5.0s cast, range 15 circle
     FireIV2 = 39800, // Boss->self, 1.0s cast, range 15 circle
     FireIV3 = 39513, // Boss->self, 1.0s cast, range 15 circle
-    FireIV4 = 39802, // Boss->self, 1.0s cast, range 15 circle, no log for this yet
+    FireIV4 = 39802, // Boss->self, 1.0s cast, range 15 circle
     FireIV5 = 39837, // Boss->self, 5.0s cast, range 15 circle
     BlizzardIV1 = 39838, // Boss->self, 5.0s cast, range 6-40 donut
     BlizzardIV2 = 39514, // Boss->self, 1.0s cast, range 6-40 donut
@@ -26,7 +27,8 @@ public enum AID : uint
     SoullessStream3 = 39507, // Boss->self, 5.0s cast, range 40 180-degree cone, BlizzardIV3 combo
     SoullessStream4 = 39508, // Boss->self, 5.0s cast, range 40 180-degree cone, FireIV3 combo
     Obliterate = 39515, // Boss->players, 5.0s cast, range 6 circle, stack
-    Meltdown = 39516 // Boss->self, 3.0s cast, range 40 width 10 rect
+    Meltdown = 39516, // Boss->self, 3.0s cast, range 40 width 10 rect
+    unknown = 19277 // Boss->self, no cast, single-target
 }
 
 public enum SID : uint
@@ -163,6 +165,7 @@ class ColdSweats(BossModule module) : Components.StayMove(module)
 class Aethermodynamics1(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Aethermodynamics1));
 class Aethermodynamics2(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Aethermodynamics2));
 class Aethermodynamics3(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Aethermodynamics3));
+class Aethermodynamics4(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Aethermodynamics4));
 class Obliterate(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Obliterate), 6, 8);
 class Meltdown(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Meltdown), new AOEShapeRect(40, 5));
 class BlizzardIV1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlizzardIV1), new AOEShapeDonut(6, 40));
@@ -182,7 +185,7 @@ class SoullessStreamFireBlizzardCombo(BossModule module) : Components.GenericAOE
         if (_aoes.Count > 0)
             yield return _aoes[0] with { Color = Colors.Danger };
         if (_aoes.Count > 1)
-            yield return _aoes[1] with { Risky = false };
+            yield return _aoes[1];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -240,6 +243,7 @@ class ArchAethereaterStates : StateMachineBuilder
             .ActivateOnEnter<Aethermodynamics1>()
             .ActivateOnEnter<Aethermodynamics2>()
             .ActivateOnEnter<Aethermodynamics3>()
+            .ActivateOnEnter<Aethermodynamics4>()
             .ActivateOnEnter<Obliterate>()
             .ActivateOnEnter<BlizzardIV1>()
             .ActivateOnEnter<FireIV1>()

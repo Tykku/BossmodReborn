@@ -73,7 +73,7 @@ class Ex2ZoraalJaStates : StateMachineBuilder
     private void DawnOfAnAge(uint id, float delay)
     {
         Cast(id, AID.DawnOfAnAge, delay, 7, "Raidwide + small arena")
-            .OnEnter(() => Module.Arena.Bounds = Ex2ZoraalJa.SmallBounds)
+            .ActivateOnEnter<DawnOfAnAgeArenaChange>()
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 
@@ -95,7 +95,8 @@ class Ex2ZoraalJaStates : StateMachineBuilder
     {
         DawnOfAnAge(id, delay);
 
-        Cast(id + 0x1000, AID.VollokSmall, 10.2f, 4);
+        Cast(id + 0x1000, AID.VollokSmall, 10.2f, 4)
+            .DeactivateOnEnter<DawnOfAnAgeArenaChange>();
         Cast(id + 0x1010, AID.Sync, 5.4f, 5);
         ComponentCondition<ChasmOfVollokFangSmall>(id + 0x1020, 0.9f, comp => comp.AOEs.Count > 0)
             .ActivateOnEnter<ChasmOfVollokFangSmall>();
@@ -129,6 +130,7 @@ class Ex2ZoraalJaStates : StateMachineBuilder
     {
         DawnOfAnAge(id, delay);
         ComponentCondition<DrumOfVollokPlatforms>(id + 0x10, 4.9f, comp => comp.Active)
+            .DeactivateOnEnter<DawnOfAnAgeArenaChange>()
             .ActivateOnEnter<DrumOfVollokPlatforms>()
             .DeactivateOnExit<DrumOfVollokPlatforms>();
 
@@ -179,6 +181,7 @@ class Ex2ZoraalJaStates : StateMachineBuilder
         Cast(id + 0x1000, AID.VollokSmall, 10.2f, 4);
         Cast(id + 0x1010, AID.Sync, 4.2f, 5);
         ComponentCondition<ChasmOfVollokFangSmall>(id + 0x1020, 0.9f, comp => comp.AOEs.Count > 0)
+            .DeactivateOnEnter<DawnOfAnAgeArenaChange>()
             .ActivateOnEnter<ChasmOfVollokFangSmall>();
         ComponentCondition<ChasmOfVollokFangSmall>(id + 0x1030, 8, comp => comp.NumCasts > 0, "Swords")
             .ActivateOnEnter<ChasmOfVollokPlayer>() // icons appear ~2.7s before swords resolve
