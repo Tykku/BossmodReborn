@@ -115,7 +115,8 @@ class TrueAeroIVLOS(BossModule module) : Components.GenericLineOfSightRectAOE(mo
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (BlockerActors().Any()) // force AI to move closer to the meteor as soon as it spawns
+        var component = Module.FindComponent<CosmicKiss>()!.ActiveAOEs(slot, actor).Any();
+        if (BlockerActors().Any() && !component) // force AI to move closer to the meteor as soon as they become visible
             hints.AddForbiddenZone(ShapeDistance.InvertedCircle(BlockerActors().First().Position, 8));
     }
 }
