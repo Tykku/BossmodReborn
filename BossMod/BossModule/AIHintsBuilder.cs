@@ -1,4 +1,6 @@
-﻿namespace BossMod;
+﻿using BossMod.AST;
+
+namespace BossMod;
 
 // utility that recalculates ai hints based on different data sources (eg active bossmodule, etc)
 // when there is no active bossmodule (eg in outdoor or on trash), we try to guess things based on world state (eg actor casts)
@@ -80,6 +82,8 @@ public sealed class AIHintsBuilder : IDisposable
         if (data == null || data.CastType == 1)
             return;
         if (data.CastType is 2 or 5 && data.EffectRange >= RaidwideSize)
+            return;
+        if (actor.CastInfo!.IsSpell((AID)27503)) // friendly AOE in aitiascope that gets dodged for some reason
             return;
         AOEShape? shape = data.CastType switch
         {

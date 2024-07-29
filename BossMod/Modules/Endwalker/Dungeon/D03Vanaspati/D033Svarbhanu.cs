@@ -3,7 +3,7 @@
 public enum OID : uint
 {
     Boss = 0x33EB, // R=7.0
-    Helper = 0x233C,
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -22,13 +22,13 @@ public enum AID : uint
     CosmicKiss = 25169, // Helper->location, 6.0s cast, range 100 circle, knockback 13, away from source
     CrumblingSky = 25166, // Boss->self, 3.0s cast, single-target
     FlamesOfDecay = 25170, // Boss->self, 5.0s cast, range 40 circle
-    GnashingOfTeeth = 25171, // Boss->player, 5.0s cast, single-target
+    GnashingOfTeeth = 25171 // Boss->player, 5.0s cast, single-target
 }
 
 class ChaoticUndercurrent(BossModule module) : Components.GenericAOEs(module)
 {
     private enum Pattern { None, BBRR, RRBB, BRRB, RBBR }
-    private Pattern CurrentPattern;
+    private Pattern currentPattern;
     private readonly List<AOEInstance> _aoes = [];
     private static readonly AOEShapeRect rect = new(40, 5);
     private static readonly Angle rotation = 90.Degrees();
@@ -46,7 +46,7 @@ class ChaoticUndercurrent(BossModule module) : Components.GenericAOEs(module)
         // red red blue blue => 0x01000080, red (-162, -172), blue (-152, -142)
         if (index == 0x08)
         {
-            CurrentPattern = state switch
+            currentPattern = state switch
             {
                 0x00400020 => Pattern.RBBR,
                 0x00020001 => Pattern.BBRR,
@@ -71,14 +71,14 @@ class ChaoticUndercurrent(BossModule module) : Components.GenericAOEs(module)
             case AID.ChaoticUndercurrentRedRect:
             case AID.ChaoticUndercurrentBlueRect:
                 _aoes.Clear();
-                CurrentPattern = Pattern.None;
+                currentPattern = Pattern.None;
                 break;
         }
     }
 
     private void AddAOEsForPattern(bool isBlue, DateTime activation)
     {
-        switch (CurrentPattern)
+        switch (currentPattern)
         {
             case Pattern.RBBR:
                 AddAOEs(isBlue ? (1, 2) : (0, 3), activation);

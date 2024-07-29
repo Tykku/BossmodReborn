@@ -4,7 +4,7 @@ public enum OID : uint
 {
     Boss = 0x4176, // R=5.0
     GuloolJaJasShade = 0x4177, // R4.5
-    FireVoidzone = 0x1E8D9B, // R0.500, x0 (spawn during fight), EventObj type
+    FireVoidzone = 0x1E8D9B, // R0.5
     Helper = 0x233C
 }
 
