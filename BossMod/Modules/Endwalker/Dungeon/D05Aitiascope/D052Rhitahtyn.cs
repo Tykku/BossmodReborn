@@ -43,7 +43,9 @@ class ArenaChanges(BossModule module) : BossComponent(module)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state == 0x00200010)
+        if (state == 0x00020001 && index == 0x00)
+            UpdateArena();
+        else if (state == 0x00200010)
         {
             if (index == 0x01) // 0x01 and 0x04 always are a pair
                 union.AddRange([squares[0], squares[2]]);
@@ -52,8 +54,7 @@ class ArenaChanges(BossModule module) : BossComponent(module)
 
             Safespots = true;
             activation = Module.WorldState.FutureTime(7.3f);
-            arena = new ArenaBoundsComplex(rect.Concat(union));
-            Module.Arena.Bounds = arena;
+            UpdateArena();
         }
         else if (state == 0x00080004)
         {
@@ -69,6 +70,12 @@ class ArenaChanges(BossModule module) : BossComponent(module)
                     break;
             }
         }
+    }
+
+    private void UpdateArena()
+    {
+        arena = new ArenaBoundsComplex(rect.Concat(union));
+        Module.Arena.Bounds = arena;
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

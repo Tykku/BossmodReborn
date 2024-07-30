@@ -7,6 +7,7 @@ class Landswallow(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeRect rect3 = new(68, 13.5f);
     private static readonly AOEShapeRect rect4 = new(63, 13.5f);
     private readonly List<AOEInstance> _aoes = [];
+    private DateTime activation;
     private static readonly Dictionary<(Angle, Angle), List<(WPos, Angle, AOEShape)>> chargeConfigs = new()
     {
         { (0.Degrees(), 135.Degrees()), new List<(WPos, Angle, AOEShape)> {
@@ -90,7 +91,10 @@ class Landswallow(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.Landswallow1)
+        {
             startRotation = spell.Rotation;
+            activation = Module.CastFinishAt(spell);
+        }
         else if ((AID)spell.Action.ID == AID.LandSwallowTelegraph6)
         {
             var maxError = Helpers.RadianConversion;
@@ -98,17 +102,17 @@ class Landswallow(BossModule module) : Components.GenericAOEs(module)
             {
                 if (startRotation.AlmostEqual(config.Key.Item1, maxError) && spell.Rotation.AlmostEqual(config.Key.Item2, maxError))
                 {
-                    AddAOEs(config.Value, spell);
+                    AddAOEs(config.Value);
                     break;
                 }
             }
         }
     }
 
-    private void AddAOEs(List<(WPos, Angle, AOEShape)> list, ActorCastInfo spell)
+    private void AddAOEs(List<(WPos, Angle, AOEShape)> list)
     {
         foreach (var c in list)
-            _aoes.Add(new(c.Item3, c.Item1, c.Item2, Module.CastFinishAt(spell, 1.3f * _aoes.Count)));
+            _aoes.Add(new(c.Item3, c.Item1, c.Item2, activation.AddSeconds(1.3f * _aoes.Count)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

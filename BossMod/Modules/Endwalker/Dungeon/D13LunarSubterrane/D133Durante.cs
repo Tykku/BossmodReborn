@@ -104,21 +104,12 @@ class DarkImpact(BossModule module) : Components.SelfTargetedAOEs(module, Action
 class DeathsJourney(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DeathsJourney), new AOEShapeCircle(8));
 class DeathsJourney2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DeathsJourney2), new AOEShapeCone(30, 15.Degrees()));
 
-class StayInBounds(BossModule module) : BossComponent(module)
-{
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (!Module.InBounds(actor.Position))
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 3));
-    }
-}
-
 class D133DuranteStates : StateMachineBuilder
 {
     public D133DuranteStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<StayInBounds>()
+            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<OldMagicArenaChange>()
             .ActivateOnEnter<OldMagic>()
             .ActivateOnEnter<ArcaneEdge>()

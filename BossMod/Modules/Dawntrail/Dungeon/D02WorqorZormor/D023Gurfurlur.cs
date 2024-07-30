@@ -43,8 +43,6 @@ public enum AID : uint
     Whirlwind = 36311 // Helper->self, no cast, range 5 circle
 }
 
-class SledgeHammer(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.SledgeHammerMarker), ActionID.MakeSpell(AID.Sledgehammer3), 4.9f);
-
 class HeavingHaymakerArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCustom square = new([new Square(D023Gurfurlur.ArenaCenter, 25)], [new Square(D023Gurfurlur.ArenaCenter, 20)]);
@@ -110,6 +108,7 @@ class AuraSphere(BossModule module) : BossComponent(module)
     }
 }
 
+class SledgeHammer(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.SledgeHammerMarker), ActionID.MakeSpell(AID.Sledgehammer3), 4.9f);
 class HeavingHaymaker(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HeavingHaymaker));
 class LithicImpact(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LithicImpact), new AOEShapeRect(4, 2));
 
@@ -293,21 +292,12 @@ class Windswrath2(BossModule module) : Components.KnockbackFromCastTarget(module
     }
 }
 
-class StayInBounds(BossModule module) : BossComponent(module)
-{
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (!Module.InBounds(actor.Position))
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 3));
-    }
-}
-
 class D023GurfurlurStates : StateMachineBuilder
 {
     public D023GurfurlurStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<StayInBounds>()
+            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<HeavingHaymakerArenaChange>()
             .ActivateOnEnter<HeavingHaymaker>()
             .ActivateOnEnter<Whirlwind>()

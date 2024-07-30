@@ -49,8 +49,8 @@ public class BlackCatCrossing(BossModule module) : Components.GenericAOEs(module
     {
         if ((OID)actor.OID == OID.LeapingAttacks && _currentPattern != Pattern.None)
         {
-            AddLeapingAOEs(actor, _currentPattern == Pattern.Cardinals ? anglesCardinals : anglesIntercardinals, 9);
-            AddLeapingAOEs(actor, _currentPattern == Pattern.Cardinals ? anglesIntercardinals : anglesCardinals, 11);
+            AddAOEs(actor, _currentPattern == Pattern.Cardinals ? anglesCardinals : anglesIntercardinals, 9);
+            AddAOEs(actor, _currentPattern == Pattern.Cardinals ? anglesIntercardinals : anglesCardinals, 11);
         }
     }
 
@@ -69,7 +69,7 @@ public class BlackCatCrossing(BossModule module) : Components.GenericAOEs(module
             }
     }
 
-    private void AddLeapingAOEs(Actor actor, Angle[] angles, int futureTime)
+    private void AddAOEs(Actor actor, Angle[] angles, int futureTime)
     {
         foreach (var angle in angles)
             _aoes.Add(new(cone, actor.Position, angle, Module.WorldState.FutureTime(futureTime)));

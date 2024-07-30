@@ -131,21 +131,12 @@ class RotaryGale(BossModule module) : Components.SpreadFromCastTargets(module, A
 class CrewelSlice(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.CrewelSlice));
 class BillowingBolts(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BillowingBolts));
 
-class StayInBounds(BossModule module) : BossComponent(module)
-{
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (!Module.InBounds(actor.Position))
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 3));
-    }
-}
-
 class D093KapikuluStates : StateMachineBuilder
 {
     public D093KapikuluStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<StayInBounds>()
+            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<BillowingBoltsArenaChange>()
             .ActivateOnEnter<ManaExplosion>()
             .ActivateOnEnter<BastingBlade>()

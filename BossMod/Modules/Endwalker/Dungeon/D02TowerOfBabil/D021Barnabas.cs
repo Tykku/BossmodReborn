@@ -176,20 +176,12 @@ class RollingScrapline(BossModule module) : Components.SelfTargetedAOEs(module, 
 class Shock(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Shock), new AOEShapeCircle(8));
 class ShockingForce(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ShockingForce), 6, 4);
 
-class StayInBounds(BossModule module) : BossComponent(module)
-{
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (!Module.InBounds(actor.Position))
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 3));
-    }
-}
-
 class D021BarnabasStates : StateMachineBuilder
 {
     public D021BarnabasStates(BossModule module) : base(module)
     {
         TrivialPhase()
+            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<ArenaChange>()
             .ActivateOnEnter<Magnetism>()
             .ActivateOnEnter<ElectromagneticRelease1>()
@@ -202,7 +194,6 @@ class D021BarnabasStates : StateMachineBuilder
             .ActivateOnEnter<DynamicScraplinePlus>()
             .ActivateOnEnter<RollingScrapline>()
             .ActivateOnEnter<Shock>()
-            .ActivateOnEnter<StayInBounds>()
             .ActivateOnEnter<ShockingForce>();
     }
 }

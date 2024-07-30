@@ -108,7 +108,7 @@ class TrueAeroIV3(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 
 class CosmicKiss(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CosmicKiss), new AOEShapeCircle(10));
 
-class TrueAeroIVLOS(BossModule module) : Components.GenericLineOfSightRectAOE(module, ActionID.MakeSpell(AID.TrueAeroIVLOS))
+class TrueAeroIVLOS(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.TrueAeroIVLOS), 50, false, true)
 {
     public override IEnumerable<Actor> BlockerActors() => Module.Enemies(OID.Meteor).Count > 0 ? Module.Enemies(OID.Meteor).Where(x => x.ModelState.AnimState2 != 1) : (IEnumerable<Actor>)Module.Enemies(OID.Meteor);
 
@@ -121,20 +121,12 @@ class TrueAeroIVLOS(BossModule module) : Components.GenericLineOfSightRectAOE(mo
     }
 }
 
-class StayInBounds(BossModule module) : BossComponent(module)
-{
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (!Module.InBounds(actor.Position))
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 3));
-    }
-}
-
 class D043HermesStates : StateMachineBuilder
 {
     public D043HermesStates(BossModule module) : base(module)
     {
         TrivialPhase()
+            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<TrismegistosArenaChange>()
             .ActivateOnEnter<TrueBraveryInterruptHint>()
             .ActivateOnEnter<CosmicKiss>()
@@ -147,8 +139,7 @@ class D043HermesStates : StateMachineBuilder
             .ActivateOnEnter<TrueAeroIV3>()
             .ActivateOnEnter<TrueTornadoTankbuster>()
             .ActivateOnEnter<TrueTornadoAOE>()
-            .ActivateOnEnter<Trismegistos>()
-            .ActivateOnEnter<StayInBounds>();
+            .ActivateOnEnter<Trismegistos>();
     }
 }
 

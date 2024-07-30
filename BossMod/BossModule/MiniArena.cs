@@ -58,7 +58,7 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
     // prepare for drawing - set up internal state, clip rect etc.
     public void Begin(Angle cameraAzimuth)
     {
-        var centerOffset = new Vector2(ScreenMarginSize + (Config.AddSlackForRotations ? 1.5f : 1.0f) * ScreenHalfSize);
+        var centerOffset = new Vector2(ScreenMarginSize + (Config.AddSlackForRotations ? 1.33f : 1.0f) * ScreenHalfSize);
         var fullSize = 2 * centerOffset;
         var cursor = ImGui.GetCursorScreenPos();
         ImGui.Dummy(fullSize);

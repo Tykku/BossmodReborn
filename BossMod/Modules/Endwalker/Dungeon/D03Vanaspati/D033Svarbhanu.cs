@@ -206,21 +206,12 @@ class CosmicKissKnockback(BossModule module) : Components.KnockbackFromCastTarge
 class FlamesOfDecay(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FlamesOfDecay));
 class GnashingOfTeeth(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.GnashingOfTeeth));
 
-class StayInBounds(BossModule module) : BossComponent(module)
-{
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (!Module.InBounds(actor.Position))
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 3));
-    }
-}
-
 class D033SvarbhanuStates : StateMachineBuilder
 {
     public D033SvarbhanuStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<StayInBounds>()
+            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<ChaoticUndercurrent>()
             .ActivateOnEnter<CosmicKissSpread>()
             .ActivateOnEnter<CosmicKissCircle>()
