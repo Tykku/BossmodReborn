@@ -39,7 +39,7 @@ public enum AID : uint
 
 class CurtainCallArenaChange(BossModule module) : BossComponent(module)
 {
-    private static readonly List<Circle> circle = [new(new(11, -490), 6.5f)];
+    private static readonly List<Circle> circle = [new(new(11, -490), 6.4f)]; // adjusted for player hitbox radius
     public static readonly ArenaBoundsComplex CurtaincallArena = new(D053Amon.union, D053Amon.difference.Concat(circle));
 
     public override void OnEventEnvControl(byte index, uint state)
