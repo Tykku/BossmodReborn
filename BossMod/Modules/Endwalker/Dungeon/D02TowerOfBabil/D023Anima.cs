@@ -63,6 +63,11 @@ public enum TetherID : uint
     AnimaDrawsPower = 22, // Helper->Boss
 }
 
+public enum IconID : uint
+{
+    ChasingAOE = 197, // player
+}
+
 class ArenaChange(BossModule module) : BossComponent(module)
 {
     private bool pausedAI;
@@ -121,6 +126,13 @@ class BoundlessPain(BossModule module) : Components.GenericAOEs(module)
                 break;
         }
     }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        base.AddAIHints(slot, actor, assignment, hints);
+        if (ActiveAOEs(slot, actor).Any())
+            hints.AddForbiddenZone(ShapeDistance.Rect(Module.Center, Module.Center + new WDir(0, 20), 20));
+    }
 }
 
 class Gravitons(BossModule module) : Components.GenericAOEs(module)
@@ -135,16 +147,15 @@ class Gravitons(BossModule module) : Components.GenericAOEs(module)
 
 class AetherialPull(BossModule module) : Components.StretchTetherDuo(module, (uint)TetherID.AetherialPullBad, (uint)TetherID.AetherialPullGood, 33, activationDelay: 7.9f, knockbackImmunity: true);
 
-class CoffinScratch(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(3), ActionID.MakeSpell(AID.CoffinScratchFirst), ActionID.MakeSpell(AID.CoffinScratchRest), 6, 2, 5)
+class CoffinScratch(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(3), ActionID.MakeSpell(AID.CoffinScratchFirst), ActionID.MakeSpell(AID.CoffinScratchRest), 6, 2, 5, true, (uint)IconID.ChasingAOE)
 {
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        base.OnEventCast(caster, spell);
-        if (Chasers.Count == 0)
-        {
-            ExcludedTargets.Reset();
-            NumCasts = 0;
-        }
+        base.AddAIHints(slot, actor, assignment, hints);
+        if (Actors.Contains(actor))
+            hints.AddForbiddenZone(ShapeDistance.Rect(Module.Center + new WDir(19, 0), Module.Center + new WDir(-19, 0), 20), Activation);
+        else if (Chasers.Any(x => x.Target == actor))
+            hints.AddForbiddenZone(ShapeDistance.InvertedRect(actor.Position, 90.Degrees(), 40, 40, 3));
     }
 }
 

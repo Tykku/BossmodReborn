@@ -2,14 +2,14 @@
 
 public enum OID : uint
 {
-    Boss = 0x4571, // R2.4
+    Boss = 0x4571 // R2.4
 }
 
 public enum AID : uint
 {
     AutoAttack = 39622, // Boss->player, no cast, single-target
     FireII = 39623, // Boss->location, 5.0s cast, range 5 circle
-    BlizzardII = 39624, // Boss->self, 5.0s cast, range 40 45-degree cone
+    BlizzardII = 39624 // Boss->self, 5.0s cast, range 40 45-degree cone
 }
 
 class FireII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FireII), 5);

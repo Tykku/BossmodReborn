@@ -13,11 +13,11 @@ public enum AID : uint
     AbyssalSmog2 = 39828, // Boss->self, 10.0s cast, range 40 180-degree cone
     Aetherstock1 = 39778, // Boss->self, 4.0s cast, single-target, thunderspark
     Aetherstock2 = 39779, // Boss->self, 4.0s cast, single-target, cyclonic ring
-    CyclonicRing = 39781, // Boss->self, no cast, range 7-40 donut
+    CyclonicRing = 39781, // Boss->self, no cast, range 8-40 donut
     ChaoticStorm = 39777, // Boss->self, 5.0s cast, range 40 circle, raidwide, forced march debuffs
     Thunderspark = 39780, // Boss->self, no cast, range 12 circle
     RazorZephyr = 39774, // Boss->self, 3.0s cast, range 50 width 12 rect
-    Blade = 39776, // Boss->player, 5.0s cast, single-target, tankbuster
+    Blade = 39776 // Boss->player, 5.0s cast, single-target, tankbuster
 }
 
 public enum SID : uint
@@ -27,7 +27,7 @@ public enum SID : uint
     LeftFace = 2163, // Boss->player, extra=0x0
     RightFace = 2164, // Boss->player, extra=0x0
     ForwardMarch = 2161, // Boss->player, extra=0x0
-    ForcedMarch = 1257, // Boss->player, extra=0x1/0x2/0x4/0x8
+    ForcedMarch = 1257 // Boss->player, extra=0x1/0x2/0x4/0x8
 }
 
 class AetherstockAbyssalSmog(BossModule module) : Components.GenericAOEs(module)
@@ -35,7 +35,7 @@ class AetherstockAbyssalSmog(BossModule module) : Components.GenericAOEs(module)
     private enum Aetherspark { None, Thunderspark, CyclonicRing }
     private Aetherspark currentAetherspark;
     private static readonly AOEShapeCone cone = new(40, 90.Degrees());
-    private static readonly AOEShapeDonut donut = new(7, 40);
+    private static readonly AOEShapeDonut donut = new(8, 40);
     private static readonly AOEShapeCircle circle = new(12);
     private readonly List<AOEInstance> _aoes = [];
 
