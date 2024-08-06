@@ -19,7 +19,6 @@ sealed class AIConfig : ConfigNode
     public bool BroadcastToSlaves = false;
 
     [PropertyDisplay("Follow party slot")]
-    [PropertyCombo(["Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5", "Slot 6", "Slot 7", "Slot 8"])]
     public int FollowSlot = 0;
 
     [PropertyDisplay("Forbid actions")]

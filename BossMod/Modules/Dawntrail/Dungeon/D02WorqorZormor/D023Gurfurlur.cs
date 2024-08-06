@@ -285,7 +285,7 @@ class Windswrath2(BossModule module) : Components.KnockbackFromCastTarget(module
                 forbidden.Add(ShapeDistance.InvertedCone(Module.Center, 5, patternWEWE ? -a75 : a75, a15));
             }
             else
-                forbidden.Add(ShapeDistance.InvertedCircle(Module.Center, Math.Clamp(timespan + 5, 8, timespan + 5)));
+                forbidden.Add(ShapeDistance.InvertedCircle(Module.Center, 8));
             if (forbidden.Count > 0)
                 hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Max(), activation.AddSeconds(-1));
         }

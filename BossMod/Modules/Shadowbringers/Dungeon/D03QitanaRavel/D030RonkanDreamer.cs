@@ -33,57 +33,39 @@ class RonkanAbyss(BossModule module) : Components.LocationTargetedAOEs(module, A
 
 class WrathOfTheRonka(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<Actor> _casters = [];
+    private readonly List<AOEInstance> _aoes = [];
     private static readonly AOEShapeRect rectShort = new(12, 4);
     private static readonly AOEShapeRect rectMedium = new(22, 4);
     private static readonly AOEShapeRect rectLong = new(35, 4);
-    private DateTime _activation;
+    private static readonly (WPos Position, AOEShapeRect Shape)[] AOEMap =
+        [(new(-17, 627), rectMedium), (new(17, 642), rectMedium),
+        (new(-17, 436), rectMedium), (new(17, 421), rectMedium),
+        (new(-17, 642), rectShort), (new(17, 627), rectShort),
+        (new(17, 436), rectShort), (new(-17, 421), rectShort)];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        foreach (var c in _casters)
-        {
-            if (Module.PrimaryActor.Position.Z > 550)
-            {
-                if (c.Position.AlmostEqual(new(-17, 627), 1) || c.Position.AlmostEqual(new(17, 642), 1))
-                    yield return new(rectMedium, c.Position, c.Rotation, _activation);
-                else if (c.Position.AlmostEqual(new(-17, 642), 1) || c.Position.AlmostEqual(new(17, 627), 1))
-                    yield return new(rectShort, c.Position, c.Rotation, _activation);
-                else
-                    yield return new(rectLong, c.Position, c.Rotation, _activation);
-            }
-            else
-            {
-                if (c.Position.AlmostEqual(new(-17, 436), 1) || c.Position.AlmostEqual(new(17, 421), 1))
-                    yield return new(rectMedium, c.Position, c.Rotation, _activation);
-                else if (c.Position.AlmostEqual(new(17, 436), 1) || c.Position.AlmostEqual(new(-17, 421), 1))
-                    yield return new(rectShort, c.Position, c.Rotation, _activation);
-                else
-                    yield return new(rectLong, c.Position, c.Rotation, _activation);
-            }
-        }
-    }
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
         if (tether.ID == (uint)TetherID.StatueActivate)
         {
-            _casters.Add(source);
-            _activation = WorldState.FutureTime(6);
+            var aoeShape = GetAOEShape(source.Position) ?? rectLong;
+            _aoes.Add(new AOEInstance(aoeShape, source.Position, source.Rotation, Module.WorldState.FutureTime(6)));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if ((AID)spell.Action.ID is AID.WrathOfTheRonkaShort or AID.WrathOfTheRonkaMedium or AID.WrathOfTheRonkaLong)
-        {
-            ++NumCasts;
-            if (NumCasts == 6)
-            {
-                NumCasts = 0;
-                _casters.Clear();
-            }
-        }
+            _aoes.Clear();
+    }
+
+    private static AOEShapeRect? GetAOEShape(WPos position)
+    {
+        foreach (var (pos, shape) in AOEMap)
+            if (position.AlmostEqual(pos, 1))
+                return shape;
+        return null;
     }
 }
 
@@ -114,8 +96,8 @@ public class D030RonkanDreamer(WorldState ws, Actor primary) : BossModule(ws, pr
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.RonkanVessel), Colors.Object);
-        Arena.Actors(Enemies(OID.RonkanThorn), Colors.Object);
-        Arena.Actors(Enemies(OID.RonkanIdol), Colors.Object);
+        Arena.Actors(Enemies(OID.RonkanVessel));
+        Arena.Actors(Enemies(OID.RonkanThorn));
+        Arena.Actors(Enemies(OID.RonkanIdol));
     }
 }

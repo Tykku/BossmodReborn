@@ -68,7 +68,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
     // returns null if we're to be idle, otherwise target to attack
     private Targeting SelectPrimaryTarget(Actor player, Actor master)
     {
-        if (!autorot.Hints.PriorityTargets.Any() || !master.InCombat || AIPreset == null)
+        if ((!_config.FollowTarget || !master.InCombat) && (!autorot.Hints.PriorityTargets.Any() || !master.InCombat || AIPreset == null))
             return new(); // there are no valid targets to attack, or we're not fighting - remain idle
 
         // we prefer not to switch targets unnecessarily, so start with current target - it could've been selected manually or by AI on previous frames

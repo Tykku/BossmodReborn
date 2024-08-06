@@ -52,7 +52,7 @@ public enum AID : uint
     VisualModelChange = 27228, // LowerAnima->self, no cast, single-target
 
     EruptingPainVisual = 25351, // Boss->self, 5.0s cast, single-target
-    EruptingPain = 25352, // Helper->player, 5.0s cast, range 6 circle
+    EruptingPain = 25352 // Helper->player, 5.0s cast, range 6 circle
 }
 
 public enum TetherID : uint
@@ -60,12 +60,12 @@ public enum TetherID : uint
     PhantomPain = 162, // Helper->Helper
     AetherialPullBad = 57, // MegaGraviton->player
     AetherialPullGood = 17, // MegaGraviton->player
-    AnimaDrawsPower = 22, // Helper->Boss
+    AnimaDrawsPower = 22 // Helper->Boss
 }
 
 public enum IconID : uint
 {
-    ChasingAOE = 197, // player
+    ChasingAOE = 197 // player
 }
 
 class ArenaChange(BossModule module) : BossComponent(module)

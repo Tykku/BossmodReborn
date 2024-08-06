@@ -90,19 +90,19 @@ class BambooSplits(BossModule module) : Components.GenericAOEs(module)
         {
             if ((OID)actor.OID == OID.HelperCircle && !_circle.Contains(actor))
                 _circle.Add(actor);
-            if ((OID)actor.OID == OID.HelperSingleRect && !_singlesplit.Contains(actor))
+            else if ((OID)actor.OID == OID.HelperSingleRect && !_singlesplit.Contains(actor))
                 _singlesplit.Add(actor);
-            if ((OID)actor.OID == OID.HelperDoubleRect && !_doublesidedsplit.Contains(actor))
+            else if ((OID)actor.OID == OID.HelperDoubleRect && !_doublesidedsplit.Contains(actor))
                 _doublesidedsplit.Add(actor);
             _activation = WorldState.FutureTime(7);
         }
-        if (state == 0x00040008) //bamboo deactivation animation, spell casts end about 0.75s later
+        else if (state == 0x00040008) //bamboo deactivation animation, spell casts end about 0.75s later
         {
             if ((OID)actor.OID == OID.HelperCircle)
                 _circleToberemoved.Add(actor);
-            if ((OID)actor.OID == OID.HelperSingleRect)
+            else if ((OID)actor.OID == OID.HelperSingleRect)
                 _singlesplitToberemoved.Add(actor);
-            if ((OID)actor.OID == OID.HelperDoubleRect)
+            else if ((OID)actor.OID == OID.HelperDoubleRect)
                 _doublesidedsplitToberemoved.Add(actor);
             _time = WorldState.FutureTime(0.75f);
         }
