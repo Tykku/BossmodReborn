@@ -179,22 +179,7 @@ class Kickdown(BossModule module) : Components.Knockback(module)
             activation = default;
     }
 }
-
-class RiotousRampage(BossModule module) : Components.GenericTowers(module)
-{
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if ((AID)spell.Action.ID == AID.RiotousRampage)
-            Towers.Add(new(caster.Position, 4, activation: Module.CastFinishAt(spell)));
-    }
-
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
-    {
-        if ((AID)spell.Action.ID == AID.RiotousRampage && Towers.Count > 0)
-            Towers.RemoveAt(0);
-    }
-}
-
+class RiotousRampage(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.RiotousRampage), 4);
 class Roar1(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Roar1));
 class Roar2(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Roar2));
 class LethalSwipe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LethalSwipe), new AOEShapeCone(45, 90.Degrees()));
@@ -204,21 +189,13 @@ class RunThrough2(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 class Fireflood(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Fireflood), 18);
 class TuraliStoneIII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TuraliStoneIII), 4);
 class TuraliQuake(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TuraliQuake), 9, maxCasts: 5);
-class StayInBounds(BossModule module) : BossComponent(module)
-{
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (!Module.InBounds(actor.Position))
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 3));
-    }
-}
 
 class TakingAStandStates : StateMachineBuilder
 {
     public TakingAStandStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<StayInBounds>()
+            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<RoarArenaChange>()
             .ActivateOnEnter<Roar1>()
             .ActivateOnEnter<Roar2>()

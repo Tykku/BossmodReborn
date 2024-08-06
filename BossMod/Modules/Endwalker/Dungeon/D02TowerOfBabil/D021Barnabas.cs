@@ -3,8 +3,8 @@
 public enum OID : uint
 {
     Boss = 0x33F7, // R=5.52
-    Helper = 0x233C,
-    Thunderball = 0x33F8, // R1.000, x0 (spawn during fight)
+    Thunderball = 0x33F8, // R1.0
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -27,7 +27,7 @@ public enum AID : uint
     RollingScrapline = 25323, // Boss->self, 3.0s cast, range 8 circle
     Shock = 25330, // Thunderball->self, 3.0s cast, range 8 circle
     ShockingForce = 25324, // Boss->players, 5.0s cast, range 6 circle, stack
-    Thundercall = 25325, // Boss->self, 3.0s cast, single-target
+    Thundercall = 25325 // Boss->self, 3.0s cast, single-target
 }
 
 public enum IconID : uint
@@ -36,7 +36,7 @@ public enum IconID : uint
     Minus = 163, // player
     BossMinus = 290, // Boss
     BossPlus = 291, // Boss
-    Stackmarker = 62, // player
+    Stackmarker = 62 // player
 }
 
 class ArenaChange(BossModule module) : Components.GenericAOEs(module)
@@ -176,20 +176,12 @@ class RollingScrapline(BossModule module) : Components.SelfTargetedAOEs(module, 
 class Shock(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Shock), new AOEShapeCircle(8));
 class ShockingForce(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ShockingForce), 6, 4);
 
-class StayInBounds(BossModule module) : BossComponent(module)
-{
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (!Module.InBounds(actor.Position))
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 3));
-    }
-}
-
 class D021BarnabasStates : StateMachineBuilder
 {
     public D021BarnabasStates(BossModule module) : base(module)
     {
         TrivialPhase()
+            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<ArenaChange>()
             .ActivateOnEnter<Magnetism>()
             .ActivateOnEnter<ElectromagneticRelease1>()
@@ -202,7 +194,6 @@ class D021BarnabasStates : StateMachineBuilder
             .ActivateOnEnter<DynamicScraplinePlus>()
             .ActivateOnEnter<RollingScrapline>()
             .ActivateOnEnter<Shock>()
-            .ActivateOnEnter<StayInBounds>()
             .ActivateOnEnter<ShockingForce>();
     }
 }

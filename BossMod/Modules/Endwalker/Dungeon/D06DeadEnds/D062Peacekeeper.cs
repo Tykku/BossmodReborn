@@ -103,21 +103,12 @@ class EclipsingExhaustKnockback(BossModule module) : Components.KnockbackFromCas
     }
 }
 
-class StayInBounds(BossModule module) : BossComponent(module)
-{
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (!Module.InBounds(actor.Position))
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 3));
-    }
-}
-
 class D062PeacekeeperStates : StateMachineBuilder
 {
     public D062PeacekeeperStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<StayInBounds>()
+            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<DecimationArenaChange>()
             .ActivateOnEnter<ElectromagneticRepellant>()
             .ActivateOnEnter<InfantryDeterrent>()

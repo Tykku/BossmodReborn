@@ -195,21 +195,12 @@ class Towerfall(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class StayInBounds(BossModule module) : BossComponent(module)
-{
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (!Module.InBounds(actor.Position))
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 3));
-    }
-}
-
 class D132DamcyanAntlionStates : StateMachineBuilder
 {
     public D132DamcyanAntlionStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<StayInBounds>()
+            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<SandblastVoidzone>()
             .ActivateOnEnter<Sandblast>()
             .ActivateOnEnter<Landslip>()

@@ -2,7 +2,7 @@
 
 public enum OID : uint
 {
-    Boss = 0x4233, // R6.5
+    Boss = 0x4233 // R6.5
 }
 
 public enum AID : uint
@@ -26,7 +26,7 @@ public enum AID : uint
     Cocopult = 37307, // Boss->players, 5.0s cast, range 5 circle, stack
     RavagingRootsCW = 37373, // Boss->self, 5.0s cast, range 30 width 6 cross, 8x, -45° increment
     RavagingRootsCCW = 37374, // Boss->self, 5.0s cast, range 30 width 6 cross, 8x, 45° increment
-    RavagingRootsRest = 37375, // Boss->self, no cast, range 30 width 6 cross
+    RavagingRootsRest = 37375 // Boss->self, no cast, range 30 width 6 cross
 }
 
 class Neurotoxify(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Neurotoxify));

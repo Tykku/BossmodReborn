@@ -112,14 +112,7 @@ class WindEarthShot(BossModule module) : Components.GenericAOEs(module)
     {
         base.AddAIHints(slot, actor, assignment, hints);
         if (ActiveAOEs(slot, actor).Any(c => c.Shape == ENVC20 || c.Shape == ENVC21))
-        {
-            var forbidden = new List<Func<WPos, float>>
-            {
-                ShapeDistance.Circle(Module.Center, 15),
-                ShapeDistance.Rect(Module.Center - new WDir(0, -20), 90.Degrees(), 20, 20, 12),
-            };
-            hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Min(), ActiveAOEs(slot, actor).First().Activation);
-        }
+            hints.AddForbiddenZone(ShapeDistance.Circle(Module.Center, 15), ActiveAOEs(slot, actor).First().Activation);
     }
 }
 

@@ -56,7 +56,7 @@ public sealed class AnimationLockTweak
     // perform sanity check to detect conflicting plugins: disable the tweak if condition is false
     private void SanityCheck(float packetOriginalAnimLock, float packetModifiedAnimLock, float gameCurrAnimLock)
     {
-        if (!_config.RemoveAnimationLockDelay)
+        if (!_config.RemoveAnimationLockDelay || !_config.ActivateAnticheat)
             return; // nothing to do, tweak is already disabled
         if (packetOriginalAnimLock == packetModifiedAnimLock && packetOriginalAnimLock == gameCurrAnimLock && packetOriginalAnimLock % 0.01 is <= 0.0005f or >= 0.0095f)
             return; // nothing changed the packet value, and it's original value is reasonable

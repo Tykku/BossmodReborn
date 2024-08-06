@@ -1,4 +1,5 @@
-﻿using BossMod.Autorotation;
+﻿using BossMod.AI;
+using BossMod.Autorotation;
 using Dalamud.Game.ClientState.Objects.Types;
 
 namespace BossMod;
@@ -19,6 +20,7 @@ sealed class IPCProvider : IDisposable
         Register("HasModuleByDataId", (uint dataId) => ModuleRegistry.FindByOID(dataId) != null);
         Register("IsMoving", amex.InputOverride.IsMoving);
         Register("ForbiddenZonesCount", () => autorotation.Hints.ForbiddenZones.Count);
+        Register("Configuration", (IReadOnlyList<string> args) => Service.Config.ConsoleCommand(args));
         //Register("InitiateCombat", () => autorotation.ClassActions?.UpdateAutoAction(CommonActions.AutoActionAIFight, float.MaxValue, true));
         //Register("SetAutorotationState", (bool state) => Service.Config.Get<AutorotationConfig>().Enabled = state);
     }

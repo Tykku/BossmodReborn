@@ -2,7 +2,7 @@
 
 public enum OID : uint
 {
-    Boss = 0x4397, // R6.0
+    Boss = 0x4397 // R6.0
 }
 
 public enum AID : uint
@@ -33,7 +33,7 @@ public enum AID : uint
     ClimateChange4 = 39126, // Boss->self, 3.0s cast, single-target (Hyperelectricity replaces Wildfire)
 
     ClimateStatusEffects = 38537, // Boss->self, no cast, single-target, boss resets its status effects
-    ClimateChangeStatusEffect = 39133, // Boss->self, no cast, single-target
+    ClimateChangeStatusEffect = 39133 // Boss->self, no cast, single-target
 }
 
 class FloodConditions(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FloodConditions), 6);

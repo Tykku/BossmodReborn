@@ -39,7 +39,7 @@ public enum AID : uint
 
 class CurtainCallArenaChange(BossModule module) : BossComponent(module)
 {
-    private static readonly List<Circle> circle = [new(new(11, -490), 6)];
+    private static readonly List<Circle> circle = [new(new(11, -490), 6.4f)]; // adjusted for player hitbox radius
     public static readonly ArenaBoundsComplex CurtaincallArena = new(D053Amon.union, D053Amon.difference.Concat(circle));
 
     public override void OnEventEnvControl(byte index, uint state)
@@ -61,29 +61,14 @@ class RightFiragaForte(BossModule module) : Components.SelfTargetedAOEs(module, 
 class ThundagaForte1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ThundagaForte1), 15);
 class DarkForte(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DarkForte));
 class Entracte(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Entracte));
-
 class DreamsOfIce(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DreamsOfIce), new AOEShapeCircle(6));
 
 class CurtainCall(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.CurtainCall), 60, false)
 {
     public override IEnumerable<Actor> BlockerActors() => Module.Enemies(OID.Ice);
-
-    public override void AddHints(int slot, Actor actor, TextHints hints)
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (Module.Arena.Bounds == CurtainCallArenaChange.CurtaincallArena)
-            base.AddHints(slot, actor, hints);
-    }
-
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (Module.Arena.Bounds == CurtainCallArenaChange.CurtaincallArena)
-            base.AddAIHints(slot, actor, assignment, hints);
-    }
-
-    public override void DrawArenaBackground(int pcSlot, Actor pc)
-    {
-        if (Module.Arena.Bounds == CurtainCallArenaChange.CurtaincallArena)
-            base.DrawArenaBackground(pcSlot, pc);
+        return Module.Arena.Bounds == CurtainCallArenaChange.CurtaincallArena ? InvertedAOE : [];
     }
 }
 

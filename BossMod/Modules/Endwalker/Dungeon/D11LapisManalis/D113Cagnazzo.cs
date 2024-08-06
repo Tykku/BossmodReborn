@@ -58,6 +58,28 @@ public enum NPCYell : uint
     LimitBreakStart = 15175
 }
 
+class StygianDelugeArenaChange(BossModule module) : Components.GenericAOEs(module)
+{
+    private static readonly AOEShapeCustom square = new([new Square(D113Cagnazzo.ArenaCenter, 30)], [new Square(D113Cagnazzo.ArenaCenter, 20)]);
+    private AOEInstance? _aoe;
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID == AID.StygianDeluge && Module.Arena.Bounds == D113Cagnazzo.StartingBounds)
+            _aoe = new(square, Module.Center, default, Module.CastFinishAt(spell, 0.7f));
+    }
+
+    public override void OnEventEnvControl(byte index, uint state)
+    {
+        if (state == 0x00020001 && index == 0x00)
+        {
+            Module.Arena.Bounds = D113Cagnazzo.DefaultBounds;
+            _aoe = null;
+        }
+    }
+}
+
 class VoidTorrent(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.VoidTorrent), new AOEShapeRect(60, 4))
 {
     public override void AddGlobalHints(GlobalHints hints)
@@ -84,7 +106,7 @@ class Antediluvian(BossModule module) : Components.SelfTargetedAOEs(module, Acti
 }
 
 class BodySlam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BodySlam3), new AOEShapeCircle(8));
-class BodySlamKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.BodySlam2), 10)
+class BodySlamKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.BodySlam2), 10, true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -110,7 +132,7 @@ class HydraulicRam(BossModule module) : Components.GenericAOEs(module)
         if ((AID)spell.Action.ID == AID.HydraulicRamTelegraph)
         {
             var dir = spell.LocXZ - caster.Position;
-            _aoes.Add(new(new AOEShapeRect(dir.Length(), 4), caster.Position, Angle.FromDirection(dir), Module.CastFinishAt(spell, 7.8f)));
+            _aoes.Add(new(new AOEShapeRect(dir.Length(), 4), caster.Position, Angle.FromDirection(dir), Module.CastFinishAt(spell, 5.7f)));
         }
     }
 
@@ -138,7 +160,7 @@ class Hydrobomb(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.HydrobombTelegraph)
-            _aoes.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell, 8.1f)));
+            _aoes.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell, 6.1f)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -166,21 +188,13 @@ class SpringTideHydroFall(BossModule module) : Components.UniformStackSpread(mod
     }
 }
 
-class StayInBounds(BossModule module) : BossComponent(module)
-{
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (!Module.InBounds(actor.Position))
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 3));
-    }
-}
-
 class D113CagnazzoStates : StateMachineBuilder
 {
     public D113CagnazzoStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<StayInBounds>()
+            .ActivateOnEnter<Components.StayInBounds>()
+            .ActivateOnEnter<StygianDelugeArenaChange>()
             .ActivateOnEnter<Voidcleaver>()
             .ActivateOnEnter<Lifescleaver>()
             .ActivateOnEnter<VoidMiasma>()
@@ -200,8 +214,12 @@ class D113CagnazzoStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 896, NameID = 11995)]
-public class D113Cagnazzo(WorldState ws, Actor primary) : BossModule(ws, primary, new(-250, 130), new ArenaBoundsSquare(20))
+public class D113Cagnazzo(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, StartingBounds)
 {
+    public static readonly WPos ArenaCenter = new(-250, 130);
+    public static readonly ArenaBoundsSquare StartingBounds = new(29.5f);
+    public static readonly ArenaBoundsSquare DefaultBounds = new(20);
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);

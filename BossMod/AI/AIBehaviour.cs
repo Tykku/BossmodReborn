@@ -68,7 +68,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
     // returns null if we're to be idle, otherwise target to attack
     private Targeting SelectPrimaryTarget(Actor player, Actor master)
     {
-        if (!autorot.Hints.PriorityTargets.Any() || !master.InCombat || AIPreset == null)
+        if ((!_config.FollowTarget || !master.InCombat) && (!autorot.Hints.PriorityTargets.Any() || !master.InCombat || AIPreset == null))
             return new(); // there are no valid targets to attack, or we're not fighting - remain idle
 
         // we prefer not to switch targets unnecessarily, so start with current target - it could've been selected manually or by AI on previous frames
@@ -185,7 +185,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
             ctrl.NaviTargetRot = null;
             ctrl.NaviTargetVertical = master != player ? master.PosRot.Y : null;
             ctrl.AllowInterruptingCastByMovement = player.CastInfo != null && _naviDecision.LeewaySeconds <= player.CastInfo.RemainingTime - 0.5;
-            ctrl.ForceCancelCast = player.CastInfo != null && TargetIsForbidden(player.CastInfo.TargetID);
+            ctrl.ForceCancelCast = player.InCombat && player.CastInfo != null && TargetIsForbidden(player.CastInfo.TargetID);
             ctrl.ForceFacing = false;
             ctrl.WantJump = distSq >= 0.01f && autorot.Bossmods.ActiveModule?.StateMachine.ActiveState != null && autorot.Bossmods.ActiveModule.NeedToJump(player.Position, toDest.Normalized());
 

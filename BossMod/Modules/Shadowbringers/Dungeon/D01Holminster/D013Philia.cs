@@ -1,13 +1,11 @@
-﻿using BossMod.Autorotation;
-
-namespace BossMod.Shadowbringers.Dungeon.D01Holmintser.D013Philia;
+﻿namespace BossMod.Shadowbringers.Dungeon.D01Holmintser.D013Philia;
 
 public enum OID : uint
 {
-    Boss = 0x278C, // R9.800, x1
-    IronChain = 0x2895, // R1.000, spawn during fight
+    Boss = 0x278C, // R9.8
+    IronChain = 0x2895, // R1.0
     SludgeVoidzone = 0x1EABFA,
-    Helper = 0x233C, // x3
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -36,7 +34,7 @@ public enum AID : uint
     FierceBeating5 = 15839, // Helper->location, no cast, range 4 circle
     FierceBeating6 = 15838, // Helper->self, no cast, range 4 circle
     CatONineTails = 15840, // 278C->self, no cast, single-target
-    CatONineTails2 = 15841, // Helper->self, 2.0s cast, range 25 120-degree cone
+    CatONineTails2 = 15841 // Helper->self, 2.0s cast, range 25 120-degree cone
 }
 
 public enum IconID : uint
@@ -45,14 +43,14 @@ public enum IconID : uint
     SpreadFlare = 87, // player
     ChainTarget = 92, // player
     Spread = 139, // player
-    RotateCW = 167, // Boss
+    RotateCW = 167 // Boss
 }
 
 public enum SID : uint
 {
     Fetters = 1849, // none->player, extra=0xEC4
     DownForTheCount = 783, // none->player, extra=0xEC7
-    Sludge = 287, // none->player, extra=0x0
+    Sludge = 287 // none->player, extra=0x0
 }
 
 class SludgeVoidzone(BossModule module) : Components.PersistentVoidzone(module, 9.8f, m => m.Enemies(OID.SludgeVoidzone).Where(z => z.EventState != 7));

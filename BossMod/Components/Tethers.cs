@@ -387,3 +387,7 @@ public class StretchTetherDuo(BossModule module, uint tetherIDBad, uint tetherID
                 hints.AddForbiddenZone(ShapeDistance.Circle(b.Source.Position, MinimumDistance), b.Activation);
     }
 }
+
+// generic component for tethers that need to be stretched
+public class StretchTetherSingle(BossModule module, uint tetherID, float minimumDistance, AOEShape? shape = null, ActionID aid = default, uint enemyOID = default, float activationDelay = default, bool knockbackImmunity = false) :
+StretchTetherDuo(module, tetherID, tetherID, minimumDistance, shape, aid, enemyOID, activationDelay, knockbackImmunity);

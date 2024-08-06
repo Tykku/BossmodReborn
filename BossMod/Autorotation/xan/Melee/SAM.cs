@@ -8,7 +8,7 @@ public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan
 
     public static RotationModuleDefinition Definition()
     {
-        var def = new RotationModuleDefinition("SAM", "Samurai", "xan", RotationModuleQuality.Basic, BitMask.Build(Class.SAM), 100);
+        var def = new RotationModuleDefinition("xan SAM", "Samurai", "xan", RotationModuleQuality.Basic, BitMask.Build(Class.SAM), 100);
 
         def.DefineShared().AddAssociatedActions(AID.Ikishoten, AID.HissatsuSenei);
 
@@ -115,12 +115,12 @@ public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan
 
         OGCD(strategy, primaryTarget);
 
-        if (World.Client.CountdownRemaining > 0)
+        if (CountdownRemaining > 0)
         {
-            if (MeikyoLeft == 0 && World.Client.CountdownRemaining < 14)
+            if (MeikyoLeft == 0 && CountdownRemaining < 14)
                 PushGCD(AID.MeikyoShisui, Player);
 
-            if (TrueNorthLeft == 0 && Hints.PotentialTargets.Any(x => !x.Actor.Omnidirectional) && World.Client.CountdownRemaining < 5)
+            if (TrueNorthLeft == 0 && Hints.PotentialTargets.Any(x => !x.Actor.Omnidirectional) && CountdownRemaining < 5)
                 PushGCD(AID.TrueNorth, Player);
 
             return;

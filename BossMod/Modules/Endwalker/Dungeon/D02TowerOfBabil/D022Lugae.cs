@@ -5,9 +5,9 @@ namespace BossMod.Endwalker.Dungeon.D02TowerOfBabil.D022Lugae;
 public enum OID : uint
 {
     Boss = 0x33FA, // R=3.9
-    Helper = 0x233C,
     MagitekChakram = 0x33FB, // R=3.0
-    MagitekExplosive = 0x33FC // R=2.0
+    MagitekExplosive = 0x33FC, // R=2.0
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -73,7 +73,7 @@ class DownpourMagitekChakram(BossModule module) : Components.GenericAOEs(module)
     {
         if ((AID)spell.Action.ID == AID.Downpour)
             CurrentMechanic = Mechanic.Downpour;
-        if ((AID)spell.Action.ID == AID.MagitekChakram)
+        else if ((AID)spell.Action.ID == AID.MagitekChakram)
             CurrentMechanic = Mechanic.Chakram;
     }
 
@@ -87,7 +87,7 @@ class DownpourMagitekChakram(BossModule module) : Components.GenericAOEs(module)
     {
         if (CurrentMechanic == Mechanic.Chakram && actor.FindStatus(SID.Minimum) == null && !avoidSquares)
             hints.Add(miniHint);
-        if (CurrentMechanic == Mechanic.Downpour && actor.FindStatus(SID.Toad) == null)
+        else if (CurrentMechanic == Mechanic.Downpour && actor.FindStatus(SID.Toad) == null)
             hints.Add(toadHint);
     }
 }

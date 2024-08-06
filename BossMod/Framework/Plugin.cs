@@ -158,6 +158,9 @@ public sealed class Plugin : IDalamudPlugin
             case "RESTOREROTATION":
                 ToggleRestoreRotation();
                 break;
+            case "TOGGLEANTICHEAT":
+                ToggleAnticheat();
+                break;
         }
     }
 
@@ -198,6 +201,15 @@ public sealed class Plugin : IDalamudPlugin
 
         currentConfig.Modified.Fire();
         Service.Log("Colors have been reset to default values.");
+    }
+
+    private bool ToggleAnticheat()
+    {
+        var config = Service.Config.Get<ActionTweaksConfig>();
+        config.ActivateAnticheat = !config.ActivateAnticheat;
+        config.Modified.Fire();
+        Service.Log($"The animation lock anticheat is now {(config.ActivateAnticheat ? "enabled" : "disabled")}");
+        return true;
     }
 
     private bool ToggleRestoreRotation()

@@ -89,15 +89,15 @@ public class GenericForcedMarch(BossModule module, float activationLimit = float
 }
 
 // typical forced march is driven by statuses
-public class StatusDrivenForcedMarch(BossModule module, float duration, uint statusForward, uint statusBackward, uint statusLeft, uint statusRight, uint statusForced = 1257, float activationLimit = float.MaxValue) : GenericForcedMarch(module, activationLimit)
+public class StatusDrivenForcedMarch(BossModule module, float duration, uint statusForward, uint statusBackward, uint statusLeft, uint statusRight, uint statusForced = 1257, uint statusForcedNPCs = 3629, float activationLimit = float.MaxValue) : GenericForcedMarch(module, activationLimit)
 {
     public float Duration = duration;
-    public readonly uint[] Statuses = [statusForward, statusLeft, statusBackward, statusRight, statusForced]; // 5 elements: fwd, left, back, right, forced
+    public readonly uint[] Statuses = [statusForward, statusLeft, statusBackward, statusRight, statusForced, statusForcedNPCs]; // 5 elements: fwd, left, back, right, forced, forcedNPCs
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
         var statusKind = Array.IndexOf(Statuses, status.ID);
-        if (statusKind == 4)
+        if (statusKind >= 4)
         {
             ActivateForcedMovement(actor, status.ExpireAt);
         }
@@ -110,7 +110,7 @@ public class StatusDrivenForcedMarch(BossModule module, float duration, uint sta
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
         var statusKind = Array.IndexOf(Statuses, status.ID);
-        if (statusKind == 4)
+        if (statusKind >= 4)
         {
             DeactivateForcedMovement(actor);
         }
@@ -119,5 +119,38 @@ public class StatusDrivenForcedMarch(BossModule module, float duration, uint sta
             var dir = statusKind * 90.Degrees();
             State.GetOrAdd(actor.InstanceID).PendingMoves.RemoveAll(e => e.dir == dir);
         }
+    }
+}
+
+// action driven forced march
+public class ActionDrivenForcedMarch(BossModule module, ActionID aid, float duration, Angle rotation, float actioneffectdelay, uint statusForced = 1257, uint statusForcedNPCs = 3629, float activationLimit = float.MaxValue) : GenericForcedMarch(module, activationLimit)
+{
+    public float Duration = duration;
+    public float Actioneffectdelay = actioneffectdelay;
+    public Angle Rotation = rotation;
+    public uint StatusForced = statusForced;
+    public uint StatusForcedNPCs = statusForcedNPCs;
+    public ActionID Aid = aid;
+
+    public override void OnStatusGain(Actor actor, ActorStatus status)
+    {
+        if (status.ID == StatusForced || status.ID == StatusForcedNPCs)
+        {
+            State.GetOrAdd(actor.InstanceID).PendingMoves.RemoveAll(e => e.dir == Rotation);
+            ActivateForcedMovement(actor, status.ExpireAt);
+        }
+    }
+
+    public override void OnStatusLose(Actor actor, ActorStatus status)
+    {
+        if (status.ID == StatusForced || status.ID == StatusForcedNPCs)
+            DeactivateForcedMovement(actor);
+    }
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if (spell.Action == Aid)
+            foreach (var p in Module.Raid.WithoutSlot())
+                AddForcedMovement(p, Rotation, Duration, Module.CastFinishAt(spell, Actioneffectdelay));
     }
 }

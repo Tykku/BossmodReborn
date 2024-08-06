@@ -1,8 +1,10 @@
 namespace BossMod.Components;
 
 // generic 'chasing AOE' component - these are AOEs that follow the target for a set amount of casts
-public class GenericChasingAOEs(BossModule module, ActionID aid = default, string warningText = "GTFO from chasing aoe!") : GenericAOEs(module, aid, warningText)
+public class GenericChasingAOEs(BossModule module, float moveDistance, ActionID aid = default, string warningText = "GTFO from chasing aoe!") : GenericAOEs(module, aid, warningText)
 {
+    private readonly float MoveDistance = moveDistance;
+
     public class Chaser(AOEShape shape, Actor target, WPos prevPos, float moveDist, int numRemaining, DateTime nextActivation, float secondsBetweenActivations)
     {
         public AOEShape Shape = shape;
@@ -58,18 +60,27 @@ public class GenericChasingAOEs(BossModule module, ActionID aid = default, strin
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        base.AddAIHints(slot, actor, assignment, hints);
-        // TODO: for some reason the AI only dodges the first hit correctly and then fails the rest (looks like running against a wall)
-        // this is a hack that tries to counter the problem
-        // 11 is the biggest radius of known chasing AOE (from Zeromus ex) + 1
         if (Chasers.Count > 0)
-            foreach (var c in Chasers.Where(x => x.Target == actor))
-                hints.AddForbiddenZone(ShapeDistance.Circle(c.PredictedPosition(), 11));
+        {
+            AddForbiddenZones(actor, hints, true);
+            AddForbiddenZones(actor, hints, false);
+        }
+    }
+
+    private void AddForbiddenZones(Actor actor, AIHints hints, bool isTarget)
+    {
+        // sort of a hack to prevent the AI from getting "stuck" inside the AOE because all paths to safety have equal distance
+        foreach (var chaser in Chasers.Where(c => c.Target == actor == isTarget))
+        {
+            var circle = (AOEShapeCircle)chaser.Shape;
+            var radius = isTarget ? MoveDistance + circle.Radius : circle.Radius;
+            hints.AddForbiddenZone(ShapeDistance.Circle(chaser.PredictedPosition(), radius), chaser.NextActivation);
+        }
     }
 }
 
 // standard chasing aoe; first cast is long - assume it is baited on the nearest allowed target; successive casts are instant
-public class StandardChasingAOEs(BossModule module, AOEShape shape, ActionID actionFirst, ActionID actionRest, float moveDistance, float secondsBetweenActivations, int maxCasts) : GenericChasingAOEs(module)
+public class StandardChasingAOEs(BossModule module, AOEShape shape, ActionID actionFirst, ActionID actionRest, float moveDistance, float secondsBetweenActivations, int maxCasts, bool resetExcludedTargets = false, uint icon = default, float activationDelay = 5.1f) : GenericChasingAOEs(module, moveDistance)
 {
     public AOEShape Shape = shape;
     public ActionID ActionFirst = actionFirst;
@@ -78,6 +89,11 @@ public class StandardChasingAOEs(BossModule module, AOEShape shape, ActionID act
     public float SecondsBetweenActivations = secondsBetweenActivations;
     public int MaxCasts = maxCasts;
     public BitMask ExcludedTargets; // any targets in this mask aren't considered to be possible targets
+    public uint Icon = icon;
+    public float ActivationDelay = activationDelay;
+    public bool ResetExcludedTargets = resetExcludedTargets;
+    public readonly List<Actor> Actors = []; // to keep track of the icon before mechanic starts for handling custom forbidden zones
+    public DateTime Activation;
 
     public override void Update()
     {
@@ -102,6 +118,7 @@ public class StandardChasingAOEs(BossModule module, AOEShape shape, ActionID act
             var (slot, target) = Raid.WithSlot().ExcludedFromMask(ExcludedTargets).MinBy(ip => (ip.Item2.Position - pos).LengthSq());
             if (target != null)
             {
+                Actors.Remove(target);
                 Chasers.Add(new(Shape, target, pos, 0, MaxCasts, Module.CastFinishAt(spell), SecondsBetweenActivations)); // initial cast does not move anywhere
                 ExcludedTargets.Set(slot);
             }
@@ -114,6 +131,20 @@ public class StandardChasingAOEs(BossModule module, AOEShape shape, ActionID act
         {
             var pos = spell.MainTargetID == caster.InstanceID ? caster.Position : WorldState.Actors.Find(spell.MainTargetID)?.Position ?? spell.TargetXZ;
             Advance(pos, MoveDistance, WorldState.CurrentTime);
+            if (Chasers.Count == 0 && ResetExcludedTargets)
+            {
+                ExcludedTargets.Reset();
+                NumCasts = 0;
+            }
+        }
+    }
+
+    public override void OnEventIcon(Actor actor, uint iconID)
+    {
+        if (iconID == Icon)
+        {
+            Activation = Module.WorldState.FutureTime(ActivationDelay);
+            Actors.Add(actor);
         }
     }
 }

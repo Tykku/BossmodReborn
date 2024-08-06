@@ -50,16 +50,35 @@ public class GenericBaitAway(BossModule module, ActionID aid = default, bool alw
     {
         if (!ActiveBaits.Any())
             return;
-        foreach (var b in ActiveBaitsNotOn(actor))
-            hints.AddForbiddenZone(b.Shape, BaitOrigin(b), b.Rotation, b.Activation);
-        //TODO: AI hints for when actor is the target
-        var circles = from b in ActiveBaits
-                      where actor == b.Target && b.Shape is AOEShapeCircle
-                      from a in Raid.WithoutSlot().Exclude(actor)
-                      select new { b, a, circle = (AOEShapeCircle)b.Shape };
 
-        foreach (var item in circles)
-            hints.AddForbiddenZone(ShapeDistance.Circle(item.a.Position, item.circle.Radius), item.b.Activation);
+        foreach (var bait in ActiveBaitsNotOn(actor))
+            hints.AddForbiddenZone(bait.Shape, BaitOrigin(bait), bait.Rotation, bait.Activation);
+
+        foreach (var bait in ActiveBaitsOn(actor))
+            AddTargetSpecificHints(actor, bait, hints);
+    }
+
+    private void AddTargetSpecificHints(Actor actor, Bait bait, AIHints hints)
+    {
+        if (bait.Source == bait.Target) // TODO: think about how to handle source == target baits, eg. vomitting mechanics
+            return;
+        switch (bait.Shape)
+        {
+            case AOEShapeCircle circle:
+                foreach (var a in Raid.WithoutSlot().Exclude(actor))
+                    hints.AddForbiddenZone(circle, a.Position, default, bait.Activation);
+                break;
+
+            case AOEShapeCone cone:
+                if (Raid.WithoutSlot().Exclude(actor).InShape(cone, bait.Source.Position, bait.Rotation).Any())
+                    hints.AddForbiddenZone(ShapeDistance.Cone(bait.Source.Position, 100, bait.Rotation, cone.HalfAngle), bait.Activation);
+                break;
+
+            case AOEShapeRect rect:
+                if (Raid.WithoutSlot().Exclude(actor).InShape(rect, bait.Source.Position, bait.Rotation).Any())
+                    hints.AddForbiddenZone(ShapeDistance.Rect(bait.Source.Position, bait.Rotation, 100, default, rect.HalfWidth), bait.Activation);
+                break;
+        }
     }
 
     public override PlayerPriority CalcPriority(int pcSlot, Actor pc, int playerSlot, Actor player, ref uint customColor) => ActiveBaitsOn(player).Any() ? BaiterPriority : PlayerPriority.Irrelevant;

@@ -92,7 +92,7 @@ class SanctifiedBlizzardChain(BossModule module) : Components.GenericRotatingAOE
                 _rot2 = spell.Rotation;
             if ((_rot1 - _rot2).Normalized().Rad > 0)
                 _increment = -45.Degrees();
-            if ((_rot1 - _rot2).Normalized().Rad < 0)
+            else if ((_rot1 - _rot2).Normalized().Rad < 0)
                 _increment = 45.Degrees();
             if (Sequences.Count == 0)
                 Sequences.Add(new(_shape, Module.PrimaryActor.Position, _rot2, _increment, _activation, 1.3f, 7));
