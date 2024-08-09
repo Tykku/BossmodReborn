@@ -37,7 +37,7 @@ class UniteMare2(BossModule module) : Components.SelfTargetedAOEs(module, Action
 class UniteMare3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.UniteMare3), new AOEShapeCircle(12));
 class DarkVision1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DarkVision1), new AOEShapeRect(40, 2.5f));
 class DarkVision2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DarkVision2), new AOEShapeRect(41, 2.5f));
-class VoidGravity(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VoidGravity), 6, 4);
+class VoidGravity(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VoidGravity), 6, 4, 4);
 
 class D101EvilDreamersStates : StateMachineBuilder
 {

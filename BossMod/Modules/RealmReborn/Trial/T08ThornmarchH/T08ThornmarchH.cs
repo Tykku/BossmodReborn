@@ -70,7 +70,7 @@ class MementoMoogle(BossModule module) : Components.RaidwideCast(module, ActionI
 class PomHolyBoss(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PomHolyBoss));
 class ThousandKuponzeCharge(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ThousandKuponzeCharge));
 class PomBog(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 8, ActionID.MakeSpell(AID.PomBog), m => m.Enemies(OID.PomBog).Where(a => a.EventState != 7), 0.8f);
-class MogStone(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.MogStoneAOE), 6, 8);
+class MogStone(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.MogStoneAOE), 6, 8, 8);
 class TwinPomMeteor(BossModule module) : Components.CastSharedTankbuster(module, ActionID.MakeSpell(AID.TwinPomMeteorAOE), 6);
 class MogComet(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MogCometAOE), 6);
 class MogCreation(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MogCreation), new AOEShapeRect(50, 5));

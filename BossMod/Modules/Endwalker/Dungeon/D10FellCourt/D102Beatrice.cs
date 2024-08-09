@@ -54,7 +54,7 @@ class VoidNail(BossModule module) : Components.SpreadFromCastTargets(module, Act
 class Hush(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Hush));
 class EyeOfTroia(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.EyeOfTroia));
 class ToricVoid3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ToricVoid3), new AOEShapeDonut(10, 10));
-class Antipressure(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Antipressure), 6, 4);
+class Antipressure(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Antipressure), 6, 4, 4);
 
 class D102BeatriceStates : StateMachineBuilder
 {

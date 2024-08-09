@@ -14,7 +14,7 @@ class HerossSundering(BossModule module) : Components.BaitAwayCast(module, Actio
 class HerossRadiance(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HerossRadiance));
 class MagossRadiance(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MagossRadiance));
 class RadiantHalo(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RadiantHalo));
-class CrystallineStoneIII(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.CrystallineStoneIII2), 6, 5);
+class CrystallineStoneIII(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.CrystallineStoneIII2), 6, 8, 8);
 class CrystallineBlizzardIII(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.CrystallineBlizzardIII2), 5);
 class Beacon(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.Beacon), 3);
 class Beacon2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Beacon2), new AOEShapeRect(45, 3), 10);

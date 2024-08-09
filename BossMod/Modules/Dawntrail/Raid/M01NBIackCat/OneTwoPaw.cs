@@ -7,6 +7,7 @@ class OneTwoPaw(BossModule module) : Components.GenericAOEs(module)
     private Pattern _currentPattern;
     private static readonly AOEShapeCone cone = new(60, 90.Degrees());
     private static readonly List<Angle> angles = [89.999f.Degrees(), -90.004f.Degrees()];
+    private Actor? helper;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -18,12 +19,10 @@ class OneTwoPaw(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.LeapingAttacks && _currentPattern != Pattern.None)
+        if ((OID)actor.OID == OID.LeapingAttacks)
         {
-            var angle = _currentPattern == Pattern.EastWest ? angles : angles.AsEnumerable().Reverse().ToList();
-            _aoes.Add(new(cone, actor.Position, angle[0], Module.WorldState.FutureTime(8.7f)));
-            _aoes.Add(new(cone, actor.Position, angle[1], Module.WorldState.FutureTime(10.7f)));
-            _currentPattern = Pattern.None;
+            helper = actor;
+            InitIfReady();
         }
     }
 
@@ -47,10 +46,20 @@ class OneTwoPaw(BossModule module) : Components.GenericAOEs(module)
                 _currentPattern = Pattern.WestEast;
                 break;
         }
+        InitIfReady();
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
+        switch ((AID)spell.Action.ID)
+        {
+            case AID.LeapingBlackCatCrossingVisual1:
+            case AID.LeapingBlackCatCrossingVisual2:
+            case AID.LeapingBlackCatCrossingVisual3:
+            case AID.LeapingBlackCatCrossingVisual4:
+                helper = null;
+                break;
+        }
         if (_aoes.Count > 0)
             switch ((AID)spell.Action.ID)
             {
@@ -62,8 +71,21 @@ class OneTwoPaw(BossModule module) : Components.GenericAOEs(module)
                 case AID.LeapingOneTwoPaw2:
                 case AID.LeapingOneTwoPaw3:
                 case AID.LeapingOneTwoPaw4:
+                    _currentPattern = Pattern.None;
                     _aoes.RemoveAt(0);
                     break;
             }
+    }
+
+    private void InitIfReady()
+    {
+        if (helper != null && _currentPattern != Pattern.None)
+        {
+            var angle = _currentPattern == Pattern.EastWest ? angles : angles.AsEnumerable().Reverse().ToList();
+            _aoes.Add(new(cone, helper.Position, angle[0], Module.WorldState.FutureTime(8.7f)));
+            _aoes.Add(new(cone, helper.Position, angle[1], Module.WorldState.FutureTime(10.7f)));
+            _currentPattern = Pattern.None;
+            helper = null;
+        }
     }
 }

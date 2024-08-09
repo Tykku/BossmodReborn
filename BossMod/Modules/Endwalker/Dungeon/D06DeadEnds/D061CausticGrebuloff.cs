@@ -36,7 +36,7 @@ class CertainSolitude(BossModule module) : Components.GenericStackSpread(module)
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
         if ((SID)status.ID == SID.CravenCompanionship && Stacks.Count == 0)
-            Stacks.Add(new(actor, 1.5f, 4, activation: WorldState.FutureTime(5)));
+            Stacks.Add(new(actor, 1.5f, 4, 4, activation: WorldState.FutureTime(5)));
     }
 
     public override void Update()
@@ -185,7 +185,7 @@ class NecroticFluidMist(BossModule module) : Components.Exaflare(module, 6)
 }
 
 class Befoulment(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Befoulment), 6);
-class BlightedWater(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BlightedWater), 6, 4);
+class BlightedWater(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BlightedWater), 6, 4, 4);
 class CoughUpAOE(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.CoughUpAOE), 6);
 
 class WaveOfNausea(BossModule module) : Components.GenericAOEs(module)

@@ -1,4 +1,4 @@
-﻿namespace BossMod.Dawntrail.Savage.RM02SHoneyBLovely;
+﻿namespace BossMod.Dawntrail.Savage.M02SHoneyBLovely;
 
 public enum OID : uint
 {
@@ -29,7 +29,7 @@ public enum AID : uint
     HoneyBeeline = 37254, // Boss->self, 5.5+0.7s cast, single-target
     HoneyBeelineAOE = 39625, // Helper->self, 6.2s cast, range 60 width 14 rect
     TemptingTwist = 37255, // Boss->self, 5.5+0.7s cast, single-target
-    TemptingTwistAOE = 39626, // Helper->self, 6.2s cast, range ?-30 donut
+    TemptingTwistAOE = 39626, // Helper->self, 6.2s cast, range 7-30 donut
     PoisonCloudAppear = 37229, // PoisonCloud->location, no cast, single-target
     PoisonCloudSplinter = 37256, // PoisonCloud->self, 3.3s cast, range 8 circle
 
@@ -78,7 +78,7 @@ public enum AID : uint
     HoneyBeelineBeat = 39692, // Boss->self, 5.5+0.7s cast, single-target
     HoneyBeelineBeatAOE = 39696, // Helper->self, 6.2s cast, range 60 width 14 rect
     TemptingTwistBeat = 39693, // Boss->self, 5.5+0.7s cast, single-target
-    TemptingTwistBeatAOE = 39697, // Helper->self, 6.2s cast, range ?-30 donut
+    TemptingTwistBeatAOE = 39697, // Helper->self, 6.2s cast, range 7-30 donut
     SweetheartAppear = 39690, // Sweetheart->location, no cast, single-target
     SweetheartSplinter = 39691, // Sweetheart->self, 3.3s cast, range 8 circle
 

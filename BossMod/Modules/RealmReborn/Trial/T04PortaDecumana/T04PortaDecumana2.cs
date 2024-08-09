@@ -47,7 +47,7 @@ class MagitekRayF(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 class MagitekRayR(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRayAOERight), new AOEShapeRect(40, 3));
 class MagitekRayL(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRayAOELeft), new AOEShapeRect(40, 3));
 class HomingRay(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HomingRayAOE), 6);
-class LaserFocus(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.LaserFocusAOE), 6);
+class LaserFocus(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.LaserFocusAOE), 6, 4, 4);
 
 class AethericBoom(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.AethericBoom), 30, stopAtWall: true)
 {

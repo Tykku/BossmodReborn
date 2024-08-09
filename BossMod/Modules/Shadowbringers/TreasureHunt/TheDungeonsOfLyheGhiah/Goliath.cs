@@ -39,7 +39,7 @@ public enum AID : uint
 class Wellbore(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wellbore), new AOEShapeCircle(15));
 class Compress(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Compress), new AOEShapeCross(100, 3.5f));
 class Compress2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Compress2), new AOEShapeRect(102.1f, 3.5f));
-class Accelerate(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Accelerate), 6);
+class Accelerate(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Accelerate), 6, 8, 8);
 class Incinerate(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Incinerate));
 class Fount(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Fount), 4);
 class MechanicalBlow(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.MechanicalBlow));

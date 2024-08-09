@@ -2,19 +2,26 @@ namespace BossMod.Dawntrail.Raid.M01NBlackCat;
 
 class ElevateAndEviscerate(BossModule module) : Components.Knockback(module, ignoreImmunes: true, stopAfterWall: true)
 {
-    private DateTime activation;
+    public DateTime Activation;
     public (Actor source, Actor target) Tether;
+    public WPos Cache;
 
     public override IEnumerable<Source> Sources(int slot, Actor actor)
     {
         if (Tether != default && actor == Tether.target)
-            yield return new(Tether.source.Position, 10, activation);
+            yield return new(Tether.source.Position, 10, Activation);
+    }
+
+    public override void Update()
+    {
+        if (Sources(0, Tether.target).Any())
+            Cache = CalculateMovements(0, Tether.target).First().to;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.ElevateAndEviscerate)
-            activation = Module.CastFinishAt(spell);
+            Activation = Module.CastFinishAt(spell);
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
@@ -37,16 +44,46 @@ class ElevateAndEviscerate(BossModule module) : Components.Knockback(module, ign
 
 class ElevateAndEviscerateHint(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeRect rect = new(5, 5, 5);
+    private readonly ElevateAndEviscerate _kb = module.FindComponent<ElevateAndEviscerate>()!;
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var tether = _kb.Tether;
+        if (tether != default && actor == tether.target)
+        {
+            var damagedCells = Module.FindComponent<ArenaChanges>()!.DamagedCells;
+            var tiles = ArenaChanges.Tiles;
+
+            foreach (var index in damagedCells.SetBits())
+            {
+                var tile = tiles[index];
+                yield return new AOEInstance(Mouser.Rect, tile.Center, Color: Colors.FutureVulnerable, Risky: false);
+            }
+        }
+    }
+}
+
+class ElevateAndEviscerateImpact(BossModule module) : Components.GenericAOEs(module, default, "GTFO from impact!")
+{
+    private readonly ElevateAndEviscerate _kb = module.FindComponent<ElevateAndEviscerate>()!;
+    private AOEInstance? aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        var tether = Module.FindComponent<ElevateAndEviscerate>()!.Tether;
-        if (tether != default && actor == tether.target)
-        {
-            var tiles = Module.FindComponent<ArenaChanges>()!.DamagedTiles;
-            foreach (var t in tiles.OfType<Square>())
-                yield return new(rect, t.Center, Color: Colors.FutureVulnerable, Risky: false);
-        }
+        if (_kb.Tether != default && _kb.Tether.target != actor && Module.InBounds(_kb.Cache))
+            yield return new(Mouser.Rect, ArenaChanges.CellCenter(ArenaChanges.CellIndex(_kb.Cache)), default, _kb.Activation.AddSeconds(3.6f));
+        if (aoe != null)
+            yield return (AOEInstance)aoe;
+    }
+
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID == AID.ElevateAndEviscerate && Module.InBounds(_kb.Cache))
+            aoe = new(Mouser.Rect, ArenaChanges.CellCenter(ArenaChanges.CellIndex(_kb.Cache)), default, Module.CastFinishAt(spell, 3.6f));
+    }
+
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    {
+        if ((AID)spell.Action.ID == AID.Impact)
+            aoe = null;
     }
 }

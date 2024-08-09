@@ -65,7 +65,7 @@ class LamellarLightCircle(BossModule module) : Components.SelfTargetedAOEs(modul
 class Lifesbreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Lifesbreath), new AOEShapeRect(50, 5));
 class LamellarLightRect(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LamellarLight3), new AOEShapeRect(40, 2));
 class StillEmbrace(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.StillEmbrace), 6);
-class Benevolence(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Benevolence), 6, 4);
+class Benevolence(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Benevolence), 6, 4, 4);
 
 class LovingEmbraceLeft(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LovingEmbraceLeft), new AOEShapeCone(45, 90.Degrees()));
 class LovingEmbraceRight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LovingEmbraceRight), new AOEShapeCone(45, 90.Degrees()));

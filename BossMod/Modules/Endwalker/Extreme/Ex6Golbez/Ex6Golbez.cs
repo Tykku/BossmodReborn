@@ -10,10 +10,10 @@ class ArcticAssault(BossModule module) : Components.SelfTargetedAOEs(module, Act
 class RisingBeacon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RisingBeaconAOE), new AOEShapeCircle(10));
 class RisingRing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RisingRingAOE), new AOEShapeDonut(6, 22));
 class BurningShade(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BurningShade), 5);
-class ImmolatingShade(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ImmolatingShade), 6, 4);
-class VoidBlizzard(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VoidBlizzard), 6, 4);
-class VoidAero(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VoidAero), 3, 2);
-class VoidTornado(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VoidTornado), 6, 4);
+class ImmolatingShade(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ImmolatingShade), 6, 4, 4);
+class VoidBlizzard(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VoidBlizzard), 6, 4, 4);
+class VoidAero(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VoidAero), 3, 2, 2);
+class VoidTornado(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VoidTornado), 6, 4, 4);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 950, NameID = 12365, PlanLevel = 90)]
 public class Ex6Golbez(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsSquare(15));

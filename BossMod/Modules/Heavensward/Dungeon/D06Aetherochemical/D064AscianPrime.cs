@@ -172,7 +172,7 @@ class DarkWhispers(BossModule module) : Components.UniformStackSpread(module, 0,
     }
 }
 
-class AncientFrost(BossModule module) : Components.StackWithIcon(module, (uint)IconID.AncientFrost, ActionID.MakeSpell(AID.AncientFrost), 6, 5, 4);
+class AncientFrost(BossModule module) : Components.StackWithIcon(module, (uint)IconID.AncientFrost, ActionID.MakeSpell(AID.AncientFrost), 6, 5, 4, 4);
 class ShadowFlare(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ShadowFlare1));
 class ShadowFlareLBPhase(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ShadowFlare2), "Raidwide x2");
 class Annihilation(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AnnihilationAOE));

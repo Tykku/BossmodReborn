@@ -12,7 +12,7 @@ class FireAndLightning2(BossModule module) : Components.SelfTargetedAOEs(module,
 //class Aratama1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Aratama1), 4);
 class DistantClap(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DistantClap), new AOEShapeDonut(5, 30));
 
-class HighestStakes(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.HighestStakes2), 6, 5, 7);
+class HighestStakes(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.HighestStakes2), 6, 5, 7, 7);
 
 class AratamaForce(BossModule module) : Components.GenericAOEs(module)
 {

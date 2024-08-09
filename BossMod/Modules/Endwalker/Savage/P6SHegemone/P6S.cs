@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Savage.P6SHegemone;
 
-class UnholyDarkness(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.UnholyDarknessAOE), 6);
+class UnholyDarkness(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.UnholyDarknessAOE), 6, 8, 8);
 class DarkDome(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DarkDomeAOE), 5);
 class DarkAshes(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.DarkAshesAOE), 6);
 class DarkSphere(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.DarkSphereAOE), 10);

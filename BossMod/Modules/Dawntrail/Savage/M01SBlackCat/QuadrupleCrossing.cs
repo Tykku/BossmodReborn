@@ -1,4 +1,4 @@
-﻿namespace BossMod.Dawntrail.Savage.RM01SBlackCat;
+﻿namespace BossMod.Dawntrail.Savage.M01SBlackCat;
 
 // same component covers normal, leaping and leaping clone versions
 class QuadrupleCrossingProtean(BossModule module) : Components.GenericBaitAway(module)
@@ -90,10 +90,20 @@ class QuadrupleCrossingProtean(BossModule module) : Components.GenericBaitAway(m
 class QuadrupleCrossingAOE(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
-
+    private bool ready;
     private static readonly AOEShapeCone _shape = new(100, 22.5f.Degrees());
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Count >= 8 ? _aoes.Skip(NumCasts).Take(4) : [];
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        if (ready)
+        {
+            var aoeCount = Math.Clamp(_aoes.Count, 0, 4);
+            for (var i = aoeCount; i < _aoes.Count; i++)
+                yield return _aoes[i];
+            for (var i = 0; i < aoeCount; i++)
+                yield return _aoes[i] with { Color = Colors.Danger };
+        }
+    }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
@@ -108,7 +118,11 @@ class QuadrupleCrossingAOE(BossModule module) : Components.GenericAOEs(module)
             case AID.LeapingQuadrupleCrossingBossAOE:
             case AID.LeapingQuadrupleCrossingShadeAOE:
                 ++NumCasts;
+                if (_aoes.Count > 0)
+                    _aoes.RemoveAt(0);
                 break;
         }
+        if (_aoes.Count == 8)
+            ready = true;
     }
 }

@@ -25,7 +25,7 @@ class CroakingChorus(BossModule module) : Components.CastHint(module, ActionID.M
 class FrigidNeedle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FrigidNeedle2), new AOEShapeCross(40, 2.5f));
 class Spittle(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Spittle2), 8);
 class ToyHammer(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ToyHammer));
-class Hydrocannon(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Hydrocannon), 6);
+class Hydrocannon(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Hydrocannon), 6, 8, 8);
 
 class FuathTroublemakerStates : StateMachineBuilder
 {

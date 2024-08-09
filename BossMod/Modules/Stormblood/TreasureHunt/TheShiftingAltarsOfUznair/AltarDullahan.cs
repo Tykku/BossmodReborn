@@ -39,7 +39,7 @@ public enum AID : uint
 class IronJustice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IronJustice), new AOEShapeCone(11.8f, 60.Degrees()));
 class Cloudcover(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Cloudcover), 6);
 class TerrorEye(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TerrorEye), 6);
-class VillainousRebuke(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VillainousRebuke), 6);
+class VillainousRebuke(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VillainousRebuke), 6, 8, 8);
 class StygianRelease(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.StygianRelease));
 class PluckAndPrune(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PluckAndPrune), new AOEShapeCircle(6.84f));
 class TearyTwirl(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TearyTwirl), new AOEShapeCircle(6.84f));

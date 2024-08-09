@@ -93,7 +93,7 @@ class Landslip(BossModule module) : Components.Knockback(module)
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<Towerfall>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || !Module.InBounds(pos);
 }
 
-class EarthenGeyser(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.EarthenGeyser2), 10);
+class EarthenGeyser(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.EarthenGeyser2), 10, 4, 4);
 class QuicksandVoidzone(BossModule module) : Components.PersistentVoidzone(module, 10, m => m.Enemies(OID.QuicksandVoidzone).Where(z => z.EventState != 7));
 class PoundSand(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PoundSand), 12);
 

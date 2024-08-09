@@ -134,7 +134,7 @@ class P3WormholeRepentance(BossModule module) : BossComponent(module)
     }
 }
 
-class P3WormholeIncineratingHeat(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.IncineratingHeat), 5, 8);
+class P3WormholeIncineratingHeat(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.IncineratingHeat), 5, 8, 8);
 
 class P3WormholeEnumeration(BossModule module) : Components.UniformStackSpread(module, 5, 0, 3, 3, raidwideOnResolve: false) // TODO: verify enumeration radius
 {

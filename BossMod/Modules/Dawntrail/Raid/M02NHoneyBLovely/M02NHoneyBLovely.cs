@@ -25,11 +25,34 @@ class BlowKiss(BossModule module) : Components.SelfTargetedAOEs(module, ActionID
 class HoneyBFinale(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HoneyBFinale));
 class DropOfVenom(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.DropOfVenom), 6, 8, 8);
 class SplashOfVenom(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SplashOfVenom), 6);
-class BlindingLove1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlindingLove1), new AOEShapeRect(50, 4));
+class BlindingLove1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlindingLove1), new AOEShapeRect(50, 4))
+{
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var aoes = ActiveCasters.Select((c, index) =>
+            new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo),
+            index < 2 ? Colors.Danger : Colors.AOE));
+
+        return aoes;
+    }
+}
+
 class BlindingLove2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlindingLove2), new AOEShapeRect(50, 4));
 class HeartStruck1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeartStruck1), 4);
 class HeartStruck2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeartStruck2), 6);
 class HeartStruck3(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeartStruck3), 10, maxCasts: 8);
+
+class Fracture(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.Fracture), 4)
+{
+    public override void Update()
+    {
+        if (Towers.Count == 0)
+            return;
+        var forbidden = Raid.WithSlot().WhereActor(p => p.Statuses.Where(i => i.ID is ((uint)SID.HeadOverHeels) or ((uint)SID.HopelessDevotion)).Any()).Mask();
+        foreach (ref var t in Towers.AsSpan())
+            t.ForbiddenSoakers = forbidden;
+    }
+}
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 987, NameID = 12685)]
 public class M02NHoneyBLovely(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(20));

@@ -33,7 +33,7 @@ class AugmentedSuffering(BossModule module) : Components.KnockbackFromCastTarget
     }
 }
 
-class AugmentedShatter(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.AugmentedShatter), 6, 4);
+class AugmentedShatter(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.AugmentedShatter), 6, 4, 4);
 class AugmentedUprising(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AugmentedUprising), new AOEShapeCone(45, 45.Degrees()));
 class WheelOfSuffering(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WheelOfSuffering), new AOEShapeCircle(7));
 

@@ -1,4 +1,4 @@
-﻿namespace BossMod.Dawntrail.Savage.RM01SBlackCat;
+﻿namespace BossMod.Dawntrail.Savage.M01SBlackCat;
 
 class RainingCatsTether(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(100, 35.Degrees()), (uint)TetherID.RainingCats, ActionID.MakeSpell(AID.RainingCatsTether)) // TODO: verify angle
 {

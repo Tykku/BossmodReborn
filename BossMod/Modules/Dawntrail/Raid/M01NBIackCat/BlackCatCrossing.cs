@@ -8,6 +8,7 @@ public class BlackCatCrossing(BossModule module) : Components.GenericAOEs(module
     private static readonly AOEShapeCone cone = new(60, 22.5f.Degrees());
     private enum Pattern { None, Cardinals, Intercardinals }
     private Pattern _currentPattern;
+    private Actor? helper;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -34,6 +35,7 @@ public class BlackCatCrossing(BossModule module) : Components.GenericAOEs(module
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
         if (status.Extra != 0x307 && _currentPattern == Pattern.None)
+        {
             switch ((SID)status.ID)
             {
                 case SID.BlackCatCrossing1:
@@ -43,19 +45,30 @@ public class BlackCatCrossing(BossModule module) : Components.GenericAOEs(module
                     _currentPattern = Pattern.Intercardinals;
                     break;
             }
+            InitIfReady();
+        }
     }
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.LeapingAttacks && _currentPattern != Pattern.None)
+        if ((OID)actor.OID == OID.LeapingAttacks)
         {
-            AddAOEs(actor, _currentPattern == Pattern.Cardinals ? anglesCardinals : anglesIntercardinals, 9);
-            AddAOEs(actor, _currentPattern == Pattern.Cardinals ? anglesIntercardinals : anglesCardinals, 11);
+            helper = actor;
+            InitIfReady();
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
+        switch ((AID)spell.Action.ID)
+        {
+            case AID.LeapingOneTwoPawVisual1:
+            case AID.LeapingOneTwoPawVisual3:
+            case AID.LeapingOneTwoPawVisual2:
+            case AID.LeapingOneTwoPawVisual4:
+                helper = null;
+                break;
+        }
         if (_aoes.Count > 0)
             switch ((AID)spell.Action.ID)
             {
@@ -63,10 +76,21 @@ public class BlackCatCrossing(BossModule module) : Components.GenericAOEs(module
                 case AID.BlackCatCrossingRest:
                 case AID.LeapingBlackCatCrossingFirst:
                 case AID.LeapingBlackCatCrossingRest:
-                    _aoes.RemoveAt(0);
                     _currentPattern = Pattern.None;
+                    _aoes.RemoveAt(0);
                     break;
             }
+    }
+
+    private void InitIfReady()
+    {
+        if (helper != null && _currentPattern != Pattern.None)
+        {
+            AddAOEs(helper, _currentPattern == Pattern.Cardinals ? anglesCardinals : anglesIntercardinals, 9);
+            AddAOEs(helper, _currentPattern == Pattern.Cardinals ? anglesIntercardinals : anglesCardinals, 11);
+            _currentPattern = Pattern.None;
+            helper = null;
+        }
     }
 
     private void AddAOEs(Actor actor, Angle[] angles, int futureTime)

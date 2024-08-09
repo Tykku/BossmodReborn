@@ -1,8 +1,8 @@
-﻿namespace BossMod.Dawntrail.Savage.RM02SHoneyBLovely;
+﻿namespace BossMod.Dawntrail.Savage.M02SHoneyBLovely;
 
-class RM02SHoneyBLovelyStates : StateMachineBuilder
+class M02SHoneyBLovelyStates : StateMachineBuilder
 {
-    public RM02SHoneyBLovelyStates(BossModule module) : base(module)
+    public M02SHoneyBLovelyStates(BossModule module) : base(module)
     {
         DeathPhase(0, SinglePhase);
     }
@@ -114,7 +114,7 @@ class RM02SHoneyBLovelyStates : StateMachineBuilder
         Cast(id + 0x300, AID.Loveseeker, 0.1f, 3)
             .ActivateOnEnter<Loveseeker>();
         ComponentCondition<Loveseeker>(id + 0x302, 1, comp => comp.NumCasts > 0, "Out")
-            .ActivateOnEnter<Sweetheart>() // adds activate right after resolve
+            .ActivateOnEnter<Sweethearts>() // adds activate right after resolve
             .DeactivateOnExit<Loveseeker>();
 
         Cast(id + 0x400, AID.LoveMeTender, 9.2f, 4);
@@ -126,7 +126,7 @@ class RM02SHoneyBLovelyStates : StateMachineBuilder
 
         CenterOuterStageCombo(id + 0x500, 5.2f);
         Cast(id + 0x600, AID.HoneyBFinale, 6.2f, 5, "Beat 1 end raidwide")
-            .DeactivateOnExit<Sweetheart>()
+            .DeactivateOnExit<Sweethearts>()
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 

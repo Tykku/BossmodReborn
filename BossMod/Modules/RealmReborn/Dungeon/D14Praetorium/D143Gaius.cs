@@ -39,7 +39,7 @@ public enum AID : uint
 class TerminusEstTriple(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TerminusEstTriple), new AOEShapeRect(40, 2));
 class TerminusEstQuintuple(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TerminusEstQuintuple), new AOEShapeRect(40, 2));
 class HandOfTheEmpire(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HandOfTheEmpireAOE), 5, false);
-class FestinaLente(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.FestinaLente), 6, 4);
+class FestinaLente(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.FestinaLente), 6, 4, 4);
 class Innocence(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Innocence));
 class HorridaBella(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HorridaBella));
 class Ductus(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DuctusAOE), 8);

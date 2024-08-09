@@ -304,21 +304,22 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
         TextScreen(ScreenCenter - offE, "W", Colors.Border, Config.CardinalsFontSize);
     }
 
-    // draw actor representation
     public void ActorInsideBounds(WPos position, Angle rotation, uint color)
     {
+        var scale = Config.ActorScale;
         var dir = rotation.ToDirection();
         var normal = dir.OrthoR();
         if (Config.ShowOutlinesAndShadows)
-            AddTriangle(position + 0.7f * dir, position - 0.35f * dir + 0.433f * normal, position - 0.35f * dir - 0.433f * normal, 0xFF000000, 2);
-        AddTriangleFilled(position + 0.7f * dir, position - 0.35f * dir + 0.433f * normal, position - 0.35f * dir - 0.433f * normal, color);
+            AddTriangle(position + scale * 0.7f * dir, position - scale * 0.35f * dir + scale * 0.433f * normal, position - scale * 0.35f * dir - scale * 0.433f * normal, Colors.Shadows, 2);
+        AddTriangleFilled(position + scale * 0.7f * dir, position - scale * 0.35f * dir + scale * 0.433f * normal, position - scale * 0.35f * dir - scale * 0.433f * normal, color);
     }
 
     public void ActorOutsideBounds(WPos position, Angle rotation, uint color)
     {
+        var scale = Config.ActorScale;
         var dir = rotation.ToDirection();
         var normal = dir.OrthoR();
-        AddTriangle(position + 0.7f * dir, position - 0.35f * dir + 0.433f * normal, position - 0.35f * dir - 0.433f * normal, color);
+        AddTriangle(position + scale * 0.7f * dir, position - scale * 0.35f * dir + scale * 0.433f * normal, position - scale * 0.35f * dir - scale * 0.433f * normal, color);
     }
 
     public void ActorProjected(WPos from, WPos to, Angle rotation, uint color)

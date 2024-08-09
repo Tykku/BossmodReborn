@@ -8,7 +8,7 @@ class ScytheTail(BossModule module, AID aid) : Components.SelfTargetedAOEs(modul
 class NScytheTail(BossModule module) : ScytheTail(module, AID.NScytheTail);
 class SScytheTail(BossModule module) : ScytheTail(module, AID.SScytheTail);
 
-class Twister(BossModule module, AID aid) : Components.StackWithCastTargets(module, ActionID.MakeSpell(aid), 8, 4);
+class Twister(BossModule module, AID aid) : Components.StackWithCastTargets(module, ActionID.MakeSpell(aid), 8, 4, 4);
 class NTwister(BossModule module) : Twister(module, AID.NTwister);
 class STwister(BossModule module) : Twister(module, AID.STwister);
 

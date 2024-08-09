@@ -125,7 +125,7 @@ class NeedleStormSuperstormHeavyWeightNeedles(BossModule module) : Components.Ge
 
 class PricklyRight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PricklyRight), new AOEShapeCone(36, 165.Degrees()));
 class PricklyLeft(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PricklyLeft), new AOEShapeCone(36, 165.Degrees()));
-class SucculentStomp(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.SucculentStomp), 6, 4);
+class SucculentStomp(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.SucculentStomp), 6, 4, 4);
 class BarrelBreaker(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.BarrelBreaker), 20)
 {
     private static readonly Angle a5 = 5.Degrees();

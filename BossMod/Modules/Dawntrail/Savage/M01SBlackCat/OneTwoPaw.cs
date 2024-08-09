@@ -1,12 +1,20 @@
-﻿namespace BossMod.Dawntrail.Savage.RM01SBlackCat;
+﻿namespace BossMod.Dawntrail.Savage.M01SBlackCat;
 
 class OneTwoPawBoss(BossModule module) : Components.GenericAOEs(module)
 {
+    private readonly PredaceousPounce? _pounce = module.FindComponent<PredaceousPounce>();
     private readonly List<AOEInstance> _aoes = [];
 
     private static readonly AOEShapeCone _shape = new(100, 90.Degrees());
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Skip(NumCasts).Take(1);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var pounce = _pounce != null && _pounce.ActiveAOEs(slot, actor).Any();
+        if (_aoes.Count > 0)
+            yield return _aoes[0] with { Color = pounce ? Colors.AOE : Colors.Danger };
+        if (_aoes.Count > 1 && !pounce)
+            yield return _aoes[1] with { Risky = false };
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -20,7 +28,11 @@ class OneTwoPawBoss(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID is AID.OneTwoPawBossAOERFirst or AID.OneTwoPawBossAOELSecond or AID.OneTwoPawBossAOELFirst or AID.OneTwoPawBossAOERSecond)
+        {
             ++NumCasts;
+            if (_aoes.Count > 0)
+                _aoes.RemoveAt(0);
+        }
     }
 }
 
@@ -70,17 +82,24 @@ class LeapingOneTwoPaw(BossModule module) : Components.GenericAOEs(module)
     private Actor? _clone;
 
     private static readonly AOEShapeCone _shape = new(100, 90.Degrees());
+    private static readonly List<Angle> angles = [89.999f.Degrees(), -90.004f.Degrees()];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs.Skip(NumCasts).Take(1);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        if (AOEs.Count > 0)
+            yield return AOEs[0] with { Color = Colors.Danger };
+        if (AOEs.Count > 1)
+            yield return AOEs[1] with { Risky = false };
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         var (leapDir, firstDir) = (AID)spell.Action.ID switch
         {
-            AID.LeapingOneTwoPawBossLRL => (90.Degrees(), -90.Degrees()),
-            AID.LeapingOneTwoPawBossLLR => (90.Degrees(), 90.Degrees()),
-            AID.LeapingOneTwoPawBossRRL => (-90.Degrees(), -90.Degrees()),
-            AID.LeapingOneTwoPawBossRLR => (-90.Degrees(), 90.Degrees()),
+            AID.LeapingOneTwoPawBossLRL => (angles[0], angles[1]),
+            AID.LeapingOneTwoPawBossLLR => (angles[0], angles[0]),
+            AID.LeapingOneTwoPawBossRRL => (angles[1], angles[1]),
+            AID.LeapingOneTwoPawBossRLR => (angles[1], angles[0]),
             _ => default
         };
         if (leapDir == default)
@@ -97,6 +116,8 @@ class LeapingOneTwoPaw(BossModule module) : Components.GenericAOEs(module)
             or AID.LeapingOneTwoPawShadeAOERFirst or AID.LeapingOneTwoPawShadeAOELSecond or AID.LeapingOneTwoPawShadeAOELFirst or AID.LeapingOneTwoPawShadeAOERSecond)
         {
             ++NumCasts;
+            if (AOEs.Count > 0)
+                AOEs.RemoveAt(0);
         }
     }
 

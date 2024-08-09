@@ -83,7 +83,7 @@ class InOutAOE(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 
 class PillarPierce(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PillarPierce), new AOEShapeRect(80, 2));
 class SkullDasher(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SkullDasher));
-class HeavySmash(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HeavySmash), 6, 8, 8);
 
 class IcePillarSpawn(BossModule module) : Components.GenericAOEs(module)
 {

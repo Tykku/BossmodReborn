@@ -150,7 +150,7 @@ public class ActionDrivenForcedMarch(BossModule module, ActionID aid, float dura
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action == Aid)
-            foreach (var p in Module.Raid.WithoutSlot())
+            foreach (var p in Module.Raid.WithoutSlot().Where(x => !x.IsDead))
                 AddForcedMovement(p, Rotation, Duration, Module.CastFinishAt(spell, Actioneffectdelay));
     }
 }

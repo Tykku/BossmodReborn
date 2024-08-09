@@ -1,12 +1,13 @@
-﻿namespace BossMod.Dawntrail.Savage.RM01SBlackCat;
+﻿namespace BossMod.Dawntrail.Savage.M01SBlackCat;
 
 public enum OID : uint
 {
     Boss = 0x4329, // R3.993, x1
-    Helper = 0x233C, // R0.500, x50, Helper type
+
     CopyCat = 0x432A, // R3.993, x1, mouser clone
     LeapTarget = 0x432B, // R1.000, x0 (spawn during fight)
     Soulshade = 0x432C, // R5.610, x3, boss clone
+    Helper = 0x233C // R0.500, x50, Helper type
 }
 
 public enum AID : uint
@@ -88,10 +89,10 @@ public enum AID : uint
     Nailchipper = 38021, // Boss->self, 7.0+1.0s cast, single-target, visual (spreads)
     NailchipperAOE = 38022, // Helper->players, 8.0s cast, range 5 circle spread
 
-    Mouser = 37953, // Boss->self, 10.0s cast, single-target, visual (break tiles)
-    MouserPrepareJump1 = 37955, // Helper->self, 1.0s cast, range 10 width 10 rect, visual (damage tile)
-    MouserPrepareJump2 = 39276, // Helper->self, 1.0s cast, range 10 width 10 rect, visual (destroy tile)
-    MouserJump = 37956, // Helper->location, no cast, single-target (jump before hit)
+    MouserVisual = 37953, // Boss->self, 10.0s cast, single-target, visual (break tiles)
+    MouserTelegraphFirst = 37955, // Helper->self, 1.0s cast, range 10 width 10 rect, visual (damage tile)
+    MouserTelegraphSecond = 39276, // Helper->self, 1.0s cast, range 10 width 10 rect, visual (destroy tile)
+    Mouser = 37956, // Helper->location, no cast, single-target (jump before hit)
     MouserTileDamage = 38054, // Helper->self, no cast, range 10 width 10 rect (actual aoe)
     MouserJumpsEnd = 37954, // Boss->self, no cast, single-target, visual (stop jumps)
     Copycat = 37957, // Boss->self, 3.0s cast, single-target, visual (activate clone)
@@ -117,24 +118,24 @@ public enum AID : uint
     RainingCatsLast = 39613, // Boss->self, 5.0s cast, single-target, visual (set 4)
     RainingCatsTether = 38045, // Helper->self, no cast, range 100 ?-degree cone
     RainingCatsStack = 38047, // Helper->players, no cast, range 4 circle stack on closest/farthest target
-    PredaceousPounceMove1 = 38026, // Helper->location, 2.0s cast, width 6 rect charge, visual (first jump)
-    PredaceousPounceMove2 = 38027, // Helper->self, 3.0s cast, range 11 circle, visual
-    PredaceousPounceMove3 = 38028, // Helper->location, 4.0s cast, width 6 rect charge, visual
-    PredaceousPounceMove4 = 38029, // Helper->self, 5.0s cast, range 11 circle, visual
-    PredaceousPounceMove5 = 38030, // Helper->location, 6.0s cast, width 6 rect charge, visual
-    PredaceousPounceMove6 = 38031, // Helper->self, 7.0s cast, range 11 circle, visual
-    PredaceousPounceMove7 = 38032, // Helper->location, 8.0s cast, width 6 rect charge, visual
-    PredaceousPounceMove8 = 38033, // Helper->self, 9.0s cast, range 11 circle, visual
-    PredaceousPounceMove9 = 38034, // Helper->location, 10.0s cast, width 6 rect charge, visual
-    PredaceousPounceMove10 = 38035, // Helper->self, 11.0s cast, range 11 circle, visual
-    PredaceousPounceMove11 = 39632, // Helper->location, 12.0s cast, width 6 rect charge, visual
-    PredaceousPounceMove12 = 39633, // Helper->self, 13.0s cast, range 11 circle, visual
+    PredaceousPounceTelegraphCharge1 = 38026, // Helper->location, 2.0s cast, width 6 rect charge, visual (first jump)
+    PredaceousPounceTelegraphCircle1 = 38027, // Helper->self, 3.0s cast, range 11 circle, visual
+    PredaceousPounceTelegraphCharge2 = 38028, // Helper->location, 4.0s cast, width 6 rect charge, visual
+    PredaceousPounceTelegraphCircle2 = 38029, // Helper->self, 5.0s cast, range 11 circle, visual
+    PredaceousPounceTelegraphCharge3 = 38030, // Helper->location, 6.0s cast, width 6 rect charge, visual
+    PredaceousPounceTelegraphCircle3 = 38031, // Helper->self, 7.0s cast, range 11 circle, visual
+    PredaceousPounceTelegraphCharge4 = 38032, // Helper->location, 8.0s cast, width 6 rect charge, visual
+    PredaceousPounceTelegraphCircle4 = 38033, // Helper->self, 9.0s cast, range 11 circle, visual
+    PredaceousPounceTelegraphCharge5 = 38034, // Helper->location, 10.0s cast, width 6 rect charge, visual
+    PredaceousPounceTelegraphCircle5 = 38035, // Helper->self, 11.0s cast, range 11 circle, visual
+    PredaceousPounceTelegraphCharge6 = 39632, // Helper->location, 12.0s cast, width 6 rect charge, visual
+    PredaceousPounceTelegraphCircle6 = 39633, // Helper->self, 13.0s cast, range 11 circle, visual
     PredaceousPounceJumpFirst = 39635, // CopyCat->location, 13.0s cast, single-target
     PredaceousPounceJumpRest = 38024, // CopyCat->location, no cast, single-target
-    PredaceousPounceChargeAOEFirst = 39704, // Helper->location, 13.5s cast, width 6 rect charge
-    PredaceousPounceImpactAOEFirst = 39709, // Helper->self, 14.0s cast, range 11 circle
-    PredaceousPounceChargeAOERest = 39270, // Helper->location, 1.0s cast, width 6 rect charge
-    PredaceousPounceImpactAOERest = 38025, // Helper->self, 1.5s cast, range 11 circle
+    PredaceousPounceCharge1 = 39704, // Helper->location, 13.5s cast, width 6 rect charge
+    PredaceousPounceCircle1 = 39709, // Helper->self, 14.0s cast, range 11 circle
+    PredaceousPounceCharge2 = 39270, // Helper->location, 1.0s cast, width 6 rect charge
+    PredaceousPounceCircle2 = 38025, // Helper->self, 1.5s cast, range 11 circle
 
     MouserEnrage = 39822, // Boss->self, 8.0s cast, single-target
 }

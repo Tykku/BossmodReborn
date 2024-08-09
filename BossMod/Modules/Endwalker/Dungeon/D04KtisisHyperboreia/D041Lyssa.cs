@@ -62,7 +62,7 @@ class PunishingSlice(BossModule module) : Components.GenericAOEs(module)
 }
 
 class IcePillar(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IcePillar), new AOEShapeCircle(4));
-class HeavySmash(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HeavySmash), 6, 4);
+class HeavySmash(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HeavySmash), 6, 4, 4);
 class SkullDasher(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SkullDasher));
 class FrigidStomp(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FrigidStomp));
 

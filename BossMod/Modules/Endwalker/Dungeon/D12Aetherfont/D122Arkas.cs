@@ -66,7 +66,7 @@ class BattleCryArenaChange(BossModule module) : Components.GenericAOEs(module)
 }
 
 class SpunLightning(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpunLightning), new AOEShapeRect(30, 4));
-class LightningClaw(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.LightningClaw2), 6, 5.2f, 4);
+class LightningClaw(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.LightningClaw2), 6, 5.2f, 4, 4);
 
 class ForkedFissures(BossModule module) : Components.GenericAOEs(module)
 {
