@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Savage.P7SAgdistis;
 
-class HemitheosHoly(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HemitheosHolyAOE), 6, 4);
+class HemitheosHoly(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HemitheosHolyAOE), 6, 4, 4);
 class BoughOfAttisBack(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BoughOfAttisBackAOE), new AOEShapeCircle(25));
 class BoughOfAttisFront(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BoughOfAttisFrontAOE), new AOEShapeCircle(19));
 class BoughOfAttisSide(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BoughOfAttisSideAOE), new AOEShapeRect(50, 12.5f));

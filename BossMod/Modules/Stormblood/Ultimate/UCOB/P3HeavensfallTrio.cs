@@ -97,4 +97,4 @@ class P3HeavensfallTowers(BossModule module) : Components.CastTowers(module, Act
     }
 }
 
-class P3HeavensfallFireball(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Fireball, ActionID.MakeSpell(AID.Fireball), 4, 5.3f, 8);
+class P3HeavensfallFireball(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Fireball, ActionID.MakeSpell(AID.Fireball), 4, 5.3f, 8, 8);

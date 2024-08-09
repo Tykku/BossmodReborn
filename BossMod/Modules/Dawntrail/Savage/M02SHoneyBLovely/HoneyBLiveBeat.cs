@@ -1,4 +1,4 @@
-﻿namespace BossMod.Dawntrail.Savage.RM02SHoneyBLovely;
+﻿namespace BossMod.Dawntrail.Savage.M02SHoneyBLovely;
 
 class HoneyBLiveBeat1(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.HoneyBLiveBeat1AOE));
 class HoneyBLiveBeat2(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.HoneyBLiveBeat2AOE));
@@ -53,7 +53,7 @@ class Fracture1(BossModule module) : Fracture(module)
     {
         var forbidden = new BitMask();
         if (_hearts != null)
-            for (int i = 0; i < _hearts.Hearts.Length; ++i)
+            for (var i = 0; i < _hearts.Hearts.Length; ++i)
                 if (_hearts.Hearts[i] == 3)
                     forbidden.Set(i);
         return forbidden;
@@ -69,7 +69,7 @@ class Fracture2(BossModule module) : Fracture(module)
     {
         var forbidden = _spreads;
         if (_hearts != null)
-            for (int i = 0; i < _hearts.Hearts.Length; ++i)
+            for (var i = 0; i < _hearts.Hearts.Length; ++i)
                 if (_hearts.Hearts[i] > 1)
                     forbidden.Set(i);
         return forbidden;
@@ -104,22 +104,40 @@ class Loveseeker(BossModule module) : Components.SelfTargetedAOEs(module, Action
 class HeartStruck(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeartStruck), 6);
 class Heartsore(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Heartsore, ActionID.MakeSpell(AID.Heartsore), 6, 7.1f);
 
-class Sweetheart(BossModule module) : Components.GenericAOEs(module)
+class Sweethearts(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<Actor> _adds = [];
+    private static readonly AOEShapeCircle circle = new(1);
+    private readonly List<Actor> _hearts = [];
 
-    private static readonly AOEShapeCircle _shape = new(2);
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _adds.Where(a => !a.IsDestroyed).Select(a => new AOEInstance(_shape, a.Position));
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _hearts.Select(a => new AOEInstance(circle, a.Position));
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
         if ((OID)actor.OID == OID.Sweetheart && id == 0x11D3)
-            _adds.Add(actor);
+            _hearts.Add(actor);
+    }
+
+    public override void OnActorDestroyed(Actor actor)
+    {
+        if ((OID)actor.OID == OID.Sweetheart)
+            _hearts.Remove(actor);
+    }
+
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    {
+        if ((AID)spell.Action.ID == AID.SweetheartTouch)
+            _hearts.Remove(_hearts.FirstOrDefault(x => x.InstanceID == caster.InstanceID)!);
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        base.AddAIHints(slot, actor, assignment, hints);
+        foreach (var w in _hearts)
+            hints.AddForbiddenZone(new AOEShapeCircle(1), w.Position + w.Rotation.ToDirection());
     }
 }
 
-abstract class Heartsick(BossModule module, bool roles) : Components.StackWithIcon(module, (uint)IconID.Heartsick, ActionID.MakeSpell(AID.Heartsick), 6, 7, roles ? 2 : 4)
+abstract class Heartsick(BossModule module, bool roles) : Components.StackWithIcon(module, (uint)IconID.Heartsick, ActionID.MakeSpell(AID.Heartsick), 6, 7, roles ? 2 : 4, roles ? 2 : 4)
 {
     private readonly HoneyBLiveHearts? _hearts = module.FindComponent<HoneyBLiveHearts>();
 
@@ -129,7 +147,7 @@ abstract class Heartsick(BossModule module, bool roles) : Components.StackWithIc
         {
             foreach (ref var stack in Stacks.AsSpan())
             {
-                for (int i = 0; i < _hearts.Hearts.Length; ++i)
+                for (var i = 0; i < _hearts.Hearts.Length; ++i)
                 {
                     stack.ForbiddenPlayers[i] = roles
                         ? (_hearts.Hearts[i] > 0 || stack.Target.Class.IsSupport() != Raid[i]?.Class.IsSupport())

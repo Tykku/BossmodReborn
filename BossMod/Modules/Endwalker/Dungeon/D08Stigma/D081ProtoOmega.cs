@@ -42,7 +42,7 @@ public enum TetherID : uint
     Tether17 = 17, // MarkIIGuidedMissile->player
 }
 class ElectricSlideKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ElectricSlide), 15, stopAtWall: true);
-class ElectricSlide(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ElectricSlide), 6, 8);
+class ElectricSlide(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ElectricSlide), 6, 4, 4);
 class IronKiss(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IronKiss), new AOEShapeCircle(3));
 
 class SideCannons1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SideCannons1), new AOEShapeCone(60, 90.Degrees()));

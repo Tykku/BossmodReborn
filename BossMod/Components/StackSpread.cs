@@ -12,6 +12,13 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
         public int MaxSize = maxSize;
         public DateTime Activation = activation;
         public BitMask ForbiddenPlayers = forbiddenPlayers; // raid members that aren't allowed to participate in the stack
+
+        public readonly int NumInside(BossModule module) => module.Raid.WithSlot().ExcludedFromMask(ForbiddenPlayers).InRadius(Target.Position, Radius).Count();
+        public readonly bool CorrectAmountInside(BossModule module) => NumInside(module) is var count && count >= MinSize && count <= MaxSize;
+        public readonly bool InsufficientAmountInside(BossModule module) => NumInside(module) is var count && count < MaxSize;
+        public readonly bool TooManyInside(BossModule module) => NumInside(module) is var count && count > MaxSize;
+        public readonly bool IsInside(WPos pos) => pos.InCircle(Target.Position, Radius);
+        public readonly bool IsInside(Actor actor) => IsInside(actor.Position);
     }
 
     public record struct Spread(
@@ -92,7 +99,7 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
         foreach (var spreadFrom in ActiveSpreads.Where(s => s.Target != actor))
             hints.AddForbiddenZone(ShapeDistance.Circle(spreadFrom.Target.Position, spreadFrom.Radius), spreadFrom.Activation);
 
-        foreach (var avoid in ActiveStacks.Where(s => s.Target != actor && s.ForbiddenPlayers[slot]))
+        foreach (var avoid in ActiveStacks.Where(s => s.Target != actor && (s.ForbiddenPlayers[slot] || !s.IsInside(actor) && (s.CorrectAmountInside(Module) || s.TooManyInside(Module)) || s.IsInside(actor) && s.TooManyInside(Module))))
             hints.AddForbiddenZone(ShapeDistance.Circle(avoid.Target.Position, avoid.Radius), avoid.Activation);
 
         if (IsStackTarget(actor))
@@ -108,7 +115,7 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
         else if (!IsSpreadTarget(actor))
         {
             // TODO: handle multi stacks better...
-            var closestStack = ActiveStacks.Where(s => !s.ForbiddenPlayers[slot]).MinBy(s => (s.Target.Position - actor.Position).LengthSq());
+            var closestStack = ActiveStacks.Where(s => s.InsufficientAmountInside(Module) && !s.ForbiddenPlayers[slot]).MinBy(s => (s.Target.Position - actor.Position).LengthSq());
             if (closestStack.Target != null)
                 hints.AddForbiddenZone(ShapeDistance.InvertedCircle(closestStack.Target.Position, closestStack.Radius), closestStack.Activation);
         }
@@ -155,11 +162,17 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
         else
         {
             // draw spread and stack circles
-            foreach (var s in ActiveStacks)
+            foreach (var s in ActiveStacks.Where(x => !x.ForbiddenPlayers[pcSlot] && (x.IsInside(pc) && (x.CorrectAmountInside(Module) || x.InsufficientAmountInside(Module)) || !x.IsInside(pc) && x.InsufficientAmountInside(Module))))
             {
                 if (Arena.Config.ShowOutlinesAndShadows)
                     Arena.AddCircle(s.Target.Position, s.Radius, Colors.Shadows, 2);
                 Arena.AddCircle(s.Target.Position, s.Radius, Colors.Safe);
+            }
+            foreach (var s in ActiveStacks.Where(x => x.ForbiddenPlayers[pcSlot] || !x.IsInside(pc) && x.CorrectAmountInside(Module) || x.TooManyInside(Module)))
+            {
+                if (Arena.Config.ShowOutlinesAndShadows)
+                    Arena.AddCircle(s.Target.Position, s.Radius, Colors.Shadows, 2);
+                Arena.AddCircle(s.Target.Position, s.Radius, Colors.Danger);
             }
             foreach (var s in ActiveSpreads)
             {
@@ -312,6 +325,7 @@ public class LineStack(BossModule module, ActionID aidMarker, ActionID aidResolv
             {
                 CurrentBaits.RemoveAt(0);
                 castCounter = 0;
+                ++NumCasts;
             }
         }
     }
@@ -360,7 +374,7 @@ public class LineStack(BossModule module, ActionID aidMarker, ActionID aidResolv
 
         if (ActiveBaits.Count() > 1 && isBaitTarget)
         {
-            var isInOtherBaitShape = ActiveBaits.Any(x => actor.Position.InRect(x.Source.Position, (x.Target.Position - x.Source.Position).Normalized(), Range, 0, 2 * HalfWidth));
+            var isInOtherBaitShape = ActiveBaits.Any(x => x.Target != actor && actor.Position.InRect(x.Source.Position, (x.Target.Position - x.Source.Position).Normalized(), Range, 0, 2 * HalfWidth));
             if (isInOtherBaitShape)
                 hints.Add(HintAvoidOther);
         }

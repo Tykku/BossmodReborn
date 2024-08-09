@@ -21,7 +21,7 @@ class HolyBladedance(BossModule module) : Components.GenericBaitAway(module, Act
     }
 }
 
-class Heavensblaze(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Heavensblaze), 4, 7)
+class Heavensblaze(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Heavensblaze), 4, 7, 7)
 {
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {

@@ -295,8 +295,8 @@ public abstract class BossModule : IDisposable
         if (pos != null)
         {
             if (WindowConfig.ShowOutlinesAndShadows)
-                Arena.TextWorld(new(pos.Value.XZ()), text, Colors.Shadows, 25);
-            Arena.TextWorld(new(pos.Value.XZ()), text, color, 22);
+                Arena.TextWorld(new(pos.Value.XZ()), text, Colors.Shadows, WindowConfig.WaymarkFontSize + 3);
+            Arena.TextWorld(new(pos.Value.XZ()), text, color, WindowConfig.WaymarkFontSize);
         }
     }
 

@@ -140,7 +140,7 @@ public abstract class Knockback(BossModule module, ActionID aid = new(), bool ig
         }
     }
 
-    protected IEnumerable<(WPos from, WPos to)> CalculateMovements(int slot, Actor actor)
+    public IEnumerable<(WPos from, WPos to)> CalculateMovements(int slot, Actor actor)
     {
         if (MaxCasts <= 0)
             yield break;

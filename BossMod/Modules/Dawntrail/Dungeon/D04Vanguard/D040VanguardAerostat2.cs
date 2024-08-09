@@ -21,7 +21,7 @@ public enum AID : uint
 
 class IncendiaryRing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IncendiaryRing), new AOEShapeDonut(3, 12));
 class Electrobeam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Electrobeam), new AOEShapeRect(50, 2));
-class SpreadShot(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpreadShot), new AOEShapeCone(12, 90.Degrees()));
+class SpreadShot(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpreadShot), new AOEShapeCone(12, 45.Degrees()));
 
 class D040VanguardAerostat2States : StateMachineBuilder
 {
@@ -31,12 +31,12 @@ class D040VanguardAerostat2States : StateMachineBuilder
             .ActivateOnEnter<IncendiaryRing>()
             .ActivateOnEnter<Electrobeam>()
             .ActivateOnEnter<SpreadShot>()
-            .Raw.Update = () => module.Turret.All(e => e.IsDeadOrDestroyed) && module.PrimaryActor.IsDeadOrDestroyed;
+            .Raw.Update = () => module.Enemies(OID.Turret).All(e => e.IsDeadOrDestroyed) && module.PrimaryActor.IsDeadOrDestroyed;
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 831, NameID = 12780, SortOrder = 5)]
-public class D040VanguardAerostat2 : BossModule
+public class D040VanguardAerostat2(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly List<WPos> arenacoords = [new(-12.5f, -328.5f), new(12.5f, -328.5f), new(12.637f, -327.677f), new(21.5f, -327.759f),
     new(21.649f, -321.3f), new(40.939f, -321.27f), new(41.304f, -327.909f), new(87.469f, -327.561f), new(87.57f, -312.112f), new(41.304f, -312.84f),
@@ -44,22 +44,12 @@ public class D040VanguardAerostat2 : BossModule
     new(12.5f, -311.5f), new(4.283f, -311.468f), new(3.086f, -310.288f),
     new(3, -302.5f), new(-3, -302.5f), new(-3.086f, -310.288f), new(-4.283f, -311.468f), new(-12.5f, -311.5f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(arenacoords)]);
-    public readonly IReadOnlyList<Actor> Turret;
-    public readonly IReadOnlyList<Actor> SentryG7;
-    public readonly IReadOnlyList<Actor> SentryS7;
-
-    public D040VanguardAerostat2(WorldState ws, Actor primary) : base(ws, primary, arena.Center, arena)
-    {
-        Turret = Enemies(OID.Turret);
-        SentryG7 = Enemies(OID.Turret);
-        SentryS7 = Enemies(OID.Turret);
-    }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Turret);
-        Arena.Actors(SentryS7);
-        Arena.Actors(SentryG7);
+        Arena.Actors(Enemies(OID.Turret));
+        Arena.Actors(Enemies(OID.SentryR7));
+        Arena.Actors(Enemies(OID.SentryS7));
         Arena.Actor(PrimaryActor);
     }
 }

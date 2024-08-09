@@ -100,7 +100,7 @@ class PyricBreath(BossModule module) : Components.GenericAOEs(module)
 }
 
 class PyricSphere(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PyricSphere), new AOEShapeCross(50, 2)); // we could draw this almost 5s earlier, but why bother with 10s cast time
-class PyricBlast(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.PyricBlast), 6, 4);
+class PyricBlast(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.PyricBlast), 6, 4, 4);
 class Scratch(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Scratch));
 class Intimidation(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Intimidation));
 

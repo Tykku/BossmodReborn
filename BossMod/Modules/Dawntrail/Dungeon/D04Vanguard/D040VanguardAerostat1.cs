@@ -20,23 +20,16 @@ class D040VanguardAerostat1States : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<IncendiaryRing>()
-            .Raw.Update = () => module.Aerostat2.All(e => e.IsDeadOrDestroyed) && module.PrimaryActor.IsDeadOrDestroyed;
+            .Raw.Update = () => module.Enemies(OID.Aerostat2).All(e => e.IsDeadOrDestroyed) && module.PrimaryActor.IsDeadOrDestroyed;
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 831, NameID = 12780, SortOrder = 3)]
-public class D040VanguardAerostat1 : BossModule
+public class D040VanguardAerostat1(WorldState ws, Actor primary) : BossModule(ws, primary, new(-50, -15), new ArenaBoundsRect(7.7f, 25))
 {
-    public readonly IReadOnlyList<Actor> Aerostat2;
-
-    public D040VanguardAerostat1(WorldState ws, Actor primary) : base(ws, primary, new(-50, -15), new ArenaBoundsRect(7.7f, 25))
-    {
-        Aerostat2 = Enemies(OID.Aerostat2);
-    }
-
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Aerostat2);
+        Arena.Actors(Enemies(OID.Aerostat2));
         Arena.Actor(PrimaryActor);
     }
 }

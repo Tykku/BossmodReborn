@@ -1,4 +1,4 @@
-﻿namespace BossMod.Dawntrail.Savage.RM02SHoneyBLovely;
+﻿namespace BossMod.Dawntrail.Savage.M02SHoneyBLovely;
 
 class DropSplashOfVenom(BossModule module) : Components.UniformStackSpread(module, 6, 6, 2, 2, alwaysShowSpreads: true)
 {
@@ -58,8 +58,8 @@ class DropSplashOfVenom(BossModule module) : Components.UniformStackSpread(modul
     }
 }
 
-class TemptingTwist(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TemptingTwistAOE), new AOEShapeDonut(6, 30)); // TODO: verify inner radius
-class TemptingTwistBeat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TemptingTwistBeatAOE), new AOEShapeDonut(6, 30)); // TODO: verify inner radius
+class TemptingTwist(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TemptingTwistAOE), new AOEShapeDonut(7, 30));
+class TemptingTwistBeat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TemptingTwistBeatAOE), new AOEShapeDonut(7, 30));
 class HoneyBeeline(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HoneyBeelineAOE), new AOEShapeRect(30, 7, 30));
 class HoneyBeelineBeat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HoneyBeelineBeatAOE), new AOEShapeRect(30, 7, 30));
 class PoisonCloudSplinter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PoisonCloudSplinter), new AOEShapeCircle(8));

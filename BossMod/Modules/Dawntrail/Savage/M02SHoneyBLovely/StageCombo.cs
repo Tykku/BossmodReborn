@@ -1,4 +1,4 @@
-﻿namespace BossMod.Dawntrail.Savage.RM02SHoneyBLovely;
+﻿namespace BossMod.Dawntrail.Savage.M02SHoneyBLovely;
 
 class StageCombo(BossModule module) : Components.GenericAOEs(module)
 {

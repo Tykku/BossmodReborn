@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Criterion.C03AAI.C030Trash2;
 
-class GravityForce(BossModule module, AID aid) : Components.StackWithCastTargets(module, ActionID.MakeSpell(aid), 6, 4);
+class GravityForce(BossModule module, AID aid) : Components.StackWithCastTargets(module, ActionID.MakeSpell(aid), 6, 4, 4);
 class NGravityForce(BossModule module) : GravityForce(module, AID.NGravityForce);
 class SGravityForce(BossModule module) : GravityForce(module, AID.SGravityForce);
 

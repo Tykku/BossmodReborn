@@ -9,9 +9,9 @@ class SidewiseSpark(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = _aoes.Count > 1 ? Colors.Danger : Colors.AOE };
+            yield return _aoes[0] with { Color = _aoes.Count == 1 || _aoes.Count > 1 && _aoes[0].Activation == _aoes[1].Activation ? Colors.AOE : Colors.Danger };
         if (_aoes.Count > 1)
-            yield return _aoes[1] with { Risky = false };
+            yield return _aoes[1] with { Risky = _aoes[0].Activation == _aoes[1].Activation };
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

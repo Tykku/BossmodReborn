@@ -1,10 +1,11 @@
-﻿namespace BossMod.Dawntrail.Savage.RM01SBlackCat;
+﻿namespace BossMod.Dawntrail.Savage.M01SBlackCat;
 
-class RM01SBlackCatStates : StateMachineBuilder
+class M01SBlackCatStates : StateMachineBuilder
 {
-    public RM01SBlackCatStates(BossModule module) : base(module)
+    public M01SBlackCatStates(BossModule module) : base(module)
     {
-        DeathPhase(0, SinglePhase);
+        DeathPhase(0, SinglePhase)
+            .ActivateOnEnter<ArenaChanges>();
     }
 
     private void SinglePhase(uint id)
@@ -142,7 +143,7 @@ class RM01SBlackCatStates : StateMachineBuilder
             [false] = (1, ForkCleavesFirst),
             [true] = (2, ForkProteansFirst),
         };
-        ConditionFork(id + 0x200, 10.0f, () => Module.FindComponent<LeapingOneTwoPaw>()?.AOEs.Count > 2 || Module.FindComponent<QuadrupleCrossingProtean>()?.Origin != null, () => Module.FindComponent<QuadrupleCrossingProtean>()?.Origin != null, dispatch, "Clone tether");
+        ConditionFork(id + 0x200, 10, () => Module.FindComponent<LeapingOneTwoPaw>()?.NumCasts == 2 && Module.FindComponent<LeapingOneTwoPaw>()?.AOEs.Count != 0 || Module.FindComponent<QuadrupleCrossingProtean>()?.Origin != null, () => Module.FindComponent<QuadrupleCrossingProtean>()?.Origin != null, dispatch, "Clone tether");
     }
 
     private void NineLives2Cleaves(uint id, float delay)
@@ -176,7 +177,7 @@ class RM01SBlackCatStates : StateMachineBuilder
 
     private void Mouser(uint id, float delay)
     {
-        Cast(id, AID.Mouser, delay, 10)
+        Cast(id, AID.MouserVisual, delay, 10)
             .ActivateOnEnter<Mouser>();
         ComponentCondition<Mouser>(id + 0x10, 1.5f, comp => comp.NumCasts >= 3, "Tiles start");
         ComponentCondition<Mouser>(id + 0x11, 1, comp => comp.NumCasts >= 6);
@@ -208,11 +209,15 @@ class RM01SBlackCatStates : StateMachineBuilder
         Mouser(id, delay);
 
         ComponentCondition<ElevateAndEviscerate>(id + 0x100, 13.1f, comp => comp.NumCasts >= 1, "Jump 1")
-            .ActivateOnEnter<ElevateAndEviscerate>();
+            .ActivateOnEnter<ElevateAndEviscerate>()
+            .ActivateOnEnter<ElevateAndEviscerateHint>()
+            .ActivateOnEnter<ElevateAndEviscerateShockwave>();
         ComponentCondition<ElevateAndEviscerate>(id + 0x110, 11.2f, comp => comp.NumCasts >= 2, "Jump 2");
         ComponentCondition<ElevateAndEviscerate>(id + 0x120, 11.2f, comp => comp.NumCasts >= 3, "Jump 3");
         ComponentCondition<ElevateAndEviscerate>(id + 0x130, 11.2f, comp => comp.NumCasts >= 4, "Jump 4")
-            .DeactivateOnExit<ElevateAndEviscerate>();
+            .DeactivateOnExit<ElevateAndEviscerate>()
+            .DeactivateOnExit<ElevateAndEviscerateHint>()
+            .DeactivateOnExit<ElevateAndEviscerateShockwave>();
 
         BiscuitMaker(id + 0x200, 5.5f);
         GrimalkinGale(id + 0x300, 4);
@@ -223,7 +228,9 @@ class RM01SBlackCatStates : StateMachineBuilder
         Mouser(id, delay);
 
         CastStartMulti(id + 0x100, [AID.Overshadow, AID.SplinteringNails], 8.4f)
-            .ActivateOnEnter<ElevateAndEviscerate>();
+            .ActivateOnEnter<ElevateAndEviscerate>()
+            .ActivateOnEnter<ElevateAndEviscerateHint>()
+            .ActivateOnEnter<ElevateAndEviscerateShockwave>();
         ComponentCondition<ElevateAndEviscerate>(id + 0x101, 4.7f, comp => comp.NumCasts >= 1, "Jump 1")
             .ActivateOnEnter<Overshadow>()
             .ActivateOnEnter<SplinteringNails>();
@@ -241,7 +248,9 @@ class RM01SBlackCatStates : StateMachineBuilder
         BiscuitMaker(id + 0x200, 5.3f)
             .DeactivateOnExit<Overshadow>()
             .DeactivateOnExit<SplinteringNails>()
-            .DeactivateOnExit<ElevateAndEviscerate>();
+            .DeactivateOnExit<ElevateAndEviscerate>()
+            .DeactivateOnExit<ElevateAndEviscerateHint>()
+            .DeactivateOnExit<ElevateAndEviscerateShockwave>();
         GrimalkinGale(id + 0x300, 5.1f);
     }
 

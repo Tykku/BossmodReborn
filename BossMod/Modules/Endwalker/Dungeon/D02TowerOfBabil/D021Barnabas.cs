@@ -174,7 +174,7 @@ class DynamicScraplineMinus(BossModule module) : Components.SelfTargetedAOEs(mod
 class DynamicScraplinePlus(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DynamicScraplinePlus), new AOEShapeCircle(8));
 class RollingScrapline(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RollingScrapline), new AOEShapeCircle(8));
 class Shock(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Shock), new AOEShapeCircle(8));
-class ShockingForce(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ShockingForce), 6, 4);
+class ShockingForce(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ShockingForce), 6, 4, 4);
 
 class D021BarnabasStates : StateMachineBuilder
 {

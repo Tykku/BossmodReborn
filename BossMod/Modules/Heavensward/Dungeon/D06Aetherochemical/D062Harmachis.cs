@@ -46,10 +46,9 @@ public enum IconID : uint
 }
 
 class Paradox(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Paradox), 5);
-class ChthonicHush(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ChthonicHush), new AOEShapeCone(13.3f, 60.Degrees()));
 class Petrifaction(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.Petrifaction));
 class Ka(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Ka), new AOEShapeCone(45, 30.Degrees()));
-class GaseousBomb(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stack, ActionID.MakeSpell(AID.GaseousBomb), 5, 4.1f);
+class GaseousBomb(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stack, ActionID.MakeSpell(AID.GaseousBomb), 5, 4.1f, 4, 4);
 class BallisticMissile(BossModule module) : Components.UniformStackSpread(module, 4, 0, 2, 2)
 {
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -65,17 +64,41 @@ class BallisticMissile(BossModule module) : Components.UniformStackSpread(module
     }
 }
 
+class ChthonicHush(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ChthonicHush), new AOEShapeCone(13.3f, 60.Degrees()))
+{
+    private readonly GaseousBomb _stack1 = module.FindComponent<GaseousBomb>()!;
+    private readonly BallisticMissile _stack2 = module.FindComponent<BallisticMissile>()!;
+
+    public override void AddHints(int slot, Actor actor, TextHints hints)
+    {
+        if (!_stack1.ActiveStacks.Any() && !_stack2.ActiveStacks.Any())
+            base.AddHints(slot, actor, hints);
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        if (!_stack1.ActiveStacks.Any() && !_stack2.ActiveStacks.Any())
+            base.AddAIHints(slot, actor, assignment, hints);
+    }
+
+    public override void DrawArenaForeground(int pcSlot, Actor pc)
+    {
+        if (!_stack1.ActiveStacks.Any() && !_stack2.ActiveStacks.Any())
+            base.DrawArenaForeground(pcSlot, pc);
+    }
+}
+
 class D062HarmachisStates : StateMachineBuilder
 {
     public D062HarmachisStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<Paradox>()
-            .ActivateOnEnter<ChthonicHush>()
             .ActivateOnEnter<Petrifaction>()
             .ActivateOnEnter<Ka>()
             .ActivateOnEnter<GaseousBomb>()
-            .ActivateOnEnter<BallisticMissile>();
+            .ActivateOnEnter<BallisticMissile>()
+            .ActivateOnEnter<ChthonicHush>();
     }
 }
 

@@ -8,6 +8,7 @@ class M01NBlackCatStates : StateMachineBuilder
             .ActivateOnEnter<ArenaChanges>()
             .ActivateOnEnter<ElevateAndEviscerate>()
             .ActivateOnEnter<ElevateAndEviscerateHint>()
+            .ActivateOnEnter<ElevateAndEviscerateImpact>()
             .ActivateOnEnter<BloodyScratch>()
             .ActivateOnEnter<Mouser>()
             .ActivateOnEnter<OneTwoPaw>()
@@ -16,7 +17,7 @@ class M01NBlackCatStates : StateMachineBuilder
             .ActivateOnEnter<Clawful>()
             .ActivateOnEnter<Shockwave>()
             .ActivateOnEnter<PredaceousPounce>()
-            .ActivateOnEnter<GrimalkinGale2>()
+            .ActivateOnEnter<GrimalkinGale>()
             .ActivateOnEnter<Overshadow>();
     }
 }

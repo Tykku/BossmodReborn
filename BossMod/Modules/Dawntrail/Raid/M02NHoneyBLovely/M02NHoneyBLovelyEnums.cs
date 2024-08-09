@@ -60,8 +60,9 @@ public enum AID : uint
     SplashOfVenom = 37231, // Helper->player, 7.0s cast, range 6 circle
 
     SplinterVisual1 = 37229, // PoisonCloud->location, no cast, single-target
-    SplinterVisual2 = 37244, // Sweetheart->player, no cast, single-target
     Splinter = 37230, // PoisonCloud->self, 4.0s cast, range 8 circle
+
+    SweetheartTouch = 37244, // Sweetheart->player, no cast, single-target
 
     TemptingTwistVisual1 = 37222, // Boss->self, 5.5+0.7s cast, single-target
     TemptingTwistVisual2 = 37228, // Boss->self, 5.5+0.7s cast, single-target
@@ -81,7 +82,6 @@ public enum SID : uint
     LovelyPoison = 3915, // Boss->Boss, extra=0x31B
     TopOfTheHive = 4143, // none->Boss, extra=0x0
     Sweetheart = 2234, // none->Sweetheart, extra=0x19
-    VulnerabilityUp = 1789 // Sweetheart/Helper/PoisonCloud->player, extra=0x1/0x2/0x3/0x4
 }
 
 public enum IconID : uint

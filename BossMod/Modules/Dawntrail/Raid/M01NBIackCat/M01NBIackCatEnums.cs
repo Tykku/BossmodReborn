@@ -28,8 +28,8 @@ public enum AID : uint
     Copycat = 37656, // Boss->self, 3.0s cast, single-target
     ElevateAndEviscerate = 37655, // Boss/CopyCat->player, 8.0s cast, single-target
 
-    GrimalkinGale1 = 37694, // Boss->self, no cast, single-target
-    GrimalkinGale2 = 37695, // Helper->player, 5.0s cast, range 5 circle
+    GrimalkinGaleVisual = 37694, // Boss->self, no cast, single-target
+    GrimalkinGale = 37695, // Helper->player, 5.0s cast, range 5 circle, spread
 
     Impact = 39250, // Helper->self, no cast, range 10 width 10 rect
 

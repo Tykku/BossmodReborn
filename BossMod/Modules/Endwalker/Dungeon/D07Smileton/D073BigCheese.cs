@@ -49,7 +49,7 @@ class RightDisassembler(BossModule module) : Components.SelfTargetedAOEs(module,
 class LeftDisassembler(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeftDisassembler), new AOEShapeRect(30, 5));
 
 class LevelingMissile2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.LevelingMissile2), 6);
-class ElectricArc(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ElectricArc), 6, 8);
+class ElectricArc(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ElectricArc), 6, 4, 4);
 
 class Excavated(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Excavated), new AOEShapeCircle(8));
 
