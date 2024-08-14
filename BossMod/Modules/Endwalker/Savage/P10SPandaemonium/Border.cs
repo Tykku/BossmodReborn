@@ -17,11 +17,11 @@ class Border(BossModule module) : BossComponent(module)
         }
         if (!LBridgeActive && !RBridgeActive)
             Module.Arena.Bounds = P10SPandaemonium.arena;
-        if (!LBridgeActive && RBridgeActive)
+        else if (!LBridgeActive && RBridgeActive)
             Module.Arena.Bounds = P10SPandaemonium.arenaR;
-        if (LBridgeActive && !RBridgeActive)
+        else if (LBridgeActive && !RBridgeActive)
             Module.Arena.Bounds = P10SPandaemonium.arenaL;
-        if (LBridgeActive && RBridgeActive)
+        else if (LBridgeActive && RBridgeActive)
             Module.Arena.Bounds = P10SPandaemonium.arenaLR;
     }
 }

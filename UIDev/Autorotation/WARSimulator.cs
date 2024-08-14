@@ -379,7 +379,7 @@ namespace UIDev
             ImGui.TableNextColumn(); ImGui.TextUnformatted($"{t:f1}");
 
             ImGui.TableNextColumn();
-            ImGui.PushStyleColor(ImGuiCol.Text, state.RaidBuffsLeft > 0 ? 0xff00ff00 : 0xffffffff);
+            ImGui.PushStyleColor(ImGuiCol.Text, state.RaidBuffsLeft > 0 ? Colors.TextColor4 : Colors.TextColor1);
             ImGui.TextUnformatted($"{(isGCD ? "" : "** ")}{ActionString(action)}");
             ImGui.PopStyleColor();
 

@@ -17,8 +17,8 @@ class PlotTest : TestWindow
     public override void Draw()
     {
         _plot.Begin();
-        _plot.Point(new(-45, 1), 0xffffffff, () => "first");
-        _plot.Point(new(45, 10), 0xff00ff00, () => "second");
+        _plot.Point(new(-45, 1), Colors.TextColor1, () => "first");
+        _plot.Point(new(45, 10), Colors.TextColor4, () => "second");
         _plot.End();
     }
 }

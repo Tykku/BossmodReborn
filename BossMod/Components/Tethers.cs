@@ -193,7 +193,7 @@ public class InterceptTether(BossModule module, ActionID aid, uint tetherID) : C
 
 // generic component for tethers that need to be stretched and switch between a "good" and "bad" tether
 // at the end of the mechanic various things are possible, eg. single target dmg, knockback/pull, AOE etc.
-public class StretchTetherDuo(BossModule module, uint tetherIDBad, uint tetherIDGood, float minimumDistance, AOEShape? shape = null, ActionID aid = default, uint enemyOID = default, float activationDelay = default, bool knockbackImmunity = false) : GenericBaitAway(module, aid)
+public class StretchTetherDuo(BossModule module, float minimumDistance, float activationDelay, uint tetherIDBad = 57, uint tetherIDGood = 1, AOEShape? shape = null, ActionID aid = default, uint enemyOID = default, bool knockbackImmunity = false) : GenericBaitAway(module, aid)
 {
     public static readonly AOEShapeCone DefaultShape = new(default, default);
     public AOEShape Shape = shape ?? DefaultShape;
@@ -390,4 +390,4 @@ public class StretchTetherDuo(BossModule module, uint tetherIDBad, uint tetherID
 
 // generic component for tethers that need to be stretched
 public class StretchTetherSingle(BossModule module, uint tetherID, float minimumDistance, AOEShape? shape = null, ActionID aid = default, uint enemyOID = default, float activationDelay = default, bool knockbackImmunity = false) :
-StretchTetherDuo(module, tetherID, tetherID, minimumDistance, shape, aid, enemyOID, activationDelay, knockbackImmunity);
+StretchTetherDuo(module, minimumDistance, activationDelay, tetherID, tetherID, shape, aid, enemyOID, knockbackImmunity);

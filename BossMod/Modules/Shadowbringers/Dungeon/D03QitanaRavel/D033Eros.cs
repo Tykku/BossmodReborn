@@ -31,13 +31,7 @@ public enum AID : uint
     ConfessionOfFaithSpread = 15523 // Helper->player, 5.8s cast, range 5 circle, spread
 }
 
-public enum TetherID : uint
-{
-    HoundOutOfHeavenTetherGood = 1, // Boss->player
-    HoundOutOfHeavenTetherBad = 57 // Boss->player
-}
-
-class HoundOutOfHeaven(BossModule module) : Components.StretchTetherDuo(module, (uint)TetherID.HoundOutOfHeavenTetherBad, (uint)TetherID.HoundOutOfHeavenTetherGood, 15, activationDelay: 5.2f);
+class HoundOutOfHeaven(BossModule module) : Components.StretchTetherDuo(module, 15, 5.2f);
 class ViperPoisonPatterns(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.ViperPoisonPatterns), m => m.Enemies(OID.PoisonVoidzone).Where(z => z.EventState != 7), 0);
 class ConfessionOfFaithLeft(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ConfessionOfFaithLeft), new AOEShapeCone(60, 47.Degrees(), 20.Degrees())); // TODO: verify; there should not be an offset in reality here...
 class ConfessionOfFaithRight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ConfessionOfFaithRight), new AOEShapeCone(60, 47.Degrees(), -20.Degrees())); // TODO: verify; there should not be an offset in reality here...

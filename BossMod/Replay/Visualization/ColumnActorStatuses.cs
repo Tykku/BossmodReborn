@@ -57,7 +57,7 @@ public class ColumnActorStatuses : Timeline.ColumnGroup
                 res.Add($"- final duration: {s.InitialDuration - s.Time.Duration:f3}");
             };
             if (s.Time.Start == prevEnd)
-                res.AddHistoryEntryLine(_enc.Time.Start, prevEnd, "", 0xffffffff);
+                res.AddHistoryEntryLine(_enc.Time.Start, prevEnd, "", Colors.TextColor1);
             prevEnd = s.Time.End;
         }
         foreach (var a in _replay.EncounterActions(_enc))
@@ -73,7 +73,7 @@ public class ColumnActorStatuses : Timeline.ColumnGroup
                         if (src == source && tgt == _target)
                         {
                             var actionName = $"{a.ID} -> {ReplayUtils.ParticipantString(a.MainTarget, a.Timestamp)} #{a.GlobalSequence}";
-                            res.AddHistoryEntryDot(_enc.Time.Start, a.Timestamp, actionName, 0xffffffff).AddActionTooltip(a);
+                            res.AddHistoryEntryDot(_enc.Time.Start, a.Timestamp, actionName, Colors.TextColor1).AddActionTooltip(a);
                         }
                     }
                 }

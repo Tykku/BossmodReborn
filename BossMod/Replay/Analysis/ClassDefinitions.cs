@@ -282,16 +282,16 @@ class ClassDefinitions
             1 => "",
             _ => " [shared]"
         };
-        foreach (var na in tree.Nodes(actions, kv => new($"L{kv.Row?.ClassJobLevel} {kv.ID}{suffix(kv.OwningClasses)}", false, kv.Error ? 0xff0000ff : kv.Warning ? 0xff00ffff : 0xffffffff)))
+        foreach (var na in tree.Nodes(actions, kv => new($"L{kv.Row?.ClassJobLevel} {kv.ID}{suffix(kv.OwningClasses)}", false, kv.Error ? Colors.TextColor3 : kv.Warning ? Colors.TextColor2 : Colors.TextColor1)))
         {
             tree.LeafNode($"Definition: {na.Definition}");
             tree.LeafNode($"Row: {na.Row}, raw range: {na.Row?.Range}, class: {na.Row?.ClassJob.Value?.Abbreviation}, category: {na.Row?.ClassJobCategory.Value?.Name}");
             tree.LeafNode($"Unlock: {UnlockString(na.Row?.ClassJobLevel ?? 0, na.Row?.UnlockLink ?? 0)}");
-            tree.LeafNode($"Warnings: {(na.PotentiallyRemoved ? "PR " : "")}{(na.ReplayOnly ? "RO " : "")}", na.PotentiallyRemoved || na.ReplayOnly ? 0xff0000ff : 0xffffffff);
+            tree.LeafNode($"Warnings: {(na.PotentiallyRemoved ? "PR " : "")}{(na.ReplayOnly ? "RO " : "")}", na.PotentiallyRemoved || na.ReplayOnly ? Colors.TextColor3 : Colors.TextColor1);
             tree.LeafNode($"Targets: [{ActionDefinitions.Instance.ActionAllowedTargets(na.ID)}]");
             tree.LeafNode($"Can be put on action bar: {na.CanBePutOnActionBar}");
             tree.LeafNode($"Is role action: {na.IsRoleAction}");
-            tree.LeafNode($"Expected anim lock: {na.ExpectedInstantAnimLock} / {na.ExpectedCastAnimLock}", na.SeenDifferentInstantAnimLocks || na.SeenDifferentCastAnimLocks ? 0xff0000ff : 0xffffffff);
+            tree.LeafNode($"Expected anim lock: {na.ExpectedInstantAnimLock} / {na.ExpectedCastAnimLock}", na.SeenDifferentInstantAnimLocks || na.SeenDifferentCastAnimLocks ? Colors.TextColor3 : Colors.TextColor1);
             foreach (var nl in tree.Nodes(na.InstantByAnimLock, kv => new($"Observed instant anim lock: {kv.Key}")))
             {
                 DrawEntries(tree, nl.Value);

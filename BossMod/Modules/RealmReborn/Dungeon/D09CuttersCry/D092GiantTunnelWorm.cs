@@ -1,4 +1,4 @@
-﻿namespace BossMod.RealmReborn.Dungeon.D09Cutter.D092GiantTunnelWorm;
+﻿namespace BossMod.RealmReborn.Dungeon.D09CuttersCry.D092GiantTunnelWorm;
 
 public enum OID : uint
 {

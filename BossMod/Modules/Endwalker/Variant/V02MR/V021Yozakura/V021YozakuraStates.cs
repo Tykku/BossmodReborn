@@ -27,6 +27,9 @@ class V021YozakuraStates : StateMachineBuilder
             .ActivateOnEnter<LevinblossomLance>()
             .ActivateOnEnter<TatamiGaeshiAOE>()
             //Standard
+            .ActivateOnEnter<ArenaChange>()
+            .ActivateOnEnter<Components.StayInBounds>()
+            .ActivateOnEnter<GloryNeverlasting>()
             .ActivateOnEnter<KugeRantsui>()
             .ActivateOnEnter<OkaRanman>()
             .ActivateOnEnter<SealOfTheFireblossom1>()

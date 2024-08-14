@@ -17,7 +17,7 @@ class Shackles(BossModule module) : BossComponent(module)
 
     private const float _blueExplosionRadius = 4;
     private const float _redExplosionRadius = 8;
-    private static uint TetherColor(bool blue, bool red) => blue ? (red ? 0xff00ffff : 0xffff0080) : (red ? 0xff8080ff : 0xff808080);
+    private static uint TetherColor(bool blue, bool red) => blue ? (red ? Colors.Danger : Colors.Other1) : (red ? Colors.Other2 : Colors.PlayerGeneric);
 
     public override void Update()
     {

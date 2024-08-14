@@ -82,28 +82,28 @@ public class FloodFillVisualizer
                 {
                     var alpha = 0.5f; // 1 - (pix.MaxG > 0 ? pix.MaxG / Map.MaxG : 0);
                     var c = 128 + (uint)(alpha * 127);
-                    c = c | (c << 8) | 0xff000000;
+                    c = c | (c << 8) | Colors.TextColor15;
                     dl.AddRectFilled(corner, cornerEnd, c);
                 }
                 else if (y == goalY)
                 {
                     var alpha = 1;// pix.Priority / Map.MaxPriority;
                     var c = 128 + (uint)(alpha * 127);
-                    c = (c << 8) | 0xff000000;
+                    c = (c << 8) | Colors.TextColor15;
                     dl.AddRectFilled(corner, cornerEnd, c);
                 }
                 else if (blocker)
                 {
-                    dl.AddRectFilled(corner, cornerEnd, 0x80808080);
+                    dl.AddRectFilled(corner, cornerEnd, Colors.TextColor7);
                 }
             }
         }
 
         // border
-        dl.AddLine(tl, tr, 0xffffffff, 2);
-        dl.AddLine(tr, br, 0xffffffff, 2);
-        dl.AddLine(br, bl, 0xffffffff, 2);
-        dl.AddLine(bl, tl, 0xffffffff, 2);
+        dl.AddLine(tl, tr, Colors.Border, 2);
+        dl.AddLine(tr, br, Colors.Border, 2);
+        dl.AddLine(br, bl, Colors.Border, 2);
+        dl.AddLine(bl, tl, Colors.Border, 2);
 
         // grid
         if (ScreenPixelSize > 4)
@@ -111,12 +111,12 @@ public class FloodFillVisualizer
             for (var x = 1; x < Map.Width; ++x)
             {
                 var off = new Vector2(x * ScreenPixelSize, 0);
-                dl.AddLine(tl + off, bl + off, 0xffffffff, 1);
+                dl.AddLine(tl + off, bl + off, Colors.Border, 1);
             }
             for (var y = 1; y < h; ++y)
             {
                 var off = new Vector2(0, y * ScreenPixelSize);
-                dl.AddLine(tl + off, tr + off, 0xffffffff, 1);
+                dl.AddLine(tl + off, tr + off, Colors.Border, 1);
             }
         }
 
@@ -147,19 +147,19 @@ public class FloodFillVisualizer
             var fromY = from.y - ScrollY;
             var fromS = tl + new Vector2(from.x + 0.5f, fromY + 0.5f) * ScreenPixelSize;
             //if (CurrT == 0 && fromY >= 0 && fromY <= h)
-            //    dl.AddCircle(fromS, ScreenPixelSize / 2, 0xffff0000);
+            //    dl.AddCircle(fromS, ScreenPixelSize / 2, Colors.TextColor14);
             for (var i = 1; i < Path.Count; ++i)
             {
                 var to = Map.WorldToGrid(Path[i].XYZ());
                 var toY = to.y - ScrollY;
                 var toS = tl + new Vector2(to.x + 0.5f, toY + 0.5f) * ScreenPixelSize;
                 if (fromY >= 0 && fromY <= h && toY >= 0 && toY <= h)
-                    dl.AddLine(fromS, toS, Path[i].W <= CurrT ? 0x80800080 : 0xffff00ff, 2);
+                    dl.AddLine(fromS, toS, Path[i].W <= CurrT ? Colors.TextColor8 : Colors.TextColor6, 2);
                 from = to;
                 fromY = toY;
                 fromS = toS;
                 //if (CurrT == i && fromY >= 0 && fromY <= h)
-                //    dl.AddCircle(fromS, ScreenPixelSize / 2, 0xffff0000);
+                //    dl.AddCircle(fromS, ScreenPixelSize / 2, Colors.TextColor14);
             }
         }
 

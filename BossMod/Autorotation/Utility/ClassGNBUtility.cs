@@ -29,9 +29,9 @@ public sealed class ClassGNBUtility(RotationModuleManager manager, Actor player)
         return res;
     }
 
-    public override void Execute(StrategyValues strategy, Actor? primaryTarget, float estimatedAnimLockDelay, float forceMovementIn)
+    public override void Execute(StrategyValues strategy, Actor? primaryTarget, float estimatedAnimLockDelay, float forceMovementIn, bool isMoving)
     {
-        ExecuteShared(strategy, IDLimitBreak3, IDStanceApply, IDStanceRemove, (uint)GNB.SID.RoyalGuard);
+        ExecuteShared(strategy, IDLimitBreak3, IDStanceApply, IDStanceRemove, (uint)GNB.SID.RoyalGuard, primaryTarget);
         ExecuteSimple(strategy.Option(Track.Camouflage), GNB.AID.Camouflage, Player);
         ExecuteSimple(strategy.Option(Track.Nebula), GNB.AID.Nebula, Player);
         ExecuteSimple(strategy.Option(Track.Aurora), GNB.AID.Aurora, primaryTarget);

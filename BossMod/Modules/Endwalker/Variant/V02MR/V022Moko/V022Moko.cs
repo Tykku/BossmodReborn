@@ -56,9 +56,19 @@ class VeilSever(BossModule module) : Components.SelfTargetedAOEs(module, ActionI
 //Route 2
 class ScarletAuspice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ScarletAuspice), new AOEShapeCircle(6));
 class MoonlessNight(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MoonlessNight));
-class Clearout(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Clearout), new AOEShapeCone(25, 90.Degrees()));
+class Clearout(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Clearout), new AOEShapeCone(27, 90.Degrees())); // origin is detected incorrectly, need to add 5 range to correct it
 class BoundlessScarlet(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BoundlessScarlet), new AOEShapeRect(60, 5, 60));
-class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeRect(60, 15, 60));
+class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeRect(60, 15, 60), 2)
+{
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var aoes = ActiveCasters.Select((c, index) =>
+            new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo),
+            index < 1 ? Colors.Danger : Colors.AOE));
+
+        return aoes;
+    }
+}
 
 //Route 3
 class GhastlyGrasp(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GhastlyGrasp), 5);
@@ -104,24 +114,8 @@ class SpiritMobs(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _spirits.Where(actor => !actor.IsDead).Select(b => new AOEInstance(_shape, b.Position));
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "The Combat Reborn Team", PrimaryActorOID = (uint)OID.Boss, GroupType = BossModuleInfo.GroupType.CFC, Category = BossModuleInfo.Category.Criterion, GroupID = 945, NameID = 12357)]
-public class V022Moko(WorldState ws, Actor primary) : BossModule(ws, primary, new(-700, 540), new ArenaBoundsSquare(20))
-{
-    private Actor? _bossPath2;
+[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "The Combat Reborn Team", PrimaryActorOID = (uint)OID.Boss, GroupType = BossModuleInfo.GroupType.CFC, Category = BossModuleInfo.Category.Criterion, GroupID = 945, NameID = 12357, SortOrder = 2)]
+public class V022MokoOtherPaths(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaChange.ArenaCenter, ArenaChange.StartingBounds);
 
-    public Actor? Boss() => PrimaryActor;
-    public Actor? BossPath2() => _bossPath2;
-
-    protected override void UpdateModule()
-    {
-        // TODO: this is an ugly hack, think how multi-actor fights can be implemented without it...
-        // the problem is that on wipe, any actor can be deleted and recreated in the same frame
-        _bossPath2 ??= StateMachine.ActivePhaseIndex == 0 ? Enemies(OID.BossPath2).FirstOrDefault() : null;
-    }
-
-    protected override void DrawEnemies(int pcSlot, Actor pc)
-    {
-        Arena.Actor(PrimaryActor);
-        Arena.Actor(_bossPath2);
-    }
-}
+[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "The Combat Reborn Team", PrimaryActorOID = (uint)OID.BossP2, GroupType = BossModuleInfo.GroupType.CFC, Category = BossModuleInfo.Category.Criterion, GroupID = 945, NameID = 12357, SortOrder = 3)]
+public class V022MokoPath2(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaChange.ArenaCenter, ArenaChange.StartingBounds);

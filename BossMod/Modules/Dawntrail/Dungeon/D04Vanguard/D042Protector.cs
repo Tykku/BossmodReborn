@@ -59,7 +59,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
     private static readonly ArenaBoundsRect defaultBounds = new(12, 20);
     private static readonly Rectangle startingRect = new(ArenaCenter, 15, 23);
     private static readonly Rectangle defaultRect = new(ArenaCenter, 12, 20);
-    private static readonly WPos[] CirclePositions =
+    private static readonly WPos[] circlePositions =
     [
         new(12, -88), new(8, -92), new(4, -88), new(0, -88), new(-4, -88),
         new(-12, -88), new(-8, -92), new(0, -92), new(-4, -96), new(0, -96),
@@ -69,9 +69,9 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
         new(-12, -104)
     ];
 
-    private static readonly Circle[] Circles = CirclePositions.Select(pos => new Circle(pos, Radius)).ToArray();
+    private static readonly Circle[] circles = circlePositions.Select(pos => new Circle(pos, Radius)).ToArray();
 
-    private static readonly (int, int)[] RectanglePairs =
+    private static readonly (int, int)[] rectanglePairs =
     [
         (0, 1), (7, 9), (5, 6), (13, 20), (17, 18), (11, 14), (21, 20), (14, 15),
         (12, 17), (1, 10), (3, 7), (6, 8), (25, 5), (25, 11), (2, 5), (4, 8),
@@ -79,8 +79,8 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
         (24, 8), (0, 22), (0, 4), (2, 10), (22, 13),
     ];
 
-    private static readonly RectangleSE[] Rectangles = RectanglePairs
-        .Select(pair => new RectangleSE(Circles[pair.Item1].Center, Circles[pair.Item2].Center, Radius)).ToArray();
+    private static readonly RectangleSE[] rectangles = rectanglePairs
+        .Select(pair => new RectangleSE(circles[pair.Item1].Center, circles[pair.Item2].Center, Radius)).ToArray();
 
     private static readonly AOEShapeCustom rectArenaChange = new([startingRect], [defaultRect]);
 
@@ -107,8 +107,8 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
     private static List<Shape> GetShapesForUnion(int[] rectIndices, int[] circleIndices)
     {
         var shapes = new List<Shape>();
-        shapes.AddRange(rectIndices.Select(index => Rectangles[index]));
-        shapes.AddRange(circleIndices.Select(index => Circles[index]));
+        shapes.AddRange(rectIndices.Select(index => rectangles[index]));
+        shapes.AddRange(circleIndices.Select(index => circles[index]));
         return shapes;
     }
 

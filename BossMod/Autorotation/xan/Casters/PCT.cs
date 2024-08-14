@@ -2,6 +2,7 @@
 using FFXIVClientStructs.FFXIV.Client.Game.Gauge;
 
 namespace BossMod.Autorotation.xan;
+
 public sealed class PCT(RotationModuleManager manager, Actor player) : Castxan<AID, TraitID>(manager, player)
 {
     public enum Track { Motif = SharedTrack.Count, Holy, Hammer }
@@ -106,9 +107,9 @@ public sealed class PCT(RotationModuleManager manager, Actor player) : Castxan<A
                 PushGCD(AID.LandscapeMotif, Player);
         }
 
-        if (World.Client.CountdownRemaining > 0)
+        if (CountdownRemaining > 0)
         {
-            if (Unlocked(AID.RainbowDrip) && World.Client.CountdownRemaining <= GetCastTime(AID.RainbowDrip))
+            if (CountdownRemaining <= GetCastTime(AID.RainbowDrip))
                 PushGCD(AID.RainbowDrip, primaryTarget);
 
             return;

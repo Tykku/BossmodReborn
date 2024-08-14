@@ -353,7 +353,7 @@ public sealed class ConfigUI : IDisposable
             return false;
 
         var modified = false;
-        foreach (var tn in tree.Node(label, false, v.Validate() ? 0xffffffff : 0xff00ffff, () => DrawPropertyContextMenu(node, member, v)))
+        foreach (var tn in tree.Node(label, false, v.Validate() ? Colors.TextColor1 : Colors.TextColor2, () => DrawPropertyContextMenu(node, member, v)))
         {
             var assignments = root.Get<PartyRolesConfig>().SlotsPerAssignment(ws.Party);
             if (ImGui.BeginTable("table", group.Names.Length + 2, ImGuiTableFlags.SizingFixedFit))

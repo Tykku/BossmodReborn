@@ -38,9 +38,9 @@ public sealed class ClassWARUtility(RotationModuleManager manager, Actor player)
         return res;
     }
 
-    public override void Execute(StrategyValues strategy, Actor? primaryTarget, float estimatedAnimLockDelay, float forceMovementIn)
+    public override void Execute(StrategyValues strategy, Actor? primaryTarget, float estimatedAnimLockDelay, float forceMovementIn, bool isMoving)
     {
-        ExecuteShared(strategy, IDLimitBreak3, IDStanceApply, IDStanceRemove, (uint)WAR.SID.Defiance);
+        ExecuteShared(strategy, IDLimitBreak3, IDStanceApply, IDStanceRemove, (uint)WAR.SID.Defiance, primaryTarget);
         ExecuteSimple(strategy.Option(Track.Thrill), WAR.AID.ThrillOfBattle, Player);
         ExecuteSimple(strategy.Option(Track.Holmgang), WAR.AID.Holmgang, Player);
         ExecuteSimple(strategy.Option(Track.Equilibrium), WAR.AID.Equilibrium, Player);

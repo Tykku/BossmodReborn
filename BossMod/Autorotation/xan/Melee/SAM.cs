@@ -2,6 +2,7 @@
 using FFXIVClientStructs.FFXIV.Client.Game.Gauge;
 
 namespace BossMod.Autorotation.xan;
+
 public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan<AID, TraitID>(manager, player)
 {
     public enum Track { Higanbana = SharedTrack.Count }
@@ -46,12 +47,9 @@ public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan
     private Actor? BestAOETarget; // null if fuko is unlocked since it's self-targeted
     private Actor? BestLineTarget;
     private Actor? BestOgiTarget;
+    private Actor? BestDotTarget;
 
     private float TargetDotLeft;
-
-    // TODO multitarget
-    //private float LowestTargetDotLeft = float.MaxValue;
-    //private Actor? BestDotTarget; // null right now, idk how to do this
 
     protected override float GetCastTime(AID aid)
     {
@@ -98,17 +96,16 @@ public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan
         NumTenkaTargets = NumNearbyTargets(strategy, 8);
         (BestLineTarget, NumLineTargets) = SelectTarget(strategy, primaryTarget, 10, InLineAOE);
 
-        if (Hints.PriorityTargets.Count() > 2)
-            TargetDotLeft = float.MaxValue;
-        else
+        (BestDotTarget, TargetDotLeft) = SelectDotTarget(strategy, primaryTarget, HiganbanaLeft, 2);
+
+        switch (strategy.Option(Track.Higanbana).As<OffensiveStrategy>())
         {
-            TargetDotLeft = strategy.Option(Track.Higanbana).As<OffensiveStrategy>() switch
-            {
-                OffensiveStrategy.Automatic => HiganbanaLeft(primaryTarget),
-                OffensiveStrategy.Delay => float.MaxValue,
-                OffensiveStrategy.Force => 0,
-                _ => 0
-            };
+            case OffensiveStrategy.Delay:
+                TargetDotLeft = float.MaxValue;
+                break;
+            case OffensiveStrategy.Force:
+                TargetDotLeft = 0;
+                break;
         }
 
         UpdatePositionals(primaryTarget, GetNextPositional(strategy), TrueNorthLeft > GCD);
@@ -257,7 +254,7 @@ public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan
             return;
 
         if (NumStickers == 1 && TargetDotLeft < 10 && FukaLeft > 0)
-            PushGCD(AID.Higanbana, primaryTarget);
+            PushGCD(AID.Higanbana, BestDotTarget);
 
         if (NumStickers == 2 && NumTenkaTargets > 2)
             PushGCD(Tendo > GCD ? AID.TendoGoken : AID.TenkaGoken, Player);

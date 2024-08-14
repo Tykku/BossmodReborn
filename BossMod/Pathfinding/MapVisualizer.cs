@@ -49,14 +49,14 @@ public class MapVisualizer
                 {
                     var alpha = 1 - (pix.MaxG > 0 ? pix.MaxG / Map.MaxG : 0);
                     var c = 128 + (uint)(alpha * 127);
-                    c = c | (c << 8) | 0xff000000;
+                    c = c | (c << 8) | Colors.Shadows;
                     dl.AddRectFilled(corner, cornerEnd, c);
                 }
                 else if (pix.Priority > 0)
                 {
                     var alpha = pix.Priority / Map.MaxPriority;
                     var c = 128 + (uint)(alpha * 127);
-                    c = (c << 8) | 0xff000000;
+                    c = (c << 8) | Colors.Shadows;
                     dl.AddRectFilled(corner, cornerEnd, c);
                 }
                 else if (pix.Priority < 0)
@@ -67,7 +67,7 @@ public class MapVisualizer
                 ref var pfNode = ref _pathfind.NodeByIndex(nodeIndex);
                 if (pfNode.OpenHeapIndex != 0)
                 {
-                    dl.AddCircle((corner + cornerEnd) / 2, 3, pfNode.OpenHeapIndex < 0 ? 0xff0000ff : 0xffff0080, 0, pfNode.OpenHeapIndex == 1 ? 2 : 1);
+                    dl.AddCircle((corner + cornerEnd) / 2, 3, pfNode.OpenHeapIndex < 0 ? Colors.TextColor3 : Colors.Other1, 0, pfNode.OpenHeapIndex == 1 ? 2 : 1);
                 }
 
                 if (ImGui.IsMouseHoveringRect(corner, cornerEnd))
@@ -98,21 +98,21 @@ public class MapVisualizer
         }
 
         // border
-        dl.AddLine(tl, tr, 0xffffffff, 2);
-        dl.AddLine(tr, br, 0xffffffff, 2);
-        dl.AddLine(br, bl, 0xffffffff, 2);
-        dl.AddLine(bl, tl, 0xffffffff, 2);
+        dl.AddLine(tl, tr, Colors.Border, 2);
+        dl.AddLine(tr, br, Colors.Border, 2);
+        dl.AddLine(br, bl, Colors.Border, 2);
+        dl.AddLine(bl, tl, Colors.Border, 2);
 
         // grid
         for (var x = 1; x < Map.Width; ++x)
         {
             var off = new Vector2(x * ScreenPixelSize, 0);
-            dl.AddLine(tl + off, bl + off, 0xffffffff, 1);
+            dl.AddLine(tl + off, bl + off, Colors.Border, 1);
         }
         for (var y = 1; y < Map.Height; ++y)
         {
             var off = new Vector2(0, y * ScreenPixelSize);
-            dl.AddLine(tl + off, tr + off, 0xffffffff, 1);
+            dl.AddLine(tl + off, tr + off, Colors.Border, 1);
         }
 
         // pathfinding
@@ -149,7 +149,7 @@ public class MapVisualizer
             var side = r.halfWidth * direction.OrthoR();
             var front = r.origin + r.lenF * direction;
             var back = r.origin - r.lenB * direction;
-            dl.AddQuad(tl + Map.WorldToGridFrac(front + side) * ScreenPixelSize, tl + Map.WorldToGridFrac(front - side) * ScreenPixelSize, tl + Map.WorldToGridFrac(back - side) * ScreenPixelSize, tl + Map.WorldToGridFrac(back + side) * ScreenPixelSize, 0xff0000ff);
+            dl.AddQuad(tl + Map.WorldToGridFrac(front + side) * ScreenPixelSize, tl + Map.WorldToGridFrac(front - side) * ScreenPixelSize, tl + Map.WorldToGridFrac(back - side) * ScreenPixelSize, tl + Map.WorldToGridFrac(back + side) * ScreenPixelSize, Colors.Enemy);
         }
         foreach (var l in Lines)
         {
@@ -171,16 +171,16 @@ public class MapVisualizer
         var sCenter = tl + Map.WorldToGridFrac(center) * ScreenPixelSize;
         if (halfWidth.Rad >= MathF.PI)
         {
-            dl.AddCircle(sCenter, or / Map.Resolution * ScreenPixelSize, 0xff0000ff);
+            dl.AddCircle(sCenter, or / Map.Resolution * ScreenPixelSize, Colors.Enemy);
             if (ir > 0)
-                dl.AddCircle(sCenter, ir / Map.Resolution * ScreenPixelSize, 0xff0000ff);
+                dl.AddCircle(sCenter, ir / Map.Resolution * ScreenPixelSize, Colors.Enemy);
         }
         else
         {
             var sDir = MathF.PI / 2 - dir.Rad;
             dl.PathArcTo(sCenter, ir / Map.Resolution * ScreenPixelSize, sDir + halfWidth.Rad, sDir - halfWidth.Rad);
             dl.PathArcTo(sCenter, or / Map.Resolution * ScreenPixelSize, sDir - halfWidth.Rad, sDir + halfWidth.Rad);
-            dl.PathStroke(0xff0000ff, ImDrawFlags.Closed, 1);
+            dl.PathStroke(Colors.Enemy, ImDrawFlags.Closed, 1);
         }
     }
 
@@ -196,7 +196,7 @@ public class MapVisualizer
         var y2 = _pathfind.NodeByIndex(from).ParentY;
         while (x1 != x2 || y1 != y2)
         {
-            dl.AddLine(tl + new Vector2(x1 + 0.5f, y1 + 0.5f) * ScreenPixelSize, tl + new Vector2(x2 + 0.5f, y2 + 0.5f) * ScreenPixelSize, 0xffff00ff, 2);
+            dl.AddLine(tl + new Vector2(x1 + 0.5f, y1 + 0.5f) * ScreenPixelSize, tl + new Vector2(x2 + 0.5f, y2 + 0.5f) * ScreenPixelSize, Colors.Vulnerable, 2);
             x1 = x2;
             y1 = y2;
             from = y1 * Map.Width + x1;

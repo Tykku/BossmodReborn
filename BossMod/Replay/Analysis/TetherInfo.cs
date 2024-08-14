@@ -39,7 +39,7 @@ class TetherInfo : CommonEnumInfo
         UITree.NodeProperties map(KeyValuePair<uint, TetherData> kv)
         {
             var name = _tidType?.GetEnumName(kv.Key);
-            return new($"{kv.Key} ({name})", false, name == null ? 0xff00ffff : 0xffffffff);
+            return new($"{kv.Key} ({name})", false, name == null ? Colors.TextColor2 : Colors.TextColor1);
         }
         foreach (var (tid, data) in tree.Nodes(_data, map))
         {

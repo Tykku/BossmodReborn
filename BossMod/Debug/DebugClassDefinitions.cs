@@ -1,5 +1,4 @@
 ﻿using ImGuiNET;
-using System.Text;
 
 namespace BossMod;
 
@@ -133,7 +132,7 @@ sealed class DebugClassDefinitions : IDisposable
         for (var i = 1; i < _classes.Length; ++i)
         {
             var c = (Class)i;
-            foreach (var cn in _tree.Node(c.ToString(), false, c == player.Class ? 0xff00ff00 : 0xffffffff))
+            foreach (var cn in _tree.Node(c.ToString(), false, c == player.Class ? Colors.TextColor4 : Colors.TextColor1))
             {
                 var data = _classes[i] ??= new(c);
                 foreach (var n in _tree.Node("Actions", contextMenu: () => ActionsContextMenu(data)))
@@ -161,13 +160,13 @@ sealed class DebugClassDefinitions : IDisposable
                     foreach (var (cg, actions) in data.CooldownGroups)
                     {
                         var cdgName = data.CDGType?.GetEnumName(cg);
-                        _tree.LeafNode($"{cg} ({cdgName}): {string.Join(", ", actions.Select(a => a.Name))}", cdgName != null || cg == ActionDefinitions.GCDGroup ? 0xffffffff : 0xff0000ff);
+                        _tree.LeafNode($"{cg} ({cdgName}): {string.Join(", ", actions.Select(a => a.Name))}", cdgName != null || cg == ActionDefinitions.GCDGroup ? Colors.TextColor1 : Colors.TextColor3);
                     }
                 }
 
                 foreach (var n in _tree.Node("Seen statuses", contextMenu: () => StatusesContextMenu(data)))
                 {
-                    foreach (var sn in _tree.Nodes(_seenStatuses.Where(kv => kv.Value.Classes.Contains(c)), idData => new(Utils.StatusString(idData.Key), false, data.SIDType?.GetEnumName(idData.Key) != null ? 0xffffffff : 0xff0000ff)))
+                    foreach (var sn in _tree.Nodes(_seenStatuses.Where(kv => kv.Value.Classes.Contains(c)), idData => new(Utils.StatusString(idData.Key), false, data.SIDType?.GetEnumName(idData.Key) != null ? Colors.TextColor1 : Colors.TextColor3)))
                     {
                         _tree.LeafNode($"Applied by: {sn.Value.AppliedByString()}");
                         _tree.LeafNode($"Applied to: {sn.Value.AppliedToString()}");
@@ -341,7 +340,7 @@ sealed class DebugClassDefinitions : IDisposable
     {
         var aidEnum = cd.AIDType?.GetEnumName(action.RowId);
         var name = $"{action.RowId} '{action.Name}' ({aidEnum}): L{action.ClassJobLevel}";
-        return new(name, false, aidEnum == null ? 0xff0000ff : _seenActionLocks.ContainsKey(new ActionID(ActionType.Spell, action.RowId)) ? 0xffffffff : 0xff00ffff);
+        return new(name, false, aidEnum == null ? Colors.TextColor3 : _seenActionLocks.ContainsKey(new ActionID(ActionType.Spell, action.RowId)) ? Colors.TextColor1 : Colors.TextColor2);
     }
 
     private string ActionEnumString(ClassData cd, Lumina.Excel.GeneratedSheets.Action action)

@@ -49,7 +49,7 @@ class OpList(Replay replay, ModuleRegistry.Info? moduleInfo, IEnumerable<WorldSt
         var timeRef = ImGui.GetIO().KeyShift && _relativeTS != default ? _relativeTS : reference;
         foreach (var node in _nodes)
         {
-            foreach (var n in tree.Node($"{(node.Timestamp - timeRef).TotalSeconds:f3}: {node.Text}###{node.Index}", node.Children == null, 0xffffffff, node.ContextMenu, () => scrollTo(node.Timestamp), () => _relativeTS = node.Timestamp))
+            foreach (var n in tree.Node($"{(node.Timestamp - timeRef).TotalSeconds:f3}: {node.Text}###{node.Index}", node.Children == null, Colors.TextColor1, node.ContextMenu, () => scrollTo(node.Timestamp), () => _relativeTS = node.Timestamp))
             {
                 node.Children?.Invoke(tree);
             }

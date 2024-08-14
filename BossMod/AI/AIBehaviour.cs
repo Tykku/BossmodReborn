@@ -4,11 +4,11 @@ using ImGuiNET;
 
 namespace BossMod.AI;
 
+public record struct Targeting(AIHints.Enemy Target, float PreferredRange = 3, Positional PreferredPosition = Positional.Any, bool PreferTanking = false);
+
 // constantly follow master
 sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Preset? aiPreset) : IDisposable
 {
-    public record struct Targeting(AIHints.Enemy Target, float PreferredRange = 3, Positional PreferredPosition = Positional.Any, bool PreferTanking = false);
-
     public WorldState WorldState => autorot.Bossmods.WorldState;
     public Preset? AIPreset = aiPreset;
     public float ForceMovementIn { get; private set; } = float.MaxValue; // TODO: reconsider
@@ -85,7 +85,8 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         // now give class module a chance to improve targeting
         // typically it would switch targets for multidotting, or to hit more targets with AOE
         // in case of ties, it should prefer to return original target - this would prevent useless switches
-        return new(target!);
+        var targeting = new Targeting(target!, autorot.Hints.RecommendedRangeToTarget - 0.1f);
+        return /*autorot.SelectTargetForAI(targeting) ??*/ targeting;
     }
 
     private void AdjustTargetPositional(Actor player, ref Targeting targeting)
@@ -114,7 +115,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         if (_followMaster && !_config.FollowTarget || _followMaster && _config.FollowTarget && target == null)
             return NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player, master.Position, _config.MaxDistanceToSlot, new(), Positional.Any);
         if (_followMaster && _config.FollowTarget && target != null)
-            return NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player, target.Position, target.HitboxRadius + (_config.DesiredPositional != Positional.Any ? 2.6f : _config.MaxDistanceToTarget), target.Rotation, _config.DesiredPositional);
+            return NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player, target.Position, target.HitboxRadius + (_config.DesiredPositional != Positional.Any ? 2.6f : _config.MaxDistanceToTarget), target.Rotation, target != player ? _config.DesiredPositional : Positional.Any);
         if (targeting.Target == null)
             return NavigationDecision.Build(_naviCtx, autorot.WorldState, autorot.Hints, player, null, 0, new(), Positional.Any);
         var adjRange = targeting.PreferredRange + player.HitboxRadius + targeting.Target.Actor.HitboxRadius;

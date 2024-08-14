@@ -76,6 +76,9 @@ public class BossModuleConfig : ConfigNode
     [PropertyDisplay("Show outlines and shadows on various radar markings")]
     public bool ShowOutlinesAndShadows = false;
 
+    [PropertyDisplay("Show melee range indicator")]
+    public bool ShowMeleeRangeIndicator = false;
+
     [PropertyDisplay("Allow modules to automatically use actions (eg anti knockback, etc)")]
     public bool AllowAutomaticActions = true;
 

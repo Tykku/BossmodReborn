@@ -22,7 +22,7 @@ class Sweethearts(BossModule module) : Components.GenericAOEs(module)
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if ((AID)spell.Action.ID == AID.SweetheartTouch)
-            _hearts.Remove(_hearts.FirstOrDefault(x => x.InstanceID == caster.InstanceID)!);
+            _hearts.Remove(caster);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

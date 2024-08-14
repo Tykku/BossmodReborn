@@ -1,10 +1,11 @@
 ﻿namespace BossMod.Endwalker.Variant.V02MR.V022Moko;
 
-class V022MokoStates : StateMachineBuilder
+class V022MokoOtherPathsStates : StateMachineBuilder
 {
-    public V022MokoStates(BossModule module) : base(module)
+    public V022MokoOtherPathsStates(BossModule module) : base(module)
     {
         TrivialPhase()
+            .ActivateOnEnter<ArenaChange>()
             //Route 1
             .ActivateOnEnter<Unsheathing>()
             .ActivateOnEnter<VeilSever>()
@@ -33,3 +34,5 @@ class V022MokoStates : StateMachineBuilder
             .ActivateOnEnter<Upwell>();
     }
 }
+
+class V022MokoPath2States(BossModule module) : V022MokoOtherPathsStates(module) { }

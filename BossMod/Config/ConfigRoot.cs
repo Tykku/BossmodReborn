@@ -1,5 +1,4 @@
-﻿using BossMod.AI;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -120,7 +119,7 @@ public class ConfigRoot
                         matchingFields.Add(f);
                 if (matchingFields.Count == 0)
                 {
-                    result.Add("Field not found. Valid fields:");
+                    result.Add($"Field not found {args[1]}, Valid fields:");
                     foreach (var f in matchingNodes[0].GetType().GetFields().Where(f => f.GetCustomAttribute<PropertyDisplayAttribute>() != null))
                         result.Add($"- {f.Name}");
                 }
@@ -172,6 +171,7 @@ public class ConfigRoot
     private object? FromConsoleString(string str, Type t)
         => t == typeof(bool) ? bool.Parse(str)
         : t == typeof(float) ? float.Parse(str)
+        : t == typeof(int) ? int.Parse(str)
         : t.IsAssignableTo(typeof(Enum)) ? Enum.Parse(t, str)
         : null;
 

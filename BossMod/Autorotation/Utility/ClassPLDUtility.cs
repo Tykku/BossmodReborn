@@ -21,9 +21,9 @@ public sealed class ClassPLDUtility(RotationModuleManager manager, Actor player)
         return res;
     }
 
-    public override void Execute(StrategyValues strategy, Actor? primaryTarget, float estimatedAnimLockDelay, float forceMovementIn)
+    public override void Execute(StrategyValues strategy, Actor? primaryTarget, float estimatedAnimLockDelay, float forceMovementIn, bool isMoving)
     {
-        ExecuteShared(strategy, IDLimitBreak3, IDStanceApply, IDStanceRemove, (uint)PLD.SID.IronWill);
+        ExecuteShared(strategy, IDLimitBreak3, IDStanceApply, IDStanceRemove, (uint)PLD.SID.IronWill, primaryTarget);
         ExecuteSimple(strategy.Option(Track.Sheltron), PLD.AID.Sheltron, Player);
         ExecuteSimple(strategy.Option(Track.Sentinel), PLD.AID.Sentinel, Player);
         ExecuteSimple(strategy.Option(Track.HallowedGround), PLD.AID.HallowedGround, Player);

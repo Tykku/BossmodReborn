@@ -18,7 +18,7 @@ public class Timeline
         public virtual void DrawHeader(Vector2 topLeft)
         {
             var s = ImGui.CalcTextSize(Name);
-            ImGui.GetWindowDrawList().AddText(topLeft + new Vector2((Width - s.X) * 0.5f, 0), 0xffffffff, Name);
+            ImGui.GetWindowDrawList().AddText(topLeft + new Vector2((Width - s.X) * 0.5f, 0), BossMod.Colors.TextColor4, Name);
         }
 
         public virtual void Draw() { }
@@ -210,15 +210,15 @@ public class Timeline
     {
         var maxT = Math.Min(MaxTime, MinVisibleTime + Height / PixelsPerSecond);
         var drawlist = ImGui.GetWindowDrawList();
-        drawlist.AddLine(_screenClientTL, CanvasCoordsToScreenCoords(0, maxT), 0xffffffff);
+        drawlist.AddLine(_screenClientTL, CanvasCoordsToScreenCoords(0, maxT), BossMod.Colors.TextColor1);
         for (var t = MathF.Ceiling(MinVisibleTime / _tickFrequency) * _tickFrequency; t <= maxT; t += _tickFrequency)
         {
             var tickText = $"{t:f1}";
             var tickTextSize = ImGui.CalcTextSize(tickText);
 
             var p = CanvasCoordsToScreenCoords(0, t);
-            drawlist.AddLine(p, p - new Vector2(3, 0), 0xffffffff);
-            drawlist.AddText(p - new Vector2(tickTextSize.X + 5, tickTextSize.Y / 2), 0xffffffff, tickText);
+            drawlist.AddLine(p, p - new Vector2(3, 0), BossMod.Colors.TextColor1);
+            drawlist.AddText(p - new Vector2(tickTextSize.X + 5, tickTextSize.Y / 2), BossMod.Colors.TextColor1, tickText);
         }
 
         if (CurrentTime != null)
@@ -227,7 +227,7 @@ public class Timeline
             if (CurrentTime.Value >= MinVisibleTime && CurrentTime.Value <= maxT)
             {
                 // draw timeline mark
-                drawlist.AddTriangleFilled(p, p - new Vector2(4, 2), p - new Vector2(4, -2), 0xffffffff);
+                drawlist.AddTriangleFilled(p, p - new Vector2(4, 2), p - new Vector2(4, -2), BossMod.Colors.TextColor1);
             }
 
             if (ImGui.IsMouseClicked(ImGuiMouseButton.Left))

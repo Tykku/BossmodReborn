@@ -4,15 +4,18 @@ namespace BossMod;
 
 public class UITree
 {
-    public record struct NodeProperties(string Text, bool Leaf = false, uint Color = 0xffffffff);
+    public record struct NodeProperties(string Text, bool Leaf = false, uint Color = 0)
+    {
+        public uint Colors = Color == 0 ? BossMod.Colors.TextColor1 : Color;
+    }
 
     private uint _selectedID;
 
     // contains 0 elements (if node is closed) or single null (if node is opened)
     // expected usage is 'foreach (_ in Node(...)) { draw subnodes... }'
-    public IEnumerable<object?> Node(string text, bool leaf = false, uint color = 0xffffffff, Action? contextMenu = null, Action? doubleClick = null, Action? select = null)
+    public IEnumerable<object?> Node(string text, bool leaf = false, uint color = 0, Action? contextMenu = null, Action? doubleClick = null, Action? select = null)
     {
-        if (RawNode(text, leaf, color, contextMenu, doubleClick, select))
+        if (RawNode(text, leaf, color == 0 ? Colors.TextColor1 : color, contextMenu, doubleClick, select))
         {
             yield return null;
             ImGui.TreePop();
@@ -26,7 +29,7 @@ public class UITree
         foreach (var t in collection)
         {
             var props = map(t);
-            if (RawNode(props.Text, props.Leaf, props.Color, contextMenu != null ? () => contextMenu(t) : null, doubleClick != null ? () => doubleClick(t) : null, select != null ? () => select(t) : null))
+            if (RawNode(props.Text, props.Leaf, props.Colors, contextMenu != null ? () => contextMenu(t) : null, doubleClick != null ? () => doubleClick(t) : null, select != null ? () => select(t) : null))
             {
                 yield return t;
                 ImGui.TreePop();
@@ -35,9 +38,9 @@ public class UITree
         }
     }
 
-    public void LeafNode(string text, uint color = 0xffffffff, Action? contextMenu = null, Action? doubleClick = null, Action? select = null)
+    public void LeafNode(string text, uint color = 0, Action? contextMenu = null, Action? doubleClick = null, Action? select = null)
     {
-        if (RawNode(text, true, color, contextMenu, doubleClick, select))
+        if (RawNode(text, true, color == 0 ? Colors.TextColor1 : color, contextMenu, doubleClick, select))
             ImGui.TreePop();
         ImGui.PopID();
     }
@@ -47,7 +50,7 @@ public class UITree
     {
         foreach (var t in collection)
         {
-            if (RawNode(map(t), true, 0xffffffff, contextMenu != null ? () => contextMenu(t) : null, doubleClick != null ? () => doubleClick(t) : null, select != null ? () => select(t) : null))
+            if (RawNode(map(t), true, Colors.TextColor1, contextMenu != null ? () => contextMenu(t) : null, doubleClick != null ? () => doubleClick(t) : null, select != null ? () => select(t) : null))
                 ImGui.TreePop();
             ImGui.PopID();
         }

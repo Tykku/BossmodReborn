@@ -22,7 +22,8 @@ public enum RotationModuleQuality
 
 // the configuration part of the rotation module
 // importantly, it defines constraints (supported classes and level ranges) and strategy configs (with their sets of possible options) used by the module to make its decisions
-public sealed record class RotationModuleDefinition(string DisplayName, string Description, string Author, RotationModuleQuality Quality, BitMask Classes, int MaxLevel, int MinLevel = 1)
+// rotation modules can optionally be constrained to a specific boss module, if they are used to implement custom encounter-specific logic - these would only be available in plans for that module
+public sealed record class RotationModuleDefinition(string DisplayName, string Description, string Author, RotationModuleQuality Quality, BitMask Classes, int MaxLevel, int MinLevel = 1, Type? RelatedBossModule = null)
 {
     public readonly BitMask Classes = Classes;
     public readonly List<StrategyConfig> Configs = [];
@@ -89,16 +90,12 @@ public abstract class RotationModule(RotationModuleManager manager, Actor player
     public AIHints Hints => Manager.Hints;
 
     // the main entry point of the module - given a set of strategy values, fill the queue with a set of actions to execute
-    public abstract void Execute(StrategyValues strategy, Actor? primaryTarget, float estimatedAnimLockDelay, float forceMovementIn);
+    public abstract void Execute(StrategyValues strategy, Actor? primaryTarget, float estimatedAnimLockDelay, float forceMovementIn, bool isMoving);
 
     public virtual string DescribeState() => "";
 
     // utility to check action/trait unlocks
-    public bool ActionUnlocked(ActionID action)
-    {
-        var def = ActionDefinitions.Instance[action];
-        return def != null && def.AllowedClasses[(int)Player.Class] && Player.Level >= def.MinLevel && (ActionDefinitions.Instance.UnlockCheck?.Invoke(def.UnlockLink) ?? true);
-    }
+    public bool ActionUnlocked(ActionID action) => ActionDefinitions.Instance[action]?.IsUnlocked(World, Player) ?? false;
 
     public bool TraitUnlocked(uint id)
     {
@@ -113,7 +110,7 @@ public abstract class RotationModule(RotationModuleManager manager, Actor player
     protected Actor? ResolveTargetOverride(in StrategyValue strategy) => Manager.ResolveTargetOverride(strategy);
 
     // TODO: reconsider...
-    protected unsafe T GetGauge<T>() where T : unmanaged
+    public unsafe T GetGauge<T>() where T : unmanaged
     {
         T res = default;
         ((ulong*)&res)[1] = World.Client.GaugePayload.Low;

@@ -10,7 +10,7 @@ public abstract record class Shape
     public abstract string ComputeHash();
 
     public RelSimplifiedComplexPolygon ToPolygon(WPos center)
-        => GetOrCreatePolygon(center, () => new RelSimplifiedComplexPolygon([new(Contour(center))]));
+        => GetOrCreatePolygon(center, () => new RelSimplifiedComplexPolygon((List<RelPolygonWithHoles>)[new(Contour(center))]));
 
     protected List<WDir> GetOrCreateContour(WPos center, Func<List<WDir>> createContour)
     {

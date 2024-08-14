@@ -6,7 +6,6 @@ using Lumina.Excel.GeneratedSheets;
 using Lumina.Text;
 using System.Data;
 using System.Globalization;
-using System.Text;
 
 namespace BossMod;
 
@@ -222,9 +221,9 @@ public sealed class ModuleViewer : IDisposable
                             ImGui.SameLine();
                             var textColor = mod.Info.Maturity switch
                             {
-                                BossModuleInfo.Maturity.WIP => 0xff0000ff,
-                                BossModuleInfo.Maturity.Verified => 0xff00ff00,
-                                _ => 0xffffffff
+                                BossModuleInfo.Maturity.WIP => Colors.TextColor3,
+                                BossModuleInfo.Maturity.Verified => Colors.TextColor4,
+                                _ => Colors.TextColor1
                             };
                             using (ImRaii.PushColor(ImGuiCol.Text, textColor))
                                 ImGui.TextUnformatted($"{mod.Name} [{mod.Info.ModuleType.Name}]");

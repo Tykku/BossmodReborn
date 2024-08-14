@@ -24,14 +24,8 @@ public enum AID : uint
     Teleport = 31446 // 3D1B->location, no cast, single-target, boss teleports mid
 }
 
-public enum TetherID : uint
-{
-    FerocityTetherGood = 1, // Boss->player
-    FerocityTetherBad = 57 // Boss->player
-}
-
 class SteelClaw(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.SteelClaw));
-class Ferocity(BossModule module) : Components.StretchTetherDuo(module, (uint)TetherID.FerocityTetherBad, (uint)TetherID.FerocityTetherGood, 15, activationDelay: 5.7f);
+class Ferocity(BossModule module) : Components.StretchTetherDuo(module, 15, 5.7f);
 class PreternaturalTurnCircle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PreternaturalTurnCircle), new AOEShapeCircle(15));
 class PreternaturalTurnDonut(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PreternaturalTurnDonut), new AOEShapeDonut(6, 30));
 

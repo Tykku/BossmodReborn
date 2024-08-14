@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Savage.M03SBruteBomber;
 
-class BombarianSpecial(BossModule module) : Components.UniformStackSpread(module, 5, 5, alwaysShowSpreads: true)
+class BombarianSpecial(BossModule module) : Components.UniformStackSpread(module, 5, 5, 2, 2, alwaysShowSpreads: true)
 {
     public enum Mechanic { None, Spread, Pairs }
 

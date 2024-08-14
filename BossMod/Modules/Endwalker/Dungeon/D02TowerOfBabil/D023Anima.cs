@@ -145,7 +145,7 @@ class Gravitons(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class AetherialPull(BossModule module) : Components.StretchTetherDuo(module, (uint)TetherID.AetherialPullBad, (uint)TetherID.AetherialPullGood, 33, activationDelay: 7.9f, knockbackImmunity: true);
+class AetherialPull(BossModule module) : Components.StretchTetherDuo(module, 33, 7.9f, tetherIDGood: (uint)TetherID.AetherialPullGood, knockbackImmunity: true);
 
 class CoffinScratch(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(3), ActionID.MakeSpell(AID.CoffinScratchFirst), ActionID.MakeSpell(AID.CoffinScratchRest), 6, 2, 5, true, (uint)IconID.ChasingAOE)
 {

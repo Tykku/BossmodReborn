@@ -366,7 +366,7 @@
 //     private void DrawObject(CollisionObjectBase* obj)
 //     {
 //         var type = obj->Vtbl->GetObjectType(obj);
-//         foreach (var n3 in _tree.Node($"{type} {(nint)obj:X}, layers={obj->LayerMask:X8}, refs={obj->NumRefs}", color: _slaveShapes.Contains((nint)obj) ? Colors.Safe : 0xffffffff, select: MakeSelect(() => VisualizeObject(obj), obj)))
+//         foreach (var n3 in _tree.Node($"{type} {(nint)obj:X}, layers={obj->LayerMask:X8}, refs={obj->NumRefs}", color: _slaveShapes.Contains((nint)obj) ? Colors.Safe : Colors.TextColor1, select: MakeSelect(() => VisualizeObject(obj), obj)))
 //         {
 //             switch (type)
 //             {

@@ -17,8 +17,6 @@ public class UIPlot
 
     private readonly List<string> _tooltips = [];
     private Vector2 _blScreen;
-    private readonly uint _colCursor = 0x80808080;
-    private readonly uint _colAxis = 0xffffffff;
 
     public void Begin()
     {
@@ -28,8 +26,8 @@ public class UIPlot
         ImGui.InvisibleButton("canvas", MainAreaSize + 2 * Margin, ImGuiButtonFlags.MouseButtonLeft);
 
         var dl = ImGui.GetWindowDrawList();
-        dl.AddLine(_blScreen, _blScreen + new Vector2(MainAreaSize.X, 0), _colAxis);
-        dl.AddLine(_blScreen, _blScreen - new Vector2(0, MainAreaSize.Y), _colAxis);
+        dl.AddLine(_blScreen, _blScreen + new Vector2(MainAreaSize.X, 0), Colors.TextColor1);
+        dl.AddLine(_blScreen, _blScreen - new Vector2(0, MainAreaSize.Y), Colors.TextColor1);
 
         VisMin.X = Math.Max(VisMin.X, DataMin.X);
         VisMin.Y = Math.Max(VisMin.Y, DataMin.Y);
@@ -39,8 +37,8 @@ public class UIPlot
         var mousePos = ImGui.GetIO().MousePos;
         if (mousePos.X >= _blScreen.X && mousePos.X <= _blScreen.X + MainAreaSize.X && mousePos.Y <= _blScreen.Y && mousePos.Y >= _blScreen.Y - MainAreaSize.Y)
         {
-            dl.AddLine(new(_blScreen.X, mousePos.Y), new(_blScreen.X + MainAreaSize.X, mousePos.Y), _colCursor);
-            dl.AddLine(new(mousePos.X, _blScreen.Y), new(mousePos.X, _blScreen.Y - MainAreaSize.Y), _colCursor);
+            dl.AddLine(new(_blScreen.X, mousePos.Y), new(_blScreen.X + MainAreaSize.X, mousePos.Y), Colors.TextColor7);
+            dl.AddLine(new(mousePos.X, _blScreen.Y), new(mousePos.X, _blScreen.Y - MainAreaSize.Y), Colors.TextColor7);
 
             var wheel = ImGui.GetIO().MouseWheel;
             if (wheel != 0)
@@ -139,20 +137,20 @@ public class UIPlot
     private void DrawTickX(ImDrawListPtr dl, float x)
     {
         var s = ToScreen(new(x, VisMin.Y));
-        dl.AddLine(s, s + new Vector2(0, 7), _colAxis);
+        dl.AddLine(s, s + new Vector2(0, 7), Colors.TextColor1);
 
         var text = $"{x:f1}";
         var size = ImGui.CalcTextSize(text);
-        dl.AddText(s + new Vector2(-size.X / 2, Margin.Y - size.Y), _colAxis, text);
+        dl.AddText(s + new Vector2(-size.X / 2, Margin.Y - size.Y), Colors.TextColor1, text);
     }
 
     private void DrawTickY(ImDrawListPtr dl, float y)
     {
         var s = ToScreen(new(VisMin.X, y));
-        dl.AddLine(s, s - new Vector2(5, 0), _colAxis);
+        dl.AddLine(s, s - new Vector2(5, 0), Colors.TextColor1);
 
         var text = $"{y:f1}";
         var size = ImGui.CalcTextSize(text);
-        dl.AddText(s - new Vector2(5 + size.X, size.Y / 2), _colAxis, text);
+        dl.AddText(s - new Vector2(5 + size.X, size.Y / 2), Colors.TextColor1, text);
     }
 }

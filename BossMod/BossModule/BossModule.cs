@@ -186,7 +186,12 @@ public abstract class BossModule : IDisposable
         DrawArenaForeground(pcSlot, pc);
         foreach (var comp in _components)
             comp.DrawArenaForeground(pcSlot, pc);
-
+        if (WindowConfig.ShowMeleeRangeIndicator)
+        {
+            var enemy = WorldState.Actors.FirstOrDefault(a => a.IsTargetable && !a.IsDead && !a.IsAlly && a.InCombat);
+            if (enemy != null)
+                Arena.ZoneDonut(enemy.Position, enemy.HitboxRadius + 2.6f - 0.3f, enemy.HitboxRadius + 2.6f, Colors.MeleeRangeIndicator);
+        }
         // draw enemies & player
         DrawEnemies(pcSlot, pc);
         Arena.Actor(pc, Colors.PC, true);

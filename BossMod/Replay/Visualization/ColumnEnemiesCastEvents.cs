@@ -118,6 +118,6 @@ public class ColumnEnemiesCastEvents : Timeline.ColumnGroup
                 }
             }
         }
-        return phys ? (magic ? 0xffffffff : 0xff0080ff) : (magic ? 0xffff00ff : 0x80808080);
+        return phys ? (magic ? Colors.TextColor1 : Colors.TextColor5) : (magic ? Colors.TextColor6 : Colors.TextColor7);
     }
 }

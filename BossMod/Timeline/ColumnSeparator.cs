@@ -6,11 +6,11 @@ public class ColumnSeparator : Timeline.Column
 {
     public uint Color;
 
-    public ColumnSeparator(Timeline timeline, uint color = 0xffffffff, float width = 1)
+    public ColumnSeparator(Timeline timeline, uint color = 0, float width = 1)
         : base(timeline)
     {
         Width = width;
-        Color = color;
+        Color = color == 0 ? Colors.TextColor1 : color;
     }
 
     public override void Draw()

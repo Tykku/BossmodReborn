@@ -23,7 +23,7 @@ public enum AID : uint
 
     QuarantineVisual = 36384, // Boss->self, 3.0s cast, single-target
     Quarantine = 36386, // Helper->players, no cast, range 6 circle, stack
-    Disinfection = 36385, // Helper->player, no cast, range 6 circle, tank buster cleave
+    Disinfection = 36385, // Helper->player, no cast, range 6 circle, tankbuster cleave
 
     Cytolysis = 36387, // Boss->self, 5.0s cast, range 40 circle
 }
@@ -36,7 +36,7 @@ public enum IconID : uint
 
 class ImmuneResponseArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCustom rect = new([new Rectangle(D061AntivirusX.ArenaCenter, 23, 19)], [new Rectangle(D061AntivirusX.ArenaCenter, 20, 14)]);
+    private static readonly AOEShapeCustom rect = new([new Rectangle(D061AntivirusX.ArenaCenter, 23, 18)], [new Rectangle(D061AntivirusX.ArenaCenter, 20, 15)]);
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
@@ -122,21 +122,28 @@ class Cytolysis(BossModule module) : Components.RaidwideCast(module, ActionID.Ma
 
 class Quarantine(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.Quarantine), 6, 5.1f, 3, 3)
 {
+    private readonly Disinfection _tb = module.FindComponent<Disinfection>()!;
+    public override void Update()
+    {
+        if (!ActiveStacks.Any())
+            return;
+        var forbidden = Raid.WithSlot().WhereActor(p => _tb.ActiveBaits.Any(x => x.Target == p)).Mask();
+        foreach (ref var t in Stacks.AsSpan())
+            t.ForbiddenPlayers = forbidden;
+    }
+
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!Module.FindComponent<Disinfection>()!.CurrentBaits.Any(x => x.Target == actor))
+        if (!_tb.CurrentBaits.Any(x => x.Target == actor) && actor == ActiveStacks.FirstOrDefault().Target)
         {
-            if (actor == ActiveStacks.FirstOrDefault().Target && Raid.WithoutSlot().Any(x => x.Type == ActorType.Buddy))
-            {
-                var party = Raid.WithoutSlot().Where(x => !x.IsDead);
-                List<Actor> exclude = [actor, Module.FindComponent<Disinfection>()!.CurrentBaits[0].Target];
-                var closestAlly = party.Exclude(exclude).Closest(actor.Position);
-                if (closestAlly != null)
-                    hints.AddForbiddenZone(ShapeDistance.InvertedCircle(closestAlly.Position, 3), ActiveStacks.First().Activation);
-            }
-            else
-                base.AddAIHints(slot, actor, assignment, hints);
+            var party = Raid.WithoutSlot().Where(x => !x.IsDead);
+            List<Actor> exclude = [actor, _tb.CurrentBaits[0].Target];
+            var closestAlly = party.Exclude(exclude).Closest(actor.Position);
+            if (closestAlly != null)
+                hints.AddForbiddenZone(ShapeDistance.InvertedCircle(closestAlly.Position, 3), ActiveStacks.First().Activation);
         }
+        else
+            base.AddAIHints(slot, actor, assignment, hints);
     }
 }
 
@@ -173,7 +180,7 @@ class D061AntivirusXStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS), erdelf", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 827, NameID = 12844)]
 public class D061AntivirusX(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, StartingBounds)
 {
-    public static readonly WPos ArenaCenter = new(852, 822);
-    public static readonly ArenaBoundsRect StartingBounds = new(22.5f, 18.5f);
-    public static readonly ArenaBoundsRect DefaultBounds = new(20, 14);
+    public static readonly WPos ArenaCenter = new(852, 823);
+    public static readonly ArenaBoundsRect StartingBounds = new(22.5f, 17.5f);
+    public static readonly ArenaBoundsRect DefaultBounds = new(20, 15);
 }

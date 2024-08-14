@@ -1,4 +1,3 @@
-using Dalamud.Game.Gui.Dtr;
 using BossMod.Autorotation;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
@@ -13,7 +12,6 @@ sealed class AIManager : IDisposable
     public readonly RotationModuleManager Autorot;
     public readonly AIController Controller;
     private readonly AIConfig _config;
-    private readonly IDtrBarEntry _dtrBarEntry;
     private readonly AIManagementWindow _wndAI;
     public int MasterSlot = PartyState.PlayerSlot; // non-zero means corresponding player is master
     public AIBehaviour? Beh;
@@ -22,14 +20,13 @@ sealed class AIManager : IDisposable
     public WorldState WorldState => Autorot.Bossmods.WorldState;
     public float ForceMovementIn => Beh?.ForceMovementIn ?? float.MaxValue;
 
-    public AIManager(RotationModuleManager autorot, ActionManagerEx amex)
+    public AIManager(RotationModuleManager autorot, ActionManagerEx amex, MovementOverride movement)
     {
         Instance = this;
         _wndAI = new AIManagementWindow(this);
         Autorot = autorot;
-        Controller = new(amex);
+        Controller = new(amex, movement);
         _config = Service.Config.Get<AIConfig>();
-        _dtrBarEntry = Service.DtrBar.Get("Bossmod");
         Service.ChatGui.ChatMessage += OnChatMessage;
         Service.CommandManager.AddHandler("/bmrai", new Dalamud.Game.Command.CommandInfo(OnCommand) { HelpMessage = "Toggle AI mode" });
         Service.CommandManager.AddHandler("/vbmai", new Dalamud.Game.Command.CommandInfo(OnCommand) { ShowInHelp = false });
@@ -38,7 +35,6 @@ sealed class AIManager : IDisposable
     public void Dispose()
     {
         SwitchToIdle();
-        _dtrBarEntry.Remove();
         _wndAI.Dispose();
         Service.ChatGui.ChatMessage -= OnChatMessage;
         Service.CommandManager.RemoveHandler("/bmrai");
@@ -59,33 +55,7 @@ sealed class AIManager : IDisposable
             Beh.Execute(player, master);
         else
             Controller.Clear();
-        Controller.Update(player);
-
-        DtrUpdate(Beh);
-    }
-
-    public void DtrUpdate(AIBehaviour? behaviour)
-    {
-        _dtrBarEntry.Shown = _config.ShowDTR;
-        if (_dtrBarEntry.Shown)
-        {
-            var status = behaviour != null ? "On" : "Off";
-            _dtrBarEntry.Text = "AI: " + status;
-            _dtrBarEntry.OnClick = () =>
-            {
-                if (behaviour != null)
-                    SwitchToIdle();
-                else
-                {
-                    if (!_config.Enabled)
-                    {
-                        _config.Enabled = true;
-                        _config.Modified.Fire();
-                    }
-                    SwitchToFollow(_config.FollowSlot);
-                }
-            };
-        }
+        Controller.Update(player, Autorot.Hints);
     }
 
     public void SwitchToIdle()

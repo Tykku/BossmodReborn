@@ -2,16 +2,17 @@
 
 public enum OID : uint
 {
-    Boss = 0x3F81, // R6.000, x1 //Path 1, 3, and 4
-    BossPath2 = 0x3FB3, // R3.450, x1 //Path 2
-    Helper = 0x233C, // R0.500, x20, 523 type
-    AshigaruSohei1 = 0x3F82, // R1.000, x12
-    AshigaruKyuhei = 0x3F84, // R1.000, x6
-    AncientKatana = 0x3F88, // R1.500, x15
-    AshigaruSohei2 = 0x3F83, // R1.000, x8
-    OnisClaw = 0x3F85, // R13.200, x6
-    IllComeTengu = 0x3F86, // R2.000, x8
-    Spiritflame = 0x3F87, // R2.400, x12
+    Boss = 0x3F81, // R6.0, path 1, 3, and 4
+    BossP2 = 0x3FB3, // R3.45
+    AshigaruSohei1 = 0x3F82, // R1.0
+    AshigaruKyuhei1 = 0x3F84, // R1.0
+    AshigaruKyuhei2 = 0x1EB8C9, // R0.5
+    AncientKatana = 0x3F88, // R1.5
+    AshigaruSohei2 = 0x3F83, // R1.0
+    OnisClaw = 0x3F85, // R13.2
+    IllComeTengu = 0x3F86, // R2.0
+    Spiritflame = 0x3F87, // R2.4
+    Helper = 0x233C, // R0.5
 }
 
 public enum AID : uint
@@ -71,10 +72,10 @@ public enum AID : uint
 
     //Unfinished below
     SpearmansOrders = 34197, // Boss->self, 5.5s cast, single-target
-    SpearmansOrdersAOE = 34198, // Helper->self, 5.5s cast, range 40 width 40 rect
+    SpearmansOrdersVisual = 34198, // Helper->self, 5.5s cast, range 40 width 40 rect
+    SpearpointPushVisual = 34588, // Helper->self, no cast, single-target
     SpearpointPush1 = 34199, // Helper->self, no cast, range 3 width 4 rect
     SpearpointPush2 = 34514, // Helper->self, no cast, range 2 width 4 rect
-    UnknownWeaponskill2 = 34588, // Helper->self, no cast, single-target
 }
 
 public enum SID : uint

@@ -60,9 +60,9 @@ public class GenericSharedTankbuster(BossModule module, ActionID aid, AOEShape s
         if (Source != null && Target != null && pc.Role == Role.Tank)
         {
             if (OriginAtTarget)
-                Shape.Outline(Arena, Target, Colors.Safe);
+                Shape.Outline(Arena, Target, Target == pc ? Colors.Danger : Colors.Safe);
             else
-                Shape.Outline(Arena, Source.Position, Angle.FromDirection(Target.Position - Source.Position), Colors.Safe);
+                Shape.Outline(Arena, Source.Position, Angle.FromDirection(Target.Position - Source.Position), Target == pc ? Colors.Danger : Colors.Safe);
         }
     }
 

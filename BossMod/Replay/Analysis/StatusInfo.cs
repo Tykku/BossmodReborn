@@ -40,7 +40,7 @@ class StatusInfo : CommonEnumInfo
         UITree.NodeProperties map(KeyValuePair<uint, StatusData> kv)
         {
             var name = _sidType?.GetEnumName(kv.Key);
-            return new($"{Utils.StatusString(kv.Key)} ({name})", false, name == null ? 0xff00ffff : 0xffffffff);
+            return new($"{Utils.StatusString(kv.Key)} ({name})", false, name == null ? Colors.TextColor2 : Colors.TextColor1);
         }
         foreach (var (sid, data) in tree.Nodes(_data, map))
         {

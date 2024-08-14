@@ -1,4 +1,5 @@
 ﻿namespace BossMod.Autorotation.xan;
+
 public class MeleeAI(RotationModuleManager manager, Actor player) : AIBase(manager, player)
 {
     public enum Track { SecondWind, Bloodbath, Stun }
@@ -13,23 +14,23 @@ public class MeleeAI(RotationModuleManager manager, Actor player) : AIBase(manag
         return def;
     }
 
-    public override void Execute(StrategyValues strategy, Actor? primaryTarget, float estimatedAnimLockDelay, float forceMovementIn)
+    public override void Execute(StrategyValues strategy, Actor? primaryTarget, float estimatedAnimLockDelay, float forceMovementIn, bool isMoving)
     {
         if (Player.Statuses.Any(x => x.ID is (uint)BossMod.NIN.SID.TenChiJin or (uint)BossMod.NIN.SID.Mudra))
             return;
 
         // second wind
-        if (strategy.Enabled(Track.SecondWind) && Unlocked(ClassShared.AID.SecondWind) && Cooldown(ClassShared.AID.SecondWind) == 0 && Player.InCombat && Player.HPMP.CurHP <= Player.HPMP.MaxHP / 2)
+        if (strategy.Enabled(Track.SecondWind) && Player.InCombat && HPRatio() <= 0.5)
             Hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.SecondWind), Player, ActionQueue.Priority.Medium);
 
         // bloodbath
-        if (strategy.Enabled(Track.Bloodbath) && Unlocked(ClassShared.AID.Bloodbath) && Cooldown(ClassShared.AID.Bloodbath) == 0 && Player.InCombat && Player.HPMP.CurHP <= Player.HPMP.MaxHP * 0.75)
+        if (strategy.Enabled(Track.Bloodbath) && Player.InCombat && HPRatio() <= 0.75)
             Hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Bloodbath), Player, ActionQueue.Priority.Medium);
 
         // low blow
-        if (strategy.Enabled(Track.Stun) && Unlocked(ClassShared.AID.LegSweep) && Cooldown(ClassShared.AID.LegSweep) == 0)
+        if (strategy.Enabled(Track.Stun) && NextChargeIn(ClassShared.AID.LegSweep) == 0)
         {
-            var stunnableEnemy = Hints.PotentialTargets.Find(e => ShouldStun(e.Actor) && Player.DistanceToHitbox(e.Actor) <= 3);
+            var stunnableEnemy = Hints.PotentialTargets.FirstOrDefault(e => ShouldStun(e.Actor) && Player.DistanceToHitbox(e.Actor) <= 3);
             if (stunnableEnemy != null)
                 Hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.LegSweep), stunnableEnemy.Actor, ActionQueue.Priority.Minimal);
         }
@@ -41,9 +42,7 @@ public class MeleeAI(RotationModuleManager manager, Actor player) : AIBase(manag
     private void AISAM()
     {
         // if nearby enemies are auto-attacking us, use guard skill
-        if (Cooldown(BossMod.SAM.AID.ThirdEye) == 0
-            && Player.HPMP.CurHP < Player.HPMP.MaxHP * 0.8
-            && EnemiesAutoingMe.Any())
+        if (HPRatio() <= 0.8 && EnemiesAutoingMe.Any())
             Hints.ActionsToExecute.Push(ActionID.MakeSpell(BossMod.SAM.AID.ThirdEye), Player, ActionQueue.Priority.Low);
     }
 }

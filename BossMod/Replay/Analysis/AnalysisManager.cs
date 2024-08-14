@@ -28,10 +28,10 @@ sealed class AnalysisManager : IDisposable
             foreach (var n in tree.Node("Unknown action effects"))
                 _unkEffects.Get().Draw(tree);
 
-            foreach (var n in tree.Node("Participant info", false, 0xffffffff, () => _participantInfo.Get().DrawContextMenu()))
+            foreach (var n in tree.Node("Participant info", false, Colors.TextColor1, () => _participantInfo.Get().DrawContextMenu()))
                 _participantInfo.Get().Draw(tree);
 
-            foreach (var n in tree.Node("Ability info", false, 0xffffffff, () => _abilityInfo.Get().DrawContextMenu()))
+            foreach (var n in tree.Node("Ability info", false, Colors.TextColor1, () => _abilityInfo.Get().DrawContextMenu()))
                 _abilityInfo.Get().Draw(tree);
 
             foreach (var n in tree.Node("Player class definitions"))
@@ -83,19 +83,19 @@ sealed class AnalysisManager : IDisposable
             foreach (var n in tree.Node("State transition timings"))
                 _transitionTimings.Get().Draw(tree);
 
-            foreach (var n in tree.Node("Participant info", false, 0xffffffff, () => _participantInfo.Get().DrawContextMenu()))
+            foreach (var n in tree.Node("Participant info", false, Colors.TextColor1, () => _participantInfo.Get().DrawContextMenu()))
                 _participantInfo.Get().Draw(tree);
 
-            foreach (var n in tree.Node("Ability info", false, 0xffffffff, () => _abilityInfo.Get().DrawContextMenu()))
+            foreach (var n in tree.Node("Ability info", false, Colors.TextColor1, () => _abilityInfo.Get().DrawContextMenu()))
                 _abilityInfo.Get().Draw(tree);
 
-            foreach (var n in tree.Node("Status info", false, 0xffffffff, () => _statusInfo.Get().DrawContextMenu()))
+            foreach (var n in tree.Node("Status info", false, Colors.TextColor1, () => _statusInfo.Get().DrawContextMenu()))
                 _statusInfo.Get().Draw(tree);
 
-            foreach (var n in tree.Node("Icon info", false, 0xffffffff, () => _iconInfo.Get().DrawContextMenu()))
+            foreach (var n in tree.Node("Icon info", false, Colors.TextColor1, () => _iconInfo.Get().DrawContextMenu()))
                 _iconInfo.Get().Draw(tree);
 
-            foreach (var n in tree.Node("Tether info", false, 0xffffffff, () => _tetherInfo.Get().DrawContextMenu()))
+            foreach (var n in tree.Node("Tether info", false, Colors.TextColor1, () => _tetherInfo.Get().DrawContextMenu()))
                 _tetherInfo.Get().Draw(tree);
 
             foreach (var n in tree.Node("Arena bounds"))

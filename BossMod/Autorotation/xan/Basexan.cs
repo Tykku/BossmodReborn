@@ -18,7 +18,7 @@ public abstract class Castxan<AID, TraitID>(RotationModuleManager manager, Actor
     protected sealed override float GCDLength => SpellGCDLength;
 }
 
-public abstract class Basexan<AID, TraitID>(RotationModuleManager manager, Actor player) : RotationModule(manager, player)
+public abstract class Basexan<AID, TraitID>(RotationModuleManager manager, Actor player) : Targetxan(manager, player)
     where AID : struct, Enum where TraitID : Enum
 {
     protected float PelotonLeft { get; private set; }
@@ -77,6 +77,9 @@ public abstract class Basexan<AID, TraitID>(RotationModuleManager manager, Actor
         }
     }
 
+    protected void PushOGCD<P>(AID aid, Actor? target, P priority, float delay = 0) where P : Enum
+        => PushOGCD(aid, target, (int)(object)priority, delay);
+
     protected void PushOGCD(AID aid, Actor? target, int priority = 0, float delay = 0)
         => PushAction(aid, target, ActionQueue.Priority.Low + 100 + priority, delay);
 
@@ -99,19 +102,18 @@ public abstract class Basexan<AID, TraitID>(RotationModuleManager manager, Actor
         }
 
         Vector3 targetPos = default;
-        if (def.ID.ID is (uint)BossMod.BLM.AID.LeyLines or (uint)BossMod.BLM.AID.Retrace or (uint)BossMod.PCT.AID.StarryMuse or (uint)BossMod.PCT.AID.ScenicMuse)
+
+        if (def.Range == 0 && def.AllowedTargets.HasFlag(ActionTargets.Area))
             targetPos = Player.PosRot.XYZ();
 
-        Hints.ActionsToExecute.Push(ActionID.MakeSpell(aid), target, priority, targetPos: targetPos, delay: delay);
+        Hints.ActionsToExecute.Push(ActionID.MakeSpell(aid), target, priority, delay: delay, targetPos: targetPos);
         return true;
     }
 
     /// <summary>
-    /// Tries to select a suitable primary target.<br/>
-    ///
-    /// If the provided <paramref name="primaryTarget"/> is null, an NPC, or non-enemy object; it will be reset to <c>null</c>.<br/>
-    ///
-    /// Additionally, if <paramref name="range"/> is set to <c>Targeting.Auto</c>, and the user's current target is more than <paramref name="range"/> yalms from the player, this function attempts to find a closer one. No prioritization is done; if any target is returned, it is simply the actor that was earliest in the object table. If no closer target is found, <paramref name="primaryTarget"/> will remain unchanged.
+    /// <para>Tries to select a suitable primary target.</para>
+    /// <para>If the provided <paramref name="primaryTarget"/> is null, an NPC, or non-enemy object; it will be reset to <c>null</c>.</para>
+    /// <para>Additionally, if <paramref name="range"/> is set to <c>Targeting.Auto</c>, and the user's current target is more than <paramref name="range"/> yalms from the player, this function attempts to find a closer one. No prioritization is done; if any target is returned, it is simply the actor that was earliest in the object table. If no closer target is found, <paramref name="primaryTarget"/> will remain unchanged.</para>
     /// </summary>
     /// <param name="strategy">Targeting strategy</param>
     /// <param name="primaryTarget">Player's current target - may be null</param>
@@ -189,24 +191,52 @@ public abstract class Basexan<AID, TraitID>(RotationModuleManager manager, Actor
         return (newnewprio > 0 ? newtarget : null, newnewprio);
     }
 
-    protected (Actor? Target, P Priority) FindBetterTargetBy<P>(Actor? initial, float maxDistanceFromPlayer, Func<Actor, P> prioFunc, Func<AIHints.Enemy, bool>? filterFunc = null) where P : struct, IComparable
+    /// <summary>
+    /// <para>Find a good target to apply a DoT effect to. Has no effect if auto-targeting is disabled.</para>
+    /// <para>If <c>Hints.PriorityTargets</c> contains more than <c>maxAllowedTargets</c>, <c>null</c> will be returned. Enemies with <c>ForbidDOTs = true</c> are not counted in this case.</para>
+    /// </summary>
+    /// <typeparam name="P"></typeparam>
+    /// <param name="strategy"></param>
+    /// <param name="initial"></param>
+    /// <param name="getTimer"></param>
+    /// <param name="maxAllowedTargets"></param>
+    /// <returns></returns>
+    protected (Actor? Target, P Timer) SelectDotTarget<P>(StrategyValues strategy, Actor? initial, Func<Actor?, P> getTimer, int maxAllowedTargets) where P : struct, IComparable
     {
-        var bestTarget = initial;
-        var bestPrio = initial != null ? prioFunc(initial) : default;
-        foreach (var enemy in Hints.PriorityTargets.Where(x =>
-            x.Actor != initial &&
-            Player.DistanceToHitbox(x.Actor) <= maxDistanceFromPlayer
-            && (filterFunc == null || filterFunc(x))
-        ))
+        switch (strategy.Targeting())
         {
-            var newPrio = prioFunc(enemy.Actor);
-            if (newPrio.CompareTo(bestPrio) > 0)
+            case Targeting.Manual:
+            case Targeting.AutoPrimary:
+                return (initial, getTimer(initial));
+            case Targeting.AutoTryPri:
+                if (initial != null)
+                    return (initial, getTimer(initial));
+                break;
+        }
+
+        var newTarget = initial;
+        var initialTimer = getTimer(initial);
+        var newTimer = initialTimer;
+
+        var numTargets = 0;
+
+        foreach (var dotTarget in Hints.PriorityTargets)
+        {
+            if (dotTarget.ForbidDOTs)
+                continue;
+
+            if (++numTargets > maxAllowedTargets)
+                return (null, getTimer(null));
+
+            var thisTimer = getTimer(dotTarget.Actor);
+            if (thisTimer.CompareTo(newTimer) < 0)
             {
-                bestPrio = newPrio;
-                bestTarget = enemy.Actor;
+                newTarget = dotTarget.Actor;
+                newTimer = thisTimer;
             }
         }
-        return (bestTarget, bestPrio);
+
+        return (newTarget, newTimer);
     }
 
     protected int NumMeleeAOETargets(StrategyValues strategy) => NumNearbyTargets(strategy, 5);
@@ -280,12 +310,12 @@ public abstract class Basexan<AID, TraitID>(RotationModuleManager manager, Actor
         Manager.Hints.RecommendedPositional = (target, next, NextPositionalImminent, NextPositionalCorrect);
     }
 
-    public sealed override void Execute(StrategyValues strategy, Actor? primaryTarget, float estimatedAnimLockDelay, float forceMovementIn)
+    public sealed override void Execute(StrategyValues strategy, Actor? primaryTarget, float estimatedAnimLockDelay, float forceMovementIn, bool isMoving)
     {
-        var pelo = Player.FindStatus(BRD.SID.Peloton);
+        var pelo = Player.FindStatus(BossMod.BRD.SID.Peloton);
         PelotonLeft = pelo != null ? StatusDuration(pelo.Value.ExpireAt) : 0;
         SwiftcastLeft = StatusLeft(BossMod.WHM.SID.Swiftcast);
-        TrueNorthLeft = StatusLeft(DRG.SID.TrueNorth);
+        TrueNorthLeft = StatusLeft(BossMod.DRG.SID.TrueNorth);
 
         ForceMovementIn = forceMovementIn;
         AnimationLockDelay = estimatedAnimLockDelay;
@@ -302,10 +332,17 @@ public abstract class Basexan<AID, TraitID>(RotationModuleManager manager, Actor
 
     private new (float Left, float In) EstimateRaidBuffTimings(Actor? primaryTarget)
     {
-        if (primaryTarget?.OID != 0x385)
+        // striking dummy that spawns in Explorer Mode
+        if (primaryTarget?.OID != 0x2DE0)
             return (Bossmods.RaidCooldowns.DamageBuffLeft(Player), Bossmods.RaidCooldowns.NextDamageBuffIn2());
 
-        return base.EstimateRaidBuffTimings(primaryTarget);
+        // hack for a dummy: expect that raidbuffs appear at 7.8s and then every 120s
+        var cycleTime = CombatTimer - 7.8f;
+        if (cycleTime < 0)
+            return (0, 7.8f - CombatTimer); // very beginning of a fight
+
+        cycleTime %= 120;
+        return cycleTime < 20 ? (20 - cycleTime, 0) : (0, 120 - cycleTime);
     }
 
     public abstract void Exec(StrategyValues strategy, Actor? primaryTarget);
@@ -319,6 +356,29 @@ public abstract class Basexan<AID, TraitID>(RotationModuleManager manager, Actor
 
     protected uint PredictedHP(Actor actor) => (uint)Math.Clamp(actor.HPMP.CurHP + World.PendingEffects.PendingHPDifference(actor.InstanceID), 0, actor.HPMP.MaxHP);
     protected float PredictedHPRatio(Actor actor) => (float)PredictedHP(actor) / actor.HPMP.MaxHP;
+}
+
+public abstract class Targetxan(RotationModuleManager manager, Actor player) : RotationModule(manager, player)
+{
+    protected (Actor? Target, P Priority) FindBetterTargetBy<P>(Actor? initial, float maxDistanceFromPlayer, Func<Actor, P> prioFunc, Func<AIHints.Enemy, bool>? filterFunc = null) where P : struct, IComparable
+    {
+        var bestTarget = initial;
+        var bestPrio = initial != null ? prioFunc(initial) : default;
+        foreach (var enemy in Hints.PriorityTargets.Where(x =>
+            x.Actor != initial &&
+            Player.DistanceToHitbox(x.Actor) <= maxDistanceFromPlayer
+            && (filterFunc == null || filterFunc(x))
+        ))
+        {
+            var newPrio = prioFunc(enemy.Actor);
+            if (newPrio.CompareTo(bestPrio) > 0)
+            {
+                bestPrio = newPrio;
+                bestTarget = enemy.Actor;
+            }
+        }
+        return (bestTarget, bestPrio);
+    }
 }
 
 static class Extendxan
@@ -350,5 +410,6 @@ static class Extendxan
 
     public static AOEStrategy AOE(this StrategyValues strategy) => strategy.Option(SharedTrack.AOE).As<AOEStrategy>();
     public static Targeting Targeting(this StrategyValues strategy) => strategy.Option(SharedTrack.Targeting).As<Targeting>();
+    public static OffensiveStrategy Simple<Index>(this StrategyValues strategy, Index track) where Index : Enum => strategy.Option(track).As<OffensiveStrategy>();
     public static bool BuffsOk(this StrategyValues strategy) => strategy.Option(SharedTrack.Buffs).As<OffensiveStrategy>() != OffensiveStrategy.Delay;
 }

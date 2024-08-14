@@ -39,7 +39,7 @@ class CanvasTest : TestWindow
         var dl = ImGui.GetWindowDrawList();
         var restoreFlags = dl.Flags;
         dl.Flags &= ~ImDrawListFlags.AntiAliasedLines;
-        dl.AddRect(cursor, cursor + _screenSize, 0xffffffff);
+        dl.AddRect(cursor, cursor + _screenSize, Colors.TextColor1);
 
         var mousePos = new WPos(ImGui.GetIO().MousePos - cursor);
         var dragging = ImGui.IsMouseDragging(ImGuiMouseButton.Left);
@@ -74,14 +74,14 @@ class CanvasTest : TestWindow
                 prev = next;
                 ++i;
             }
-            dl.PathStroke(0xffffffff, ImDrawFlags.Closed);
+            dl.PathStroke(Colors.TextColor1, ImDrawFlags.Closed);
         }
 
         if (_mouseoverContour != null)
         {
             if (_mouseoverPoint)
             {
-                dl.AddCircle(cursor + _mouseoverContour[_mouseoverIndex].ToVec2(), 5, 0xffffffff);
+                dl.AddCircle(cursor + _mouseoverContour[_mouseoverIndex].ToVec2(), 5, Colors.TextColor1);
                 if (dragging)
                 {
                     _mouseoverContour[_mouseoverIndex] += new WDir(ImGui.GetIO().MouseDelta);
@@ -89,7 +89,7 @@ class CanvasTest : TestWindow
             }
             else
             {
-                dl.AddLine(cursor + _mouseoverContour[_mouseoverIndex > 0 ? _mouseoverIndex - 1 : _mouseoverContour.Count - 1].ToVec2(), cursor + _mouseoverContour[_mouseoverIndex].ToVec2(), 0xffffffff, 5);
+                dl.AddLine(cursor + _mouseoverContour[_mouseoverIndex > 0 ? _mouseoverIndex - 1 : _mouseoverContour.Count - 1].ToVec2(), cursor + _mouseoverContour[_mouseoverIndex].ToVec2(), Colors.TextColor1, 5);
                 if (dragging)
                 {
                     _mouseoverContour.Insert(_mouseoverIndex, mousePos);
@@ -102,7 +102,7 @@ class CanvasTest : TestWindow
         //var tree = clip.Simplify(_contours);
         //var path = Pathfind(tree, _start, _goal);
 
-        dl.AddLine(cursor + _start.ToVec2(), cursor + _goal.ToVec2(), 0xff00ff00);
+        dl.AddLine(cursor + _start.ToVec2(), cursor + _goal.ToVec2(), Colors.TextColor4);
         dl.Flags = restoreFlags;
     }
 

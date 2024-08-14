@@ -37,7 +37,7 @@ class IconInfo : CommonEnumInfo
         UITree.NodeProperties map(KeyValuePair<uint, IconData> kv)
         {
             var name = _iidType?.GetEnumName(kv.Key);
-            return new($"{kv.Key} ({name})", false, name == null ? 0xff00ffff : 0xffffffff);
+            return new($"{kv.Key} ({name})", false, name == null ? Colors.TextColor2 : Colors.TextColor1);
         }
         foreach (var (iid, data) in tree.Nodes(_data, map))
         {

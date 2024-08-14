@@ -37,14 +37,14 @@ class MiniArenaTest : TestWindow
             _arena.ZoneCone(new(_conePos), _coneRadius.X, _coneRadius.Y, _coneAngles.X.Degrees(), _coneAngles.Y.Degrees(), Colors.Safe);
         _arena.Border(Colors.Border);
         if (_lineEnabled)
-            _arena.AddLine(new(_lineEnds.X, _lineEnds.Y), new(_lineEnds.Z, _lineEnds.W), 0xffff0000);
+            _arena.AddLine(new(_lineEnds.X, _lineEnds.Y), new(_lineEnds.Z, _lineEnds.W), Colors.TextColor14);
         if (_kbContourEnabled)
         {
             foreach (var p in KBContour())
                 _arena.PathLineTo(p);
-            MiniArena.PathStroke(true, 0xffff00ff);
+            MiniArena.PathStroke(true, Colors.Vulnerable);
         }
-        _arena.Actor(new(_playerPos), 0.Degrees(), 0xff00ff00);
+        _arena.Actor(new(_playerPos), 0.Degrees(), Colors.PC);
         MiniArena.End();
 
         // arena config
@@ -84,7 +84,7 @@ class MiniArenaTest : TestWindow
         //{
         //    foreach (var v in clippedShape)
         //        _arena.PathLineTo(v);
-        //    _arena.PathStroke(true, 0xff808080, 2);
+        //    _arena.PathStroke(true, Colors.PlayerGeneric, 2);
         //}
 
         ImGui.Checkbox("Draw line", ref _lineEnabled);

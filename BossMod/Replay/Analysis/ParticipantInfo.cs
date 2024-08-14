@@ -82,7 +82,7 @@ class ParticipantInfo : CommonEnumInfo
                 1 => kv.Value.Types[0].ToString(),
                 _ => "mixed!"
             };
-            return new($"{kv.Key:X} ({_oidType?.GetEnumName(kv.Key)}) '{kv.Value.Names.FirstOrDefault().name}' ({typeName})", false, name == null ? 0xff00ffff : 0xffffffff);
+            return new($"{kv.Key:X} ({_oidType?.GetEnumName(kv.Key)}) '{kv.Value.Names.FirstOrDefault().name}' ({typeName})", false, name == null ? Colors.TextColor2 : Colors.TextColor1);
         }
         foreach (var (oid, data) in tree.Nodes(_data, map, kv => DrawSubContextMenu(kv.Key, kv.Value)))
         {

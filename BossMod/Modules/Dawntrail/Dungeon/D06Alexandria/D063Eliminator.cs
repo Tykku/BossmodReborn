@@ -101,9 +101,12 @@ class HaloOfDestruction(BossModule module) : Components.SelfTargetedAOEs(module,
 
 class Electray(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Electray), 6)
 {
+    private readonly HaloOfDestruction _aoe1 = module.FindComponent<HaloOfDestruction>()!;
+    private readonly Partition2 _aoe2 = module.FindComponent<Partition2>()!;
+
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (Module.FindComponent<HaloOfDestruction>()!.ActiveAOEs(slot, actor).Any() || Module.FindComponent<Partition2>()!.ActiveAOEs(slot, actor).Any())
+        if (_aoe1.ActiveAOEs(slot, actor).Any() || _aoe2.ActiveAOEs(slot, actor).Any())
         { }
         else
         {
@@ -114,7 +117,18 @@ class Electray(BossModule module) : Components.SpreadFromCastTargets(module, Act
     }
 }
 
-class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeRect(50, 4, 50));
+class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeRect(25, 4, 25))
+{
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var aoes = ActiveCasters.Select((c, index) =>
+            new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo),
+            index < 2 ? Colors.Danger : Colors.AOE, index < 4));
+
+        return aoes;
+    }
+}
+
 class Impact(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Impact), 15)
 {
     public (WPos, DateTime) Data;
@@ -145,16 +159,16 @@ class Compression(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 class Overexposure(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.OverexposureMarker), ActionID.MakeSpell(AID.Overexposure), 5, 40, 3);
 class LightOfDevotion(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.LightOfDevotionMarker), ActionID.MakeSpell(AID.LightOfDevotion), 5.5f, 40, 3)
 {
-    public override void Update()
+    public override void OnEventEnvControl(byte index, uint state)
     {
-        // as soon as limit break phase ends the line stack gets cancelled
-        if (CurrentBaits.Count > 0 && !Module.Enemies(OID.LightningGenerator).Any(x => !x.IsDead))
+        if (index == 0x2F && state == 0x00080004) // as soon as limit break phase ends the line stack gets cancelled
             CurrentBaits.Clear();
     }
 }
 
 class LightOfSalvation(BossModule module) : Components.GenericBaitAway(module)
 {
+    private readonly Impact _kb = module.FindComponent<Impact>()!;
     private static readonly AOEShapeRect rect = new(40, 3);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -169,9 +183,15 @@ class LightOfSalvation(BossModule module) : Components.GenericBaitAway(module)
             CurrentBaits.Clear();
     }
 
+    public override void OnEventEnvControl(byte index, uint state)
+    {
+        if (index == 0x2F && state == 0x00080004) // as soon as limit break phase ends the line stack gets cancelled
+            CurrentBaits.Clear();
+    }
+
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (Module.FindComponent<Impact>()!.Sources(slot, actor).Any() || Module.FindComponent<Impact>()!.Data.Item2 > Module.WorldState.CurrentTime) // 0.4s delay to wait for action effect
+        if (_kb.Sources(slot, actor).Any() || _kb.Data.Item2 > Module.WorldState.CurrentTime) // 0.4s delay to wait for action effect
         { }
         else
             base.AddAIHints(slot, actor, assignment, hints);

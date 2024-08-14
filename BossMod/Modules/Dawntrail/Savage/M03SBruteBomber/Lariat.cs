@@ -42,7 +42,7 @@ class BlazingLariat(BossModule module) : Components.CastCounter(module, default)
         if (_source != null)
         {
             var pcDir = Angle.FromDirection(pc.Position - _source.Position);
-            ActiveShape.Outline(Arena, _source.Position, pcDir);
+            ActiveShape.Outline(Arena, _source.Position, pcDir, _stack ? Colors.Safe : Colors.Danger);
         }
     }
 

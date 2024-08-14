@@ -2,6 +2,7 @@
 using FFXIVClientStructs.FFXIV.Client.Game.Gauge;
 
 namespace BossMod.Autorotation.xan;
+
 public sealed class GNB(RotationModuleManager manager, Actor player) : Attackxan<AID, TraitID>(manager, player)
 {
     public static RotationModuleDefinition Definition()
@@ -47,7 +48,7 @@ public sealed class GNB(RotationModuleManager manager, Actor player) : Attackxan
 
         CalcNextBestOGCD(strategy, primaryTarget);
 
-        if (World.Client.CountdownRemaining > 0)
+        if (CountdownRemaining > 0)
             return;
 
         if (CD(AID.NoMercy) > 20 && Ammo > 0)

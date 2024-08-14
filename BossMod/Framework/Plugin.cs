@@ -21,12 +21,14 @@ public sealed class Plugin : IDalamudPlugin
     private readonly AIHints _hints;
     private readonly BossModuleManager _bossmod;
     private readonly AIHintsBuilder _hintsBuilder;
+    private readonly MovementOverride _movementOverride;
     private readonly ActionManagerEx _amex;
     private readonly WorldStateGameSync _wsSync;
     private readonly RotationModuleManager _rotation;
     private readonly AI.AIManager _ai;
     private readonly AI.Broadcast _broadcast;
     private readonly IPCProvider _ipc;
+    private readonly DTRProvider _dtr;
     private TimeSpan _prevUpdateTime;
 
     // windows
@@ -59,7 +61,6 @@ public sealed class Plugin : IDalamudPlugin
         MultiboxUnlock.Exec();
         Network.IDScramble.Initialize();
         Camera.Instance = new();
-        MovementOverride.Instance = new();
 
         Service.Config.Initialize();
         Service.Config.LoadFromFile(dalamud.ConfigFile);
@@ -77,12 +78,14 @@ public sealed class Plugin : IDalamudPlugin
         _hints = new();
         _bossmod = new(_ws);
         _hintsBuilder = new(_ws, _bossmod);
-        _amex = new(_ws, _hints);
+        _movementOverride = new();
+        _amex = new(_ws, _hints, _movementOverride);
         _wsSync = new(_ws, _amex);
         _rotation = new(_rotationDB, _bossmod, _hints);
-        _ai = new(_rotation, _amex);
+        _ai = new(_rotation, _amex, _movementOverride);
         _broadcast = new();
-        _ipc = new(_rotation, _amex);
+        _ipc = new(_rotation, _amex, _movementOverride);
+        _dtr = new(_rotation, _ai);
 
         _configUI = new(Service.Config, _ws, _rotationDB);
         _wndBossmod = new(_bossmod);
@@ -113,8 +116,10 @@ public sealed class Plugin : IDalamudPlugin
         _rotation.Dispose();
         _wsSync.Dispose();
         _amex.Dispose();
+        _movementOverride.Dispose();
         _hintsBuilder.Dispose();
         _bossmod.Dispose();
+        _dtr.Dispose();
         ActionDefinitions.Instance.Dispose();
         CommandManager.RemoveHandler("/bmr");
         CommandManager.RemoveHandler("/vbm");
@@ -189,6 +194,9 @@ public sealed class Plugin : IDalamudPlugin
         currentConfig.ArenaPlayerGeneric = defaultConfig.ArenaPlayerGeneric;
         currentConfig.ArenaVulnerable = defaultConfig.ArenaVulnerable;
         currentConfig.ArenaFutureVulnerable = defaultConfig.ArenaFutureVulnerable;
+        currentConfig.ArenaMeleeRangeIndicator = defaultConfig.ArenaMeleeRangeIndicator;
+        currentConfig.ArenaOther1 = defaultConfig.ArenaOther1;
+        currentConfig.ArenaOther2 = defaultConfig.ArenaOther2;
         currentConfig.Shadows = defaultConfig.Shadows;
         currentConfig.WaymarkA = defaultConfig.WaymarkA;
         currentConfig.WaymarkB = defaultConfig.WaymarkB;
@@ -198,7 +206,10 @@ public sealed class Plugin : IDalamudPlugin
         currentConfig.Waymark2 = defaultConfig.Waymark2;
         currentConfig.Waymark3 = defaultConfig.Waymark3;
         currentConfig.Waymark4 = defaultConfig.Waymark4;
-
+        currentConfig.ButtonPushColor1 = defaultConfig.ButtonPushColor1;
+        currentConfig.ButtonPushColor2 = defaultConfig.ButtonPushColor2;
+        currentConfig.TextColors = defaultConfig.TextColors;
+        currentConfig.PositionalColors = defaultConfig.PositionalColors;
         currentConfig.Modified.Fire();
         Service.Log("Colors have been reset to default values.");
     }
@@ -231,13 +242,14 @@ public sealed class Plugin : IDalamudPlugin
     {
         var tsStart = DateTime.Now;
 
+        _dtr.Update();
         Camera.Instance?.Update();
         _wsSync.Update(_prevUpdateTime);
         _bossmod.Update();
         _hintsBuilder.Update(_hints, PartyState.PlayerSlot);
         _amex.QueueManualActions();
-        var userPreventingCast = _amex.InputOverride.IsMoveRequested() && !_amex.Config.PreventMovingWhileCasting;
-        _rotation.Update(_amex.AnimationLockDelayEstimate, userPreventingCast ? 0 : _ai.ForceMovementIn);
+        var userPreventingCast = _movementOverride.IsMoveRequested() && !_amex.Config.PreventMovingWhileCasting;
+        _rotation.Update(_amex.AnimationLockDelayEstimate, userPreventingCast ? 0 : _ai.ForceMovementIn, _movementOverride.IsMoving());
         _ai.Update();
         _broadcast.Update();
         _amex.FinishActionGather();
@@ -264,6 +276,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private unsafe void ExecuteHints()
     {
+        _movementOverride.DesiredDirection = _hints.ForcedMovement;
         // update forced target, if needed (TODO: move outside maybe?)
         if (_hints.ForcedTarget != null)
         {

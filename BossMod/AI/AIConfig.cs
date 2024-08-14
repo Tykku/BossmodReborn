@@ -12,7 +12,7 @@ sealed class AIConfig : ConfigNode
     [PropertyDisplay("Draw UI")]
     public bool DrawUI = true;
 
-    [PropertyDisplay("Focus target leader")]
+    [PropertyDisplay("Focus target master")]
     public bool FocusTargetLeader = true;
 
     [PropertyDisplay("Broadcast keypresses to other windows")]
