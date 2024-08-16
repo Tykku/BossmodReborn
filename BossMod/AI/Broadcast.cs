@@ -67,7 +67,7 @@ internal sealed partial class Broadcast
         return res;
     }
 
-    private unsafe static string WindowName(IntPtr hwnd)
+    private static unsafe string WindowName(IntPtr hwnd)
     {
         var size = GetWindowTextLengthW(hwnd);
         if (size <= 0)

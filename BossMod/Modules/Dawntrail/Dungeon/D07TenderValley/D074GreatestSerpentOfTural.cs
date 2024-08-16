@@ -121,7 +121,7 @@ class GreatestLabyrinth(BossModule module) : Components.GenericAOEs(module)
 
     private static readonly List<Shape> wholeArena = [new Square(center, 12)];
     private static readonly AOEShapeCustom[] forbiddenShapes = tilePairs.Select(tp => new AOEShapeCustom(wholeArena, [middle, tp.correctTile, tp.goalTile])).ToArray();
-    private static readonly AOEShapeCustom[] safeShapes = tilePairs.Select(tp => new AOEShapeCustom([tp.correctTile, tp.goalTile], [], true)).ToArray();
+    private static readonly AOEShapeCustom[] safeShapes = tilePairs.Select(tp => new AOEShapeCustom([tp.correctTile, tp.goalTile], InvertForbiddenZone: true)).ToArray();
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
 

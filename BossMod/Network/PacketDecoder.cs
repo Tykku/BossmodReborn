@@ -1,10 +1,9 @@
 ﻿using BossMod.Network.ServerIPC;
 using Dalamud.Memory;
-using System.Text;
 
 namespace BossMod.Network;
 
-public unsafe abstract class PacketDecoder
+public abstract unsafe class PacketDecoder
 {
     protected DateTime Now;
 

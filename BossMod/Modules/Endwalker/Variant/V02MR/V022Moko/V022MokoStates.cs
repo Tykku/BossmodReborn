@@ -22,13 +22,11 @@ class V022MokoOtherPathsStates : StateMachineBuilder
             .ActivateOnEnter<Spiritflame>()
             .ActivateOnEnter<SpiritMobs>()
             //Standard
+            .ActivateOnEnter<SpearmanOrdersFast>()
+            .ActivateOnEnter<SpearmanOrdersSlow>()
             .ActivateOnEnter<KenkiRelease>()
             .ActivateOnEnter<IronRain>()
-            .ActivateOnEnter<IaiKasumiGiri1>()
-            .ActivateOnEnter<IaiKasumiGiri2>()
-            .ActivateOnEnter<IaiKasumiGiri3>()
-            .ActivateOnEnter<IaiKasumiGiri4>()
-            .ActivateOnEnter<DoubleKasumiGiri>()
+            .ActivateOnEnter<Giri>()
             .ActivateOnEnter<AzureAuspice>()
             .ActivateOnEnter<BoundlessAzure>()
             .ActivateOnEnter<Upwell>();

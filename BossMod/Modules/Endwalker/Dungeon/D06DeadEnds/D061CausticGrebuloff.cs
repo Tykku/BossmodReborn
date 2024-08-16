@@ -202,9 +202,9 @@ class WaveOfNausea(BossModule module) : Components.GenericAOEs(module)
         {
             _aoes.Add(new(donut, caster.Position, default, Module.CastFinishAt(spell)));
             if (Module.FindComponent<NecroticFluidMist>()!.CurrentWind == NecroticFluidMist.Pattern.Southward)
-                _aoes.Add(new(new AOEShapeCustom([new ConeHA(caster.Position, 6, 180.Degrees(), 90.Degrees())], differenceShapes, true), caster.Position, default, Module.CastFinishAt(spell), Colors.SafeFromAOE));
+                _aoes.Add(new(new AOEShapeCustom([new ConeHA(caster.Position, 6, 180.Degrees(), 90.Degrees())], differenceShapes, InvertForbiddenZone: true), caster.Position, default, Module.CastFinishAt(spell), Colors.SafeFromAOE));
             else if (Module.FindComponent<NecroticFluidMist>()!.CurrentWind == NecroticFluidMist.Pattern.Northward)
-                _aoes.Add(new(new AOEShapeCustom([new ConeHA(caster.Position, 6, 0.Degrees(), 90.Degrees())], differenceShapes, true), caster.Position, default, Module.CastFinishAt(spell), Colors.SafeFromAOE));
+                _aoes.Add(new(new AOEShapeCustom([new ConeHA(caster.Position, 6, 0.Degrees(), 90.Degrees())], differenceShapes, InvertForbiddenZone: true), caster.Position, default, Module.CastFinishAt(spell), Colors.SafeFromAOE));
         }
     }
 

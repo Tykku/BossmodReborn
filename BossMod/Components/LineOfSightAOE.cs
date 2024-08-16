@@ -63,7 +63,7 @@ public abstract class GenericLineOfSightAOE(BossModule module, ActionID aid, flo
                         DifferenceShapes.Add(new Circle(b.Center, b.Radius + PCHitBoxRadius));
                 }
             }
-            InvertedAOE.Add(new(new AOEShapeCustom(CopyShapes(UnionShapes), CopyShapes(DifferenceShapes), true), Module.Arena.Center, default, Module.CastFinishAt(spell), Colors.SafeFromAOE));
+            InvertedAOE.Add(new(new AOEShapeCustom(CopyShapes(UnionShapes), CopyShapes(DifferenceShapes), InvertForbiddenZone: true), Module.Arena.Center, default, Module.CastFinishAt(spell), Colors.SafeFromAOE));
             UnionShapes.Clear();
         }
     }

@@ -59,9 +59,8 @@ class ElevateAndEviscerate(BossModule module) : Components.Knockback(module, ign
     {
         if (iconID != (uint)IconID.ElevateAndEviscerate)
             return;
-        if (_nextTarget != null)
-            ReportError($"Next target icon before previous was consumed");
         _nextTarget = actor;
+        InitIfReady();
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -75,15 +74,17 @@ class ElevateAndEviscerate(BossModule module) : Components.Knockback(module, ign
     {
         if ((AID)spell.Action.ID is AID.ElevateAndEviscerateKnockback or AID.ElevateAndEviscerateHit)
         {
-            if (_nextTarget == null)
-            {
-                ReportError("Cast started before target selection");
-                return;
-            }
-
-            CurrentTarget = _nextTarget;
             CurrentDeadline = Module.CastFinishAt(spell, 1.8f);
             CurrentKnockbackDistance = (AID)spell.Action.ID == AID.ElevateAndEviscerateKnockback ? 10 : 0;
+            InitIfReady();
+        }
+    }
+
+    private void InitIfReady()
+    {
+        if (_nextTarget != null && CurrentDeadline != default)
+        {
+            CurrentTarget = _nextTarget;
             _nextTarget = null;
         }
     }

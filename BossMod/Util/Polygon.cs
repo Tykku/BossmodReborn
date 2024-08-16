@@ -275,7 +275,7 @@ public class PolygonClipper
 
     private readonly Clipper64 _clipper = new() { PreserveCollinear = false };
 
-    public RelSimplifiedComplexPolygon Simplify(Operand poly, FillRule fillRule = FillRule.EvenOdd)
+    public RelSimplifiedComplexPolygon Simplify(Operand poly, FillRule fillRule = FillRule.NonZero)
     {
         poly.Assign(_clipper, PathType.Subject);
         return Execute(ClipType.Union, fillRule);

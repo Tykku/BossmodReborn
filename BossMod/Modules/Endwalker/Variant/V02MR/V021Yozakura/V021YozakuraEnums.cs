@@ -11,6 +11,10 @@ public enum OID : uint
     Shibamaru = 0x3EDE, // R0.4
     AccursedSeedling = 0x3EE1, // R0.75
     AutumnalTempest = 0x3EE3, // R0.8
+    Wind = 0x1EB88C, // R0.5
+    Thunder = 0x1EB88E, // R0.5
+    Water = 0x1EB88D, // R0.5
+    Fire = 0x1EB88B, // R0.5
     Helper = 0x233C,
     Helper2 = 0x3F53
 }
@@ -18,6 +22,8 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 6497, // Boss->player, no cast, single-target
+    Teleport = 34322, // Boss->location, no cast, single-target
+
     GloryNeverlasting = 33705, // Boss->player, 5.0s cast, single-target, tankbuster
 
     ArtOfTheFireblossom = 33640, // Boss->self, 3.0s cast, range 9 circle
@@ -27,50 +33,43 @@ public enum AID : uint
     OkaRanman = 33646, // Boss->self, 5.0s cast, range 60 circle, raidwide
 
     SealOfRiotousBloom = 33652, // Boss->self, 5.0s cast, single-target
-
-    SealOfTheWindblossom1 = 33654, // Helper->self, 2.0s cast, range 5-60 donut
-    SealOfTheWindblossom2 = 33659, // Boss->location, no cast, single-target
-
-    SealOfTheFireblossom1 = 33653, // Helper->self, 2.0s cast, range 9 circle
-    SealOfTheFireblossom2 = 33658, // Boss->location, no cast, single-target
-
-    SealOfTheRainblossom1 = 33655, // Helper->self, 2.0s cast, range 70 45-degree cone, four cone AoEs from Yozakura's hitbox in the intercardinal directions
-    SealOfTheRainblossom2 = 33661, // Boss->location, no cast, single-target
-
-    SealOfTheLevinblossom1 = 33656, // Helper->self, 1.8s cast, range 70 45-degree cone, four cone AoEs from Yozakura's hitbox in the cardinal directions
-    SealOfTheLevinblossom2 = 33660, // Boss->location, no cast, single-target
+    SealOfTheWindblossomVisual = 33659, // Boss->location, no cast, single-target
+    SealOfTheFireblossomVisual = 33658, // Boss->location, no cast, single-target
+    SealOfTheRainblossomVisual = 33661, // Boss->location, no cast, single-target
+    SealOfTheLevinblossomVisual = 33660, // Boss->location, no cast, single-target
+    SealOfTheWindblossom = 33654, // Helper->self, 2.0s cast, range 5-60 donut
+    SealOfTheFireblossom = 33653, // Helper->self, 2.0s cast, range 9 circle
+    SealOfTheRainblossom = 33655, // Helper->self, 2.0s cast, range 70 45-degree cone, four cone AoEs from Yozakura's hitbox in the intercardinal directions
+    SealOfTheLevinblossom = 33656, // Helper->self, 1.8s cast, range 70 45-degree cone, four cone AoEs from Yozakura's hitbox in the cardinal directions
 
     SealOfTheFleeting = 33657, // Boss->self, 3.0s cast, single-target, Yozakura tethers to the petal piles
 
-    SeasonsOfTheFleeting1 = 33665, // Boss->self, 10.0s cast, single-target, telegraph four sequential AoEs
-
-    SeasonsOfTheFleeting2 = 33666, // Boss->self, no cast, single-target
-    FireAndWaterVisual = 33667, // Helper->self, 2.0s cast, range 46 width 5 rect
-    EarthAndLightningVisual = 33668, // Helper->self, 2.0s cast, range 60 45-degree cone
+    SeasonsOfTheFleetingVisual1 = 33665, // Boss->self, 10.0s cast, single-target, telegraph four sequential AoEs
+    SeasonsOfTheFleetingVisual2 = 33666, // Boss->self, no cast, single-target
+    FireAndWaterTelegraph = 33667, // Helper->self, 2.0s cast, range 46 width 5 rect
+    EarthAndLightningTelegraph = 33668, // Helper->self, 2.0s cast, range 60 45-degree cone
 
     SeasonOfFire = 33669, // Helper->self, 0.8s cast, range 46 width 5 rect
     SeasonOfWater = 33670, // Helper->self, 0.8s cast, range 46 width 5 rect
     SeasonOfLightning = 33671, // Helper->self, 0.8s cast, range 70 45-degree cone
     SeasonOfEarth = 33672, // Helper->self, 0.8s cast, range 70 45-degree cone
 
-    UnknownAbility = 34322, // Boss->location, no cast, single-target
-
     //Left Windy
-    WindblossomWhirl1 = 33679, // Boss->self, 3.0s cast, single-target
-    WindblossomWhirl2 = 33680, // Helper->self, 5.0s cast, range 5-60 donut
-    WindblossomWhirl3 = 34544, // Helper->self, 3.0s cast, range 5-60 donut
-    LevinblossomStrike1 = 33681, // Boss->self, 2.3s cast, single-target
-    LevinblossomStrike2 = 33682, // Helper->location, 3.0s cast, range 3 circle
+    WindblossomWhirlVisual = 33679, // Boss->self, 3.0s cast, single-target
+    WindblossomWhirl1 = 33680, // Helper->self, 5.0s cast, range 5-60 donut
+    WindblossomWhirl2 = 34544, // Helper->self, 3.0s cast, range 5-60 donut
+    LevinblossomStrikeVisual = 33681, // Boss->self, 2.3s cast, single-target
+    LevinblossomStrike = 33682, // Helper->location, 3.0s cast, range 3 circle
     DriftingPetals = 33683, // Boss->self, 5.0s cast, range 60 circle, knockback
 
     //Left Rainy
     Bunshin = 33662, // Boss->self, 5.0s cast, single-target
     Shadowflight = 33663, // Boss->self, 3.0s cast, single-target
     ShadowflightAOE = 33664, // MirroredYozakura->self, 2.5s cast, range 10 width 6 rect
-    Mudrain = 33673, // Boss->self, 3.0s cast, single-target
-    MudrainAOE = 33674, // Helper->location, 3.8s cast, range 5 circle
-    IcebloomFirst = 33675, // Boss->self, 3.0s cast, single-target
-    IcebloomRest = 33676, // Helper->location, 3.0s cast, range 6 circle
+    MudrainVisual = 33673, // Boss->self, 3.0s cast, single-target
+    Mudrain = 33674, // Helper->location, 3.8s cast, range 5 circle
+    IcebloomVisual = 33675, // Boss->self, 3.0s cast, single-target
+    Icebloom = 33676, // Helper->location, 3.0s cast, range 6 circle
     MudPie = 33677, // Boss->self, 3.0s cast, single-target
     MudPieAOE = 33678, // MudBubble->self, 4.0s cast, range 60 width 6 rect
 
@@ -78,8 +77,8 @@ public enum AID : uint
     ArtOfTheFluff1 = 33693, // Shibamaru/Kuromaru->self, 6.5s cast, range 60 circle, gaze
     ArtOfTheFluff2 = 33694, // Shiromaru->self, 6.5s cast, range 60 circle, gaze
 
-    FireblossomFlare1 = 33695, // Boss->self, 3.0s cast, single-target
-    FireblossomFlare2 = 33696, // Helper->location, 3.0s cast, range 6 circle
+    FireblossomFlareVisual = 33695, // Boss->self, 3.0s cast, single-target
+    FireblossomFlare = 33696, // Helper->location, 3.0s cast, range 6 circle
 
     DondenGaeshi = 33692, // Boss->self, 3.0s cast, single-target, indicates platforms
     SilentWhistle = 33691, // Boss->self, 3.0s cast, single-target, dog summons
@@ -121,9 +120,9 @@ public enum IconID : uint
 
 public enum TetherID : uint
 {
-    Tether6 = 6, // Helper2->Boss
-    Tether4 = 4, // Helper2->Boss
-    Tether3 = 3, // Helper2->Boss
-    Tether5 = 5, // Helper2->Boss
+    Thunder = 6, // Helper2->Boss
+    Wind = 4, // Helper2->Boss
+    Water = 3, // Helper2->Boss
+    Fire = 5, // Helper2->Boss
     Tether79 = 79, // Helper2->Boss
 }

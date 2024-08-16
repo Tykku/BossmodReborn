@@ -115,11 +115,7 @@ sealed class AIManagementWindow : UIWindow
             foreach (var p in _manager.Autorot.Database.Presets.Presets)
             {
                 if (ImGui.Selectable(p.Name, p == _manager.AiPreset))
-                {
-                    _manager.AiPreset = p;
-                    if (_manager.Beh != null)
-                        _manager.Beh.AIPreset = p;
-                }
+                    _manager.SetAIPreset(p);
             }
         }
     }

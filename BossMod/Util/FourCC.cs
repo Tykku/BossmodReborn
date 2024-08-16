@@ -1,13 +1,11 @@
-﻿using System.Text;
-
-namespace BossMod;
+﻿namespace BossMod;
 
 // four character code - used as tags for data serialization
 public readonly record struct FourCC(uint Value)
 {
     public FourCC(ReadOnlySpan<byte> v) : this(Cast(v)) { }
 
-    public unsafe override string ToString()
+    public override unsafe string ToString()
     {
         Span<byte> span = stackalloc byte[4];
         fixed (byte* mem = &span[0])

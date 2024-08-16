@@ -103,7 +103,7 @@ class BarbarousBarrageMurderousMist(BossModule module) : Components.SelfTargeted
 class BarbarousBarrageLariatCombo(BossModule module) : Components.GenericAOEs(module)
 {
     public readonly List<AOEInstance> AOEs = [];
-
+    public static readonly Angle a90 = 90.Degrees();
     private static readonly AOEShapeRect _shape = new(70, 17);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs.Skip(NumCasts).Take(1);
@@ -112,10 +112,10 @@ class BarbarousBarrageLariatCombo(BossModule module) : Components.GenericAOEs(mo
     {
         var (off1, off2) = (AID)spell.Action.ID switch
         {
-            AID.BarbarousBarrageLariatComboFirstRR => (-90.Degrees(), -90.Degrees()),
-            AID.BarbarousBarrageLariatComboFirstRL => (-90.Degrees(), 90.Degrees()),
-            AID.BarbarousBarrageLariatComboFirstLR => (90.Degrees(), -90.Degrees()),
-            AID.BarbarousBarrageLariatComboFirstLL => (90.Degrees(), 90.Degrees()),
+            AID.BarbarousBarrageLariatComboFirstRR => (-a90, -a90),
+            AID.BarbarousBarrageLariatComboFirstRL => (-a90, a90),
+            AID.BarbarousBarrageLariatComboFirstLR => (a90, -a90),
+            AID.BarbarousBarrageLariatComboFirstLL => (a90, a90),
             _ => default
         };
         if (off1 != default)

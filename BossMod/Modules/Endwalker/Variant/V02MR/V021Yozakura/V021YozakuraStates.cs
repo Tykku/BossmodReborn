@@ -10,17 +10,16 @@ class V021YozakuraStates : StateMachineBuilder
             //Right Dogu
             .ActivateOnEnter<Witherwind>()
             //Left Windy
-            .ActivateOnEnter<WindblossomWhirl2>()
-            .ActivateOnEnter<WindblossomWhirl3>()
-            .ActivateOnEnter<LevinblossomStrike2>()
+            .ActivateOnEnter<WindblossomWhirl>()
+            .ActivateOnEnter<LevinblossomStrike>()
             .ActivateOnEnter<DriftingPetals>()
             //Left Rainy
-            .ActivateOnEnter<MudrainAOE>()
-            .ActivateOnEnter<IcebloomRest>()
+            .ActivateOnEnter<Mudrain>()
+            .ActivateOnEnter<Icebloom>()
             .ActivateOnEnter<ShadowflightAOE>()
             .ActivateOnEnter<MudPieAOE>()
             //Middle Rope Pulled
-            .ActivateOnEnter<FireblossomFlare2>()
+            .ActivateOnEnter<FireblossomFlare>()
             .ActivateOnEnter<ArtOfTheFluff1>()
             .ActivateOnEnter<ArtOfTheFluff2>()
             //Middle Rope Unpulled
@@ -32,14 +31,8 @@ class V021YozakuraStates : StateMachineBuilder
             .ActivateOnEnter<GloryNeverlasting>()
             .ActivateOnEnter<KugeRantsui>()
             .ActivateOnEnter<OkaRanman>()
-            .ActivateOnEnter<SealOfTheFireblossom1>()
-            .ActivateOnEnter<SealOfTheWindblossom1>()
-            .ActivateOnEnter<SealOfTheRainblossom1>()
-            .ActivateOnEnter<SealOfTheLevinblossom1>()
-            .ActivateOnEnter<SeasonOfFire>()
-            .ActivateOnEnter<SeasonOfWater>()
-            .ActivateOnEnter<SeasonOfLightning>()
-            .ActivateOnEnter<SeasonOfEarth>()
+            .ActivateOnEnter<SealOfRiotousBloom>()
+            .ActivateOnEnter<SeasonsOfTheFleeting>()
             .ActivateOnEnter<ArtOfTheFireblossom>()
             .ActivateOnEnter<ArtOfTheWindblossom>();
     }

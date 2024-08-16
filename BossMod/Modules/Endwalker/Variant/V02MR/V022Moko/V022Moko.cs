@@ -5,50 +5,6 @@ class BoundlessAzure(BossModule module) : Components.SelfTargetedAOEs(module, Ac
 class KenkiRelease(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.KenkiRelease));
 class IronRain(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.IronRain), 10);
 
-class IaiKasumiGiri1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IaiKasumiGiri1), new AOEShapeCone(60, 135.Degrees()));
-class IaiKasumiGiri2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IaiKasumiGiri2), new AOEShapeCone(60, 135.Degrees()));
-class IaiKasumiGiri3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IaiKasumiGiri3), new AOEShapeCone(60, 135.Degrees()));
-class IaiKasumiGiri4(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IaiKasumiGiri4), new AOEShapeCone(60, 135.Degrees()));
-
-class DoubleKasumiGiri(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.KenkiRelease))
-{
-    private readonly List<Actor> _castersShadowFirst = [];
-    private readonly List<Actor> _castersShadowNext = [];
-
-    private static readonly AOEShape _shapeShadowFirst = new AOEShapeCone(60, 135.Degrees());
-    private static readonly AOEShape _shapeShadowNext = new AOEShapeCone(60, 135.Degrees());
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        return _castersShadowFirst.Count > 0
-            ? _castersShadowFirst.Select(c => new AOEInstance(_shapeShadowFirst, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo)))
-            : _castersShadowNext.Select(c => new AOEInstance(_shapeShadowNext, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo)));
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        CastersForSpell(spell.Action)?.Add(caster);
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        CastersForSpell(spell.Action)?.Remove(caster);
-    }
-
-    private List<Actor>? CastersForSpell(ActionID spell) => (AID)spell.ID switch
-    {
-        AID.DoubleKasumiGiriFirst1 => _castersShadowFirst,
-        AID.DoubleKasumiGiriFirst2 => _castersShadowFirst,
-        AID.DoubleKasumiGiriFirst3 => _castersShadowFirst,
-        AID.DoubleKasumiGiriFirst4 => _castersShadowFirst,
-        AID.DoubleKasumiGiriRest1 => _castersShadowNext,
-        AID.DoubleKasumiGiriRest2 => _castersShadowNext,
-        AID.DoubleKasumiGiriRest3 => _castersShadowNext,
-        AID.DoubleKasumiGiriRest4 => _castersShadowNext,
-        _ => null
-    };
-}
-
 //Route 1
 class Unsheathing(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Unsheathing), 3);
 class VeilSever(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.VeilSever), new AOEShapeRect(40, 2.5f));
@@ -62,10 +18,11 @@ class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionI
 {
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        var aoes = ActiveCasters.Select((c, index) =>
+        var casters = ActiveCasters.ToList();
+        var hasDifferentRotations = casters.Count > 1 && casters[0].Rotation != casters[1].Rotation;
+        var aoes = casters.Select((c, index) =>
             new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo),
-            index < 1 ? Colors.Danger : Colors.AOE));
-
+            index < 1 ? Colors.Danger : Colors.AOE, c.Position == casters[0].Position || hasDifferentRotations));
         return aoes;
     }
 }

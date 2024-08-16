@@ -32,6 +32,13 @@ sealed class AIManager : IDisposable
         Service.CommandManager.AddHandler("/vbmai", new Dalamud.Game.Command.CommandInfo(OnCommand) { ShowInHelp = false });
     }
 
+    public void SetAIPreset(Preset? p)
+    {
+        AiPreset = p;
+        if (Beh != null)
+            Beh.AIPreset = p;
+    }
+
     public void Dispose()
     {
         SwitchToIdle();

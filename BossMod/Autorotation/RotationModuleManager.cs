@@ -22,7 +22,7 @@ public sealed class RotationModuleManager : IDisposable
     public PlanExecution? Planner { get; private set; }
     private readonly PartyRolesConfig _prc = Service.Config.Get<PartyRolesConfig>();
     private readonly EventSubscriptions _subscriptions;
-    private List<(RotationModuleDefinition Definition, RotationModule Module)>? _activeModules;
+    public List<(RotationModuleDefinition Definition, RotationModule Module)>? ActiveModules;
 
     public static readonly Preset ForceDisable = new(""); // empty preset, so if it's activated, rotation is force disabled
 
@@ -71,7 +71,7 @@ public sealed class RotationModuleManager : IDisposable
         }
 
         // rebuild modules if needed
-        _activeModules ??= Preset != null ? RebuildActiveModules(Preset.Modules.Keys) : Planner?.Plan != null ? RebuildActiveModules(Planner.Plan.Modules.Keys) : [];
+        ActiveModules ??= Preset != null ? RebuildActiveModules(Preset.Modules.Keys) : Planner?.Plan != null ? RebuildActiveModules(Planner.Plan.Modules.Keys) : [];
 
         // forced target update
         if (Hints.ForcedTarget == null && Preset == null && Planner?.ActiveForcedTarget() is var forced && forced != null)
@@ -81,7 +81,7 @@ public sealed class RotationModuleManager : IDisposable
 
         // auto actions
         var target = Hints.ForcedTarget ?? WorldState.Actors.Find(Player?.TargetID ?? 0);
-        foreach (var m in _activeModules)
+        foreach (var m in ActiveModules)
         {
             var mt = m.Module.GetType();
             var values = Preset?.ActiveStrategyOverrides(mt) ?? Planner?.ActiveStrategyOverrides(mt) ?? throw new InvalidOperationException("Both preset and plan are null, but there are active modules");
@@ -110,7 +110,7 @@ public sealed class RotationModuleManager : IDisposable
         return plans.SelectedIndex >= 0 ? plans.Plans[plans.SelectedIndex] : null;
     }
 
-    public override string ToString() => string.Join(", ", _activeModules?.Select(m => m.Module.GetType().Name) ?? []);
+    public override string ToString() => string.Join(", ", ActiveModules?.Select(m => m.Module.GetType().Name) ?? []);
 
     // TODO: consider not recreating modules that were active and continue to be active?
     private List<(RotationModuleDefinition Definition, RotationModule Module)> RebuildActiveModules(IEnumerable<Type> types)
@@ -188,13 +188,13 @@ public sealed class RotationModuleManager : IDisposable
     private void DirtyActiveModules(bool condition)
     {
         if (condition)
-            _activeModules = null;
+            ActiveModules = null;
     }
 
     private void OnActionRequested(ClientState.OpActionRequest op)
     {
 #if DEBUG
-        Service.Log($"[RMM] Exec #{op.Request.SourceSequence} {op.Request.Action} @ {op.Request.TargetID:X} [{string.Join(" --- ", _activeModules?.Select(m => m.Module.DescribeState()) ?? [])}]");
+        Service.Log($"[RMM] Exec #{op.Request.SourceSequence} {op.Request.Action} @ {op.Request.TargetID:X} [{string.Join(" --- ", ActiveModules?.Select(m => m.Module.DescribeState()) ?? [])}]");
 #endif
     }
 
@@ -204,7 +204,7 @@ public sealed class RotationModuleManager : IDisposable
         {
             LastCast = (WorldState.CurrentTime, cast);
 #if DEBUG
-            Service.Log($"[RMM] Cast #{cast.SourceSequence} {cast.Action} @ {cast.MainTargetID:X} [{string.Join(" --- ", _activeModules?.Select(m => m.Module.DescribeState()) ?? [])}]");
+            Service.Log($"[RMM] Cast #{cast.SourceSequence} {cast.Action} @ {cast.MainTargetID:X} [{string.Join(" --- ", ActiveModules?.Select(m => m.Module.DescribeState()) ?? [])}]");
 #endif
         }
     }

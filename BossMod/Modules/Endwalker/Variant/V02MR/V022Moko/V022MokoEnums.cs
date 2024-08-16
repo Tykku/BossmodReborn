@@ -4,11 +4,11 @@ public enum OID : uint
 {
     Boss = 0x3F81, // R6.0, path 1, 3, and 4
     BossP2 = 0x3FB3, // R3.45
-    AshigaruSohei1 = 0x3F82, // R1.0
     AshigaruKyuhei1 = 0x3F84, // R1.0
     AshigaruKyuhei2 = 0x1EB8C9, // R0.5
     AncientKatana = 0x3F88, // R1.5
-    AshigaruSohei2 = 0x3F83, // R1.0
+    AshigaruSoheiFast = 0x3F82, // R1.0
+    AshigaruSoheiSlow = 0x3F83, // R1.0
     OnisClaw = 0x3F85, // R13.2
     IllComeTengu = 0x3F86, // R2.0
     Spiritflame = 0x3F87, // R2.4
@@ -29,20 +29,20 @@ public enum AID : uint
     BoundlessAzure = 34205, // Boss->self, 2.4s cast, single-target
     BoundlessAzureAOE = 34206, // Helper->self, 3.0s cast, range 60 width 10 rect
 
-    IaiKasumiGiri1 = 34183, // Boss->self, 5.0s cast, range 60 270-degree cone
-    IaiKasumiGiri2 = 34184, // Boss->self, 5.0s cast, range 60 270-degree cone
-    IaiKasumiGiri3 = 34185, // Boss->self, 5.0s cast, range 60 270-degree cone
-    IaiKasumiGiri4 = 34186, // Boss->self, 5.0s cast, range 60 270-degree cone
+    IaiKasumiGiri1 = 34183, // Boss->self, 5.0s cast, range 60 270-degree cone, back safe
+    IaiKasumiGiri2 = 34184, // Boss->self, 5.0s cast, range 60 270-degree cone, left safe
+    IaiKasumiGiri3 = 34185, // Boss->self, 5.0s cast, range 60 270-degree cone, front safe
+    IaiKasumiGiri4 = 34186, // Boss->self, 5.0s cast, range 60 270-degree cone, right safe
 
-    DoubleKasumiGiriFirst1 = 34187, // Boss->self, 11.0s cast, range 60 270-degree cone
-    DoubleKasumiGiriFirst2 = 34188, // Boss->self, 11.0s cast, range 60 270-degree cone
-    DoubleKasumiGiriFirst3 = 34189, // Boss->self, 11.0s cast, range 60 270-degree cone
-    DoubleKasumiGiriFirst4 = 34190, // Boss->self, 11.0s cast, range 60 270-degree cone
+    DoubleKasumiGiriFirst1 = 34187, // Boss->self, 11.0s cast, range 60 270-degree cone, back safe
+    DoubleKasumiGiriFirst2 = 34188, // Boss->self, 11.0s cast, range 60 270-degree cone, left safe
+    DoubleKasumiGiriFirst3 = 34189, // Boss->self, 11.0s cast, range 60 270-degree cone, front safe
+    DoubleKasumiGiriFirst4 = 34190, // Boss->self, 11.0s cast, range 60 270-degree cone, right safe
 
-    DoubleKasumiGiriRest1 = 34191, // Boss->self, 1.5s cast, range 60 270-degree cone
-    DoubleKasumiGiriRest2 = 34192, // Boss->self, 1.5s cast, range 60 270-degree cone
-    DoubleKasumiGiriRest3 = 34193, // Boss->self, 1.5s cast, range 60 270-degree cone
-    DoubleKasumiGiriRest4 = 34194, // Boss->self, 1.5s cast, range 60 270-degree cone
+    DoubleKasumiGiriRest1 = 34191, // Boss->self, 1.5s cast, range 60 270-degree cone, back safe
+    DoubleKasumiGiriRest2 = 34192, // Boss->self, 1.5s cast, range 60 270-degree cone, left safe
+    DoubleKasumiGiriRest3 = 34193, // Boss->self, 1.5s cast, range 60 270-degree cone, front safe
+    DoubleKasumiGiriRest4 = 34194, // Boss->self, 1.5s cast, range 60 270-degree cone, right safe
 
     SoldiersOfDeath = 34195, // Boss->self, 3.0s cast, single-target
     IronRain = 34196, // AshigaruKyuhei->location, 8.0s cast, range 10 circle
@@ -74,12 +74,13 @@ public enum AID : uint
     SpearmansOrders = 34197, // Boss->self, 5.5s cast, single-target
     SpearmansOrdersVisual = 34198, // Helper->self, 5.5s cast, range 40 width 40 rect
     SpearpointPushVisual = 34588, // Helper->self, no cast, single-target
-    SpearpointPush1 = 34199, // Helper->self, no cast, range 3 width 4 rect
-    SpearpointPush2 = 34514, // Helper->self, no cast, range 2 width 4 rect
+    SpearpointPushFast = 34199, // Helper->self, no cast, range 3 width 4 rect
+    SpearpointPushSlow = 34514, // Helper->self, no cast, range 2 width 4 rect
 }
 
 public enum SID : uint
 {
-    Giri = 2970, // none->Boss, extra=0x248/0x24A/0x249/0x24B
-    DangerMarch = 2056, // none->AshigaruKyuhei/AshigaruSohei1/AshigaruSohei2/Boss/Spiritflame, extra=0x1E8/0x26E/0x26B
+    GiriDirection = 2970, // none->Boss, extra=0x248/0x24A/0x249/0x24B
+    unknown = 2056, // none->AshigaruKyuhei/AshigaruSohei1/AshigaruSohei2/Boss/Spiritflame, extra=0x1E8/0x26E/0x26B/0x257
+    unknown2 = 2193, // none->Boss, extra=0x266/0x267
 }

@@ -210,10 +210,8 @@ class M03SBruteBomberStates : StateMachineBuilder
         ComponentCondition<FinalFusedownSelfDestruct>(id + 0x30, 2.8f, comp => comp.NumCasts > 0, "Bombs 1");
         CastStart(id + 0x40, AID.FusesOfFuryMurderousMist, 4);
         ComponentCondition<FinalFusedownSelfDestruct>(id + 0x50, 1, comp => comp.NumCasts > 4, "Bombs 2")
-            .ActivateOnEnter<FusesOfFuryMurderousMist>()
             .DeactivateOnExit<FinalFusedownSelfDestruct>();
-        CastEnd(id + 0x60, 7, "Cone + chain cleaves 1")
-            .DeactivateOnExit<FusesOfFuryMurderousMist>();
+        CastEnd(id + 0x60, 7, "Cone + chain cleaves 1");
         ComponentCondition<TagTeamLariatCombo>(id + 0x70, 4.4f, comp => comp.AOEs.Count == 0, "Chain cleaves 2")
             .DeactivateOnExit<TagTeamLariatCombo>();
     }

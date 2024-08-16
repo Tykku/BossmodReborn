@@ -19,12 +19,11 @@ public class ReplayManagementConfig : ConfigNode
     [PropertyDisplay("Dump server packets into dalamud.log")]
     public bool DumpServerPackets = false;
 
-    [PropertyDisplay("Replay folder")]
-    public string ReplayFolder = "";
-
     //[PropertyDisplay("Store client packets in the replay")]
     //public bool DumpClientPackets = false;
 
     [PropertyDisplay("Format for recorded logs")]
     public ReplayLogFormat WorldLogFormat = ReplayLogFormat.BinaryCompressed;
+
+    public string ReplayFolder = "";
 }
