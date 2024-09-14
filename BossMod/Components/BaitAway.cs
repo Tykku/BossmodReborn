@@ -7,7 +7,15 @@ public class GenericBaitAway(BossModule module, ActionID aid = default, bool alw
 {
     public record struct Bait(Actor Source, Actor Target, AOEShape Shape, DateTime Activation = default)
     {
-        public readonly Angle Rotation => Source != Target ? Angle.FromDirection(Target.Position - Source.Position) : Source.Rotation;
+        public Angle? CustomRotation { get; init; }
+
+        public readonly Angle Rotation => CustomRotation ?? (Source != Target ? Angle.FromDirection(Target.Position - Source.Position) : Source.Rotation);
+
+        public Bait(Actor source, Actor target, AOEShape shape, DateTime activation, Angle customRotation)
+            : this(source, target, shape, activation)
+        {
+            CustomRotation = customRotation;
+        }
     }
 
     public bool AlwaysDrawOtherBaits = alwaysDrawOtherBaits; // if false, other baits are drawn only if they are clipping a player
@@ -19,7 +27,7 @@ public class GenericBaitAway(BossModule module, ActionID aid = default, bool alw
     public BitMask ForbiddenPlayers; // these players should avoid baiting
     public List<Bait> CurrentBaits = [];
 
-    public IEnumerable<Bait> ActiveBaits => AllowDeadTargets ? CurrentBaits : CurrentBaits.Where(b => !b.Target.IsDead);
+    public IEnumerable<Bait> ActiveBaits => AllowDeadTargets ? CurrentBaits.Where(b => !b.Source.IsDead) : CurrentBaits.Where(b => !b.Source.IsDead && !b.Target.IsDead);
     public IEnumerable<Bait> ActiveBaitsOn(Actor target) => ActiveBaits.Where(b => b.Target == target);
     public IEnumerable<Bait> ActiveBaitsNotOn(Actor target) => ActiveBaits.Where(b => b.Target != target);
     public WPos BaitOrigin(Bait bait) => (CenterAtTarget ? bait.Target : bait.Source).Position;
@@ -78,6 +86,10 @@ public class GenericBaitAway(BossModule module, ActionID aid = default, bool alw
                 if (Raid.WithoutSlot().Exclude(actor).InShape(rect, bait.Source.Position, bait.Rotation).Any())
                     hints.AddForbiddenZone(ShapeDistance.Rect(bait.Source.Position, bait.Rotation, 100, default, rect.HalfWidth), bait.Activation);
                 break;
+            case AOEShapeCross cross:
+                foreach (var a in Raid.WithoutSlot().Exclude(actor))
+                    hints.AddForbiddenZone(cross, a.Position, bait.Rotation, bait.Activation);
+                break;
         }
     }
 
@@ -126,11 +138,7 @@ public class BaitAwayTethers(BossModule module, AOEShape shape, uint tetherID, A
         if (DrawTethers)
         {
             foreach (var b in ActiveBaits)
-            {
-                if (Arena.Config.ShowOutlinesAndShadows)
-                    Arena.AddLine(b.Source.Position, b.Target.Position, Colors.Shadows, 2);
                 Arena.AddLine(b.Source.Position, b.Target.Position, Colors.Danger);
-            }
         }
     }
 

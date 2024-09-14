@@ -1,5 +1,6 @@
 ﻿using BossMod.Autorotation;
 using BossMod.ReplayVisualization;
+using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
 using System.Text.Json;
@@ -19,7 +20,7 @@ public class CooldownPlannerColumns : Timeline.ColumnGroup
     private readonly Dictionary<Type, List<ColumnPlannerTrackStrategy>> _colsStrategy = [];
     private readonly ColumnPlannerTrackTarget _colTarget;
 
-    private readonly float _trackWidth = 50;
+    private readonly float _trackWidth = 50 * ImGuiHelpers.GlobalScale;
 
     public Class PlanClass => Plan.Class;
 
@@ -45,49 +46,74 @@ public class CooldownPlannerColumns : Timeline.ColumnGroup
         if (ImGui.Button("Modules"))
             ImGui.OpenPopup("modules");
         ImGui.SameLine();
+        if (ImGui.Button("Column visibility"))
+            ImGui.OpenPopup("columns");
+        ImGui.SameLine();
         if (ImGui.Button("Export to clipboard"))
             ExportToClipboard();
         ImGui.SameLine();
         if (ImGui.Button("Import from clipboard"))
             ImportFromClipboard();
         ImGui.SameLine();
-        ImGui.SetNextItemWidth(100);
+        ImGui.SetNextItemWidth(150);
         Modified |= ImGui.InputText("Name", ref Plan.Name, 255);
 
-        using var popup = ImRaii.Popup("modules");
-        if (popup)
+        using (var popup = ImRaii.Popup("modules"))
         {
-            foreach (var (mt, m) in RotationModuleRegistry.Modules.Where(m => (m.Value.Definition.RelatedBossModule == null || m.Value.Definition.RelatedBossModule == Plan.Encounter) && m.Value.Definition.Classes[(int)Plan.Class]))
+            if (popup)
             {
-                var added = Plan.Modules.ContainsKey(mt);
-                var disable = added && !ImGui.GetIO().KeyShift;
-                using (ImRaii.Disabled(disable))
+                foreach (var (mt, m) in RotationModuleRegistry.Modules.Where(m => (m.Value.Definition.RelatedBossModule == null || m.Value.Definition.RelatedBossModule == Plan.Encounter) && m.Value.Definition.Classes[(int)Plan.Class]))
                 {
-                    if (ImGui.Checkbox(m.Definition.DisplayName, ref added))
+                    var added = Plan.Modules.ContainsKey(mt);
+                    var disable = added && !ImGui.GetIO().KeyShift;
+                    using (ImRaii.Disabled(disable))
                     {
-                        if (added)
+                        if (ImGui.Checkbox(m.Definition.DisplayName, ref added))
                         {
-                            Plan.AddModule(mt);
-                            AddStrategyColumns(mt);
+                            if (added)
+                            {
+                                Plan.AddModule(mt);
+                                AddStrategyColumns(mt);
+                            }
+                            else
+                            {
+                                Plan.Modules.Remove(mt);
+                                if (_colsStrategy.Remove(mt, out var cols))
+                                    foreach (var col in cols)
+                                        Columns.Remove(col);
+                            }
+                            Modified = true;
                         }
-                        else
+                    }
+                    if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                    {
+                        using var tooltip = ImRaii.Tooltip();
+                        if (tooltip)
                         {
-                            Plan.Modules.Remove(mt);
-                            if (_colsStrategy.Remove(mt, out var cols))
-                                foreach (var col in cols)
-                                    Columns.Remove(col);
+                            if (disable)
+                                ImGui.TextUnformatted("Hold shift to remove");
+                            UIRotationModule.DescribeModule(mt, m.Definition);
                         }
-                        Modified = true;
                     }
                 }
-                if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            }
+        }
+
+        using (var popup = ImRaii.Popup("columns"))
+        {
+            if (popup)
+            {
+                foreach (var (mt, cols) in _colsStrategy)
                 {
-                    using var tooltip = ImRaii.Tooltip();
-                    if (tooltip)
+                    if (ImGui.BeginMenu(RotationModuleRegistry.Modules[mt].Definition.DisplayName))
                     {
-                        if (disable)
-                            ImGui.TextUnformatted("Hold shift to remove");
-                        UIRotationModule.DescribeModule(mt, m.Definition);
+                        foreach (var col in cols)
+                        {
+                            var visible = col.Width > 0;
+                            if (ImGui.Checkbox(col.Name, ref visible))
+                                col.Width = visible ? _trackWidth : 0;
+                        }
+                        ImGui.EndMenu();
                     }
                 }
             }
@@ -106,11 +132,17 @@ public class CooldownPlannerColumns : Timeline.ColumnGroup
 
         var selPhase = _tree.Phases[selectedPhase];
         ImGui.SameLine();
-        if (ImGui.SliderFloat("###phase-duration", ref selPhase.Duration, 0, selPhase.MaxTime, $"{selPhase.Name}: %.1f"))
+        if (ImGui.SliderFloat("###phase-duration", ref selPhase.Duration, 0, selPhase.MaxTime, $"{selPhase.Name.Replace("%", "%%", StringComparison.Ordinal)}: %.1f"))
         {
             Plan.PhaseDurations[selectedPhase] = selPhase.Duration;
             if (_syncTimings)
+            {
                 _tree.ApplyTimings(Plan.PhaseDurations);
+                foreach (var cols in _colsStrategy)
+                    foreach (var col in cols.Value)
+                        col.UpdateAllElements();
+                _colTarget.UpdateAllElements();
+            }
             Modified = true;
         }
 
@@ -126,20 +158,6 @@ public class CooldownPlannerColumns : Timeline.ColumnGroup
         return selectedPhase;
     }
 
-    public void DrawConfig(UITree tree)
-    {
-        DrawCommonControls();
-        foreach (var (mt, cols) in tree.Nodes(_colsStrategy, kv => new(RotationModuleRegistry.Modules[kv.Key].Definition.DisplayName, kv.Value.Count == 0)))
-        {
-            foreach (var col in cols)
-            {
-                var visible = col.Width > 0;
-                if (ImGui.Checkbox(col.Name, ref visible))
-                    col.Width = visible ? _trackWidth : 0;
-            }
-        }
-    }
-
     public void ExportToClipboard() => ImGui.SetClipboardText(JsonSerializer.Serialize(Plan, Serialization.BuildSerializationOptions()));
 
     public void ImportFromClipboard()
@@ -152,6 +170,7 @@ public class CooldownPlannerColumns : Timeline.ColumnGroup
                 Service.Log($"Failed to import: plan belongs to {plan.Class} {plan.Encounter} instead of {Plan.Class} {Plan.Encounter}");
                 return;
             }
+            plan.Guid = Plan.Guid;
 
             Modified = true;
             Plan = plan;
@@ -247,5 +266,5 @@ public class CooldownPlannerColumns : Timeline.ColumnGroup
     }
 
     private void AddEntry(List<Plan.Entry> list, ColumnPlannerTrack.Element elem)
-        => list.Add(new(elem.Value) { StateID = elem.Window.AttachNode.State.ID, TimeSinceActivation = elem.Window.Delay, WindowLength = elem.Window.Duration, Disabled = elem.Disabled });
+        => list.Add(new(elem.Value) { StateID = elem.Window.AttachNode.State.ID, TimeSinceActivation = elem.Window.Delay, WindowLength = elem.WindowLength, Disabled = elem.Disabled });
 }

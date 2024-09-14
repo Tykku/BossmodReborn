@@ -10,7 +10,7 @@ class OnmyoSerpentEyeSigil(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnActorModelStateChange(Actor actor, byte modelState, byte animState1, byte animState2)
     {
-        var activation = Module.WorldState.FutureTime(5.6f);
+        var activation = WorldState.FutureTime(5.6f);
         if (modelState == 32)
             _aoe = new(circle, Module.PrimaryActor.Position, default, activation);
         if (modelState == 33)

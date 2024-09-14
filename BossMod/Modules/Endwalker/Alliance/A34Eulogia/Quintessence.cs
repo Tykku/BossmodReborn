@@ -8,7 +8,8 @@ class Quintessence(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCone _shapeRight = new(50, 90.Degrees(), -90.Degrees());
     private static readonly AOEShapeCone _shapeLeft = new(50, 90.Degrees(), 90.Degrees());
     private static readonly AOEShapeDonut _shapeDonut = new(8, 50);
-
+    private static readonly HashSet<AID> castEnd = [AID.QuintessenceAOE1Right, AID.QuintessenceAOE1Left, AID.QuintessenceAOE1Donut, AID.QuintessenceAOE2Right,
+    AID.QuintessenceAOE2Left, AID.QuintessenceAOE2Donut, AID.QuintessenceAOE3Right, AID.QuintessenceAOE3Left, AID.QuintessenceAOE3Donut];
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (NumCasts < _forms.Length && _forms[NumCasts] is var imminent && imminent.shape != null && imminent.origin != default)
@@ -78,10 +79,7 @@ class Quintessence(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.QuintessenceAOE1Right or AID.QuintessenceAOE1Left or AID.QuintessenceAOE1Donut or AID.QuintessenceAOE2Right or AID.QuintessenceAOE2Left or AID.QuintessenceAOE2Donut
-            or AID.QuintessenceAOE3Right or AID.QuintessenceAOE3Left or AID.QuintessenceAOE3Donut)
-        {
+        if (castEnd.Contains((AID)spell.Action.ID))
             ++NumCasts;
-        }
     }
 }

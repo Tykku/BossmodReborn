@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C023Moko;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C023Moko;
 
 class AzureAuspice(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(6, 40)); // TODO: verify inner radius
 class NAzureAuspice(BossModule module) : AzureAuspice(module, AID.NAzureAuspice);

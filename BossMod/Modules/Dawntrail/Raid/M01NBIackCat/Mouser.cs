@@ -85,7 +85,7 @@ class Mouser(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID is AID.MouserTelegraphFirst or AID.MouserTelegraphSecond)
-            _aoes.Add(new(Rect, caster.Position, spell.Rotation, Module.WorldState.FutureTime(9.7f)));
+            _aoes.Add(new(Rect, caster.Position, spell.Rotation, WorldState.FutureTime(9.7f)));
     }
 
     public override void OnEventEnvControl(byte index, uint state)

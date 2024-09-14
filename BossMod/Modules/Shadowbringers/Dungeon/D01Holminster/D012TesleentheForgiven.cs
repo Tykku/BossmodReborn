@@ -2,12 +2,12 @@
 
 public enum OID : uint
 {
-    Boss = 0x278B, // R1.800, x1
-    HolyWaterVoidzone = 0x1EABF9, // R0.500, EventObj type, spawn during fight
-    Helper = 0x233C, // x3
+    Boss = 0x278B, // R1.8
+    HolyWaterVoidzone = 0x1EABF9, // R0.5
     Helper2 = 0x2A4B,
-    Helper3 = 0x2A4C, // R1.320, x5
-    Helper4 = 0x2A4D, // R2.000, x2
+    Helper3 = 0x2A4C, // R1.32
+    Helper4 = 0x2A4D, // R2.0
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -20,7 +20,7 @@ public enum AID : uint
     ExorciseA = 15826, // 278B->none, 5.0s cast, single-target
     ExorciseB = 15827, // 278B->location, no cast, range 6 circle
     HolyWaterVoidzones = 15825, // 278B->self, no cast, single-target
-    HolyWater = 15828, // Helper->location, 7.0s cast, range 6 circle
+    HolyWater = 15828 // Helper->location, 7.0s cast, range 6 circle
 }
 
 public enum IconID : uint
@@ -30,7 +30,7 @@ public enum IconID : uint
     Icon2 = 80, // player
     Icon3 = 81, // player
     Icon4 = 82, // player
-    Stackmarker = 62, // player
+    Stackmarker = 62 // player
 }
 
 class TheTickler(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.TheTickler));
@@ -59,8 +59,7 @@ class FeveredFlagellation(BossModule module) : Components.GenericBaitAway(module
 
     public override void OnEventIcon(Actor actor, uint iconID)
     {
-        var icon = (IconID)iconID;
-        if (icon is >= IconID.Icon1 and <= IconID.Icon4)
+        if ((IconID)iconID is >= IconID.Icon1 and <= IconID.Icon4)
             CurrentBaits.Add(new(Module.PrimaryActor, actor, new AOEShapeRect(0, 2)));
     }
 }
@@ -84,7 +83,5 @@ class D012TesleentheForgivenStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "legendoficeman, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 676, NameID = 8300)]
 public class D012TesleentheForgiven(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> union = [new Circle(new(78, -82), 19.5f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(78, -62), 20, 1), new Rectangle(new(78, -102), 20, 1)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(78, -82), 19.5f)], [new Rectangle(new(78, -62), 20, 1), new Rectangle(new(78, -102), 20, 1)]);
 }

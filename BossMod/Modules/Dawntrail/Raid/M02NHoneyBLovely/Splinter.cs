@@ -16,6 +16,6 @@ class Splinter(BossModule module) : Components.GenericAOEs(module)
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if ((AID)spell.Action.ID == AID.SplinterVisual1)
-            _aoes.Add(new(circle, spell.TargetXZ, default, Module.WorldState.FutureTime(5)));
+            _aoes.Add(new(circle, spell.TargetXZ, default, WorldState.FutureTime(5)));
     }
 }

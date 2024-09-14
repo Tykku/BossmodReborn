@@ -3,54 +3,58 @@ namespace BossMod.Shadowbringers.TreasureHunt.DungeonsOfLyheGhiah.Goliath;
 public enum OID : uint
 {
     Boss = 0x2BA5, //R=5.25
-    BossAdd = 0x2BA6, //R=2.1
+    GoliathsJavelin = 0x2BA6, //R=2.1
     DungeonQueen = 0x2A0A, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
     DungeonGarlic = 0x2A08, // R0.84, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
     DungeonTomato = 0x2A09, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
     DungeonOnion = 0x2A06, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
     DungeonEgg = 0x2A07, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
-    BonusAddKeeperOfKeys = 0x2A05, // R3.23
+    KeeperOfKeys = 0x2A05, // R3.23
     Helper = 0x233C
 }
 
 public enum AID : uint
 {
-    AutoAttack = 872, // Boss/BossAdd->player, no cast, single-target
+    AutoAttack = 872, // Boss/GoliathsJavelin/Mandragoras->player, no cast, single-target
+
     MechanicalBlow = 17873, // Boss->player, 5.0s cast, single-target
     Wellbore = 17874, // Boss->location, 7.0s cast, range 15 circle
-    Fount = 17875, // BossHelper->location, 3.0s cast, range 4 circle
+    Fount = 17875, // Helper->location, 3.0s cast, range 4 circle
     Incinerate = 17876, // Boss->self, 5.0s cast, range 100 circle
     Accelerate = 17877, // Boss->players, 5.0s cast, range 6 circle
-    Compress = 17879, // Boss->self, 2.5s cast, range 100 width 7 cross
-    Compress2 = 17878, // BossAdd->self, 2.5s cast, range 100+R width 7 rect
+    Compress1 = 17879, // Boss->self, 2.5s cast, range 100 width 7 cross
+    Compress2 = 17878, // GoliathsJavelin->self, 2.5s cast, range 100+R width 7 rect
 
-    Pollen = 6452, // 2A0A->self, 3.5s cast, range 6+R circle
-    TearyTwirl = 6448, // 2A06->self, 3.5s cast, range 6+R circle
-    HeirloomScream = 6451, // 2A09->self, 3.5s cast, range 6+R circle
-    PluckAndPrune = 6449, // 2A07->self, 3.5s cast, range 6+R circle
-    PungentPirouette = 6450, // 2A08->self, 3.5s cast, range 6+R circle
-    Telega = 9630, // BonusAdds->self, no cast, single-target, bonus adds disappear
-    Mash = 17852, // 2A05->self, 2.5s cast, range 12+R width 4 rect
-    Scoop = 17853, // 2A05->self, 4.0s cast, range 15 120-degree cone
-    Inhale = 17855, // 2A05->self, no cast, range 20 120-degree cone, attract 25 between hitboxes, shortly before Spin
-    Spin = 17854 // 2A05->self, 2.5s cast, range 11 circle
+    Pollen = 6452, // DungeonQueen->self, 3.5s cast, range 6+R circle
+    TearyTwirl = 6448, // DungeonOnion->self, 3.5s cast, range 6+R circle
+    HeirloomScream = 6451, // DungeonTomato->self, 3.5s cast, range 6+R circle
+    PluckAndPrune = 6449, // DungeonEgg->self, 3.5s cast, range 6+R circle
+    PungentPirouette = 6450, // DungeonGarlic->self, 3.5s cast, range 6+R circle
+    Mash = 17852, // KeeperOfKeys->self, 2.5s cast, range 12+R width 4 rect
+    Scoop = 17853, // KeeperOfKeys->self, 4.0s cast, range 15 120-degree cone
+    Inhale = 17855, // KeeperOfKeys->self, no cast, range 20 120-degree cone, attract 25 between hitboxes, shortly before Spin
+    Spin = 17854, // KeeperOfKeys->self, 2.5s cast, range 11 circle
+    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
 class Wellbore(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wellbore), new AOEShapeCircle(15));
-class Compress(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Compress), new AOEShapeCross(100, 3.5f));
+class Compress1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Compress1), new AOEShapeCross(100, 3.5f));
 class Compress2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Compress2), new AOEShapeRect(102.1f, 3.5f));
 class Accelerate(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Accelerate), 6, 8, 8);
 class Incinerate(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Incinerate));
 class Fount(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Fount), 4);
 class MechanicalBlow(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.MechanicalBlow));
-class PluckAndPrune(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PluckAndPrune), new AOEShapeCircle(6.84f));
-class TearyTwirl(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TearyTwirl), new AOEShapeCircle(6.84f));
-class HeirloomScream(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeirloomScream), new AOEShapeCircle(6.84f));
-class PungentPirouette(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PungentPirouette), new AOEShapeCircle(6.84f));
-class Pollen(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Pollen), new AOEShapeCircle(6.84f));
+
 class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
 class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(15.23f, 2));
 class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+
+class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
 class GoliathStates : StateMachineBuilder
 {
@@ -58,7 +62,7 @@ class GoliathStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<Wellbore>()
-            .ActivateOnEnter<Compress>()
+            .ActivateOnEnter<Compress1>()
             .ActivateOnEnter<Compress2>()
             .ActivateOnEnter<Accelerate>()
             .ActivateOnEnter<Incinerate>()
@@ -68,7 +72,9 @@ class GoliathStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead) && module.Enemies(OID.BossAdd).All(e => e.IsDead) && module.Enemies(OID.DungeonEgg).All(e => e.IsDead) && module.Enemies(OID.DungeonQueen).All(e => e.IsDead) && module.Enemies(OID.DungeonOnion).All(e => e.IsDead) && module.Enemies(OID.DungeonGarlic).All(e => e.IsDead) && module.Enemies(OID.DungeonTomato).All(e => e.IsDead) && module.Enemies(OID.BonusAddKeeperOfKeys).All(e => e.IsDead);
+            .Raw.Update = () => module.Enemies(OID.GoliathsJavelin).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.DungeonEgg)).Concat(module.Enemies(OID.DungeonQueen))
+            .Concat(module.Enemies(OID.DungeonOnion)).Concat(module.Enemies(OID.DungeonGarlic)).Concat(module.Enemies(OID.DungeonTomato)).Concat(module.Enemies(OID.KeeperOfKeys))
+            .All(e => e.IsDeadOrDestroyed);
     }
 }
 
@@ -78,13 +84,9 @@ public class Goliath(WorldState ws, Actor primary) : BossModule(ws, primary, new
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
-        Arena.Actors(Enemies(OID.DungeonEgg), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.DungeonTomato), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.DungeonQueen), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.DungeonGarlic), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.DungeonOnion), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.BonusAddKeeperOfKeys), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.GoliathsJavelin));
+        Arena.Actors(Enemies(OID.DungeonEgg).Concat(Enemies(OID.DungeonTomato)).Concat(Enemies(OID.DungeonQueen).Concat(Enemies(OID.DungeonGarlic)).Concat(Enemies(OID.DungeonOnion))
+        .Concat(Enemies(OID.KeeperOfKeys))), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -97,8 +99,8 @@ public class Goliath(WorldState ws, Actor primary) : BossModule(ws, primary, new
                 OID.DungeonEgg => 6,
                 OID.DungeonGarlic => 5,
                 OID.DungeonTomato => 4,
-                OID.DungeonQueen or OID.BonusAddKeeperOfKeys => 3,
-                OID.BossAdd => 2,
+                OID.DungeonQueen or OID.KeeperOfKeys => 3,
+                OID.GoliathsJavelin => 2,
                 OID.Boss => 1,
                 _ => 0
             };

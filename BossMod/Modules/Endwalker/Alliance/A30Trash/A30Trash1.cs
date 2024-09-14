@@ -2,10 +2,10 @@ namespace BossMod.Endwalker.Alliance.A30Trash1;
 
 public enum OID : uint
 {
-    Serpent = 0x4010, // R3.450, x6
-    Triton = 0x4011, // R1.950, x0, x2 spawn during fight
-    DivineSprite = 0x4012, // R1.600, x0, x3 spawn during fight
-    WaterSprite = 0x4085, // R0.800, x0, x5 spawn during fight
+    Serpent = 0x4010, // R3.45
+    Triton = 0x4011, // R1.95
+    DivineSprite = 0x4012, // R1.6
+    WaterSprite = 0x4085 // R0.8
 }
 
 public enum AID : uint
@@ -18,16 +18,21 @@ public enum AID : uint
     WaterFlood = 35442, // WaterSprite->self, 3.0s cast, range 6 circle
     WaterBurst = 35443, // WaterSprite->self, no cast, range 40 circle, raidwide when Water Sprite dies
     DivineFlood = 35440, // DivineSprite->self, 3.0s cast, range 6 circle
-    DivineBurst = 35441, // DivineSprite->self, no cast, range 40 circle, raidwide when Divine Sprite dies
+    DivineBurst = 35441 // DivineSprite->self, no cast, range 40 circle, raidwide when Divine Sprite dies
 }
 
 class WaterIII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.WaterIII), 8);
-class PelagicCleaver1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PelagicCleaver1), new AOEShapeCone(40, 30.Degrees()));
-class PelagicCleaver2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PelagicCleaver2), new AOEShapeCone(40, 30.Degrees()));
-class PelagicCleaver1InterruptHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PelagicCleaver1));
-class PelagicCleaver2InterruptHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PelagicCleaver2));
-class WaterFlood(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WaterFlood), new AOEShapeCircle(6));
-class DivineFlood(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DivineFlood), new AOEShapeCircle(6));
+
+class PelagicCleaver(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 30.Degrees()));
+class PelagicCleaver1(BossModule module) : PelagicCleaver(module, AID.PelagicCleaver1);
+class PelagicCleaver2(BossModule module) : PelagicCleaver(module, AID.PelagicCleaver2);
+
+class PelagicCleaver1Hint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PelagicCleaver1));
+class PelagicCleaver2Hint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PelagicCleaver2));
+
+class Flood(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
+class WaterFlood(BossModule module) : Flood(module, AID.WaterFlood);
+class DivineFlood(BossModule module) : Flood(module, AID.DivineFlood);
 
 public class A30Trash1States : StateMachineBuilder
 {
@@ -40,8 +45,8 @@ public class A30Trash1States : StateMachineBuilder
         TrivialPhase(1)
             .ActivateOnEnter<PelagicCleaver1>()
             .ActivateOnEnter<PelagicCleaver2>()
-            .ActivateOnEnter<PelagicCleaver1InterruptHint>()
-            .ActivateOnEnter<PelagicCleaver2InterruptHint>()
+            .ActivateOnEnter<PelagicCleaver1Hint>()
+            .ActivateOnEnter<PelagicCleaver2Hint>()
             .ActivateOnEnter<WaterFlood>()
             .ActivateOnEnter<DivineFlood>()
             .Raw.Update = () => module.Enemies(OID.Serpent).Count == 0 && module.Enemies(OID.Triton).All(e => e.IsDead) && module.Enemies(OID.DivineSprite).All(e => e.IsDead) && module.Enemies(OID.WaterSprite).All(e => e.IsDead);

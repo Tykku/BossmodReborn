@@ -25,7 +25,7 @@ public enum AID : uint
     TartareanImpact = 25685, // Boss->self, 5.0s cast, range 60 circle, raidwide
     TartareanSpark = 25687, // Boss->self, 3.0s cast, range 40 width 6 rect
 
-    Vexillatio = 25678, // Boss->self, 4.0s cast, single-target
+    Vexillatio = 25678 // Boss->self, 4.0s cast, single-target
 }
 
 class ArenaChanges(BossModule module) : BossComponent(module)
@@ -53,7 +53,7 @@ class ArenaChanges(BossModule module) : BossComponent(module)
                 union.AddRange([squares[1], squares[3]]);
 
             Safespots = true;
-            activation = Module.WorldState.FutureTime(7.3f);
+            activation = WorldState.FutureTime(7.3f);
             UpdateArena();
         }
         else if (state == 0x00080004)
@@ -62,7 +62,7 @@ class ArenaChanges(BossModule module) : BossComponent(module)
             {
                 case 0x00:
                     union.Clear();
-                    Module.Arena.Bounds = DefaultBounds;
+                    Arena.Bounds = DefaultBounds;
                     break;
                 case 0x01:
                 case 0x02:
@@ -75,7 +75,7 @@ class ArenaChanges(BossModule module) : BossComponent(module)
     private void UpdateArena()
     {
         arena = new ArenaBoundsComplex(rect.Concat(union));
-        Module.Arena.Bounds = arena;
+        Arena.Bounds = arena;
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -145,7 +145,7 @@ class Shrapnel(BossModule module) : Components.GenericAOEs(module)
     private void AddAOEs(string direction)
     {
         foreach (var position in shrapnelPositions[direction])
-            _aoes.Add(new(circle, position, default, Module.WorldState.FutureTime(8)));
+            _aoes.Add(new(circle, position, default, WorldState.FutureTime(8)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)

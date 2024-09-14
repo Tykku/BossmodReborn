@@ -36,16 +36,13 @@ public sealed class UIRotationWindow : UIWindow
         var activeModule = _mgr.Bossmods.ActiveModule;
         if (activeModule != null)
         {
-            if (ImGui.Button("Timeline"))
-            {
-                _ = new StateMachineWindow(activeModule);
-            }
+            ImGui.TextUnformatted($"CD Plan:");
 
             if (activeModule.Info?.PlanLevel > 0)
             {
                 ImGui.SameLine();
                 var plans = _mgr.Database.Plans.GetPlans(activeModule.GetType(), player.Class);
-                var newSel = UIPlanDatabaseEditor.DrawPlanCombo(plans, plans.SelectedIndex, "Plan");
+                var newSel = UIPlanDatabaseEditor.DrawPlanCombo(plans, plans.SelectedIndex, "");
                 if (newSel != plans.SelectedIndex)
                 {
                     plans.SelectedIndex = newSel;
@@ -62,6 +59,13 @@ public sealed class UIRotationWindow : UIWindow
                         _mgr.Database.Plans.ModifyPlan(null, plan);
                     }
                     UIPlanDatabaseEditor.StartPlanEditor(_mgr.Database.Plans, plans.Plans[plans.SelectedIndex], activeModule.StateMachine);
+                }
+
+                if (newSel >= 0 && _mgr.Preset != null)
+                {
+                    ImGui.SameLine();
+                    using var style = ImRaii.PushColor(ImGuiCol.Text, 0xff00ffff);
+                    UIMisc.HelpMarker(() => "You have a preset activated, which fully overrides the CD plan!", FontAwesomeIcon.ExclamationTriangle);
                 }
             }
         }
@@ -81,9 +85,15 @@ public sealed class UIRotationWindow : UIWindow
         if (mgr.Player == null)
             return modified;
 
+        ImGui.TextUnformatted("Presets:");
+
+        ImGui.SameLine();
+
         using (ImRaii.PushColor(ImGuiCol.Button, Colors.ButtonPushColor1, mgr.Preset == RotationModuleManager.ForceDisable))
+        using (ImRaii.PushColor(ImGuiCol.ButtonHovered, Colors.ButtonPushColor3, mgr.Preset == RotationModuleManager.ForceDisable))
+        using (ImRaii.PushColor(ImGuiCol.ButtonActive, Colors.ButtonPushColor4, mgr.Preset == RotationModuleManager.ForceDisable))
         {
-            if (ImGui.Button("X"))
+            if (ImGui.Button("Disabled"))
             {
                 mgr.Preset = mgr.Preset == RotationModuleManager.ForceDisable ? null : RotationModuleManager.ForceDisable;
                 modified |= true;
@@ -94,6 +104,8 @@ public sealed class UIRotationWindow : UIWindow
         {
             ImGui.SameLine();
             using var col = ImRaii.PushColor(ImGuiCol.Button, Colors.ButtonPushColor2, mgr.Preset == p);
+            using var colHovered = ImRaii.PushColor(ImGuiCol.ButtonHovered, Colors.ButtonPushColor5, mgr.Preset == p);
+            using var colActive = ImRaii.PushColor(ImGuiCol.ButtonActive, Colors.ButtonPushColor6, mgr.Preset == p);
             if (ImGui.Button(p.Name))
             {
                 mgr.Preset = mgr.Preset == p ? null : p;
@@ -123,7 +135,7 @@ public sealed class UIRotationWindow : UIWindow
         }
     }
 
-    private uint PositionalColor(bool imminent, bool correct) => imminent
+    private static uint PositionalColor(bool imminent, bool correct) => imminent
         ? (correct ? Colors.PositionalColor1 : Colors.PositionalColor2)
         : (correct ? Colors.PositionalColor3 : Colors.PositionalColor4);
 }

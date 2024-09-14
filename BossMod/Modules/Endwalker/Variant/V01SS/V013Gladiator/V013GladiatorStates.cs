@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Variant.V01SS.V013Gladiator;
+﻿namespace BossMod.Endwalker.VariantCriterion.V01SS.V013Gladiator;
 
 class V013GladiatorStates : StateMachineBuilder
 {

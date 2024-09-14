@@ -3,7 +3,6 @@ namespace BossMod.Dawntrail.Dungeon.D01Ihuykatumu.D012Drowsie;
 public enum OID : uint
 {
     Boss = 0x4195, // R5.0
-
     Apollyon = 0x41B9, // R7.0
     IhuykatumuIvy = 0x419C, // R4.2-8.4
     BlueClot = 0x4197, // R2.0
@@ -75,18 +74,12 @@ class D012DrowsieStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 826, NameID = 12716)]
 public class D012Drowsie(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultBounds.Center, DefaultBounds)
 {
-    private static readonly List<Shape> union = [new Circle(new(80, 53), 19.5f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(65.5f, 38), 20, 1.75f, 130.Degrees()), new Rectangle(new(80, 74), 20, 2)];
-    public static readonly ArenaBoundsComplex DefaultBounds = new(union, difference);
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Circle(new(80, 53), 19.5f)], [new Rectangle(new(65.5f, 38), 20, 1.75f, 130.Degrees()), new Rectangle(new(80, 74), 20, 2)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Mimiclot1));
-        Arena.Actors(Enemies(OID.Mimiclot2));
-        Arena.Actors(Enemies(OID.Mimiclot3));
-        Arena.Actors(Enemies(OID.Mimiclot4));
-        Arena.Actors(Enemies(OID.Mimiclot5));
-        Arena.Actors(Enemies(OID.Mimiclot6));
+        Arena.Actors(Enemies(OID.Mimiclot1).Concat(Enemies(OID.Mimiclot2)).Concat(Enemies(OID.Mimiclot3)).Concat(Enemies(OID.Mimiclot4))
+        .Concat(Enemies(OID.Mimiclot5)).Concat(Enemies(OID.Mimiclot6)));
     }
 }

@@ -3,14 +3,15 @@
 public enum OID : uint
 {
     Boss = 0x3EEB, //R=7.6
-    Helper = 0x233C,
     SmallCrystal = 0x1EB882, // R=0.5
     BigCrystal = 0x1EB883, // R=0.5
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttack = 34517, // Boss->player, no cast, single-target
+
     BodySlam = 33335, // Boss->self, 3.0s cast, range 40 circle
     SonicBloop = 33345, // Boss->player, 5.0s cast, single-target, tankbuster
     ExplosiveFrequency = 33340, // Helper->self, 10.0s cast, range 15 circle
@@ -19,49 +20,37 @@ public enum AID : uint
     Tidalspout = 33343, // Helper->player, 5.0s cast, range 6 circle
     Upsweep = 33338, // Boss->self, 5.0s cast, range 40 circle
     Floodstide = 33341, // Boss->self, 3.0s cast, single-target        
-    Waterspout = 33342, // Helper->player, 5.0s cast, range 5 circle, spread
+    Waterspout = 33342 // Helper->player, 5.0s cast, range 5 circle, spread
 }
 
-class Frequencies(BossModule module) : Components.GenericAOEs(module)
+class ExplosiveResonantFrequency(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCircle smallcircle = new(8);
-    private static readonly AOEShapeCircle bigcircle = new(15);
-    private DateTime _activation1;
-    private DateTime _activation2;
-    private readonly List<Actor> _bigcrystals = [];
-    private readonly List<Actor> _smallcrystals = [];
+    private static readonly AOEShapeCircle circleSmall = new(8);
+    private static readonly AOEShapeCircle circleBig = new(15);
+    private readonly List<AOEInstance> _aoes = [];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_smallcrystals.Count > 0)
-            foreach (var c in _smallcrystals)
-                yield return new(smallcircle, c.Position, default, _activation1);
-        if (_bigcrystals.Count > 0 && _smallcrystals.Count == 0)
-            foreach (var c in _bigcrystals)
-                yield return new(bigcircle, c.Position, default, _activation2);
+        if (_aoes.Count > 0)
+            foreach (var a in _aoes)
+                if ((a.Activation - _aoes[0].Activation).TotalSeconds <= 1)
+                    yield return a;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.ResonantFrequency)
-        {
-            _activation1 = Module.CastFinishAt(spell);
-            _smallcrystals.Add(caster);
-        }
-        if ((AID)spell.Action.ID == AID.ExplosiveFrequency)
-        {
-            _activation2 = Module.CastFinishAt(spell);
-            _bigcrystals.Add(caster);
-        }
+            _aoes.Add(new(circleSmall, caster.Position, default, Module.CastFinishAt(spell)));
+        else if ((AID)spell.Action.ID == AID.ExplosiveFrequency)
+            _aoes.Add(new(circleBig, caster.Position, default, Module.CastFinishAt(spell)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.ResonantFrequency or AID.ExplosiveFrequency)
-        {
-            _smallcrystals.Remove(caster);
-            _bigcrystals.Remove(caster);
-        }
+        if ((AID)spell.Action.ID == AID.ResonantFrequency)
+            _aoes.RemoveAll(x => x.Shape == circleSmall);
+        else if ((AID)spell.Action.ID == AID.ExplosiveFrequency)
+            _aoes.RemoveAll(x => x.Shape == circleBig);
     }
 }
 
@@ -83,15 +72,12 @@ class D121LyngbakrStates : StateMachineBuilder
             .ActivateOnEnter<Waterspout>()
             .ActivateOnEnter<Upsweep>()
             .ActivateOnEnter<BodySlam>()
-            .ActivateOnEnter<Frequencies>();
+            .ActivateOnEnter<ExplosiveResonantFrequency>();
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 822, NameID = 12336)]
 public class D121Lyngbakr(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> union = [new Circle(new(-322, 120), 19.75f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(-322, 99), 20, 2.25f), new Rectangle(new(-322, 140), 20, 1.25f)];
-    public static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
-
+    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(-322, 120), 19.75f)], [new Rectangle(new(-322, 99), 20, 2.25f), new Rectangle(new(-322, 140), 20, 1.25f)]);
 }

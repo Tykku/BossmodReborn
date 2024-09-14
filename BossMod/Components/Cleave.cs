@@ -21,12 +21,34 @@ public class Cleave(BossModule module, ActionID aid, AOEShape shape, uint enemyO
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
+        if (!OriginsAndTargets().Any())
+            return;
+
         foreach (var (origin, target, angle) in OriginsAndTargets())
-        {
             if (actor != target)
-            {
                 hints.AddForbiddenZone(Shape, origin.Position, angle, NextExpected);
-            }
+            else
+                AddTargetSpecificHints(actor, origin.Position, angle, hints);
+    }
+
+    private void AddTargetSpecificHints(Actor actor, WPos origin, Angle angle, AIHints hints)
+    {
+        switch (Shape)
+        {
+            case AOEShapeCircle circle:
+                foreach (var a in Raid.WithoutSlot().Exclude(actor))
+                    hints.AddForbiddenZone(circle, a.Position);
+                break;
+
+            case AOEShapeCone cone:
+                if (Raid.WithoutSlot().Exclude(actor).InShape(cone, origin, angle).Any())
+                    hints.AddForbiddenZone(ShapeDistance.Cone(origin, 100, angle, cone.HalfAngle));
+                break;
+
+            case AOEShapeRect rect:
+                if (Raid.WithoutSlot().Exclude(actor).InShape(rect, origin, angle).Any())
+                    hints.AddForbiddenZone(ShapeDistance.Rect(origin, angle, 100, default, rect.HalfWidth));
+                break;
         }
     }
 

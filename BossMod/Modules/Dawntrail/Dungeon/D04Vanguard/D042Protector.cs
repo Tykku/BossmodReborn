@@ -49,6 +49,7 @@ public enum SID : uint
 {
     LaserTurretsVisual = 2056, // Boss->Boss, extra=0x2CE
     AccelerationBomb = 3802, // Helper->player, extra=0x0
+    AccelerationBombNPCs = 4144, // Helper->NPCs, extra=0x0
 }
 
 class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
@@ -114,13 +115,13 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Electrowave && Module.Arena.Bounds == StartingBounds)
-            _aoe = new(rectArenaChange, Module.Center, default, Module.CastFinishAt(spell, 0.4f));
+        if ((AID)spell.Action.ID == AID.Electrowave && Arena.Bounds == StartingBounds)
+            _aoe = new(rectArenaChange, Arena.Center, default, Module.CastFinishAt(spell, 0.4f));
     }
 
     public override void Update()
     {
-        if (Module.Arena.Bounds == defaultBounds)
+        if (Arena.Bounds == defaultBounds)
         {
             var player = Module.Raid.Player()!;
             var aoeChecks = new[]
@@ -133,9 +134,9 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 
             foreach (var check in aoeChecks)
             {
-                if (ActiveAOEs(0, player).Any(c => c.Shape == check.AOE && c.Activation <= Module.WorldState.CurrentTime))
+                if (ActiveAOEs(0, player).Any(c => c.Shape == check.AOE && c.Activation <= WorldState.CurrentTime))
                 {
-                    Module.Arena.Bounds = check.Bounds;
+                    Arena.Bounds = check.Bounds;
                     _aoe = null;
                     break;
                 }
@@ -145,10 +146,10 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        var activation = Module.WorldState.FutureTime(3);
+        var activation = WorldState.FutureTime(3);
         if (state == 0x00020001 && index == 0x0C)
         {
-            Module.Arena.Bounds = defaultBounds;
+            Arena.Bounds = defaultBounds;
             _aoe = null;
         }
         else if (index == 0x0D)
@@ -168,7 +169,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
                     _aoe = new(electricFences00200010AOE, Module.Center, default, activation);
                     break;
                 case 0x02000004 or 0x10000004 or 0x00080004 or 0x00400004:
-                    Module.Arena.Bounds = defaultBounds;
+                    Arena.Bounds = defaultBounds;
                     break;
             }
         }
@@ -178,29 +179,18 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 class BatteryCircuit(BossModule module) : Components.GenericRotatingAOE(module)
 {
     private static readonly Angle _increment = -11.Degrees();
-    private bool started;
-    private int counter;
-
     private static readonly AOEShapeCone _shape = new(30, 15.Degrees());
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.BatteryCircuitFirst && !started)
-        {
+        if ((AID)spell.Action.ID == AID.BatteryCircuitFirst)
             Sequences.Add(new(_shape, caster.Position, spell.Rotation, _increment, Module.CastFinishAt(spell), 0.5f, 34, 9));
-            Sequences.Add(new(_shape, caster.Position, spell.Rotation + 180.Degrees(), _increment, Module.CastFinishAt(spell), 0.5f, 34, 9));
-            started = true;
-        }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if ((AID)spell.Action.ID is AID.BatteryCircuitFirst or AID.BatteryCircuitRest)
-            if (++counter % 2 == 0)
-            {
-                AdvanceSequence(1, WorldState.CurrentTime);
-                AdvanceSequence(0, WorldState.CurrentTime);
-            }
+            AdvanceSequence(caster.Position, caster.Rotation, WorldState.CurrentTime);
     }
 }
 
@@ -222,53 +212,25 @@ class BlastCannon(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 class Shock(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Shock), 3);
 class HomingCannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HomingCannon), new AOEShapeRect(50, 1));
 class Bombardment(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Bombardment), 5);
-class Electrowhirl1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Electrowhirl1), new AOEShapeCircle(6));
-class Electrowhirl2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Electrowhirl2), new AOEShapeCircle(6));
+
+class Electrowhirl(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
+class Electrowhirl1(BossModule module) : Electrowhirl(module, AID.Electrowhirl1);
+class Electrowhirl2(BossModule module) : Electrowhirl(module, AID.Electrowhirl2);
+
 class TrackingBolt2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.TrackingBolt2), 8);
 
-class AccelerationBomb(BossModule module) : Components.StayMove(module)
+class AccelerationBomb(BossModule module) : Components.StayMove(module, 3)
 {
-    private bool pausedAI;
-    private DateTime expiresAt;
-    private bool expired;
-
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.AccelerationBomb)
-        {
-            if (Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0 && slot < Requirements.Length)
-                Requirements[slot] = Requirement.Stay;
-            if (actor == Module.Raid.Player()!)
-                expiresAt = status.ExpireAt;
-        }
+        if ((SID)status.ID is SID.AccelerationBomb or SID.AccelerationBombNPCs && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
+            PlayerStates[slot] = new(Requirement.Stay, status.ExpireAt);
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.AccelerationBomb)
-        {
-            if (Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0 && slot < Requirements.Length)
-            {
-                Requirements[slot] = Requirement.None;
-                expired = true;
-                expiresAt = default;
-            }
-        }
-    }
-
-    public override void Update()
-    {
-        if (expiresAt != default && AI.AIManager.Instance?.Beh != null && expiresAt.AddSeconds(-0.1f) <= Module.WorldState.CurrentTime)
-        {
-            AI.AIManager.Instance?.SwitchToIdle();
-            pausedAI = true;
-        }
-        else if (expired && pausedAI)
-        {
-            AI.AIManager.Instance?.SwitchToFollow(Service.Config.Get<AI.AIConfig>().FollowSlot);
-            pausedAI = false;
-            expired = false;
-        }
+        if ((SID)status.ID is SID.AccelerationBomb or SID.AccelerationBombNPCs && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
+            PlayerStates[slot] = default;
     }
 }
 

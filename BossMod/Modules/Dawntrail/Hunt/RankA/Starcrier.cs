@@ -1,0 +1,39 @@
+﻿namespace BossMod.Dawntrail.Hunt.RankA.Starcrier;
+
+public enum OID : uint
+{
+    Boss = 0x41FC // R5.0
+}
+public enum AID : uint
+{
+    AutoAttack = 872, // Boss->player, no cast, single-target
+    WingsbreadthWinds = 37038, // Boss->self, 5.0s cast, range 8 circle
+    StormwallWinds = 37039, // Boss->self, 5.0s cast, range 8-25 donut
+    DirgeOfTheLost = 37040, // Boss->self, 3.0s cast, range 40 circle, applies Temporary Misdirection
+    AeroIV = 37163, // Boss->self, 4.0s cast, range 20 circle
+    SwiftwindSerenade = 37305, // Boss->self, 4.0s cast, range 40 width 8 rect
+}
+
+class WingsbreadthWinds(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WingsbreadthWinds), new AOEShapeCircle(8));
+class StormwallWinds(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.StormwallWinds), new AOEShapeDonut(8, 25));
+class DirgeOfTheLost(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DirgeOfTheLost), new AOEShapeCircle(40));
+class DirgeOfTheLostHint(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.DirgeOfTheLost), "Applies Temporary Misdirection!");
+class AeroIV(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AeroIV));
+class SwiftwindSerenade(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SwiftwindSerenade), new AOEShapeRect(40, 4));
+
+class StarcrierStates : StateMachineBuilder
+{
+    public StarcrierStates(BossModule module) : base(module)
+    {
+        TrivialPhase()
+            .ActivateOnEnter<WingsbreadthWinds>()
+            .ActivateOnEnter<StormwallWinds>()
+            .ActivateOnEnter<DirgeOfTheLost>()
+            .ActivateOnEnter<DirgeOfTheLostHint>()
+            .ActivateOnEnter<AeroIV>()
+            .ActivateOnEnter<SwiftwindSerenade>();
+    }
+}
+
+[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "Shinryin", GroupType = BossModuleInfo.GroupType.Hunt, GroupID = (uint)BossModuleInfo.HuntRank.A, NameID = 12692)]
+public class Starcrier(WorldState ws, Actor primary) : SimpleBossModule(ws, primary);

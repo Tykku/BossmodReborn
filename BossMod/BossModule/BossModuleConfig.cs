@@ -1,34 +1,54 @@
 ﻿namespace BossMod;
 
-[ConfigDisplay(Name = "Boss module window settings", Order = 1)]
+[ConfigDisplay(Name = "Boss modules and radar", Order = 1)]
 public class BossModuleConfig : ConfigNode
 {
-    [PropertyDisplay("Arena scale factor")]
+    // boss module settings
+    [PropertyDisplay("Minimal maturity for the module to be loaded", tooltip: "Some modules will have the \"WIP\" status and will not automatically load unless you change this")]
+    public BossModuleInfo.Maturity MinMaturity = BossModuleInfo.Maturity.Contributed;
+
+    [PropertyDisplay("Allow modules to automatically use actions", tooltip: "Example: modules can automatically use anti-knockback abilities before a knockback happens")]
+    public bool AllowAutomaticActions = true;
+
+    [PropertyDisplay("Show testing radar and hint window", tooltip: "Useful for configuring your radar and hint windows without being inside of a boss encounter", separator: true)]
+    public bool ShowDemo = false;
+
+    // radar window settings
+    [PropertyDisplay("Enable radar")]
+    public bool Enable = true;
+
+    [PropertyDisplay("Lock radar and hint window movement and mouse interaction")]
+    public bool Lock = false;
+
+    [PropertyDisplay("Transparent radar window background", tooltip: "Removes the black window around the radar; this will not work if you move the radar to a different monitor")]
+    public bool TrishaMode = false;
+
+    [PropertyDisplay("Add opaque background to the arena in the radar")]
+    public bool OpaqueArenaBackground = false;
+
+    [PropertyDisplay("Show outlines and shadows on various radar markings")]
+    public bool ShowOutlinesAndShadows = false;
+
+    [PropertyDisplay("Radar arena scale factor", tooltip: "Scale of the arena inside of the radar window")]
     [PropertySlider(0.1f, 10, Speed = 0.1f, Logarithmic = true)]
     public float ArenaScale = 1;
 
-    [PropertyDisplay("Enable boss modules")]
-    public bool Enable = true;
-
-    [PropertyDisplay("Lock movement and mouse interaction")]
-    public bool Lock = false;
-
-    [PropertyDisplay("Rotate map to match camera orientation")]
+    [PropertyDisplay("Rotate radar to match camera orientation")]
     public bool RotateArena = true;
 
     [PropertyDisplay("Rotate map by 180° if rotating map is off")]
     public bool FlipArena = false;
 
-    [PropertyDisplay("Expand space reserved for map to allow arbitrary rotations")]
+    [PropertyDisplay("Give radar extra space for rotations", tooltip: "If you are using the above setting, this gives the radar extra space on the sides before the edges are clipped in order to account for rotating your camera during an encounter")]
     public bool AddSlackForRotations = true;
 
-    [PropertyDisplay("Show arena border")]
+    [PropertyDisplay("Show arena border in radar")]
     public bool ShowBorder = true;
 
-    [PropertyDisplay("Change arena border color if player is at risk")]
+    [PropertyDisplay("Change arena border color if player is at risk", tooltip: "Changes the white border to red when you are standing somewhere you are likely to be hit by a mechanic")]
     public bool ShowBorderRisk = true;
 
-    [PropertyDisplay("Show cardinal direction names")]
+    [PropertyDisplay("Show cardinal direction names on radar")]
     public bool ShowCardinals = false;
 
     [PropertyDisplay("Cardinal direction font size")]
@@ -46,42 +66,32 @@ public class BossModuleConfig : ConfigNode
     [PropertyDisplay("Show waymarks on radar")]
     public bool ShowWaymarks = false;
 
-    [PropertyDisplay("Show mechanics sequence and timers")]
+    [PropertyDisplay("Always show all alive party members")]
+    public bool ShowIrrelevantPlayers = false;
+
+    [PropertyDisplay("Show role-based colors on otherwise uncolored players in the radar")]
+    public bool ColorPlayersBasedOnRole = false;
+
+    [PropertyDisplay("Always show focus targeted party member", separator: true)]
+    public bool ShowFocusTargetPlayer = false;
+
+    // hint window settings
+    [PropertyDisplay("Show text hints in separate window", tooltip: "Separates the radar window from the hints window, allowing you to reposition the hints window")]
+    public bool HintsInSeparateWindow = false;
+
+    [PropertyDisplay("Show mechanic sequence and timer hints")]
     public bool ShowMechanicTimers = true;
 
     [PropertyDisplay("Show raidwide hints")]
     public bool ShowGlobalHints = true;
 
-    [PropertyDisplay("Show warnings and hints for player")]
+    [PropertyDisplay("Show player hints and warnings", separator: true)]
     public bool ShowPlayerHints = true;
 
-    [PropertyDisplay("Show text hints in separate window")]
-    public bool HintsInSeparateWindow = false;
-
-    [PropertyDisplay("Transparent radar window background (if enabled, radar window can't be moved outside game viewport)")]
-    public bool TrishaMode = false;
-
-    [PropertyDisplay("Add opaque background to the arena")]
-    public bool OpaqueArenaBackground = false;
-
-    [PropertyDisplay("Show movement hints in world")]
+    // misc. settings
+    [PropertyDisplay("Show movement hints in world", tooltip: "Not used very much, but can show you arrows in the game world to indicate where to move for certain mechanics")]
     public bool ShowWorldArrows = false;
-
-    [PropertyDisplay("Show boss module demo out of instances (useful for configuring windows)")]
-    public bool ShowDemo = false;
-
-    [PropertyDisplay("Always show all alive party members")]
-    public bool ShowIrrelevantPlayers = false;
-
-    [PropertyDisplay("Show outlines and shadows on various radar markings")]
-    public bool ShowOutlinesAndShadows = false;
 
     [PropertyDisplay("Show melee range indicator")]
     public bool ShowMeleeRangeIndicator = false;
-
-    [PropertyDisplay("Allow modules to automatically use actions (eg anti knockback, etc)")]
-    public bool AllowAutomaticActions = true;
-
-    [PropertyDisplay("Minimal maturity for the module to be loaded")]
-    public BossModuleInfo.Maturity MinMaturity = BossModuleInfo.Maturity.Contributed;
 }

@@ -25,8 +25,8 @@ class StampedingThunder(BossModule module) : Components.GenericAOEs(module)
             case AID.StampedingThunderFinish:
                 ++NumCasts;
                 AOE = null;
-                Module.Arena.Bounds = M04SWickedThunder.IonClusterBounds;
-                Module.Arena.Center = new(M04SWickedThunder.P1DefaultCenter.X + 3 * (M04SWickedThunder.P1DefaultCenter.X - caster.Position.X), M04SWickedThunder.P1DefaultCenter.Z);
+                Arena.Bounds = M04SWickedThunder.IonClusterBounds;
+                Arena.Center = new(M04SWickedThunder.P1DefaultCenter.X + 3 * (M04SWickedThunder.P1DefaultCenter.X - caster.Position.X), M04SWickedThunder.P1DefaultCenter.Z);
                 SmallArena = true;
                 break;
         }

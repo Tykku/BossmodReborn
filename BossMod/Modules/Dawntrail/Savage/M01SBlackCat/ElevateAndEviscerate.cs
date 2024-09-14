@@ -23,7 +23,7 @@ class ElevateAndEviscerateShockwave(BossModule module) : Components.GenericAOEs(
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if ((AID)spell.Action.ID is AID.ElevateAndEviscerateHitAOE or AID.ElevateAndEviscerateKnockbackAOE && Module.InBounds(_kb.Cache))
-            aoe = new(Mouser.Rect, ArenaChanges.CellCenter(ArenaChanges.CellIndex(_kb.Cache)), default, Module.WorldState.FutureTime(_kb.CurrentKnockbackDistance == 0 ? 1.4f : 3.6f));
+            aoe = new(Mouser.Rect, ArenaChanges.CellCenter(ArenaChanges.CellIndex(_kb.Cache)), default, WorldState.FutureTime(_kb.CurrentKnockbackDistance == 0 ? 1.4f : 3.6f));
         else if ((AID)spell.Action.ID is AID.ElevateAndEviscerateImpactHit or AID.ElevateAndEviscerateImpactKnockback)
             aoe = null;
     }
@@ -67,7 +67,7 @@ class ElevateAndEviscerate(BossModule module) : Components.Knockback(module, ign
     {
         base.AddHints(slot, actor, hints);
         if (CurrentTarget == actor)
-            hints.Add($"{(CurrentKnockbackDistance > 0 ? "Knockback" : "Hit")} in {Math.Max(0, (CurrentDeadline - Module.WorldState.CurrentTime).TotalSeconds):f1}s", false);
+            hints.Add($"{(CurrentKnockbackDistance > 0 ? "Knockback" : "Hit")} in {Math.Max(0, (CurrentDeadline - WorldState.CurrentTime).TotalSeconds):f1}s", false);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

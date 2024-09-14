@@ -3,12 +3,13 @@ namespace BossMod.Endwalker.Dungeon.D01TowerOfZot.D011Minduruva;
 public enum OID : uint
 {
     Boss = 0x33EE, // R=2.04
-    Helper = 0x233C,
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttack = 870, // Boss->player, no cast, single-target
+
     ManusyaBio = 25248, // Boss->player, 4.0s cast, single-target
     Teleport = 25241, // Boss->location, no cast, single-target
     ManusyaBlizzardIII1 = 25234, // Boss->self, 4.0s cast, single-target
@@ -27,7 +28,7 @@ public enum AID : uint
     ManusyaBlizzard = 25246, // Boss->player, no cast, single-target
     ManusyaThunder = 25247, // Boss->player, no cast, single-target
     TransmuteBlizzardIII = 25371, // Boss->self, 2.7s cast, single-target
-    TransmuteThunderIII = 25372, // Boss->self, 2.7s cast, single-target
+    TransmuteThunderIII = 25372 // Boss->self, 2.7s cast, single-target
 }
 
 public enum SID : uint
@@ -39,7 +40,7 @@ public enum SID : uint
     Electrocution = 2086, // Boss->player, extra=0x0
     IceAlchemy = 2752, // Boss->Boss, extra=0x0
     ToxicAlchemy = 2754, // Boss->Boss, extra=0x0
-    FireAlchemy = 2751, // Boss->Boss, extra=0x0
+    FireAlchemy = 2751 // Boss->Boss, extra=0x0
 }
 
 class ManusyaBio(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ManusyaBio), "Tankbuster + cleansable poison");

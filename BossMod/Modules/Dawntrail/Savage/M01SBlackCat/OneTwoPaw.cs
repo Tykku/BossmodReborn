@@ -61,8 +61,8 @@ class OneTwoPawShade(BossModule module) : Components.GenericAOEs(module)
     {
         if (tether.ID == (uint)TetherID.Soulshade && _aoes.Count < 4)
         {
-            _aoes.Add(new(_shape, source.Position, source.Rotation + _firstDirection, Module.WorldState.FutureTime(20.3f)));
-            _aoes.Add(new(_shape, source.Position, source.Rotation - _firstDirection, Module.WorldState.FutureTime(23.3f)));
+            _aoes.Add(new(_shape, source.Position, source.Rotation + _firstDirection, WorldState.FutureTime(20.3f)));
+            _aoes.Add(new(_shape, source.Position, source.Rotation - _firstDirection, WorldState.FutureTime(23.3f)));
             _aoes.SortBy(aoe => aoe.Activation);
         }
     }
@@ -138,7 +138,7 @@ class LeapingOneTwoPaw(BossModule module) : Components.GenericAOEs(module)
             else if (_clone == source)
             {
                 // note: if this is second mechanic, we could activate it slightly earlier than tethers appear, as soon as first mechanic ends
-                StartMechanic(source.Position, source.Rotation, Module.WorldState.FutureTime(16));
+                StartMechanic(source.Position, source.Rotation, WorldState.FutureTime(16));
             }
             // else: second clone being tethered, wait...
         }

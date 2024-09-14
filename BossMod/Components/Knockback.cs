@@ -65,8 +65,6 @@ public abstract class Knockback(BossModule module, ActionID aid = new(), bool ig
         if (from != to)
         {
             arena.ActorProjected(from, to, rot, Colors.Danger);
-            if (arena.Config.ShowOutlinesAndShadows)
-                arena.AddLine(from, to, Colors.Shadows, 2);
             arena.AddLine(from, to, Colors.Danger);
         }
     }
@@ -92,52 +90,44 @@ public abstract class Knockback(BossModule module, ActionID aid = new(), bool ig
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        switch (status.ID)
-        {
-            case 3054: //Guard in PVP
-            case (uint)WHM.SID.Surecast:
-            case (uint)WAR.SID.ArmsLength:
-                var slot1 = Raid.FindSlot(actor.InstanceID);
-                if (slot1 >= 0)
-                    PlayerImmunes[slot1].RoleBuffExpire = status.ExpireAt;
-                break;
-            case 1722: //Bluemage Diamondback
-            case (uint)WAR.SID.InnerStrength:
-                var slot2 = Raid.FindSlot(actor.InstanceID);
-                if (slot2 >= 0)
-                    PlayerImmunes[slot2].JobBuffExpire = status.ExpireAt;
-                break;
-            case 2345: //Lost Manawall in Bozja
-                var slot3 = Raid.FindSlot(actor.InstanceID);
-                if (slot3 >= 0)
-                    PlayerImmunes[slot3].DutyBuffExpire = status.ExpireAt;
-                break;
-        }
+        var slot = Raid.FindSlot(actor.InstanceID);
+        if (slot >= 0)
+            switch (status.ID)
+            {
+                case 3054: //Guard in PVP
+                case (uint)WHM.SID.Surecast:
+                case (uint)WAR.SID.ArmsLength:
+                    PlayerImmunes[slot].RoleBuffExpire = status.ExpireAt;
+                    break;
+                case 1722: //Bluemage Diamondback
+                case (uint)WAR.SID.InnerStrength:
+                    PlayerImmunes[slot].JobBuffExpire = status.ExpireAt;
+                    break;
+                case 2345: //Lost Manawall in Bozja
+                    PlayerImmunes[slot].DutyBuffExpire = status.ExpireAt;
+                    break;
+            }
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        switch (status.ID)
-        {
-            case 3054: //Guard in PVP
-            case (uint)WHM.SID.Surecast:
-            case (uint)WAR.SID.ArmsLength:
-                var slot1 = Raid.FindSlot(actor.InstanceID);
-                if (slot1 >= 0)
-                    PlayerImmunes[slot1].RoleBuffExpire = new();
-                break;
-            case 1722: //Bluemage Diamondback
-            case (uint)WAR.SID.InnerStrength:
-                var slot2 = Raid.FindSlot(actor.InstanceID);
-                if (slot2 >= 0)
-                    PlayerImmunes[slot2].JobBuffExpire = new();
-                break;
-            case 2345: //Lost Manawall in Bozja
-                var slot3 = Raid.FindSlot(actor.InstanceID);
-                if (slot3 >= 0)
-                    PlayerImmunes[slot3].DutyBuffExpire = new();
-                break;
-        }
+        var slot = Raid.FindSlot(actor.InstanceID);
+        if (slot >= 0)
+            switch (status.ID)
+            {
+                case 3054: //Guard in PVP
+                case (uint)WHM.SID.Surecast:
+                case (uint)WAR.SID.ArmsLength:
+                    PlayerImmunes[slot].RoleBuffExpire = new();
+                    break;
+                case 1722: //Bluemage Diamondback
+                case (uint)WAR.SID.InnerStrength:
+                    PlayerImmunes[slot].JobBuffExpire = new();
+                    break;
+                case 2345: //Lost Manawall in Bozja
+                    PlayerImmunes[slot].DutyBuffExpire = new();
+                    break;
+            }
     }
 
     public IEnumerable<(WPos from, WPos to)> CalculateMovements(int slot, Actor actor)
@@ -181,9 +171,9 @@ public abstract class Knockback(BossModule module, ActionID aid = new(), bool ig
                 continue; // this could happen if attract starts from < min distance
 
             if (StopAtWall)
-                distance = Math.Min(distance, Module.Arena.IntersectRayBounds(from, dir) - Math.Clamp(actor.HitboxRadius - approxHitBoxRadius, maxIntersectionError, actor.HitboxRadius - approxHitBoxRadius)); // hitbox radius can be != 0.5 if player is transformed/mounted, but normal arenas with walls should account for walkable arena in their shape already
+                distance = Math.Min(distance, Arena.IntersectRayBounds(from, dir) - Math.Clamp(actor.HitboxRadius - approxHitBoxRadius, maxIntersectionError, actor.HitboxRadius - approxHitBoxRadius)); // hitbox radius can be != 0.5 if player is transformed/mounted, but normal arenas with walls should account for walkable arena in their shape already
             if (StopAfterWall)
-                distance = Math.Min(distance, Module.Arena.IntersectRayBounds(from, dir) + maxIntersectionError);
+                distance = Math.Min(distance, Arena.IntersectRayBounds(from, dir) + maxIntersectionError);
 
             var sourceSafeWalls = s.SafeWalls ?? SafeWalls;
 

@@ -1,8 +1,8 @@
 ﻿using Dalamud.Hooking;
 using Dalamud.Memory;
-using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Fate;
 using FFXIVClientStructs.FFXIV.Client.Game.Group;
 using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
@@ -11,7 +11,6 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.Interop;
-using System.Runtime.CompilerServices;
 
 namespace BossMod;
 
@@ -25,6 +24,9 @@ sealed class WorldStateGameSync : IDisposable
     private readonly ActionManagerEx _amex;
     private readonly DateTime _startTime;
     private readonly long _startQPC;
+
+    // list of actors that are present in the user's enemy list
+    private readonly List<ulong> _playerEnmity = [];
 
     private readonly List<WorldState.Operation> _globalOps = [];
     private readonly Dictionary<ulong, List<WorldState.Operation>> _actorOps = [];
@@ -159,6 +161,11 @@ sealed class WorldStateGameSync : IDisposable
         }
         _globalOps.Clear();
 
+        _playerEnmity.Clear();
+        var uiState = UIState.Instance();
+        for (var i = 0; i < uiState->Hater.HaterCount; i++)
+            _playerEnmity.Add(uiState->Hater.Haters[i].EntityId);
+
         UpdateWaymarks();
         UpdateActors();
         UpdateParty();
@@ -190,7 +197,7 @@ sealed class WorldStateGameSync : IDisposable
 
             if (obj != null && (obj->EntityId & 0xFF000000) == 0xFF000000)
             {
-                Service.Log($"[WorldState] Skipping bad object #{i} with id {obj->EntityId:X}");
+                // Service.Log($"[WorldState] Skipping bad object #{i} with id {obj->EntityId:X}");
                 obj = null;
             }
 
@@ -243,10 +250,12 @@ sealed class WorldStateGameSync : IDisposable
         var targetable = obj->GetIsTargetable();
         var friendly = chr == null || ActionManager.ClassifyTarget(chr) != ActionManager.TargetCategory.Enemy;
         var isDead = obj->IsDead();
+        var hasAggro = _playerEnmity.IndexOf(obj->EntityId) >= 0;
         var target = chr != null ? SanitizedObjectID(chr->GetTargetId()) : 0; // note: when changing targets, we want to see changes immediately rather than wait for server response
         var modelState = chr != null ? new ActorModelState(chr->Timeline.ModelState, chr->Timeline.AnimationState[0], chr->Timeline.AnimationState[1]) : default;
         var eventState = obj->EventState;
         var radius = obj->GetRadius();
+        var mountId = chr != null ? chr->Mount.MountId : 0u;
 
         if (act == null)
         {
@@ -281,12 +290,17 @@ sealed class WorldStateGameSync : IDisposable
             _ws.Execute(new ActorState.OpDead(act.InstanceID, isDead));
         if (act.InCombat != inCombat)
             _ws.Execute(new ActorState.OpCombat(act.InstanceID, inCombat));
+        if (act.AggroPlayer != hasAggro)
+            _ws.Execute(new ActorState.OpAggroPlayer(act.InstanceID, hasAggro));
         if (act.ModelState != modelState)
             _ws.Execute(new ActorState.OpModelState(act.InstanceID, modelState));
         if (act.EventState != eventState)
             _ws.Execute(new ActorState.OpEventState(act.InstanceID, eventState));
         if (act.TargetID != target)
             _ws.Execute(new ActorState.OpTarget(act.InstanceID, target));
+        if (act.MountId != mountId)
+            _ws.Execute(new ActorState.OpMount(act.InstanceID, mountId));
+
         DispatchActorEvents(act.InstanceID);
 
         var castInfo = chr != null ? chr->GetCastInfo() : null;
@@ -565,14 +579,27 @@ sealed class WorldStateGameSync : IDisposable
         if (!MemoryExtensions.SequenceEqual(_ws.Client.BozjaHolster.AsSpan(), bozjaHolster))
             _ws.Execute(new ClientState.OpBozjaHolsterChange(CalcBozjaHolster(bozjaHolster)));
 
+        if (!MemoryExtensions.SequenceEqual(_ws.Client.BlueMageSpells.AsSpan(), actionManager->BlueMageActions))
+            _ws.Execute(new ClientState.OpBlueMageSpellsChange(actionManager->BlueMageActions.ToArray()));
+
+        var levels = uiState->PlayerState.ClassJobLevels;
+        if (!MemoryExtensions.SequenceEqual(_ws.Client.ClassJobLevels.AsSpan(), levels))
+            _ws.Execute(new ClientState.OpClassJobLevelsChange(levels.ToArray()));
+
         var curFate = FateManager.Instance()->CurrentFate;
         ClientState.Fate activeFate = curFate != null ? new(curFate->FateId, curFate->Location, curFate->Radius) : default;
         if (_ws.Client.ActiveFate != activeFate)
             _ws.Execute(new ClientState.OpActiveFateChange(activeFate));
 
-        var levels = uiState->PlayerState.ClassJobLevels;
-        if (!MemoryExtensions.SequenceEqual(_ws.Client.ClassJobLevels.AsSpan(), levels))
-            _ws.Execute(new ClientState.OpClassJobLevelsChange(levels.ToArray()));
+        var petinfo = uiState->Buddy.PetInfo;
+        var pet = new ClientState.Pet(petinfo.Pet->EntityId, petinfo.Order, petinfo.Stance);
+        if (_ws.Client.ActivePet != pet)
+            _ws.Execute(new ClientState.OpActivePetChange(pet));
+
+        var focusTarget = TargetSystem.Instance()->FocusTarget;
+        var focusTargetId = focusTarget != null ? SanitizedObjectID(focusTarget->GetGameObjectId()) : 0;
+        if (_ws.Client.FocusTargetId != focusTargetId)
+            _ws.Execute(new ClientState.OpFocusTargetChange(focusTargetId));
     }
 
     private ulong SanitizedObjectID(ulong raw) => raw != InvalidEntityId ? raw : 0;

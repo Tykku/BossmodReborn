@@ -55,7 +55,7 @@ public sealed class Plugin : IDalamudPlugin
         dalamud.Create<Service>();
         Service.LogHandler = (string msg) => Service.Logger.Debug(msg);
         Service.LuminaGameData = dataManager.GameData;
-        Service.WindowSystem = new("vbm");
+        Service.WindowSystem = new("bmr");
         //Service.Device = pluginInterface.UiBuilder.Device;
         Service.Condition.ConditionChange += OnConditionChanged;
         MultiboxUnlock.Exec();
@@ -67,13 +67,13 @@ public sealed class Plugin : IDalamudPlugin
         Service.Config.Modified.Subscribe(() => Service.Config.SaveToFile(dalamud.ConfigFile));
 
         CommandManager = commandManager;
-        CommandManager.AddHandler("/bmr", new CommandInfo(OnCommand) { HelpMessage = "Show boss mod config UI" });
+        CommandManager.AddHandler("/bmr", new CommandInfo(OnCommand) { HelpMessage = "Show boss mod settings UI" });
         CommandManager.AddHandler("/vbm", new CommandInfo(OnCommand) { ShowInHelp = false });
 
         ActionDefinitions.Instance.UnlockCheck = QuestUnlocked; // ensure action definitions are initialized and set unlock check functor (we don't really store the quest progress in clientstate, for now at least)
 
         var qpf = (ulong)FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->PerformanceCounterFrequency;
-        _rotationDB = new(new(dalamud.ConfigDirectory.FullName + "/autorot"));
+        _rotationDB = new(new(dalamud.ConfigDirectory.FullName + "/autorot"), new(dalamud.AssemblyLocation.DirectoryName! + "/DefaultRotationPresets.json"));
         _ws = new(qpf, gameVersion);
         _hints = new();
         _bossmod = new(_ws);
@@ -86,15 +86,14 @@ public sealed class Plugin : IDalamudPlugin
         _broadcast = new();
         _ipc = new(_rotation, _amex, _movementOverride, _ai);
         _dtr = new(_rotation, _ai);
-
-        _configUI = new(Service.Config, _ws, _rotationDB);
         _wndBossmod = new(_bossmod);
         _wndBossmodHints = new(_bossmod);
         var config = Service.Config.Get<ReplayManagementConfig>();
-        var replayFolder = string.IsNullOrEmpty(config.ReplayFolder) ? dalamud.ConfigDirectory.FullName + "/replays" : config.ReplayFolder;
-        _wndReplay = new ReplayManagementWindow(_ws, _rotationDB, new DirectoryInfo(replayFolder));
+        var replayDir = string.IsNullOrEmpty(config.ReplayFolder) ? dalamud.ConfigDirectory.FullName + "/replays" : config.ReplayFolder;
+        _wndReplay = new ReplayManagementWindow(_ws, _rotationDB, new DirectoryInfo(replayDir));
+        _configUI = new(Service.Config, _ws, new DirectoryInfo(replayDir), _rotationDB);
         config.Modified.ExecuteAndSubscribe(() => _wndReplay.UpdateLogDirectory());
-        _wndRotation = new(_rotation, _amex, () => OpenConfigUI("Presets"));
+        _wndRotation = new(_rotation, _amex, () => OpenConfigUI("Autorotatiion presets"));
         _wndDebug = new(_ws, _rotation, _amex);
 
         dalamud.UiBuilder.DisableAutomaticUiHide = true;
@@ -152,7 +151,7 @@ public sealed class Plugin : IDalamudPlugin
                 GC.Collect();
                 break;
             case "R":
-                _wndReplay.SetVisible(!_wndReplay.IsOpen);
+                HandleReplayCommand(split);
                 break;
             case "AR":
                 ParseAutorotationCommands(split);
@@ -169,7 +168,29 @@ public sealed class Plugin : IDalamudPlugin
         }
     }
 
-    private void ResetColors()
+    private bool HandleReplayCommand(string[] messageData)
+    {
+        if (messageData.Length == 1)
+            _wndReplay.SetVisible(!_wndReplay.IsOpen);
+        else
+        {
+            switch (messageData[1].ToUpperInvariant())
+            {
+                case "ON":
+                    _wndReplay.StartRecording();
+                    break;
+                case "OFF":
+                    _wndReplay.StopRecording();
+                    break;
+                default:
+                    Service.ChatGui.Print($"[BMR] Unknown replay command: {messageData[1]}");
+                    break;
+            }
+        }
+        return false;
+    }
+
+    private static void ResetColors()
     {
         var defaultConfig = ColorConfig.DefaultConfig;
         var currentConfig = Service.Config.Get<ColorConfig>();
@@ -195,8 +216,7 @@ public sealed class Plugin : IDalamudPlugin
         currentConfig.ArenaVulnerable = defaultConfig.ArenaVulnerable;
         currentConfig.ArenaFutureVulnerable = defaultConfig.ArenaFutureVulnerable;
         currentConfig.ArenaMeleeRangeIndicator = defaultConfig.ArenaMeleeRangeIndicator;
-        currentConfig.ArenaOther1 = defaultConfig.ArenaOther1;
-        currentConfig.ArenaOther2 = defaultConfig.ArenaOther2;
+        currentConfig.ArenaOther = defaultConfig.ArenaOther;
         currentConfig.Shadows = defaultConfig.Shadows;
         currentConfig.WaymarkA = defaultConfig.WaymarkA;
         currentConfig.WaymarkB = defaultConfig.WaymarkB;
@@ -206,15 +226,20 @@ public sealed class Plugin : IDalamudPlugin
         currentConfig.Waymark2 = defaultConfig.Waymark2;
         currentConfig.Waymark3 = defaultConfig.Waymark3;
         currentConfig.Waymark4 = defaultConfig.Waymark4;
-        currentConfig.ButtonPushColor1 = defaultConfig.ButtonPushColor1;
-        currentConfig.ButtonPushColor2 = defaultConfig.ButtonPushColor2;
+        currentConfig.ButtonPushColor = defaultConfig.ButtonPushColor;
         currentConfig.TextColors = defaultConfig.TextColors;
         currentConfig.PositionalColors = defaultConfig.PositionalColors;
+        currentConfig.PlayerColorsTank = defaultConfig.PlayerColorsTank;
+        currentConfig.PlayerColorsHealer = defaultConfig.PlayerColorsHealer;
+        currentConfig.PlayerColorsPhysRanged = defaultConfig.PlayerColorsPhysRanged;
+        currentConfig.PlayerColorsCaster = defaultConfig.PlayerColorsCaster;
+        currentConfig.PlayerColorsMelee = defaultConfig.PlayerColorsMelee;
+        currentConfig.PlayerColorsFocus = defaultConfig.PlayerColorsFocus;
         currentConfig.Modified.Fire();
         Service.Log("Colors have been reset to default values.");
     }
 
-    private bool ToggleAnticheat()
+    private static bool ToggleAnticheat()
     {
         var config = Service.Config.Get<ActionTweaksConfig>();
         config.ActivateAnticheat = !config.ActivateAnticheat;
@@ -223,7 +248,7 @@ public sealed class Plugin : IDalamudPlugin
         return true;
     }
 
-    private bool ToggleRestoreRotation()
+    private static bool ToggleRestoreRotation()
     {
         var config = Service.Config.Get<ActionTweaksConfig>();
         config.RestoreRotation = !config.RestoreRotation;
@@ -235,7 +260,7 @@ public sealed class Plugin : IDalamudPlugin
     private void OpenConfigUI(string showTab = "")
     {
         _configUI.ShowTab(showTab);
-        _ = new UISimpleWindow("Boss mod config", _configUI.Draw, true, new(300, 300));
+        _ = new UISimpleWindow("BossModReborn", _configUI.Draw, true, new(300, 300));
     }
 
     private void DrawUI()
@@ -334,7 +359,7 @@ public sealed class Plugin : IDalamudPlugin
         }
     }
 
-    private void PrintAutorotationHelp()
+    private static void PrintAutorotationHelp()
     {
         Service.ChatGui.Print("Autorotation commands:");
         Service.ChatGui.Print("* /vbm ar clear - clear current preset; autorotation will do nothing unless plan is active");
@@ -344,7 +369,7 @@ public sealed class Plugin : IDalamudPlugin
         Service.ChatGui.Print("* /vbm ar toggle Preset - start executing specified preset unless it's already active; clear otherwise");
     }
 
-    private void OnConditionChanged(ConditionFlag flag, bool value)
+    private static void OnConditionChanged(ConditionFlag flag, bool value)
     {
         Service.Log($"Condition change: {flag}={value}");
     }

@@ -2,10 +2,10 @@ namespace BossMod.Endwalker.Alliance.A30Trash2;
 
 public enum OID : uint
 {
-    AngelosPack1 = 0x4013, // R3.600, x1
-    AngelosMikros = 0x4014, // R2.000, x8
+    AngelosPack1 = 0x4013, // R3.6
+    AngelosMikros = 0x4014, // R2.0
 
-    AngelosPack2 = 0x40E1, // R3.600, x3
+    AngelosPack2 = 0x40E1 // R3.6
 }
 
 public enum AID : uint
@@ -13,7 +13,7 @@ public enum AID : uint
     AutoAttack = 870, // AngelosPack1/AngelosMikros/AngelosPack2->player, no cast, single-target
     RingOfSkylight = 35444, // AngelosPack1/AngelosPack2->self, 5.0s cast, range ?-30 donut
     SkylightCross = 35445, // AngelosPack1/AngelosPack2->self, 5.0s cast, range 60 width 8 cross
-    Skylight = 35446, // AngelosMikros->self, 3.0s cast, range 6 circle
+    Skylight = 35446 // AngelosMikros->self, 3.0s cast, range 6 circle
 }
 
 class RingOfSkylight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RingOfSkylight), new AOEShapeDonut(8, 30));

@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C022Gorai;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C022Gorai;
 
 class ImpurePurgationBait(BossModule module) : Components.BaitAwayEveryone(module, module.PrimaryActor, new AOEShapeCone(60, 22.5f.Degrees()))
 {

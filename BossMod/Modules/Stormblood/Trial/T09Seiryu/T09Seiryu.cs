@@ -7,7 +7,7 @@ class CoursingRiver(BossModule module) : Components.KnockbackFromCastTarget(modu
     {
         if (!Module.FindComponent<Handprint>()!.ActiveAOEs(slot, actor).Any())
             foreach (var c in Casters)
-                hints.AddForbiddenZone(ShapeDistance.Rect(c.CastInfo!.Rotation.AlmostEqual(90.Degrees(), Helpers.RadianConversion) ? c.Position - new WDir(12.5f, 0) : c.Position - new WDir(-12.5f, 0), c.Rotation, 50, default, 20), Module.CastFinishAt(c.CastInfo));
+                hints.AddForbiddenZone(ShapeDistance.Rect(c.CastInfo!.Rotation.AlmostEqual(90.Degrees(), Angle.DegToRad) ? c.Position - new WDir(12.5f, 0) : c.Position - new WDir(-12.5f, 0), c.Rotation, 50, default, 20), Module.CastFinishAt(c.CastInfo));
     }
 }
 
@@ -33,7 +33,7 @@ class ForceOfNature1(BossModule module) : Components.KnockbackFromCastTarget(mod
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         if (Sources(slot, actor).Any())
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 10), Sources(slot, actor).FirstOrDefault().Activation);
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 10), Sources(slot, actor).FirstOrDefault().Activation);
     }
 }
 class ForceOfNature2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ForceOfNature2), new AOEShapeCircle(5));
@@ -43,7 +43,7 @@ class KanaboBait(BossModule module) : Components.BaitAwayTethers(module, new AOE
     {
         base.AddAIHints(slot, actor, assignment, hints);
         if (CurrentBaits.Any(x => x.Target == actor))
-            hints.AddForbiddenZone(ShapeDistance.Circle(Module.Center, 19), Module.WorldState.FutureTime(ActivationDelay));
+            hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 19), WorldState.FutureTime(ActivationDelay));
     }
 }
 
@@ -70,11 +70,11 @@ class RedRush(BossModule module) : Components.BaitAwayTethers(module, new AOESha
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        var activation = Module.WorldState.FutureTime(ActivationDelay);
-        if (CurrentBaits.Any(x => x.Target == actor) && Module.Bounds == T09Seiryu.phase2Bounds)
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 5), activation);
-        else if (CurrentBaits.Any(x => x.Target == actor) && Module.Bounds == T09Seiryu.phase1Bounds)
-            hints.AddForbiddenZone(ShapeDistance.Circle(Module.Center, 18.5f), activation);
+        var activation = WorldState.FutureTime(ActivationDelay);
+        if (CurrentBaits.Any(x => x.Target == actor) && Arena.Bounds == T09Seiryu.Phase2Bounds)
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 5), activation);
+        else if (CurrentBaits.Any(x => x.Target == actor) && Arena.Bounds == T09Seiryu.Phase1Bounds)
+            hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 18.5f), activation);
     }
 }
 
@@ -84,15 +84,15 @@ class ArenaChange(BossModule module) : BossComponent(module)
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.StrengthOfSpirit) // in phase 2 the arena no longer got a wall and we need to add back the player hitboxradius
-            Module.Arena.Bounds = T09Seiryu.phase2Bounds;
+            Arena.Bounds = T09Seiryu.Phase2Bounds;
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 637, NameID = 7922)]
-public class T09Seiryu(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), phase1Bounds)
+public class T09Seiryu(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), Phase1Bounds)
 {
-    public static readonly ArenaBounds phase1Bounds = new ArenaBoundsCircle(19.5f);
-    public static readonly ArenaBounds phase2Bounds = new ArenaBoundsCircle(20);
+    public static readonly ArenaBounds Phase1Bounds = new ArenaBoundsCircle(19.5f);
+    public static readonly ArenaBounds Phase2Bounds = new ArenaBoundsCircle(20);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

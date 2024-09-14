@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C022Gorai;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C022Gorai;
 
 class FightingSpirits(BossModule module, AID aid) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(aid), 16);
 class NFightingSpirits(BossModule module) : FightingSpirits(module, AID.NFightingSpiritsAOE);

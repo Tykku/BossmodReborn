@@ -31,7 +31,7 @@ class BodySlamAOE(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
     private float LeviathanZ;
-    private static readonly AOEShapeRect rect = new(30, 5);
+    private static readonly AOEShapeRect rect = new(34.5f, 5);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
@@ -42,7 +42,7 @@ class BodySlamAOE(BossModule module) : Components.GenericAOEs(module)
         if (Module.PrimaryActor.Position.Z != LeviathanZ && Module.PrimaryActor.Position.Z != 0)
         {
             LeviathanZ = Module.PrimaryActor.Position.Z;
-            _aoe = new(rect, Module.PrimaryActor.Position, Module.PrimaryActor.Rotation, Module.WorldState.FutureTime(2.6f));
+            _aoe = new(rect, Module.PrimaryActor.Position, Module.PrimaryActor.Rotation, WorldState.FutureTime(2.6f));
         }
     }
 

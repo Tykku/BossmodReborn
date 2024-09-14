@@ -28,17 +28,17 @@ class StageCombo(BossModule module) : Components.GenericAOEs(module)
             var firstActivation = Module.CastFinishAt(spell, 1.2f);
             var lastActivation = Module.CastFinishAt(spell, 7.5f);
             _aoes.Add(new(first, Module.Center, 180.Degrees(), firstActivation));
-            _aoes.Add(new(_shapeCone, Module.Center, firstRot, firstActivation));
-            _aoes.Add(new(_shapeCone, Module.Center, firstRot + 90.Degrees(), firstActivation));
-            _aoes.Add(new(_shapeCone, Module.Center, firstRot + 180.Degrees(), firstActivation));
-            _aoes.Add(new(_shapeCone, Module.Center, firstRot - 90.Degrees(), firstActivation));
+            AddAOEs(firstRot, Helpers.AnglesCardinals, firstActivation);
             _aoes.Add(new(_shapeCross, Module.Center, 180.Degrees(), Module.CastFinishAt(spell, 4.2f)));
             _aoes.Add(new(last, Module.Center, 180.Degrees(), lastActivation));
-            _aoes.Add(new(_shapeCone, Module.Center, firstRot + 45.Degrees(), lastActivation));
-            _aoes.Add(new(_shapeCone, Module.Center, firstRot + 135.Degrees(), lastActivation));
-            _aoes.Add(new(_shapeCone, Module.Center, firstRot - 45.Degrees(), lastActivation));
-            _aoes.Add(new(_shapeCone, Module.Center, firstRot - 135.Degrees(), lastActivation));
+            AddAOEs(firstRot, Helpers.AnglesIntercardinals, lastActivation);
         }
+    }
+
+    private void AddAOEs(Angle firstRot, Angle[] angles, DateTime activation)
+    {
+        foreach (var angle in angles)
+            _aoes.Add(new(_shapeCone, Module.Center, firstRot + angle, activation));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

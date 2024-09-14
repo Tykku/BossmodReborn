@@ -39,7 +39,7 @@ public static class BossModuleInfo
         Unreal,
         Alliance,
         Foray,
-        Criterion,
+        VariantCriterion,
         DeepDungeon,
         FATE,
         Hunt,

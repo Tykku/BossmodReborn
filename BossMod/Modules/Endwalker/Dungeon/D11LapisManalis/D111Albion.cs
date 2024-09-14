@@ -16,26 +16,23 @@ public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
     Teleport = 32812, // Boss->location, no cast, single-target, boss teleports mid
+
     CallOfTheMountain = 31356, // Boss->self, 3.0s cast, single-target, boss calls wild beasts
     WildlifeCrossing = 31357, // WildBeasts->self, no cast, range 7 width 10 rect
     AlbionsEmbrace = 31365, // Boss->player, 5.0s cast, single-target
+
     RightSlam = 32813, // Boss->self, 5.0s cast, range 80 width 20 rect
     LeftSlam = 32814, // Boss->self, 5.0s cast, range 80 width 20 rect
-    KnockOnIce = 31358, // Boss->self, 4.0s cast, single-target
-    KnockOnIce2 = 31359, // Helper->self, 6.0s cast, range 5 circle
-    Icebreaker = 31361, // Boss->3D04, 5.0s cast, range 17 circle
-    IcyThroes = 31362, // Boss->self, no cast, single-target
-    IcyThroes2 = 32783, // Helper->self, 5.0s cast, range 6 circle
-    IcyThroes3 = 31363, // Helper->player, 5.0s cast, range 6 circle
-    IcyThroes4 = 32697, // Helper->self, 5.0s cast, range 6 circle
-    RoarOfAlbion = 31364 // Boss->self, 7.0s cast, range 60 circle
-}
 
-public enum IconID : uint
-{
-    Tankbuster = 218, // player
-    Target = 210, // IceCrystal
-    Spreadmarker = 139, // player
+    KnockOnIceVisual = 31358, // Boss->self, 4.0s cast, single-target
+    KnockOnIce = 31359, // Helper->self, 6.0s cast, range 5 circle
+
+    Icebreaker = 31361, // Boss->IcyCrystal, 5.0s cast, range 17 circle
+    IcyThroesVisual = 31362, // Boss->self, no cast, single-target
+    IcyThroes1 = 32783, // Helper->self, 5.0s cast, range 6 circle
+    IcyThroes2 = 32697, // Helper->self, 5.0s cast, range 6 circle
+    IcyThroesSpread = 31363, // Helper->player, 5.0s cast, range 6 circle
+    RoarOfAlbion = 31364 // Boss->self, 7.0s cast, range 60 circle
 }
 
 class WildlifeCrossing(BossModule module) : Components.GenericAOEs(module)
@@ -44,6 +41,7 @@ class WildlifeCrossing(BossModule module) : Components.GenericAOEs(module)
     private static readonly Angle Rot90 = 90.Degrees();
     private static readonly Angle RotM90 = -90.Degrees();
     private Queue<Stampede> stampedes = new();
+    private static readonly HashSet<OID> animals = [OID.WildBeasts4, OID.WildBeasts3, OID.WildBeasts2, OID.WildBeasts1];
 
     private static readonly (WPos, Angle)[] stampedePositions =
     [
@@ -110,7 +108,7 @@ class WildlifeCrossing(BossModule module) : Components.GenericAOEs(module)
         return stampede;
     }
 
-    private (WPos, Angle)? GetStampedePosition(byte index)
+    private static (WPos, Angle)? GetStampedePosition(byte index)
     {
         return index switch
         {
@@ -141,7 +139,7 @@ class WildlifeCrossing(BossModule module) : Components.GenericAOEs(module)
 
     private void UpdateStampede(ref Stampede stampede)
     {
-        foreach (var oid in new[] { OID.WildBeasts4, OID.WildBeasts3, OID.WildBeasts2, OID.WildBeasts1 })
+        foreach (var oid in animals)
         {
             var beasts = Module.Enemies(oid);
             var updatedBeasts = stampede.Beasts.ToList();
@@ -160,17 +158,17 @@ class WildlifeCrossing(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID != AID.WildlifeCrossing)
-            return;
-
-        var stampedeList = stampedes.ToList();
-        for (var i = 0; i < stampedeList.Count; i++)
+        if ((AID)spell.Action.ID == AID.WildlifeCrossing)
         {
-            var stampede = stampedeList[i];
-            UpdateStampedeCount(ref stampede, caster.Position.Z);
-            stampedeList[i] = stampede;
+            var stampedeList = stampedes.ToList();
+            for (var i = 0; i < stampedeList.Count; i++)
+            {
+                var stampede = stampedeList[i];
+                UpdateStampedeCount(ref stampede, caster.Position.Z);
+                stampedeList[i] = stampede;
+            }
+            stampedes = new Queue<Stampede>(stampedeList);
         }
-        stampedes = new Queue<Stampede>(stampedeList);
     }
 
     private void UpdateStampedeCount(ref Stampede stampede, float casterZ)
@@ -189,76 +187,16 @@ public record struct Stampede(bool Active, WPos Position, Angle Rotation, IReadO
     public DateTime Reset;
 }
 
-class IcyThroes(BossModule module) : Components.GenericBaitAway(module)
-{
-    private readonly List<Actor> _targets = [];
+class Icebreaker(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Icebreaker), 17);
 
-    public override void OnEventIcon(Actor actor, uint iconID)
-    {
-        if (iconID == (uint)IconID.Spreadmarker)
-        {
-            CurrentBaits.Add(new(Module.PrimaryActor, actor, new AOEShapeCircle(6)));
-            _targets.Add(actor);
-            CenterAtTarget = true;
-        }
-    }
+class IcyThroes(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
+class IcyThroes1(BossModule module) : IcyThroes(module, AID.IcyThroes1);
+class IcyThroes2(BossModule module) : IcyThroes(module, AID.IcyThroes2);
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
-    {
-        if ((AID)spell.Action.ID == AID.IcyThroes3)
-        {
-            CurrentBaits.Clear();
-            _targets.Clear();
-        }
-    }
-
-    public override void AddHints(int slot, Actor actor, TextHints hints)
-    {
-        if (_targets.Contains(actor))
-            hints.Add("Bait away!");
-    }
-}
-
-class Icebreaker(BossModule module) : Components.GenericAOEs(module)
-{
-    private readonly List<Actor> _casters = [];
-    private static readonly AOEShapeCircle circle = new(17);
-    private DateTime _activation;
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        if (_casters.Count > 0)
-            foreach (var c in _casters)
-                yield return new(circle, c.Position, default, _activation);
-    }
-
-    public override void OnEventIcon(Actor actor, uint iconID)
-    {
-        if (iconID == (uint)IconID.Target)
-        {
-            _casters.Add(actor);
-            _activation = WorldState.FutureTime(6);
-        }
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if ((AID)spell.Action.ID == AID.Icebreaker)
-            _activation = Module.CastFinishAt(spell);
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if ((AID)spell.Action.ID == AID.Icebreaker)
-            _casters.Clear();
-    }
-}
-
-class IcyThroes2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IcyThroes2), new AOEShapeCircle(6));
-class IcyThroes4(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IcyThroes4), new AOEShapeCircle(6));
-class KnockOnIce(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.KnockOnIce2), new AOEShapeCircle(5));
-class RightSlam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RightSlam), new AOEShapeRect(20, 80, 0, -90.Degrees())); //full width = half width in this case + angle is detected incorrectly, length and width are also switched
-class LeftSlam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeftSlam), new AOEShapeRect(20, 80, 0, 90.Degrees())); //full width = half width in this case + angle is detected incorrectly, length and width are also switched
+class IcyThroesSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.IcyThroesSpread), 6);
+class KnockOnIce(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.KnockOnIce), new AOEShapeCircle(5));
+class RightSlam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RightSlam), new AOEShapeRect(20, 80, 0, -90.Degrees())); // full width = half width in this case + angle is detected incorrectly, length and width are also switched
+class LeftSlam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeftSlam), new AOEShapeRect(20, 80, 0, 90.Degrees())); // full width = half width in this case + angle is detected incorrectly, length and width are also switched
 class AlbionsEmbrace(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.AlbionsEmbrace));
 
 class RoarOfAlbion(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.RoarOfAlbion), 60, false)
@@ -277,9 +215,9 @@ class D111AlbionStates : StateMachineBuilder
             .ActivateOnEnter<AlbionsEmbrace>()
             .ActivateOnEnter<Icebreaker>()
             .ActivateOnEnter<KnockOnIce>()
-            .ActivateOnEnter<IcyThroes>()
+            .ActivateOnEnter<IcyThroes1>()
             .ActivateOnEnter<IcyThroes2>()
-            .ActivateOnEnter<IcyThroes4>()
+            .ActivateOnEnter<IcyThroesSpread>()
             .ActivateOnEnter<RoarOfAlbion>();
     }
 }

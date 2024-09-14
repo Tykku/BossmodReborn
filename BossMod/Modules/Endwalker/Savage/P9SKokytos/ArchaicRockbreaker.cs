@@ -11,10 +11,10 @@ class ArchaicRockbreakerShockwave(BossModule module) : Components.Knockback(modu
 
     public override IEnumerable<Source> Sources(int slot, Actor actor)
     {
-        if (Module.Arena.Bounds == P9SKokytos.arenaUplift0)
-            yield return new(Module.Center, 21, _activation, SafeWalls: Walls0);
-        if (Module.Arena.Bounds == P9SKokytos.arenaUplift45)
-            yield return new(Module.Center, 21, _activation, SafeWalls: Walls45);
+        if (Arena.Bounds == P9SKokytos.arenaUplift0)
+            yield return new(Arena.Center, 21, _activation, SafeWalls: Walls0);
+        if (Arena.Bounds == P9SKokytos.arenaUplift45)
+            yield return new(Arena.Center, 21, _activation, SafeWalls: Walls45);
     }
 
     private static SafeWall RotatedSafeWall(WPos start, WPos end)

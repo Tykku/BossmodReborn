@@ -85,6 +85,7 @@ public enum PacketID
     StatusEffectListPlayer = 234,
     StatusEffectListPlayerDouble = 235,
     UpdateRecastTimes = 237,
+    UpdateDutyRecastTimes = 238,
     UpdateAllianceNormal = 239,
     UpdateAllianceSmall = 240,
     UpdatePartyMemberPositions = 241,
@@ -181,6 +182,7 @@ public enum PacketID
     EquipDisplayFlags = 441,
     NpcYell = 442,
     FateInfo = 447,
+    CompletedAchievements = 452,
     LandSetInitialize = 461,
     LandUpdate = 462,
     YardObjectSpawn = 463,
@@ -508,6 +510,7 @@ public enum ActorControlCategory : ushort
     LearnTeleport = 509, // from dissector
     OpenRecommendationGuide = 512, // from dissector
     ArmoryErrorMsg = 513, // from dissector
+    AchievementProgress = 514,
     AchievementPopup = 515, // from dissector
     LogMsg = 517, // from dissector
     AchievementMsg = 518, // from dissector
@@ -557,10 +560,11 @@ public enum ActorControlCategory : ushort
     StartDuelCountdown = 1506, // from dissector
     StartDuel = 1507, // from dissector
     DuelResultScreen = 1508, // from dissector
-    SetDutyActionId = 1512, // from dissector
-    SetDutyActionHud = 1513, // from dissector
-    SetDutyActionActive = 1514, // from dissector
-    SetDutyActionRemaining = 1515, // from dissector
+    SetDutyActionSet = 1512,
+    SetDutyActionDetails = 1513,
+    SetDutyActionPresent = 1514,
+    SetDutyActionActive = 1515,
+    SetDutyActionCharges = 1516,
     IncrementRecast = 1536, // p1=cooldown group, p2=delta time quantized to 100ms; example is brd mage ballad proc
     EurekaStep = 1850, // from dissector
 }
@@ -631,7 +635,7 @@ public unsafe struct ActionEffectHeader
     public uint actionId; // what the casting player casts, shown in battle log / ui
     public uint globalEffectCounter;
     public float animationLockTime;
-    public uint SomeTargetID;
+    public uint BallistaEntityId; // for 'artillery' actions - entity id of ballista source
     public ushort SourceSequence; // 0 = initiated by server, otherwise corresponds to client request sequence id
     public ushort rotation;
     public ushort actionAnimationId;
@@ -730,6 +734,13 @@ public unsafe struct UpdateRecastTimes
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
+public unsafe struct UpdateDutyRecastTimes
+{
+    public fixed float Elapsed[2];
+    public fixed float Total[2];
+}
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct ActorMove
 {
     public ushort Rotation;
@@ -767,7 +778,7 @@ public struct ActorCast
     public ushort Rotation;
     public byte Interruptible;
     public byte u1;
-    public uint u2_objID;
+    public uint BallistaEntityId; // for 'artillery' actions - entity id of ballista source
     public ushort PosX;
     public ushort PosY;
     public ushort PosZ;

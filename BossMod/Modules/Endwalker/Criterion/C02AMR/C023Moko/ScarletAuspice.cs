@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C023Moko;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C023Moko;
 
 class ScarletAuspice(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
 class NScarletAuspice(BossModule module) : ScarletAuspice(module, AID.NScarletAuspice);

@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C023Moko;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C023Moko;
 
 class C023MokoStates : StateMachineBuilder
 {
@@ -7,7 +7,8 @@ class C023MokoStates : StateMachineBuilder
     public C023MokoStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
-        DeathPhase(0, SinglePhase);
+        DeathPhase(0, SinglePhase)
+            .ActivateOnEnter<ArenaChange>();
     }
 
     private void SinglePhase(uint id)

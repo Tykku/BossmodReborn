@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C01ASS.C013Shadowcaster;
+﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C013Shadowcaster;
 
 static class Portals
 {
@@ -30,10 +30,7 @@ class PortalsAOE(BossModule module, AID aid, OID movedOID, float activationDelay
     private readonly AOEShape _shape = shape;
     private readonly List<(WPos pos, Angle rot, DateTime activation)> _origins = [];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        return _origins.Select(o => new AOEInstance(_shape, o.pos, o.rot, o.activation));
-    }
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _origins.Select(o => new AOEInstance(_shape, o.pos, o.rot, o.activation));
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
@@ -47,11 +44,13 @@ class PortalsAOE(BossModule module, AID aid, OID movedOID, float activationDelay
     }
 }
 
-class NPortalsBurn(BossModule module) : PortalsAOE(module, AID.NBurn, OID.NBallOfFire, 11.6f, new AOEShapeCircle(12));
-class SPortalsBurn(BossModule module) : PortalsAOE(module, AID.SBurn, OID.SBallOfFire, 11.6f, new AOEShapeCircle(12));
+class PortalsBurn(BossModule module, AID aid, OID oid) : PortalsAOE(module, aid, oid, 11.6f, new AOEShapeCircle(12));
+class NPortalsBurn(BossModule module) : PortalsBurn(module, AID.NBurn, OID.NBallOfFire);
+class SPortalsBurn(BossModule module) : PortalsBurn(module, AID.SBurn, OID.SBallOfFire);
 
-class NPortalsMirror(BossModule module) : PortalsAOE(module, AID.NBlazingBenifice, OID.NArcaneFont, 11.7f, new AOEShapeRect(100, 5, 100));
-class SPortalsMirror(BossModule module) : PortalsAOE(module, AID.SBlazingBenifice, OID.SArcaneFont, 11.7f, new AOEShapeRect(100, 5, 100));
+class PortalsMirror(BossModule module, AID aid, OID oid) : PortalsAOE(module, aid, oid, 11.7f, new AOEShapeRect(100, 5, 100));
+class NPortalsMirror(BossModule module) : PortalsMirror(module, AID.NBlazingBenifice, OID.NArcaneFont);
+class SPortalsMirror(BossModule module) : PortalsMirror(module, AID.SBlazingBenifice, OID.SArcaneFont);
 
 class PortalsWave(BossModule module) : BossComponent(module)
 {

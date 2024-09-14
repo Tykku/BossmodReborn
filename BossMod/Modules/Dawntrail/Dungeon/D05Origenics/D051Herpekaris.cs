@@ -44,8 +44,10 @@ class StridentShriek(BossModule module) : Components.RaidwideCast(module, Action
 class ConvulsiveCrush(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.ConvulsiveCrush));
 class PoisonHeartSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PoisonHeartSpread), 5);
 class PoisonHeartVoidzone(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 2, ActionID.MakeSpell(AID.PoisonHeartVoidzone), m => m.Enemies(OID.PoisonVoidzone).Where(z => z.EventState != 7), 0.9f);
-class PodBurst1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PodBurst1), 6);
-class PodBurst2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PodBurst2), 6);
+
+class PodBurst(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+class PodBurst1(BossModule module) : PodBurst(module, AID.PodBurst1);
+class PodBurst2(BossModule module) : PodBurst(module, AID.PodBurst2);
 
 class WrithingRiot(BossModule module) : Components.GenericAOEs(module)
 {
@@ -63,10 +65,9 @@ class WrithingRiot(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        var activation = Module.WorldState.FutureTime(9.2f + _aoes.Count * 2);
+        var activation = WorldState.FutureTime(9.2f + _aoes.Count * 2);
         switch ((AID)spell.Action.ID)
         {
-
             case AID.RightSweepTelegraph:
             case AID.LeftSweepTelegraph:
                 AddAOE(coneLeftRight, caster.Position, spell.Rotation, activation);

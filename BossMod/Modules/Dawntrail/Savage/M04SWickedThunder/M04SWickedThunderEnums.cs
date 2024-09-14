@@ -90,7 +90,7 @@ public enum AID : uint
     ForkedFissures = 39119, // Helper->self, no cast, range 40 width 10 rect, wild charge
     Soulshock = 20033, // Helper->self, no cast, range 60 circle, raidwide during transition
     Impact = 20034, // Helper->self, no cast, range 60 circle, raidwide during transition
-    Cannonbolt = 39120, // Helper->self, no cast, range 60 circle, raidwide during transition
+    Cannonbolt = 39120, // Helper->self, no cast, range 60 circle, raidwide during transition, knockback 50, away from source
     CrossTailSwitch = 38386, // BossP2->self, 5.0+1.0s cast, single-target, visual (9-hit raidwide)
     CrossTailSwitchAOE = 38387, // Helper->location, no cast, range 60 circle
     CrossTailSwitchLast = 38388, // Helper->location, no cast, range 60 circle

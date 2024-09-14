@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C020Trash1;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C020Trash1;
 
 public enum OID : uint
 {

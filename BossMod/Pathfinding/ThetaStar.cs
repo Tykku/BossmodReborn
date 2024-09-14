@@ -112,13 +112,6 @@ public class ThetaStar
 
     private void VisitNeighbour(int parentX, int parentY, int parentIndex, int nodeX, int nodeY, int nodeIndex, float deltaG)
     {
-        // Validate the node index within map bounds
-        if (nodeX < 0 || nodeY < 0 || nodeX >= _map.Width || nodeY >= _map.Height || nodeIndex < 0 || nodeIndex >= _nodes.Length)
-        {
-            Service.Log($"Invalid node index: {nodeIndex}, skipping (nodeX: {nodeX}, nodeY: {nodeY}).");
-            return;
-        }
-
         // Check if already in the closed list
         if (_nodes[nodeIndex].OpenHeapIndex < 0)
             return; // in closed list already

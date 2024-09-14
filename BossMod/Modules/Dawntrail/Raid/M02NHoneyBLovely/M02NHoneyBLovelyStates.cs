@@ -6,7 +6,7 @@ class M02NHoneyBLovelyStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<CallMeHoney>()
-            .ActivateOnEnter<Sweethearts>()
+            .ActivateOnEnter<SweetheartsN>()
             .ActivateOnEnter<TemptingTwist1>()
             .ActivateOnEnter<TemptingTwist2>()
             .ActivateOnEnter<HoneyBeeline1>()

@@ -33,6 +33,8 @@ public class ConcentricAOEs(BossModule module, AOEShape[] shapes) : GenericAOEs(
         ref var s = ref Sequences.AsSpan()[index];
         ++s.NumCastsDone;
         s.NextActivation = activation;
+        if (s.NumCastsDone == Shapes.Length)
+            Sequences.Remove(s);
         return true;
     }
 }

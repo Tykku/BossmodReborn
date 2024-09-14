@@ -11,8 +11,8 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    Teleport = 36763, // Boss->location, no cast, single-target
     AutoAttack = 36764, // Boss->player, no cast, single-target
+    Teleport = 36763, // Boss->location, no cast, single-target
 
     Disruption = 36765, // Boss->self, 5.0s cast, range 60 circle, raidwide
 
@@ -78,24 +78,27 @@ class DisruptionArenaChange(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Disruption && Module.Arena.Bounds == D063Eliminator.StartingBounds)
-            _aoe = new(square, Module.Center, default, Module.CastFinishAt(spell, 0.7f));
+        if ((AID)spell.Action.ID == AID.Disruption && Arena.Bounds == D063Eliminator.StartingBounds)
+            _aoe = new(square, Arena.Center, default, Module.CastFinishAt(spell, 0.7f));
     }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state == 0x00020001 && index == 0x28)
         {
-            Module.Arena.Bounds = D063Eliminator.DefaultBounds;
+            Arena.Bounds = D063Eliminator.DefaultBounds;
             _aoe = null;
         }
     }
 }
 
 class Disruption(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Disruption));
-class Partition1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Partition1), new AOEShapeCone(40, 90.Degrees()));
-class Partition2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Partition2), new AOEShapeCone(40, 90.Degrees()));
-class Partition3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Partition3), new AOEShapeCone(40, 90.Degrees()));
+
+class Partition(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
+class Partition1(BossModule module) : Partition(module, AID.Partition1);
+class Partition2(BossModule module) : Partition(module, AID.Partition2);
+class Partition3(BossModule module) : Partition(module, AID.Partition3);
+
 class Terminate(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Terminate), new AOEShapeRect(40, 5));
 class HaloOfDestruction(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HaloOfDestruction), new AOEShapeDonut(6, 40));
 
@@ -112,7 +115,7 @@ class Electray(BossModule module) : Components.SpreadFromCastTargets(module, Act
         {
             base.AddAIHints(slot, actor, assignment, hints);
             if (ActiveSpreads.Any())
-                hints.AddForbiddenZone(ShapeDistance.Circle(Module.Center - new WDir(0, 15), 15), ActiveSpreads.First().Activation);
+                hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center - new WDir(0, 15), 15), ActiveSpreads.FirstOrDefault().Activation);
         }
     }
 }
@@ -131,25 +134,17 @@ class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionI
 
 class Impact(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Impact), 15)
 {
-    public (WPos, DateTime) Data;
     private static readonly Angle halfAngle = 45.Degrees();
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        base.OnCastStarted(caster, spell);
-        if (spell.Action == WatchedAction)
-            Data = (caster.Position, Module.CastFinishAt(spell, 0.4f));
-    }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (Sources(slot, actor).Any() || Data.Item2 > Module.WorldState.CurrentTime) // 0.4s delay to wait for action effect
+        var source = Sources(slot, actor).FirstOrDefault();
+        if (source != default)
         {
-            var activation = Data.Item2.AddSeconds(-0.4f);
-            if (Data.Item1.Z == -640)
-                hints.AddForbiddenZone(ShapeDistance.InvertedDonutSector(Data.Item1, 6, 8, 180.Degrees(), halfAngle), activation);
-            else if (Data.Item1.Z == -656)
-                hints.AddForbiddenZone(ShapeDistance.InvertedDonutSector(Data.Item1, 6, 8, default, halfAngle), activation);
+            if (source.Origin.Z == -640)
+                hints.AddForbiddenZone(ShapeDistance.InvertedDonutSector(source.Origin, 6, 8, 180.Degrees(), halfAngle), source.Activation);
+            else if (source.Origin.Z == -656)
+                hints.AddForbiddenZone(ShapeDistance.InvertedDonutSector(source.Origin, 6, 8, default, halfAngle), source.Activation);
         }
     }
 }
@@ -191,7 +186,8 @@ class LightOfSalvation(BossModule module) : Components.GenericBaitAway(module)
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (_kb.Sources(slot, actor).Any() || _kb.Data.Item2 > Module.WorldState.CurrentTime) // 0.4s delay to wait for action effect
+        var source = _kb.Sources(slot, actor).FirstOrDefault();
+        if (source != default)
         { }
         else
             base.AddAIHints(slot, actor, assignment, hints);
@@ -230,6 +226,6 @@ public class D063Eliminator(WorldState ws, Actor primary) : BossModule(ws, prima
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.LightningGenerator));
+        Arena.Actors(Enemies(OID.LightningGenerator), Colors.Object);
     }
 }

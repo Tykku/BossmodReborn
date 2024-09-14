@@ -1,29 +1,27 @@
-﻿namespace BossMod.Endwalker.Variant.V02MR.V023Gorai;
+﻿namespace BossMod.Endwalker.VariantCriterion.V02MR.V023Gorai;
 
 class V023GoraiStates : StateMachineBuilder
 {
     public V023GoraiStates(BossModule module) : base(module)
     {
         TrivialPhase()
+            .ActivateOnEnter<ArenaChange>()
             //Route 5
             .ActivateOnEnter<PureShock>()
             //Route 6
-            .ActivateOnEnter<ShockAOE>()
-            .ActivateOnEnter<HumbleHammerAOE>()
-            //.ActivateOnEnter<Thundercall>()
+            .ActivateOnEnter<HumbleHammer>()
+            .ActivateOnEnter<Thundercall>()
             //Route 7
             .ActivateOnEnter<WorldlyPursuit>()
-            .ActivateOnEnter<FightingSpiritsRaidwide>()
-            .ActivateOnEnter<BiwaBreakerFirst>()
-            .ActivateOnEnter<BiwaBreakerRest>()
+            .ActivateOnEnter<FightingSpirits>()
+            .ActivateOnEnter<BiwaBreaker>()
             //Standard
-            .ActivateOnEnter<RatTower>()
-            .ActivateOnEnter<DramaticBurst>()
             .ActivateOnEnter<ImpurePurgation>()
             .ActivateOnEnter<StringSnap>()
             .ActivateOnEnter<SpikeOfFlameAOE>()
             .ActivateOnEnter<FlameAndSulphur>()
             .ActivateOnEnter<TorchingTorment>()
-            .ActivateOnEnter<UnenlightenmentAOE>();
+            .ActivateOnEnter<MalformedPrayer>()
+            .ActivateOnEnter<Unenlightenment>();
     }
 }

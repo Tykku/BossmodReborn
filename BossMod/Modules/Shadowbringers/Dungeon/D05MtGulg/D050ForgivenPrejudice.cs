@@ -1,4 +1,3 @@
-//Note: This module exists because of the mini raidwide, to not confuse the AI
 namespace BossMod.Shadowbringers.Dungeon.D05MtGulg.D050ForgivenPrejudice;
 
 public enum OID : uint
@@ -7,7 +6,7 @@ public enum OID : uint
     ForgivenConformity = 0x28EE, //R=1.65
     ForgivenExtortion = 0x28EF, //R=2.7-4.509
     ForgivenVenery = 0x28F1, //R=1.6-2.0
-    ForgivenApathy = 0x28F0, //R=8.4
+    ForgivenApathy = 0x28F0 //R=8.4
 }
 
 public enum AID : uint
@@ -17,7 +16,7 @@ public enum AID : uint
     RavenousBite = 16812, // ForgivenExtortion->player, no cast, single-target
     SanctifiedAero = 16813, // ForgivenVenery->self, 5.0s cast, range 40 width 8 rect
     PunitiveLight = 16815, // Boss->self, 5.0s cast, range 20 circle
-    Sanctification = 16814, // Boss->self, 5.0s cast, range 12 90-degree cone
+    Sanctification = 16814 // Boss->self, 5.0s cast, range 12 90-degree cone
 }
 
 class SanctifiedAero(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SanctifiedAero), new AOEShapeRect(40, 4));

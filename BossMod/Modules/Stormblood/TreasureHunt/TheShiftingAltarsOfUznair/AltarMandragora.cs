@@ -3,7 +3,7 @@ namespace BossMod.Stormblood.TreasureHunt.ShiftingAltarsOfUznair.AltarMandragora
 public enum OID : uint
 {
     Boss = 0x2542, //R=2.85
-    BossAdd = 0x255C, //R=0.84
+    AltarKorrigan = 0x255C, //R=0.84
     AltarQueen = 0x254A, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
     AltarGarlic = 0x2548, // R0.84, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
     AltarTomato = 0x2549, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
@@ -14,8 +14,9 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 872, // Boss->player, no cast, single-target
-    AutoAttack2 = 6499, // BossAdd->player, no cast, single-target
+    AutoAttack = 872, // Boss/Mandragoras->player, no cast, single-target
+    AutoAttack2 = 6499, // AltarKorrigan->player, no cast, single-target
+
     OpticalIntrusion = 13367, // Boss->player, 3.0s cast, single-target
     LeafDagger = 13369, // Boss->location, 2.5s cast, range 3 circle
     SaibaiMandragora = 13370, // Boss->self, 3.0s cast, single-target
@@ -26,22 +27,24 @@ public enum AID : uint
     TearyTwirl = 6448, // AltarOnion->self, 3.5s cast, range 6+R circle
     Pollen = 6452, // AltarQueen->self, 3.5s cast, range 6+R circle
     HeirloomScream = 6451, // AltarTomato->self, 3.5s cast, range 6+R circle
-    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus add disappear
+    Telega = 9630 // Mandragoras->self, no cast, single-target, bonus add disappear
 }
 
 class OpticalIntrusion(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.OpticalIntrusion));
 class Hypnotize(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hypnotize), new AOEShapeCone(22.85f, 45.Degrees()));
 class SaibaiMandragora(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.SaibaiMandragora), "Calls adds");
 class LeafDagger(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LeafDagger), 3);
-class PluckAndPrune(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PluckAndPrune), new AOEShapeCircle(6.84f));
-class TearyTwirl(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TearyTwirl), new AOEShapeCircle(6.84f));
-class HeirloomScream(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeirloomScream), new AOEShapeCircle(6.84f));
-class PungentPirouette(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PungentPirouette), new AOEShapeCircle(6.84f));
-class Pollen(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Pollen), new AOEShapeCircle(6.84f));
 
-class MandragoraStates : StateMachineBuilder
+class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+
+class AltarMandragoraStates : StateMachineBuilder
 {
-    public MandragoraStates(BossModule module) : base(module)
+    public AltarMandragoraStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<OpticalIntrusion>()
@@ -53,22 +56,20 @@ class MandragoraStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead) && module.Enemies(OID.BossAdd).All(e => e.IsDead) && module.Enemies(OID.AltarEgg).All(e => e.IsDead) && module.Enemies(OID.AltarQueen).All(e => e.IsDead) && module.Enemies(OID.AltarOnion).All(e => e.IsDead) && module.Enemies(OID.AltarGarlic).All(e => e.IsDead) && module.Enemies(OID.AltarTomato).All(e => e.IsDead);
+            .Raw.Update = () => module.Enemies(OID.AltarTomato).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.AltarEgg)).Concat(module.Enemies(OID.AltarQueen))
+            .Concat(module.Enemies(OID.AltarOnion)).Concat(module.Enemies(OID.AltarGarlic)).All(e => e.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 586, NameID = 7600)]
-public class Mandragora(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class AltarMandragora(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
-        Arena.Actors(Enemies(OID.AltarEgg), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.AltarTomato), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.AltarQueen), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.AltarGarlic), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.AltarOnion), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.AltarKorrigan));
+        Arena.Actors(Enemies(OID.AltarEgg).Concat(Enemies(OID.AltarTomato)).Concat(Enemies(OID.AltarQueen)).Concat(Enemies(OID.AltarGarlic))
+        .Concat(Enemies(OID.AltarOnion)), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -82,7 +83,7 @@ public class Mandragora(WorldState ws, Actor primary) : BossModule(ws, primary, 
                 OID.AltarGarlic => 5,
                 OID.AltarTomato => 4,
                 OID.AltarQueen => 3,
-                OID.BossAdd => 2,
+                OID.AltarKorrigan => 2,
                 OID.Boss => 1,
                 _ => 0
             };

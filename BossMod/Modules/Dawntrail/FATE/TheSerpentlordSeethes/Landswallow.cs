@@ -97,7 +97,7 @@ class Landswallow(BossModule module) : Components.GenericAOEs(module)
         }
         else if ((AID)spell.Action.ID == AID.LandSwallowTelegraph6)
         {
-            var maxError = Helpers.RadianConversion;
+            var maxError = Angle.DegToRad;
             foreach (var config in chargeConfigs)
             {
                 if (startRotation.AlmostEqual(config.Key.Item1, maxError) && spell.Rotation.AlmostEqual(config.Key.Item2, maxError))

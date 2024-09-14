@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C022Gorai;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C022Gorai;
 
 class MalformedReincarnation(BossModule module, AID aid) : Components.CastCounter(module, ActionID.MakeSpell(aid));
 class NMalformedReincarnation(BossModule module) : MalformedReincarnation(module, AID.NMalformedReincarnationAOE);

@@ -78,14 +78,14 @@ class RoarArenaChange(BossModule module) : Components.GenericAOEs(module)
         if ((OID)actor.OID == OID.Deathwall)
         {
             _aoe = null;
-            Module.Arena.Bounds = smallerBounds;
+            Arena.Bounds = smallerBounds;
         }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.Roar1)
-            _aoe = new(donut, Module.Arena.Center, default, Module.CastFinishAt(spell, 0.9f));
+            _aoe = new(donut, Arena.Center, default, Module.CastFinishAt(spell, 0.9f));
     }
 }
 
@@ -99,7 +99,7 @@ class MagickedStandard(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnActorCreated(Actor actor)
     {
-        var activation = Module.WorldState.FutureTime(12.6f);
+        var activation = WorldState.FutureTime(12.6f);
         if ((OID)actor.OID == OID.MagickedStandardGreen)
             _aoes.Add(new(donut, actor.Position, default, activation));
         else if ((OID)actor.OID == OID.MagickedStandardOrange)
@@ -184,8 +184,11 @@ class Roar1(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSp
 class Roar2(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Roar2));
 class LethalSwipe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LethalSwipe), new AOEShapeCone(45, 90.Degrees()));
 class Fireshower(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Fireshower), new AOEShapeCircle(6));
-class RunThrough1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RunThrough1), new AOEShapeRect(45, 2.5f));
-class RunThrough2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RunThrough2), new AOEShapeRect(45, 2.5f));
+
+class RunThrough(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(45, 2.5f));
+class RunThrough1(BossModule module) : RunThrough(module, AID.RunThrough1);
+class RunThrough2(BossModule module) : RunThrough(module, AID.RunThrough2);
+
 class Fireflood(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Fireflood), 18);
 class TuraliStoneIII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TuraliStoneIII), 4);
 class TuraliQuake(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TuraliQuake), 9, maxCasts: 5);

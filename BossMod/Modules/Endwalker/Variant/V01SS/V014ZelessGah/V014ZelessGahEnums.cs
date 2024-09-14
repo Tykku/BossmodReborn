@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Variant.V01SS.V014ZelessGah;
+﻿namespace BossMod.Endwalker.VariantCriterion.V01SS.V014ZelessGah;
 public enum OID : uint
 {
     Boss = 0x39A9, // R9.000, x1

@@ -39,13 +39,12 @@ class Axioma(BossModule module) : Components.GenericAOEs(module)
     new(50.02f, -737.09f), new(52.5f, -738.17f), new(54.44f, -739.15f), new(56.42f, -740.38f), new(58.26f, -741.94f), new(59.73f, -743.55f),
     new(61.01f, -745.52f), new(62, -747.65f), new(62.67f, -749.58f), new(63.14f, -751.48f), new(63.79f, -754.5f)]);
     private static readonly List<Shape> union = [shapeCustom1, shapeCustom2, shapeCustom3, shapeCustom4, shapeCustom5, shapeCustom6];
-    private static readonly AOEShapeCustom risky = new(union);
-    private static readonly AOEShapeCustom notRisky = new(union, InvertForbiddenZone: true);
+    private static readonly AOEShapeCustom voidzone = new(union);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (active)
-            yield return new(ShouldBeInZone ? notRisky : risky, Module.Arena.Center, Color: ShouldBeInZone ? Colors.SafeFromAOE : Colors.AOE);
+            yield return new(ShouldBeInZone ? voidzone with { InvertForbiddenZone = true } : voidzone, Arena.Center, Color: ShouldBeInZone ? Colors.SafeFromAOE : Colors.AOE);
     }
 
     public override void OnEventEnvControl(byte index, uint state)
@@ -70,7 +69,7 @@ class Axioma(BossModule module) : Components.GenericAOEs(module)
     {
         if (!ShouldBeInZone && ActiveAOEs(slot, actor).Any(c => c.Risky && c.Check(actor.Position)))
             hints.Add(riskHint);
-        if (ShouldBeInZone && ActiveAOEs(slot, actor).Any(c => c.Risky && !c.Check(actor.Position)))
+        else if (ShouldBeInZone && ActiveAOEs(slot, actor).Any(c => c.Risky && !c.Check(actor.Position)))
             hints.Add(risk2Hint);
         else if (ShouldBeInZone && ActiveAOEs(slot, actor).Any(c => c.Risky && c.Check(actor.Position)))
             hints.Add(stayHint, false);

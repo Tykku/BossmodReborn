@@ -4,10 +4,10 @@ public enum OID : uint
 {
     Boss = 0x27CE, //R=5.0
     BossClones = 0x27CF, //R=5.0
-    Helper = 0x2E8, //R=0.5
-    Helper2 = 0x233C,
     Orbs = 0x27D0, //R=1.0
     Rings = 0x1EAB62,
+    Helper2 = 0x2E8, //R=0.5
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -15,16 +15,18 @@ public enum AID : uint
     AutoAttack = 872, // Boss->player, no cast, single-target
     VauthrysBlessing = 15639, // Boss->self, no cast, single-target
     OrisonFortissimo = 15636, // Boss->self, 4.0s cast, single-target
-    OrisonFortissimo2 = 15637, // 233C->self, no cast, range 50 circle
-    DivineDiminuendo = 15638, // Boss->self, 4.0s cast, range 8 circle
-    DivineDiminuendo1 = 15640, // Boss->self, 4.0s cast, range 8 circle
-    DivineDiminuendo2 = 15641, // 233C->self, 4.0s cast, range 10-16 donut
-    DivineDiminuendo3 = 18025, // 233C->self, 4.0s cast, range 18-32 donut
-    DivineDiminuendo4 = 15649, // BossClones->self, 4.0s cast, range 8 circle
-    ConvictionMarcato = 15642, // Boss->self, 4.0s cast, range 40 width 5 rect
-    ConvictionMarcato2 = 15643, // 233C->self, 4.0s cast, range 40 width 5 rect
+    OrisonFortissimo2 = 15637, // Helper->self, no cast, range 50 circle
+
+    DivineDiminuendoCircle1 = 15638, // Boss->self, 4.0s cast, range 8 circle
+    DivineDiminuendoCircle2 = 15640, // Boss->self, 4.0s cast, range 8 circle
+    DivineDiminuendoCircle3 = 15649, // BossClones->self, 4.0s cast, range 8 circle
+    DivineDiminuendoDonut1 = 15641, // Helper->self, 4.0s cast, range 10-16 donut
+    DivineDiminuendoDonut2 = 18025, // Helper->self, 4.0s cast, range 18-32 donut
+
+    ConvictionMarcato1 = 15642, // Boss->self, 4.0s cast, range 40 width 5 rect
+    ConvictionMarcato2 = 15643, // Helper->self, 4.0s cast, range 40 width 5 rect
     ConvictionMarcato3 = 15648, // BossClones->self, 4.0s cast, range 40 width 5 rect
-    unknown = 16846, // 233C->self, 4.0s cast, single-target
+    unknown = 16846, // Helper->self, 4.0s cast, single-target
     PenancePianissimo = 15644, // Boss->self, 3.0s cast, single-target, inverted circle voidzone appears
     FeatherMarionette = 15645, // Boss->self, 3.0s cast, single-target
     SolitaireRing = 17066, // Boss->self, 3.5s cast, single-target
@@ -32,8 +34,8 @@ public enum AID : uint
     GoldChaser = 15653, // Boss->self, 4.0s cast, single-target
     VenaAmoris = 15655, // Orbs->self, no cast, range 40 width 5 rect
     SacramentSforzando = 15634, // Boss->self, 4.0s cast, single-target
-    SacramentSforzando2 = 15635, // 233C->player, no cast, single-target
-    SanctifiedStaccato = 15654, // 233C->self, no cast, range 3 circle, sort of a voidzone around the light orbs, only triggers if you get too close
+    SacramentSforzando2 = 15635, // Helper->player, no cast, single-target
+    SanctifiedStaccato = 15654 // Helper->self, no cast, range 3 circle, sort of a voidzone around the light orbs, only triggers if you get too close
 }
 
 class Orbs(BossModule module) : Components.GenericAOEs(module, default, "GTFO from voidzone!")
@@ -63,14 +65,14 @@ class GoldChaser(BossModule module) : Components.GenericAOEs(module)
     private DateTime _activation;
     private readonly List<Actor> _casters = [];
     private static readonly AOEShapeRect rect = new(100, 2.53f, 100); // halfwidth is 2.5, but +0.03 safety margin because ring position doesn't seem to be exactly caster position
-    private static readonly List<WPos> positionsSet1 = [new WPos(-227.5f, 253), new WPos(-232.5f, 251.5f)];
-    private static readonly List<WPos> positionsSet2 = [new WPos(-252.5f, 253), new WPos(-247.5f, 251.5f)];
-    private static readonly List<WPos> positionsSet3 = [new WPos(-242.5f, 253), new WPos(-237.5f, 253)];
-    private static readonly List<WPos> positionsSet4 = [new WPos(-252.5f, 253), new WPos(-227.5f, 253)];
+    private static readonly WPos[] positionsSet1 = [new(-227.5f, 253), new(-232.5f, 251.5f)];
+    private static readonly WPos[] positionsSet2 = [new(-252.5f, 253), new(-247.5f, 251.5f)];
+    private static readonly WPos[] positionsSet3 = [new(-242.5f, 253), new(-237.5f, 253)];
+    private static readonly WPos[] positionsSet4 = [new(-252.5f, 253), new(-227.5f, 253)];
 
-    private bool AreCastersInPositions(List<WPos> positions)
+    private bool AreCastersInPositions(WPos[] positions)
     {
-        return _casters.Count >= 2 && positions.Count == 2 &&
+        return _casters.Count >= 2 && positions.Length == 2 &&
                (_casters[0].Position == positions[0] && _casters[1].Position == positions[1] ||
                 _casters[0].Position == positions[1] && _casters[1].Position == positions[0]);
     }
@@ -171,14 +173,18 @@ class GoldChaser(BossModule module) : Components.GenericAOEs(module)
 
 class SacramentSforzando(BossModule module) : Components.SingleTargetCastDelay(module, ActionID.MakeSpell(AID.SacramentSforzando), ActionID.MakeSpell(AID.SacramentSforzando2), 0.8f);
 class OrisonFortissimo(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.OrisonFortissimo), ActionID.MakeSpell(AID.OrisonFortissimo2), 0.8f);
-class DivineDiminuendo(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DivineDiminuendo), new AOEShapeCircle(8));
-class DivineDiminuendo1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DivineDiminuendo1), new AOEShapeCircle(8));
-class DivineDiminuendo2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DivineDiminuendo2), new AOEShapeDonut(10, 16));
-class DivineDiminuendo3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DivineDiminuendo3), new AOEShapeDonut(18, 32));
-class DivineDiminuendo4(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DivineDiminuendo4), new AOEShapeCircle(8));
-class ConvictionMarcato(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ConvictionMarcato), new AOEShapeRect(40, 2.5f));
-class ConvictionMarcato2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ConvictionMarcato2), new AOEShapeRect(40, 2.5f));
-class ConvictionMarcato3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ConvictionMarcato3), new AOEShapeRect(40, 2.5f));
+
+class DivineDiminuendoCircle(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(8));
+class DivineDiminuendoCircle1(BossModule module) : DivineDiminuendoCircle(module, AID.DivineDiminuendoCircle1);
+class DivineDiminuendoCircle2(BossModule module) : DivineDiminuendoCircle(module, AID.DivineDiminuendoCircle2);
+class DivineDiminuendoCircle3(BossModule module) : DivineDiminuendoCircle(module, AID.DivineDiminuendoCircle3);
+class DivineDiminuendoDonut1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DivineDiminuendoDonut1), new AOEShapeDonut(10, 16));
+class DivineDiminuendoDonut2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DivineDiminuendoDonut2), new AOEShapeDonut(18, 32));
+
+class ConvictionMarcato(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 2.5f));
+class ConvictionMarcato1(BossModule module) : ConvictionMarcato(module, AID.ConvictionMarcato1);
+class ConvictionMarcato2(BossModule module) : ConvictionMarcato(module, AID.ConvictionMarcato2);
+class ConvictionMarcato3(BossModule module) : ConvictionMarcato(module, AID.ConvictionMarcato3);
 
 class PenancePianissimo(BossModule module) : Components.GenericAOEs(module)
 {
@@ -196,18 +202,18 @@ class PenancePianissimo(BossModule module) : Components.GenericAOEs(module)
     public override void OnActorEAnim(Actor actor, uint state)
     {
         if (state == 0x00040008)
-            Module.Arena.Bounds = D055ForgivenObscenity.arenaRect;
+            Arena.Bounds = D055ForgivenObscenity.ArenaRect;
         else if (state == 0x00010002)
         {
             _aoe = null;
-            Module.Arena.Bounds = D055ForgivenObscenity.arenaCircle;
+            Arena.Bounds = D055ForgivenObscenity.ArenaCircle;
         }
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (Module.Arena.Bounds == D055ForgivenObscenity.arenaCircle)
+        if (Arena.Bounds == D055ForgivenObscenity.ArenaCircle)
             hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Sprint), actor, ActionQueue.Priority.High);
     }
 }
@@ -218,12 +224,12 @@ class D055ForgivenObscenityStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<SacramentSforzando>()
-            .ActivateOnEnter<DivineDiminuendo>()
-            .ActivateOnEnter<DivineDiminuendo1>()
-            .ActivateOnEnter<DivineDiminuendo2>()
-            .ActivateOnEnter<DivineDiminuendo3>()
-            .ActivateOnEnter<DivineDiminuendo4>()
-            .ActivateOnEnter<ConvictionMarcato>()
+            .ActivateOnEnter<DivineDiminuendoCircle1>()
+            .ActivateOnEnter<DivineDiminuendoCircle2>()
+            .ActivateOnEnter<DivineDiminuendoCircle3>()
+            .ActivateOnEnter<DivineDiminuendoDonut1>()
+            .ActivateOnEnter<DivineDiminuendoDonut2>()
+            .ActivateOnEnter<ConvictionMarcato1>()
             .ActivateOnEnter<ConvictionMarcato2>()
             .ActivateOnEnter<ConvictionMarcato3>()
             .ActivateOnEnter<OrisonFortissimo>()
@@ -234,10 +240,10 @@ class D055ForgivenObscenityStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 659, NameID = 8262)]
-public class D055ForgivenObscenity(WorldState ws, Actor primary) : BossModule(ws, primary, new(-240, 237), arenaRect)
+public class D055ForgivenObscenity(WorldState ws, Actor primary) : BossModule(ws, primary, new(-240, 237), ArenaRect)
 {
-    public static readonly ArenaBounds arenaRect = new ArenaBoundsRect(14.5f, 19.5f);
-    public static readonly ArenaBounds arenaCircle = new ArenaBoundsCircle(15);
+    public static readonly ArenaBounds ArenaRect = new ArenaBoundsRect(14.5f, 19.5f);
+    public static readonly ArenaBounds ArenaCircle = new ArenaBoundsCircle(15);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor, Colors.Enemy, true);

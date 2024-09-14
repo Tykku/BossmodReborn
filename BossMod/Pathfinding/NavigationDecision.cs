@@ -30,6 +30,7 @@ public struct NavigationDecision
         UptimeToPositional,
         UptimeBlocked,
         Optimal,
+        CustomWaypoints
     }
 
     public WPos? Destination;
@@ -58,7 +59,7 @@ public struct NavigationDecision
                     Destination = currentWaypoint.Value,
                     LeewaySeconds = float.MaxValue,
                     TimeToGoal = (currentWaypoint.Value - player.Position).Length() / playerSpeed,
-                    DecisionType = Decision.Optimal
+                    DecisionType = Decision.CustomWaypoints
                 };
             }
         }
@@ -148,11 +149,13 @@ public struct NavigationDecision
                 return new() { Destination = null, LeewaySeconds = float.MaxValue, TimeToGoal = 0, Map = ctx.Map, MapGoal = maxGoal, DecisionType = Decision.SafeBlocked };
             }
 
+            var playerOrientationToTarget = (player.Position - targetPos.Value).Normalized().Dot(targetRot.ToDirection());
+
             var inPositional = positional switch
             {
-                Positional.Flank => MathF.Abs(targetRot.ToDirection().Dot((targetPos.Value - player.Position).Normalized())) < 0.7071067f,
-                Positional.Rear => targetRot.ToDirection().Dot((targetPos.Value - player.Position).Normalized()) < -0.7071068f,
-                Positional.Front => targetRot.ToDirection().Dot((targetPos.Value - player.Position).Normalized()) > 0.999f, // ~2.5 degrees - assuming max position error of 0.1, this requires us to stay at least at R=~2.25
+                Positional.Rear => playerOrientationToTarget < -0.7071068f,
+                Positional.Flank => MathF.Abs(playerOrientationToTarget) < 0.7071068f,
+                Positional.Front => playerOrientationToTarget > 0.999f, // ~2.5 degrees - assuming max position error of 0.1, this requires us to stay at least at R=~2.25
                 _ => true
             };
             if (!inPositional)
@@ -316,13 +319,23 @@ public struct NavigationDecision
         }
 
         // just run to closest safe spot, if no good path can be found
-        bool match((int x, int y, WPos center) p)
+        WPos? closest = null;
+        var closestDistance = float.MaxValue;
+        foreach (var p in map.EnumeratePixels())
         {
             var px = map[p.x, p.y];
-            return px.Priority == 0 && px.MaxG == float.MaxValue;
+            if (px.Priority == 0 && px.MaxG == float.MaxValue)
+            {
+                // safe pixel, candidate
+                var distance = (p.center - startPos).LengthSq();
+                if (distance < closestDistance)
+                {
+                    closest = p.center;
+                    closestDistance = distance;
+                }
+            }
         }
-        var closest = map.EnumeratePixels().Where(match).MinBy(p => (p.center - startPos).LengthSq()).center;
-        return new() { Destination = closest, LeewaySeconds = 0, TimeToGoal = (closest - startPos).Length() / speed, Map = map, DecisionType = Decision.ImminentToClosest };
+        return new() { Destination = closest, LeewaySeconds = 0, TimeToGoal = MathF.Sqrt(closestDistance) / speed, Map = map, DecisionType = Decision.ImminentToClosest };
     }
 
     public static WPos? GetFirstWaypoint(ThetaStar pf, int cell)

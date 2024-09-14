@@ -14,81 +14,75 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 870, // Boss->player, no cast, single-target
-    AutoAttack2 = 872, // BonusAdds->player, no cast, single-target
-    Hydroburst = 21714, // 302A->self, 1.0s cast, range 8 circle
+    AutoAttack1 = 870, // Boss->player, no cast, single-target
+    AutoAttack2 = 872, // Mandragoras->player, no cast, single-target
+
+    Hydroburst = 21714, // Bubble->self, 1.0s cast, range 8 circle
     Hydrocannon = 21713, // Boss->location, 3.0s cast, range 8 circle
-    AquaBurst = 21715, // 302A->self, 5.0s cast, range 50 circle, damage fall off AOE, optimal range seems to be 10
+    AquaBurst = 21715, // Bubble->self, 5.0s cast, range 50 circle, damage fall off AOE, optimal range seems to be 10
     FreshwaterCannon = 21711, // Boss->self, 2.5s cast, range 46 width 4 rect
     BrineBreath = 21710, // Boss->player, 4.0s cast, single-target
 
-    Pollen = 6452, // 2A0A->self, 3.5s cast, range 6+R circle
-    TearyTwirl = 6448, // 2A06->self, 3.5s cast, range 6+R circle
-    HeirloomScream = 6451, // 2A09->self, 3.5s cast, range 6+R circle
-    PluckAndPrune = 6449, // 2A07->self, 3.5s cast, range 6+R circle
-    PungentPirouette = 6450, // 2A08->self, 3.5s cast, range 6+R circle
-    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
+    Pollen = 6452, // SecretQueen->self, 3.5s cast, range 6+R circle
+    TearyTwirl = 6448, // SecretOnion->self, 3.5s cast, range 6+R circle
+    HeirloomScream = 6451, // SecretTomato->self, 3.5s cast, range 6+R circle
+    PluckAndPrune = 6449, // SecretEgg->self, 3.5s cast, range 6+R circle
+    PungentPirouette = 6450, // SecretGarlic->self, 3.5s cast, range 6+R circle
+    Telega = 9630 // Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
 public enum IconID : uint
 {
-    Baitaway = 23, // player
+    Baitaway = 23 // player
 }
 
 class Hydrocannon(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrocannon), 8);
 class FreshwaterCannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FreshwaterCannon), new AOEShapeRect(46, 2));
 class AquaBurst(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AquaBurst), new AOEShapeCircle(10));
 class BrineBreath(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BrineBreath));
-class Hydroburst(BossModule module) : Components.PersistentVoidzone(module, 8, m => m.Enemies(OID.Bubble).Where(x => !x.IsDead && !(x.CastInfo != null && x.CastInfo.IsSpell(AID.AquaBurst))));
+class Hydroburst(BossModule module) : Components.PersistentVoidzone(module, 10, m => m.Enemies(OID.Bubble).Where(x => !x.IsDead && !(x.CastInfo != null && x.CastInfo.IsSpell(AID.AquaBurst))));
 
 class Bubble(BossModule module) : Components.GenericBaitAway(module)
 {
-    private bool targeted;
-    private Actor? target;
+    private static readonly AOEShapeCircle circle = new(10);
 
     public override void OnEventIcon(Actor actor, uint iconID)
     {
         if (iconID == (uint)IconID.Baitaway)
-        {
-            CurrentBaits.Add(new(actor, actor, new AOEShapeCircle(8)));
-            targeted = true;
-            target = actor;
-        }
+            CurrentBaits.Add(new(actor, actor, circle));
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.Hydrocannon)
-        {
             CurrentBaits.Clear();
-            targeted = false;
-        }
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (target == actor && targeted)
-            hints.AddForbiddenZone(ShapeDistance.Circle(Module.Center, 17.5f));
+        if (CurrentBaits.Any(x => x.Target == actor))
+            hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 17.5f));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
         base.AddHints(slot, actor, hints);
-        if (target == actor && targeted)
+        if (CurrentBaits.Any(x => x.Target == actor))
             hints.Add("Bait bubble away!");
     }
 }
 
-class PluckAndPrune(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PluckAndPrune), new AOEShapeCircle(6.84f));
-class TearyTwirl(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TearyTwirl), new AOEShapeCircle(6.84f));
-class HeirloomScream(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeirloomScream), new AOEShapeCircle(6.84f));
-class PungentPirouette(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PungentPirouette), new AOEShapeCircle(6.84f));
-class Pollen(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Pollen), new AOEShapeCircle(6.84f));
+class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class WormStates : StateMachineBuilder
+class SecretWormStates : StateMachineBuilder
 {
-    public WormStates(BossModule module) : base(module)
+    public SecretWormStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<FreshwaterCannon>()
@@ -102,22 +96,18 @@ class WormStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead) && module.Enemies(OID.SecretEgg).All(e => e.IsDead) && module.Enemies(OID.SecretQueen).All(e => e.IsDead) && module.Enemies(OID.SecretOnion).All(e => e.IsDead) && module.Enemies(OID.SecretGarlic).All(e => e.IsDead) && module.Enemies(OID.SecretTomato).All(e => e.IsDead);
-
+            .Raw.Update = () => module.Enemies(OID.SecretTomato).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.SecretEgg)).Concat(module.Enemies(OID.SecretQueen))
+            .Concat(module.Enemies(OID.SecretOnion)).Concat(module.Enemies(OID.SecretGarlic)).All(e => e.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 745, NameID = 9780)]
-public class Worm(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class SecretWorm(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.SecretEgg), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.SecretTomato), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.SecretQueen), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.SecretGarlic), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.SecretOnion), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretEgg).Concat(Enemies(OID.SecretTomato)).Concat(Enemies(OID.SecretQueen)).Concat(Enemies(OID.SecretGarlic)).Concat(Enemies(OID.SecretOnion)), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

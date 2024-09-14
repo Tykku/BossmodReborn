@@ -1,4 +1,4 @@
-namespace BossMod.Endwalker.Variant.V02MR.V022Moko;
+namespace BossMod.Endwalker.VariantCriterion.V02MR.V022Moko;
 
 class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
@@ -13,14 +13,14 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.KenkiRelease && Arena.Bounds == StartingBounds)
-            _aoe = new(square, Module.Center, default, Module.CastFinishAt(spell, 2.1f));
+            _aoe = new(square, Arena.Center, default, Module.CastFinishAt(spell, 2.1f));
     }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state == 0x00020001 && index == 0x5B)
         {
-            Module.Arena.Bounds = DefaultBounds;
+            Arena.Bounds = DefaultBounds;
             _aoe = null;
         }
     }

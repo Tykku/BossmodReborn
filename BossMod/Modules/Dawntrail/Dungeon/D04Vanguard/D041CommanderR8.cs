@@ -87,7 +87,7 @@ class EnhancedMobilitySword(BossModule module) : Components.GenericAOEs(module)
 
     private void AddAOE(ActorCastInfo spell, Angle offset)
     {
-        _aoe = new AOEInstance(rect, Module.Center + 5 * spell.Rotation.ToDirection(), spell.Rotation + offset, Module.CastFinishAt(spell));
+        _aoe = new(rect, Module.Center + 5 * spell.Rotation.ToDirection(), spell.Rotation + offset, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -113,7 +113,7 @@ class RapidRotary(BossModule module) : Components.GenericAOEs(module)
         for (var i = 0; i < Math.Clamp(_aoes.Count, 0, 7); i++)
         {
             var aoe = _aoes[i];
-            yield return new AOEInstance(aoe.Shape, aoe.Origin, aoe.Rotation, aoe.Activation, i < 2 ? Colors.Danger : Colors.AOE);
+            yield return new(aoe.Shape, aoe.Origin, aoe.Rotation, aoe.Activation, i < 2 ? Colors.Danger : Colors.AOE);
         }
     }
 
@@ -141,8 +141,8 @@ class RapidRotary(BossModule module) : Components.GenericAOEs(module)
         for (var i = 0; i < 3; i++)
         {
             var angle = initialAngle - i * a120;
-            _aoes.Add(new AOEInstance(shape1, Module.Center, angle, finishAt.AddSeconds(ActivationDelay + i * ActivationDelayIncrement)));
-            _aoes.Add(new AOEInstance(shape2, Module.Center, angle, finishAt.AddSeconds(ActivationDelay + i * ActivationDelayIncrement)));
+            _aoes.Add(new(shape1, Module.Center, angle, finishAt.AddSeconds(ActivationDelay + i * ActivationDelayIncrement)));
+            _aoes.Add(new(shape2, Module.Center, angle, finishAt.AddSeconds(ActivationDelay + i * ActivationDelayIncrement)));
         }
     }
 
@@ -155,10 +155,11 @@ class RapidRotary(BossModule module) : Components.GenericAOEs(module)
 
 class Electrowave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Electrowave));
 
-class EnhancedMobility1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.EnhancedMobility1), new AOEShapeRect(14, 3));
-class EnhancedMobility2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.EnhancedMobility2), new AOEShapeRect(14, 3));
-class EnhancedMobility3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.EnhancedMobility3), new AOEShapeRect(14, 3));
-class EnhancedMobility4(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.EnhancedMobility4), new AOEShapeRect(14, 3));
+class EnhancedMobility(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(14, 3));
+class EnhancedMobility1(BossModule module) : EnhancedMobility(module, AID.EnhancedMobility1);
+class EnhancedMobility2(BossModule module) : EnhancedMobility(module, AID.EnhancedMobility2);
+class EnhancedMobility3(BossModule module) : EnhancedMobility(module, AID.EnhancedMobility3);
+class EnhancedMobility4(BossModule module) : EnhancedMobility(module, AID.EnhancedMobility4);
 
 class Rush(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.Rush), 2.5f);
 class AerialOffensive(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AerialOffensive), 14, maxCasts: 4);

@@ -58,7 +58,7 @@ class DustcloakDustdevil(BossModule module) : Components.GenericAOEs(module)
     {
         var component = Module.FindComponent<DesertDustdevil>()!.Sequences.Count == 0;
         if (_aoe == null && !component)
-            _aoe = new(circle, Module.PrimaryActor.Position, default, Module.WorldState.FutureTime(8.1f));
+            _aoe = new(circle, Module.PrimaryActor.Position, default, WorldState.FutureTime(8.1f));
         else if (_aoe != null && component)
             _aoe = null;
     }

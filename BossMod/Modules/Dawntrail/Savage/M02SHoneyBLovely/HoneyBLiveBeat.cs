@@ -22,7 +22,7 @@ class HoneyBLiveHearts(BossModule module) : BossComponent(module)
             Hearts[slot] = 0;
     }
 
-    private int NumHearts(SID sid) => sid switch
+    private static int NumHearts(SID sid) => sid switch
     {
         SID.Hearts0 => 0,
         SID.Hearts1 => 1,
@@ -103,39 +103,7 @@ class Fracture3 : Fracture
 class Loveseeker(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LoveseekerAOE), new AOEShapeCircle(10));
 class HeartStruck(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeartStruck), 6);
 class Heartsore(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Heartsore, ActionID.MakeSpell(AID.Heartsore), 6, 7.1f);
-
-class Sweethearts(BossModule module) : Components.GenericAOEs(module)
-{
-    private static readonly AOEShapeCircle circle = new(1);
-    private readonly List<Actor> _hearts = [];
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _hearts.Select(a => new AOEInstance(circle, a.Position));
-
-    public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
-    {
-        if ((OID)actor.OID == OID.Sweetheart && id == 0x11D3)
-            _hearts.Add(actor);
-    }
-
-    public override void OnActorDestroyed(Actor actor)
-    {
-        if ((OID)actor.OID == OID.Sweetheart)
-            _hearts.Remove(actor);
-    }
-
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
-    {
-        if ((AID)spell.Action.ID == AID.SweetheartTouch)
-            _hearts.Remove(caster);
-    }
-
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        base.AddAIHints(slot, actor, assignment, hints);
-        foreach (var w in _hearts)
-            hints.AddForbiddenZone(new AOEShapeCircle(1), w.Position + w.Rotation.ToDirection());
-    }
-}
+class SweetheartsS(BossModule module) : Raid.M02NHoneyBLovely.Sweethearts(module, (uint)OID.Sweetheart, (uint)AID.SweetheartTouch);
 
 abstract class Heartsick(BossModule module, bool roles) : Components.StackWithIcon(module, (uint)IconID.Heartsick, ActionID.MakeSpell(AID.Heartsick), 6, 7, roles ? 2 : 4, roles ? 2 : 4)
 {
@@ -164,7 +132,7 @@ class HoneyBLiveBeat3BigBurst(BossModule module) : Components.UniformStackSpread
 {
     public int NumCasts;
     public int[] Order = new int[PartyState.MaxPartySize];
-    private readonly DateTime[] _activation = new DateTime[2];
+    public readonly DateTime[] Activation = new DateTime[2];
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
@@ -178,7 +146,7 @@ class HoneyBLiveBeat3BigBurst(BossModule module) : Components.UniformStackSpread
         if ((SID)status.ID == SID.PoisonNPop)
         {
             var order = (status.ExpireAt - WorldState.CurrentTime).TotalSeconds > 30 ? 1 : 0;
-            _activation[order] = status.ExpireAt;
+            Activation[order] = status.ExpireAt;
             var slot = Raid.FindSlot(actor.InstanceID);
             if (slot >= 0)
                 Order[slot] = order + 1;
@@ -190,7 +158,7 @@ class HoneyBLiveBeat3BigBurst(BossModule module) : Components.UniformStackSpread
         if ((AID)spell.Action.ID == AID.Fracture && Spreads.Count == 0)
         {
             var order = NumCasts == 0 ? 1 : 2;
-            AddSpreads(Raid.WithSlot(true).WhereSlot(i => Order[i] == order).Actors(), _activation[order - 1]);
+            AddSpreads(Raid.WithSlot(true).WhereSlot(i => Order[i] == order).Actors(), Activation[order - 1]);
         }
     }
 

@@ -9,6 +9,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 24771, // Boss->player, no cast, single-target
+
     AglaeaBite = 25673, // Boss->self/player, 5.0s cast, range 9 90-degree cone, tankbuster 
 
     AglaeaClimb1 = 25666, // Boss->self, 7.0s cast, single-target
@@ -50,7 +51,7 @@ class AglaeaShot(BossModule module) : Components.GenericAOEs(module)
         if (_aoes.Count > 0)
             foreach (var a in _aoes)
                 yield return new(rect, a.Origin, a.Rotation, a.Activation);
-        else if ((activation - Module.WorldState.CurrentTime).TotalSeconds < 5)
+        else if ((activation - WorldState.CurrentTime).TotalSeconds < 5)
             foreach (var c in casters)
                 yield return new(rect, c.Position, c.Rotation, activation);
     }
@@ -65,7 +66,7 @@ class AglaeaShot(BossModule module) : Components.GenericAOEs(module)
     {
         if ((AID)spell.Action.ID == AID.AglaeaShot1)
         {
-            activation = Module.WorldState.FutureTime(10);
+            activation = WorldState.FutureTime(10);
             if (_aoes.Count > 0)
             {
                 _aoes.RemoveAt(0);
@@ -102,7 +103,5 @@ class D051LiviaStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 786, NameID = 10290)]
 public class D051Livia(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> union = [new Circle(new(-6, 471), 19.55f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(-6, 491.8f), 20, 2)];
-    private static readonly ArenaBoundsComplex arena = new(union, difference);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(-6, 471), 19.55f)], [new Rectangle(new(-6, 491.8f), 20, 2)]);
 }

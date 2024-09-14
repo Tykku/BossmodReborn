@@ -161,14 +161,14 @@ public sealed class LegacyBRD : LegacyModule
         if (_state.AnimationLockDelay < 0.1f)
             _state.AnimationLockDelay = 0.1f; // TODO: reconsider; we generally don't want triple weaves or extra-late proc weaves
 
-        var gauge = GetGauge<BardGauge>();
+        var gauge = World.Client.GetGauge<BardGauge>();
         _state.ActiveSong = (Song)((byte)gauge.SongFlags & 3);
         _state.ActiveSongLeft = gauge.SongTimer * 0.001f;
         _state.Repertoire = gauge.Repertoire;
         _state.SoulVoice = gauge.SoulVoice;
         _state.NumCoda = BitOperations.PopCount((uint)gauge.SongFlags & 0x70);
 
-        _state.StraightShotLeft = _state.StatusDetails(Player, BRD.SID.StraightShotReady, Player.InstanceID, 30).Left;
+        _state.StraightShotLeft = _state.StatusDetails(Player, BRD.SID.HawksEye, Player.InstanceID, 30).Left;
         _state.BlastArrowLeft = _state.StatusDetails(Player, BRD.SID.BlastArrowReady, Player.InstanceID, 10).Left;
         _state.ShadowbiteLeft = _state.StatusDetails(Player, BRD.SID.ShadowbiteReady, Player.InstanceID, 30).Left;
         _state.RagingStrikesLeft = _state.StatusDetails(Player, BRD.SID.RagingStrikes, Player.InstanceID, 20).Left;

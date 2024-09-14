@@ -39,7 +39,7 @@ public class ColumnPlayerActions : Timeline.ColumnGroup
             if (a.ID == ActionDefinitions.IDAutoAttack || a.ID == ActionDefinitions.IDAutoShot)
             {
                 AddAnimationLock(_autoAttacks, a, enc.Time.Start, a.Timestamp, actionName);
-                _autoAttacks.AddHistoryEntryDot(enc.Time.Start, a.Timestamp, actionName, 0xffc0c0c0).AddActionTooltip(a);
+                _autoAttacks.AddHistoryEntryDot(enc.Time.Start, a.Timestamp, actionName, Colors.TextColor18).AddActionTooltip(a);
                 continue;
             }
 

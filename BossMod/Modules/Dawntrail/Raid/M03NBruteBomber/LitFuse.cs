@@ -45,10 +45,10 @@ public class LitFuse(BossModule module) : Components.GenericAOEs(module)
         switch ((SID)status.ID)
         {
             case SID.LitFuseLong:
-                _aoes.Add(new(circle, actor.Position, default, Module.WorldState.FutureTime(10.4f)));
+                _aoes.Add(new(circle, actor.Position, default, WorldState.FutureTime(10.4f)));
                 break;
             case SID.LitFuseShort:
-                _aoes.Add(new(circle, actor.Position, default, Module.WorldState.FutureTime(7.4f)));
+                _aoes.Add(new(circle, actor.Position, default, WorldState.FutureTime(7.4f)));
                 break;
         }
         if (_aoes.Count == 8 && !sorted)

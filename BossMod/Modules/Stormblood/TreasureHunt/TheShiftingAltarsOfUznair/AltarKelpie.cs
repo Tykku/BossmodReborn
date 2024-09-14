@@ -4,8 +4,8 @@ public enum OID : uint
 {
     Boss = 0x2537, //R=5.4
     Hydrosphere = 0x255B, //R=1.2
-    BonusAddAltarMatanga = 0x2545, // R3.42
-    BonusAddGoldWhisker = 0x2544, // R0.54
+    AltarMatanga = 0x2545, // R3.42
+    GoldWhisker = 0x2544, // R0.54
     AltarQueen = 0x254A, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
     AltarGarlic = 0x2548, // R0.84, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
     AltarTomato = 0x2549, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
@@ -16,8 +16,9 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 870, // 2544->player, no cast, single-target
-    AutoAttack2 = 872, // Boss/BonusAddAltarMatanga->player, no cast, single-target
+    AutoAttack1 = 870, // GoldWhisker->player, no cast, single-target
+    AutoAttack2 = 872, // Boss/AltarMatanga->player, no cast, single-target
+
     Torpedo = 13438, // Boss->player, 3.0s cast, single-target
     Innocence = 13439, // Boss->location, 3.0s cast, range 5 circle
     Gallop = 13441, // Boss->location, no cast, ???, movement ability
@@ -25,16 +26,16 @@ public enum AID : uint
     BloodyPuddle = 13443, // Hydrosphere->self, 4.0s cast, range 10+R circle
     HydroPush = 13442, // Boss->self, 6.0s cast, range 44+R width 44 rect, knockback 20, dir forward
 
-    unknown = 9636, // BonusAddAltarMatanga->self, no cast, single-target
-    Spin = 8599, // BonusAddAltarMatanga->self, no cast, range 6+R 120-degree cone
-    RaucousScritch = 8598, // BonusAddAltarMatanga->self, 2.5s cast, range 5+R 120-degree cone
-    Hurl = 5352, // BonusAddAltarMatanga->location, 3.0s cast, range 6 circle
+    MatangaActivate = 9636, // AltarMatanga->self, no cast, single-target
+    Spin = 8599, // AltarMatanga->self, no cast, range 6+R 120-degree cone
+    RaucousScritch = 8598, // AltarMatanga->self, 2.5s cast, range 5+R 120-degree cone
+    Hurl = 5352, // AltarMatanga->location, 3.0s cast, range 6 circle
     PluckAndPrune = 6449, // AltarEgg->self, 3.5s cast, range 6+R circle
     PungentPirouette = 6450, // AltarGarlic->self, 3.5s cast, range 6+R circle
     TearyTwirl = 6448, // AltarOnion->self, 3.5s cast, range 6+R circle
     Pollen = 6452, // AltarQueen->self, 3.5s cast, range 6+R circle
     HeirloomScream = 6451, // AltarTomato->self, 3.5s cast, range 6+R circle
-    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
+    Telega = 9630 // AltarMatanga/Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
 class Innocence(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Innocence), 5);
@@ -79,16 +80,18 @@ class RisingSeasKB(BossModule module) : Components.KnockbackFromCastTarget(modul
 
 class RaucousScritch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
 class Hurl(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
-class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.BonusAddAltarMatanga);
-class PluckAndPrune(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PluckAndPrune), new AOEShapeCircle(6.84f));
-class TearyTwirl(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TearyTwirl), new AOEShapeCircle(6.84f));
-class HeirloomScream(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeirloomScream), new AOEShapeCircle(6.84f));
-class PungentPirouette(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PungentPirouette), new AOEShapeCircle(6.84f));
-class Pollen(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Pollen), new AOEShapeCircle(6.84f));
+class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.AltarMatanga);
 
-class KelpieStates : StateMachineBuilder
+class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+
+class AltarKelpieStates : StateMachineBuilder
 {
-    public KelpieStates(BossModule module) : base(module)
+    public AltarKelpieStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<Innocence>()
@@ -106,23 +109,20 @@ class KelpieStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead) && module.Enemies(OID.BonusAddGoldWhisker).All(e => e.IsDead) && module.Enemies(OID.BonusAddAltarMatanga).All(e => e.IsDead) && module.Enemies(OID.AltarEgg).All(e => e.IsDead) && module.Enemies(OID.AltarQueen).All(e => e.IsDead) && module.Enemies(OID.AltarOnion).All(e => e.IsDead) && module.Enemies(OID.AltarGarlic).All(e => e.IsDead) && module.Enemies(OID.AltarTomato).All(e => e.IsDead);
+            .Raw.Update = () => module.Enemies(OID.GoldWhisker).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.AltarEgg)).Concat(module.Enemies(OID.AltarQueen))
+            .Concat(module.Enemies(OID.AltarOnion)).Concat(module.Enemies(OID.AltarGarlic)).Concat(module.Enemies(OID.AltarTomato)).Concat(module.Enemies(OID.AltarMatanga))
+            .All(e => e.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 586, NameID = 7589)]
-public class Kelpie(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class AltarKelpie(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.AltarEgg), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.AltarTomato), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.AltarQueen), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.AltarGarlic), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.AltarOnion), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.BonusAddAltarMatanga), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.BonusAddGoldWhisker), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.AltarEgg).Concat(Enemies(OID.AltarTomato)).Concat(Enemies(OID.AltarQueen)).Concat(Enemies(OID.AltarGarlic)).Concat(Enemies(OID.AltarOnion))
+        .Concat(Enemies(OID.AltarMatanga).Concat(Enemies(OID.GoldWhisker))), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -135,8 +135,8 @@ public class Kelpie(WorldState ws, Actor primary) : BossModule(ws, primary, new(
                 OID.AltarEgg => 6,
                 OID.AltarGarlic => 5,
                 OID.AltarTomato => 4,
-                OID.AltarQueen or OID.BonusAddGoldWhisker => 3,
-                OID.BonusAddAltarMatanga => 2,
+                OID.AltarQueen or OID.GoldWhisker => 3,
+                OID.AltarMatanga => 2,
                 OID.Boss => 1,
                 _ => 0
             };

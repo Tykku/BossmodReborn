@@ -46,7 +46,5 @@ class D011LugatStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus), erdelf", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 238, NameID = 6071)]
 public class D011Lugat(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> union = [new Circle(new(-2.7f, -217), 21.5f), new Rectangle(new(-0.9f, -237.7f), 5, 1f, 5.Degrees())];
-    private static readonly List<Shape> difference = [new Rectangle(new(-3, -195), 20, 1.25f)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(-2.7f, -217), 21.5f), new Rectangle(new(-0.9f, -237.7f), 5, 1, 5.Degrees())], [new Rectangle(new(-3, -195), 20, 1.25f)]);
 }

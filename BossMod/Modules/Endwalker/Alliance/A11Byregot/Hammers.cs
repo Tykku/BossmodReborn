@@ -31,14 +31,14 @@ class HammersCells(BossModule module) : Components.GenericAOEs(module, ActionID.
         if (!Active)
             return;
 
-        Arena.AddLine(Module.Center + new WDir(-15, -25), Module.Center + new WDir(-15, +25), Colors.Border);
-        Arena.AddLine(Module.Center + new WDir(-05, -25), Module.Center + new WDir(-05, +25), Colors.Border);
-        Arena.AddLine(Module.Center + new WDir(+05, -25), Module.Center + new WDir(+05, +25), Colors.Border);
-        Arena.AddLine(Module.Center + new WDir(+15, -25), Module.Center + new WDir(+15, +25), Colors.Border);
-        Arena.AddLine(Module.Center + new WDir(-25, -15), Module.Center + new WDir(+25, -15), Colors.Border);
-        Arena.AddLine(Module.Center + new WDir(-25, -05), Module.Center + new WDir(+25, -05), Colors.Border);
-        Arena.AddLine(Module.Center + new WDir(-25, +05), Module.Center + new WDir(+25, +05), Colors.Border);
-        Arena.AddLine(Module.Center + new WDir(-25, +15), Module.Center + new WDir(+25, +15), Colors.Border);
+        Arena.AddLine(Arena.Center + new WDir(-15, -25), Arena.Center + new WDir(-15, +25), Colors.Border);
+        Arena.AddLine(Arena.Center + new WDir(-05, -25), Arena.Center + new WDir(-05, +25), Colors.Border);
+        Arena.AddLine(Arena.Center + new WDir(+05, -25), Arena.Center + new WDir(+05, +25), Colors.Border);
+        Arena.AddLine(Arena.Center + new WDir(+15, -25), Arena.Center + new WDir(+15, +25), Colors.Border);
+        Arena.AddLine(Arena.Center + new WDir(-25, -15), Arena.Center + new WDir(+25, -15), Colors.Border);
+        Arena.AddLine(Arena.Center + new WDir(-25, -05), Arena.Center + new WDir(+25, -05), Colors.Border);
+        Arena.AddLine(Arena.Center + new WDir(-25, +05), Arena.Center + new WDir(+25, +05), Colors.Border);
+        Arena.AddLine(Arena.Center + new WDir(-25, +15), Arena.Center + new WDir(+25, +15), Colors.Border);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -81,7 +81,7 @@ class HammersCells(BossModule module) : Components.GenericAOEs(module, ActionID.
         }
     }
 
-    private WPos CellCenter(int x, int z) => Module.Center + 10 * new WDir(x, z);
+    private WPos CellCenter(int x, int z) => Arena.Center + 10 * new WDir(x, z);
 
     private bool CellDangerous(int x, int z, bool future)
     {

@@ -10,6 +10,7 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ActionManage
 {
     private readonly DebugObjects _debugObjects = new();
     private readonly DebugParty _debugParty = new();
+    private readonly DebugEnvControl _debugEnvControl = new();
     private readonly DebugGraphics _debugGraphics = new();
     private readonly DebugAction _debugAction = new(ws, amex);
     private readonly DebugHate _debugHate = new();
@@ -74,6 +75,10 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ActionManage
         {
             _debugParty.Draw(true);
         }
+        if (ImGui.CollapsingHeader("EnvControl"))
+        {
+            _debugEnvControl.Draw();
+        }
         if (ImGui.CollapsingHeader("Autorotation"))
         {
             _debugAutorot.Draw();
@@ -101,6 +106,10 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ActionManage
         if (ImGui.CollapsingHeader("Actions"))
         {
             _debugAction.DrawActionData();
+        }
+        if (ImGui.CollapsingHeader("Duty actions"))
+        {
+            _debugAction.DrawDutyActions();
         }
         if (ImGui.CollapsingHeader("Hate"))
         {
@@ -212,9 +221,10 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ActionManage
         var cursorPos = amex.GetWorldPosUnderCursor();
         ImGui.TextUnformatted($"World pos under cursor: {(cursorPos == null ? "n/a" : Utils.Vec3String(cursorPos.Value))}");
 
-        var selfPos = Service.ClientState.LocalPlayer?.Position ?? new();
+        var player = Service.ClientState.LocalPlayer;
+        var selfPos = player?.Position ?? new();
         var targPos = Service.ClientState.LocalPlayer?.TargetObject?.Position ?? new();
-        var angle = Angle.FromDirection(new((targPos - selfPos).XZ()));
+        var angle = player?.Rotation.Radians() ?? default; //Angle.FromDirection(new((targPos - selfPos).XZ()));
         var ts = FFXIVClientStructs.FFXIV.Client.Game.Control.TargetSystem.Instance();
         DrawTarget("Target", ts->Target, selfPos, angle);
         DrawTarget("Soft target", ts->SoftTarget, selfPos, angle);

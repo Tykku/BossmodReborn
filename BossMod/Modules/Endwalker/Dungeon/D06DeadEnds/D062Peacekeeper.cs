@@ -11,6 +11,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 25977, // Boss->player, no cast, single-target
+
     Decimation = 25936, // Boss->self, 5.0s cast, range 40 circle
     DisengageHatch = 28356, // Boss->self, no cast, single-target
     EclipsingExhaust = 25931, // Boss->self, 5.0s cast, range 40 circle, knockback 11, away from source
@@ -27,7 +28,7 @@ public enum AID : uint
     SmallBoreLaser = 28352, // PerpetualWarMachine->self, 5.0s cast, range 20 width 4 rect
     Teleport = 28350, // PerpetualWarMachine->location, no cast, single-target
     VisualModelChange1 = 28357, // Boss->self, no cast, single-target
-    VisualModelChange2 = 25926, // Boss->self, no cast, single-target
+    VisualModelChange2 = 25926 // Boss->self, no cast, single-target
 }
 
 class DecimationArenaChange(BossModule module) : Components.GenericAOEs(module)
@@ -41,15 +42,15 @@ class DecimationArenaChange(BossModule module) : Components.GenericAOEs(module)
     {
         if (index == 0x17 && state == 0x00020001)
         {
-            Module.Arena.Bounds = D062Peacekeeper.SmallerBounds;
+            Arena.Bounds = D062Peacekeeper.SmallerBounds;
             _aoe = null;
         }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Decimation && Module.Arena.Bounds == D062Peacekeeper.StartingBounds)
-            _aoe = new(donut, Module.Center, default, Module.CastFinishAt(spell, 0.4f));
+        if ((AID)spell.Action.ID == AID.Decimation && Arena.Bounds == D062Peacekeeper.StartingBounds)
+            _aoe = new(donut, Arena.Center, default, Module.CastFinishAt(spell, 0.4f));
     }
 }
 
@@ -75,30 +76,22 @@ class EclipsingExhaust(BossModule module) : Components.RaidwideCast(module, Acti
 
 class EclipsingExhaustKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.EclipsingExhaust), 11)
 {
-    public DateTime Activation;
-
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<Peacefire>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || !Module.InBounds(pos);
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        base.OnCastStarted(caster, spell);
-        if (spell.Action == WatchedAction)
-            Activation = Module.CastFinishAt(spell, 0.5f);
-    }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         var forbidden = new List<Func<WPos, float>>();
         var component = Module.FindComponent<Peacefire>()?.ActiveAOEs(slot, actor)?.ToList();
-        if (component != null && component.Count != 0 && Sources(slot, actor).Any() || Activation > Module.WorldState.CurrentTime) // 0.5s delay to wait for action effect
+        var source = Sources(slot, actor).FirstOrDefault();
+        if (component != null && source != default)
         {
-            foreach (var c in component!)
+            foreach (var c in component)
             {
-                forbidden.Add(ShapeDistance.Donut(Module.Center, 5, 16));
-                forbidden.Add(ShapeDistance.Cone(Module.Center, 16, Angle.FromDirection(c.Origin - Module.Center), 36.Degrees()));
+                forbidden.Add(ShapeDistance.InvertedCircle(Arena.Center, 5));
+                forbidden.Add(ShapeDistance.Cone(Arena.Center, 16, Angle.FromDirection(c.Origin - Module.Center), 36.Degrees()));
             }
             if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Min(), Activation);
+                hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Min(), source.Activation);
         }
     }
 }

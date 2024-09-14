@@ -2,11 +2,11 @@
 
 public enum OID : uint
 {
-    Boss = 0x1054, // R2.200, x1
-    SerGrinnauxTheBull = 0x1053, // R0.500, x1
-    StellarImplodeArea = 0x1E91C1, // R0.500, x0 (spawn during fight), EventObj type
-    AetherialTear = 0x1055, // R2.000, x0 (spawn during fight)
-    Helper = 0xD25, // R0.500, x13, mixed types
+    Boss = 0x1054, // R2.2
+    SerGrinnauxTheBull = 0x1053, // R0.5
+    StellarImplodeArea = 0x1E91C1, // R0.5
+    AetherialTear = 0x1055, // R2.0
+    Helper = 0xD25
 }
 
 public enum AID : uint
@@ -35,7 +35,7 @@ public enum AID : uint
     HyperdimensionalSlash = 4134, // Boss->self, 3.0s cast, range 45+R width 8 rect
 
     BossPhase1Vanish = 4124, // Boss->self, no cast, single-target
-    BossPhase2Vanish = 4256, // SerGrinnauxTheBull->self, no cast, single-target
+    BossPhase2Vanish = 4256 // SerGrinnauxTheBull->self, no cast, single-target
 }
 
 class HeavySwing(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.HeavySwing), new AOEShapeCone(6.5f, 45.Degrees()), (uint)OID.SerGrinnauxTheBull);
@@ -100,10 +100,8 @@ public class D042SerGrinnaux(WorldState ws, Actor primary) : BossModule(ws, prim
 {
     protected override bool CheckPull() => PrimaryActor.IsTargetable && PrimaryActor.InCombat || Enemies(OID.SerGrinnauxTheBull).Any(e => e.InCombat);
 
-    private static readonly List<Shape> union = [new Circle(new(0, 72), 19.7f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(19.5f, 72), 7.75f, 1.75f, 90.Degrees()), new Rectangle(new(0, 51), 7.75f, 2),
-    new Rectangle(new(-20.8f, 72), 5, 1.75f, 90.Degrees())];
-    public static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    public static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(0, 72), 19.7f)], [new Rectangle(new(19.5f, 72), 7.75f, 1.75f, 90.Degrees()),
+    new Rectangle(new(0, 51), 7.75f, 2), new Rectangle(new(-20.8f, 72), 5, 1.75f, 90.Degrees())]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

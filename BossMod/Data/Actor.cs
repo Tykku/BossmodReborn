@@ -88,6 +88,7 @@ public sealed class Actor(ulong instanceID, uint oid, int spawnIndex, string nam
     public Class Class = classID;
     public int Level = level;
     public Vector4 PosRot = posRot; // W = rotation: 0 = pointing S, pi/2 = pointing E, pi = pointing N, -pi/2 = pointing W
+    public Vector4 PrevPosRot = posRot; // during previous frame; can be used to calculate speed etc
     public float HitboxRadius = hitboxRadius;
     public ActorHPMP HPMP = hpmp;
     public bool IsDestroyed; // set to true when actor is removed from world; object might still be alive because of other references
@@ -95,16 +96,20 @@ public sealed class Actor(ulong instanceID, uint oid, int spawnIndex, string nam
     public bool IsAlly = ally;
     public bool IsDead;
     public bool InCombat;
+    public bool AggroPlayer; // determines whether a given actor shows in the player's UI enemy list
     public ActorModelState ModelState;
     public byte EventState; // not sure about the field meaning...
     public ulong OwnerID = ownerID; // uuid of owner, for pets and similar
     public ulong TargetID;
+    public uint MountId; // ID of current mount, 0 if not mounted
     public ActorCastInfo? CastInfo;
     public ActorTetherInfo Tether;
     public ActorStatus[] Statuses = new ActorStatus[60]; // empty slots have ID=0
 
     public Role Role => Class.GetRole();
+    public ClassCategory ClassCategory => Class.GetClassCategory();
     public WPos Position => new(PosRot.X, PosRot.Z);
+    public WPos PrevPosition => new(PrevPosRot.X, PrevPosRot.Z);
     public Angle Rotation => PosRot.W.Radians();
     public bool Omnidirectional => Utils.CharacterIsOmnidirectional(OID);
     public bool IsDeadOrDestroyed => IsDead || IsDestroyed;
@@ -125,6 +130,7 @@ public sealed class Actor(ulong instanceID, uint oid, int spawnIndex, string nam
     public ActorStatus? FindStatus<SID>(SID sid, ulong source) where SID : Enum => FindStatus((uint)(object)sid, source);
 
     public WDir DirectionTo(Actor other) => (other.Position - Position).Normalized();
+    public Angle AngleTo(Actor other) => Angle.FromDirection(other.Position - Position);
 
     public float DistanceToHitbox(Actor? other) => other == null ? float.MaxValue : (other.Position - Position).Length() - other.HitboxRadius - HitboxRadius;
 

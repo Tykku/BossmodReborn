@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C01ASS.C011Silkie;
+﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C011Silkie;
 
 class PuffTethers(BossModule module, bool originAtBoss) : BossComponent(module)
 {

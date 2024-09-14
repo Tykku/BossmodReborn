@@ -1,12 +1,10 @@
-﻿using Dalamud.Utility;
-
-namespace BossMod.Shadowbringers.Dungeon.D02DohnMheg.D022Griaule;
+﻿namespace BossMod.Shadowbringers.Dungeon.D02DohnMheg.D022Griaule;
 
 public enum OID : uint
 {
     Boss = 0x98E, // R=3.18-12.72
     PaintedRoot = 0xF08, // R=1.48
-    PaintedSapling = 0xEFB, // R=0.9
+    PaintedSapling = 0xEFB // R=0.9
 }
 
 public enum AID : uint
@@ -17,12 +15,12 @@ public enum AID : uint
     Fodder = 8897, // Boss->self, 5.0s cast, single-target
     Tiiimbeeer = 8915, // Boss->self, 6.0s cast, range 50 circle
     FeedingTime = 8899, // PaintedSapling->player/Boss, no cast, single-target
-    CoilingIvy = 8901, // Boss->self, 3.0s cast, single-target
+    CoilingIvy = 8901 // Boss->self, 3.0s cast, single-target
 }
 
 public enum TetherID : uint
 {
-    GrowthTether = 84, // EFB->Boss/player
+    GrowthTether = 84 // EFB->Boss/player
 }
 
 class FeedingTime(BossModule module) : Components.InterceptTether(module, ActionID.MakeSpell(AID.FeedingTime), (uint)TetherID.GrowthTether)
@@ -31,9 +29,7 @@ class FeedingTime(BossModule module) : Components.InterceptTether(module, Action
     public override void OnActorCreated(Actor actor)
     {
         if ((OID)actor.OID == OID.PaintedSapling)
-        {
-            _activation = Module.WorldState.FutureTime(10.9f);
-        }
+            _activation = WorldState.FutureTime(10.9f);
     }
 
     //TODO: consider moving this logic to the component
@@ -41,10 +37,9 @@ class FeedingTime(BossModule module) : Components.InterceptTether(module, Action
     {
         if (Active)
         {
-            var primary = Module.PrimaryActor;
             var source = Module.Enemies(OID.PaintedSapling)[slot].Position;
-            var direction = (primary.Position - source).Normalized();
-            hints.AddForbiddenZone(ShapeDistance.InvertedRect(primary.Position - (primary.HitboxRadius + 0.1f) * Angle.FromDirection(direction).ToDirection(), source, 1), _activation);
+            var direction = (Module.PrimaryActor.Position - source).Normalized();
+            hints.AddForbiddenZone(ShapeDistance.InvertedRect(Module.PrimaryActor.Position - (Module.PrimaryActor.HitboxRadius + 0.1f) * Angle.FromDirection(direction).ToDirection(), source, 1), _activation);
         }
     }
 }
@@ -83,9 +78,7 @@ class D022GriauleStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 649, NameID = 8143)]
 public class D022Griaule(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> union = [new Circle(new(7.17f, -339), 24.6f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(7, -363.5f), 20, 1), new Rectangle(new(7, -315), 20, 0.75f)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(7.17f, -339), 24.6f)], [new Rectangle(new(7, -363.5f), 20, 1), new Rectangle(new(7, -315), 20, 0.75f)]);
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

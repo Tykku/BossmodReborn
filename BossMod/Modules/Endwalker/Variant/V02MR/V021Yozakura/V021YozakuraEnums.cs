@@ -1,10 +1,11 @@
-﻿namespace BossMod.Endwalker.Variant.V02MR.V021Yozakura;
+﻿namespace BossMod.Endwalker.VariantCriterion.V02MR.V021Yozakura;
 
 public enum OID : uint
 {
     Boss = 0x3EDB, // R3.45
     ShishuYamabiko = 0x3F00, // R0.8
     MirroredYozakura = 0x3EDC, // R3.45
+    MudVoidzone = 0x1EB907, // R0.5
     MudBubble = 0x3EDD, // R4.0
     Kuromaru = 0x3EDF, // R0.4
     Shiromaru = 0x3EE0, // R0.4
@@ -15,8 +16,9 @@ public enum OID : uint
     Thunder = 0x1EB88E, // R0.5
     Water = 0x1EB88D, // R0.5
     Fire = 0x1EB88B, // R0.5
-    Helper = 0x233C,
-    Helper2 = 0x3F53
+    LivingGaol = 0x3EE2, // R3.7
+    Helper2 = 0x3F53,
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -64,14 +66,14 @@ public enum AID : uint
 
     //Left Rainy
     Bunshin = 33662, // Boss->self, 5.0s cast, single-target
-    Shadowflight = 33663, // Boss->self, 3.0s cast, single-target
-    ShadowflightAOE = 33664, // MirroredYozakura->self, 2.5s cast, range 10 width 6 rect
+    ShadowflightVisual = 33663, // Boss->self, 3.0s cast, single-target
+    Shadowflight = 33664, // MirroredYozakura->self, 2.5s cast, range 10 width 6 rect
     MudrainVisual = 33673, // Boss->self, 3.0s cast, single-target
     Mudrain = 33674, // Helper->location, 3.8s cast, range 5 circle
     IcebloomVisual = 33675, // Boss->self, 3.0s cast, single-target
     Icebloom = 33676, // Helper->location, 3.0s cast, range 6 circle
-    MudPie = 33677, // Boss->self, 3.0s cast, single-target
-    MudPieAOE = 33678, // MudBubble->self, 4.0s cast, range 60 width 6 rect
+    MudPieVisual = 33677, // Boss->self, 3.0s cast, single-target
+    MudPie = 33678, // MudBubble->self, 4.0s cast, range 60 width 6 rect
 
     //Middle Rope Pulled
     ArtOfTheFluff1 = 33693, // Shibamaru/Kuromaru->self, 6.5s cast, range 60 circle, gaze
@@ -84,45 +86,33 @@ public enum AID : uint
     SilentWhistle = 33691, // Boss->self, 3.0s cast, single-target, dog summons
 
     //Middle Rope Unpulled
-    LevinblossomLance1 = 33687, // Boss->self, 5.0s cast, single-target
-    LevinblossomLance2 = 33688, // Boss->self, 5.0s cast, single-target
+    LevinblossomLanceCW = 33687, // Boss->self, 5.0s cast, single-target
+    LevinblossomLanceCCW = 33688, // Boss->self, 5.0s cast, single-target
     LevinblossomLanceFirst = 33689, // Helper->self, 5.8s cast, range 60 width 7 rect
     LevinblossomLanceRest = 33690, // Helper->self, no cast, range 60 width 7 rect
 
     TatamiTrap = 33684, // Boss->self, 3.0s cast, single-target
-    TatamiGaeshi = 33685, // Boss->self, 3.0s cast, single-target
-    TatamiGaeshiAOE = 33686, // Helper->self, 3.8s cast, range 40 width 10 rect
+    TatamiGaeshiVisual = 33685, // Boss->self, 3.0s cast, single-target
+    TatamiGaeshi = 33686, // Helper->self, 3.8s cast, range 40 width 10 rect
 
     //Right No Dogu
-    RockMebuki = 33697, // Boss->self, 3.0s cast, single-target
+    Mebuki = 33697, // Boss->self, 3.0s cast, single-target
     RockRootArrangementVisual = 33700, // Boss->self, 5.0s cast, single-target
     RockRootArrangementFirst = 33701, // Helper->location, 3.0s cast, range 4 circle
     RockRootArrangementRest = 33702, // Helper->location, no cast, range 4 circle
+    BehindBarbs = 33698, // AccursedSeedling->player, no cast, single-target
+    Explosion = 33699, // LivingGaol->player, 15.0s cast, single-target, seedling turns into prison if touched, explodes after 15s if not killed
 
     //Right Dogu
-    Witherwind = 33703 // Boss->self, 3.0s cast, single-target
-}
-
-public enum SID : uint
-{
-    SeasonsOfTheFleeting = 3623, // none->Boss, extra=0x0
-    Unknown = 2056, // none->3EE1, extra=0x243
+    Witherwind = 33703, // Boss->self, 3.0s cast, single-target
+    CuttingLeaves = 33704 // Helper->player, no cast, single-target, touch whirlwind
 }
 
 public enum IconID : uint
 {
     Tankbuster = 218, // player
-    Icon374 = 374, // Shibamaru/Shiromaru/Kuromaru
+    Gaze = 374, // Shibamaru/Shiromaru/Kuromaru
     RotateCW = 167, // Boss
     RotateCCW = 168, // Boss
-    RootArrangement = 197, // player
-}
-
-public enum TetherID : uint
-{
-    Thunder = 6, // Helper2->Boss
-    Wind = 4, // Helper2->Boss
-    Water = 3, // Helper2->Boss
-    Fire = 5, // Helper2->Boss
-    Tether79 = 79, // Helper2->Boss
+    ChasingAOE = 197 // player
 }

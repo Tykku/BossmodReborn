@@ -3,9 +3,9 @@ namespace BossMod.Shadowbringers.Dungeon.D05MtGulg.D054ForgivenRevelry;
 public enum OID : uint
 {
     Boss = 0x28F3, //R=7.5
-    Helper = 0x2E8, //R=0.5
-    Helper2 = 0x233C,
     Brightsphere = 0x2947, //R=1.0
+    Helper2 = 0x2E8, //R=0.5
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -15,7 +15,7 @@ public enum AID : uint
     LeftPalm2 = 16250, // 233C->self, 4.5s cast, range 30 width 15 rect
     LightShot = 16251, // Brightsphere->self, 4.0s cast, range 40 width 4 rect
     RightPalm = 16247, // Boss->self, no cast, single-target
-    RightPalm2 = 16248, // 233C->self, 4.5s cast, range 30 width 15 rect
+    RightPalm2 = 16248 // 233C->self, 4.5s cast, range 30 width 15 rect
 }
 
 class PalmAttacks(BossModule module) : Components.GenericAOEs(module) //Palm Attacks have a wrong origin, so i made a custom solution
@@ -31,10 +31,10 @@ class PalmAttacks(BossModule module) : Components.GenericAOEs(module) //Palm Att
         switch ((AID)spell.Action.ID)
         {
             case AID.LeftPalm2:
-                _aoe = new(rect, new(Module.PrimaryActor.Position.X, Module.Center.Z), -90.Degrees(), Module.CastFinishAt(spell));
+                _aoe = new(rect, new(Module.PrimaryActor.Position.X, Arena.Center.Z), -90.Degrees(), Module.CastFinishAt(spell));
                 break;
             case AID.RightPalm2:
-                _aoe = new(rect, new(Module.PrimaryActor.Position.X, Module.Center.Z), 90.Degrees(), Module.CastFinishAt(spell));
+                _aoe = new(rect, new(Module.PrimaryActor.Position.X, Arena.Center.Z), 90.Degrees(), Module.CastFinishAt(spell));
                 break;
         }
     }

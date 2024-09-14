@@ -10,10 +10,11 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 871, // Boss->player, no cast, single-target
+    AutoAttack1 = 871, // Boss->player, no cast, single-target
     AutoAttack2 = 39089, // Turret->player, no cast, single-target
     AutoAttack3 = 873, // SentryS7->player, no cast, single-target
     AutoAttack4 = 870, // SentryR7->player, no cast, single-target
+
     IncendiaryRing = 38452, // Boss->self, 4.8s cast, range 3-12 donut
     Electrobeam = 38060, // Turret->self, 4.0s cast, range 50 width 4 rect
     SpreadShot = 39017, // SentryS7->self, 4.0s cast, range 12 90-degree cone
@@ -31,7 +32,7 @@ class D040VanguardAerostat2States : StateMachineBuilder
             .ActivateOnEnter<IncendiaryRing>()
             .ActivateOnEnter<Electrobeam>()
             .ActivateOnEnter<SpreadShot>()
-            .Raw.Update = () => module.Enemies(OID.Turret).All(e => e.IsDeadOrDestroyed) && module.PrimaryActor.IsDeadOrDestroyed;
+            .Raw.Update = () => module.Enemies(OID.Turret).Concat([module.PrimaryActor]).All(e => e.IsDeadOrDestroyed);
     }
 }
 
@@ -47,9 +48,7 @@ public class D040VanguardAerostat2(WorldState ws, Actor primary) : BossModule(ws
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Turret));
-        Arena.Actors(Enemies(OID.SentryR7));
-        Arena.Actors(Enemies(OID.SentryS7));
         Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Turret).Concat(Enemies(OID.SentryR7)).Concat(Enemies(OID.SentryS7)));
     }
 }

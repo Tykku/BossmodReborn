@@ -14,7 +14,7 @@ class QuadrupleCrossingProtean(BossModule module) : Components.GenericBaitAway(m
     {
         CurrentBaits.Clear();
         if (Origin != null && _activation != default)
-            foreach (var p in Module.Raid.WithoutSlot().SortedByRange(Origin.Position).Take(4))
+            foreach (var p in Raid.WithoutSlot().SortedByRange(Origin.Position).Take(4))
                 CurrentBaits.Add(new(Origin, p, _shape, _activation));
     }
 
@@ -50,7 +50,7 @@ class QuadrupleCrossingProtean(BossModule module) : Components.GenericBaitAway(m
                 break;
             case AID.NailchipperAOE:
                 if (NumCasts == 8)
-                    ForbiddenPlayers.Set(Module.Raid.FindSlot(spell.TargetID));
+                    ForbiddenPlayers.Set(Raid.FindSlot(spell.TargetID));
                 break;
         }
     }
@@ -64,9 +64,9 @@ class QuadrupleCrossingProtean(BossModule module) : Components.GenericBaitAway(m
                 ForbiddenPlayers.Reset(); // third set => clear nailchippers
             }
 
-            _activation = Module.WorldState.FutureTime(3);
+            _activation = WorldState.FutureTime(3);
             foreach (var t in spell.Targets)
-                ForbiddenPlayers.Set(Module.Raid.FindSlot(t.ID));
+                ForbiddenPlayers.Set(Raid.FindSlot(t.ID));
 
             if (++NumCasts is 8 or 16)
             {
@@ -89,7 +89,7 @@ class QuadrupleCrossingProtean(BossModule module) : Components.GenericBaitAway(m
         {
             var origin = source.Position + 10 * (source.Rotation + _jumpDirection).ToDirection();
             Origin = new(0, 0, -1, "", 0, ActorType.None, Class.None, 0, new(origin.X, source.PosRot.Y, origin.Z, source.PosRot.W));
-            _activation = Module.WorldState.FutureTime(17);
+            _activation = WorldState.FutureTime(17);
         }
     }
 }
@@ -119,7 +119,7 @@ class QuadrupleCrossingAOE(BossModule module) : Components.GenericAOEs(module)
             case AID.QuadrupleCrossingProtean:
             case AID.LeapingQuadrupleCrossingBossProtean:
             case AID.LeapingQuadrupleCrossingShadeProtean:
-                _aoes.Add(new(_shape, caster.Position, caster.Rotation, Module.WorldState.FutureTime(5.9f)));
+                _aoes.Add(new(_shape, caster.Position, caster.Rotation, WorldState.FutureTime(5.9f)));
                 break;
             case AID.QuadrupleCrossingAOE:
             case AID.LeapingQuadrupleCrossingBossAOE:

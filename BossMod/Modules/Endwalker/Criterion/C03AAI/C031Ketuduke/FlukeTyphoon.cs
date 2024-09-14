@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C03AAI.C031Ketuduke;
+﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C031Ketuduke;
 
 class FlukeTyphoon(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.FlukeTyphoonAOE));
 

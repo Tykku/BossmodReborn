@@ -84,7 +84,5 @@ class D013LoreleiStates : StateMachineBuilder
 public class D013Lorelei(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultArena.Center, DefaultArena)
 {
     public static readonly WPos ArenaCenter = new(-44.5f, 465);
-    private static readonly List<Shape> union = [new Circle(ArenaCenter, 21.6f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(-44.5f, 443), 20, 1)];
-    public static readonly ArenaBounds DefaultArena = new ArenaBoundsComplex(union, difference);
+    public static readonly ArenaBounds DefaultArena = new ArenaBoundsComplex([new Circle(ArenaCenter, 21.6f)], [new Rectangle(new(-44.5f, 443), 20, 1)]);
 }

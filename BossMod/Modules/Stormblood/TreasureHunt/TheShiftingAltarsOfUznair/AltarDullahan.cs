@@ -3,24 +3,25 @@ namespace BossMod.Stormblood.TreasureHunt.ShiftingAltarsOfUznair.AltarDullahan;
 public enum OID : uint
 {
     Boss = 0x2533, //R=3.8
-    BossAdd = 0x2563, //R=1.8
+    AltarVodoriga = 0x2563, //R=1.8
     AltarQueen = 0x254A, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
     AltarGarlic = 0x2548, // R0.84, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
     AltarTomato = 0x2549, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
     AltarOnion = 0x2546, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
     AltarEgg = 0x2547, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
-    BonusAddAltarMatanga = 0x2545, // R3.420
+    AltarMatanga = 0x2545, // R3.420
     Helper = 0x233C
 }
 
 public enum AID : uint
 {
-    AutoAttack = 870, // Boss->player, no cast, single-target
-    AutoAttack2 = 872, // BonusAddAltarMatanga/BonusAdd_Mandragoras->player, no cast, single-target
-    AutoAttack3 = 6497, // BossAdd->player, no cast, single-target
+    AutoAttack1 = 870, // Boss->player, no cast, single-target
+    AutoAttack2 = 872, // AltarMatanga/Mandragoras->player, no cast, single-target
+    AutoAttack3 = 6497, // AltarVodoriga->player, no cast, single-target
+
     IronJustice = 13316, // Boss->self, 3.0s cast, range 8+R 120-degree cone
     Cloudcover = 13477, // Boss->location, 3.0s cast, range 6 circle
-    TerrorEye = 13644, // BossAdd->location, 3.5s cast, range 6 circle
+    TerrorEye = 13644, // AltarVodoriga->location, 3.5s cast, range 6 circle
     StygianRelease = 13314, // Boss->self, 3.5s cast, range 50+R circle, small raidwide dmg, knockback 20 from source
     VillainousRebuke = 13315, // Boss->players, 4.5s cast, range 6 circle
 
@@ -29,11 +30,11 @@ public enum AID : uint
     TearyTwirl = 6448, // AltarOnion->self, 3.5s cast, range 6+R circle
     Pollen = 6452, // AltarQueen->self, 3.5s cast, range 6+R circle
     HeirloomScream = 6451, // AltarTomato->self, 3.5s cast, range 6+R circle
-    unknown = 9636, // BonusAddAltarMatanga->self, no cast, single-target
-    Spin = 8599, // BonusAddAltarMatanga->self, no cast, range 6+R 120-degree cone
-    RaucousScritch = 8598, // BonusAddAltarMatanga->self, 2.5s cast, range 5+R 120-degree cone
-    Hurl = 5352, // BonusAddAltarMatanga->location, 3.0s cast, range 6 circle
-    Telega = 9630 // bonusadds->self, no cast, single-target, bonus add disappear
+    MatangaActivate = 9636, // AltarMatanga->self, no cast, single-target
+    Spin = 8599, // AltarMatanga->self, no cast, range 6+R 120-degree cone
+    RaucousScritch = 8598, // AltarMatanga->self, 2.5s cast, range 5+R 120-degree cone
+    Hurl = 5352, // AltarMatanga->location, 3.0s cast, range 6 circle
+    Telega = 9630 // Mandragoras/AltarMatanga->self, no cast, single-target, bonus add disappear
 }
 
 class IronJustice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IronJustice), new AOEShapeCone(11.8f, 60.Degrees()));
@@ -41,12 +42,6 @@ class Cloudcover(BossModule module) : Components.LocationTargetedAOEs(module, Ac
 class TerrorEye(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TerrorEye), 6);
 class VillainousRebuke(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VillainousRebuke), 6, 8, 8);
 class StygianRelease(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.StygianRelease));
-class PluckAndPrune(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PluckAndPrune), new AOEShapeCircle(6.84f));
-class TearyTwirl(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TearyTwirl), new AOEShapeCircle(6.84f));
-class HeirloomScream(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeirloomScream), new AOEShapeCircle(6.84f));
-class PungentPirouette(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PungentPirouette), new AOEShapeCircle(6.84f));
-class Pollen(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Pollen), new AOEShapeCircle(6.84f));
-
 class StygianReleaseKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.StygianRelease), 20, stopAtWall: true)
 {
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => Module.FindComponent<TerrorEye>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false;
@@ -54,11 +49,18 @@ class StygianReleaseKB(BossModule module) : Components.KnockbackFromCastTarget(m
 
 class RaucousScritch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
 class Hurl(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
-class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.BonusAddAltarMatanga);
+class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.AltarMatanga);
 
-class DullahanStates : StateMachineBuilder
+class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+
+class AltarDullahanStates : StateMachineBuilder
 {
-    public DullahanStates(BossModule module) : base(module)
+    public AltarDullahanStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<IronJustice>()
@@ -75,23 +77,21 @@ class DullahanStates : StateMachineBuilder
             .ActivateOnEnter<Hurl>()
             .ActivateOnEnter<RaucousScritch>()
             .ActivateOnEnter<Spin>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead) && module.Enemies(OID.BossAdd).All(e => e.IsDead) && module.Enemies(OID.BonusAddAltarMatanga).All(e => e.IsDead) && module.Enemies(OID.AltarEgg).All(e => e.IsDead) && module.Enemies(OID.AltarQueen).All(e => e.IsDead) && module.Enemies(OID.AltarOnion).All(e => e.IsDead) && module.Enemies(OID.AltarGarlic).All(e => e.IsDead) && module.Enemies(OID.AltarTomato).All(e => e.IsDead);
+            .Raw.Update = () => module.Enemies(OID.AltarVodoriga).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.AltarEgg)).Concat(module.Enemies(OID.AltarQueen))
+            .Concat(module.Enemies(OID.AltarOnion)).Concat(module.Enemies(OID.AltarGarlic)).Concat(module.Enemies(OID.AltarTomato)).Concat(module.Enemies(OID.AltarMatanga))
+            .All(e => e.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 586, NameID = 7585)]
-public class Dullahan(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class AltarDullahan(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
-        Arena.Actors(Enemies(OID.AltarEgg), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.AltarTomato), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.AltarQueen), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.AltarGarlic), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.AltarOnion), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.BonusAddAltarMatanga), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.AltarVodoriga));
+        Arena.Actors(Enemies(OID.AltarEgg).Concat(Enemies(OID.AltarTomato)).Concat(Enemies(OID.AltarQueen)).Concat(Enemies(OID.AltarGarlic)).Concat(Enemies(OID.AltarOnion))
+        .Concat(Enemies(OID.AltarMatanga)), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -104,8 +104,8 @@ public class Dullahan(WorldState ws, Actor primary) : BossModule(ws, primary, ne
                 OID.AltarEgg => 6,
                 OID.AltarGarlic => 5,
                 OID.AltarTomato => 4,
-                OID.AltarQueen or OID.BonusAddAltarMatanga => 3,
-                OID.BossAdd => 2,
+                OID.AltarQueen or OID.AltarMatanga => 3,
+                OID.AltarVodoriga => 2,
                 OID.Boss => 1,
                 _ => 0
             };

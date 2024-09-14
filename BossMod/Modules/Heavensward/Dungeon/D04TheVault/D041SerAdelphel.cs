@@ -2,12 +2,12 @@
 
 public enum OID : uint
 {
-    Boss = 0x1051, // R2.200, x1
-    Helper = 0xD25, // R0.500, x3, mixed types
-    BrightSphere = 0x1052, // R1.000, x0 (spawn during fight)
-    SerAdelphelBrightblade = 0x104E, // R0.500, x1
-    VaultDeacon = 0x1050, // R0.500, x1
-    VaultOstiary = 0x104F, // R0.500, x2
+    Boss = 0x1051, // R2.2
+    BrightSphere = 0x1052, // R1.0
+    SerAdelphelBrightblade = 0x104E, // R0.5
+    VaultDeacon = 0x1050, // R0.5
+    VaultOstiary = 0x104F, // R0.5
+    Helper = 0xD25
 }
 
 public enum AID : uint
@@ -36,13 +36,13 @@ public enum AID : uint
 
     Visual = 4121, // Boss->self, no cast, single-target
     BossPhase1Vanish = 4256, // SerAdelphelBrightblade->self, no cast, single-target
-    BossPhase2Vanish = 4124, // Boss->self, no cast, single-target
+    BossPhase2Vanish = 4124 // Boss->self, no cast, single-target
 }
 
 public enum IconID : uint
 {
     Stunmarker = 16, // player
-    Spreadmarker = 32, // player
+    Spreadmarker = 32 // player
 }
 
 class Bloodstain(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Bloodstain), new AOEShapeCircle(5));
@@ -66,7 +66,7 @@ class BrightSphere(BossModule module) : Components.GenericAOEs(module)
     public override void OnActorCreated(Actor actor)
     {
         if ((OID)actor.OID == OID.BrightSphere)
-            _aoes.Add(new AOEInstance(circle, actor.Position, default, Module.WorldState.FutureTime(4.6f)));
+            _aoes.Add(new(circle, actor.Position, default, WorldState.FutureTime(4.6f)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -89,7 +89,6 @@ class ShiningBlade(BossModule module) : Components.GenericAOEs(module)
     private static readonly WPos East = new(18.387f, -100.053f);
 
     private const int HalfWidth = 3;
-    private const float FirstActivationDelay = 0.08f;
     private const float SubsequentActivationDelay = 2.2f;
     private static readonly Angle Angle90Degrees = 90.Degrees();
     private static readonly Angle Angle180Degrees = 180.Degrees();
@@ -113,16 +112,16 @@ class ShiningBlade(BossModule module) : Components.GenericAOEs(module)
             return;
 
         var primary = Module.PrimaryActor.Position;
-        var activationTimes = GetActivationTimes();
+        var activationTimes = GetActivationTimes(WorldState.FutureTime(0.08f));
 
-        if (primary.InCone(Module.Center, Angle90Degrees, ConeAngle))
-            AddAoeInstances(primary, West, South, North, East, activationTimes);
-        else if (primary.InCone(Module.Center, AngleMinus90Degrees, ConeAngle))
-            AddAoeInstances(primary, East, North, South, West, activationTimes);
-        else if (primary.InCone(Module.Center, Angle180Degrees, ConeAngle))
-            AddAoeInstances(primary, South, East, West, North, activationTimes);
-        else if (primary.InCone(Module.Center, Angle0Degrees, ConeAngle))
-            AddAoeInstances(primary, North, West, East, South, activationTimes);
+        if (primary.InCone(Arena.Center, Angle90Degrees, ConeAngle))
+            AddAOEs(primary, West, South, North, East, activationTimes);
+        else if (primary.InCone(Arena.Center, AngleMinus90Degrees, ConeAngle))
+            AddAOEs(primary, East, North, South, West, activationTimes);
+        else if (primary.InCone(Arena.Center, Angle180Degrees, ConeAngle))
+            AddAOEs(primary, South, East, West, North, activationTimes);
+        else if (primary.InCone(Arena.Center, Angle0Degrees, ConeAngle))
+            AddAOEs(primary, North, West, East, South, activationTimes);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -131,9 +130,8 @@ class ShiningBlade(BossModule module) : Components.GenericAOEs(module)
             _aoes.RemoveAt(0);
     }
 
-    private List<DateTime> GetActivationTimes()
+    private static List<DateTime> GetActivationTimes(DateTime activation)
     {
-        var activation = WorldState.FutureTime(FirstActivationDelay);
         return
         [
             activation,
@@ -143,12 +141,12 @@ class ShiningBlade(BossModule module) : Components.GenericAOEs(module)
         ];
     }
 
-    private void AddAoeInstances(WPos primary, WPos first, WPos second, WPos third, WPos fourth, List<DateTime> activationTimes)
+    private void AddAOEs(WPos primary, WPos first, WPos second, WPos third, WPos fourth, List<DateTime> activationTimes)
     {
-        _aoes.Add(new AOEInstance(new AOEShapeRect((first - primary).Length(), HalfWidth), primary, Angle.FromDirection(first - primary), activationTimes[0]));
-        _aoes.Add(new AOEInstance(new AOEShapeRect((second - first).Length(), HalfWidth), first, Angle.FromDirection(second - first), activationTimes[1]));
-        _aoes.Add(new AOEInstance(new AOEShapeRect((third - second).Length(), HalfWidth), second, Angle.FromDirection(third - second), activationTimes[2]));
-        _aoes.Add(new AOEInstance(new AOEShapeRect((fourth - third).Length(), HalfWidth), third, Angle.FromDirection(fourth - third), activationTimes[3]));
+        _aoes.Add(new(new AOEShapeRect((first - primary).Length(), HalfWidth), primary, Angle.FromDirection(first - primary), activationTimes[0]));
+        _aoes.Add(new(new AOEShapeRect((second - first).Length(), HalfWidth), first, Angle.FromDirection(second - first), activationTimes[1]));
+        _aoes.Add(new(new AOEShapeRect((third - second).Length(), HalfWidth), second, Angle.FromDirection(third - second), activationTimes[2]));
+        _aoes.Add(new(new AOEShapeRect((fourth - third).Length(), HalfWidth), third, Angle.FromDirection(fourth - third), activationTimes[3]));
     }
 }
 
@@ -172,9 +170,7 @@ public class D041SerAdelphel(WorldState ws, Actor primary) : BossModule(ws, prim
 {
     protected override bool CheckPull() => PrimaryActor.IsTargetable && PrimaryActor.InCombat || Enemies(OID.SerAdelphelBrightblade).Any(e => e.InCombat);
 
-    private static readonly List<Shape> union = [new Circle(new(0, -100), 19.5f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(0, -120), 20, 1.75f), new Rectangle(new(-21, -100), 20, 1.75f, 90.Degrees())];
-    public static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    public static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(0, -100), 19.5f)], [new Rectangle(new(0, -120), 20, 1.75f), new Rectangle(new(-21, -100), 20, 1.75f, 90.Degrees())]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

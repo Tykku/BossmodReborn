@@ -1,4 +1,4 @@
-namespace BossMod.Endwalker.Variant.V01SS.V013Gladiator;
+namespace BossMod.Endwalker.VariantCriterion.V01SS.V013Gladiator;
 
 class SunderedRemains(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SunderedRemains), new AOEShapeCircle(10));
 class Landing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Landing), new AOEShapeCircle(20));
@@ -233,5 +233,5 @@ class SilverFlame2(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", PrimaryActorOID = (uint)OID.Boss, GroupType = BossModuleInfo.GroupType.CFC, Category = BossModuleInfo.Category.Criterion, GroupID = 868, NameID = 11387)]
+[ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", PrimaryActorOID = (uint)OID.Boss, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 868, NameID = 11387)]
 public class V013Gladiator(WorldState ws, Actor primary) : BossModule(ws, primary, new(-35, -271), new ArenaBoundsSquare(20));

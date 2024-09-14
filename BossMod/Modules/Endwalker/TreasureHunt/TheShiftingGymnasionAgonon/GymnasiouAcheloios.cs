@@ -3,94 +3,115 @@ namespace BossMod.Endwalker.TreasureHunt.ShiftingGymnasionAgonon.GymnasiouAchelo
 public enum OID : uint
 {
     Boss = 0x3D3E, //R=4.0
-    BossAdd = 0x3D3F, //R=2.7
-    GymnasticGarlic = 0x3D51, // R0.840, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
-    GymnasticQueen = 0x3D53, // R0.840, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
-    GymnasticEggplant = 0x3D50, // R0.840, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
-    GymnasticOnion = 0x3D4F, // R0.840, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
-    GymnasticTomato = 0x3D52, // R0.840, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
-    BonusAddLampas = 0x3D4D, //R=2.001, bonus loot adds
-    BonusAddLyssa = 0x3D4E, //R=3.75, bonus loot adds
-    BossHelper = 0x233C
+    GymnasiouSouchos = 0x3D3F, //R=2.7
+    GymnasticGarlic = 0x3D51, // R0.84, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
+    GymnasticQueen = 0x3D53, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
+    GymnasticEggplant = 0x3D50, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    GymnasticOnion = 0x3D4F, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
+    GymnasticTomato = 0x3D52, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
+    GymnasiouLampas = 0x3D4D, //R=2.001, bonus loot adds
+    GymnasiouLyssa = 0x3D4E, //R=3.75, bonus loot adds
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
-    AutoAttack = 870, // Boss/BossAdd->player, no cast, single-target
-    DoubleHammerA = 32284, // Boss->self, 4.2s cast, single-target
-    DoubleHammerB = 32281, // Boss->self, 4.2s cast, single-target
-    DoubleHammer = 32859, // BossHelper->self, 5.0s cast, range 30 180-degree cone
-    RightHammer1 = 32282, // Boss->self, 0.5s cast, single-target
-    RightHammer2 = 32860, // BossHelper->self, 1.0s cast, range 30 180-degree cone
+    AutoAttack = 870, // Boss/GymnasiouSouchos/GymnasiouLyssa->player, no cast, single-target
+
+    DoubleHammerVisualLR = 32284, // Boss->self, 4.2s cast, single-target
+    DoubleHammerVisualRL = 32281, // Boss->self, 4.2s cast, single-target
+    RightHammerVisual = 32282, // Boss->self, 0.5s cast, single-target
+    LeftHammerVisual = 32285, // Boss->self, 0.5s cast, single-target
+    QuadrupleHammerVisualCCW = 32280, // Boss->self, 4.2s cast, single-target
+    QuadrupleHammerVisualCW = 32283, // Boss->self, 4.2s cast, single-target
+    DoubleHammerFirst = 32859, // Helper->self, 5.0s cast, range 30 180-degree cone
+    QuadrupleHammerFirst = 32858, // Helper->self, 5.0s cast, range 30 180-degree cone
+    RightHammer = 32860, // Helper->self, 1.0s cast, range 30 180-degree cone
+    LeftHammer = 32861, // BossHelper->self, 1.0s cast, range 30 180-degree cone
+
     TailSwing = 32279, // Boss->self, 3.5s cast, range 13 circle
-    QuadrupleHammerA = 32280, // Boss->self, 4.2s cast, single-target
-    QuadrupleHammerB = 32283, // Boss->self, 4.2s cast, single-target
-    QuadrupleHammer2 = 32858, // BossHelper->self, 5.0s cast, range 30 180-degree cone
-    LeftHammer1 = 32285, // Boss->self, 0.5s cast, single-target
-    LeftHammer2 = 32861, // BossHelper->self, 1.0s cast, range 30 180-degree cone
-    CriticalBite = 32286, // BossAdd->self, 3.0s cast, range 10 120-degree cone
+    CriticalBite = 32286, // GymnasiouSouchos->self, 3.0s cast, range 10 120-degree cone
     DeadlyHold = 32275, // Boss->player, 5.0s cast, single-target
-    Earthbreak = 32277, // Boss->self, 2.1s cast, single-target
-    Earthbreak2 = 32278, // BossHelper->location, 3.0s cast, range 5 circle
+    EarthbreakVisual = 32277, // Boss->self, 2.1s cast, single-target
+    Earthbreak = 32278, // Helper->location, 3.0s cast, range 5 circle
     VolcanicHowl = 32276, // Boss->self, 5.0s cast, range 40 circle
+
     PluckAndPrune = 32302, // GymnasticEggplant->self, 3.5s cast, range 7 circle
     Pollen = 32305, // GymnasticQueen->self, 3.5s cast, range 7 circle
     HeirloomScream = 32304, // GymnasticTomato->self, 3.5s cast, range 7 circle
     PungentPirouette = 32303, // GymnasticGarlic->self, 3.5s cast, range 7 circle
     TearyTwirl = 32301, // GymnasticOnion->self, 3.5s cast, range 7 circle
-    Telega = 9630, // bonusadds->self, no cast, single-target, bonus add disappear
-    HeavySmash = 32317, // BonusAddLyssa->location, 3.0s cast, range 6 circle
+    HeavySmash = 32317, // GymnasiouLyssa->location, 3.0s cast, range 6 circle
+    Telega = 9630, // Mandragoras/GymnasiouLyssa->self, no cast, single-target, bonus add disappear
 }
 
-public enum IconID : uint
+class DoubleHammer(BossModule module) : Components.GenericAOEs(module)
 {
-    RotateCW = 167, // Boss
-    RotateCCW = 168, // Boss
-}
+    private readonly List<AOEInstance> _aoes = [];
+    public static readonly AOEShapeCone Cone = new(30, 90.Degrees());
+    private static readonly Angle[] angles = [89.999f.Degrees(), -90.004f.Degrees()];
 
-class Slammer(BossModule module) : Components.GenericRotatingAOE(module)
-{
-    private Angle _increment;
-    private Angle _rotation;
-    private DateTime _activation;
-    private static readonly AOEShapeCone _shape = new(30, 90.Degrees());
-
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        // note that boss switches hands, so CW rotation means CCW aoe sequence and vice versa
-        var increment = (IconID)iconID switch
-        {
-            IconID.RotateCW => 90.Degrees(),
-            IconID.RotateCCW => 90.Degrees(),
-            _ => default
-        };
-        if (increment != default)
-        {
-            _increment = increment;
-            InitIfReady(actor);
-        }
+        if (_aoes.Count > 0)
+            yield return _aoes[0] with { Color = Colors.Danger };
+        if (_aoes.Count > 1)
+            yield return _aoes[1] with { Risky = false };
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.DoubleHammer)
+        switch ((AID)spell.Action.ID)
         {
-            Sequences.Add(new(_shape, caster.Position, spell.Rotation, 180.Degrees(), Module.CastFinishAt(spell), 3.9f, 2, 1));
-            ImminentColor = Colors.AOE;
+            case AID.DoubleHammerVisualLR:
+                AddAOEs(caster, spell, angles[1], angles[0]);
+                break;
+            case AID.DoubleHammerVisualRL:
+                AddAOEs(caster, spell, angles[0], angles[1]);
+                break;
         }
-        if ((AID)spell.Action.ID == AID.QuadrupleHammer2)
-        {
-            ImminentColor = Colors.Danger;
-            _rotation = spell.Rotation;
-            _activation = Module.CastFinishAt(spell);
-        }
-        if (_rotation != default)
-            InitIfReady(caster);
+    }
+
+    private void AddAOEs(Actor caster, ActorCastInfo spell, Angle first, Angle second)
+    {
+        _aoes.Add(new(Cone, caster.Position, first, Module.CastFinishAt(spell, 0.8f)));
+        _aoes.Add(new(Cone, caster.Position, second, Module.CastFinishAt(spell, 3.7f)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0 && (AID)spell.Action.ID is AID.QuadrupleHammer2 or AID.LeftHammer2 or AID.RightHammer2 or AID.DoubleHammerA or AID.DoubleHammerB)
+        if (_aoes.Count > 0 && (AID)spell.Action.ID is AID.LeftHammer or AID.RightHammer or AID.DoubleHammerFirst)
+            _aoes.RemoveAt(0);
+    }
+}
+
+class QuadrupleHammer(BossModule module) : Components.GenericRotatingAOE(module)
+{
+    private Angle _increment;
+    private Angle _rotation;
+    private DateTime _activation;
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        switch ((AID)spell.Action.ID)
+        {
+            case AID.QuadrupleHammerVisualCW: // note that boss switches hands, so CW rotation means CCW aoe sequence and vice versa
+                _increment = 90.Degrees();
+                break;
+            case AID.QuadrupleHammerVisualCCW:
+                _increment = -90.Degrees();
+                break;
+            case AID.QuadrupleHammerFirst:
+                _rotation = spell.Rotation;
+                break;
+        }
+        _activation = Module.CastFinishAt(spell);
+        InitIfReady(caster);
+    }
+
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID is AID.QuadrupleHammerFirst or AID.LeftHammer or AID.RightHammer)
             AdvanceSequence(0, WorldState.CurrentTime);
     }
 
@@ -98,7 +119,7 @@ class Slammer(BossModule module) : Components.GenericRotatingAOE(module)
     {
         if (_rotation != default && _increment != default)
         {
-            Sequences.Add(new(_shape, source.Position, _rotation, _increment, _activation, 3.3f, 4));
+            Sequences.Add(new(DoubleHammer.Cone, source.Position, _rotation, _increment, _activation.AddSeconds(0.8f), 3.3f, 4));
             _rotation = default;
             _increment = default;
         }
@@ -106,23 +127,27 @@ class Slammer(BossModule module) : Components.GenericRotatingAOE(module)
 }
 
 class VolcanicHowl(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.VolcanicHowl));
-class Earthbreak(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Earthbreak2), 5);
+class Earthbreak(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Earthbreak), 5);
 class DeadlyHold(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DeadlyHold));
 class TailSwing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TailSwing), new AOEShapeCircle(13));
 class CriticalBite(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CriticalBite), new AOEShapeCone(10, 60.Degrees()));
-class PluckAndPrune(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PluckAndPrune), new AOEShapeCircle(7));
-class TearyTwirl(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TearyTwirl), new AOEShapeCircle(7));
-class HeirloomScream(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeirloomScream), new AOEShapeCircle(7));
-class PungentPirouette(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PungentPirouette), new AOEShapeCircle(7));
-class Pollen(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Pollen), new AOEShapeCircle(7));
+
+class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+
 class HeavySmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
 
-class AcheloiosStates : StateMachineBuilder
+class GymnasiouAcheloiosStates : StateMachineBuilder
 {
-    public AcheloiosStates(BossModule module) : base(module)
+    public GymnasiouAcheloiosStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Slammer>()
+            .ActivateOnEnter<DoubleHammer>()
+            .ActivateOnEnter<QuadrupleHammer>()
             .ActivateOnEnter<TailSwing>()
             .ActivateOnEnter<CriticalBite>()
             .ActivateOnEnter<DeadlyHold>()
@@ -134,24 +159,21 @@ class AcheloiosStates : StateMachineBuilder
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
             .ActivateOnEnter<HeavySmash>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead) && module.Enemies(OID.BossAdd).All(e => e.IsDead) && module.Enemies(OID.BonusAddLyssa).All(e => e.IsDead) && module.Enemies(OID.BonusAddLampas).All(e => e.IsDead) && module.Enemies(OID.GymnasticEggplant).All(e => e.IsDead) && module.Enemies(OID.GymnasticQueen).All(e => e.IsDead) && module.Enemies(OID.GymnasticOnion).All(e => e.IsDead) && module.Enemies(OID.GymnasticGarlic).All(e => e.IsDead) && module.Enemies(OID.GymnasticTomato).All(e => e.IsDead);
+            .Raw.Update = () => module.Enemies(OID.GymnasiouSouchos).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.GymnasticEggplant)).Concat(module.Enemies(OID.GymnasticQueen))
+            .Concat(module.Enemies(OID.GymnasticOnion)).Concat(module.Enemies(OID.GymnasticGarlic)).Concat(module.Enemies(OID.GymnasticTomato)).Concat(module.Enemies(OID.GymnasiouLampas))
+            .Concat(module.Enemies(OID.GymnasiouLyssa)).All(e => e.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 909, NameID = 12019)]
-public class Acheloios(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class GymnasiouAcheloios(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
-        Arena.Actors(Enemies(OID.GymnasticEggplant), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.GymnasticTomato), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.GymnasticQueen), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.GymnasticGarlic), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.GymnasticOnion), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.BonusAddLampas), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.BonusAddLyssa), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.GymnasiouSouchos));
+        Arena.Actors(Enemies(OID.GymnasticEggplant).Concat(Enemies(OID.GymnasticTomato)).Concat(Enemies(OID.GymnasticQueen)).Concat(Enemies(OID.GymnasticGarlic))
+        .Concat(Enemies(OID.GymnasticOnion)).Concat(Enemies(OID.GymnasiouLyssa)).Concat(Enemies(OID.GymnasiouLampas)), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -164,8 +186,8 @@ public class Acheloios(WorldState ws, Actor primary) : BossModule(ws, primary, n
                 OID.GymnasticEggplant => 6,
                 OID.GymnasticGarlic => 5,
                 OID.GymnasticTomato => 4,
-                OID.GymnasticQueen or OID.BonusAddLampas or OID.BonusAddLyssa => 3,
-                OID.BossAdd => 2,
+                OID.GymnasticQueen or OID.GymnasiouLyssa or OID.GymnasiouLampas => 3,
+                OID.GymnasiouSouchos => 2,
                 OID.Boss => 1,
                 _ => 0
             };

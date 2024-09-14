@@ -59,7 +59,7 @@ class Hieroglyphika(BossModule module) : Components.GenericAOEs(module, ActionID
                 var cellOffset = new WDir(x * 6, z * 6);
                 if (!safespots.Any(s => s.AlmostEqual(cellOffset, 1)))
                 {
-                    AOEs.Add(new(_shape, Module.Center + cellOffset, default, activation));
+                    AOEs.Add(new(_shape, Arena.Center + cellOffset, default, activation));
                 }
             }
         }

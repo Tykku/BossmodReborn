@@ -76,9 +76,9 @@ class ArenaChange(BossModule module) : BossComponent(module)
         if (index == 0x03)
         {
             if (state == 0x00020001)
-                Module.Arena.Center = D023Anima.LowerArenaCenter;
+                Arena.Center = D023Anima.LowerArenaCenter;
             if (state == 0x00080004)
-                Module.Arena.Center = D023Anima.UpperArenaCenter;
+                Arena.Center = D023Anima.UpperArenaCenter;
         }
     }
 
@@ -114,7 +114,7 @@ class BoundlessPain(BossModule module) : Components.GenericAOEs(module)
         switch ((AID)spell.Action.ID)
         {
             case AID.BoundlessPainPull:
-                _aoe = new(circle, Module.Arena.Center);
+                _aoe = new(circle, Arena.Center);
                 break;
             case AID.BoundlessPainFirst:
             case AID.BoundlessPainRest:
@@ -131,29 +131,19 @@ class BoundlessPain(BossModule module) : Components.GenericAOEs(module)
     {
         base.AddAIHints(slot, actor, assignment, hints);
         if (ActiveAOEs(slot, actor).Any())
-            hints.AddForbiddenZone(ShapeDistance.Rect(Module.Center, Module.Center + new WDir(0, 20), 20));
+            hints.AddForbiddenZone(ShapeDistance.Rect(Arena.Center, Arena.Center + new WDir(0, 20), 20));
     }
 }
 
-class Gravitons(BossModule module) : Components.GenericAOEs(module)
-{
-    private static readonly AOEShapeCircle circle = new(1);
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        foreach (var g in Module.Enemies(OID.MegaGraviton).Where(x => !x.IsDead))
-            yield return new(circle, g.Position);
-    }
-}
-
+class Gravitons(BossModule module) : Components.PersistentVoidzone(module, 1, m => m.Enemies(OID.MegaGraviton).Where(x => !x.IsDead));
 class AetherialPull(BossModule module) : Components.StretchTetherDuo(module, 33, 7.9f, tetherIDGood: (uint)TetherID.AetherialPullGood, knockbackImmunity: true);
-
-class CoffinScratch(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(3), ActionID.MakeSpell(AID.CoffinScratchFirst), ActionID.MakeSpell(AID.CoffinScratchRest), 6, 2, 5, true, (uint)IconID.ChasingAOE)
+class CoffinScratch(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(3), ActionID.MakeSpell(AID.CoffinScratchFirst), ActionID.MakeSpell(AID.CoffinScratchRest), 6, 1, 5, true, (uint)IconID.ChasingAOE)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
         if (Actors.Contains(actor))
-            hints.AddForbiddenZone(ShapeDistance.Rect(Module.Center + new WDir(19, 0), Module.Center + new WDir(-19, 0), 20), Activation);
+            hints.AddForbiddenZone(ShapeDistance.Rect(Arena.Center + new WDir(19, 0), Arena.Center + new WDir(-19, 0), 20), Activation);
         else if (Chasers.Any(x => x.Target == actor))
             hints.AddForbiddenZone(ShapeDistance.InvertedRect(actor.Position, 90.Degrees(), 40, 40, 3));
     }

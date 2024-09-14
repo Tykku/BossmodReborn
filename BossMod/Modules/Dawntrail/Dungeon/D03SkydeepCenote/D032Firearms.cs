@@ -65,10 +65,11 @@ class ThunderlightBurst2(BossModule module) : Components.SelfTargetedAOEs(module
 class ThunderlightBurst3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderlightBurst3), new AOEShapeRect(35, 4));
 class ThunderlightBurst4(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderlightBurst4), new AOEShapeRect(36, 4));
 
-class Artillery1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Artillery1), new AOEShapeRect(5, 5, 5));
-class Artillery2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Artillery2), new AOEShapeRect(5, 5, 5));
-class Artillery3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Artillery3), new AOEShapeRect(5, 5, 5));
-class Artillery4(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Artillery4), new AOEShapeRect(5, 5, 5));
+class Artillery(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(5, 5, 5));
+class Artillery1(BossModule module) : Artillery(module, AID.Artillery1);
+class Artillery2(BossModule module) : Artillery(module, AID.Artillery2);
+class Artillery3(BossModule module) : Artillery(module, AID.Artillery3);
+class Artillery4(BossModule module) : Artillery(module, AID.Artillery4);
 
 class Pummel(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Pummel));
 class ThunderlightFlurry(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.ThunderlightFlurry), 6);

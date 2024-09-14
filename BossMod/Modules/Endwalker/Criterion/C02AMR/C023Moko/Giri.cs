@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C023Moko;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C023Moko;
 
 // the main complexity is that first status and cast-start happen at the same time, so we can receive them in arbitrary order
 // we need cast to know proper rotation (we can't use actor's rotation, since it's interpolated)
@@ -112,7 +112,7 @@ class TripleKasumiGiri(BossModule module) : Components.GenericAOEs(module)
         }
     }
 
-    private (Angle, bool, int) ClassifyAction(ActionID action) => (AID)action.ID switch
+    private static (Angle, bool, int) ClassifyAction(ActionID action) => (AID)action.ID switch
     {
         AID.NTripleKasumiGiriOutFrontFirst or AID.STripleKasumiGiriOutFrontFirst => (0.Degrees(), false, 0),
         AID.NTripleKasumiGiriOutRightFirst or AID.STripleKasumiGiriOutRightFirst => (-90.Degrees(), false, 0),
@@ -233,7 +233,11 @@ class IaiGiriResolve(BossModule module) : Components.GenericAOEs(module)
         public Actor Source = source;
         public List<AOEInstance> AOEs = [];
     }
-
+    private static readonly HashSet<AID> casts = [AID.NFleetingIaiGiriFront, AID.NFleetingIaiGiriRight, AID.NFleetingIaiGiriLeft, AID.SFleetingIaiGiriFront,
+    AID.SFleetingIaiGiriRight, AID.SFleetingIaiGiriLeft, AID.NShadowKasumiGiriFrontFirst, AID.NShadowKasumiGiriRightFirst, AID.NShadowKasumiGiriBackFirst,
+    AID.NShadowKasumiGiriLeftFirst, AID.SShadowKasumiGiriFrontFirst, AID.SShadowKasumiGiriRightFirst, AID.SShadowKasumiGiriBackFirst, AID.SShadowKasumiGiriLeftFirst,
+    AID.NShadowKasumiGiriFrontSecond, AID.NShadowKasumiGiriRightSecond, AID.NShadowKasumiGiriBackSecond, AID.NShadowKasumiGiriLeftSecond, AID.SShadowKasumiGiriFrontSecond,
+    AID.SShadowKasumiGiriRightSecond, AID.SShadowKasumiGiriBackSecond, AID.SShadowKasumiGiriLeftSecond];
     private readonly List<Instance> _instances = [];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
@@ -245,12 +249,7 @@ class IaiGiriResolve(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID
-            is AID.NFleetingIaiGiriFront or AID.NFleetingIaiGiriRight or AID.NFleetingIaiGiriLeft or AID.SFleetingIaiGiriFront or AID.SFleetingIaiGiriRight or AID.SFleetingIaiGiriLeft
-            or AID.NShadowKasumiGiriFrontFirst or AID.NShadowKasumiGiriRightFirst or AID.NShadowKasumiGiriBackFirst or AID.NShadowKasumiGiriLeftFirst
-            or AID.SShadowKasumiGiriFrontFirst or AID.SShadowKasumiGiriRightFirst or AID.SShadowKasumiGiriBackFirst or AID.SShadowKasumiGiriLeftFirst
-            or AID.NShadowKasumiGiriFrontSecond or AID.NShadowKasumiGiriRightSecond or AID.NShadowKasumiGiriBackSecond or AID.NShadowKasumiGiriLeftSecond
-            or AID.SShadowKasumiGiriFrontSecond or AID.SShadowKasumiGiriRightSecond or AID.SShadowKasumiGiriBackSecond or AID.SShadowKasumiGiriLeftSecond)
+        if (casts.Contains((AID)spell.Action.ID))
         {
             var inst = _instances.Find(i => i.Source == caster);
             if (inst == null)
@@ -299,33 +298,13 @@ class IaiGiriResolve(BossModule module) : Components.GenericAOEs(module)
                 }
                 _instances.Add(inst);
                 break;
-            case AID.NFleetingIaiGiriFront:
-            case AID.NFleetingIaiGiriRight:
-            case AID.NFleetingIaiGiriLeft:
-            case AID.SFleetingIaiGiriFront:
-            case AID.SFleetingIaiGiriRight:
-            case AID.SFleetingIaiGiriLeft:
-            case AID.NShadowKasumiGiriFrontFirst:
-            case AID.NShadowKasumiGiriRightFirst:
-            case AID.NShadowKasumiGiriBackFirst:
-            case AID.NShadowKasumiGiriLeftFirst:
-            case AID.SShadowKasumiGiriFrontFirst:
-            case AID.SShadowKasumiGiriRightFirst:
-            case AID.SShadowKasumiGiriBackFirst:
-            case AID.SShadowKasumiGiriLeftFirst:
-            case AID.NShadowKasumiGiriFrontSecond:
-            case AID.NShadowKasumiGiriRightSecond:
-            case AID.NShadowKasumiGiriBackSecond:
-            case AID.NShadowKasumiGiriLeftSecond:
-            case AID.SShadowKasumiGiriFrontSecond:
-            case AID.SShadowKasumiGiriRightSecond:
-            case AID.SShadowKasumiGiriBackSecond:
-            case AID.SShadowKasumiGiriLeftSecond:
-                ++NumCasts;
-                var instance = _instances.Find(i => i.Source == caster);
-                if (instance?.AOEs.Count > 0)
-                    instance.AOEs.RemoveAt(0);
-                break;
+        }
+        if (casts.Contains((AID)spell.Action.ID))
+        {
+            ++NumCasts;
+            var instance = _instances.Find(i => i.Source == caster);
+            if (instance?.AOEs.Count > 0)
+                instance.AOEs.RemoveAt(0);
         }
     }
 }

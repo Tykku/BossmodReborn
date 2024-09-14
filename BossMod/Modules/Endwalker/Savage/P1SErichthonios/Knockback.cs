@@ -12,7 +12,6 @@ class Knockback : BossComponent
     private const float _kbDistance = 15;
     private const float _flareRange = 24; // max range is 50, but it has distance falloff - linear up to ~24, then constant ~3k
     private const float _holyRange = 6;
-    private const uint _colorAOETarget = 0xff8080ff;
 
     public Knockback(BossModule module) : base(module)
     {
@@ -120,7 +119,7 @@ class Knockback : BossComponent
         else
         {
             // draw AOE source
-            Arena.Actor(targetPos, target.Rotation, _colorAOETarget);
+            Arena.Actor(targetPos, target.Rotation, Colors.Other2);
         }
         Arena.AddCircle(targetPos, aoeRange, Colors.Danger);
 

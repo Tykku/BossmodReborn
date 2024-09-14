@@ -38,15 +38,15 @@ class HeavyweightNeedlesArenaChange(BossModule module) : Components.GenericAOEs(
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.HeavyweightNeedlesVisual && Module.Arena.Bounds == D071Barreltender.StartingBounds)
-            _aoe = new(square, Module.Center, default, Module.CastFinishAt(spell, 0.7f));
+        if ((AID)spell.Action.ID == AID.HeavyweightNeedlesVisual && Arena.Bounds == D071Barreltender.StartingBounds)
+            _aoe = new(square, Arena.Center, default, Module.CastFinishAt(spell, 0.7f));
     }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state == 0x00020001 && index == 0x03)
         {
-            Module.Arena.Bounds = D071Barreltender.DefaultBounds;
+            Arena.Bounds = D071Barreltender.DefaultBounds;
             _aoe = null;
         }
     }
@@ -68,7 +68,7 @@ class NeedleStormSuperstormHeavyWeightNeedles(BossModule module) : Components.Ge
         {
             var component = Module.FindComponent<BarrelBreaker>()!;
             var isKnockback = component.Sources(slot, actor).Any();
-            var isStillSafe = component.Activation != default && component.Activation > Module.WorldState.CurrentTime;
+            var isStillSafe = component.Activation != default && component.Activation > WorldState.CurrentTime;
             var isKnockbackImmune = isKnockback && component.IsImmune(slot, component.Sources(slot, actor).First().Activation);
             var isKnockbackButImmune = isKnockback && isKnockbackImmune;
             var areConesActive = _aoesCones.Count > 0;
@@ -94,10 +94,7 @@ class NeedleStormSuperstormHeavyWeightNeedles(BossModule module) : Components.Ge
             cactiActive = true;
             var updatedAOEs = new List<AOEInstance>();
             foreach (var a in _aoesCircles)
-            {
-                var updatedAOE = new AOEInstance(a.Shape, a.Origin, default, Module.CastFinishAt(spell, 13.7f));
-                updatedAOEs.Add(updatedAOE);
-            }
+                updatedAOEs.Add(a with { Activation = Module.CastFinishAt(spell, 13.7f) });
             _aoesCircles = updatedAOEs;
         }
         else if ((AID)spell.Action.ID == AID.HeavyweightNeedles)
@@ -132,34 +129,32 @@ class BarrelBreaker(BossModule module) : Components.KnockbackFromCastTarget(modu
     private static readonly Angle a135 = 135.Degrees();
     private static readonly Angle a45 = 45.Degrees();
     public DateTime Activation;
-    private WPos origin;
+
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         base.OnCastStarted(caster, spell);
         if (spell.Action == WatchedAction)
-        {
             Activation = Module.CastFinishAt(spell, 1);
-            origin = spell.LocXZ;
-        }
     }
 
     public override void Update()
     {
-        if (Activation != default && Activation < Module.WorldState.CurrentTime)
+        if (Activation != default && Activation < WorldState.CurrentTime)
             Activation = default;
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
+        var source = Sources(slot, actor).FirstOrDefault();
         var forbidden = new List<Func<WPos, float>>();
-        if (Sources(slot, actor).Any() || Activation > Module.WorldState.CurrentTime) // 1s delay to wait for action effect
+        if (source != default)
         {
             var cactusSmall = Module.Enemies(OID.CactusSmall).FirstOrDefault(x => x.Position == new WPos(-55, 455));
-            forbidden.Add(ShapeDistance.InvertedDonutSector(origin, 4, 5, cactusSmall != default ? a135 : -a135, a5));
-            forbidden.Add(ShapeDistance.InvertedDonutSector(origin, 4, 5, cactusSmall != default ? -a45 : a45, a5));
+            forbidden.Add(ShapeDistance.InvertedDonutSector(source.Origin, 4, 5, cactusSmall != default ? a135 : -a135, a5));
+            forbidden.Add(ShapeDistance.InvertedDonutSector(source.Origin, 4, 5, cactusSmall != default ? -a45 : a45, a5));
         }
         if (forbidden.Count > 0)
-            hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Max(), Activation.AddSeconds(-1));
+            hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Max(), source.Activation);
     }
 
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<NeedleStormSuperstormHeavyWeightNeedles>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || !Module.InBounds(pos);

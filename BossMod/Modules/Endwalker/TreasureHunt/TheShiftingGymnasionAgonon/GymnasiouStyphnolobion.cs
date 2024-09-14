@@ -3,30 +3,31 @@ namespace BossMod.Endwalker.TreasureHunt.ShiftingGymnasionAgonon.GymnasiouStyphn
 public enum OID : uint
 {
     Boss = 0x3D37, //R=5.3
-    BossAdd = 0x3D38, //R=2.53
-    GymnasticGarlic = 0x3D51, // R0.840, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
-    GymnasticQueen = 0x3D53, // R0.840, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
-    GymnasticEggplant = 0x3D50, // R0.840, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
-    GymnasticOnion = 0x3D4F, // R0.840, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
-    GymnasticTomato = 0x3D52, // R0.840, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
-    BonusAddLyssa = 0x3D4E, //R=3.75
-    BossHelper = 0x233C
+    GymnasiouHippogryph = 0x3D38, //R=2.53
+    GymnasticGarlic = 0x3D51, // R0.84, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
+    GymnasticQueen = 0x3D53, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
+    GymnasticEggplant = 0x3D50, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    GymnasticOnion = 0x3D4F, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
+    GymnasticTomato = 0x3D52, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
+    GymnasiouLyssa = 0x3D4E, //R=3.75
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
-    AutoAttack = 870, // Boss->player, no cast, single-target
-    AutoAttack2 = 872, // BossAdd->player, no cast, single-target
-    EarthQuakerCombo = 32199, // Boss->self, no cast, single-target
-    EarthQuaker = 32247, // Boss->self, 3.5s cast, single-target
-    EarthQuaker1 = 32248, // BossHelper->self, 4.0s cast, range 10 circle
-    EarthQuaker2 = 32249, // BossHelper->self, 6.0s cast, range 10-20 donut
+    AutoAttack1 = 870, // Boss->player, no cast, single-target
+    AutoAttack2 = 872, // GymnasiouHippogryph->player, no cast, single-target
+
+    EarthQuakerVisual1 = 32199, // Boss->self, no cast, single-target
+    EarthQuakerVisual2 = 32247, // Boss->self, 3.5s cast, single-target
+    EarthQuaker1 = 32248, // Helper->self, 4.0s cast, range 10 circle
+    EarthQuaker2 = 32249, // Helper->self, 6.0s cast, range 10-20 donut
     Rake = 32245, // Boss->player, 5.0s cast, single-target
     EarthShaker = 32250, // Boss->self, 3.5s cast, single-target
-    EarthShaker2 = 32251, // BossHelper->players, 4.0s cast, range 60 30-degree cone
+    EarthShaker2 = 32251, // Helper->players, 4.0s cast, range 60 30-degree cone
     StoneIII = 32252, // Boss->self, 2.5s cast, single-target
-    StoneIII2 = 32253, // BossHelper->location, 3.0s cast, range 6 circle
-    BeakSnap = 32254, // BossAdd->player, no cast, single-target
+    StoneIII2 = 32253, // Helper->location, 3.0s cast, range 6 circle
+    BeakSnap = 32254, // GymnasiouHippogryph->player, no cast, single-target
     Tiiimbeeer = 32246, // Boss->self, 5.0s cast, range 50 circle
 
     PluckAndPrune = 32302, // GymnasticEggplant->self, 3.5s cast, range 7 circle
@@ -34,8 +35,8 @@ public enum AID : uint
     HeirloomScream = 32304, // GymnasticTomato->self, 3.5s cast, range 7 circle
     PungentPirouette = 32303, // GymnasticGarlic->self, 3.5s cast, range 7 circle
     TearyTwirl = 32301, // GymnasticOnion->self, 3.5s cast, range 7 circle
-    Telega = 9630, // BonusAdds->self, no cast, single-target, bonus add disappear
-    HeavySmash = 32317 // BonusAddLyssa->location, 3.0s cast, range 6 circle
+    HeavySmash = 32317, // GymnasiouLyssa->location, 3.0s cast, range 6 circle
+    Telega = 9630 // Mandragoras/GymnasiouLyssa->self, no cast, single-target, bonus add disappear
 }
 
 class Rake(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Rake));
@@ -49,7 +50,7 @@ class EarthQuaker(BossModule module) : Components.ConcentricAOEs(module, _shapes
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.EarthQuaker)
+        if ((AID)spell.Action.ID == AID.EarthQuakerVisual2)
             AddSequence(Module.Center, Module.CastFinishAt(spell, 0.5f));
     }
 
@@ -63,21 +64,23 @@ class EarthQuaker(BossModule module) : Components.ConcentricAOEs(module, _shapes
                 AID.EarthQuaker2 => 1,
                 _ => -1
             };
-            AdvanceSequence(order, Module.Center, WorldState.FutureTime(1.95f));
+            AdvanceSequence(order, Arena.Center, WorldState.FutureTime(2));
         }
     }
 }
 
-class PluckAndPrune(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PluckAndPrune), new AOEShapeCircle(7));
-class TearyTwirl(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TearyTwirl), new AOEShapeCircle(7));
-class HeirloomScream(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeirloomScream), new AOEShapeCircle(7));
-class PungentPirouette(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PungentPirouette), new AOEShapeCircle(7));
-class Pollen(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Pollen), new AOEShapeCircle(7));
+class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+
 class HeavySmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
 
-class StyphnolobionStates : StateMachineBuilder
+class GymnasiouStyphnolobionStates : StateMachineBuilder
 {
-    public StyphnolobionStates(BossModule module) : base(module)
+    public GymnasiouStyphnolobionStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<Rake>()
@@ -91,23 +94,21 @@ class StyphnolobionStates : StateMachineBuilder
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
             .ActivateOnEnter<HeavySmash>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead) && module.Enemies(OID.BossAdd).All(e => e.IsDead) && module.Enemies(OID.BonusAddLyssa).All(e => e.IsDead) && module.Enemies(OID.GymnasticEggplant).All(e => e.IsDead) && module.Enemies(OID.GymnasticQueen).All(e => e.IsDead) && module.Enemies(OID.GymnasticOnion).All(e => e.IsDead) && module.Enemies(OID.GymnasticGarlic).All(e => e.IsDead) && module.Enemies(OID.GymnasticTomato).All(e => e.IsDead);
+            .Raw.Update = () => module.Enemies(OID.GymnasiouHippogryph).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.GymnasticEggplant))
+            .Concat(module.Enemies(OID.GymnasticQueen)).Concat(module.Enemies(OID.GymnasticOnion)).Concat(module.Enemies(OID.GymnasticGarlic))
+            .Concat(module.Enemies(OID.GymnasticTomato)).Concat(module.Enemies(OID.GymnasiouLyssa)).All(e => e.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 909, NameID = 12012)]
-public class Styphnolobion(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class GymnasiouStyphnolobion(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
-        Arena.Actors(Enemies(OID.GymnasticEggplant), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.GymnasticTomato), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.GymnasticQueen), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.GymnasticGarlic), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.GymnasticOnion), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.BonusAddLyssa), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.GymnasiouHippogryph));
+        Arena.Actors(Enemies(OID.GymnasticEggplant).Concat(Enemies(OID.GymnasticTomato)).Concat(Enemies(OID.GymnasticQueen)).Concat(Enemies(OID.GymnasticGarlic))
+        .Concat(Enemies(OID.GymnasticOnion).Concat(Enemies(OID.GymnasiouLyssa))), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -120,8 +121,8 @@ public class Styphnolobion(WorldState ws, Actor primary) : BossModule(ws, primar
                 OID.GymnasticEggplant => 6,
                 OID.GymnasticGarlic => 5,
                 OID.GymnasticTomato => 4,
-                OID.GymnasticQueen or OID.BonusAddLyssa => 3,
-                OID.BossAdd => 2,
+                OID.GymnasticQueen or OID.GymnasiouLyssa => 3,
+                OID.GymnasiouHippogryph => 2,
                 OID.Boss => 1,
                 _ => 0
             };

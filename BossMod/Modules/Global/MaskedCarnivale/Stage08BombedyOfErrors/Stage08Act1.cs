@@ -21,23 +21,11 @@ class Selfdetonations(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (!Module.PrimaryActor.IsDead)
-        {
-            if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddCircle(Module.PrimaryActor.Position, 10, Colors.Shadows, 2);
             Arena.AddCircle(Module.PrimaryActor.Position, 10, Colors.Danger);
-        }
         foreach (var p in Module.Enemies(OID.Bomb).Where(x => !x.IsDead))
-        {
-            if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddCircle(p.Position, 6, Colors.Shadows, 2);
             Arena.AddCircle(p.Position, 6, Colors.Danger);
-        }
         foreach (var p in Module.Enemies(OID.Snoll).Where(x => !x.IsDead))
-        {
-            if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddCircle(p.Position, 6, Colors.Shadows, 2);
             Arena.AddCircle(p.Position, 6, Colors.Danger);
-        }
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)

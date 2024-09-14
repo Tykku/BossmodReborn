@@ -28,12 +28,12 @@ public enum AID : uint
     SnowBoulder = 36278, // Snowball->self, 4.0s cast, range 50 width 6 rect
 
     SparklingSprinklingVisual = 36713, // Boss->self, 5.0s cast, single-target
-    SparklingSprinkling = 36281, // Helper->player, 5.0s cast, range 5 circle
+    SparklingSprinkling = 36281 // Helper->player, 5.0s cast, range 5 circle
 }
 
 public enum TetherID : uint
 {
-    Freeze = 272, // RorrlohTeh/QorrlohTeh1->Boss
+    Freeze = 272 // RorrlohTeh/QorrlohTeh1->Boss
 }
 
 class FrostingFracasArenaChange(BossModule module) : Components.GenericAOEs(module)
@@ -44,15 +44,15 @@ class FrostingFracasArenaChange(BossModule module) : Components.GenericAOEs(modu
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.FrostingFracas && Module.Arena.Bounds == D021RyoqorTerteh.StartingBounds)
-            _aoe = new(donut, Module.Center, default, Module.CastFinishAt(spell, 0.6f));
+        if ((AID)spell.Action.ID == AID.FrostingFracas && Arena.Bounds == D021RyoqorTerteh.StartingBounds)
+            _aoe = new(donut, Arena.Center, default, Module.CastFinishAt(spell, 0.6f));
     }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state == 0x00020001 && index == 0x17)
         {
-            Module.Arena.Bounds = D021RyoqorTerteh.DefaultBounds;
+            Arena.Bounds = D021RyoqorTerteh.DefaultBounds;
             _aoe = null;
         }
     }
@@ -81,8 +81,8 @@ class IceScreamFrozenSwirl(BossModule module) : Components.GenericAOEs(module)
     {
         if (tether.ID == (uint)TetherID.Freeze)
         {
-            var activation1 = Module.WorldState.FutureTime(9.9f);
-            var activation2 = Module.WorldState.FutureTime(14.9f);
+            var activation1 = WorldState.FutureTime(9.9f);
+            var activation2 = WorldState.FutureTime(14.9f);
             if (circleAOE.Contains(source))
             {
                 _aoesCircle.Add(new(circle, source.Position, default, activation2));

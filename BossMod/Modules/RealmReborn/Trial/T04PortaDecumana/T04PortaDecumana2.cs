@@ -83,7 +83,7 @@ class Aetheroplasm(BossModule module) : BossComponent(module)
     {
         // orbs spawn with rotation 0°, checking for a different angle makes sure the AI doesn't run into the wall trying to catch them
         // since orbs are outside of the arena until they start rotating
-        var orb = ActiveOrbs.FirstOrDefault(x => !x.Rotation.AlmostEqual(0.Degrees(), Helpers.RadianConversion));
+        var orb = ActiveOrbs.FirstOrDefault(x => !x.Rotation.AlmostEqual(0.Degrees(), Angle.DegToRad));
         var orbs = new List<Func<WPos, float>>();
         if (orb != null)
         {

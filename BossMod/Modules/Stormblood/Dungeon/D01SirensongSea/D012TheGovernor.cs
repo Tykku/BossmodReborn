@@ -41,10 +41,7 @@ class EnterNightPull(BossModule module) : Components.Knockback(module)
     public override void OnEventIcon(Actor actor, uint iconID)
     {
         if (iconID is ((uint)IconID.EnterNight))
-        {
-            target.Item1 = actor;
-            target.Item2 = Module.WorldState.FutureTime(3);
-        }
+            target = (actor, WorldState.FutureTime(3));
     }
 
     public override void OnUntethered(Actor source, ActorTetherInfo tether)
@@ -76,7 +73,7 @@ class ShadowFlow(BossModule module) : Components.GenericAOEs(module)
     public override void Update()
     {
         if (aoes.Count > 0)
-            aoes.RemoveAll(aoe => aoe.Activation < Module.WorldState.CurrentTime);
+            aoes.RemoveAll(aoe => aoe.Activation < WorldState.CurrentTime);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -110,7 +107,5 @@ class DO12TheGovernorStates : StateMachineBuilder
 public class DO12TheGovernor(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     public static readonly WPos ArenaCenter = new(-8, 79);
-    private static readonly List<Shape> union = [new Circle(ArenaCenter, 19.25f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(-1.5f, 60.5f), 20, 1.25f, 20.Degrees()), new Rectangle(new(-8, 99), 20, 1)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(ArenaCenter, 19.25f)], [new Rectangle(new(-1.5f, 60.5f), 20, 1.25f, 20.Degrees()), new Rectangle(new(-8, 99), 20, 1)]);
 }

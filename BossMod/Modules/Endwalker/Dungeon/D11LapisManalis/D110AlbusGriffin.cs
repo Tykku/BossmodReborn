@@ -9,8 +9,9 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 872, // Caladrius/Boss->player, no cast, single-target
+    AutoAttack1 = 872, // Caladrius/Boss->player, no cast, single-target
     AutoAttack2 = 870, // AlbusGriffin->player, no cast, single-target
+
     TransonicBlast = 32535, // Caladrius->self, 4.0s cast, range 9 90-degree cone
     WindsOfWinter = 32785, // AlbusGriffin->self, 5.0s cast, range 40 circle
     Freefall = 32786, // AlbusGriffin->location, 3.5s cast, range 8 circle
@@ -29,32 +30,22 @@ class D110AlbusGriffinStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<TransonicBlast>()
-            .Raw.Update = () => module.Caladrius.All(e => e.IsDeadOrDestroyed) && module.PrimaryActor.IsDeadOrDestroyed;
+            .Raw.Update = () => module.Enemies(OID.Caladrius).Concat([module.PrimaryActor]).All(e => e.IsDeadOrDestroyed);
         TrivialPhase(1)
             .ActivateOnEnter<Freefall>()
             .ActivateOnEnter<WindsOfWinter>()
             .ActivateOnEnter<WindsOfWinterStunHint>()
             .ActivateOnEnter<GoldenTalons>()
-            .Raw.Update = () => module.Caladrius.All(e => e.IsDestroyed) && module.PrimaryActor.IsDestroyed && module.AlbusGriffin.All(e => e.IsDead);
+            .Raw.Update = () => module.Enemies(OID.Caladrius).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.AlbusGriffin)).All(e => e.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 896, NameID = 12245)]
-public class D110AlbusGriffin : BossModule
+public class D110AlbusGriffin(WorldState ws, Actor primary) : BossModule(ws, primary, new(47, -570.5f), new ArenaBoundsRect(8.5f, 11.5f))
 {
-    public readonly IReadOnlyList<Actor> Caladrius; // available from start
-    public readonly IReadOnlyList<Actor> AlbusGriffin; // spawned after all Caladrius are dead
-
-    public D110AlbusGriffin(WorldState ws, Actor primary) : base(ws, primary, new(47, -570.5f), new ArenaBoundsRect(8.5f, 11.5f))
-    {
-        Caladrius = Enemies(OID.Caladrius);
-        AlbusGriffin = Enemies(OID.AlbusGriffin);
-    }
-
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(AlbusGriffin);
-        Arena.Actors(Caladrius);
         Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Caladrius).Concat(Enemies(OID.AlbusGriffin)));
     }
 }

@@ -61,7 +61,7 @@ public class MapVisualizer
                 }
                 else if (pix.Priority < 0)
                 {
-                    dl.AddRectFilled(corner, cornerEnd, 0xff808080);
+                    dl.AddRectFilled(corner, cornerEnd, Colors.PlayerGeneric);
                 }
 
                 ref var pfNode = ref _pathfind.NodeByIndex(nodeIndex);
@@ -196,7 +196,7 @@ public class MapVisualizer
         var y2 = _pathfind.NodeByIndex(from).ParentY;
         while (x1 != x2 || y1 != y2)
         {
-            dl.AddLine(tl + new Vector2(x1 + 0.5f, y1 + 0.5f) * ScreenPixelSize, tl + new Vector2(x2 + 0.5f, y2 + 0.5f) * ScreenPixelSize, Colors.Vulnerable, 2);
+            dl.AddLine(tl + new Vector2(x1 + 0.5f, y1 + 0.5f) * ScreenPixelSize, tl + new Vector2(x2 + 0.5f, y2 + 0.5f) * ScreenPixelSize, Colors.TextColor6, 2);
             x1 = x2;
             y1 = y2;
             from = y1 * Map.Width + x1;

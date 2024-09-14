@@ -12,8 +12,8 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 24712, // Boss->player, no cast, single-target
-    Antistrophe = 25694, // Boss->self, 3.0s cast, single-target
 
+    Antistrophe = 25694, // Boss->self, 3.0s cast, single-target
     DarkForte = 25700, // Boss->player, 5.0s cast, single-targe, tankbuster
     Entracte = 25701, // Boss->self, 5.0s cast, range 40 circle, raidwide
 
@@ -34,7 +34,7 @@ public enum AID : uint
     ThundagaForte2 = 25691, // Helper->self, 5.0s cast, range 20 45-degree cone
     ThundagaForte3 = 25692, // Helper->self, 11.0s cast, range 20 45-degree cone
 
-    Visual = 25703, // YsaylesSpirit->self, no cast, single-target
+    Visual = 25703 // YsaylesSpirit->self, no cast, single-target
 }
 
 class CurtainCallArenaChange(BossModule module) : BossComponent(module)
@@ -47,9 +47,9 @@ class CurtainCallArenaChange(BossModule module) : BossComponent(module)
         if (index == 0x05)
         {
             if (state == 0x00020001)
-                Module.Arena.Bounds = CurtaincallArena;
+                Arena.Bounds = CurtaincallArena;
             else if (state == 0x00080004)
-                Module.Arena.Bounds = D053Amon.arena;
+                Arena.Bounds = D053Amon.arena;
         }
     }
 }
@@ -68,7 +68,7 @@ class CurtainCall(BossModule module) : Components.CastLineOfSightAOE(module, Act
     public override IEnumerable<Actor> BlockerActors() => Module.Enemies(OID.Ice);
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        return Module.Arena.Bounds == CurtainCallArenaChange.CurtaincallArena ? InvertedAOE : [];
+        return Arena.Bounds == CurtainCallArenaChange.CurtaincallArena ? Safezones : [];
     }
 }
 

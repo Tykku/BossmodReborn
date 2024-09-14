@@ -49,7 +49,7 @@ public enum AID : uint
 }
 
 class BestialLoyalty(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.BestialLoyalty), "Summon crows");
-class RunWild(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.RunWild), "Interrupt beastmaster");
+class RunWild(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.RunWild), showNameInHint: true);
 class HardBeak(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.HardBeak));
 class PiercingBarrageBoss(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PiercingBarrageBoss), new AOEShapeRect(40, 4));
 class Helldive(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Helldive), 6);
@@ -79,7 +79,7 @@ class CE11ShadowOfDeathHandStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 735, NameID = 5)] // bnpcname=9400
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn, Malediktus", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 735, NameID = 5)] // bnpcname=9400
 public class CE11ShadowOfDeathHand(WorldState ws, Actor primary) : BossModule(ws, primary, new(825, 640), new ArenaBoundsCircle(20))
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)

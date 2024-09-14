@@ -41,7 +41,7 @@ sealed class AIManagementWindow : UIWindow
 
     public override void Draw()
     {
-        ImGui.TextUnformatted($"Navi={_manager.Controller.NaviTargetPos} / {_manager.Controller.NaviTargetRot}{(_manager.Controller.ForceFacing ? " forced" : "")}");
+        ImGui.TextUnformatted($"Navi={_manager.Controller.NaviTargetPos}");
         _manager.Beh?.DrawDebug();
         ImGui.Text("Follow party slot");
         ImGui.SameLine();

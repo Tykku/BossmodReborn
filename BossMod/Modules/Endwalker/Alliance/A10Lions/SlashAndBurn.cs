@@ -6,6 +6,7 @@ class SlashAndBurn(BossModule module) : Components.GenericAOEs(module)
 
     private static readonly AOEShapeCircle _shapeOut = new(14);
     private static readonly AOEShapeDonut _shapeIn = new(6, 30);
+    private static readonly HashSet<AID> castEnd = [AID.SlashAndBurnOutFirst, AID.SlashAndBurnOutSecond, AID.SlashAndBurnInFirst, AID.SlashAndBurnInSecond, AID.TrialByFire, AID.SpinningSlash];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(1);
 
@@ -26,7 +27,7 @@ class SlashAndBurn(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.SlashAndBurnOutFirst or AID.SlashAndBurnOutSecond or AID.SlashAndBurnInFirst or AID.SlashAndBurnInSecond or AID.TrialByFire or AID.SpinningSlash)
+        if (castEnd.Contains((AID)spell.Action.ID))
             _aoes.RemoveAll(aoe => aoe.Origin.AlmostEqual(caster.Position, 1));
     }
 }

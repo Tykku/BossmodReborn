@@ -10,31 +10,31 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 872, // 278C->player, no cast, single-target
-    ScavengersDaughter = 15832, // 278C->self, 4.0s cast, range 40 circle
-    HeadCrusher = 15831, // 278C->player, 4.0s cast, single-target
-    Pendulum = 16777, // 278C->self, 5.0s cast, single-target, cast to jump
-    PendulumAOE1 = 16790, // 278C->location, no cast, range 40 circle, jump to target
-    PendulumAOE2 = 15833, // 278C->location, no cast, range 40 circle, jump back to center
+    AutoAttack = 872, // Boss->player, no cast, single-target
+    ScavengersDaughter = 15832, // Boss->self, 4.0s cast, range 40 circle
+    HeadCrusher = 15831, // Boss->player, 4.0s cast, single-target
+    Pendulum = 16777, // Boss->self, 5.0s cast, single-target, cast to jump
+    PendulumAOE1 = 16790, // Boss->location, no cast, range 40 circle, jump to target
+    PendulumAOE2 = 15833, // Boss->location, no cast, range 40 circle, jump back to center
     PendulumAOE3 = 16778, // Helper->location, 4.5s cast, range 40 circle, damage fall off AOE visual
-    ChainDown = 17052, // 278C->self, 5.0s cast, single-target 
-    Aethersup = 15848, // 278C->self, 15.0s cast, range 21 120-degree cone
-    Aethersup2 = 15849, // Helper->self, no cast, range 24+R 120-degree cone
-    RightKnout = 15846, // 278C->self, 5.0s cast, range 24 210-degree cone
-    LeftKnout = 15847, // 278C->self, 5.0s cast, range 24 210-degree cone
-    Taphephobia = 15842, // 278C->self, 4.5s cast, single-target
+    ChainDown = 17052, // Boss->self, 5.0s cast, single-target 
+    AethersupFirst = 15848, // Boss->self, 15.0s cast, range 21 120-degree cone
+    AethersupRest = 15849, // Helper->self, no cast, range 24+R 120-degree cone
+    RightKnout = 15846, // Boss->self, 5.0s cast, range 24 210-degree cone
+    LeftKnout = 15847, // Boss->self, 5.0s cast, range 24 210-degree cone
+    Taphephobia = 15842, // Boss->self, 4.5s cast, single-target
     Taphephobia2 = 16769, // Helper->player, 5.0s cast, range 6 circle
-    IntoTheLight = 15844, // Helper->player, no cast, single-target, line stack
-    IntoTheLight1 = 17232, // 278C->self, 5.0s cast, single-target
-    IntoTheLight2 = 15845, // 278C->self, no cast, range 50 width 8 rect
-    FierceBeating1 = 15834, // 278C->self, 5.0s cast, single-target
-    FierceBeating2 = 15836, // 278C->self, no cast, single-target
-    FierceBeating3 = 15835, // 278C->self, no cast, single-target
+    IntoTheLightMarker = 15844, // Helper->player, no cast, single-target, line stack
+    IntoTheLightVisual = 17232, // Boss->self, 5.0s cast, single-target
+    IntoTheLight = 15845, // Boss->self, no cast, range 50 width 8 rect
+    FierceBeating1 = 15834, // Boss->self, 5.0s cast, single-target
+    FierceBeating2 = 15836, // Boss->self, no cast, single-target
+    FierceBeating3 = 15835, // Boss->self, no cast, single-target
     FierceBeating4 = 15837, // Helper->self, 5.0s cast, range 4 circle
     FierceBeating5 = 15839, // Helper->location, no cast, range 4 circle
     FierceBeating6 = 15838, // Helper->self, no cast, range 4 circle
-    CatONineTails = 15840, // 278C->self, no cast, single-target
-    CatONineTails2 = 15841 // Helper->self, 2.0s cast, range 25 120-degree cone
+    CatONineTailsVisual = 15840, // Boss->self, no cast, single-target
+    CatONineTails = 15841 // Helper->self, 2.0s cast, range 25 120-degree cone
 }
 
 public enum IconID : uint
@@ -83,7 +83,7 @@ class Chains(BossModule module) : BossComponent(module)
     {
         if (chaintarget != null && !chainsactive)
             hints.Add($"{chaintarget.Name} is about to be chained!");
-        if (chaintarget != null && chainsactive)
+        else if (chaintarget != null && chainsactive)
             hints.Add($"Destroy chains on {chaintarget.Name}!");
     }
 
@@ -120,34 +120,30 @@ class Chains(BossModule module) : BossComponent(module)
 
 class Aethersup(BossModule module) : Components.GenericAOEs(module)
 {
-    private DateTime _activation;
-    private Angle _rotation;
     private static readonly AOEShapeCone cone = new(24, 60.Degrees());
+    private AOEInstance _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_activation != default)
-            yield return new(cone, Module.PrimaryActor.Position, _rotation, _activation, Risky: Module.Enemies(OID.IronChain).All(x => x.IsDead));
+        if (_aoe != default)
+            yield return _aoe with { Risky = Module.Enemies(OID.IronChain).All(x => x.IsDead) };
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Aethersup)
-        {
-            _rotation = spell.Rotation;
-            _activation = Module.CastFinishAt(spell);
-        }
+        if ((AID)spell.Action.ID == AID.AethersupFirst)
+            _aoe = new(cone, Module.PrimaryActor.Position, spell.Rotation, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         switch ((AID)spell.Action.ID)
         {
-            case AID.Aethersup:
-            case AID.Aethersup2:
+            case AID.AethersupFirst:
+            case AID.AethersupRest:
                 if (++NumCasts == 4)
                 {
-                    _activation = default;
+                    _aoe = default;
                     NumCasts = 0;
                 }
                 break;
@@ -155,49 +151,32 @@ class Aethersup(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class PendulumFlare(BossModule module) : Components.GenericBaitAway(module, centerAtTarget: true)
+class PendulumFlare(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(20), (uint)IconID.SpreadFlare, ActionID.MakeSpell(AID.PendulumAOE1), 5.1f, true)
 {
-    public List<Actor> targets = [];
-
-    public override void OnEventIcon(Actor actor, uint iconID)
-    {
-        if (iconID == (uint)IconID.SpreadFlare)
-        {
-            CurrentBaits.Add(new(Module.PrimaryActor, actor, new AOEShapeCircle(20)));
-            targets.Add(actor);
-        }
-    }
-
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
-    {
-        if ((AID)spell.Action.ID == AID.PendulumAOE1)
-        {
-            CurrentBaits.Clear();
-            targets.Clear();
-        }
-    }
-
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (targets.Contains(actor))
+        if (ActiveBaits.Any(x => x.Target == actor))
             hints.AddForbiddenZone(ShapeDistance.Circle(D013Philia.ArenaCenter, 18.5f));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
         base.AddHints(slot, actor, hints);
-        if (targets.Contains(actor))
+        if (ActiveBaits.Any(x => x.Target == actor))
             hints.Add("Bait away!");
     }
 }
 
 class PendulumAOE(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PendulumAOE3), 15);
-class LeftKnout(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeftKnout), new AOEShapeCone(24, 105.Degrees()));
-class RightKnout(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RightKnout), new AOEShapeCone(24, 105.Degrees()));
+
+class Knout(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(24, 105.Degrees()));
+class LeftKnout(BossModule module) : Knout(module, AID.LeftKnout);
+class RightKnout(BossModule module) : Knout(module, AID.RightKnout);
+
 class Taphephobia(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Taphephobia2), 6);
 
-class IntoTheLight(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.IntoTheLight), ActionID.MakeSpell(AID.IntoTheLight2), 5.3f);
+class IntoTheLight(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.IntoTheLightMarker), ActionID.MakeSpell(AID.IntoTheLight), 5.3f);
 
 class CatONineTails(BossModule module) : Components.GenericRotatingAOE(module)
 {
@@ -211,7 +190,7 @@ class CatONineTails(BossModule module) : Components.GenericRotatingAOE(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.CatONineTails2 && Sequences.Count > 0)
+        if ((AID)spell.Action.ID == AID.CatONineTails && Sequences.Count > 0)
             AdvanceSequence(0, WorldState.CurrentTime);
     }
 }
@@ -284,7 +263,7 @@ class FierceBeating(BossModule module) : Components.Exaflare(module, 4)
                 if (Lines[index].ExplosionsLeft == 0)
                     Lines.RemoveAt(index);
             }
-            if ((AID)spell.Action.ID == AID.FierceBeating5)
+            else if ((AID)spell.Action.ID == AID.FierceBeating5)
             {
                 var index = Lines.FindIndex(item => item.Next.AlmostEqual(spell.TargetXZ, 1));
                 AdvanceLine(Lines[index], spell.TargetXZ);
@@ -320,9 +299,7 @@ class D013PhiliaStates : StateMachineBuilder
 public class D013Philia(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     public static readonly WPos ArenaCenter = new(134, -465); // slightly different from calculated center due to difference operation
-    private static readonly List<Shape> union = [new Circle(ArenaCenter, 19.5f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(134, -445), 20, 1.5f)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(ArenaCenter, 19.5f)], [new Rectangle(new(134, -445), 20, 1.5f)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

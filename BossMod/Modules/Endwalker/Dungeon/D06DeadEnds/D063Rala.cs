@@ -10,6 +10,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 870, // Boss->player, no cast, single-target
+
     BenevolenceVisual = 25945, // Boss->self, 5.0s cast, single-target
     Benevolence = 25946, // Helper->players, 5.4s cast, range 6 circle, stack
     LamellarLight1 = 25939, // Helper->self, 6.0s cast, range 15 circle
@@ -67,8 +68,9 @@ class LamellarLightRect(BossModule module) : Components.SelfTargetedAOEs(module,
 class StillEmbrace(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.StillEmbrace), 6);
 class Benevolence(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Benevolence), 6, 4, 4);
 
-class LovingEmbraceLeft(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LovingEmbraceLeft), new AOEShapeCone(45, 90.Degrees()));
-class LovingEmbraceRight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LovingEmbraceRight), new AOEShapeCone(45, 90.Degrees()));
+class LovingEmbrace(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(45, 90.Degrees()));
+class LovingEmbraceLeft(BossModule module) : LovingEmbrace(module, AID.LovingEmbraceLeft);
+class LovingEmbraceRight(BossModule module) : LovingEmbrace(module, AID.LovingEmbraceRight);
 
 class Pity(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.Pity));
 class WarmGlow(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WarmGlow));
@@ -92,9 +94,7 @@ class D063RalaStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 792, NameID = 10316)]
-public class D063Rala(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultBounds.Center, DefaultBounds)
+public class D063Rala(WorldState ws, Actor primary) : BossModule(ws, primary, defaultBounds.Center, defaultBounds)
 {
-    private static readonly List<Shape> union = [new Circle(new(-380, -135), 19.5f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(-380, -114.25f), 20, 2)];
-    public static readonly ArenaBoundsComplex DefaultBounds = new(union, difference);
+    private static readonly ArenaBoundsComplex defaultBounds = new([new Circle(new(-380, -135), 19.5f)], [new Rectangle(new(-380, -114.25f), 20, 2)]);
 }

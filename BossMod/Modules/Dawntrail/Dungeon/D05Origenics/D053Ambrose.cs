@@ -11,7 +11,7 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 870, // Boss->player, no cast, single-target
+    AutoAttack1 = 870, // Boss->player, no cast, single-target
     AutoAttack2 = 872, // Superfluity/OrigenicsEyeborg->player, no cast, single-target
     Teleport = 36439, // Boss->location, no cast, single-target
 
@@ -96,23 +96,23 @@ class ExtrasensoryExpulsion(BossModule module) : Components.Knockback(module, ma
     {
         if (position.AlmostEqual(new(182.7f, 8.75f), 0.1f))
         {
-            AddSourceAndData(new WDir(QuarterWidth, -HalfHeight), rectNS, angles[0]);
-            AddSourceAndData(new WDir(-QuarterWidth, HalfHeight), rectNS, angles[1]);
-            AddSource(new WDir(0, -QuarterHeight), rectEW, angles[2]);
-            AddSource(new WDir(0, QuarterHeight), rectEW, angles[3]);
+            AddSourceAndData(new(QuarterWidth, -HalfHeight), rectNS, angles[0]);
+            AddSourceAndData(new(-QuarterWidth, HalfHeight), rectNS, angles[1]);
+            AddSource(new(0, -QuarterHeight), rectEW, angles[2]);
+            AddSource(new(0, QuarterHeight), rectEW, angles[3]);
         }
         else if (position.AlmostEqual(new(182.5f, -8.75f), 0.1f))
         {
-            AddSourceAndData(new WDir(-QuarterWidth, -HalfHeight), rectNS, angles[0]);
-            AddSourceAndData(new WDir(QuarterWidth, HalfHeight), rectNS, angles[1]);
-            AddSource(new WDir(0, -QuarterHeight), rectEW, angles[3]);
-            AddSource(new WDir(0, QuarterHeight), rectEW, angles[2]);
+            AddSourceAndData(new(-QuarterWidth, -HalfHeight), rectNS, angles[0]);
+            AddSourceAndData(new(QuarterWidth, HalfHeight), rectNS, angles[1]);
+            AddSource(new(0, -QuarterHeight), rectEW, angles[3]);
+            AddSource(new(0, QuarterHeight), rectEW, angles[2]);
         }
     }
 
     private void AddSource(WDir direction, AOEShapeRect shape, Angle angle)
     {
-        _sources.Add(new Source(Module.Center + direction, 20, Activation, shape, angle, Kind.DirForward));
+        _sources.Add(new(Arena.Center + direction, 20, Activation, shape, angle, Kind.DirForward));
     }
 
     private void AddSourceAndData(WDir direction, AOEShapeRect shape, Angle angle)
@@ -121,9 +121,9 @@ class ExtrasensoryExpulsion(BossModule module) : Components.Knockback(module, ma
         Data.Add((_sources.Last().Origin, angle));
     }
 
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    public override void Update()
     {
-        if ((AID)spell.Action.ID is AID.ExtrasensoryExpulsionNorthSouth or AID.ExtrasensoryExpulsionWestEast)
+        if (Data.Count > 0 && WorldState.CurrentTime > Activation)
         {
             _sources.Clear();
             Data.Clear();
@@ -133,7 +133,7 @@ class ExtrasensoryExpulsion(BossModule module) : Components.Knockback(module, ma
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (Sources(slot, actor).Any() || Activation > Module.WorldState.CurrentTime) // 0.8s delay to wait for action effect
+        if (Sources(slot, actor).Any() || Activation > WorldState.CurrentTime) // 0.8s delay to wait for action effect
         {
             var forbiddenZones = Data.Select(w => ShapeDistance.InvertedRect(w.Item1, w.Item2, HalfHeight - 0.5f, 0, QuarterWidth)).ToList();
             hints.AddForbiddenZone(p => forbiddenZones.Max(f => f(p)), Activation.AddSeconds(-0.8f));
@@ -154,13 +154,13 @@ class OverwhelmingCharge(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var component = Module.FindComponent<ExtrasensoryExpulsion>()!;
-        var componentActive = component.Sources(slot, actor).Any() || component.Activation > Module.WorldState.CurrentTime;
+        var componentActive = component.Sources(slot, actor).Any() || component.Activation > WorldState.CurrentTime;
         if (_aoe != default)
         {
             yield return _aoe with { Risky = !componentActive };
             if (componentActive)
             {
-                var safezone = component.Data.FirstOrDefault(x => _aoe.Rotation.AlmostEqual(x.Item2 + 180.Degrees(), Helpers.RadianConversion));
+                var safezone = component.Data.FirstOrDefault(x => _aoe.Rotation.AlmostEqual(x.Item2 + 180.Degrees(), Angle.DegToRad));
                 yield return new(rect, safezone.Item1, safezone.Item2, component.Activation, Colors.SafeFromAOE, false);
             }
         }
@@ -183,7 +183,7 @@ class OverwhelmingCharge(BossModule module) : Components.GenericAOEs(module)
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var component = Module.FindComponent<ExtrasensoryExpulsion>()!.Sources(slot, actor).Any() || Module.FindComponent<ExtrasensoryExpulsion>()!.Activation > Module.WorldState.CurrentTime;
+        var component = Module.FindComponent<ExtrasensoryExpulsion>()!.Sources(slot, actor).Any() || Module.FindComponent<ExtrasensoryExpulsion>()!.Activation > WorldState.CurrentTime;
         var aoe = ActiveAOEs(slot, actor).FirstOrDefault();
         if (component && ActiveAOEs(slot, actor).Any())
             hints.AddForbiddenZone(aoe.Shape, aoe.Origin, aoe.Rotation + 180.Degrees(), aoe.Activation);
@@ -268,7 +268,6 @@ public class D053Ambrose(WorldState ws, Actor primary) : BossModule(ws, primary,
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Superfluity));
-        Arena.Actors(Enemies(OID.OrigenicsEyeborg));
+        Arena.Actors(Enemies(OID.Superfluity).Concat(Enemies(OID.OrigenicsEyeborg)));
     }
 }

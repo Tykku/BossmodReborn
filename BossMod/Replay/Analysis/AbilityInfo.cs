@@ -42,7 +42,7 @@ class AbilityInfo : CommonEnumInfo
         {
             _plot.Begin();
             foreach (var i in _points)
-                _plot.Point(i.SourcePos, 0xff808080, i.Inst.TimestampString);
+                _plot.Point(i.SourcePos, Colors.PlayerGeneric, i.Inst.TimestampString);
             _plot.End();
         }
     }
@@ -89,7 +89,7 @@ class AbilityInfo : CommonEnumInfo
         {
             _plot.Begin();
             foreach (var i in _points)
-                _plot.Point(new(i.Angle, i.Range), i.Hit ? 0xff00ffff : 0xff808080, () => $"{(i.Hit ? "hit" : "miss")} {i.Target.NameAt(i.Inst.Action.Timestamp)} {i.Target.InstanceID:X} {i.Inst.TimestampString()}");
+                _plot.Point(new(i.Angle, i.Range), i.Hit ? Colors.TextColor2 : Colors.PlayerGeneric, () => $"{(i.Hit ? "hit" : "miss")} {i.Target.NameAt(i.Inst.Action.Timestamp)} {i.Target.InstanceID:X} {i.Inst.TimestampString()}");
             _plot.End();
         }
     }
@@ -125,7 +125,7 @@ class AbilityInfo : CommonEnumInfo
         {
             _plot.Begin();
             foreach (var i in _points)
-                _plot.Point(new(i.Normal, i.Length), i.Hit ? 0xff00ffff : 0xff808080, () => $"{(i.Hit ? "hit" : "miss")} {i.Target.NameAt(i.Inst.Action.Timestamp)} {i.Target.InstanceID:X} {i.Inst.TimestampString()}");
+                _plot.Point(new(i.Normal, i.Length), i.Hit ? Colors.TextColor2 : Colors.PlayerGeneric, () => $"{(i.Hit ? "hit" : "miss")} {i.Target.NameAt(i.Inst.Action.Timestamp)} {i.Target.InstanceID:X} {i.Inst.TimestampString()}");
             _plot.End();
         }
     }
@@ -156,7 +156,7 @@ class AbilityInfo : CommonEnumInfo
         {
             _plot.Begin();
             foreach (var i in _points)
-                _plot.Point(new(i.Range, i.Damage), i.Damage > 0 ? 0xff00ffff : 0xff808080, () => $"{i.Damage} {i.Target.NameAt(i.Inst.Action.Timestamp)} {i.Target.InstanceID:X} {i.Inst.TimestampString()}");
+                _plot.Point(new(i.Range, i.Damage), i.Damage > 0 ? Colors.TextColor2 : Colors.PlayerGeneric, () => $"{i.Damage} {i.Target.NameAt(i.Inst.Action.Timestamp)} {i.Target.InstanceID:X} {i.Inst.TimestampString()}");
             _plot.End();
         }
     }
@@ -193,7 +193,7 @@ class AbilityInfo : CommonEnumInfo
         {
             _plot.Begin();
             foreach (var i in _points)
-                _plot.Point(new(i.Angle.Deg, 1), i.Hit ? 0xff00ffff : 0xff808080, () => $"{(i.Hit ? "hit" : "miss")} {i.Target.NameAt(i.Inst.Action.Timestamp)} {i.Target.InstanceID:X} {i.Inst.TimestampString()}");
+                _plot.Point(new(i.Angle.Deg, 1), i.Hit ? Colors.TextColor2 : Colors.PlayerGeneric, () => $"{(i.Hit ? "hit" : "miss")} {i.Target.NameAt(i.Inst.Action.Timestamp)} {i.Target.InstanceID:X} {i.Inst.TimestampString()}");
             _plot.End();
         }
     }
@@ -511,12 +511,12 @@ class AbilityInfo : CommonEnumInfo
 
     private void AddActionData(Replay replay, Replay.Encounter? enc, Replay.Action action)
     {
-        if (action.Source.Type is ActorType.Player or ActorType.Pet or ActorType.Chocobo or ActorType.Buddy)
+        if (action.Source.Type is ActorType.Player or ActorType.Pet or ActorType.Chocobo or ActorType.Buddy || ReplayVisualization.OpList.BoringOIDs.Contains(action.Source.OID))
             return;
 
         var data = _data.GetOrAdd(action.ID);
         data.CasterOIDs.Add(action.Source.OID);
-        if (action.MainTarget != null)
+        if (action.MainTarget != null && action.MainTarget.Type is not ActorType.Player and not ActorType.Buddy)
             data.TargetOIDs.Add(action.MainTarget.OID);
         data.SeenTargetSelf |= action.Source == action.MainTarget;
         data.SeenTargetOtherEnemy |= action.MainTarget != action.Source && action.MainTarget?.Type == ActorType.Enemy;
@@ -532,12 +532,12 @@ class AbilityInfo : CommonEnumInfo
 
     private void AddCastData(Replay replay, Replay.Participant caster, Replay.Cast cast)
     {
-        if (caster.Type is ActorType.Player or ActorType.Pet or ActorType.Chocobo or ActorType.Buddy)
+        if (caster.Type is ActorType.Player or ActorType.Pet or ActorType.Chocobo or ActorType.Buddy || ReplayVisualization.OpList.BoringOIDs.Contains(caster.OID))
             return;
 
         var data = _data.GetOrAdd(cast.ID);
         data.CasterOIDs.Add(caster.OID);
-        if (cast.Target != null)
+        if (cast.Target != null && cast.Target.Type is not ActorType.Player and not ActorType.Buddy)
             data.TargetOIDs.Add(cast.Target.OID);
         data.SeenTargetSelf |= caster == cast.Target;
         data.SeenTargetOtherEnemy |= cast.Target != caster && cast.Target?.Type == ActorType.Enemy;
@@ -560,11 +560,11 @@ class AbilityInfo : CommonEnumInfo
         if (data.SeenTargetLocation)
             yield return "location";
         if (data.SeenTargetOtherEnemy)
-            foreach (var oid in data.TargetOIDs.Where(oid => oid != 0))
+            foreach (var oid in data.TargetOIDs)
                 yield return OIDString(oid);
     }
 
-    private string CastTimeString(ActionData data, Lumina.Excel.GeneratedSheets.Action? ldata)
+    private static string CastTimeString(ActionData data, Lumina.Excel.GeneratedSheets.Action? ldata)
         => data.CastTime > 0 ? string.Create(CultureInfo.InvariantCulture, $"{data.CastTime:f1}{(ldata?.Unknown38 > 0 ? $"+{ldata?.Unknown38 * 0.1f:f1}" : "")}s cast") : "no cast";
 
     private string EnumMemberString(ActionID aid, ActionData data)
@@ -574,7 +574,7 @@ class AbilityInfo : CommonEnumInfo
         return $"{name} = {aid.ID}, // {OIDListString(data.CasterOIDs)}->{JoinStrings(ActionTargetStrings(data))}, {CastTimeString(data, ldata)}, {DescribeShape(ldata)}";
     }
 
-    private string DescribeShape(Lumina.Excel.GeneratedSheets.Action? data) => data != null ? data.CastType switch
+    private static string DescribeShape(Lumina.Excel.GeneratedSheets.Action? data) => data != null ? data.CastType switch
     {
         1 => "single-target",
         2 => $"range {data.EffectRange} circle",
@@ -589,7 +589,7 @@ class AbilityInfo : CommonEnumInfo
         _ => "???"
     } : "???";
 
-    private Angle? DetermineConeAngle(Lumina.Excel.GeneratedSheets.Action data)
+    private static Angle? DetermineConeAngle(Lumina.Excel.GeneratedSheets.Action data)
     {
         var omen = data.Omen.Value;
         if (omen == null)
@@ -600,21 +600,22 @@ class AbilityInfo : CommonEnumInfo
         return pos >= 0 && pos + 6 <= path.Length && int.TryParse(path.AsSpan(pos + 3, 3), out var angle) ? angle.Degrees() : null;
     }
 
-    private float? DetermineDonutInner(Lumina.Excel.GeneratedSheets.Action data)
+    private static float? DetermineDonutInner(Lumina.Excel.GeneratedSheets.Action data)
     {
         var omen = data.Omen.Value;
         if (omen == null)
             return null;
 
         var path = omen.Path.ToString();
-        var pos = path.IndexOf("sircle_", StringComparison.Ordinal);
-        if (pos >= 0 && pos + 11 <= path.Length && int.TryParse(path.AsSpan(pos + 9, 2), out var inner))
-            return inner;
 
-        pos = path.IndexOf("circle", StringComparison.Ordinal);
-        if (pos >= 0 && pos + 10 <= path.Length && int.TryParse(path.AsSpan(pos + 8, 2), out inner))
-            return inner;
+        return ExtractInnerValueFromPath(path, "sircle_", 9)
+            ?? ExtractInnerValueFromPath(path, "sicle_", 8)
+            ?? ExtractInnerValueFromPath(path, "circle", 8);
+    }
 
-        return null;
+    private static float? ExtractInnerValueFromPath(string path, string keyword, int offset)
+    {
+        var pos = path.IndexOf(keyword, StringComparison.Ordinal);
+        return pos >= 0 && pos + offset + 2 <= path.Length && int.TryParse(path.AsSpan(pos + offset, 2), out var inner) ? inner : null;
     }
 }

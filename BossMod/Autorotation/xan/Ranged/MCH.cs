@@ -20,7 +20,7 @@ public sealed class MCH(RotationModuleManager manager, Actor player) : Attackxan
 
         def.DefineShared().AddAssociatedActions(AID.BarrelStabilizer, AID.Wildfire);
 
-        def.Define(Track.Queen).As<QueenStrategy>("Queen", "Automaton Queen")
+        def.Define(Track.Queen).As<QueenStrategy>("Queen", "Queen")
             .AddOption(QueenStrategy.MinGauge, "Min", "Summon at 50+ gauge")
             .AddOption(QueenStrategy.FullGauge, "Full", "Summon at 100 gauge")
             .AddOption(QueenStrategy.RaidBuffsOnly, "Buffed", "Delay summon until raid buffs, regardless of gauge")
@@ -59,7 +59,7 @@ public sealed class MCH(RotationModuleManager manager, Actor player) : Attackxan
     {
         SelectPrimaryTarget(strategy, ref primaryTarget, range: 25);
 
-        var gauge = GetGauge<MachinistGauge>();
+        var gauge = World.Client.GetGauge<MachinistGauge>();
 
         Heat = gauge.Heat;
         Battery = gauge.Battery;
@@ -143,7 +143,6 @@ public sealed class MCH(RotationModuleManager manager, Actor player) : Attackxan
 
             PushGCD(AID.SplitShot, primaryTarget);
         }
-
     }
 
     private void OGCD(StrategyValues strategy, Actor? primaryTarget)

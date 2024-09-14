@@ -21,15 +21,13 @@ class T09WhorleaterHStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "taurenkey, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 72, NameID = 2505)]
-public class T09WhorleaterH(WorldState ws, Actor primary) : BossModule(ws, primary, new(-0, 0), new ArenaBoundsRect(14.5f, 20))
+public class T09WhorleaterH(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, 0), new ArenaBoundsRect(14.5f, 20))
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, Colors.Enemy, true);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Tail).Concat(Enemies(OID.WavespineSahagin).Concat(Enemies(OID.WavespineSahagin)).Concat(Enemies(OID.WavetoothSahagin))));
         Arena.Actors(Enemies(OID.Spume), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.Tail));
-        Arena.Actors(Enemies(OID.Sahagin));
-        Arena.Actors(Enemies(OID.DangerousSahagins));
         Arena.Actor(Enemies(OID.Converter).FirstOrDefault(), Colors.Object);
     }
 
@@ -38,35 +36,35 @@ public class T09WhorleaterH(WorldState ws, Actor primary) : BossModule(ws, prima
         var TankMimikry = actor.FindStatus(2124); //Bluemage Tank Mimikry
         foreach (var e in hints.PotentialTargets)
         {
-            if (actor.Class.GetClassCategory() is ClassCategory.Caster or ClassCategory.Healer || (actor.Class is Class.BLU && TankMimikry == null))
+            if (actor.Class.GetClassCategory() is ClassCategory.Caster or ClassCategory.Healer || actor.Class is Class.BLU && TankMimikry == null)
             {
                 e.Priority = (OID)e.Actor.OID switch
                 {
-                    OID.DangerousSahagins => 4,
+                    OID.WavetoothSahagin => 4,
                     OID.Spume => 3,
-                    OID.Sahagin => 2,
+                    OID.WavespineSahagin => 2,
                     OID.Boss => 1,
-                    _ => 0
+                    _ => -1
                 };
             }
             if (actor.Class.GetClassCategory() is ClassCategory.PhysRanged)
             {
                 e.Priority = (OID)e.Actor.OID switch
                 {
-                    OID.DangerousSahagins => 4,
+                    OID.WavetoothSahagin => 4,
                     OID.Spume => 3,
-                    OID.Sahagin => 2,
+                    OID.WavespineSahagin => 2,
                     OID.Tail => 1,
-                    _ => 0
+                    _ => -1
                 };
             }
-            if (actor.Class.GetClassCategory() is ClassCategory.Tank or ClassCategory.Melee || (actor.Class is Class.BLU && TankMimikry != null))
+            if (actor.Class.GetClassCategory() is ClassCategory.Tank or ClassCategory.Melee || actor.Class is Class.BLU && TankMimikry != null)
             {
                 e.Priority = (OID)e.Actor.OID switch
                 {
-                    OID.DangerousSahagins => 4,
+                    OID.WavetoothSahagin => 4,
                     OID.Spume => 3,
-                    OID.Sahagin => 2,
+                    OID.WavespineSahagin => 2,
                     OID.Boss or OID.Tail => 1,
                     _ => 0
                 };

@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Variant.V02MR.V022Moko;
+﻿namespace BossMod.Endwalker.VariantCriterion.V02MR.V022Moko;
 
 public enum OID : uint
 {
@@ -12,7 +12,7 @@ public enum OID : uint
     OnisClaw = 0x3F85, // R13.2
     IllComeTengu = 0x3F86, // R2.0
     Spiritflame = 0x3F87, // R2.4
-    Helper = 0x233C, // R0.5
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -23,11 +23,10 @@ public enum AID : uint
     KenkiRelease = 34221, // Boss->self, 5.0s cast, range 60 circle raidwide
     AzureAuspice = 34204, // Boss->self, 5.0s cast, range 6-40 donut
 
+    BoundlessAzureVisual = 34205, // Boss->self, 2.4s cast, single-target
+    BoundlessAzure = 34206, // Helper->self, 3.0s cast, range 60 width 10 rect
     UpwellFirst = 34207, // Helper->self, 8.0s cast, range 60 width 10 rect
     UpwellRest = 34208, // Helper->self, 1.0s cast, range 60 width 5 rect
-
-    BoundlessAzure = 34205, // Boss->self, 2.4s cast, single-target
-    BoundlessAzureAOE = 34206, // Helper->self, 3.0s cast, range 60 width 10 rect
 
     IaiKasumiGiri1 = 34183, // Boss->self, 5.0s cast, range 60 270-degree cone, back safe
     IaiKasumiGiri2 = 34184, // Boss->self, 5.0s cast, range 60 270-degree cone, left safe
@@ -62,25 +61,25 @@ public enum AID : uint
 
     //Route 3
     TenguYobi = 34209, // Boss->self, 3.0s cast, single-target
-    YamaKagura = 34210, // IllComeTengu->self, 9.0s cast, range 40 width 5 rect
+    YamaKagura = 34210, // IllComeTengu->self, 9.0s cast, range 40 width 5 rect, knockback 33 dir forward
     GhastlyGraspVisual = 34211, // Boss->self, 11.0s cast, single-target
     GhastlyGrasp = 34212, // Helper->location, 11.0s cast, range 5 circle
 
     //Route 4
     Spiritspark = 34213, // Boss->self, 3.0s cast, single-target
     Spiritflame = 34214, // Helper->location, 4.0s cast, range 6 circle
+    ArmOfPurgatory = 34215, // Helper->player, no cast, single-target, touch spiritflame
 
-    //Unfinished below
     SpearmansOrders = 34197, // Boss->self, 5.5s cast, single-target
     SpearmansOrdersVisual = 34198, // Helper->self, 5.5s cast, range 40 width 40 rect
     SpearpointPushVisual = 34588, // Helper->self, no cast, single-target
     SpearpointPushFast = 34199, // Helper->self, no cast, range 3 width 4 rect
-    SpearpointPushSlow = 34514, // Helper->self, no cast, range 2 width 4 rect
+    SpearpointPushSlow = 34514 // Helper->self, no cast, range 2 width 4 rect
 }
 
 public enum SID : uint
 {
     GiriDirection = 2970, // none->Boss, extra=0x248/0x24A/0x249/0x24B
     unknown = 2056, // none->AshigaruKyuhei/AshigaruSohei1/AshigaruSohei2/Boss/Spiritflame, extra=0x1E8/0x26E/0x26B/0x257
-    unknown2 = 2193, // none->Boss, extra=0x266/0x267
+    unknown2 = 2193 // none->Boss, extra=0x266/0x267
 }

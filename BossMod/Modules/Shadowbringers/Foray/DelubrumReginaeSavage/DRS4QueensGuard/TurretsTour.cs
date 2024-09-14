@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.DRS4QueensGuard;
 
-class TurretsTour(BossModule module) : Components.GenericAOEs(module)
+class TurretsTour : Components.GenericAOEs
 {
     private readonly List<(Actor turret, AOEShapeRect shape)> _turrets = [];
     private readonly List<(Actor caster, AOEShapeRect shape, Angle rotation)> _casters = [];
@@ -8,17 +8,14 @@ class TurretsTour(BossModule module) : Components.GenericAOEs(module)
 
     private static readonly AOEShapeRect _defaultShape = new(55, 3);
 
-    public override void Update()
+    public TurretsTour(BossModule module) : base(module)
     {
-        if (_turrets.Count == 0)
+        var turrets = module.Enemies(OID.AutomaticTurret);
+        foreach (var t in turrets)
         {
-            var turrets = Module.Enemies(OID.AutomaticTurret);
-            foreach (var t in turrets)
-            {
-                var target = turrets.Exclude(t).InShape(_defaultShape, t).Closest(t.Position);
-                var shape = target != null ? _defaultShape with { LengthFront = (target.Position - t.Position).Length() } : _defaultShape;
-                _turrets.Add((t, shape));
-            }
+            var target = turrets.Exclude(t).InShape(_defaultShape, t).Closest(t.Position);
+            var shape = target != null ? _defaultShape with { LengthFront = (target.Position - t.Position).Length() } : _defaultShape;
+            _turrets.Add((t, shape));
         }
     }
 
@@ -32,7 +29,7 @@ class TurretsTour(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.TurretsTourAOE1)
+        if ((AID)spell.Action.ID == AID.TurretsTourNormalAOE1)
         {
             var toTarget = spell.LocXZ - caster.Position;
             _casters.Add((caster, new AOEShapeRect(toTarget.Length(), _defaultShape.HalfWidth), Angle.FromDirection(toTarget)));
@@ -42,13 +39,13 @@ class TurretsTour(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.TurretsTourAOE1)
+        if ((AID)spell.Action.ID == AID.TurretsTourNormalAOE1)
             _casters.RemoveAll(c => c.caster == caster);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.TurretsTourAOE2 or AID.TurretsTourAOE3)
+        if ((AID)spell.Action.ID is AID.TurretsTourNormalAOE2 or AID.TurretsTourNormalAOE3)
         {
             _turrets.RemoveAll(t => t.turret == caster);
             ++NumCasts;

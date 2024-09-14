@@ -97,12 +97,15 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
         // TODO: think how to improve this, current implementation works, but isn't particularly good - e.g. nearby players tend to move to same spot, turn around, etc.
         // ideally we should provide per-mechanic spread spots, but for simple cases we should try to let melee spread close and healers/rdd spread far from main target...
         foreach (var spreadFrom in ActiveSpreads.Where(s => s.Target != actor))
-            hints.AddForbiddenZone(ShapeDistance.Circle(spreadFrom.Target.Position, spreadFrom.Radius + 0.25f), spreadFrom.Activation);
-
+            hints.AddForbiddenZone(ShapeDistance.Circle(spreadFrom.Target.Position, spreadFrom.Radius + 1), spreadFrom.Activation);
+        foreach (var spreadFrom in ActiveSpreads.Where(s => s.Target == actor))
+            foreach (var x in Raid.WithoutSlot())
+                if (!ActiveSpreads.Any(s => s.Target == x))
+                    hints.AddForbiddenZone(ShapeDistance.Circle(x.Position, spreadFrom.Radius + 1), spreadFrom.Activation);
         foreach (var avoid in ActiveStacks.Where(s => s.Target != actor && (s.ForbiddenPlayers[slot] || !s.IsInside(actor) && (s.CorrectAmountInside(Module) || s.TooManyInside(Module)) || s.IsInside(actor) && s.TooManyInside(Module))))
             hints.AddForbiddenZone(ShapeDistance.Circle(avoid.Target.Position, avoid.Radius), avoid.Activation);
 
-        if (IsStackTarget(actor))
+        if (Stacks.FirstOrDefault(s => s.Target == actor) is var actorStack && actorStack.Target != null)
         {
             // forbid standing next to other stack markers or overlapping them
             foreach (var stackWith in ActiveStacks.Where(s => s.Target != actor))
@@ -112,16 +115,19 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
             {
                 var forbidden = new List<Func<WPos, float>>();
                 foreach (var stackWith in ActiveStacks.Where(s => s.Target == actor))
-                    forbidden.Add(ShapeDistance.InvertedCircle(Raid.WithoutSlot().FirstOrDefault(x => !x.IsDead && !IsStackTarget(x))!.Position, 1));
-                hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Max(), ActiveStacks.FirstOrDefault().Activation);
+                    forbidden.Add(ShapeDistance.InvertedCircle(Raid.WithoutSlot().FirstOrDefault(x => !x.IsDead && !IsSpreadTarget(x) && !IsStackTarget(x))!.Position, actorStack.Radius / 3));
+                if (forbidden.Count > 0)
+                    hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Max(), actorStack.Activation);
             }
         }
-        else if (!IsSpreadTarget(actor))
+        else if (!IsSpreadTarget(actor) && !IsStackTarget(actor))
         {
-            // TODO: handle multi stacks better...
-            var closestStack = ActiveStacks.Where(s => s.InsufficientAmountInside(Module) && !s.ForbiddenPlayers[slot]).MinBy(s => (s.Target.Position - actor.Position).LengthSq());
-            if (closestStack.Target != null)
-                hints.AddForbiddenZone(ShapeDistance.InvertedCircle(closestStack.Target.Position, closestStack.Radius - 0.25f), closestStack.Activation);
+            var forbidden = new List<Func<WPos, float>>();
+            foreach (var s in ActiveStacks.Where(x => !x.ForbiddenPlayers[slot] && (x.IsInside(actor) && !x.TooManyInside(Module)
+            || !x.IsInside(actor) && x.InsufficientAmountInside(Module))))
+                forbidden.Add(ShapeDistance.InvertedCircle(s.Target.Position, s.Radius - 0.25f));
+            if (forbidden.Count > 0)
+                hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Max(), ActiveStacks.FirstOrDefault().Activation);
         }
 
         if (RaidwideOnResolve)
@@ -160,30 +166,27 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
     {
         if (!AlwaysShowSpreads && Spreads.FindIndex(s => s.Target == pc) is var iSpread && iSpread >= 0)
         {
-            // draw only own circle - no one should be inside, this automatically resolves mechanic for us
+            // Draw only own circle if spreading; no one should be inside.
             Arena.AddCircle(pc.Position, Spreads[iSpread].Radius, Colors.Danger);
         }
         else
         {
-            // draw spread and stack circles
-            foreach (var s in ActiveStacks.Where(x => !x.ForbiddenPlayers[pcSlot] && (x.IsInside(pc) && (x.CorrectAmountInside(Module) || x.InsufficientAmountInside(Module)) || !x.IsInside(pc) && x.InsufficientAmountInside(Module))))
-            {
-                if (Arena.Config.ShowOutlinesAndShadows)
-                    Arena.AddCircle(s.Target.Position, s.Radius, Colors.Shadows, 2);
-                Arena.AddCircle(s.Target.Position, s.Radius, Colors.Safe);
-            }
-            foreach (var s in ActiveStacks.Where(x => x.ForbiddenPlayers[pcSlot] || !x.IsInside(pc) && x.CorrectAmountInside(Module) || x.TooManyInside(Module)))
-            {
-                if (Arena.Config.ShowOutlinesAndShadows)
-                    Arena.AddCircle(s.Target.Position, s.Radius, Colors.Shadows, 2);
-                Arena.AddCircle(s.Target.Position, s.Radius, Colors.Danger);
-            }
+            void DrawCircle(WPos position, float radius, uint color) => Arena.AddCircle(position, radius, color);
+            // Handle safe stack circles
+            foreach (var s in ActiveStacks.Where(x => x.Target == pc || !x.ForbiddenPlayers[pcSlot]
+                    && !IsSpreadTarget(pc) && !IsStackTarget(pc) && (x.IsInside(pc)
+                    && !x.TooManyInside(Module) || !x.IsInside(pc) && x.InsufficientAmountInside(Module))))
+                DrawCircle(s.Target.Position, s.Radius, Colors.Safe);
+
+            // Handle dangerous stack circles
+            foreach (var s in ActiveStacks.Where(x => x.Target != pc && (IsStackTarget(pc) || x.ForbiddenPlayers[pcSlot] || IsSpreadTarget(pc) ||
+                !x.IsInside(pc) && (x.CorrectAmountInside(Module) || x.TooManyInside(Module)) ||
+                x.IsInside(pc) && x.TooManyInside(Module))))
+                DrawCircle(s.Target.Position, s.Radius, Colors.Danger);
+
+            // Handle spread circles
             foreach (var s in ActiveSpreads)
-            {
-                if (Arena.Config.ShowOutlinesAndShadows)
-                    Arena.AddCircle(s.Target.Position, s.Radius, Colors.Shadows, 2);
-                Arena.AddCircle(s.Target.Position, s.Radius, Colors.Danger);
-            }
+                DrawCircle(s.Target.Position, s.Radius, Colors.Danger);
         }
     }
 }
@@ -278,6 +281,8 @@ public class IconStackSpread(BossModule module, uint stackIcon, uint spreadIcon,
     {
         if (spell.Action == StackAction)
         {
+            if (Stacks.Count == 1 && Stacks.Any(x => x.Target.InstanceID != spell.MainTargetID))
+                Stacks[0] = Stacks[0] with { Target = WorldState.Actors.Find(spell.MainTargetID)! };
             if (++castCounter == MaxCasts)
             {
                 Stacks.RemoveAll(s => s.Target.InstanceID == spell.MainTargetID);
@@ -301,23 +306,24 @@ public class StackWithIcon(BossModule module, uint icon, ActionID aid, float rad
 
 // generic single hit "line stack" component, usually do not have an iconID, instead players get marked by cast event
 // usually these have 50 range and 4 halfWidth, but it can be modified
-public class LineStack(BossModule module, ActionID aidMarker, ActionID aidResolve, float activationDelay, float range = 50, float halfWidth = 4, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1) : GenericBaitAway(module)
+public class LineStack(BossModule module, ActionID aidMarker, ActionID aidResolve, float activationDelay, float range = 50, float halfWidth = 4, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true) : GenericBaitAway(module)
 {
     // TODO: add forbidden slots logic?
     // TODO: add logic for min and max stack size
-    public readonly ActionID AidMarker = aidMarker;
-    public readonly ActionID AidResolve = aidResolve;
-    public readonly float ActionDelay = activationDelay;
-    public readonly float Range = range;
-    public readonly float HalfWidth = halfWidth;
-    public readonly int MaxStackSize = maxStackSize;
-    public readonly int MinStackSize = minStackSize;
-    public readonly int MaxCasts = maxCasts; // for stacks where the final AID hits multiple times
+    public ActionID AidMarker { get; init; } = aidMarker;
+    public ActionID AidResolve { get; init; } = aidResolve;
+    public float ActionDelay { get; init; } = activationDelay;
+    public float Range { get; init; } = range;
+    public float HalfWidth { get; init; } = halfWidth;
+    public int MaxStackSize { get; init; } = maxStackSize;
+    public int MinStackSize { get; init; } = minStackSize;
+    public int MaxCasts { get; init; } = maxCasts; // for stacks where the final AID hits multiple times
+    public bool MarkerIsFinalTarget { get; init; } = markerIsFinalTarget; // rarely the marked player is not the target of the line stack
+    public HashSet<Actor> ForbiddenActors { get; init; } = [];
     private int castCounter;
     public const string HintStack = "Stack!";
     public const string HintAvoidOther = "GTFO from other line stacks!";
     public const string HintAvoid = "GTFO from line stacks!";
-    public readonly List<Actor> ForbiddenActors = [];
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
@@ -325,11 +331,25 @@ public class LineStack(BossModule module, ActionID aidMarker, ActionID aidResolv
             CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.MainTargetID)!, new AOEShapeRect(Range, HalfWidth), WorldState.FutureTime(ActionDelay)));
         else if (spell.Action == AidResolve && CurrentBaits.Count > 0)
         {
-            if (++castCounter == MaxCasts)
+            if (MarkerIsFinalTarget)
             {
-                CurrentBaits.RemoveAt(0);
-                castCounter = 0;
-                ++NumCasts;
+                if (CurrentBaits.Count == 1 && CurrentBaits.Any(x => x.Target.InstanceID != spell.MainTargetID))
+                    CurrentBaits[0] = CurrentBaits[0] with { Target = WorldState.Actors.Find(spell.MainTargetID)! };
+                if (++castCounter == MaxCasts)
+                {
+                    CurrentBaits.RemoveAll(s => s.Target.InstanceID == spell.MainTargetID);
+                    castCounter = 0;
+                    ++NumCasts;
+                }
+            }
+            else
+            {
+                if (++castCounter == MaxCasts)
+                {
+                    CurrentBaits.RemoveAt(0);
+                    castCounter = 0;
+                    ++NumCasts;
+                }
             }
         }
     }
@@ -400,6 +420,60 @@ public class LineStack(BossModule module, ActionID aidMarker, ActionID aidResolv
             var color = isBaitTarget && bait.Target == pc || !isBaitTarget && bait.Target != pc ? Colors.SafeFromAOE : Colors.AOE;
             bait.Shape.Draw(Arena, BaitOrigin(bait), bait.Rotation, color);
         }
+    }
+
+    public override void DrawArenaForeground(int pcSlot, Actor pc) { }
+}
+
+// generic 'donut stack' mechanic
+public class DonutStack(BossModule module, ActionID aid, uint icon, float innerRadius, float outerRadius, float activationDelay, int minStackSize = 2, int maxStackSize = int.MaxValue) : UniformStackSpread(module, innerRadius / 3, default, minStackSize, maxStackSize)
+{
+    // this is a donut targeted on each player, it is best solved by stacking
+    // regular stack component won't work because this is self targeted
+    public AOEShapeDonut Donut { get; init; } = new(innerRadius, outerRadius);
+    public float ActivationDelay { get; init; } = activationDelay;
+    public uint Icon { get; init; } = icon;
+    public ActionID Aid { get; init; } = aid;
+    private DateTime activation;
+    private readonly List<Actor> actors = [];
+
+    public override void OnEventIcon(Actor actor, uint iconID)
+    {
+        if (iconID == Icon)
+        {
+            activation = WorldState.FutureTime(ActivationDelay);
+            actors.Add(actor);
+        }
+    }
+
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    {
+        if (spell.Action == Aid)
+            actors.Clear();
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        if (!ActiveStacks.Any())
+            return;
+        var forbidden = new List<Func<WPos, float>>();
+        foreach (var c in Raid.WithoutSlot().Exclude(actor))
+            forbidden.Add(ShapeDistance.InvertedCircle(c.Position, Donut.InnerRadius / 4));
+        if (forbidden.Count > 0)
+            hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Max(), ActiveStacks.FirstOrDefault().Activation);
+    }
+
+    public override void DrawArenaBackground(int pcSlot, Actor pc)
+    {
+        Stacks.Clear();
+        if (actors.Count > 0)
+        {
+            var closestTarget = actors.Exclude(pc).Closest(pc.Position);
+            if (closestTarget != null)
+                AddStack(closestTarget, activation);
+        }
+        foreach (var c in actors)
+            Donut.Draw(Arena, c.Position, default, Colors.AOE);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc) { }

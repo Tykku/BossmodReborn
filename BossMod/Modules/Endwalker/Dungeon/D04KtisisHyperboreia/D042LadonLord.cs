@@ -1,17 +1,16 @@
-﻿using BossMod.BLM;
-
 namespace BossMod.Endwalker.Dungeon.D04KtisisHyperboreia.D042LadonLord;
 
 public enum OID : uint
 {
     Boss = 0x3425, // R=3.99
-    Helper = 0x233C,
     PyricSphere = 0x3426, // R=0.7
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     Teleport = 25733, // Boss->location, no cast, single-target
     Inhale1 = 25732, // Boss->self, 4.0s cast, single-target
     Inhale2 = 25915, // Boss->self, no cast, single-target
@@ -26,7 +25,7 @@ public enum AID : uint
     PyricSphereVisual = 25744, // PyricSphere->self, 5.0s cast, single-target
     PyricSphere = 25745, // Helper->self, 10.0s cast, range 50 width 4 cross
     Scratch = 25743, // Boss->player, 5.0s cast, single-target, tankbuster
-    SpawnSpheres = 25740, // Boss->self, no cast, ???
+    SpawnSpheres = 25740 // Boss->self, no cast, ???
 }
 
 public enum SID : uint
@@ -34,7 +33,7 @@ public enum SID : uint
     BreathCombo = 2195, // none->Boss, extra=0x144/0x145/0x149/0x146/0x148/0x147, seems to save the current breath combo or what is left of it
     MiddleHead = 2812, // none->Boss, extra=0x9F6
     LeftHead = 2813, // none->Boss, extra=0x177F
-    RightHead = 2814, // none->Boss, extra=0x21A8
+    RightHead = 2814 // none->Boss, extra=0x21A8
 }
 
 class PyricBreath(BossModule module) : Components.GenericAOEs(module)

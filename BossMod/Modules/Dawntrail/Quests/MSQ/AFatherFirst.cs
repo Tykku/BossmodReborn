@@ -67,6 +67,7 @@ class DualBlowsSteeledStrike(BossModule module) : Components.GenericAOEs(module)
 
     private static readonly AOEShapeCone cone = new(30, 90.Degrees());
     private static readonly AOEShapeCross cross = new(30, 4);
+    private static readonly HashSet<AID> casts = [AID.DualBlows1, AID.DualBlows2, AID.DualBlows3, AID.DualBlows4, AID.SteeledStrike1, AID.SteeledStrike2];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -78,18 +79,18 @@ class DualBlowsSteeledStrike(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.DualBlows1 or AID.DualBlows2 or AID.DualBlows3 or AID.DualBlows4)
+        if (casts.Take(4).Contains((AID)spell.Action.ID))
         {
             _aoes.Add(new(cone, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
             _aoes.SortBy(x => x.Activation);
         }
-        else if ((AID)spell.Action.ID is AID.SteeledStrike1 or AID.SteeledStrike2)
+        if (casts.Skip(4).Contains((AID)spell.Action.ID))
             _aoes.Add(new(cross, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID is AID.DualBlows1 or AID.DualBlows2 or AID.DualBlows3 or AID.DualBlows4 or AID.SteeledStrike1 or AID.SteeledStrike2)
+        if (_aoes.Count > 0 && casts.Contains((AID)spell.Action.ID))
             _aoes.RemoveAt(0);
     }
 }
@@ -150,28 +151,19 @@ class BrawlEnder(BossModule module) : Components.Knockback(module, stopAtWall: t
     }
 }
 
-class TheThrill(BossModule module) : Components.GenericTowers(module)
-{
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if ((AID)spell.Action.ID is AID.TheThrill1 or AID.TheThrill2)
-            Towers.Add(new(caster.Position, 3, activation: Module.CastFinishAt(spell)));
-    }
-
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
-    {
-        if ((AID)spell.Action.ID is AID.TheThrill1 or AID.TheThrill2 && Towers.Count > 0)
-            Towers.RemoveAt(0);
-    }
-}
+class TheThrill(BossModule module, AID aid) : Components.CastTowers(module, ActionID.MakeSpell(aid), 3);
+class TheThrill1(BossModule module) : TheThrill(module, AID.TheThrill1);
+class TheThrill2(BossModule module) : TheThrill(module, AID.TheThrill2);
 
 class FireVoidzone(BossModule module) : Components.PersistentVoidzone(module, 6, m => m.Enemies(OID.FireVoidzone).Where(z => z.EventState != 7));
 class FancyBladework(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FancyBladework));
 class CoiledStrike(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CoiledStrike), new AOEShapeCone(30, 75.Degrees()));
 class GloryBlaze(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GloryBlaze), new AOEShapeRect(40, 3));
 class BattleBreaker(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BattleBreaker));
-class MorningStars1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MorningStars1), 4);
-class MorningStars2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MorningStars2), 4);
+
+class MorningStars(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 4);
+class MorningStars1(BossModule module) : MorningStars(module, AID.MorningStars1);
+class MorningStars2(BossModule module) : MorningStars(module, AID.MorningStars2);
 
 class AFatherFirstStates : StateMachineBuilder
 {
@@ -186,7 +178,8 @@ class AFatherFirstStates : StateMachineBuilder
             .ActivateOnEnter<MorningStars2>()
             .ActivateOnEnter<FireVoidzone>()
             .ActivateOnEnter<BurningSun>()
-            .ActivateOnEnter<TheThrill>()
+            .ActivateOnEnter<TheThrill1>()
+            .ActivateOnEnter<TheThrill2>()
             .ActivateOnEnter<BattleBreaker>()
             .ActivateOnEnter<BrawlEnder>();
     }

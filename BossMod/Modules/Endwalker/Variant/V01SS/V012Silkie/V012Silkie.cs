@@ -1,4 +1,4 @@
-namespace BossMod.Endwalker.Variant.V01SS.V012Silkie;
+namespace BossMod.Endwalker.VariantCriterion.V01SS.V012Silkie;
 
 class CarpetBeater(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CarpetBeater));
 class TotalWash(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.TotalWash));
@@ -54,5 +54,5 @@ class EasternEwers(BossModule module) : Components.Exaflare(module, 4)
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", PrimaryActorOID = (uint)OID.Boss, GroupType = BossModuleInfo.GroupType.CFC, Category = BossModuleInfo.Category.Criterion, GroupID = 868, NameID = 11369)]
+[ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", PrimaryActorOID = (uint)OID.Boss, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 868, NameID = 11369)]
 public class V012Silkie(WorldState ws, Actor primary) : BossModule(ws, primary, new(-335, -155), new ArenaBoundsSquare(20));

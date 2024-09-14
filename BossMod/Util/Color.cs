@@ -13,14 +13,8 @@ public record struct Color(uint ABGR)
 
     private const float ToFloat = 1.0f / 255;
 
-    public static Color FromRGBA(uint rgba)
-    {
-        var a = rgba & 0xFF;
-        var b = (rgba >> 8) & 0xFF;
-        var g = (rgba >> 16) & 0xFF;
-        var r = (rgba >> 24) & 0xFF;
-        return new((a << 24) | (b << 16) | (g << 8) | r);
-    }
+    public static Color FromComponents(uint r, uint g, uint b, uint a = 255) => new(((a & 0xFF) << 24) | ((b & 0xFF) << 16) | ((g & 0xFF) << 8) | (r & 0xFF));
+    public static Color FromRGBA(uint rgba) => FromComponents(rgba >> 24, rgba >> 16, rgba >> 8, rgba);
 
     public static Color FromFloat4(Vector4 vec)
     {
@@ -28,7 +22,7 @@ public record struct Color(uint ABGR)
         var g = Math.Clamp((uint)(vec.Y * 255), 0, 255);
         var b = Math.Clamp((uint)(vec.Z * 255), 0, 255);
         var a = Math.Clamp((uint)(vec.W * 255), 0, 255);
-        return new((a << 24) | (b << 16) | (g << 8) | r);
+        return FromComponents(r, g, b, a);
     }
 
     public readonly uint ToRGBA() => (R << 24) | (G << 16) | (B << 8) | A;
@@ -68,8 +62,11 @@ public static class Colors
     public static uint Vulnerable => _config.ArenaVulnerable.ABGR;
     public static uint FutureVulnerable => _config.ArenaFutureVulnerable.ABGR;
     public static uint MeleeRangeIndicator => _config.ArenaMeleeRangeIndicator.ABGR;
-    public static uint Other1 => _config.ArenaOther1.ABGR;
-    public static uint Other2 => _config.ArenaOther2.ABGR;
+    public static uint Other1 => _config.ArenaOther[0].ABGR;
+    public static uint Other2 => _config.ArenaOther[1].ABGR;
+    public static uint Other3 => _config.ArenaOther[2].ABGR;
+    public static uint Other4 => _config.ArenaOther[3].ABGR;
+    public static uint Other5 => _config.ArenaOther[4].ABGR;
     public static uint Shadows => _config.Shadows.ABGR;
     public static uint WaymarkA => _config.WaymarkA.ABGR;
     public static uint WaymarkB => _config.WaymarkB.ABGR;
@@ -79,8 +76,12 @@ public static class Colors
     public static uint Waymark2 => _config.Waymark2.ABGR;
     public static uint Waymark3 => _config.Waymark3.ABGR;
     public static uint Waymark4 => _config.Waymark4.ABGR;
-    public static uint ButtonPushColor1 => _config.ButtonPushColor1.ABGR;
-    public static uint ButtonPushColor2 => _config.ButtonPushColor2.ABGR;
+    public static uint ButtonPushColor1 => _config.ButtonPushColor[0].ABGR;
+    public static uint ButtonPushColor2 => _config.ButtonPushColor[1].ABGR;
+    public static uint ButtonPushColor3 => _config.ButtonPushColor[2].ABGR;
+    public static uint ButtonPushColor4 => _config.ButtonPushColor[3].ABGR;
+    public static uint ButtonPushColor5 => _config.ButtonPushColor[4].ABGR;
+    public static uint ButtonPushColor6 => _config.ButtonPushColor[5].ABGR;
     public static uint TextColor1 => _config.TextColors[0].ABGR;
     public static uint TextColor2 => _config.TextColors[1].ABGR;
     public static uint TextColor3 => _config.TextColors[2].ABGR;
@@ -96,8 +97,17 @@ public static class Colors
     public static uint TextColor13 => _config.TextColors[12].ABGR;
     public static uint TextColor14 => _config.TextColors[13].ABGR;
     public static uint TextColor15 => _config.TextColors[14].ABGR;
+    public static uint TextColor16 => _config.TextColors[15].ABGR;
+    public static uint TextColor17 => _config.TextColors[16].ABGR;
+    public static uint TextColor18 => _config.TextColors[17].ABGR;
     public static uint PositionalColor1 => _config.PositionalColors[0].ABGR;
     public static uint PositionalColor2 => _config.PositionalColors[1].ABGR;
     public static uint PositionalColor3 => _config.PositionalColors[2].ABGR;
     public static uint PositionalColor4 => _config.PositionalColors[3].ABGR;
+    public static uint Tank => _config.PlayerColorsTank.ABGR;
+    public static uint Healer => _config.PlayerColorsHealer.ABGR;
+    public static uint Melee => _config.PlayerColorsMelee.ABGR;
+    public static uint Caster => _config.PlayerColorsCaster.ABGR;
+    public static uint PhysRanged => _config.PlayerColorsPhysRanged.ABGR;
+    public static uint Focus => _config.PlayerColorsFocus.ABGR;
 }

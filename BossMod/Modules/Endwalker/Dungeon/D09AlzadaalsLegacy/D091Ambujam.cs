@@ -11,6 +11,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     BigWave = 28512, // Boss->self, 5.0s cast, range 40 circle
 
     CorrosiveFountain = 29556, // Helper->self, 7.0s cast, range 8 circle, knockback 10, away from source
@@ -26,7 +27,7 @@ public enum AID : uint
     ToxinShower = 28508, // Helper->self, 2.5s cast, range 21 circle
 
     ModelStateChange1 = 28502, // Boss->self, no cast, single-target
-    ModelStateChange2 = 28506, // Boss->self, no cast, single-target
+    ModelStateChange2 = 28506 // Boss->self, no cast, single-target
 }
 
 class ToxinShowerCorrosiveVenom(BossModule module) : Components.GenericAOEs(module)
@@ -49,7 +50,7 @@ class ToxinShowerCorrosiveVenom(BossModule module) : Components.GenericAOEs(modu
     {
         if (_statePositions.TryGetValue(index, out var statePosition) && statePosition.TryGetValue(state, out var position))
         {
-            var activation = Module.WorldState.FutureTime(10.5f);
+            var activation = WorldState.FutureTime(10.5f);
             _aoes.Add(new(circle, position, default, activation));
         }
     }
@@ -97,7 +98,5 @@ class D091AmbujamStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 844, NameID = 11241)]
 public class D091Ambujam(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultBounds.Center, DefaultBounds)
 {
-    private static readonly List<Shape> union = [new Circle(new(124, -90), 19.5f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(124, -110.25f), 20, 2), new Rectangle(new(124, -69.5f), 20, 2)];
-    public static readonly ArenaBoundsComplex DefaultBounds = new(union, difference);
+    private static readonly ArenaBoundsComplex DefaultBounds = new([new Circle(new(124, -90), 19.5f)], [new Rectangle(new(124, -110.25f), 20, 2), new Rectangle(new(124, -69.5f), 20, 2)]);
 }

@@ -1,4 +1,4 @@
-namespace BossMod.Endwalker.Variant.V02MR.V021Yozakura;
+namespace BossMod.Endwalker.VariantCriterion.V02MR.V021Yozakura;
 
 class SealOfRiotousBloom(BossModule module) : Components.GenericAOEs(module)
 {
@@ -8,8 +8,6 @@ class SealOfRiotousBloom(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCircle circle = new(9);
     private static readonly AOEShapeDonut donut = new(5, 60);
     private static readonly AOEShapeCone cone = new(70, 22.5f.Degrees());
-    private static readonly Angle[] anglesIntercardinals = [-45.003f.Degrees(), 44.998f.Degrees(), 134.999f.Degrees(), -135.005f.Degrees()];
-    private static readonly Angle[] anglesCardinals = [-90.004f.Degrees(), -0.003f.Degrees(), 180.Degrees(), 89.999f.Degrees()];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(5);
 
@@ -25,7 +23,7 @@ class SealOfRiotousBloom(BossModule module) : Components.GenericAOEs(module)
 
                 case 0x00400080: // seal activates
                     if (elements.Contains(element))
-                        ActivateAOE(element, Module.WorldState.FutureTime(8.1f));
+                        ActivateAOE(element, WorldState.FutureTime(8.1f));
                     break;
             }
         }
@@ -46,11 +44,11 @@ class SealOfRiotousBloom(BossModule module) : Components.GenericAOEs(module)
                 break;
 
             case Element.Thunder:
-                AddConeAOEs(anglesCardinals, activation);
+                AddConeAOEs(Helpers.AnglesCardinals, activation);
                 break;
 
             case Element.Water:
-                AddConeAOEs(anglesIntercardinals, activation);
+                AddConeAOEs(Helpers.AnglesIntercardinals, activation);
                 break;
 
             case Element.Wind:
@@ -60,7 +58,7 @@ class SealOfRiotousBloom(BossModule module) : Components.GenericAOEs(module)
         elements.Remove(element);
         if (_aoes.Count == 5 && elements.Count > 0)
             foreach (var e in elements)
-                ActivateAOE(e, Module.WorldState.FutureTime(16.3f));
+                ActivateAOE(e, WorldState.FutureTime(16.3f));
     }
 
     private void AddConeAOEs(Angle[] angles, DateTime activationTime)

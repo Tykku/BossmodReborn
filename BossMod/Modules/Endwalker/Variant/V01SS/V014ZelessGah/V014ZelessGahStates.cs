@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Variant.V01SS.V014ZelessGah;
+﻿namespace BossMod.Endwalker.VariantCriterion.V01SS.V014ZelessGah;
 
 class V014ZelessGahStates : StateMachineBuilder
 {

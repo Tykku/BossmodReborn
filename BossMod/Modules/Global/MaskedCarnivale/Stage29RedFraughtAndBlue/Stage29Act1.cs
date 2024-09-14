@@ -44,22 +44,16 @@ class PyreticHint(BossModule module) : Components.CastHint(module, ActionID.Make
 
 class Pyretic(BossModule module) : Components.StayMove(module)
 {
-    public override void OnStatusGain(Actor actor, ActorStatus status)
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((SID)status.ID is SID.Pyretic)
-        {
-            if (Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0 && slot < Requirements.Length)
-                Requirements[slot] = Requirement.Stay;
-        }
+        if ((AID)spell.Action.ID == AID.Pyretic)
+            Array.Fill(PlayerStates, new(Requirement.Stay, Module.CastFinishAt(spell)));
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID is SID.Pyretic)
-        {
-            if (Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0 && slot < Requirements.Length)
-                Requirements[slot] = Requirement.None;
-        }
+        if ((SID)status.ID == SID.Pyretic && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
+            PlayerStates[slot] = default;
     }
 }
 

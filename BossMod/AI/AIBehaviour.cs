@@ -1,6 +1,5 @@
 ﻿using BossMod.Autorotation;
 using BossMod.Pathfinding;
-using Dalamud.Interface.Utility;
 using ImGuiNET;
 
 namespace BossMod.AI;
@@ -18,9 +17,8 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
     private NavigationDecision _naviDecision;
     private bool _afkMode;
     private bool _followMaster; // if true, our navigation target is master rather than primary target - this happens e.g. in outdoor or in dungeons during gathering trash
-    private float _maxCastTime;
-    private WPos _masterMovementStart;
     private WPos _masterPrevPos;
+    private WPos _masterMovementStart;
     private DateTime _masterLastMoved;
 
     public void Dispose()
@@ -38,7 +36,9 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
             FocusMaster(master);
 
         _afkMode = !master.InCombat && (WorldState.CurrentTime - _masterLastMoved).TotalSeconds > 10;
-        var forbidActions = _config.ForbidActions || ctrl.IsMounted || _afkMode || autorot.Preset != null && autorot.Preset != AIPreset;
+        var gazeImminent = autorot.Hints.ForbiddenDirections.Count > 0 && autorot.Hints.ForbiddenDirections[0].activation <= WorldState.FutureTime(0.5f);
+        var pyreticImminent = autorot.Hints.ImminentSpecialMode.mode == AIHints.SpecialMode.Pyretic && autorot.Hints.ImminentSpecialMode.activation <= WorldState.FutureTime(1);
+        var forbidActions = _config.ForbidActions || _afkMode || gazeImminent || pyreticImminent || autorot.Preset != null && autorot.Preset != AIPreset;
 
         Targeting target = new();
         if (!forbidActions && autorot.ActiveModules != null && autorot.ActiveModules.Count > 0)
@@ -51,26 +51,31 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
 
         var followTarget = _config.FollowTarget;
         _followMaster = (_config.FollowDuringCombat || !master.InCombat || (_masterPrevPos - _masterMovementStart).LengthSq() > 100) && (_config.FollowDuringActiveBossModule || autorot.Bossmods.ActiveModule?.StateMachine.ActiveState == null) && (_config.FollowOutOfCombat || master.InCombat);
+        // note: if there are pending knockbacks, don't update navigation decision to avoid fucking up positioning
+        if (!WorldState.PendingEffects.PendingKnockbacks(player.InstanceID))
+        {
+            _naviDecision = followTarget && autorot.WorldState.Actors.Find(player.TargetID) != null ? BuildNavigationDecision(player, autorot.WorldState.Actors.Find(player.TargetID)!, ref target) : BuildNavigationDecision(player, master, ref target);
+            // there is a difference between having a small positive leeway and having a negative one for pathfinding, prefer to keep positive
+            _naviDecision.LeewaySeconds = Math.Max(0, _naviDecision.LeewaySeconds - 0.1f);
+        }
 
-        _naviDecision = followTarget && autorot.WorldState.Actors.Find(player.TargetID) != null ? BuildNavigationDecision(player, autorot.WorldState.Actors.Find(player.TargetID)!, ref target) : BuildNavigationDecision(player, master, ref target);
         var masterIsMoving = TrackMasterMovement(master);
         var moveWithMaster = masterIsMoving && (master == player || _followMaster);
-        _maxCastTime = moveWithMaster || ctrl.ForceFacing ? 0 : _naviDecision.LeewaySeconds;
+        ForceMovementIn = moveWithMaster || gazeImminent || pyreticImminent ? 0 : _naviDecision.LeewaySeconds;
 
         if (!forbidActions)
         {
             autorot.Preset = target.Target != null ? AIPreset : null;
-            ForceMovementIn = _maxCastTime;
         }
 
-        UpdateMovement(player, master, target, !forbidActions ? autorot.Hints.ActionsToExecute : null);
+        UpdateMovement(player, master, target, gazeImminent || pyreticImminent, !forbidActions ? autorot.Hints.ActionsToExecute : null);
     }
 
     // returns null if we're to be idle, otherwise target to attack
     private Targeting SelectPrimaryTarget(Actor player, Actor master)
     {
-        if (!master.InCombat && (!autorot.Hints.PriorityTargets.Any() || !master.InCombat || AIPreset == null))
-            return new(); // there are no valid targets to attack, or we're not fighting - remain idle
+        if (autorot.Hints.InteractWithTarget is Actor interact)
+            return new Targeting(new AIHints.Enemy(interact, false), 3);
 
         // we prefer not to switch targets unnecessarily, so start with current target - it could've been selected manually or by AI on previous frames
         // if current target is not among valid targets, clear it - this opens way for future target selection heuristics
@@ -82,11 +87,20 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         target ??= master != player ? autorot.Hints.PriorityTargets.FirstOrDefault(t => master.TargetID == t.Actor.InstanceID) : null;
         target ??= autorot.Hints.PriorityTargets.MinBy(e => (e.Actor.Position - player.Position).LengthSq());
 
+        // if the previous line returned no target, there aren't any priority targets at all - give up
+        if (target == null)
+            return new();
+
         // TODO: rethink all this... ai module should set forced target if it wants to switch... figure out positioning and stuff
         // now give class module a chance to improve targeting
         // typically it would switch targets for multidotting, or to hit more targets with AOE
         // in case of ties, it should prefer to return original target - this would prevent useless switches
         var targeting = new Targeting(target!, autorot.Hints.RecommendedRangeToTarget - 0.1f);
+
+        var pos = autorot.Hints.RecommendedPositional;
+        if (pos.Target != null && targeting.Target.Actor == pos.Target)
+            targeting.PreferredPosition = pos.Pos;
+
         return /*autorot.SelectTargetForAI(targeting) ??*/ targeting;
     }
 
@@ -104,7 +118,8 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         }
 
         // if target-of-target is player, don't try flanking, it's probably impossible... - unless target is currently casting (TODO: reconsider?)
-        if (targeting.Target.Actor.TargetID == player.InstanceID && targeting.Target.Actor.CastInfo == null)
+        // skip if targeting a dummy, they don't rotate
+        if (targeting.Target.Actor.TargetID == player.InstanceID && targeting.Target.Actor.CastInfo == null && targeting.Target.Actor.OID != 0x385)
             targeting.PreferredPosition = Positional.Any;
     }
 
@@ -167,28 +182,23 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         return masterIsMoving;
     }
 
-    private void UpdateMovement(Actor player, Actor master, Targeting target, ActionQueue? queueForSprint)
+    private void UpdateMovement(Actor player, Actor master, Targeting target, bool gazeOrPyreticImminent, ActionQueue? queueForSprint)
     {
-        var destRot = AvoidGaze.Update(player, target.Target?.Actor.Position, autorot.Hints, WorldState.CurrentTime.AddSeconds(0.5));
-        if (destRot != null)
+        if (gazeOrPyreticImminent)
         {
-            // rotation check imminent, drop any movement - we should have moved to safe zone already...
+            // gaze or pyretic imminent, drop any movement - we should have moved to safe zone already...
             ctrl.NaviTargetPos = null;
-            ctrl.NaviTargetRot = destRot;
             ctrl.NaviTargetVertical = null;
             ctrl.ForceCancelCast = true;
-            ctrl.ForceFacing = true;
         }
         else
         {
             var toDest = _naviDecision.Destination != null ? _naviDecision.Destination.Value - player.Position : new();
             var distSq = toDest.LengthSq();
             ctrl.NaviTargetPos = _naviDecision.Destination;
-            ctrl.NaviTargetRot = null;
             ctrl.NaviTargetVertical = master != player ? master.PosRot.Y : null;
             ctrl.AllowInterruptingCastByMovement = player.CastInfo != null && _naviDecision.LeewaySeconds <= player.CastInfo.RemainingTime - 0.5;
-            ctrl.ForceCancelCast = player.InCombat && player.CastInfo != null && TargetIsForbidden(player.CastInfo.TargetID);
-            ctrl.ForceFacing = false;
+            ctrl.ForceCancelCast = false;
             ctrl.WantJump = distSq >= 0.01f && autorot.Bossmods.ActiveModule?.StateMachine.ActiveState != null && autorot.Bossmods.ActiveModule.NeedToJump(player.Position, toDest.Normalized());
 
             //var cameraFacing = _ctrl.CameraFacing;
@@ -227,7 +237,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
 
         var player = autorot.WorldState.Party.Player();
         var dist = _naviDecision.Destination != null && player != null ? (_naviDecision.Destination.Value - player.Position).Length() : 0;
-        ImGui.TextUnformatted($"Max-cast={MathF.Min(_maxCastTime, 1000):f3}, afk={_afkMode}, follow={_followMaster}, algo={_naviDecision.DecisionType} {_naviDecision.Destination} (d={dist:f3}), master standing for {Math.Clamp((WorldState.CurrentTime - _masterLastMoved).TotalSeconds, 0, 1000):f1}");
+        ImGui.TextUnformatted($"Max-cast={MathF.Min(ForceMovementIn, 1000):f3}, afk={_afkMode}, follow={_followMaster}, algo={_naviDecision.DecisionType} {_naviDecision.Destination} (d={dist:f3}), master standing for {Math.Clamp((WorldState.CurrentTime - _masterLastMoved).TotalSeconds, 0, 1000):f1}");
     }
 
     private bool TargetIsForbidden(ulong actorId) => autorot.Hints.ForbiddenTargets.Any(e => e.Actor.InstanceID == actorId);

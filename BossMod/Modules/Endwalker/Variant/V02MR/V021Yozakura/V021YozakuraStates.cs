@@ -1,12 +1,15 @@
-﻿namespace BossMod.Endwalker.Variant.V02MR.V021Yozakura;
+﻿namespace BossMod.Endwalker.VariantCriterion.V02MR.V021Yozakura;
 
 class V021YozakuraStates : StateMachineBuilder
 {
     public V021YozakuraStates(BossModule module) : base(module)
     {
         TrivialPhase()
+            .ActivateOnEnter<ArenaChange>()
+            .ActivateOnEnter<Components.StayInBounds>()
             //Right No Dogu
             .ActivateOnEnter<RootArrangement>()
+            .ActivateOnEnter<AccursedSeedling>()
             //Right Dogu
             .ActivateOnEnter<Witherwind>()
             //Left Windy
@@ -16,17 +19,16 @@ class V021YozakuraStates : StateMachineBuilder
             //Left Rainy
             .ActivateOnEnter<Mudrain>()
             .ActivateOnEnter<Icebloom>()
-            .ActivateOnEnter<ShadowflightAOE>()
-            .ActivateOnEnter<MudPieAOE>()
+            .ActivateOnEnter<Shadowflight>()
+            .ActivateOnEnter<MudPie>()
             //Middle Rope Pulled
             .ActivateOnEnter<FireblossomFlare>()
             .ActivateOnEnter<ArtOfTheFluff1>()
             .ActivateOnEnter<ArtOfTheFluff2>()
             //Middle Rope Unpulled
             .ActivateOnEnter<LevinblossomLance>()
-            .ActivateOnEnter<TatamiGaeshiAOE>()
+            .ActivateOnEnter<TatamiGaeshi>()
             //Standard
-            .ActivateOnEnter<ArenaChange>()
             .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<GloryNeverlasting>()
             .ActivateOnEnter<KugeRantsui>()

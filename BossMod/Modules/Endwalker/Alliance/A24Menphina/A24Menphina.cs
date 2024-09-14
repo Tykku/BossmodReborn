@@ -4,8 +4,11 @@ class BlueMoon(BossModule module) : Components.CastCounter(module, ActionID.Make
 class FirstBlush(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FirstBlush), new AOEShapeRect(80, 12.5f));
 class SilverMirror(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SilverMirrorAOE), new AOEShapeCircle(7));
 class Moonset(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MoonsetAOE), new AOEShapeCircle(12));
-class LoversBridgeShort(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LoversBridgeShort), new AOEShapeCircle(19));
-class LoversBridgeLong(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LoversBridgeLong), new AOEShapeCircle(19));
+
+class LoversBridge(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(19));
+class LoversBridgeShort(BossModule module) : LoversBridge(module, AID.LoversBridgeShort);
+class LoversBridgeLong(BossModule module) : LoversBridge(module, AID.LoversBridgeLong);
+
 class CeremonialPillar(BossModule module) : Components.Adds(module, (uint)OID.CeremonialPillar);
 class AncientBlizzard(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AncientBlizzard), new AOEShapeCone(45, 22.5f.Degrees()));
 class KeenMoonbeam(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.KeenMoonbeamAOE), 6);

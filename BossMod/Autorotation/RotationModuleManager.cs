@@ -27,6 +27,7 @@ public sealed class RotationModuleManager : IDisposable
     public static readonly Preset ForceDisable = new(""); // empty preset, so if it's activated, rotation is force disabled
 
     public WorldState WorldState => Bossmods.WorldState;
+    public ulong PlayerInstanceId => WorldState.Party.Members[PlayerSlot].InstanceId;
     public Actor? Player => WorldState.Party[PlayerSlot];
 
     // historic data for recent events that could be interesting for modules
@@ -41,12 +42,14 @@ public sealed class RotationModuleManager : IDisposable
         Hints = hints;
         _subscriptions = new
         (
-            WorldState.Actors.Added.Subscribe(a => DirtyActiveModules(WorldState.Party.Members[PlayerSlot].InstanceId == a.InstanceID)),
-            WorldState.Actors.Removed.Subscribe(a => DirtyActiveModules(WorldState.Party.Members[PlayerSlot].InstanceId == a.InstanceID)),
-            WorldState.Actors.ClassChanged.Subscribe(a => DirtyActiveModules(WorldState.Party.Members[PlayerSlot].InstanceId == a.InstanceID)),
+            WorldState.Actors.Added.Subscribe(a => DirtyActiveModules(PlayerInstanceId == a.InstanceID)),
+            WorldState.Actors.Removed.Subscribe(a => DirtyActiveModules(PlayerInstanceId == a.InstanceID)),
+            WorldState.Actors.ClassChanged.Subscribe(a => DirtyActiveModules(PlayerInstanceId == a.InstanceID)),
             WorldState.Actors.InCombatChanged.Subscribe(OnCombatChanged),
             WorldState.Actors.IsDeadChanged.Subscribe(OnDeadChanged),
             WorldState.Actors.CastEvent.Subscribe(OnCastEvent),
+            WorldState.Actors.StatusGain.Subscribe((a, idx) => DirtyActiveModules(PlayerInstanceId == a.InstanceID && a.Statuses[idx].ID == (uint)Roleplay.SID.RolePlaying)),
+            WorldState.Actors.StatusLose.Subscribe((a, idx) => DirtyActiveModules(PlayerInstanceId == a.InstanceID && a.Statuses[idx].ID == (uint)Roleplay.SID.RolePlaying)),
             WorldState.Party.Modified.Subscribe(op => DirtyActiveModules(op.Slot == PlayerSlot)),
             WorldState.Client.ActionRequested.Subscribe(OnActionRequested),
             WorldState.Client.CountdownChanged.Subscribe(OnCountdownChanged),
@@ -76,7 +79,9 @@ public sealed class RotationModuleManager : IDisposable
         // forced target update
         if (Hints.ForcedTarget == null && Preset == null && Planner?.ActiveForcedTarget() is var forced && forced != null)
         {
-            Hints.ForcedTarget = ResolveTargetOverride(forced.Value);
+            Hints.ForcedTarget = forced.Value.Target != StrategyTarget.Automatic
+                ? ResolveTargetOverride(forced.Value.Target, forced.Value.TargetParam)
+                : (ResolveTargetOverride(StrategyTarget.EnemyWithHighestPriority, 0) ?? Bossmods.ActiveModule?.PrimaryActor);
         }
 
         // auto actions
@@ -89,13 +94,13 @@ public sealed class RotationModuleManager : IDisposable
         }
     }
 
-    public Actor? ResolveTargetOverride(in StrategyValue strategy) => strategy.Target switch
+    public Actor? ResolveTargetOverride(StrategyTarget strategy, int param) => strategy switch
     {
         StrategyTarget.Self => Player,
-        StrategyTarget.PartyByAssignment => _prc.SlotsPerAssignment(WorldState.Party) is var spa && strategy.TargetParam < spa.Length ? WorldState.Party[spa[strategy.TargetParam]] : null,
-        StrategyTarget.PartyWithLowestHP => WorldState.Party.WithoutSlot().Exclude(strategy.TargetParam != 0 ? null : Player).MinBy(a => a.HPMP.CurHP),
+        StrategyTarget.PartyByAssignment => _prc.SlotsPerAssignment(WorldState.Party) is var spa && param < spa.Length ? WorldState.Party[spa[param]] : null,
+        StrategyTarget.PartyWithLowestHP => WorldState.Party.WithoutSlot().Exclude(param != 0 ? null : Player).MinBy(a => a.HPMP.CurHP),
         StrategyTarget.EnemyWithHighestPriority => Player != null ? Hints.PriorityTargets.MinBy(e => (e.Actor.Position - Player.Position).LengthSq())?.Actor : null,
-        StrategyTarget.EnemyByOID => Player != null && (uint)strategy.TargetParam is var oid && oid != 0 ? Hints.PotentialTargets.Where(e => e.Actor.OID == oid).MinBy(e => (e.Actor.Position - Player.Position).LengthSq())?.Actor : null,
+        StrategyTarget.EnemyByOID => Player != null && (uint)param is var oid && oid != 0 ? Hints.PotentialTargets.Where(e => e.Actor.OID == oid).MinBy(e => (e.Actor.Position - Player.Position).LengthSq())?.Actor : null,
         _ => null
     };
 
@@ -119,26 +124,35 @@ public sealed class RotationModuleManager : IDisposable
         var player = Player;
         if (player != null)
         {
+            var isRPMode = player.Statuses.Any(s => s.ID == (uint)Roleplay.SID.RolePlaying);
             foreach (var m in types)
             {
-                var def = RotationModuleRegistry.Modules.GetValueOrDefault(m);
-                if (def.Definition != null && def.Definition.Classes[(int)player.Class] && player.Level >= def.Definition.MinLevel && player.Level <= def.Definition.MaxLevel)
-                {
-                    res.Add((def.Definition, def.Builder(this, player)));
-                }
+                if (!RotationModuleRegistry.Modules.TryGetValue(m, out var def))
+                    continue;
+                if (!def.Definition.Classes[(int)player.Class] || player.Level < def.Definition.MinLevel || player.Level > def.Definition.MaxLevel)
+                    continue;
+                if (!def.Definition.CanUseWhileRoleplaying && isRPMode)
+                    continue;
+                res.Add((def.Definition, def.Builder(this, player)));
             }
         }
         return res;
     }
 
+    private void DirtyActiveModules(bool condition)
+    {
+        if (condition)
+            ActiveModules = null;
+    }
+
     private void OnCombatChanged(Actor actor)
     {
-        if (WorldState.Party.Members[PlayerSlot].InstanceId != actor.InstanceID)
+        if (PlayerInstanceId != actor.InstanceID)
             return; // don't care
 
         CombatStart = actor.InCombat ? WorldState.CurrentTime : default; // keep track of combat time in case rotation modules want to do something special in openers
 
-        if (!actor.InCombat && Config.ClearPresetOnCombatEnd)
+        if (!actor.InCombat && (Preset == ForceDisable || Config.ClearPresetOnCombatEnd))
         {
             // player exits combat => clear manual overrides
             Service.Log($"[RMM] Player exits combat => clear preset '{Preset?.Name ?? "<n/a>"}'");
@@ -155,7 +169,7 @@ public sealed class RotationModuleManager : IDisposable
 
     private void OnDeadChanged(Actor actor)
     {
-        if (WorldState.Party.Members[PlayerSlot].InstanceId != actor.InstanceID)
+        if (PlayerInstanceId != actor.InstanceID)
             return; // don't care
 
         // note: if combat ends while player is dead, we'll reset the preset, which is desirable
@@ -183,12 +197,6 @@ public sealed class RotationModuleManager : IDisposable
     {
         if (prev != null && prev == Preset)
             Preset = curr;
-    }
-
-    private void DirtyActiveModules(bool condition)
-    {
-        if (condition)
-            ActiveModules = null;
     }
 
     private void OnActionRequested(ClientState.OpActionRequest op)

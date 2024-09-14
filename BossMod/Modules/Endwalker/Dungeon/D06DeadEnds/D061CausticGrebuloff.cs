@@ -3,13 +3,14 @@
 public enum OID : uint
 {
     Boss = 0x34C4, // R=6.65
+    WeepingMiasma = 0x34C5, // R=1.0
     Helper = 0x233C,
-    WeepingMiasma = 0x34C5 // R=1.0
 }
 
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     BefoulmentVisual = 25923, // Boss->self, 5.0s cast, single-target
     Befoulment = 25924, // Helper->player, 5.2s cast, range 6 circle, spread
     BlightedWaterVisual = 25921, // Boss->self, 5.0s cast, single-target
@@ -41,7 +42,7 @@ class CertainSolitude(BossModule module) : Components.GenericStackSpread(module)
 
     public override void Update()
     {
-        if (Stacks.Count != 0 && Module.Raid.WithoutSlot().All(x => x.FindStatus(SID.CravenCompanionship) == null))
+        if (Stacks.Count != 0 && Raid.WithoutSlot().All(x => x.FindStatus(SID.CravenCompanionship) == null))
             Stacks.Clear();
     }
 }
@@ -80,7 +81,7 @@ class Necrosis(BossModule module) : BossComponent(module)
         {
             if (_doomed.Count > 0 && actor.Role == Role.Healer)
                 hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Esuna), c, ActionQueue.Priority.High);
-            if (_doomed.Count > 0 && actor.Class == Class.BRD)
+            else if (_doomed.Count > 0 && actor.Class == Class.BRD)
                 hints.ActionsToExecute.Push(ActionID.MakeSpell(BRD.AID.WardensPaean), c, ActionQueue.Priority.High);
         }
     }
@@ -121,8 +122,8 @@ class NecroticFluidMist(BossModule module) : Components.Exaflare(module, 6)
     {
         return CurrentWind switch
         {
-            Pattern.Southward => GetSouthwardExplosions(caster.Position, Module.Center),
-            Pattern.Northward => GetNorthwardExplosions(caster.Position, Module.Center),
+            Pattern.Southward => GetSouthwardExplosions(caster.Position, Arena.Center),
+            Pattern.Northward => GetNorthwardExplosions(caster.Position, Arena.Center),
             _ => 0
         };
     }
@@ -245,9 +246,7 @@ class D061CausticGrebuloffStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 792, NameID = 10313)]
-public class D061CausticGrebuloff(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultBounds.Center, DefaultBounds)
+public class D061CausticGrebuloff(WorldState ws, Actor primary) : BossModule(ws, primary, defaultBounds.Center, defaultBounds)
 {
-    private static readonly List<Shape> union = [new Circle(new(266.5f, -178), 19.5f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(266.5f, -198.75f), 20, 2), new Rectangle(new(266.5f, -157), 20, 2)];
-    public static readonly ArenaBoundsComplex DefaultBounds = new(union, difference);
+    private static readonly ArenaBoundsComplex defaultBounds = new([new Circle(new(266.5f, -178), 19.5f)], [new Rectangle(new(266.5f, -198.75f), 20, 2), new Rectangle(new(266.5f, -157), 20, 2)]);
 }

@@ -8,6 +8,8 @@ class DesertTempest(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCircle circle = new(19);
     private static readonly AOEShapeDonut donut = new(14, 60);
     private static readonly AOEShapeDonutSector donutSector = new(14, 60, 90.Degrees());
+    private static readonly HashSet<AID> castEnd = [AID.DesertTempestCircle, AID.DesertTempestDonut,
+    AID.DesertTempestDonutSegment1, AID.DesertTempestDonutSegment2, AID.DesertTempestCone1, AID.DesertTempestCone2];
 
     private readonly List<AOEInstance> _aoes = [];
 
@@ -42,16 +44,7 @@ class DesertTempest(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
-        {
-            case AID.DesertTempestCircle:
-            case AID.DesertTempestDonut:
-            case AID.DesertTempestDonutSegment1:
-            case AID.DesertTempestDonutSegment2:
-            case AID.DesertTempestCone1:
-            case AID.DesertTempestCone2:
-                _aoes.Clear();
-                break;
-        }
+        if (castEnd.Contains((AID)spell.Action.ID))
+            _aoes.Clear();
     }
 }

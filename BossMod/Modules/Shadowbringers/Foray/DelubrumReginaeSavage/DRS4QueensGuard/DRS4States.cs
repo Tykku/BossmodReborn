@@ -51,7 +51,7 @@ class DRS4States : StateMachineBuilder
         P2DoubleGambit(id + 0x50000, 10.3f);
         P2BloodAndBone(id + 0x60000, 5.7f);
         P2RapidSever(id + 0x70000, 4.1f);
-        P2TurretsTour(id + 0x80000, 10.2f);
+        P2AutomaticTurret(id + 0x80000, 10.2f);
         P2BloodAndBone(id + 0x90000, 5.1f);
         P2RapidSever(id + 0xA0000, 4.1f);
         SimpleState(id + 0xB0000, 15, "Enrage");  // TODO: not sure about the timing, no log yet
@@ -191,21 +191,6 @@ class DRS4States : StateMachineBuilder
             .SetHint(StateMachine.StateHint.Tankbuster);
     }
 
-    private void P2TurretsTour(uint id, float delay)
-    {
-        ActorCast(id, _module.Gunner, AID.RelentlessBatteryGunner, delay, 5); // both soldier and gunner cast their visual
-        ActorCast(id + 0x10, Module.Enemies(OID.Gunner).FirstOrDefault, AID.AutomaticTurret2, 3, 3, false, "Turrets spawn");
-        ActorCast(id + 0x20, Module.Enemies(OID.Gunner).FirstOrDefault, AID.TurretsTour, 3.1f, 5, false, "Turrets start")
-            .ActivateOnEnter<TurretsTour>();
-        ComponentCondition<TurretsTour>(id + 0x30, 1.6f, comp => comp.NumCasts >= 4, "Turrets resolve")
-            .DeactivateOnExit<TurretsTour>();
-        ActorCastMulti(id + 0x40, _module.Soldier, new[] { AID.FieryPortent, AID.IcyPortent }, 0.2f, 5.2f, false, "Move/stay")
-            .ActivateOnEnter<FieryPortent>()
-            .ActivateOnEnter<IcyPortent>()
-            .DeactivateOnExit<FieryPortent>()
-            .DeactivateOnExit<IcyPortent>();
-    }
-
     private void P2FoolsGambit(uint id, float delay)
     {
         ActorCast(id, _module.Soldier, AID.RelentlessBatterySoldier, delay, 5); // both soldier and gunner cast their visual
@@ -213,7 +198,7 @@ class DRS4States : StateMachineBuilder
         // +0.8s: create 2 big and 2 small flame actors
 
         ActorCastStart(id + 0x20, _module.Soldier, AID.FoolsGambit, 3.2f);
-        ActorCastStart(id + 0x21, _module.Gunner, AID.AutomaticTurret, 5.8f);
+        ActorCastStart(id + 0x21, _module.Gunner, AID.AutomaticTurretGambit, 5.8f);
         ActorCastEnd(id + 0x22, _module.Soldier, 0.2f);
         // +0.7s: flames gain transfiguration statuses
         ActorCastEnd(id + 0x23, _module.Gunner, 2.8f);
@@ -261,7 +246,7 @@ class DRS4States : StateMachineBuilder
         ActorCast(id + 0x10, _module.Soldier, AID.DoubleGambit, 3.2f, 3);
 
         ActorCastStart(id + 0x20, _module.Soldier, AID.SecretsRevealed, 3.2f); // note: tethers appear right before cast start
-        ActorCastStart(id + 0x21, _module.Gunner, AID.AutomaticTurret, 1.8f);
+        ActorCastStart(id + 0x21, _module.Gunner, AID.AutomaticTurretGambit, 1.8f);
         ActorCastEnd(id + 0x22, _module.Gunner, 3);
         ActorCastEnd(id + 0x23, _module.Soldier, 0.2f);
 
@@ -277,5 +262,21 @@ class DRS4States : StateMachineBuilder
             .ActivateOnEnter<TurretsTourUnseen>()
             .DeactivateOnExit<TurretsTourUnseen>()
             .DeactivateOnExit<PawnOff>();
+    }
+
+    private void P2AutomaticTurret(uint id, float delay)
+    {
+        ActorCast(id, _module.Gunner, AID.RelentlessBatteryGunner, delay, 5); // both soldier and gunner cast their visual
+        ActorCast(id + 0x10, _module.Gunner, AID.AutomaticTurretNormal, 3.2f, 3);
+        ActorCast(id + 0x20, _module.Gunner, AID.TurretsTourNormal, 3.2f, 5, false, "Turrets start")
+            .ActivateOnEnter<TurretsTour>();
+        ActorCastStartMulti(id + 0x30, _module.Soldier, [AID.FieryPortent, AID.IcyPortent], 0.9f);
+        ComponentCondition<TurretsTour>(id + 0x31, 0.8f, comp => comp.NumCasts >= 4, "Turrets resolve")
+            .ActivateOnEnter<FieryPortent>()
+            .ActivateOnEnter<IcyPortent>()
+            .DeactivateOnExit<TurretsTour>();
+        ActorCastEnd(id + 0x32, _module.Soldier, 5.2f, false, "Move/stay")
+            .DeactivateOnExit<FieryPortent>()
+            .DeactivateOnExit<IcyPortent>();
     }
 }

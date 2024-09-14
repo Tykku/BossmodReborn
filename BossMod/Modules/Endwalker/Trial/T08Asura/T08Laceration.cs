@@ -10,7 +10,7 @@ class Laceration(BossModule module) : Components.GenericAOEs(module)
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
         if (id == 0x11D6)
-            aoes.Add(new(circle, actor.Position, default, Module.WorldState.CurrentTime.AddSeconds(7.1f - 0.5f * aoes.Count)));
+            aoes.Add(new(circle, actor.Position, default, WorldState.CurrentTime.AddSeconds(7.1f - 0.5f * aoes.Count)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)

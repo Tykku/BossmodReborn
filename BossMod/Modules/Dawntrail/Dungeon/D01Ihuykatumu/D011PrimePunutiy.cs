@@ -63,7 +63,7 @@ class HydrowaveBait(BossModule module) : Components.BaitAwayTethers(module, new 
     {
         base.AddAIHints(slot, actor, assignment, hints);
         if (CurrentBaits.Any(x => x.Target == actor))
-            hints.AddForbiddenZone(ShapeDistance.Rect(Module.Center - new WDir(0, -18), Module.Center - new WDir(0, 18), 18), Module.WorldState.FutureTime(ActivationDelay));
+            hints.AddForbiddenZone(ShapeDistance.Rect(Arena.Center - new WDir(0, -18), Arena.Center - new WDir(0, 18), 18), WorldState.FutureTime(ActivationDelay));
     }
 
     public override void OnUntethered(Actor source, ActorTetherInfo tether) { } // snapshot is ~0.6s after tether disappears
@@ -124,7 +124,7 @@ class ShoreShaker(BossModule module) : Components.ConcentricAOEs(module, _shapes
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.ShoreShaker1)
-            AddSequence(Module.Center, Module.CastFinishAt(spell));
+            AddSequence(Arena.Center, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -138,7 +138,7 @@ class ShoreShaker(BossModule module) : Components.ConcentricAOEs(module, _shapes
                 AID.ShoreShaker3 => 2,
                 _ => -1
             };
-            AdvanceSequence(order, Module.Center, WorldState.FutureTime(2));
+            AdvanceSequence(order, Arena.Center, WorldState.FutureTime(2));
         }
     }
 }
@@ -174,8 +174,6 @@ public class D011PrimePunutiy(WorldState ws, Actor primary) : BossModule(ws, pri
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Punutiy));
-        Arena.Actors(Enemies(OID.PetitPunutiy));
-        Arena.Actors(Enemies(OID.ProdigiousPunutiy));
+        Arena.Actors(Enemies(OID.Punutiy).Concat(Enemies(OID.PetitPunutiy)).Concat(Enemies(OID.ProdigiousPunutiy)));
     }
 }

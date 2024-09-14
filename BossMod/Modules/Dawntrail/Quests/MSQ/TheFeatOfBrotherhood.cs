@@ -89,6 +89,7 @@ class DualPyresSteelfoldStrike(BossModule module) : Components.GenericAOEs(modul
 
     private static readonly AOEShapeCone cone = new(30, 90.Degrees());
     private static readonly AOEShapeCross cross = new(30, 4);
+    private static readonly HashSet<AID> casts = [AID.DualPyres1, AID.DualPyres2, AID.DualPyres3, AID.DualPyres4, AID.SteelfoldStrike];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -100,7 +101,7 @@ class DualPyresSteelfoldStrike(BossModule module) : Components.GenericAOEs(modul
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.DualPyres1 or AID.DualPyres2 or AID.DualPyres3 or AID.DualPyres4)
+        if (casts.Take(4).Contains((AID)spell.Action.ID))
         {
             _aoes.Add(new(cone, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
             _aoes.SortBy(x => x.Activation);
@@ -111,7 +112,7 @@ class DualPyresSteelfoldStrike(BossModule module) : Components.GenericAOEs(modul
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID is AID.DualPyres1 or AID.DualPyres2 or AID.DualPyres3 or AID.DualPyres4 or AID.SteelfoldStrike)
+        if (_aoes.Count > 0 && casts.Contains((AID)spell.Action.ID))
             _aoes.RemoveAt(0);
     }
 }
@@ -126,7 +127,7 @@ class RoaringStarRect(BossModule module) : Components.GenericAOEs(module)
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
         if (id == 0x1E46)
-            _aoes.Add(new(rect, actor.Position, actor.Rotation, Module.WorldState.FutureTime(8.5f)));
+            _aoes.Add(new(rect, actor.Position, actor.Rotation, WorldState.FutureTime(8.5f)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -146,7 +147,7 @@ class SublimeHeat(BossModule module) : Components.GenericAOEs(module)
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if ((AID)spell.Action.ID == AID.CelestialFlame)
-            _aoes.Add(new(circle, caster.Position, default, Module.WorldState.FutureTime(7.5f)));
+            _aoes.Add(new(circle, caster.Position, default, WorldState.FutureTime(7.5f)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
@@ -158,12 +159,12 @@ class SublimeHeat(BossModule module) : Components.GenericAOEs(module)
 
 class NobleTrail(BossModule module) : Components.GenericAOEs(module)
 {
-    private AOEInstance _aoe;
+    private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoe != default && Module.PrimaryActor.IsTargetable)
-            yield return new(_aoe.Shape, _aoe.Origin, _aoe.Rotation, _aoe.Activation);
+        if (_aoe != null && Module.PrimaryActor.IsTargetable)
+            yield return _aoe.Value;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -178,7 +179,7 @@ class NobleTrail(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.NobleTrail)
-            _aoe = default;
+            _aoe = null;
     }
 }
 

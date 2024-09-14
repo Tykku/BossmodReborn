@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C022Gorai;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C022Gorai;
 
 class TorchingTorment(BossModule module) : Components.GenericBaitAway(module, centerAtTarget: true)
 {

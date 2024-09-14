@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C03AAI.C031Ketuduke;
+﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C031Ketuduke;
 
 class SpringCrystalsRect(BossModule module, bool moveCasters, bool risky, float delay) : Components.GenericAOEs(module)
 {

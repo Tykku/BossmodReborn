@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Variant.V01SS.V012Silkie;
+﻿namespace BossMod.Endwalker.VariantCriterion.V01SS.V012Silkie;
 
 class V012PuffTracker(BossModule module) : BossComponent(module)
 {

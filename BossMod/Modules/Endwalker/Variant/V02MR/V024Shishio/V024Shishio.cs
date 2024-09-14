@@ -1,82 +1,55 @@
-namespace BossMod.Endwalker.Variant.V02MR.V024Shishio;
+namespace BossMod.Endwalker.VariantCriterion.V02MR.V024Shishio;
 
-class ThunderOnefold2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderOnefold2), 6);
 class NoblePursuit(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.NoblePursuit), 6);
 class Enkyo(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Enkyo));
-class ThriceOnRokujo3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThriceOnRokujo3), new AOEShapeRect(60, 7, 60));
-class TwiceOnRokujo3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TwiceOnRokujo3), new AOEShapeRect(60, 7, 60));
-class ThunderTwofold2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderTwofold2), 6);
-class ThunderThreefold2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderThreefold2), 6);
 
-class OnceOnRokujoAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.OnceOnRokujoAOE), new AOEShapeRect(60, 7, 60));
-class LeapingLevin1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeapingLevin1), new AOEShapeCircle(8));
-class LeapingLevin2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeapingLevin2), new AOEShapeCircle(12));
-class LeapingLevin3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeapingLevin3), new AOEShapeCircle(23));
-
-class SplittingCry(BossModule module) : Components.GenericBaitAway(module)
+class CloudToCloud(BossModule module, AID aid, int halfWidth, int dangerCount) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(100, halfWidth))
 {
-    private static readonly AOEShapeRect _shape = new(60, 7);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var aoes = ActiveCasters.Select((c, index) =>
+            new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo),
+            index < dangerCount ? Colors.Danger : Colors.AOE));
 
+        return aoes;
+    }
+}
+class CloudToCloud1(BossModule module) : CloudToCloud(module, AID.CloudToCloud1, 1, 6);
+class CloudToCloud2(BossModule module) : CloudToCloud(module, AID.CloudToCloud2, 3, 4);
+class CloudToCloud3(BossModule module) : CloudToCloud(module, AID.CloudToCloud3, 6, 2);
+
+class Thunder(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+class ThunderOnefold(BossModule module) : Thunder(module, AID.ThunderOnefold);
+class ThunderTwofold(BossModule module) : Thunder(module, AID.ThunderTwofold);
+class ThunderThreefold(BossModule module) : Thunder(module, AID.ThunderThreefold);
+
+class SplittingCry(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeRect(60, 7), (uint)IconID.Tankbuster, ActionID.MakeSpell(AID.SplittingCry), 5)
+{
     public override void AddGlobalHints(GlobalHints hints)
     {
         if (CurrentBaits.Count > 0)
             hints.Add("Tankbuster cleave");
     }
-
-    public override void OnEventIcon(Actor actor, uint iconID)
-    {
-        if (iconID == (uint)IconID.TankbusterCleave)
-            CurrentBaits.Add(new(Module.PrimaryActor, actor, _shape));
-    }
-
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
-    {
-        if ((AID)spell.Action.ID == AID.SplittingCry)
-        {
-            ++NumCasts;
-            CurrentBaits.Clear();
-        }
-    }
 }
 
-//Route 8
 class ThunderVortex(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderVortex), new AOEShapeDonut(8, 30));
-class UnsagelySpin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.UnsagelySpin), new AOEShapeCircle(6));
+
+class Circles(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
+class UnsagelySpin(BossModule module) : Circles(module, AID.UnsagelySpin);
+class Yoki(BossModule module) : Circles(module, AID.Yoki);
+
 class Rush(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.Rush), 4);
 class Vasoconstrictor(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Vasoconstrictor), 5);
 
-//Route 9
-class Yoki2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Yoki2), new AOEShapeCircle(6));
-class YokiUzu(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.YokiUzu), new AOEShapeCircle(23));
-//Route 10
-class HauntingThrall(BossModule module) : Components.GenericAOEs(module)
+class Swipe(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
+class RightSwipe(BossModule module) : Swipe(module, AID.RightSwipe);
+class LeftSwipe(BossModule module) : Swipe(module, AID.LeftSwipe);
+
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 945, NameID = 12428, SortOrder = 5)]
+public class V024Shishio(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, NormalBounds)
 {
-    private readonly List<Actor> _casters = [];
-
-    private static readonly AOEShapeCone _shape = new(40, 90.Degrees());
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        return _casters.Take(4).Select(c => new AOEInstance(_shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo)));
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if ((AID)spell.Action.ID is AID.RightSwipe or AID.LeftSwipe)
-            _casters.Add(caster);
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if ((AID)spell.Action.ID is AID.RightSwipe or AID.LeftSwipe)
-        {
-            _casters.Remove(caster);
-            ++NumCasts;
-        }
-    }
+    public static readonly WPos ArenaCenter = new(-40, -300);
+    public static readonly ArenaBoundsSquare NormalBounds = new(19.5f);
+    public static readonly ArenaBoundsComplex CircleBounds = new([new Circle(ArenaCenter, 20)], [new Rectangle(ArenaCenter + new WDir(-20, 0), 20, 0.5f, 90.Degrees()),
+    new Rectangle(ArenaCenter + new WDir(20, 0), 20, 0.5f, 90.Degrees()), new Rectangle(ArenaCenter + new WDir(0, 20), 20, 0.5f), new Rectangle(ArenaCenter + new WDir(0, -20), 20, 0.5f)]);
 }
-//Route 11
-class ReishoAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ReishoAOE), new AOEShapeCircle(6));
-
-[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.CFC, Category = BossModuleInfo.Category.Criterion, GroupID = 945, NameID = 12428, SortOrder = 5)]
-public class V024Shishio(WorldState ws, Actor primary) : BossModule(ws, primary, new(-40, -300), new ArenaBoundsSquare(20));

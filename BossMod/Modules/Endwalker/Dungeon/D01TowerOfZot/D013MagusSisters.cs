@@ -6,14 +6,15 @@ public enum OID : uint
     Sanduruva = 0x33F2, // R=2.5
     Minduruva = 0x33F3, // R=2.04
     BerserkerSphere = 0x33F0, // R=1.5-2.5
-    Helper = 0x233C,
     Helper2 = 0x3610,
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttack = 871, // Sanduruva->player, no cast, single-target
     Teleport = 25254, // Sanduruva->location, no cast, single-target
+
     DeltaAttack = 25260, // Minduruva->Boss, 5.0s cast, single-target
     DeltaAttack1 = 25261, // Minduruva->Boss, 5.0s cast, single-target
     DeltaAttack2 = 25262, // Minduruva->Boss, 5.0s cast, single-target
@@ -46,7 +47,7 @@ public enum AID : uint
     SphereShatter = 25279, // BerserkerSphere->self, 1.5s cast, range 15 circle
     PrakamyaSiddhi = 25278, // Sanduruva->self, 4.0s cast, range 5 circle
     ManusyaBlizzardIII = 25285, // Minduruva->self, 4.0s cast, single-target
-    ManusyaBlizzardIII2 = 25286, // Helper->self, 4.0s cast, range 40+R 20-degree cone
+    ManusyaBlizzardIII2 = 25286 // Helper->self, 4.0s cast, range 40+R 20-degree cone
 }
 
 public enum SID : uint
@@ -54,7 +55,7 @@ public enum SID : uint
     Poison = 18, // Boss->player, extra=0x0
     Burns = 2082, // Minduruva->player, extra=0x0
     Frostbite = 2083, // Minduruva->player, extra=0x0
-    Electrocution = 2086, // Minduruva->player, extra=0x0
+    Electrocution = 2086 // Minduruva->player, extra=0x0
 }
 
 class Dhrupad(BossModule module) : BossComponent(module)
@@ -203,7 +204,7 @@ class D013MagusSistersStates : StateMachineBuilder
             .ActivateOnEnter<DeltaBlizzardIII1>()
             .ActivateOnEnter<DeltaBlizzardIII2>()
             .ActivateOnEnter<DeltaBlizzardIII3>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead) && module.Enemies(OID.Sanduruva).All(e => e.IsDead) && module.Enemies(OID.Minduruva).All(e => e.IsDead);
+            .Raw.Update = () => module.Enemies(OID.Sanduruva).Concat(module.Enemies(OID.Minduruva)).Concat([module.PrimaryActor]).All(e => e.IsDeadOrDestroyed);
     }
 }
 
@@ -213,8 +214,7 @@ class D013MagusSisters(WorldState ws, Actor primary) : BossModule(ws, primary, n
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Minduruva));
-        Arena.Actors(Enemies(OID.Sanduruva));
+        Arena.Actors(Enemies(OID.Minduruva).Concat(Enemies(OID.Sanduruva)));
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

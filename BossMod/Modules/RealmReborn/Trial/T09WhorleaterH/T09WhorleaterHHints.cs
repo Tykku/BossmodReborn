@@ -7,7 +7,7 @@ class Hints(BossModule module) : BossComponent(module)
         var converter = Module.Enemies(OID.Converter).FirstOrDefault(x => x.IsTargetable);
         if (converter != null)
             hints.Add($"Activate the {converter.Name} or wipe!");
-        if (Module.Enemies(OID.DangerousSahagins).Any(x => x.IsTargetable && !x.IsDead))
+        if (Module.Enemies(OID.WavetoothSahagin).Any(x => x.IsTargetable && !x.IsDead))
             hints.Add("Kill Sahagins or lose control!");
         if (Module.Enemies(OID.Spume).Any(x => x.IsTargetable && !x.IsDead))
             hints.Add("Destroy the spumes!");
@@ -21,7 +21,7 @@ class Hints(BossModule module) : BossComponent(module)
         {
             if ((actor.Class.GetClassCategory() is ClassCategory.Caster or ClassCategory.Healer || actor.Class is Class.BLU && TankMimikry == null) && actor.TargetID == Module.Enemies(OID.Tail).FirstOrDefault()?.InstanceID)
                 hints.Add("Attack the head! (Attacking the tail will reflect damage onto you)");
-            if (actor.Class.GetClassCategory() is ClassCategory.PhysRanged && actor.TargetID == Module.PrimaryActor.InstanceID)
+            else if (actor.Class.GetClassCategory() is ClassCategory.PhysRanged && actor.TargetID == Module.PrimaryActor.InstanceID)
                 hints.Add("Attack the tail! (Attacking the head will reflect damage onto you)");
         }
     }

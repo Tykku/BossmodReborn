@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C022Gorai;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C022Gorai;
 
 class C022GoraiStates : StateMachineBuilder
 {
@@ -7,7 +7,8 @@ class C022GoraiStates : StateMachineBuilder
     public C022GoraiStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
-        DeathPhase(0, SinglePhase);
+        DeathPhase(0, SinglePhase)
+            .ActivateOnEnter<ArenaChange>();
     }
 
     private void SinglePhase(uint id)

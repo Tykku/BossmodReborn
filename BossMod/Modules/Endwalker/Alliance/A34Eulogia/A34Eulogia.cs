@@ -6,9 +6,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
     private static readonly ArenaBoundsSquare squareBounds = new(24);
     private static readonly ArenaBoundsCircle smallerBounds = new(30);
     public static readonly ArenaBoundsCircle BigBounds = new(35);
-    private static readonly Circle circle = new(Center, 30);
-    private static readonly Square square = new(Center, 24);
-    private static readonly AOEShapeCustom transitionSquare = new([circle], [square]);
+    private static readonly AOEShapeCustom transitionSquare = new([new Circle(Center, 30)], [new Square(Center, 24)]);
     private static readonly AOEShapeDonut transitionSmallerBounds = new(30, 35);
     private AOEInstance? _aoe;
 
@@ -19,9 +17,9 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
         if (index == 0x1B)
         {
             if (state == 0x00080004)
-                Module.Arena.Bounds = BigBounds;
-            if (state == 0x00100001)
-                Module.Arena.Bounds = smallerBounds;
+                Arena.Bounds = BigBounds;
+            else if (state == 0x00100001)
+                Arena.Bounds = smallerBounds;
         }
     }
 
@@ -29,7 +27,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
     {
         if ((AID)spell.Action.ID == AID.Hieroglyphika)
             _aoe = new(transitionSquare, Center, default, Module.CastFinishAt(spell));
-        if ((AID)spell.Action.ID == AID.Whorl)
+        else if ((AID)spell.Action.ID == AID.Whorl)
             _aoe = new(transitionSmallerBounds, Center, default, Module.CastFinishAt(spell));
     }
 
@@ -37,12 +35,12 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
     {
         if ((AID)spell.Action.ID == AID.Hieroglyphika)
         {
-            Module.Arena.Bounds = squareBounds;
+            Arena.Bounds = squareBounds;
             _aoe = null;
         }
-        if ((AID)spell.Action.ID == AID.Whorl)
+        else if ((AID)spell.Action.ID == AID.Whorl)
         {
-            Module.Arena.Bounds = smallerBounds;
+            Arena.Bounds = smallerBounds;
             _aoe = null;
         }
     }
@@ -50,8 +48,11 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 
 class Sunbeam(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.SunbeamAOE), new AOEShapeCircle(6), true);
 class DestructiveBolt(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.DestructiveBoltAOE), 6, 8);
-class HandOfTheDestroyerWrath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HandOfTheDestroyerWrathAOE), new AOEShapeRect(90, 20));
-class HandOfTheDestroyerJudgment(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HandOfTheDestroyerJudgmentAOE), new AOEShapeRect(90, 20));
+
+class HoD(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(90, 20));
+class HandOfTheDestroyerWrath(BossModule module) : HoD(module, AID.HandOfTheDestroyerWrathAOE);
+class HandOfTheDestroyerJudgment(BossModule module) : HoD(module, AID.HandOfTheDestroyerJudgmentAOE);
+
 class SoaringMinuet(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SoaringMinuet), new AOEShapeCone(40, 135.Degrees()));
 class EudaimonEorzea(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.EudaimonEorzeaAOE));
 

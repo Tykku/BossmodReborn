@@ -44,12 +44,12 @@ public sealed class ColorConfig : ConfigNode
 
     [PropertyDisplay("Arena: future vulnerable")]
     public Color ArenaFutureVulnerable = new(0x80ff00ff);
+
     [PropertyDisplay("Arena: melee range indicator")]
     public Color ArenaMeleeRangeIndicator = new(0xffff0000);
-    [PropertyDisplay("Arena: other 1")]
-    public Color ArenaOther1 = new(0xffff0080);
-    [PropertyDisplay("Arena: other 2")]
-    public Color ArenaOther2 = new(0xff8080ff);
+
+    [PropertyDisplay("Arena: other")]
+    public Color[] ArenaOther = [new(0xffff0080), new(0xff8080ff), new(0xff80ff80), new(0xffff8040), new(0xff40c0c0)];
 
     [PropertyDisplay("Outlines and shadows")]
     public Color Shadows = new(0xFF000000);
@@ -77,9 +77,9 @@ public sealed class ColorConfig : ConfigNode
 
     [PropertyDisplay("Waymark: 4")]
     public Color Waymark4 = new(0xffbc567a);
+
     [PropertyDisplay("Positional colors")]
-    public Color[] PositionalColors = [new(0xff00ff00), new(0xff0000ff), new(0xffffffff),
-     new(0xff00ffff)];
+    public Color[] PositionalColors = [new(0xff00ff00), new(0xff0000ff), new(0xffffffff), new(0xff00ffff)];
 
     [PropertyDisplay("Planner: background")]
     public Color PlannerBackground = new(0x80362b00);
@@ -99,17 +99,32 @@ public sealed class ColorConfig : ConfigNode
     [PropertyDisplay("Planner: window")]
     public Color[] PlannerWindow = [new(0x800089b5), new(0x80164bcb), new(0x802f32dc), new(0x808236d3), new(0x80c4716c), new(0x80d28b26), new(0x8098a12a), new(0x80009985)];
 
-    [PropertyDisplay("Button push color 1")]
-    public Color ButtonPushColor1 = new(0xff000080);
-
-    [PropertyDisplay("Button push color 2")]
-    public Color ButtonPushColor2 = new(0xff008080);
+    [PropertyDisplay("Button push colors")]
+    public Color[] ButtonPushColor = [new(0xff000080), new(0xff008080), new(0xff000050), new(0xff000060), new(0xff005050), new(0xff006060)];
 
     [PropertyDisplay("Text colors")]
     public Color[] TextColors = [new(0xffffffff), new(0xff00ffff), new(0xff0000ff),
      new(0xff00ff00), new(0xff0080ff), new(0xffff00ff), new(0x80808080), new(0x80800080),
      new(0x80ffffff), new(0x8000ff00), new(0xffffff00), new(0x800000ff), new(0xff404040),
-     new(0xffff0000), new(0xff000000)];
+     new(0xffff0000), new(0xff000000), new(0x80008080), new(0x8080ff80), new(0xffc0c0c0)];
+
+    [PropertyDisplay("Player colors: tank")]
+    public Color PlayerColorsTank = Color.FromComponents(30, 50, 110);
+
+    [PropertyDisplay("Player colors: healer")]
+    public Color PlayerColorsHealer = Color.FromComponents(30, 110, 50);
+
+    [PropertyDisplay("Player colors: melee")]
+    public Color PlayerColorsMelee = Color.FromComponents(110, 30, 30);
+
+    [PropertyDisplay("Player colors: caster")]
+    public Color PlayerColorsCaster = Color.FromComponents(70, 30, 110);
+
+    [PropertyDisplay("Player colors: phys. ranged")]
+    public Color PlayerColorsPhysRanged = Color.FromComponents(110, 90, 30);
+
+    [PropertyDisplay("Player colors: focus")]
+    public Color PlayerColorsFocus = Color.FromComponents(0, 255, 255);
 
     public static ColorConfig DefaultConfig => new();
 }

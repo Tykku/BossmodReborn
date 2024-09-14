@@ -38,11 +38,7 @@ class KegExplosion(BossModule module) : Components.GenericStackSpread(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var p in Module.Enemies(OID.Keg).Where(x => !x.IsDead))
-        {
-            if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddCircle(p.Position, 10, Colors.Shadows, 2);
             Arena.AddCircle(p.Position, 10, Colors.Danger);
-        }
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)

@@ -3,38 +3,43 @@
 public enum OID : uint
 {
     Boss = 0x3EEA, //R=5.1
-    Helper = 0x233C,
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttack = 870, // Boss->player, no cast, single-target
+
     BattleCry1 = 34605, // Boss->self, 5.0s cast, range 40 circle
     BattleCry2 = 33364, // Boss->self, 5.0s cast, range 40 circle
     ElectricEruption = 33615, // Boss->self, 5.0s cast, range 40 circle
+
     Electrify = 33367, // Helper->location, 5.5s cast, range 10 circle
+
     LightningClaw1 = 33366, // Boss->location, no cast, range 6 circle
     LightningClaw2 = 34712, // Boss->player, 5.0s cast, single-target 
     LightningLeapA = 33358, // Boss->location, 4.0s cast, single-target
     LightningLeapB = 33359, // Boss->location, 5.0s cast, single-target
     LightningLeap1 = 33360, // Helper->location, 6.0s cast, range 10 circle
     LightningLeap2 = 34713, // Helper->location, 5.0s cast, range 10 circle
+
     LightningRampageA = 34318, // Boss->location, 4.0s cast, single-target
     LightningRampageB = 34319, // Boss->location, 2.0s cast, single-target
     LightningRampageC = 34320, // Boss->location, 2.0s cast, single-target
     LightningRampage1 = 34321, // Helper->location, 5.0s cast, range 10 circle
     LightningRampage2 = 34714, // Helper->location, 5.0s cast, range 10 circle
+
     RipperClaw = 33368, // Boss->player, 5.0s cast, single-target
     Shock = 33365, // Helper->location, 3.5s cast, range 6 circle
     SpinningClaw = 33362, // Boss->self, 3.5s cast, range 10 circle
     ForkedFissures = 33361, // Helper->location, 1.0s cast, width 4 rect charge
-    SpunLightning = 33363, // Helper->self, 3.5s cast, range 30 width 8 rect
+    SpunLightning = 33363 // Helper->self, 3.5s cast, range 30 width 8 rect
 }
 
 public enum IconID : uint
 {
     Tankbuster = 218, // player
-    Stackmarker = 161, // 39D7/3DC2
+    Stackmarker = 161 // player
 }
 
 class BattleCryArenaChange(BossModule module) : Components.GenericAOEs(module)
@@ -50,11 +55,11 @@ class BattleCryArenaChange(BossModule module) : Components.GenericAOEs(module)
         {
             if (state == 0x00020001)
             {
-                Module.Arena.Bounds = D122Arkas.SmallerBounds;
+                Arena.Bounds = D122Arkas.SmallerBounds;
                 _aoe = null;
             }
-            if (state == 0x00080004)
-                Module.Arena.Bounds = D122Arkas.DefaultBounds;
+            else if (state == 0x00080004)
+                Arena.Bounds = D122Arkas.DefaultBounds;
         }
     }
 
@@ -140,7 +145,7 @@ class ForkedFissures(BossModule module) : Components.GenericAOEs(module)
             _patternEnd.AddRange(pattern.End);
             for (var i = _patternStart.Count - 1; i >= 0; i--)
             {
-                _aoes.Add(new AOEInstance(new AOEShapeRect((_patternEnd[i] - _patternStart[i]).Length(), 2), _patternStart[i], Angle.FromDirection(_patternEnd[i] - _patternStart[i]), WorldState.FutureTime(6)));
+                _aoes.Add(new(new AOEShapeRect((_patternEnd[i] - _patternStart[i]).Length(), 2), _patternStart[i], Angle.FromDirection(_patternEnd[i] - _patternStart[i]), WorldState.FutureTime(6)));
                 _patternStart.RemoveAt(i);
                 _patternEnd.RemoveAt(i);
             }
@@ -155,11 +160,14 @@ class ForkedFissures(BossModule module) : Components.GenericAOEs(module)
 }
 
 class ElectricEruption(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ElectricEruption));
-class Electrify(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Electrify), 10);
-class LightningLeap1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LightningLeap1), 10);
-class LightningLeap2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LightningLeap2), 10);
-class LightningRampage1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LightningRampage1), 10);
-class LightningRampage2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LightningRampage2), 10);
+
+class Leaps(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 10);
+class Electrify(BossModule module) : Leaps(module, AID.Electrify);
+class LightningLeap1(BossModule module) : Leaps(module, AID.LightningLeap1);
+class LightningLeap2(BossModule module) : Leaps(module, AID.LightningLeap2);
+class LightningRampage1(BossModule module) : Leaps(module, AID.LightningRampage1);
+class LightningRampage2(BossModule module) : Leaps(module, AID.LightningRampage2);
+
 class RipperClaw(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.RipperClaw));
 class Shock(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Shock), 6);
 class SpinningClaw(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpinningClaw), new AOEShapeCircle(10));
@@ -193,9 +201,6 @@ class D122ArkasStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 822, NameID = 12337)]
 public class D122Arkas(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultBounds.Center, DefaultBounds)
 {
-    private static readonly List<Shape> union = [new Circle(new(425, -440), 14.55f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(425, -424), 20, 2.4f), new Rectangle(new(425, -455), 10, 1.25f)];
-
-    public static readonly ArenaBoundsComplex DefaultBounds = new(union, difference);
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Circle(new(425, -440), 14.55f)], [new Rectangle(new(425, -424), 20, 2.4f), new Rectangle(new(425, -455), 10, 1.25f)]);
     public static readonly ArenaBoundsCircle SmallerBounds = new(10);
 }

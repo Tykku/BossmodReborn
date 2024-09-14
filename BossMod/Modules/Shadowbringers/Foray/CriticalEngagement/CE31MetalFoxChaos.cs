@@ -21,7 +21,6 @@ public enum AID : uint
 
 class MagitekBitLasers(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly Angle[] rotations = [0.Degrees(), 90.Degrees(), 180.Degrees(), -90.Degrees()];
     private readonly List<DateTime> _times = [];
     private Angle startrotation;
     public enum Types { None, SatelliteLaser, DiffractiveLaser, LaserShower }
@@ -64,14 +63,14 @@ class MagitekBitLasers(BossModule module) : Components.GenericAOEs(module)
         if ((AID)spell.Action.ID == AID.DiffractiveLaser)
         {
             DateTime[] times = [_time.AddSeconds(2), _time.AddSeconds(8.8f), _time.AddSeconds(10.6f), _time.AddSeconds(12.4f)];
-            startrotation = rotations.FirstOrDefault(r => spell.Rotation.AlmostEqual(r, maxError)) + 180.Degrees();
+            startrotation = Helpers.AnglesCardinals.FirstOrDefault(r => spell.Rotation.AlmostEqual(r, maxError)) + 180.Degrees();
             Type = Types.DiffractiveLaser;
             _times.AddRange(times);
         }
         if ((AID)spell.Action.ID == AID.LaserShower2)
         {
             DateTime[] times = [_time, _time.AddSeconds(6.5f), _time.AddSeconds(8.3f), _time.AddSeconds(10.1f)];
-            startrotation = rotations.FirstOrDefault(r => caster.Rotation.AlmostEqual(r, maxError));
+            startrotation = Helpers.AnglesCardinals.FirstOrDefault(r => caster.Rotation.AlmostEqual(r, maxError));
             Type = Types.LaserShower;
             _times.AddRange(times);
         }

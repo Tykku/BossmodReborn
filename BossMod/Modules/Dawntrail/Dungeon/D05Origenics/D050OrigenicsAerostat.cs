@@ -11,9 +11,10 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 871, // Boss/Aerostat2->player, no cast, single-target
+    AutoAttack1 = 871, // Boss/Aerostat2->player, no cast, single-target
     AutoAttack2 = 873, // OrigenicsSentryG10->player, no cast, single-target
     AutoAttack3 = 870, // OrigenicsSentryS9/OrigenicsSentryS92->player, no cast, single-target
+
     IncendiaryCircle = 38328, // Aerostat2->self, 4.0s cast, range 3-12 donut
     SentryfugalSlash = 35425, // OrigenicsSentryS92->player, no cast, single-target
     GrenadoShot = 35428, // OrigenicsSentryG10->location, 3.0s cast, range 5 circle
@@ -29,33 +30,20 @@ class D050OrigenicsAerostatStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<IncendiaryCircle>()
             .ActivateOnEnter<GrenadoShot>()
-            .Raw.Update = () => module.Aerostat2.All(e => e.IsDeadOrDestroyed) && module.PrimaryActor.IsDeadOrDestroyed;
+            .Raw.Update = () => module.Enemies(OID.Aerostat2).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.OrigenicsSentryS9))
+            .Concat(module.Enemies(OID.OrigenicsSentryS92)).Concat(module.Enemies(OID.OrigenicsSentryG10)).All(e => e.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 825, NameID = 12895, SortOrder = 2)]
-public class D050OrigenicsAerostat : BossModule
+public class D050OrigenicsAerostat(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    public readonly IReadOnlyList<Actor> Aerostat2;
-    public readonly IReadOnlyList<Actor> OrigenicsSentryS9;
-    public readonly IReadOnlyList<Actor> OrigenicsSentryS92;
-    public readonly IReadOnlyList<Actor> OrigenicsSentryG10;
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-116, -80), 14.5f, 6, 30.Degrees()), new Rectangle(new(-88, -80), 20, 5.5f),
     new Polygon(new(-60, -80), 14.5f, 6, 30.Degrees()), new Rectangle(new(-144, -80), 20, 5.5f)]);
-    public D050OrigenicsAerostat(WorldState ws, Actor primary) : base(ws, primary, arena.Center, arena)
-    {
-        Aerostat2 = Enemies(OID.Aerostat2);
-        OrigenicsSentryS9 = Enemies(OID.OrigenicsSentryS9);
-        OrigenicsSentryS92 = Enemies(OID.OrigenicsSentryS92);
-        OrigenicsSentryG10 = Enemies(OID.OrigenicsSentryG10);
-    }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Aerostat2);
-        Arena.Actors(OrigenicsSentryG10);
-        Arena.Actors(OrigenicsSentryS92);
-        Arena.Actors(OrigenicsSentryS9);
         Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.Aerostat2).Concat(Enemies(OID.OrigenicsSentryS9)).Concat(Enemies(OID.OrigenicsSentryS92)).Concat(Enemies(OID.OrigenicsSentryG10)));
     }
 }

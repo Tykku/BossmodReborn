@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C03AAI.C033Statice;
+﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C033Statice;
 
 class C033StaticeStates : StateMachineBuilder
 {

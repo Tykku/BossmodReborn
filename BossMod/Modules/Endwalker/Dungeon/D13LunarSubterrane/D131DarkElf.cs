@@ -4,12 +4,13 @@ public enum OID : uint
 {
     Boss = 0x3FE2, // R=5.0
     HexingStaff = 0x3FE3, // R=1.2
-    Helper = 0x233C,
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttack = 872, // 3FE2->player, no cast, single-target
+
     HexingStaves = 34777, // 3FE2->self, 3.0s cast, single-target
     RuinousHex = 34783, // 3FE3->self, 5.0s cast, single-target
     RuinousHex2 = 35254, // 3FE3->self, 5.0s cast, range 40 width 8 cross
@@ -22,12 +23,12 @@ public enum AID : uint
     VoidDarkII = 34781, // 3FE2->self, 2.5s cast, single-target
     VoidDarkII2 = 34788, // 233C->player, 5.0s cast, range 6 circle
     StaffSmite = 35204, // 3FE2->player, 5.0s cast, single-target
-    AbyssalOutburst = 34782, // 3FE2->self, 5.0s cast, range 60 circle
+    AbyssalOutburst = 34782 // 3FE2->self, 5.0s cast, range 60 circle
 }
 
 public enum SID : uint
 {
-    Doom = 3364, // none->player, extra=0x0
+    Doom = 3364 // none->player, extra=0x0
 }
 
 class HexingStaves(BossModule module) : Components.GenericAOEs(module)
@@ -52,12 +53,12 @@ class HexingStaves(BossModule module) : Components.GenericAOEs(module)
                 _staves.Add(actor);
                 if (NumCasts == 0)
                     _activation = WorldState.FutureTime(8.1f);
-                if (NumCasts == 1)
+                else if (NumCasts == 1)
                     _activation = WorldState.FutureTime(25.9f);
-                if (NumCasts > 1)
+                else if (NumCasts > 1)
                     _activation = WorldState.FutureTime(32);
             }
-            if (animState2 == 0)
+            else if (animState2 == 0)
                 _staves.Remove(actor);
         }
     }

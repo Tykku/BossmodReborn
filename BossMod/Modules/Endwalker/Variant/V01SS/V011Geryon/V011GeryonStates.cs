@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Variant.V01SS.V011Geryon;
+﻿namespace BossMod.Endwalker.VariantCriterion.V01SS.V011Geryon;
 
 class V011GeryonStates : StateMachineBuilder
 {

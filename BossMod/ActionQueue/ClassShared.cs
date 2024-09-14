@@ -53,6 +53,9 @@ public enum AID : uint
 
     // Misc
     Resurrection = 173, // L12 SMN/SCH, 8.0s cast, GCD, range 30, single-target, targets=party/alliance/friendly
+
+    // Duties
+    MagitekPulse = 7962, // MarkXLIIIMiniCannon->location, 1.0s cast, range 6 circle, Castrum Abania, 1st boss
 }
 
 public sealed class Definitions : IDisposable
@@ -109,6 +112,9 @@ public sealed class Definitions : IDisposable
 
         // Misc
         d.RegisterSpell(AID.Resurrection);
+
+        // Duties
+        d.RegisterSpell(AID.MagitekPulse);
 
         Customize(d);
     }

@@ -5,7 +5,7 @@ class OctoboomDiveKnockback(BossModule module) : Components.KnockbackFromCastTar
 class QuadroboomDiveProximity(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.QuadroboomDiveProximityAOE), new AOEShapeCircle(20)); // TODO: verify falloff
 class QuadroboomDiveKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.QuadroboomDiveKnockbackAOE), 25);
 
-class Diveboom(BossModule module) : Components.UniformStackSpread(module, 5, 5, alwaysShowSpreads: true)
+class Diveboom(BossModule module) : Components.UniformStackSpread(module, 5, 5, 2, 2, alwaysShowSpreads: true)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

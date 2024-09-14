@@ -8,7 +8,7 @@ public abstract class BossModule : IDisposable
 {
     public readonly WorldState WorldState;
     public readonly Actor PrimaryActor;
-    public readonly BossModuleConfig WindowConfig;
+    public readonly BossModuleConfig WindowConfig = Service.Config.Get<BossModuleConfig>();
     public readonly MiniArena Arena;
     public readonly ModuleRegistry.Info? Info;
     public readonly StateMachine StateMachine;
@@ -79,7 +79,6 @@ public abstract class BossModule : IDisposable
     {
         WorldState = ws;
         PrimaryActor = primary;
-        WindowConfig = Service.Config.Get<BossModuleConfig>();
         Arena = new(WindowConfig, center, bounds);
         Info = ModuleRegistry.FindByOID(primary.OID);
         StateMachine = Info != null ? ((StateMachineBuilder)Activator.CreateInstance(Info.StatesType, this)!).Build() : new([]);
@@ -101,7 +100,8 @@ public abstract class BossModule : IDisposable
             WorldState.Actors.PlayActionTimelineEvent.Subscribe(OnActorPlayActionTimelineEvent),
             WorldState.Actors.EventNpcYell.Subscribe(OnActorNpcYell),
             WorldState.Actors.ModelStateChanged.Subscribe(OnActorModelStateChange),
-            WorldState.EnvControl.Subscribe(OnEnvControl)
+            WorldState.EnvControl.Subscribe(OnEnvControl),
+            WorldState.DirectorUpdate.Subscribe(OnDirectorUpdate)
         );
 
         foreach (var v in WorldState.Actors)
@@ -261,7 +261,7 @@ public abstract class BossModule : IDisposable
 
     private void DrawGlobalHints(BossComponent.GlobalHints hints)
     {
-        ImGui.PushStyleColor(ImGuiCol.Text, 0xffffff00);
+        ImGui.PushStyleColor(ImGuiCol.Text, Colors.TextColor11);
         foreach (var hint in hints)
         {
             ImGui.TextUnformatted(hint);
@@ -310,7 +310,9 @@ public abstract class BossModule : IDisposable
         foreach (var (slot, player) in Raid.WithSlot().Exclude(pcSlot))
         {
             var (prio, color) = CalculateHighestPriority(pcSlot, pc, slot, player);
-            if (prio == BossComponent.PlayerPriority.Irrelevant && !WindowConfig.ShowIrrelevantPlayers)
+
+            bool isFocus = WorldState.Client.FocusTargetId == player.InstanceID;
+            if (prio == BossComponent.PlayerPriority.Irrelevant && !WindowConfig.ShowIrrelevantPlayers && !(isFocus && WindowConfig.ShowFocusTargetPlayer))
                 continue;
 
             if (color == 0)
@@ -322,6 +324,27 @@ public abstract class BossModule : IDisposable
                     BossComponent.PlayerPriority.Critical => Colors.Vulnerable,
                     _ => Colors.PlayerGeneric
                 };
+
+                if (color == Colors.PlayerGeneric)
+                {
+                    // optional focus/role-based overrides
+                    if (isFocus)
+                    {
+                        color = Colors.Focus;
+                    }
+                    else if (WindowConfig.ColorPlayersBasedOnRole)
+                    {
+                        color = player.ClassCategory switch
+                        {
+                            ClassCategory.Tank => Colors.Tank,
+                            ClassCategory.Healer => Colors.Healer,
+                            ClassCategory.Melee => Colors.Healer,
+                            ClassCategory.Caster => Colors.Caster,
+                            ClassCategory.PhysRanged => Colors.PhysRanged,
+                            _ => color
+                        };
+                    }
+                }
             }
             Arena.Actor(player, color);
         }
@@ -446,5 +469,11 @@ public abstract class BossModule : IDisposable
     {
         foreach (var comp in _components)
             comp.OnEventEnvControl(op.Index, op.State);
+    }
+
+    private void OnDirectorUpdate(WorldState.OpDirectorUpdate op)
+    {
+        foreach (var comp in _components)
+            comp.OnEventDirectorUpdate(op.UpdateID, op.Param1, op.Param2, op.Param3, op.Param4);
     }
 }

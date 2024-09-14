@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C01ASS.C012Gladiator;
+﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C012Gladiator;
 
 class SunderedRemains(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(10)); // TODO: max-casts...
 class NSunderedRemains(BossModule module) : SunderedRemains(module, AID.NSunderedRemains);

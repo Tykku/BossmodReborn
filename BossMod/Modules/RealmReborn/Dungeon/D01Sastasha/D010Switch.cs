@@ -32,7 +32,7 @@ class D010SwitchStates : StateMachineBuilder
 }
 
 // the switch spawns chopper, so maybe we can use that as a nameID
-[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.Blue, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 4, NameID = 1204)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", PrimaryActorOID = (uint)OID.Blue, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 4, NameID = 1204)]
 public class D010Switch : BossModule
 {
     public D010Switch(WorldState ws, Actor primary) : base(ws, primary, primary.Position, new ArenaBoundsSquare(20))

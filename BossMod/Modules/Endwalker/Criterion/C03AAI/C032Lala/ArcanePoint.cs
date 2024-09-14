@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C03AAI.C032Lala;
+﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C032Lala;
 
 // TODO: we could detect aoe positions slightly earlier, when golems spawn
 class ConstructiveFigure(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(50, 4));

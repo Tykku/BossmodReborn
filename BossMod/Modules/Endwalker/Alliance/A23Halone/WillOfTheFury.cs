@@ -3,10 +3,9 @@
 class WillOfTheFury(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
-
     private const float _impactRadiusIncrement = 6;
-
     public bool Active => _aoe != null;
+    private static readonly HashSet<AID> castEnd = [AID.WillOfTheFuryAOE1, AID.WillOfTheFuryAOE2, AID.WillOfTheFuryAOE3, AID.WillOfTheFuryAOE4, AID.WillOfTheFuryAOE5];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
@@ -20,7 +19,7 @@ class WillOfTheFury(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.WillOfTheFuryAOE1 or AID.WillOfTheFuryAOE2 or AID.WillOfTheFuryAOE3 or AID.WillOfTheFuryAOE4 or AID.WillOfTheFuryAOE5)
+        if (castEnd.Contains((AID)spell.Action.ID))
         {
             ++NumCasts;
             UpdateAOE(WorldState.FutureTime(2));

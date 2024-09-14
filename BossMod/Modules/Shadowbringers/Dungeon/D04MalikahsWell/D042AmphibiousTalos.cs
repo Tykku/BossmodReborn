@@ -4,7 +4,7 @@ public enum OID : uint
 {
     Boss = 0x267A, // R=3.15
     Geyser = 0x1EAAC9,
-    Helper = 0x233C,
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -15,14 +15,14 @@ public enum AID : uint
     GeyserEruption = 15598, // Helper->self, 3.5s cast, range 8 circle
     HighPressure = 15596, // Boss->self, 4.0s cast, range 40 circle, knockback 20, away from source
     SwiftSpillFirst = 15599, // Boss->self, 7.0s cast, range 50 60-degree cone
-    SwiftSpillRest = 15600, // Boss->self, no cast, range 50 60-degree cone
+    SwiftSpillRest = 15600 // Boss->self, no cast, range 50 60-degree cone
 }
 
 public enum IconID : uint
 {
     Tankbuster = 198, // player
     RotateCCW = 157, // Boss
-    RotateCW = 156, // Boss
+    RotateCW = 156 // Boss
 }
 
 class SwiftSpillRotation(BossModule module) : Components.GenericRotatingAOE(module)

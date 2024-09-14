@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Variant.V01SS.V014ZelessGah;
+﻿namespace BossMod.Endwalker.VariantCriterion.V01SS.V014ZelessGah;
 
 class Burn(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Burn), new AOEShapeCircle(12));
 class PureFire2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PureFire2), new AOEShapeCircle(6));
@@ -48,5 +48,5 @@ class CastShadow(BossModule module) : Components.GenericAOEs(module, ActionID.Ma
 
 class BlazingBenifice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlazingBenifice), new AOEShapeRect(100, 5, 100));
 
-[ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", PrimaryActorOID = (uint)OID.Boss, GroupType = BossModuleInfo.GroupType.CFC, Category = BossModuleInfo.Category.Criterion, GroupID = 868, NameID = 11394)]
+[ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", PrimaryActorOID = (uint)OID.Boss, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 868, NameID = 11394)]
 public class V014ZelessGah(WorldState ws, Actor primary) : BossModule(ws, primary, new(289, -105), new ArenaBoundsRect(15, 20));

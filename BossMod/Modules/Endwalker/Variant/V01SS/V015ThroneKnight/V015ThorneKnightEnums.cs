@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Variant.V01SS.V015ThorneKnight;
+﻿namespace BossMod.Endwalker.VariantCriterion.V01SS.V015ThorneKnight;
 
 public enum OID : uint
 {

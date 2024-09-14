@@ -10,6 +10,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 6497, // Boss->player, no cast, single-target
+
     FrigidStomp = 25181, // Boss->self, 5.0s cast, range 50 circle, raidwide
     FrostbiteAndSeek1 = 28304, // Helper->self, no cast, single-target
     FrostbiteAndSeek2 = 25175, // Boss->self, 3.0s cast, single-target
@@ -20,7 +21,6 @@ public enum AID : uint
     PunishingSliceVisual = 25176, // Boss->self, no cast, single-target
     PunishingSliceAOE = 25177, // Helper->self, 2.0s cast, range 50 width 50 rect
     SkullDasher = 25182, // Boss->player, 5.0s cast, single-target, tankbuster
-
 }
 
 class PillarPierceAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PillarPierceAOE), new AOEShapeRect(40, 2));
@@ -32,12 +32,12 @@ class PunishingSlice(BossModule module) : Components.GenericAOEs(module)
 
     private static readonly Dictionary<(byte index, uint state), (WPos origin, Angle rotation)> aoeSources = new()
     {
-        {(0x00, 0x00200010), (new WPos(-154.825f, 42.75f), 60.Degrees())},
-        {(0x00, 0x01000080), (new WPos(-154.825f, 55.25f), 119.997f.Degrees())},
-        {(0x00, 0x00020001), (new WPos(-144, 36.5f), -0.003f.Degrees())},
-        {(0x01, 0x00200010), (new WPos(-144, 61.5f), -180.Degrees())},
-        {(0x01, 0x01000080), (new WPos(-133.175f, 55.25f), -120.003f.Degrees())},
-        {(0x01, 0x00020001), (new WPos(-133.175f, 42.75f), -60.005f.Degrees())}
+        {(0x00, 0x00200010), (new(-154.825f, 42.75f), 60.Degrees())},
+        {(0x00, 0x01000080), (new(-154.825f, 55.25f), 119.997f.Degrees())},
+        {(0x00, 0x00020001), (new(-144, 36.5f), -0.003f.Degrees())},
+        {(0x01, 0x00200010), (new(-144, 61.5f), -180.Degrees())},
+        {(0x01, 0x01000080), (new(-133.175f, 55.25f), -120.003f.Degrees())},
+        {(0x01, 0x00020001), (new(-133.175f, 42.75f), -60.005f.Degrees())}
     };
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
@@ -46,8 +46,8 @@ class PunishingSlice(BossModule module) : Components.GenericAOEs(module)
     {
         if (aoeSources.TryGetValue((index, state), out var source))
         {
-            var activation = NumCasts == 0 ? Module.WorldState.FutureTime(13) : Module.WorldState.FutureTime(16);
-            _aoe = new AOEInstance(rect, source.origin, source.rotation, activation);
+            var activation = NumCasts == 0 ? WorldState.FutureTime(13) : WorldState.FutureTime(16);
+            _aoe = new(rect, source.origin, source.rotation, activation);
         }
     }
 
@@ -83,7 +83,5 @@ class D041LyssaStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 787, NameID = 10396)]
 public class D041Lyssa(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> union = [new Circle(new(-144, 49), 19.5f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(-144, 28), 20, 2), new Rectangle(new(-144, 70), 20, 2)];
-    public static readonly ArenaBoundsComplex arena = new(union, difference);
+    public static readonly ArenaBoundsComplex arena = new([new Circle(new(-144, 49), 19.5f)], [new Rectangle(new(-144, 28), 20, 2), new Rectangle(new(-144, 70), 20, 2)]);
 }

@@ -3,33 +3,33 @@ namespace BossMod.Endwalker.TreasureHunt.ShiftingGymnasionAgonon.Narkissos;
 public enum OID : uint
 {
     Boss = 0x3D48, //R=8.0
-    BonusAddLampas = 0x3D4D, //R=2.001, bonus loot adds
-    BonusAddLyssa = 0x3D4E, //R=3.75, bonus loot adds
+    GymnasiouLampas = 0x3D4D, //R=2.001, bonus loot adds
+    GymnasiouLyssa = 0x3D4E, //R=3.75, bonus loot adds
     Helper = 0x233C
 }
 
 public enum AID : uint
 {
-    AutoAttack = 870, // BonusAddLyssa->player, no cast, single-target
+    AutoAttack1 = 870, // GymnasiouLyssa->player, no cast, single-target
     AutoAttack2 = 872, // Boss->player, no cast, single-target
 
-    FetchingFulgence = 32332, // Boss->self, 4.0s cast, range 40 circle, Gaze, Vegetal Vapors
-    PotentPerfume = 32333, // BossHelper->location, 4.0s cast, range 8 circle, high damage, Vegetal Vapours
-    Lash = 32330, // Boss->player, 5.0s cast, single-target, tank buster
-    SapShower = 32335, // Boss->self, no cast, single-target
-    SapShower2 = 32336, // BossHelper->location, 6.5s cast, range 8 circle, high damage, Vegetal Vapours
+    FetchingFulgence = 32332, // Boss->self, 4.0s cast, range 40 circle, gaze, vegetal vapors
+    PotentPerfume = 32333, // BossHelper->location, 4.0s cast, range 8 circle, high damage, vegetal vapours
+    Lash = 32330, // Boss->player, 5.0s cast, single-target, tankbuster
+    SapShowerVisual = 32335, // Boss->self, no cast, single-target
+    SapShower = 32336, // BossHelper->location, 6.5s cast, range 8 circle, high damage, vegetal vapours
     ExtensibleTendrils = 32339, // Boss->self, 5.0s cast, range 25 width 6 cross
 
     RockHard = 32340, // BossHelper->player, 5.5s cast, range 6 circle
     HeavySmash = 32317, // 3D4E->location, 3.0s cast, range 6 circle
-    BeguilingGas = 32331, // Boss->self, 5.0s cast, range 40 circle, Temporary Misdirection
-    Brainstorm = 32334, // Boss->self, 5.0s cast, range 40 circle, Forced March debuffs
+    BeguilingGas = 32331, // Boss->self, 5.0s cast, range 40 circle, temporary misdirection
+    Brainstorm = 32334, // Boss->self, 5.0s cast, range 40 circle, forced march debuffs
     PutridBreath = 32338 // Boss->self, 4.0s cast, range 25 90-degree cone
 }
 
 public enum SID : uint
 {
-    VegetalVapours = 3467, // Boss/BossHelper->player, extra=0x2162 (description: Overcome and quite unable to act.)
+    VegetalVapours = 3467, // Boss/Helper->player, extra=0x2162 (description: Overcome and quite unable to act.)
     TemporaryMisdirection = 1422, // Boss->player, extra=0x2D0
     ForcedMarch = 1257, // Boss->player, extra=0x1/0x2/0x4/0x8
     RightFace = 1961, // Boss->player, extra=0x0
@@ -54,7 +54,7 @@ class SapShowerTendrilsHint(BossModule module) : BossComponent(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.SapShower2)
+        if ((AID)spell.Action.ID == AID.SapShower)
         {
             active = true;
             ++NumCasts;
@@ -63,7 +63,7 @@ class SapShowerTendrilsHint(BossModule module) : BossComponent(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.SapShower2)
+        if ((AID)spell.Action.ID == AID.SapShower)
             active = false;
     }
 
@@ -73,7 +73,7 @@ class SapShowerTendrilsHint(BossModule module) : BossComponent(module)
         {
             if (NumCasts is <= 4 and > 0)
                 hints.Add("Circles resolve before cross");
-            if (NumCasts > 4)
+            else if (NumCasts > 4)
                 hints.Add("Circles resolve before cross, aim forced march into cross");
         }
     }
@@ -81,7 +81,7 @@ class SapShowerTendrilsHint(BossModule module) : BossComponent(module)
 
 class SapShower : Components.LocationTargetedAOEs
 {
-    public SapShower(BossModule module) : base(module, ActionID.MakeSpell(AID.SapShower2), 8)
+    public SapShower(BossModule module) : base(module, ActionID.MakeSpell(AID.SapShower), 8)
     {
         Color = Colors.Danger;
     }
@@ -91,6 +91,7 @@ class ExtensibleTendrils(BossModule module) : Components.SelfTargetedAOEs(module
 class PutridBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PutridBreath), new AOEShapeCone(25, 45.Degrees()));
 class RockHard(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.RockHard), 6);
 class BeguilingGas(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.BeguilingGas), "Raidwide + Temporary Misdirection");
+
 class HeavySmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
 
 class NarkissosStates : StateMachineBuilder
@@ -109,7 +110,7 @@ class NarkissosStates : StateMachineBuilder
             .ActivateOnEnter<RockHard>()
             .ActivateOnEnter<BeguilingGas>()
             .ActivateOnEnter<HeavySmash>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead) && module.Enemies(OID.BonusAddLyssa).All(e => e.IsDead) && module.Enemies(OID.BonusAddLampas).All(e => e.IsDead);
+            .Raw.Update = () => module.Enemies(OID.GymnasiouLampas).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.GymnasiouLyssa)).All(e => e.IsDeadOrDestroyed);
     }
 }
 
@@ -119,8 +120,7 @@ public class Narkissos(WorldState ws, Actor primary) : BossModule(ws, primary, n
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.BonusAddLampas), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.BonusAddLyssa), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.GymnasiouLyssa).Concat(Enemies(OID.GymnasiouLampas)), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -129,8 +129,8 @@ public class Narkissos(WorldState ws, Actor primary) : BossModule(ws, primary, n
         {
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.BonusAddLampas => 3,
-                OID.BonusAddLyssa => 2,
+                OID.GymnasiouLampas => 3,
+                OID.GymnasiouLyssa => 2,
                 OID.Boss => 1,
                 _ => 0
             };

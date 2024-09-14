@@ -49,19 +49,13 @@ class FreezingDust(BossModule module) : Components.StayMove(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.FreezingDust)
-        {
-            if (Raid.FindSlot(caster.TargetID) is var slot && slot >= 0 && slot < Requirements.Length)
-                Requirements[slot] = Requirement.Move;
-        }
+            Array.Fill(PlayerStates, new(Requirement.Move, Module.CastFinishAt(spell, 1)));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((AID)spell.Action.ID == AID.FreezingDust)
-        {
-            if (Raid.FindSlot(caster.TargetID) is var slot && slot >= 0 && slot < Requirements.Length)
-                Requirements[slot] = Requirement.None;
-        }
+        if ((SID)status.ID == SID.FreezingUp && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
+            PlayerStates[slot] = default;
     }
 }
 

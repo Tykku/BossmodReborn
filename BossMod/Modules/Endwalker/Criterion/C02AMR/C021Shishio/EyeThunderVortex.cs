@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C021Shishio;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C021Shishio;
 
 class EyeThunderVortex(BossModule module) : Components.GenericAOEs(module)
 {
@@ -6,6 +6,8 @@ class EyeThunderVortex(BossModule module) : Components.GenericAOEs(module)
 
     private static readonly AOEShapeCircle _shapeCircle = new(15);
     private static readonly AOEShapeDonut _shapeDonut = new(8, 30);
+    private static readonly HashSet<AID> castEnd = [AID.NEyeOfTheThunderVortexFirst, AID.NEyeOfTheThunderVortexSecond, AID.NVortexOfTheThunderEyeFirst,
+    AID.NVortexOfTheThunderEyeSecond, AID.SEyeOfTheThunderVortexFirst, AID.SEyeOfTheThunderVortexSecond, AID.SVortexOfTheThunderEyeFirst, AID.SVortexOfTheThunderEyeSecond];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(1);
 
@@ -28,8 +30,7 @@ class EyeThunderVortex(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.NEyeOfTheThunderVortexFirst or AID.NEyeOfTheThunderVortexSecond or AID.NVortexOfTheThunderEyeFirst or AID.NVortexOfTheThunderEyeSecond
-            or AID.SEyeOfTheThunderVortexFirst or AID.SEyeOfTheThunderVortexSecond or AID.SVortexOfTheThunderEyeFirst or AID.SVortexOfTheThunderEyeSecond)
+        if (castEnd.Contains((AID)spell.Action.ID))
         {
             if (_aoes.Count > 0)
                 _aoes.RemoveAt(0);

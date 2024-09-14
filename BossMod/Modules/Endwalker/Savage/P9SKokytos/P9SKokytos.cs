@@ -23,6 +23,6 @@ public class P9SKokytos(WorldState ws, Actor primary) : BossModule(ws, primary, 
     private static Rectangle RotatedRectangle(WPos position, Angle rotation)
     {
         var rotatedPosition = Helpers.RotateAroundOrigin(45, center, position);
-        return new Rectangle(rotatedPosition, rectWidth, rectHeight, rotation);
+        return new(rotatedPosition, rectWidth, rectHeight, rotation);
     }
 }

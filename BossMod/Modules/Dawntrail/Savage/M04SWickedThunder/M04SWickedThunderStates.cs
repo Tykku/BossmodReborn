@@ -229,6 +229,9 @@ class M04SWickedThunderStates : StateMachineBuilder
     {
         ComponentCondition<Soulshock>(id, delay, comp => comp.NumCasts > 0, "Raidwide 1")
             .ActivateOnEnter<Soulshock>()
+            .ActivateOnEnter<CannonboltKB>()
+            .OnEnter(() => Module.Arena.Center = M04SWickedThunder.TransitionBounds.Center)
+            .OnEnter(() => Module.Arena.Bounds = M04SWickedThunder.TransitionBounds)
             .DeactivateOnExit<Soulshock>()
             .SetHint(StateMachine.StateHint.Raidwide);
         ComponentCondition<Impact>(id + 1, 3.3f, comp => comp.NumCasts > 0, "Raidwide 2")
@@ -244,6 +247,7 @@ class M04SWickedThunderStates : StateMachineBuilder
 
         Targetable(id + 0x10, false, 0.1f, "Boss disappears");
         ActorTargetable(id + 0x20, _module.BossP2, true, 11.9f, "Boss reappears")
+            .DeactivateOnEnter<CannonboltKB>()
             .OnEnter(() => Module.Arena.Center = M04SWickedThunder.P2Center)
             .OnEnter(() => Module.Arena.Bounds = M04SWickedThunder.P2DefaultBounds)
             .SetHint(StateMachine.StateHint.DowntimeEnd);

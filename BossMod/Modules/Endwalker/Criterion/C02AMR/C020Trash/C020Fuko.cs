@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C020Trash1;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C020Trash1;
 
 class Tornado(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
 class NTornado(BossModule module) : Tornado(module, AID.NTornado);
@@ -69,7 +69,7 @@ class C020FukoStates : StateMachineBuilder
 class C020NFukoStates(BossModule module) : C020FukoStates(module, false);
 class C020SFukoStates(BossModule module) : C020FukoStates(module, true);
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.NFuko, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 946, NameID = 12399, SortOrder = 2)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", PrimaryActorOID = (uint)OID.NFuko, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 946, NameID = 12399, SortOrder = 2)]
 public class C020NFuko(WorldState ws, Actor primary) : C020Trash1(ws, primary)
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
@@ -80,7 +80,7 @@ public class C020NFuko(WorldState ws, Actor primary) : C020Trash1(ws, primary)
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.SFuko, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 947, NameID = 12399, SortOrder = 2)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", PrimaryActorOID = (uint)OID.SFuko, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 947, NameID = 12399, SortOrder = 2)]
 public class C020SFuko(WorldState ws, Actor primary) : C020Trash1(ws, primary)
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)

@@ -8,6 +8,7 @@ public class WickedCannon(BossModule module) : Components.GenericAOEs(module)
     private static readonly float[] delays4fold = [12, 10.9f, 10.2f, 9.5f];
     private static readonly float[] delays5fold = [14.5f, 13.4f, 12.8f, 12.2f, 11.6f];
     private float[] currentDelays = [];
+    private static readonly HashSet<AID> castEnd = [AID.WickedCannon1, AID.WickedCannon2, AID.WickedCannon3, AID.WickedCannon4, AID.WickedCannon5];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -42,21 +43,12 @@ public class WickedCannon(BossModule module) : Components.GenericAOEs(module)
             0x2D4 => default,
             _ => default
         };
-        _aoes.Add(new(rect, Module.PrimaryActor.Position, rotation, Module.WorldState.FutureTime(currentDelays[_aoes.Count])));
+        _aoes.Add(new(rect, Module.PrimaryActor.Position, rotation, WorldState.FutureTime(currentDelays[_aoes.Count])));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count > 0)
-            switch ((AID)spell.Action.ID)
-            {
-                case AID.WickedCannon1:
-                case AID.WickedCannon2:
-                case AID.WickedCannon3:
-                case AID.WickedCannon4:
-                case AID.WickedCannon5:
-                    _aoes.RemoveAt(0);
-                    break;
-            }
+        if (_aoes.Count > 0 && castEnd.Contains((AID)spell.Action.ID))
+            _aoes.RemoveAt(0);
     }
 }

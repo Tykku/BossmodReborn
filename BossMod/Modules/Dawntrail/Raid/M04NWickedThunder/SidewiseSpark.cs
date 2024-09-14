@@ -26,7 +26,7 @@ class SidewiseSpark(BossModule module) : Components.GenericAOEs(module)
     {
         if ((OID)actor.OID == OID.WickedReplica)
         {
-            var activation = Module.WorldState.CurrentTime.AddSeconds(8);
+            var activation = WorldState.CurrentTime.AddSeconds(8);
             switch (id)
             {
                 case 0x11D8:

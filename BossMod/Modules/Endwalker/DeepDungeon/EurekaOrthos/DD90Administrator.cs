@@ -50,9 +50,9 @@ class AetheroChemicalLaserCombo(BossModule module) : Components.GenericAOEs(modu
     private static readonly AOEShape[] _shapes = [new AOEShapeCone(50, 60.Degrees()), new AOEShapeDonut(8, 60), new AOEShapeRect(40, 2.5f),
     new AOEShapeCross(60, 5), new AOEShapeDonut(5, 60)];
     private readonly Dictionary<uint, List<AOEInstance>> _icons = new() {
-        { (uint)IconID.Icon1, new List<AOEInstance>() },
-        { (uint)IconID.Icon2, new List<AOEInstance>() },
-        { (uint)IconID.Icon3, new List<AOEInstance>() }
+        { (uint)IconID.Icon1, [] },
+        { (uint)IconID.Icon2, [] },
+        { (uint)IconID.Icon3, [] }
     };
     private AOEInstance _boss;
 
@@ -66,10 +66,8 @@ class AetheroChemicalLaserCombo(BossModule module) : Components.GenericAOEs(modu
                     yield return new(c.Shape, c.Origin, c.Rotation, c.Activation, Colors.Danger);
                 var nextIcon = _icons.FirstOrDefault(x => x.Key == icon.Key + 1).Value;
                 if (nextIcon != null)
-                {
                     foreach (var c in nextIcon)
                         yield return new(c.Shape, c.Origin, c.Rotation, c.Activation, Colors.AOE, false);
-                }
                 if (_boss != default)
                     yield return new(_boss.Shape, _boss.Origin, _boss.Rotation, _boss.Activation, Colors.AOE, false);
                 yield break;
@@ -91,21 +89,21 @@ class AetheroChemicalLaserCombo(BossModule module) : Components.GenericAOEs(modu
 
         var activation = iconID switch
         {
-            (uint)IconID.Icon1 => Module.WorldState.FutureTime(7),
-            (uint)IconID.Icon2 => Module.WorldState.FutureTime(10.5f),
-            (uint)IconID.Icon3 => Module.WorldState.FutureTime(14),
+            (uint)IconID.Icon1 => WorldState.FutureTime(7),
+            (uint)IconID.Icon2 => WorldState.FutureTime(10.5f),
+            (uint)IconID.Icon3 => WorldState.FutureTime(14),
             _ => default
         };
 
-        _icons[iconID].Add(new AOEInstance(_shapes[shapeIndex], actor.Position, (OID)actor.OID == OID.OrbInterceptor ? default : actor.Rotation, activation));
+        _icons[iconID].Add(new(_shapes[shapeIndex], actor.Position, (OID)actor.OID == OID.OrbInterceptor ? default : actor.Rotation, activation));
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         _boss = (AID)spell.Action.ID switch
         {
-            AID.PeripheralLasers => new AOEInstance(_shapes[4], caster.Position, default, Module.CastFinishAt(spell)),
-            AID.CrossLaser => new AOEInstance(_shapes[3], caster.Position, spell.Rotation, Module.CastFinishAt(spell)),
+            AID.PeripheralLasers => new(_shapes[4], caster.Position, default, Module.CastFinishAt(spell)),
+            AID.CrossLaser => new(_shapes[3], caster.Position, spell.Rotation, Module.CastFinishAt(spell)),
             _ => _boss
         };
     }

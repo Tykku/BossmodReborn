@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Dungeon.D04KtisisHyperboreia.D043Hermes;
+namespace BossMod.Endwalker.Dungeon.D04KtisisHyperboreia.D043Hermes;
 
 public enum OID : uint
 {
@@ -11,6 +11,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     CosmicKiss = 25891, // Meteor->self, 5.0s cast, range 40 circle
     Double = 25892, // Boss->self, 3.0s cast, single-target
 
@@ -58,15 +59,15 @@ class TrismegistosArenaChange(BossModule module) : Components.GenericAOEs(module
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Trismegistos && Module.Arena.Bounds == D043Hermes.StartingBounds)
-            _aoe = new(donut, Module.Center, default, Module.CastFinishAt(spell, 0.5f));
+        if ((AID)spell.Action.ID == AID.Trismegistos && Arena.Bounds == D043Hermes.StartingBounds)
+            _aoe = new(donut, Arena.Center, default, Module.CastFinishAt(spell, 0.5f));
     }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state == 0x00020001 && index == 0x08)
         {
-            Module.Arena.Bounds = D043Hermes.DefaultBounds;
+            Arena.Bounds = D043Hermes.DefaultBounds;
             _aoe = null;
         }
     }
@@ -92,7 +93,7 @@ class TrueAeroFirst(BossModule module) : Components.GenericBaitAway(module)
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if ((AID)spell.Action.ID == AID.TrueAeroTarget)
-            CurrentBaits.Add(new(Module.PrimaryActor, WorldState.Actors.Find(spell.MainTargetID)!, rect, Module.WorldState.FutureTime(5.7f)));
+            CurrentBaits.Add(new(Module.PrimaryActor, WorldState.Actors.Find(spell.MainTargetID)!, rect, WorldState.FutureTime(5.7f)));
         else if ((AID)spell.Action.ID == AID.TrueAeroFirst)
             CurrentBaits.Clear();
     }
@@ -110,7 +111,7 @@ class CosmicKiss(BossModule module) : Components.SelfTargetedAOEs(module, Action
 
 class TrueAeroIVLOS(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.TrueAeroIVLOS), 50, false, true)
 {
-    public override IEnumerable<Actor> BlockerActors() => Module.Enemies(OID.Meteor).Count > 0 ? Module.Enemies(OID.Meteor).Where(x => x.ModelState.AnimState2 != 1) : (IEnumerable<Actor>)Module.Enemies(OID.Meteor);
+    public override IEnumerable<Actor> BlockerActors() => Module.Enemies(OID.Meteor).Count > 0 ? Module.Enemies(OID.Meteor).Where(x => x.ModelState.AnimState2 != 1) : Module.Enemies(OID.Meteor);
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

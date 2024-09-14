@@ -28,7 +28,7 @@ class D061ManorClavigerStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 6, NameID = 423)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 6, NameID = 423)]
 public class D061ManorClaviger(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly List<Shape> shape = [new PolygonCustom([new(-21.5f, 3), new(-14, 9.2f), new(-14.1f, 14),

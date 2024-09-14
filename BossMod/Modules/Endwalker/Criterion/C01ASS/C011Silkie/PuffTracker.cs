@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C01ASS.C011Silkie;
+﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C011Silkie;
 
 class PuffTracker(BossModule module) : BossComponent(module)
 {
@@ -8,9 +8,9 @@ class PuffTracker(BossModule module) : BossComponent(module)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actors(BracingPuffs, 0xff80ff80, true);
-        Arena.Actors(ChillingPuffs, 0xffff8040, true);
-        Arena.Actors(FizzlingPuffs, 0xff40c0c0, true);
+        Arena.Actors(BracingPuffs, Colors.Other3, true);
+        Arena.Actors(ChillingPuffs, Colors.Other4, true);
+        Arena.Actors(FizzlingPuffs, Colors.Other5, true);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

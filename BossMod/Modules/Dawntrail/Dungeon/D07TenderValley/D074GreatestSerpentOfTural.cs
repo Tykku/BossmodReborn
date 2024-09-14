@@ -41,7 +41,7 @@ public enum AID : uint
 
     GreatTorrentVisual = 36741, // Boss->self, 3.0s cast, single-target
     GreatTorrentAOE = 36754, // Helper->location, 6.0s cast, range 6 circle 
-    GreatTorrentSpread = 36755, // Helper->player, no cast, range 6 circle
+    GreatTorrentSpread = 36755 // Helper->player, no cast, range 6 circle
 }
 
 public enum IconID : uint
@@ -63,15 +63,15 @@ class DubiousTulidisasterArenaChange(BossModule module) : Components.GenericAOEs
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.DubiousTulidisaster && Module.Arena.Bounds == D074GreatestSerpentOfTural.StartingBounds)
-            _aoe = new(square, Module.Center, default, Module.CastFinishAt(spell, 4.8f));
+        if ((AID)spell.Action.ID == AID.DubiousTulidisaster && Arena.Bounds == D074GreatestSerpentOfTural.StartingBounds)
+            _aoe = new(square, Arena.Center, default, Module.CastFinishAt(spell, 4.8f));
     }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state == 0x00020001 && index == 0x00)
         {
-            Module.Arena.Bounds = D074GreatestSerpentOfTural.DefaultBounds;
+            Arena.Bounds = D074GreatestSerpentOfTural.DefaultBounds;
             _aoe = null;
         }
     }
@@ -89,19 +89,12 @@ class ScreesOfFury(BossModule module) : Components.BaitAwayIcon(module, new AOES
 class GreatestFlood(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.GreatestFlood), 15)
 {
     private static readonly Angle a45 = 45.Degrees();
-    private (WPos, DateTime, Angle) data;
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        base.OnCastStarted(caster, spell);
-        if (spell.Action == WatchedAction)
-            data = (caster.Position, Module.CastFinishAt(spell, 0.8f), spell.Rotation);
-    }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (Sources(slot, actor).Any() || data.Item2 > Module.WorldState.CurrentTime) // 0.8s delay to wait for action effect
-            hints.AddForbiddenZone(ShapeDistance.InvertedCone(data.Item1, 4, data.Item3, a45), data.Item2.AddSeconds(-0.8f));
+        var source = Sources(slot, actor).FirstOrDefault();
+        if (source != default)
+            hints.AddForbiddenZone(ShapeDistance.InvertedCone(source.Origin, 4, source.Direction, a45), source.Activation);
     }
 }
 
@@ -114,10 +107,10 @@ class GreatestLabyrinth(BossModule module) : Components.GenericAOEs(module)
     private const int Radius = 2;
 
     private static readonly (Square correctTile, Square goalTile)[] tilePairs = [
-        (new Square(new WPos(-124, -552), Radius), new Square(new WPos(-140, -564), Radius)),
-        (new Square(new WPos(-128, -560), Radius), new Square(new WPos(-120, -544), Radius)),
-        (new Square(new WPos(-132, -548), Radius), new Square(new WPos(-120, -564), Radius)),
-        (new Square(new WPos(-136, -556), Radius), new Square(new WPos(-140, -544), Radius))];
+        (new(new(-124, -552), Radius), new(new(-140, -564), Radius)),
+        (new(new(-128, -560), Radius), new(new(-120, -544), Radius)),
+        (new(new(-132, -548), Radius), new(new(-120, -564), Radius)),
+        (new(new(-136, -556), Radius), new(new(-140, -544), Radius))];
 
     private static readonly List<Shape> wholeArena = [new Square(center, 12)];
     private static readonly AOEShapeCustom[] forbiddenShapes = tilePairs.Select(tp => new AOEShapeCustom(wholeArena, [middle, tp.correctTile, tp.goalTile])).ToArray();
@@ -130,7 +123,7 @@ class GreatestLabyrinth(BossModule module) : Components.GenericAOEs(module)
         if (index != 0x01)
             return;
 
-        var activation = Module.WorldState.FutureTime(10);
+        var activation = WorldState.FutureTime(10);
 
         switch (state)
         {
@@ -169,12 +162,16 @@ class GreatestLabyrinth(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class MightyBlorp1(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker1, ActionID.MakeSpell(AID.MightyBlorp1), 6, 4.6f, 4, 4);
-class MightyBlorp2(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker2, ActionID.MakeSpell(AID.MightyBlorp2), 5, 4.6f, 4, 4);
-class MightyBlorp3(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker3, ActionID.MakeSpell(AID.MightyBlorp3), 4, 4.6f, 4, 4);
-class SludgeVoidzone1(BossModule module) : Components.PersistentVoidzone(module, 6, m => m.Enemies(OID.SludgeVoidzone1).Where(z => z.EventState != 7));
-class SludgeVoidzone2(BossModule module) : Components.PersistentVoidzone(module, 5, m => m.Enemies(OID.SludgeVoidzone2).Where(z => z.EventState != 7));
-class SludgeVoidzone3(BossModule module) : Components.PersistentVoidzone(module, 4, m => m.Enemies(OID.SludgeVoidzone3).Where(z => z.EventState != 7));
+class MightyBlorp(BossModule module, IconID iconID, AID aid, int radius) : Components.StackWithIcon(module, (uint)iconID, ActionID.MakeSpell(aid), radius, 4.6f, 4, 4);
+class MightyBlorp1(BossModule module) : MightyBlorp(module, IconID.Stackmarker1, AID.MightyBlorp1, 6);
+class MightyBlorp2(BossModule module) : MightyBlorp(module, IconID.Stackmarker2, AID.MightyBlorp2, 5);
+class MightyBlorp3(BossModule module) : MightyBlorp(module, IconID.Stackmarker3, AID.MightyBlorp3, 4);
+
+class SludgeVoidzone(BossModule module, int radius, OID oid) : Components.PersistentVoidzone(module, radius, m => m.Enemies(oid).Where(z => z.EventState != 7));
+class SludgeVoidzone1(BossModule module) : SludgeVoidzone(module, 6, OID.SludgeVoidzone1);
+class SludgeVoidzone2(BossModule module) : SludgeVoidzone(module, 5, OID.SludgeVoidzone2);
+class SludgeVoidzone3(BossModule module) : SludgeVoidzone(module, 4, OID.SludgeVoidzone3);
+
 class DubiousTulidisaster(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DubiousTulidisaster));
 class GreatestLabyrinthRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GreatestLabyrinth));
 class GreatestFloodRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GreatestFlood));

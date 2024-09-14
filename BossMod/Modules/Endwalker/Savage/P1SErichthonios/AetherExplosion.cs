@@ -8,8 +8,6 @@ class AetherExplosion(BossModule module) : BossComponent(module)
     private Actor? _memberWithSOT; // if not null, then every update exploding cells are recalculated based on this raid member's position
     private Cell _explodingCells = Cell.None;
 
-    private const uint _colorSOTActor = 0xff8080ff;
-
     public bool SOTActive => _memberWithSOT != null;
 
     public override void Update()
@@ -49,7 +47,7 @@ class AetherExplosion(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (_memberWithSOT != pc)
-            Arena.Actor(_memberWithSOT, _colorSOTActor);
+            Arena.Actor(_memberWithSOT, Colors.Other2);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

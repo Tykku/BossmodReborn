@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C021Shishio;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C021Shishio;
 
 class UnnaturalWail(BossModule module) : Components.UniformStackSpread(module, 6, 6, 2, 2, alwaysShowSpreads: true)
 {

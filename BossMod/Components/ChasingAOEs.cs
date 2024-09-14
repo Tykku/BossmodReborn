@@ -70,11 +70,12 @@ public class GenericChasingAOEs(BossModule module, float moveDistance, ActionID 
     private void AddForbiddenZones(Actor actor, AIHints hints, bool isTarget)
     {
         // sort of a hack to prevent the AI from getting "stuck" inside the AOE because all paths to safety have equal distance
-        foreach (var chaser in Chasers.Where(c => c.Target == actor == isTarget))
+        foreach (var c in Chasers.Where(c => c.Target == actor == isTarget))
         {
-            var circle = (AOEShapeCircle)chaser.Shape;
-            var radius = isTarget ? MoveDistance + circle.Radius : circle.Radius;
-            hints.AddForbiddenZone(ShapeDistance.Circle(chaser.PredictedPosition(), radius), chaser.NextActivation);
+            var circle = (AOEShapeCircle)c.Shape;
+            var radius = isTarget ? MoveDistance + circle.Radius : circle.Radius + 1;
+            var position = isTarget ? c.PredictedPosition() - circle.Radius * actor.Rotation.ToDirection() : c.PredictedPosition();
+            hints.AddForbiddenZone(ShapeDistance.Circle(position, radius), c.NextActivation);
         }
     }
 }
@@ -103,11 +104,7 @@ public class StandardChasingAOEs(BossModule module, AOEShape shape, ActionID act
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var c in Chasers)
-        {
-            if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddLine(c.PrevPos, c.Target.Position, Colors.Shadows, 2);
             Arena.AddLine(c.PrevPos, c.Target.Position, Colors.Danger);
-        }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -143,7 +140,7 @@ public class StandardChasingAOEs(BossModule module, AOEShape shape, ActionID act
     {
         if (iconID == Icon)
         {
-            Activation = Module.WorldState.FutureTime(ActivationDelay);
+            Activation = WorldState.FutureTime(ActivationDelay);
             Actors.Add(actor);
         }
     }

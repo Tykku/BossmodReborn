@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C021Shishio;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C021Shishio;
 
 class LightningBolt(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
 class NLightningBolt(BossModule module) : LightningBolt(module, AID.NLightningBoltAOE);
@@ -42,7 +42,7 @@ class CloudToCloud(BossModule module) : Components.GenericAOEs(module)
         }
     }
 
-    private AOEShapeRect? ShapeForAction(ActionID action) => (AID)action.ID switch
+    private static AOEShapeRect? ShapeForAction(ActionID action) => (AID)action.ID switch
     {
         AID.NCloudToCloud1 or AID.SCloudToCloud1 => _shape1,
         AID.NCloudToCloud2 or AID.SCloudToCloud2 => _shape2,

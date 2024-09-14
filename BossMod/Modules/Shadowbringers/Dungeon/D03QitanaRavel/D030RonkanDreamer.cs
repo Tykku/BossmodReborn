@@ -50,7 +50,7 @@ class WrathOfTheRonka(BossModule module) : Components.GenericAOEs(module)
         if (tether.ID == (uint)TetherID.StatueActivate)
         {
             var aoeShape = GetAOEShape(source.Position) ?? rectLong;
-            _aoes.Add(new AOEInstance(aoeShape, source.Position, source.Rotation, Module.WorldState.FutureTime(6)));
+            _aoes.Add(new AOEInstance(aoeShape, source.Position, source.Rotation, WorldState.FutureTime(6)));
         }
     }
 

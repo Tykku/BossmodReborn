@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C03AAI.C032Lala;
+﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C032Lala;
 
 class C032LalaStates : StateMachineBuilder
 {

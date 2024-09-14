@@ -5,6 +5,15 @@ class WickedJolt(BossModule module) : Components.TankSwap(module, ActionID.MakeS
 class Soulshock(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Soulshock));
 class Impact(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Impact));
 class Cannonbolt(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Cannonbolt));
+
+class CannonboltKB(BossModule module) : Components.Knockback(module, ignoreImmunes: true)
+{
+    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    {
+        yield return new(Module.PrimaryActor.Position, 50);
+    }
+}
+
 class CrossTailSwitch(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.CrossTailSwitchAOE));
 class CrossTailSwitchLast(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.CrossTailSwitchLast));
 class WickedSpecialCenter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WickedSpecialCenterAOE), new AOEShapeRect(40, 10));
@@ -18,6 +27,7 @@ public class M04SWickedThunder(WorldState ws, Actor primary) : BossModule(ws, pr
     public static readonly ArenaBoundsSquare P1DefaultBounds = new(20);
     public static readonly ArenaBoundsRect IonClusterBounds = new(5, 20);
     public static readonly ArenaBoundsRect P2DefaultBounds = new(20, 15);
+    public static readonly ArenaBoundsComplex TransitionBounds = new([new Square(P1DefaultCenter, 20), new Rectangle(P2Center, 20, 15)]);
     public static readonly ArenaBoundsCircle P2CircleBounds = new(15);
     public static readonly ArenaBoundsCustom P2TowersBounds = new(20, P2DefaultBounds.Clipper.Union(new(CurveApprox.Rect(new WDir(+15, 0), new(0, 1), 5, 15)), new(CurveApprox.Rect(new WDir(-15, 0), new(0, 1), 5, 15))));
 

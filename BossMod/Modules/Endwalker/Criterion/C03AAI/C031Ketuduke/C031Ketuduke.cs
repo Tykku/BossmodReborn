@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C03AAI.C031Ketuduke;
+﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C031Ketuduke;
 
 class TidalRoar(BossModule module, AID aid) : Components.CastCounter(module, ActionID.MakeSpell(aid));
 class NTidalRoar(BossModule module) : TidalRoar(module, AID.NTidalRoarAOE);
@@ -16,8 +16,8 @@ class SHydrobomb(BossModule module) : Hydrobomb(module, AID.SHydrobombAOE);
 
 public abstract class C031Ketuduke(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, 0), new ArenaBoundsSquare(20));
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.NBoss, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 979, NameID = 12605, SortOrder = 5)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", PrimaryActorOID = (uint)OID.NBoss, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 979, NameID = 12605, SortOrder = 5)]
 public class C031NKetuduke(WorldState ws, Actor primary) : C031Ketuduke(ws, primary);
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.SBoss, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 980, NameID = 12605, SortOrder = 5)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", PrimaryActorOID = (uint)OID.SBoss, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 980, NameID = 12605, SortOrder = 5)]
 public class C031SKetuduke(WorldState ws, Actor primary) : C031Ketuduke(ws, primary);

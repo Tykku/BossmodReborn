@@ -35,10 +35,10 @@ public enum AID : uint
     FrostBreath = 9334, // GreatDragon->self, no cast, range 15, 8.5-degree cone, frontal cone AoE
 }
 
-class Ribbit(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Ribbit), new AOEShapeCone(17, 75.Degrees()));
+class Ribbit(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Ribbit), new AOEShapeCone(19.5f, 75.Degrees()));
 class SpellbladeThunderIII(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpellbladeThunderIII), new AOEShapeRect(60, 3));
 class SpellbladeBlizzardIII(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpellbladeBlizzardIII), new AOEShapeCircle(9));
-class SpellbladeFireIII(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpellbladeFireIII), new AOEShapeDonut(3, 15));
+class SpellbladeFireIII(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpellbladeFireIII), new AOEShapeDonut(4, 15));
 class CrossReaper(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CrossReaper), new AOEShapeCircle(10));
 class TheQueensWaltz1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheQueensWaltz1), new AOEShapeCone(34, 10.Degrees()));
 class TheQueensWaltz2(BossModule module) : Components.GenericAOEs(module)
@@ -62,22 +62,19 @@ class TheQueensWaltz2(BossModule module) : Components.GenericAOEs(module)
     {
         if ((AID)spell.Action.ID is AID.TheQueensWaltz2)
         {
-            //_aoes.Add(new(rect, new(-15, -15)));
-            _aoes.Add(new(rect, new(-5, -15)));
-            _aoes.Add(new(rect, new(5, -15)));
-            _aoes.Add(new(rect, new(15, -15)));
-            _aoes.Add(new(rect, new(-15, -5)));
-            //_aoes.Add(new(rect, new(-5, -5)));
-            _aoes.Add(new(rect, new(5, -5)));
-            _aoes.Add(new(rect, new(15, -5)));
-            _aoes.Add(new(rect, new(-15, 5)));
-            _aoes.Add(new(rect, new(-5, 5)));
-            //_aoes.Add(new(rect, new(5, 5)));
-            _aoes.Add(new(rect, new(15, 5)));
-            _aoes.Add(new(rect, new(-15, 15)));
-            _aoes.Add(new(rect, new(-5, 15)));
-            _aoes.Add(new(rect, new(5, 15)));
-            //_aoes.Add(new(rect, new(15, 15)));
+            int[] xOffsets = [-15, -5, 5, 15];
+            int[] zOffsets = [-15, -5, 5, 15];
+
+            foreach (var zOffset in zOffsets)
+            {
+                foreach (var xOffset in xOffsets)
+                {
+                    if (xOffset != zOffset)
+                    {
+                        _aoes.Add(new(rect, new(xOffset, zOffset)));
+                    }
+                }
+            }
         }
     }
 
@@ -86,7 +83,7 @@ class TheQueensWaltz2(BossModule module) : Components.GenericAOEs(module)
         if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.TheQueensWaltz2)
         {
             for (var i = 0; i < 12; i++)
-                _aoes.RemoveAt(i);
+                _aoes.RemoveAt(0);
         }
     }
 }
@@ -100,32 +97,30 @@ class TheGame(BossModule module) : Components.GenericAOEs(module)
     {
         if (_aoes.Count > 0)
         {
-            var _safeTile = 0;
+            var safeTiles = new List<int>();
+
             switch (actor.Role)
             {
                 case Role.Tank:
-                    _safeTile = 6;
+                    safeTiles.Add(6);
                     break;
                 case Role.Healer:
-                    _safeTile = 9;
+                    safeTiles.Add(9);
                     break;
                 case Role.Melee:
-                    _safeTile = 5;
-                    break;
                 case Role.Ranged:
-                    _safeTile = 10;
+                    safeTiles.Add(5);
+                    safeTiles.Add(10);
                     break;
             }
-            var aoeCount = 16;
-            for (var i = aoeCount; i < _aoes.Count; i++)
+
+            var tiles = 16;
+            for (var i = tiles; i < _aoes.Count; i++)
                 yield return _aoes[i];
-            for (var i = 0; i < aoeCount; i++)
+
+            for (var i = 0; i < tiles; i++)
             {
-                if (i == _safeTile)
-                {
-                    //yield return _aoes[i] with { Color = Colors.SafeFromAOE };
-                }
-                else
+                if (!safeTiles.Contains(i))
                 {
                     yield return _aoes[i] with { Color = Colors.AOE };
                 }
@@ -137,22 +132,16 @@ class TheGame(BossModule module) : Components.GenericAOEs(module)
     {
         if ((AID)spell.Action.ID is AID.TheGame)
         {
-            _aoes.Add(new(rect, new(-15, -15)));
-            _aoes.Add(new(rect, new(-5, -15)));
-            _aoes.Add(new(rect, new(5, -15)));
-            _aoes.Add(new(rect, new(15, -15)));
-            _aoes.Add(new(rect, new(-15, -5)));
-            _aoes.Add(new(rect, new(-5, -5)));      //Dps Square1
-            _aoes.Add(new(rect, new(5, -5)));     //Tank Square
-            _aoes.Add(new(rect, new(15, -5)));
-            _aoes.Add(new(rect, new(-15, 5)));
-            _aoes.Add(new(rect, new(-5, 5)));       //Healer Square
-            _aoes.Add(new(rect, new(5, 5)));        //Dps Square2
-            _aoes.Add(new(rect, new(15, 5)));
-            _aoes.Add(new(rect, new(-15, 15)));
-            _aoes.Add(new(rect, new(-5, 15)));
-            _aoes.Add(new(rect, new(5, 15)));
-            _aoes.Add(new(rect, new(15, 15)));
+            int[] xOffsets = [-15, -5, 5, 15];
+            int[] zOffsets = [-15, -5, 5, 15];
+
+            foreach (var zOffset in zOffsets)
+            {
+                foreach (var xOffset in xOffsets)
+                {
+                    _aoes.Add(new(rect, new(xOffset, zOffset)));
+                }
+            }
         }
     }
 
@@ -161,7 +150,7 @@ class TheGame(BossModule module) : Components.GenericAOEs(module)
         if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.TheGame)
         {
             for (var i = 0; i < 16; i++)
-                _aoes.RemoveAt(i);
+                _aoes.RemoveAt(0);
         }
     }
 }
@@ -182,6 +171,5 @@ class O3NHalicarnassusStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "VeraNala", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 254, NameID = 5633)]
+[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "VeraNala", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 254, NameID = 5633)]
 public class O3NHalicarnassus(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, 0), new ArenaBoundsSquare(20));
-

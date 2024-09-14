@@ -116,6 +116,8 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
     // unclipped primitive rendering that accept world-space positions; thin convenience wrappers around drawlist api
     public void AddLine(WPos a, WPos b, uint color, float thickness = 1)
     {
+        if (Config.ShowOutlinesAndShadows)
+            ImGui.GetWindowDrawList().AddLine(WorldPositionToScreenPosition(a), WorldPositionToScreenPosition(b), Colors.Shadows, thickness + 1);
         ImGui.GetWindowDrawList().AddLine(WorldPositionToScreenPosition(a), WorldPositionToScreenPosition(b), color, thickness);
     }
 
@@ -149,6 +151,8 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
 
     public void AddCircle(WPos center, float radius, uint color, float thickness = 1)
     {
+        if (Config.ShowOutlinesAndShadows)
+            ImGui.GetWindowDrawList().AddCircle(WorldPositionToScreenPosition(center), radius / Bounds.Radius * ScreenHalfSize, Colors.Shadows, 0, thickness + 1);
         ImGui.GetWindowDrawList().AddCircle(WorldPositionToScreenPosition(center), radius / Bounds.Radius * ScreenHalfSize, color, 0, thickness);
     }
 

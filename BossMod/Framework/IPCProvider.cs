@@ -26,7 +26,7 @@ sealed class IPCProvider : IDisposable
         Register("HasModuleByDataId", (uint dataId) => ModuleRegistry.FindByOID(dataId) != null);
         Register("IsMoving", movement.IsMoving);
         Register("ForbiddenZonesCount", () => autorotation.Hints.ForbiddenZones.Count);
-        Register("Configuration", (IReadOnlyList<string> args) => Service.Config.ConsoleCommand(args));
+        Register("Configuration", (IReadOnlyList<string> args, bool save) => Service.Config.ConsoleCommand(args, save));
         //Register("InitiateCombat", () => autorotation.ClassActions?.UpdateAutoAction(CommonActions.AutoActionAIFight, float.MaxValue, true));
         //Register("SetAutorotationState", (bool state) => Service.Config.Get<AutorotationConfig>().Enabled = state);
 
@@ -66,8 +66,28 @@ sealed class IPCProvider : IDisposable
 
             return false;
         });
+        Register("Presets.ClearActive", () =>
+        {
+            if (autorotation.Preset == null)
+                return false;
+
+            autorotation.Preset = null;
+            return true;
+        });
+        Register("Presets.GetForceDisabled", () => autorotation.Preset == RotationModuleManager.ForceDisable);
+        Register("Presets.SetForceDisabled", () =>
+        {
+            if (autorotation.Preset != RotationModuleManager.ForceDisable)
+            {
+                autorotation.Preset = RotationModuleManager.ForceDisable;
+                return true;
+            }
+
+            return false;
+        });
 
         Register("AI.SetPreset", (string name) => ai.SetAIPreset(autorotation.Database.Presets.Presets.FirstOrDefault(x => x.Name == name)));
+        Register("AI.GetPreset", () => ai.GetAIPreset);
     }
 
     public void Dispose() => _disposeActions?.Invoke();

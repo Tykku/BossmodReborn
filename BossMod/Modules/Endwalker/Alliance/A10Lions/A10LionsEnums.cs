@@ -2,10 +2,10 @@
 
 public enum OID : uint
 {
-    Lion = 0x38DA, // R5.600, x1
-    Lioness = 0x38DB, // R5.600, x1
-    Lions = 0x38DC, // R0.500, x1
-    Helper = 0x233C, // R0.500, x2
+    Lion = 0x38DA, // R5.6
+    Lioness = 0x38DB, // R5.6
+    Lions = 0x38DC, // R0.5
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -25,11 +25,11 @@ public enum AID : uint
     DoubleImmolationAOE = 29144, // Lions->self, no cast, range 25 circle, raidwide
     RoaringBlazeSolo = 29375, // Lioness/Lion->self, 4.0s cast, range 50 180-degree cone
     TrialByFire = 29376, // Lion->self, 4.0s cast, range 14 circle
-    SpinningSlash = 29377, // Lioness->self, 4.0s cast, range 6-30 donut
+    SpinningSlash = 29377 // Lioness->self, 4.0s cast, range 6-30 donut
 }
 
 public enum IconID : uint
 {
     Order1 = 332, // Lion/Lioness
-    Order2 = 333, // Lion/Lioness
+    Order2 = 333 // Lion/Lioness
 }

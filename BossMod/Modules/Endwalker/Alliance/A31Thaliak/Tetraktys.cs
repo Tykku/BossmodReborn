@@ -6,9 +6,8 @@ class TetraktysBorder(BossModule module) : Components.GenericAOEs(module)
     public static readonly ArenaBoundsSquare NormalBounds = new(24);
     private static readonly WPos TriangleCenter = new(-945, 941.5f);
     private static readonly TriangleE triangle = new(TriangleCenter, 48);
-    private static readonly Square square = new(NormalCenter, 24);
     private static readonly ArenaBoundsComplex TriangleBounds = new([triangle]);
-    private static readonly AOEShapeCustom transition = new([square], [triangle]);
+    private static readonly AOEShapeCustom transition = new([new Square(NormalCenter, 24)], [triangle]);
     private AOEInstance? _aoe;
     public bool Active;
 
@@ -25,13 +24,13 @@ class TetraktysBorder(BossModule module) : Components.GenericAOEs(module)
                     break;
                 case 0x00020001:
                     _aoe = null;
-                    Module.Arena.Bounds = TriangleBounds;
-                    Module.Arena.Center = TriangleCenter;
+                    Arena.Bounds = TriangleBounds;
+                    Arena.Center = TriangleCenter;
                     Active = true;
                     break;
                 case 0x00080004:
-                    Module.Arena.Bounds = NormalBounds;
-                    Module.Arena.Center = NormalCenter;
+                    Arena.Bounds = NormalBounds;
+                    Arena.Center = NormalCenter;
                     Active = false;
                     break;
             }
@@ -65,28 +64,28 @@ class Tetraktys(BossModule module) : Components.GenericAOEs(module)
         {
             if (index == 0x07) //07, 0A, 0D always activate together
             {
-                AOEs.Add(new(_triSmall, new WPos(-929, 948.5f), _rot1, _activation));
-                AOEs.Add(new(_triSmall, new WPos(-953, 962.356f), _rot2, _activation));
-                AOEs.Add(new(_triSmall, new WPos(-945, 948.5f), _rot2, _activation));
+                AOEs.Add(new(_triSmall, new(-929, 948.5f), _rot1, _activation));
+                AOEs.Add(new(_triSmall, new(-953, 962.356f), _rot2, _activation));
+                AOEs.Add(new(_triSmall, new(-945, 948.5f), _rot2, _activation));
             }
             else if (index == 0x05) //05, 08, 0B always activate together
             {
-                AOEs.Add(new(_triSmall, new WPos(-945, 948.5f), _rot1, _activation));
-                AOEs.Add(new(_triSmall, new WPos(-937, 934.644f), _rot1, _activation));
-                AOEs.Add(new(_triSmall, new WPos(-945, 921), _rot1, _activation));
+                AOEs.Add(new(_triSmall, new(-945, 948.5f), _rot1, _activation));
+                AOEs.Add(new(_triSmall, new(-937, 934.644f), _rot1, _activation));
+                AOEs.Add(new(_triSmall, new(-945, 921), _rot1, _activation));
             }
             else if (index == 0x06) //06, 09, 0C always activate together
             {
-                AOEs.Add(new(_triSmall, new WPos(-937, 962.356f), _rot3, _activation));
-                AOEs.Add(new(_triSmall, new WPos(-961, 948.5f), _rot1, _activation));
-                AOEs.Add(new(_triSmall, new WPos(-953, 934.644f), _rot1, _activation));
+                AOEs.Add(new(_triSmall, new(-937, 962.356f), _rot3, _activation));
+                AOEs.Add(new(_triSmall, new(-961, 948.5f), _rot1, _activation));
+                AOEs.Add(new(_triSmall, new(-953, 934.644f), _rot1, _activation));
             }
             else if (index == 0x0E)
-                AOEs.Add(new(_triLarge, new WPos(-945, 921), _rot1, _activation));
+                AOEs.Add(new(_triLarge, new(-945, 921), _rot1, _activation));
             else if (index == 0x0F)
-                AOEs.Add(new(_triLarge, new WPos(-953, 934.644f), _rot1, _activation));
+                AOEs.Add(new(_triLarge, new(-953, 934.644f), _rot1, _activation));
             else if (index == 0x10)
-                AOEs.Add(new(_triLarge, new WPos(-937, 934.644f), _rot1, _activation));
+                AOEs.Add(new(_triLarge, new(-937, 934.644f), _rot1, _activation));
         }
     }
 
@@ -213,7 +212,7 @@ class TetraktuosKosmos(BossModule module) : Components.GenericAOEs(module)
         foreach (var index in indices)
         {
             var (shape, pos, angle) = combos[index];
-            AOEs.Add(new AOEInstance(shape, pos, Angles[angle], activationTime));
+            AOEs.Add(new(shape, pos, Angles[angle], activationTime));
         }
     }
 

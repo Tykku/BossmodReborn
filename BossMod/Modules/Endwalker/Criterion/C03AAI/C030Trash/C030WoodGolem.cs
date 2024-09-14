@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C03AAI.C030Trash2;
+﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C030Trash2;
 
 class Tornado(BossModule module, AID aid) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(aid), 4);
 class NTornado(BossModule module) : Tornado(module, AID.NTornado);
@@ -54,8 +54,8 @@ class C030WoodGolemStates : StateMachineBuilder
 class C030NWoodGolemStates(BossModule module) : C030WoodGolemStates(module, false);
 class C030SWoodGolemStates(BossModule module) : C030WoodGolemStates(module, true);
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.NWoodGolem, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 979, NameID = 12560, SortOrder = 6)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", PrimaryActorOID = (uint)OID.NWoodGolem, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 979, NameID = 12560, SortOrder = 6)]
 public class C030NWoodGolem(WorldState ws, Actor primary) : C030Trash2(ws, primary);
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.SWoodGolem, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 980, NameID = 12560, SortOrder = 6)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", PrimaryActorOID = (uint)OID.SWoodGolem, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 980, NameID = 12560, SortOrder = 6)]
 public class C030SWoodGolem(WorldState ws, Actor primary) : C030Trash2(ws, primary);

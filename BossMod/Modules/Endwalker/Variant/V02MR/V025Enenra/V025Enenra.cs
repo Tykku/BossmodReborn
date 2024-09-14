@@ -1,53 +1,66 @@
-namespace BossMod.Endwalker.Variant.V02MR.V025Enenra;
+namespace BossMod.Endwalker.VariantCriterion.V02MR.V025Enenra;
 
 class PipeCleaner(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(60, 5), (uint)TetherID.PipeCleaner);
 class Uplift(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Uplift), 6);
-class Snuff(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Snuff), 6);
-class Smoldering(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Smoldering), new AOEShapeCircle(8));
-class IntoTheFireAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IntoTheFireAOE), new AOEShapeRect(50, 25));
-class FlagrantCombustion(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FlagrantCombustion));
-class SmokeRingsAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SmokeRingsAOE), new AOEShapeCircle(16));
-class ClearingSmokeKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ClearingSmokeKB), 16, stopAtWall: true);
-class KiseruClamor(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.KiseruClamor), 6);
-
-class StringRock(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.KiseruClamor))
+class Snuff(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.Snuff), new AOEShapeCircle(6), true)
 {
-    private readonly List<Actor> _castersRockFirst = [];
-    private readonly List<Actor> _castersRockSecond = [];
-    private readonly List<Actor> _castersRockThird = [];
-
-    private static readonly AOEShape _shapeRockFirst = new AOEShapeDonut(6, 12);
-    private static readonly AOEShape _shapeRockSecond = new AOEShapeDonut(12, 18);
-    private static readonly AOEShape _shapeRockThird = new AOEShapeDonut(18, 24);
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override void AddGlobalHints(GlobalHints hints)
     {
-        if (_castersRockFirst.Count > 0)
-            return _castersRockFirst.Select(c => new AOEInstance(_shapeRockFirst, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo)));
-        else if (_castersRockSecond.Count > 0)
-            return _castersRockSecond.Select(c => new AOEInstance(_shapeRockSecond, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo)));
-        else
-            return _castersRockThird.Select(c => new AOEInstance(_shapeRockThird, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo)));
+        if (CurrentBaits.Count > 0)
+            hints.Add("Tankbuster cleave");
     }
+}
+
+class Smoldering(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Smoldering), new AOEShapeCircle(8), 8);
+class FlagrantCombustion(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FlagrantCombustion));
+class SmokeRings(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SmokeRings), new AOEShapeCircle(16));
+class ClearingSmoke(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ClearingSmoke), 16, stopAfterWall: true)
+{
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        var source = Sources(slot, actor).FirstOrDefault();
+        var component = Module.FindComponent<Smoldering>()?.ActiveAOEs(slot, actor)?.ToList();
+        if (component != null && source != default)
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 4), source.Activation);
+    }
+}
+
+class StringRock(BossModule module) : Components.ConcentricAOEs(module, _shapes)
+{
+    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(6), new AOEShapeDonut(6, 12), new AOEShapeDonut(12, 18), new AOEShapeDonut(18, 24)];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        CastersForSpell(spell.Action)?.Add(caster);
+        if ((AID)spell.Action.ID == AID.KiseruClamor)
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        CastersForSpell(spell.Action)?.Remove(caster);
+        if (Sequences.Count > 0)
+        {
+            var order = (AID)spell.Action.ID switch
+            {
+                AID.KiseruClamor => 0,
+                AID.BedrockUplift1 => 1,
+                AID.BedrockUplift2 => 2,
+                AID.BedrockUplift3 => 3,
+                _ => -1
+            };
+            AdvanceSequence(order, spell.TargetID == caster.InstanceID ? caster.Position : WorldState.Actors.Find(spell.TargetID)?.Position ?? spell.LocXZ, WorldState.FutureTime(2));
+        }
     }
-
-    private List<Actor>? CastersForSpell(ActionID spell) => (AID)spell.ID switch
-    {
-        AID.BedrockUplift1 => _castersRockFirst,
-        AID.BedrockUplift2 => _castersRockSecond,
-        AID.BedrockUplift3 => _castersRockThird,
-        _ => null
-    };
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.CFC, Category = BossModuleInfo.Category.Criterion, GroupID = 945, NameID = 12393, SortOrder = 6)]
-public class V025Enenra(WorldState ws, Actor primary) : BossModule(ws, primary, new(900, -900), new ArenaBoundsCircle(20));
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 945, NameID = 12393, SortOrder = 6)]
+public class V025Enenra(WorldState ws, Actor primary) : BossModule(ws, primary, new(900, -900), StartingBounds)
+{
+    public static readonly ArenaBoundsCircle StartingBounds = new(20.5f);
+    public static readonly ArenaBoundsCircle DefaultBounds = new(20);
+
+    protected override void DrawEnemies(int pcSlot, Actor pc)
+    {
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.EnenraClone));
+    }
+}

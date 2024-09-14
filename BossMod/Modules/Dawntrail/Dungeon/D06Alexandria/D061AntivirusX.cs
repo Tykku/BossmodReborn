@@ -42,15 +42,15 @@ class ImmuneResponseArenaChange(BossModule module) : Components.GenericAOEs(modu
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ImmuneResponseVisualSmall && Module.Arena.Bounds == D061AntivirusX.StartingBounds)
-            _aoe = new(rect, Module.Center, default, Module.CastFinishAt(spell, 0.8f));
+        if ((AID)spell.Action.ID == AID.ImmuneResponseVisualSmall && Arena.Bounds == D061AntivirusX.StartingBounds)
+            _aoe = new(rect, Arena.Center, default, Module.CastFinishAt(spell, 0.8f));
     }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state == 0x00020001 && index == 0x03)
         {
-            Module.Arena.Bounds = D061AntivirusX.DefaultBounds;
+            Arena.Bounds = D061AntivirusX.DefaultBounds;
             _aoe = null;
         }
     }
@@ -63,6 +63,7 @@ class PathoCircuitCrossPurge(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCone coneSmall = new(40, 60.Degrees());
     private static readonly AOEShapeCone coneBig = new(40, 120.Degrees());
     private readonly List<AOEInstance> _aoes = [];
+    private static readonly HashSet<AID> castEnd = [AID.PathocrossPurge, AID.PathocircuitPurge, AID.ImmuneResponseBig, AID.ImmuneResponseSmall];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -93,7 +94,7 @@ class PathoCircuitCrossPurge(BossModule module) : Components.GenericAOEs(module)
         if ((OID)actor.OID is OID.InterferonR or OID.InterferonC)
         {
             AOEShape shape = actor.OID == (int)OID.InterferonR ? donut : cross;
-            var activationTime = _aoes.Count == 0 ? Module.WorldState.FutureTime(9.9f) : _aoes[0].Activation.AddSeconds(2.5f * _aoes.Count);
+            var activationTime = _aoes.Count == 0 ? WorldState.FutureTime(9.9f) : _aoes[0].Activation.AddSeconds(2.5f * _aoes.Count);
             AddAOE(new(shape, actor.Position, actor.Rotation, activationTime));
         }
     }
@@ -106,15 +107,8 @@ class PathoCircuitCrossPurge(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
-        {
-            case AID.PathocrossPurge:
-            case AID.PathocircuitPurge:
-            case AID.ImmuneResponseBig:
-            case AID.ImmuneResponseSmall:
-                _aoes.RemoveAt(0);
-                break;
-        }
+        if (_aoes.Count > 0 && castEnd.Contains((AID)spell.Action.ID))
+            _aoes.RemoveAt(0);
     }
 }
 
@@ -123,6 +117,7 @@ class Cytolysis(BossModule module) : Components.RaidwideCast(module, ActionID.Ma
 class Quarantine(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.Quarantine), 6, 5.1f, 3, 3)
 {
     private readonly Disinfection _tb = module.FindComponent<Disinfection>()!;
+
     public override void Update()
     {
         if (!ActiveStacks.Any())
@@ -157,7 +152,7 @@ class Disinfection(BossModule module) : Components.BaitAwayIcon(module, new AOES
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!CurrentBaits.Any(x => x.Target == actor) && Module.FindComponent<Quarantine>()!.ActiveStacks.Any(x => x.Activation.AddSeconds(-2) >= Module.WorldState.CurrentTime))
+        if (!CurrentBaits.Any(x => x.Target == actor) && Module.FindComponent<Quarantine>()!.ActiveStacks.Any(x => x.Activation.AddSeconds(-2) >= WorldState.CurrentTime))
         { }
         else
             base.AddAIHints(slot, actor, assignment, hints);

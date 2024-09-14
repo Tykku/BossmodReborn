@@ -2,9 +2,9 @@ namespace BossMod.Endwalker.DeepDungeon.EurekaOrthos.DD30TiamatsClone;
 
 public enum OID : uint
 {
-    Boss = 0x3D9A, // R19.000
-    DarkWanderer = 0x3D9B, // R2.000
-    Helper = 0x233C, // R0.500
+    Boss = 0x3D9A, // R19.0
+    DarkWanderer = 0x3D9B, // R2.0
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -12,52 +12,28 @@ public enum AID : uint
     HeadAttack = 31842, // 233C->player, no cast, single-target
     AutoAttack = 32702, // 3D9A->player, no cast, single-target
     CreatureOfDarkness = 31841, // 3D9A->self, 3.0s cast, single-target, summon Heads E<->W heading S
-    DarkMegaflare1 = 31849, // 3D9A->self, 3.0s cast, single-target
-    DarkMegaflare2 = 31850, // 233C->location, 3.0s cast, range 6 circle
-    DarkWyrmtail1 = 31843, // 3D9A->self, 5.0s cast, single-target
-    DarkWyrmtail2 = 31844, // 233C->self, 6.0s cast, range 40 width 16 rect, summon Heads Heading E/W from Middle Lane
-    DarkWyrmwing1 = 31845, // 3D9A->self, 5.0s cast, single-target
-    DarkWyrmwing2 = 31846, // 233C->self, 6.0s cast, range 40 width 16 rect, summon Heads Heading E/W from E/W Walls
+    DarkMegaflareVisual = 31849, // 3D9A->self, 3.0s cast, single-target
+    DarkMegaflare = 31850, // 233C->location, 3.0s cast, range 6 circle
+    DarkWyrmtailVisual = 31843, // 3D9A->self, 5.0s cast, single-target
+    DarkWyrmtail = 31844, // 233C->self, 6.0s cast, range 40 width 16 rect, summon Heads Heading E/W from Middle Lane
+    DarkWyrmwingVisual = 31845, // 3D9A->self, 5.0s cast, single-target
+    DarkWyrmwing = 31846, // 233C->self, 6.0s cast, range 40 width 16 rect, summon Heads Heading E/W from E/W Walls
     WheiMornFirst = 31847, // 3D9A->location, 5.0s cast, range 6 circle
-    WheiMornRest = 31848, // 3D9A->location, no cast, range 6 circle
+    WheiMornRest = 31848 // 3D9A->location, no cast, range 6 circle
 }
 
 public enum IconID : uint
 {
-    ChasingAOE = 197, // player
+    ChasingAOE = 197 // player
 }
 
 class WheiMorn(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(6), ActionID.MakeSpell(AID.WheiMornFirst), ActionID.MakeSpell(AID.WheiMornRest), 6, 2, 5, true, (uint)IconID.ChasingAOE);
-class DarkMegaflare(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DarkMegaflare2), 6);
-class DarkWyrmwing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DarkWyrmwing2), new AOEShapeRect(40, 8));
-class DarkWyrmtail(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DarkWyrmtail2), new AOEShapeRect(40, 8));
+class DarkMegaflare(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DarkMegaflare), 6);
 
-class CreatureOfDarkness(BossModule module) : Components.GenericAOEs(module)
-{
-    private readonly List<Actor> _heads = [];
-    private static readonly AOEShapeCircle circle = new(2);
-    private static readonly AOEShapeRect rect = new(6, 2, 2);
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        foreach (var c in _heads)
-        {
-            yield return new(rect, c.Position + 2 * c.Rotation.ToDirection(), c.Rotation);
-            yield return new(circle, c.Position, c.Rotation, Color: Colors.Danger);
-        }
-    }
-
-    public override void OnActorModelStateChange(Actor actor, byte modelState, byte animState1, byte animState2)
-    {
-        if ((OID)actor.OID == OID.DarkWanderer)
-        {
-            if (animState1 == 1)
-                _heads.Add(actor);
-            if (animState1 == 0)
-                _heads.Remove(actor);
-        }
-    }
-}
+class DarkWyrm(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 8));
+class DarkWyrmwing(BossModule module) : DarkWyrm(module, AID.DarkWyrmwing);
+class DarkWyrmtail(BossModule module) : DarkWyrm(module, AID.DarkWyrmtail);
+class CreatureOfDarkness(BossModule module) : Components.PersistentVoidzone(module, 2, m => m.Enemies(OID.DarkWanderer).Where(x => x.ModelState.AnimState1 == 1), 6);
 
 class DD30TiamatsCloneStates : StateMachineBuilder
 {
@@ -73,4 +49,4 @@ class DD30TiamatsCloneStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 899, NameID = 12242)]
-public class DD30TiamatsClone(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsSquare(20));
+public class DD30TiamatsClone(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsSquare(19.5f));

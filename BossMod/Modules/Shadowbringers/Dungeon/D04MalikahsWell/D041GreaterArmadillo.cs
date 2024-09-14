@@ -5,7 +5,7 @@ public enum OID : uint
     Boss = 0x2679, // R=4.0
     MorningStar = 0x267E, // R=1.68
     PackArmadillo = 0x2683, // R=2.0
-    Helper = 0x233C,
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -19,7 +19,7 @@ public enum AID : uint
     RightRound = 15592, // Helper->self, no cast, range 9 circle, knockback 20, away from source
     FlailSmash = 15593, // Boss->location, 3.0s cast, range 40 circle, distance based
     Earthshake = 15929, // Helper->self, 3.5s cast, range 10-20 donut
-    Rehydration = 16776, // PackArmadillo->self, 5.0s cast, single-target
+    Rehydration = 16776 // PackArmadillo->self, 5.0s cast, single-target
 }
 
 class StoneFlail(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.StoneFlail));
@@ -68,9 +68,7 @@ class D041GreaterArmadilloStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 656, NameID = 8252)]
 public class D041GreaterArmadillo(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> union = [new Circle(new(278, 204), 19.5f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(278, 223.75f), 20, 1)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(278, 204), 19.5f)], [new Rectangle(new(278, 223.75f), 20, 1)]);
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

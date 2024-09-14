@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C01ASS.C013Shadowcaster;
+﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C013Shadowcaster;
 
 class InfernWave(BossModule module, bool savage, bool showHints, int maxActive) : Components.CastCounter(module, ActionID.MakeSpell(savage ? AID.SInfernWaveAOE : AID.NInfernWaveAOE))
 {

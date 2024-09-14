@@ -1,10 +1,15 @@
 ﻿namespace BossMod.Endwalker.Alliance.A33Oschon;
 
 class P1SuddenDownpour(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.SuddenDownpourAOE));
-class P1TrekShotN(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TrekShotNAOE), new AOEShapeCone(65, 60.Degrees()));
-class P1TrekShotS(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TrekShotSAOE), new AOEShapeCone(65, 60.Degrees()));
-class P1SoaringMinuet1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SoaringMinuet1), new AOEShapeCone(65, 135.Degrees()));
-class P1SoaringMinuet2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SoaringMinuet2), new AOEShapeCone(65, 135.Degrees()));
+
+class TrekShot(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(65, 60.Degrees()));
+class P1TrekShotN(BossModule module) : TrekShot(module, AID.TrekShotNAOE);
+class P1TrekShotS(BossModule module) : TrekShot(module, AID.TrekShotSAOE);
+
+class SoaringMinuet(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(65, 135.Degrees()));
+class P1SoaringMinuet1(BossModule module) : SoaringMinuet(module, AID.SoaringMinuet1);
+class P1SoaringMinuet2(BossModule module) : SoaringMinuet(module, AID.SoaringMinuet2);
+
 class P1Arrow(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.ArrowP1AOE), new AOEShapeCircle(6), true);
 class P1Downhill(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DownhillP1AOE), 6);
 class P2MovingMountains(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.MovingMountains));

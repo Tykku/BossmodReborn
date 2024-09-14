@@ -46,15 +46,15 @@ class ElectrowaveArenaChange(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Electrowave && Module.Arena.Bounds == D062Amalgam.StartingBounds)
-            _aoe = new(square, Module.Center, default, Module.CastFinishAt(spell, 0.5f));
+        if ((AID)spell.Action.ID == AID.Electrowave && Arena.Bounds == D062Amalgam.StartingBounds)
+            _aoe = new(square, Arena.Center, default, Module.CastFinishAt(spell, 0.5f));
     }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state == 0x00020001 && index == 0x27)
         {
-            Module.Arena.Bounds = D062Amalgam.DefaultBounds;
+            Arena.Bounds = D062Amalgam.DefaultBounds;
             _aoe = null;
         }
     }
@@ -79,7 +79,7 @@ class TernaryCharge(BossModule module) : Components.ConcentricAOEs(module, _shap
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.TernaryCharge1)
-            AddSequence(Module.Center, Module.CastFinishAt(spell));
+            AddSequence(Arena.Center, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -93,7 +93,7 @@ class TernaryCharge(BossModule module) : Components.ConcentricAOEs(module, _shap
                 AID.TernaryCharge3 => 2,
                 _ => -1
             };
-            AdvanceSequence(order, Module.Center, WorldState.FutureTime(2));
+            AdvanceSequence(order, Arena.Center, WorldState.FutureTime(2));
         }
     }
 }

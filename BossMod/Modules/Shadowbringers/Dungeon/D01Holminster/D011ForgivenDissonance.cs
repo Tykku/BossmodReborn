@@ -2,10 +2,11 @@
 
 public enum OID : uint
 {
-    Boss = 0x278A, // R4.000, x1
-    Orbs = 0x2896, // R1.100, spawn during fight
-    Helper = 0x233C, // x3
-    Helper2 = 0x2A4B, // R3.450, spawn during fight
+    Boss = 0x278A, // R4.0
+    Orbs = 0x2896, // R1.1
+    Helper2 = 0x2A4B, // R3.45
+    Helper = 0x233C
+
 }
 
 public enum AID : uint
@@ -18,7 +19,7 @@ public enum AID : uint
     HereticsFork = 15822, // Orbs->self, 8.0s cast, range 40 width 6 cross
     LightShot = 15819, // Orbs->self, 3.0s cast, range 40 width 4 rect
     WoodenHorse = 15815, // Boss->self, 5.0s cast, range 40 90-degree cone
-    Pillory = 15812, // Boss->player, 5.0s cast, single-target
+    Pillory = 15812 // Boss->player, 5.0s cast, single-target
 }
 
 class Thumbscrew(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.Thumbscrew), 4);
@@ -48,7 +49,5 @@ class D011ForgivenDissonanceStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "legendoficeman, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 676, NameID = 8299)]
 public class D011ForgivenDissonance(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> union = [new Circle(new(-15, 240), 19.5f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(-15, 260), 20, 1.25f), new Rectangle(new(-15, 220), 20, 1.2f)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(-15, 240), 19.5f)], [new Rectangle(new(-15, 260), 20, 1.25f), new Rectangle(new(-15, 220), 20, 1.2f)]);
 }

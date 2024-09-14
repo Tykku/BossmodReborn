@@ -2,11 +2,11 @@
 
 public enum OID : uint
 {
-    Boss = 0x38D6, // R7.200, x1
-    FistOfWrath = 0x38D7, // R3.600, x1, red portal
-    FistOfJudgment = 0x38D8, // R3.600, x1, blue portal
-    LightningOrb = 0x38D9, // R2.000, spawn during fight
-    Helper = 0x233C, // R0.500, x19
+    Boss = 0x38D6, // R7.2
+    FistOfWrath = 0x38D7, // R3.6
+    FistOfJudgment = 0x38D8, // R3.6
+    LightningOrb = 0x38D9, // R2.0
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -47,5 +47,5 @@ public enum AID : uint
     Shock = 28851, // LightningOrb->self, 6.0s cast, range 8 aoe
 
     BronzeWork = 28843, // Boss->self, 6.5s cast, visual (two sets of cones)
-    BronzeLightning = 28857, // Helper->self, 7.0s cast, range 50 45-degree cone, 4 casts then 4 more casts
+    BronzeLightning = 28857 // Helper->self, 7.0s cast, range 50 45-degree cone, 4 casts then 4 more casts
 }

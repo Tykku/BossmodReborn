@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C01ASS.C012Gladiator;
+﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C012Gladiator;
 
 class C012GladiatorStates : StateMachineBuilder
 {
@@ -96,7 +96,6 @@ class C012GladiatorStates : StateMachineBuilder
             .DeactivateOnExit<RingOfMight2Out>()
             .DeactivateOnExit<RingOfMight3Out>()
             .SetHint(StateMachine.StateHint.Raidwide); // first debuff resolve ~0.2s later
-
 
         Condition(id + 0x20, 2, () => Module.FindComponent<RingOfMight1In>()!.NumCasts + Module.FindComponent<RingOfMight2In>()!.NumCasts + Module.FindComponent<RingOfMight3In>()!.NumCasts > 0, "In")
             .ActivateOnEnter<NRingOfMight1In>(!_savage)

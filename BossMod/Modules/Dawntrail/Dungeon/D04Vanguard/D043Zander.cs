@@ -55,15 +55,15 @@ class ElectrothermiaArenaChange(BossModule module) : Components.GenericAOEs(modu
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Electrothermia && Module.Arena.Bounds == D043Zander.StartingBounds)
-            _aoe = new(donut, Module.Center, default, Module.CastFinishAt(spell, 0.5f));
+        if ((AID)spell.Action.ID == AID.Electrothermia && Arena.Bounds == D043Zander.StartingBounds)
+            _aoe = new(donut, Arena.Center, default, Module.CastFinishAt(spell, 0.5f));
     }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state == 0x00020001 && index == 0x00)
         {
-            Module.Arena.Bounds = D043Zander.DefaultBounds;
+            Arena.Bounds = D043Zander.DefaultBounds;
             _aoe = null;
         }
     }
@@ -81,7 +81,7 @@ class SlitherbaneBurstCombo(BossModule module) : Components.GenericAOEs(module)
         if (_aoes.Count > 0)
             yield return _aoes[0] with { Color = Colors.Danger };
         if (_aoes.Count > 1)
-            yield return _aoes[1] with { Risky = !_aoes[0].Rotation.AlmostEqual(_aoes[1].Rotation + offset, Helpers.RadianConversion) };
+            yield return _aoes[1] with { Risky = !_aoes[0].Rotation.AlmostEqual(_aoes[1].Rotation + offset, Angle.DegToRad) };
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -123,19 +123,23 @@ class Screech(BossModule module) : Components.RaidwideCast(module, ActionID.Make
 class Burst1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Burst1), new AOEShapeRect(20, 20));
 class SaberRush(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.SaberRush));
 class ShadeShot(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ShadeShot));
-class SlitherbaneForeguardRect(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SlitherbaneForeguardRect), new AOEShapeRect(20, 2));
-class SlitherbaneRearguardRect(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SlitherbaneRearguardRect), new AOEShapeRect(20, 2));
-class SoulbaneSaber(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SoulbaneSaber), new AOEShapeRect(20, 2));
 class SoulbaneShock(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SoulbaneShock), 5);
-class Syntheslean(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Syntheslean), new AOEShapeCone(19, 45.Degrees()));
-class Syntheslither1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Syntheslither1), new AOEShapeCone(19, 45.Degrees()));
-class Syntheslither2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Syntheslither2), new AOEShapeCone(19, 45.Degrees()));
-class Syntheslither3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Syntheslither3), new AOEShapeCone(19, 45.Degrees()));
-class Syntheslither4(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Syntheslither4), new AOEShapeCone(19, 45.Degrees()));
-class Syntheslither5(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Syntheslither5), new AOEShapeCone(19, 45.Degrees()));
-class Syntheslither6(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Syntheslither6), new AOEShapeCone(19, 45.Degrees()));
-class Syntheslither7(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Syntheslither7), new AOEShapeCone(19, 45.Degrees()));
-class Syntheslither8(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Syntheslither8), new AOEShapeCone(19, 45.Degrees()));
+
+class Slitherbane(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(20, 2));
+class SlitherbaneForeguardRect(BossModule module) : Slitherbane(module, AID.SlitherbaneForeguardRect);
+class SlitherbaneRearguardRect(BossModule module) : Slitherbane(module, AID.SlitherbaneRearguardRect);
+class SoulbaneSaber(BossModule module) : Slitherbane(module, AID.SoulbaneSaber);
+
+class Syntheslither(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(19, 45.Degrees()));
+class Syntheslean(BossModule module) : Syntheslither(module, AID.Syntheslean);
+class Syntheslither1(BossModule module) : Syntheslither(module, AID.Syntheslither1);
+class Syntheslither2(BossModule module) : Syntheslither(module, AID.Syntheslither2);
+class Syntheslither3(BossModule module) : Syntheslither(module, AID.Syntheslither3);
+class Syntheslither4(BossModule module) : Syntheslither(module, AID.Syntheslither4);
+class Syntheslither5(BossModule module) : Syntheslither(module, AID.Syntheslither5);
+class Syntheslither6(BossModule module) : Syntheslither(module, AID.Syntheslither6);
+class Syntheslither7(BossModule module) : Syntheslither(module, AID.Syntheslither7);
+class Syntheslither8(BossModule module) : Syntheslither(module, AID.Syntheslither8);
 
 class D043ZanderStates : StateMachineBuilder
 {

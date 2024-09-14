@@ -3,14 +3,14 @@ namespace BossMod.RealmReborn.Trial.T09WhorleaterH;
 class SpinningDive(BossModule module) : Components.GenericAOEs(module) //TODO: Find out how to detect spinning dives earlier eg. the water column telegraph
 {
     private AOEInstance? _aoe;
+    public static readonly AOEShapeRect Rect = new(50.5f, 8);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnActorCreated(Actor actor)
     {
-        var SpinningDiveHelper = Module.Enemies(OID.SpinningDiveHelper).FirstOrDefault();
         if ((OID)actor.OID == OID.SpinningDiveHelper)
-            _aoe = new(new AOEShapeRect(46, 8), SpinningDiveHelper!.Position, SpinningDiveHelper.Rotation, WorldState.FutureTime(0.6f));
+            _aoe = new(Rect, actor.Position, actor.Rotation, WorldState.FutureTime(0.6f));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -28,9 +28,8 @@ class SpinningDiveKB(BossModule module) : Components.Knockback(module, stopAtWal
 
     public override void OnActorCreated(Actor actor)
     {
-        var SpinningDiveHelper = Module.Enemies(OID.SpinningDiveHelper).FirstOrDefault();
         if ((OID)actor.OID == OID.SpinningDiveHelper)
-            _knockback = new(SpinningDiveHelper!.Position, 10, WorldState.FutureTime(1.4f), new AOEShapeRect(46, 8), SpinningDiveHelper!.Rotation);
+            _knockback = new(actor.Position, 10, WorldState.FutureTime(1.4f), SpinningDive.Rect, actor.Rotation);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

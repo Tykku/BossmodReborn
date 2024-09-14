@@ -1,10 +1,11 @@
-namespace BossMod.Endwalker.Variant.V02MR.V021Yozakura;
+namespace BossMod.Endwalker.VariantCriterion.V02MR.V021Yozakura;
 
 class SeasonsOfTheFleeting(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCone cone = new(70, 22.5f.Degrees());
     private static readonly AOEShapeRect rect = new(46, 2.5f);
     private readonly List<AOEInstance> _aoes = [];
+    private readonly HashSet<AID> castEnd = [AID.SeasonOfEarth, AID.SeasonOfWater, AID.SeasonOfFire, AID.SeasonOfLightning];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -33,15 +34,7 @@ class SeasonsOfTheFleeting(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0)
-            switch ((AID)spell.Action.ID)
-            {
-                case AID.SeasonOfFire:
-                case AID.SeasonOfEarth:
-                case AID.SeasonOfWater:
-                case AID.SeasonOfLightning:
-                    _aoes.RemoveAt(0);
-                    break;
-            }
+        if (_aoes.Count > 0 && castEnd.Contains((AID)spell.Action.ID))
+            _aoes.RemoveAt(0);
     }
 }

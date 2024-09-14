@@ -1,11 +1,11 @@
-namespace BossMod.Endwalker.Variant.V02MR.V022Moko;
+namespace BossMod.Endwalker.VariantCriterion.V02MR.V022Moko;
 
 class SpearmanOrdersFast(BossModule module) : Components.Exaflare(module, new AOEShapeRect(3, 2, 0.474f))
 {
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
         if ((OID)actor.OID == OID.AshigaruSoheiFast && id == 0x25E9)
-            Lines.Add(new() { Next = actor.Position, Advance = 3.474f * actor.Rotation.ToDirection(), NextExplosion = Module.WorldState.FutureTime(7.8f), TimeToMove = 0.6f, ExplosionsLeft = 12, MaxShownExplosions = 3 });
+            Lines.Add(new() { Next = actor.Position, Advance = 3.474f * actor.Rotation.ToDirection(), NextExplosion = WorldState.FutureTime(7.8f), TimeToMove = 0.6f, ExplosionsLeft = 12, MaxShownExplosions = 4 });
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -29,7 +29,7 @@ class SpearmanOrdersSlow(BossModule module) : Components.Exaflare(module, new AO
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
         if ((OID)actor.OID == OID.AshigaruSoheiSlow && id == 0x25E9)
-            Lines.Add(new() { Next = actor.Position, Advance = 2.316f * actor.Rotation.ToDirection(), NextExplosion = Module.WorldState.FutureTime(7.8f), TimeToMove = 0.6f, ExplosionsLeft = 18, MaxShownExplosions = 3 });
+            Lines.Add(new() { Next = actor.Position, Advance = 2.316f * actor.Rotation.ToDirection(), NextExplosion = WorldState.FutureTime(7.8f), TimeToMove = 0.6f, ExplosionsLeft = 18, MaxShownExplosions = 2 });
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

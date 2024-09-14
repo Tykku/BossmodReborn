@@ -1,4 +1,4 @@
-namespace BossMod.Endwalker.Variant.V02MR.V022Moko;
+namespace BossMod.Endwalker.VariantCriterion.V02MR.V022Moko;
 
 class Giri(BossModule module) : Components.GenericAOEs(module)
 {
@@ -7,13 +7,8 @@ class Giri(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCone cone = new(60, 135.Degrees());
     private readonly List<AOEInstance> _aoes = [];
     private (WPos, Angle, DateTime) initialRotation;
-    private static readonly HashSet<AID> castStartAIDs =
-    [
-        AID.IaiKasumiGiri1, AID.IaiKasumiGiri2, AID.IaiKasumiGiri3, AID.IaiKasumiGiri4,
-        AID.DoubleKasumiGiriFirst1, AID.DoubleKasumiGiriFirst2, AID.DoubleKasumiGiriFirst3, AID.DoubleKasumiGiriFirst4
-    ];
 
-    private static readonly HashSet<AID> castFinishAIDs =
+    private static readonly HashSet<AID> casts =
     [
         AID.IaiKasumiGiri1, AID.IaiKasumiGiri2, AID.IaiKasumiGiri3, AID.IaiKasumiGiri4,
         AID.DoubleKasumiGiriFirst1, AID.DoubleKasumiGiriFirst2, AID.DoubleKasumiGiriFirst3, AID.DoubleKasumiGiriFirst4,
@@ -23,7 +18,7 @@ class Giri(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(1);
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (castStartAIDs.Contains((AID)spell.Action.ID))
+        if (casts.Take(8).ToHashSet().Contains((AID)spell.Action.ID))
         {
             initialRotation = (caster.Position, spell.Rotation, Module.CastFinishAt(spell));
             InitIfReady();
@@ -61,7 +56,7 @@ class Giri(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && castFinishAIDs.Contains((AID)spell.Action.ID))
+        if (_aoes.Count > 0 && casts.Contains((AID)spell.Action.ID))
         {
             _aoes.RemoveAt(0);
             if (_aoes.Count == 0)

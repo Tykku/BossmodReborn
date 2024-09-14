@@ -1,36 +1,41 @@
-﻿namespace BossMod.Endwalker.Variant.V02MR.V024Shishio;
+﻿namespace BossMod.Endwalker.VariantCriterion.V02MR.V024Shishio;
 
 class V024ShishioStates : StateMachineBuilder
 {
     public V024ShishioStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            //Route 8
+            .ActivateOnEnter<ArenaChange>()
+            // Route 8
             .ActivateOnEnter<ThunderVortex>()
             .ActivateOnEnter<UnsagelySpin>()
             .ActivateOnEnter<Rush>()
             .ActivateOnEnter<Vasoconstrictor>()
-            //Route 9
-            .ActivateOnEnter<Yoki2>()
+            // Route 9
+            .ActivateOnEnter<Yoki>()
             .ActivateOnEnter<YokiUzu>()
-            //Route 10
-            .ActivateOnEnter<HauntingThrall>()
-            //Route 11
-            .ActivateOnEnter<ReishoAOE>()
-            //Standard
-            .ActivateOnEnter<ThunderOnefold2>()
+            .ActivateOnEnter<FocusedTremor>()
+            // Route 10
+            .ActivateOnEnter<LeftSwipe>()
+            .ActivateOnEnter<RightSwipe>()
+            // Route 11
+            .ActivateOnEnter<Reisho1>()
+            .ActivateOnEnter<Reisho2>()
+            // Standard
+            .ActivateOnEnter<ThunderOnefold>()
+            .ActivateOnEnter<ThunderTwofold>()
+            .ActivateOnEnter<ThunderThreefold>()
             .ActivateOnEnter<NoblePursuit>()
+            .ActivateOnEnter<Levinburst>()
             .ActivateOnEnter<Enkyo>()
-            .ActivateOnEnter<ThriceOnRokujo3>()
-            .ActivateOnEnter<TwiceOnRokujo3>()
-            .ActivateOnEnter<ThunderTwofold2>()
-            .ActivateOnEnter<ThunderThreefold2>()
-            .ActivateOnEnter<OnceOnRokujoAOE>()
-            .ActivateOnEnter<LeapingLevin1>()
-            .ActivateOnEnter<LeapingLevin2>()
-            .ActivateOnEnter<LeapingLevin3>()
+            .ActivateOnEnter<OnceOnRokujo>()
+            .ActivateOnEnter<ThriceOnRokujo>()
+            .ActivateOnEnter<TwiceOnRokujo>()
             .ActivateOnEnter<SplittingCry>()
-            .ActivateOnEnter<CloudToCloud>();
-        //.ActivateOnEnter<RokujoRevel>()
+            .ActivateOnEnter<CloudToCloud1>()
+            .ActivateOnEnter<CloudToCloud2>()
+            .ActivateOnEnter<CloudToCloud3>()
+            .ActivateOnEnter<Rokujo>()
+        ;
     }
 }

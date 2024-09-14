@@ -39,7 +39,7 @@ class PerfectContrition(BossModule module) : Components.GenericAOEs(module)
     public override void OnActorCreated(Actor actor)
     {
         if ((OID)actor.OID == OID.Brightsphere)
-            _aoes.Add(new AOEInstance(donut, actor.Position, default, Module.WorldState.FutureTime(10.6f)));
+            _aoes.Add(new AOEInstance(donut, actor.Position, default, WorldState.FutureTime(10.6f)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
@@ -57,22 +57,19 @@ class JudgmentDay(BossModule module) : Components.GenericTowers(module)
     public override void OnActorCreated(Actor actor)
     {
         if ((OID)actor.OID == OID.Towers)
-            Towers.Add(new(actor.Position, 5, activation: Module.WorldState.FutureTime(7.6f)));
+            Towers.Add(new(actor.Position, 5, activation: WorldState.FutureTime(7.6f)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.Judged or AID.FoundWanting && Towers.Count > 0)
+        if (Towers.Count > 0 && (AID)spell.Action.ID is AID.Judged or AID.FoundWanting)
             Towers.RemoveAt(0);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         if (Towers.Count > 0)
-        {
             base.AddAIHints(slot, actor, assignment, hints);
-            hints.PredictedDamage.Add((Raid.WithSlot().Mask(), default));
-        }
         if (Towers.Count > 1)
             hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Sprint), actor, ActionQueue.Priority.High);
     }

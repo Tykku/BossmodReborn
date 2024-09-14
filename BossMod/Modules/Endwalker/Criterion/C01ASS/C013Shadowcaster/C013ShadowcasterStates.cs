@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C01ASS.C013Shadowcaster;
+﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C013Shadowcaster;
 
 class C013ShadowcasterStates : StateMachineBuilder
 {
@@ -65,14 +65,13 @@ class C013ShadowcasterStates : StateMachineBuilder
     // TODO: hints for mirrors
     private void InfernBrand2(uint id, float delay)
     {
-        Cast(id, AID.InfernBrand, delay, 4);
+        Cast(id, AID.InfernBrand, delay, 4)
+            .ActivateOnEnter<NBlazingBenifice>(!_savage)
+            .ActivateOnEnter<SBlazingBenifice>(_savage); // TODO: proper activation time (first set of arcane fonts spawn around cryptic flames cast start, second spawn ~12s later)
         Cast(id + 0x10, AID.CrypticFlames, 3.2f, 8.3f)
             .ActivateOnEnter<CrypticFlames>(); // note: statuses appear right before cast start
         ComponentCondition<CrypticFlames>(id + 0x12, 2.7f, comp => comp.ReadyToBreak, "Lasers break start");
-
-        CastStart(id + 0x20, AID.CastShadow, 6.7f)
-            .ActivateOnEnter<NBlazingBenifice>(!_savage)
-            .ActivateOnEnter<SBlazingBenifice>(_savage); // TODO: proper activation time (first set of arcane fonts spawn around cryptic flames cast start, second spawn ~12s later)
+        CastStart(id + 0x20, AID.CastShadow, 6.7f);
         ComponentCondition<BlazingBenifice>(id + 0x21, 4.1f, comp => comp.NumCasts > 0, "Mirrors 1")
             .ActivateOnEnter<CastShadow>(); // all cast-shadow casts start at the same time
         CastEnd(id + 0x22, 0.6f);

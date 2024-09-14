@@ -16,7 +16,7 @@ public enum OID : uint
     BlueSafeZone = 0x1EB845, // R0.500, EventObj type, spawn during fight
     GoldSafeZone = 0x1EB846, // R0.500, EventObj type, spawn during fight
     BlueFlowers = 0x1EB843, // R0.500, EventObj type, spawn during fight
-    GoldFlowers = 0x1EB844, // R0.500, EventObj type, spawn during fight
+    GoldFlowers = 0x1EB844 // R0.500, EventObj type, spawn during fight
 }
 
 public enum AID : uint
@@ -139,7 +139,7 @@ public enum AID : uint
     SpinnersCunning = 35371, // Helper->self, no cast, range 80 circle, raidwide
     NavigatorsCommand = 35373, // Helper->self, no cast, range 80 circle, raidwide
     WanderersWhimsy = 35374, // Helper->self, no cast, range 80 circle, raidwide
-    EudaimonEorzeaAOE = 36091, // Helper->self, 24.9s cast, range 40 circle, raidwide
+    EudaimonEorzeaAOE = 36091 // Helper->self, 24.9s cast, range 40 circle, raidwide
 }
 
 public enum SID : uint
@@ -148,12 +148,12 @@ public enum SID : uint
     Inscribed = 3732, // none->player, extra=0x0
     Bind = 2518, // none->player, extra=0x0
     BloomingGold = 3460, // none->player, extra=0x0
-    BloomingBlue = 3459, // none->player, extra=0x0
+    BloomingBlue = 3459 // none->player, extra=0x0
 }
 
 public enum TetherID : uint
 {
-    HydrostasisQuick = 219, // HydrostasisQuick->Boss
+    HydrostasisQuick = 219 // HydrostasisQuick->Boss
 }
 
 public enum IconID : uint
@@ -168,5 +168,5 @@ public enum IconID : uint
     Order4 = 401, // MatronsBreathHelper
 
     ThousandfoldThrust1 = 388, // Boss
-    ThousandfoldThrust2 = 389, // Boss
+    ThousandfoldThrust2 = 389 // Boss
 }

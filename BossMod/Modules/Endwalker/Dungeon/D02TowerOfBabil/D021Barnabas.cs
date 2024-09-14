@@ -10,14 +10,15 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     DynamicPoundMinus = 25157, // Boss->self, 7.0s cast, range 40 width 6 rect
     DynamicPoundPlus = 25326, // Boss->self, 7.0s cast, range 40 width 6 rect
     DynamicPoundPull = 24693, // Helper->self, no cast, range 50 width 50 rect, pull 9, between centers
     DynamicPoundKB = 24694, // Helper->self, no cast, range 50 width 50 rect, knockback 9, dir left/right
     DynamicScraplineMinus = 25158, // Boss->self, 7.0s cast, range 8 circle
     DynamicScraplinePlus = 25328, // Boss->self, 7.0s cast, range 8 circle
-    DynamicScraplineMinusKB = 25053, // Helper->self, no cast, range 50 circle, pull 5, between centers
-    DynamicScraplineMinusPull = 25054, // Helper->self, no cast, range 50 circle, knockback 5, away from source
+    DynamicScraplineKB = 25053, // Helper->self, no cast, range 50 circle, pull 5, between centers
+    DynamicScraplinePull = 25054, // Helper->self, no cast, range 50 circle, knockback 5, away from source
 
     ElectromagneticRelease1 = 25327, // Helper->self, 9.5s cast, range 40 width 6 rect
     ElectromagneticRelease2 = 25329, // Helper->self, 9.5s cast, range 8 circle
@@ -50,15 +51,15 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
     {
         if (index == 0x00 && state == 0x00020001)
         {
-            Module.Arena.Bounds = D021Barnabas.SmallerBounds;
+            Arena.Bounds = D021Barnabas.SmallerBounds;
             _aoe = null;
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.GroundAndPound1 or AID.GroundAndPound2 && Module.Arena.Bounds == D021Barnabas.StartingBounds)
-            _aoe = new(donut, Module.Center, default, Module.CastFinishAt(spell, 6.1f));
+        if ((AID)spell.Action.ID is AID.GroundAndPound1 or AID.GroundAndPound2 && Arena.Bounds == D021Barnabas.StartingBounds)
+            _aoe = new(donut, Arena.Center, default, Module.CastFinishAt(spell, 6.1f));
     }
 }
 
@@ -68,7 +69,7 @@ class Magnetism(BossModule module) : Components.Knockback(module, ignoreImmunes:
     private enum Shape { None, Rect, Circle }
     private MagneticPole CurrentPole { get; set; }
     private Shape CurrentShape { get; set; }
-    private readonly List<(Actor, uint)> iconOnActor = [];
+    private readonly HashSet<(Actor, uint)> iconOnActor = [];
     private DateTime activation;
     private Angle rotation;
     private const int RectDistance = 9;
@@ -108,7 +109,7 @@ class Magnetism(BossModule module) : Components.Knockback(module, ignoreImmunes:
         if (iconID is ((uint)IconID.Plus) or ((uint)IconID.Minus))
         {
             iconOnActor.Add((actor, iconID));
-            activation = Module.WorldState.FutureTime(7);
+            activation = WorldState.FutureTime(8.1f);
         }
     }
 
@@ -135,10 +136,11 @@ class Magnetism(BossModule module) : Components.Knockback(module, ignoreImmunes:
         }
     }
 
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.DynamicPoundMinus or AID.DynamicPoundPlus or AID.DynamicScraplineMinus or AID.DynamicScraplinePlus)
+        if ((AID)spell.Action.ID is AID.DynamicPoundKB or AID.DynamicPoundPull or AID.DynamicScraplinePull or AID.DynamicScraplinePull)
         {
+            CurrentPole = MagneticPole.None;
             CurrentShape = Shape.None;
             iconOnActor.Clear();
         }
@@ -147,33 +149,33 @@ class Magnetism(BossModule module) : Components.Knockback(module, ignoreImmunes:
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         var forbidden = new List<Func<WPos, float>>();
-        {
-            if (IsKnockback(actor, Shape.Circle, MagneticPole.Plus) || IsKnockback(actor, Shape.Circle, MagneticPole.Minus))
-                forbidden.Add(ShapeDistance.InvertedCircle(Module.Center, 10));
-            else if (IsPull(actor, Shape.Circle, MagneticPole.Plus) || IsPull(actor, Shape.Circle, MagneticPole.Minus))
-                forbidden.Add(ShapeDistance.Circle(Module.Center, 13));
-            else if (IsKnockback(actor, Shape.Rect, MagneticPole.Plus) || IsKnockback(actor, Shape.Rect, MagneticPole.Minus))
-                forbidden.Add(ShapeDistance.InvertedCircle(Module.Center, 6));
-            else if (IsPull(actor, Shape.Rect, MagneticPole.Plus) || IsPull(actor, Shape.Rect, MagneticPole.Minus))
-                forbidden.Add(ShapeDistance.Rect(Module.Center, rotation, 15, 15, 12));
-            if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Max(), activation);
-        }
+        if (IsKnockback(actor, Shape.Circle, MagneticPole.Plus) || IsKnockback(actor, Shape.Circle, MagneticPole.Minus))
+            forbidden.Add(ShapeDistance.InvertedCircle(Arena.Center, 10));
+        else if (IsPull(actor, Shape.Circle, MagneticPole.Plus) || IsPull(actor, Shape.Circle, MagneticPole.Minus))
+            forbidden.Add(ShapeDistance.Circle(Arena.Center, 13));
+        else if (IsKnockback(actor, Shape.Rect, MagneticPole.Plus) || IsKnockback(actor, Shape.Rect, MagneticPole.Minus))
+            forbidden.Add(ShapeDistance.InvertedCircle(Arena.Center, 6));
+        else if (IsPull(actor, Shape.Rect, MagneticPole.Plus) || IsPull(actor, Shape.Rect, MagneticPole.Minus))
+            forbidden.Add(ShapeDistance.Rect(Arena.Center, rotation, 15, 15, 12));
+        if (forbidden.Count > 0)
+            hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Max(), activation);
     }
 }
 
-class ElectromagneticRelease1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectromagneticRelease1), new AOEShapeRect(40, 3));
-class ElectromagneticRelease2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectromagneticRelease2), new AOEShapeCircle(8));
+class Cleave(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 3));
+class ElectromagneticRelease1(BossModule module) : Cleave(module, AID.ElectromagneticRelease1);
+class GroundAndPound1(BossModule module) : Cleave(module, AID.GroundAndPound1);
+class GroundAndPound2(BossModule module) : Cleave(module, AID.GroundAndPound2);
+class DynamicPoundMinus(BossModule module) : Cleave(module, AID.DynamicPoundMinus);
+class DynamicPoundPlus(BossModule module) : Cleave(module, AID.DynamicPoundPlus);
 
-class GroundAndPound1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GroundAndPound1), new AOEShapeRect(40, 3));
-class GroundAndPound2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GroundAndPound2), new AOEShapeRect(40, 3));
+class Circles(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(8));
+class ElectromagneticRelease2(BossModule module) : Circles(module, AID.ElectromagneticRelease2);
+class DynamicScraplineMinus(BossModule module) : Circles(module, AID.DynamicScraplineMinus);
+class DynamicScraplinePlus(BossModule module) : Circles(module, AID.DynamicScraplinePlus);
+class RollingScrapline(BossModule module) : Circles(module, AID.RollingScrapline);
+class Shock(BossModule module) : Circles(module, AID.Shock);
 
-class DynamicPoundMinus(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DynamicPoundMinus), new AOEShapeRect(40, 3));
-class DynamicPoundPlus(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DynamicPoundPlus), new AOEShapeRect(40, 3));
-class DynamicScraplineMinus(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DynamicScraplineMinus), new AOEShapeCircle(8));
-class DynamicScraplinePlus(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DynamicScraplinePlus), new AOEShapeCircle(8));
-class RollingScrapline(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RollingScrapline), new AOEShapeCircle(8));
-class Shock(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Shock), new AOEShapeCircle(8));
 class ShockingForce(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ShockingForce), 6, 4, 4);
 
 class D021BarnabasStates : StateMachineBuilder

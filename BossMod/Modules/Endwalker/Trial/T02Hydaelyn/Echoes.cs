@@ -1,6 +1,6 @@
 namespace BossMod.Endwalker.Trial.T02Hydaelyn;
 
-class Echoes(BossModule module) : Components.UniformStackSpread(module, 6, 0, 8)
+class Echoes(BossModule module) : Components.UniformStackSpread(module, 6, 0, 8, 8)
 {
     public int NumCasts { get; private set; }
 

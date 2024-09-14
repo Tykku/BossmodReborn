@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C02AMR.C021Shishio;
+﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C021Shishio;
 
 class C021ShishioStates : StateMachineBuilder
 {
@@ -7,7 +7,8 @@ class C021ShishioStates : StateMachineBuilder
     public C021ShishioStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
-        DeathPhase(0, SinglePhase);
+        DeathPhase(0, SinglePhase)
+            .ActivateOnEnter<ArenaChange>();
     }
 
     private void SinglePhase(uint id)

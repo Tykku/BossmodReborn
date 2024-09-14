@@ -14,7 +14,7 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 870, // Boss->player, no cast, single-target
+    AutoAttack1 = 870, // Boss->player, no cast, single-target
     AutoAttack2 = 872, // IhuykatumuOcelot/IhuykatumuPuma/IhuykatumuSandworm2/IhuykatumuSandworm1->Boss, no cast, single-target
 
     RazorZephyr = 36340, // Boss->self, 4.0s cast, range 50 width 12 rect
@@ -51,17 +51,7 @@ public enum AID : uint
     BitingWind = 36761 // Helper->player, no cast, single-target
 }
 
-class Whirlwind(BossModule module) : Components.PersistentVoidzone(module, 4, m => m.Enemies(OID.Whirlwind))
-{
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        base.AddAIHints(slot, actor, assignment, hints);
-        var y = ActiveAOEs(slot, actor).FirstOrDefault();
-        if (y != default)
-            hints.AddForbiddenZone(new AOEShapeCircle(4), y.Origin + 2 * y.Rotation.ToDirection());
-    }
-}
-
+class Whirlwind(BossModule module) : Components.PersistentVoidzone(module, 4, m => m.Enemies(OID.Whirlwind), 5);
 class RazorZephyr(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RazorZephyr), new AOEShapeRect(50, 6));
 class Blade(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Blade));
 class HighWind(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HighWind));
@@ -102,7 +92,7 @@ class CuttingWind(BossModule module) : Components.GenericAOEs(module)
     private void AddAOEs(WPos pos, float delay)
     {
         foreach (var angle in angles)
-            _aoes.Add(new(rect, pos, angle, Module.WorldState.FutureTime(delay)));
+            _aoes.Add(new(rect, pos, angle, WorldState.FutureTime(delay)));
     }
 
     public override void OnActorCreated(Actor actor)
@@ -148,7 +138,5 @@ class D013ApollyonStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 826, NameID = 12711)]
 public class D013Apollyon(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultBounds.Center, DefaultBounds)
 {
-    private static readonly List<Shape> union = [new Circle(new(-107, 265), 19.5f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(-107, 285.75f), 20, 2)];
-    public static readonly ArenaBoundsComplex DefaultBounds = new(union, difference);
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Circle(new(-107, 265), 19.5f)], [new Rectangle(new(-107, 285.75f), 20, 2)]);
 }

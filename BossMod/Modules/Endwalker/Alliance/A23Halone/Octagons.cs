@@ -32,7 +32,7 @@ class Octagons(BossModule module) : Components.GenericAOEs(module)
         switch (state)
         {
             case 0x00100008 when index == 0x07:
-                _aoe = new(customShape, Module.Arena.Center);
+                _aoe = new(customShape, Arena.Center);
                 break;
             case 0x00020001 when index == 0x07:
                 AddOctagons();
@@ -43,7 +43,7 @@ class Octagons(BossModule module) : Components.GenericAOEs(module)
                 break;
         }
         _arena = new ArenaBoundsComplex(baseArena, octagonsOuter, octagonsInner);
-        Module.Arena.Bounds = _arena;
+        Arena.Bounds = _arena;
     }
 
     private void AddOctagons()

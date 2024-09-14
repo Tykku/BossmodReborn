@@ -17,12 +17,9 @@ class SlimeExplosion(BossModule module) : Components.GenericStackSpread(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (!Module.PrimaryActor.IsDead)
-        {
-            if (Arena.Config.ShowOutlinesAndShadows)
-                Arena.AddCircle(Module.PrimaryActor.Position, 7.6f, Colors.Shadows, 2);
             Arena.AddCircle(Module.PrimaryActor.Position, 7.6f, Colors.Danger);
-        }
     }
+
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
         if (!Module.PrimaryActor.IsDead)

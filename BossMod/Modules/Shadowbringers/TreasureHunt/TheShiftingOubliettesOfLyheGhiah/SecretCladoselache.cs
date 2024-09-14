@@ -3,28 +3,31 @@ namespace BossMod.Shadowbringers.TreasureHunt.ShiftingOubliettesOfLyheGhiah.Secr
 public enum OID : uint
 {
     Boss = 0x3027, //R=2.47
-    BossAdd = 0x3028, //R=3.0 
-    BonusAddKeeperOfKeys = 0x3034, // R3.230
+    SecretShark = 0x3028, //R=3.0 
+    KeeperOfKeys = 0x3034, // R3.23
     Helper = 0x233C
 }
 
 public enum AID : uint
 {
-    AutoAttack = 870, // BossAdd->player, no cast, single-target
+    AutoAttack = 870, // SecretShark->player, no cast, single-target
     AutoAttack2 = 872, // Boss->player, no cast, single-target
-    PelagicCleaver = 21705, // Boss->self, 3.5s cast, range 40 60-degree cone
+
     TidalGuillotine = 21704, // Boss->self, 4.0s cast, range 13 circle
     ProtolithicPuncture = 21703, // Boss->player, 4.0s cast, single-target
-    PelagicCleaverRotationStart = 21706, // Boss->self, 5.0s cast, range 40 60-degree cone
-    PelagicCleaverDuringRotation = 21707, // Boss->self, no cast, range 40 60-degree cone
-    BiteAndRun = 21709, // BossAdd->player, 5.0s cast, width 5 rect charge
+
+    PelagicCleaver = 21705, // Boss->self, 3.5s cast, range 40 60-degree cone
+    PelagicCleaverFirst = 21706, // Boss->self, 5.0s cast, range 40 60-degree cone
+    PelagicCleaverRest = 21707, // Boss->self, no cast, range 40 60-degree cone
+
+    BiteAndRun = 21709, // SecretShark->player, 5.0s cast, width 5 rect charge
     AquaticLance = 21708, // Boss->player, 5.0s cast, range 8 circle
 
-    Telega = 9630, // BonusAdds->self, no cast, single-target, bonus adds disappear
-    Mash = 21767, // 3034->self, 3.0s cast, range 13 width 4 rect
-    Inhale = 21770, // 3034->self, no cast, range 20 120-degree cone, attract 25 between hitboxes, shortly before Spin
-    Spin = 21769, // 3034->self, 4.0s cast, range 11 circle
-    Scoop = 21768 // 3034->self, 4.0s cast, range 15 120-degree cone
+    Telega = 9630, // KeeperOfKeys->self, no cast, single-target, bonus adds disappear
+    Mash = 21767, // KeeperOfKeys->self, 3.0s cast, range 13 width 4 rect
+    Inhale = 21770, // KeeperOfKeys->self, no cast, range 20 120-degree cone, attract 25 between hitboxes, shortly before Spin
+    Spin = 21769, // KeeperOfKeys->self, 4.0s cast, range 11 circle
+    Scoop = 21768 // KeeperOfKeys->self, 4.0s cast, range 15 120-degree cone
 }
 
 public enum IconID : uint
@@ -58,7 +61,7 @@ class PelagicCleaverRotation(BossModule module) : Components.GenericRotatingAOE(
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.PelagicCleaverRotationStart)
+        if ((AID)spell.Action.ID == AID.PelagicCleaverFirst)
         {
             _rotation = spell.Rotation;
             _activation = Module.CastFinishAt(spell);
@@ -69,7 +72,7 @@ class PelagicCleaverRotation(BossModule module) : Components.GenericRotatingAOE(
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (Sequences.Count > 0 && (AID)spell.Action.ID is AID.PelagicCleaverRotationStart or AID.PelagicCleaverDuringRotation)
+        if (Sequences.Count > 0 && (AID)spell.Action.ID is AID.PelagicCleaverFirst or AID.PelagicCleaverRest)
             AdvanceSequence(0, WorldState.CurrentTime);
     }
 
@@ -93,9 +96,9 @@ class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.Mak
 class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
 class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
 
-class CladoselacheStates : StateMachineBuilder
+class SecretCladoselacheStates : StateMachineBuilder
 {
-    public CladoselacheStates(BossModule module) : base(module)
+    public SecretCladoselacheStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<PelagicCleaver>()
@@ -107,18 +110,18 @@ class CladoselacheStates : StateMachineBuilder
             .ActivateOnEnter<Spin>()
             .ActivateOnEnter<Mash>()
             .ActivateOnEnter<Scoop>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead) && module.Enemies(OID.BossAdd).All(e => e.IsDead) && module.Enemies(OID.BonusAddKeeperOfKeys).All(e => e.IsDead);
+            .Raw.Update = () => module.Enemies(OID.SecretShark).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.KeeperOfKeys)).All(e => e.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 745, NameID = 9778)]
-public class Cladoselache(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class SecretCladoselache(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.BossAdd), Colors.Object);
-        Arena.Actors(Enemies(OID.BonusAddKeeperOfKeys), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretShark));
+        Arena.Actors(Enemies(OID.KeeperOfKeys), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -127,8 +130,8 @@ public class Cladoselache(WorldState ws, Actor primary) : BossModule(ws, primary
         {
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.BonusAddKeeperOfKeys => 3,
-                OID.BossAdd => 2,
+                OID.KeeperOfKeys => 3,
+                OID.SecretShark => 2,
                 OID.Boss => 1,
                 _ => 0
             };

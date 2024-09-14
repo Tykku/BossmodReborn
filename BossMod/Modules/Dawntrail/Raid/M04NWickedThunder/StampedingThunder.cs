@@ -9,7 +9,7 @@ class StampedingThunder(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        var activation = Module.WorldState.FutureTime(9.4f);
+        var activation = WorldState.FutureTime(9.4f);
         if ((AID)spell.Action.ID == AID.StampedingThunderVisualWest)
             _aoe = new(rect, new(95, 80), caster.Rotation, activation);
         else if ((AID)spell.Action.ID == AID.StampedingThunderVisualEast)

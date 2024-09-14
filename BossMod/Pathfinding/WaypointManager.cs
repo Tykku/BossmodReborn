@@ -17,9 +17,9 @@ public class WaypointManager
         waypoints.Enqueue(waypoint);
     }
 
-    public void AddWaypointsWithRandomization(List<WPos> waypointsList, float radius, int numRandomWaypoints)
+    public void AddWaypointsWithRandomization(WPos[] waypointsList, float radius, int numRandomWaypoints)
     {
-        for (var i = 0; i < waypointsList.Count - 1; i++)
+        for (var i = 0; i < waypointsList.Length - 1; i++)
         {
             AddWaypoint(waypointsList[i]);
             for (var j = 0; j < numRandomWaypoints; j++)

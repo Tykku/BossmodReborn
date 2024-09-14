@@ -1,4 +1,4 @@
-﻿namespace BossMod.Endwalker.Criterion.C01ASS.C010Belladonna;
+﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C010Belladonna;
 
 public enum OID : uint
 {
@@ -45,8 +45,8 @@ class C010BelladonnaStates : StateMachineBuilder
 class C010NBelladonnaStates(BossModule module) : C010BelladonnaStates(module, false);
 class C010SBelladonnaStates(BossModule module) : C010BelladonnaStates(module, true);
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.NBoss, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 878, NameID = 11514, SortOrder = 1)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", PrimaryActorOID = (uint)OID.NBoss, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 878, NameID = 11514, SortOrder = 1)]
 public class C010NBelladonna(WorldState ws, Actor primary) : SimpleBossModule(ws, primary);
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.SBoss, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 879, NameID = 11514, SortOrder = 1)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", PrimaryActorOID = (uint)OID.SBoss, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 879, NameID = 11514, SortOrder = 1)]
 public class C010SBelladonna(WorldState ws, Actor primary) : SimpleBossModule(ws, primary);

@@ -10,7 +10,7 @@ public sealed class AIHints
         public const int PriorityForbidFully = -2; // attacking this enemy is forbidden both by ai or player (e.g. invulnerable, or attacking/killing might lead to a wipe)
 
         public Actor Actor = actor;
-        public int Priority = actor.InCombat || actor.FateID != 0 ? 0 : PriorityForbidAI; // <0 means damaging is actually forbidden, 0 is default (TODO: revise default...)
+        public int Priority = actor.InCombat ? 0 : PriorityForbidAI; // <0 means damaging is actually forbidden, 0 is default (TODO: revise default...)
         //public float TimeToKill;
         public float AttackStrength = 0.05f; // target's predicted HP percent is decreased by this amount (0.05 by default)
         public WPos DesiredPosition = actor.Position; // tank AI will try to move enemy to this position
@@ -22,6 +22,14 @@ public sealed class AIHints
         public bool ShouldBeInterrupted; // if set and enemy is casting interruptible spell, some ranged/tank will try to interrupt
         public bool ShouldBeStunned; // if set, AI will stun if possible
         public bool StayAtLongRange; // if set, players with ranged attacks don't bother coming closer than max range (TODO: reconsider)
+    }
+
+    public enum SpecialMode
+    {
+        Normal,
+        Pyretic, // pyretic/acceleration bomb type of effects - no movement, no actions, no casting allowed at activation time
+        Freezing, // should be moving at activation time
+        // TODO: misdirection, etc
     }
 
     public static readonly ArenaBounds DefaultBounds = new ArenaBoundsSquare(30);
@@ -41,9 +49,17 @@ public sealed class AIHints
     // low-level forced movement - if set, character will move in specified direction (ignoring casts, uptime, forbidden zones, etc), or stay in place if set to default
     public Vector3? ForcedMovement;
 
+    // indicates to AI mode that it should try to interact with some object
+    public Actor? InteractWithTarget;
+
     // positioning: list of shapes that are either forbidden to stand in now or will be in near future
     // AI will try to move in such a way to avoid standing in any forbidden zone after its activation or outside of some restricted zone after its activation, even at the cost of uptime
     public List<(Func<WPos, float> shapeDistance, DateTime activation)> ForbiddenZones = [];
+
+    // positioning: rough target & radius of the movement; if not set, uses either target's position or module center instead
+    // used to somewhat prioritize movement direction and optimize pathfinding
+    public WPos? PathfindingHintDestination;
+    public float? PathfindingHintRadius;
 
     // positioning: next positional hint (TODO: reconsider, maybe it should be a list prioritized by in-gcds, and imminent should be in-gcds instead? or maybe it should be property of an enemy? do we need correct?)
     public (Actor? Target, Positional Pos, bool Imminent, bool Correct) RecommendedPositional;
@@ -54,6 +70,9 @@ public sealed class AIHints
     // orientation restrictions (e.g. for gaze attacks): a list of forbidden orientation ranges, now or in near future
     // AI will rotate to face allowed orientation at last possible moment, potentially losing uptime
     public List<(Angle center, Angle halfWidth, DateTime activation)> ForbiddenDirections = [];
+
+    // closest special movement/targeting/action mode, if any
+    public (SpecialMode mode, DateTime activation) ImminentSpecialMode;
 
     // predicted incoming damage (raidwides, tankbusters, etc.)
     // AI will attempt to shield & mitigate
@@ -73,10 +92,14 @@ public sealed class AIHints
         PotentialTargets.Clear();
         ForcedTarget = null;
         ForcedMovement = null;
+        InteractWithTarget = null;
         ForbiddenZones.Clear();
+        PathfindingHintDestination = null;
+        PathfindingHintRadius = null;
         RecommendedPositional = default;
         RecommendedRangeToTarget = 0;
         ForbiddenDirections.Clear();
+        ImminentSpecialMode = default;
         PredictedDamage.Clear();
         ActionsToExecute.Clear();
         StatusesToCancel.Clear();
@@ -87,14 +110,40 @@ public sealed class AIHints
     {
         var playerInFate = ws.Client.ActiveFate.ID != 0 && ws.Party.Player()?.Level <= Service.LuminaRow<Lumina.Excel.GeneratedSheets.Fate>(ws.Client.ActiveFate.ID)?.ClassJobLevelMax;
         var allowedFateID = playerInFate ? ws.Client.ActiveFate.ID : 0;
-        foreach (var actor in ws.Actors.Where(a => a.Type == ActorType.Enemy && a.IsTargetable && !a.IsAlly && !a.IsDead && (a.FateID == 0 || a.FateID == allowedFateID)))
+        foreach (var actor in ws.Actors.Where(a => a.IsTargetable && !a.IsAlly && !a.IsDead))
         {
-            PotentialTargets.Add(new(actor, playerIsDefaultTank && (actor.InCombat || actor.FateID != 0)));
+            // fate mob in fate we are NOT a part of, skip entirely. it's okay to "attack" these (i.e., they won't be added as forbidden targets) because we can't even hit them
+            // (though aggro'd mobs will continue attacking us after we unsync, but who really cares)
+            if (actor.FateID > 0 && actor.FateID != allowedFateID)
+                continue;
+
+            // target is dying; skip it so that AI retargets, but ensure that it's not marked as a forbidden target
+            // skip this check on striking dummies (name ID 541) as they die constantly
+            var predictedHP = ws.PendingEffects.PendingHPDifference(actor.InstanceID);
+            if (actor.HPMP.CurHP + predictedHP <= 0 && actor.NameID != 541)
+                continue;
+
+            var allowedAttack = actor.InCombat && ws.Party.FindSlot(actor.TargetID) >= 0;
+            // enemies in our enmity list can also be attacked, regardless of who they are targeting (since they are keeping us in combat)
+            allowedAttack |= actor.AggroPlayer;
+            // all fate mobs can be attacked if we are level synced (non synced mobs are skipped above)
+            allowedAttack |= actor.FateID > 0;
+
+            PotentialTargets.Add(new(actor, playerIsDefaultTank)
+            {
+                Priority = allowedAttack ? 0 : Enemy.PriorityForbidAI
+            });
         }
     }
 
     public void AddForbiddenZone(Func<WPos, float> shapeDistance, DateTime activation = new()) => ForbiddenZones.Add((shapeDistance, activation));
     public void AddForbiddenZone(AOEShape shape, WPos origin, Angle rot = new(), DateTime activation = new()) => ForbiddenZones.Add((shape.Distance(origin, rot), activation));
+
+    public void AddSpecialMode(SpecialMode mode, DateTime activation)
+    {
+        if (ImminentSpecialMode == default || ImminentSpecialMode.activation > activation)
+            ImminentSpecialMode = (mode, activation);
+    }
 
     // normalize all entries after gathering data: sort by priority / activation timestamp
     // TODO: note that the name is misleading - it actually happens mid frame, before all actions are gathered (eg before autorotation runs), but further steps (eg ai) might consume previously gathered data

@@ -3,13 +3,14 @@
 public enum OID : uint
 {
     Boss = 0x33E9, // R=6.0
-    Helper = 0x233C,
     QueerBubble = 0x3731, // R2.5
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttack = 870, // Boss->player, no cast, single-target
+
     AetherSiphonFire = 25145, // Boss->self, 3.0s cast, single-target
     AetherSiphonWater = 25146, // Boss->self, 3.0s cast, single-target
     AetherSprayFire = 25147, // Boss->location, 7.0s cast, range 30, raidwide, be in bubble
@@ -19,7 +20,7 @@ public enum AID : uint
     PoisonHeartStack = 27851, // Helper->players, 5.0s cast, range 6 circle
     TotalWreck = 25154, // Boss->player, 5.0s cast, single-target
     UnholyWater = 27852, // Boss->self, 3.0s cast, single-target, spawns bubbles
-    Withdraw = 27847, // 3731->player, 1.0s cast, single-target, pull 30 between centers
+    Withdraw = 27847 // 3731->player, 1.0s cast, single-target, pull 30 between centers
 }
 
 class QueerBubble(BossModule module) : Components.GenericAOEs(module)
@@ -75,27 +76,20 @@ class AetherSprayWater(BossModule module) : Components.RaidwideCast(module, Acti
 class AetherSprayFire(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AetherSprayFire), "Go into a bubble! (Raidwide)");
 class AetherSprayWaterKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.AetherSprayWater), 13)
 {
-    private DateTime activation;
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<QueerBubble>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || !Module.InBounds(pos);
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        base.OnCastStarted(caster, spell);
-        if (spell.Action == WatchedAction)
-            activation = Module.CastFinishAt(spell);
-    }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         var forbidden = new List<Func<WPos, float>>();
-        if (Module.FindComponent<QueerBubble>()!.ActiveAOEs(slot, actor).Any() && Sources(slot, actor).Any() || activation.AddSeconds(1.5f) > Module.WorldState.CurrentTime) // 1.5s delay to wait for action effect
+        var source = Sources(slot, actor).FirstOrDefault();
+        if (Module.FindComponent<QueerBubble>()!.ActiveAOEs(slot, actor).Any() && source != default)
         {
-            forbidden.Add(ShapeDistance.InvertedCircle(Module.Center, 7));
+            forbidden.Add(ShapeDistance.InvertedCircle(Arena.Center, 7));
             for (var i = 0; i < 6; i++)
-                if (Module.Enemies(OID.QueerBubble).Where(x => x.Position.AlmostEqual(Helpers.RotateAroundOrigin(i * 60, Module.Center, x.Position), 1) && Module.FindComponent<QueerBubble>()!._aoes.Contains(x)) != null)
-                    forbidden.Add(ShapeDistance.Cone(Module.Center, 20, i * 60.Degrees(), 10.Degrees()));
+                if (Module.Enemies(OID.QueerBubble).Where(x => x.Position.AlmostEqual(Helpers.RotateAroundOrigin(i * 60, Arena.Center, x.Position), 1) && Module.FindComponent<QueerBubble>()!._aoes.Contains(x)) != null)
+                    forbidden.Add(ShapeDistance.Cone(Arena.Center, 20, i * 60.Degrees(), 10.Degrees()));
             if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Min(), activation.AddSeconds(1.3f));
+                hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Min(), source.Activation);
         }
     }
 }

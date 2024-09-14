@@ -93,9 +93,9 @@ class WreathOfThorns2(BossModule module) : BossComponent(module)
         {
             var tetherColor = _playerIcons[pcSlot] switch
             {
-                IconID.AkanthaiFire => 0xff00ffff,
-                IconID.AkanthaiWind => 0xff00ff00,
-                _ => 0xffff00ff
+                IconID.AkanthaiFire => Colors.Danger,
+                IconID.AkanthaiWind => Colors.Safe,
+                _ => Colors.Vulnerable
             };
             Arena.AddLine(pc.Position, pcPartner.Position, tetherColor);
         }
@@ -172,31 +172,21 @@ class WreathOfThorns2(BossModule module) : BossComponent(module)
         }
     }
 
-    private bool IsTower(Actor actor)
+    private static bool IsTower(Actor actor)
     {
-        if (actor.Position.X < 90)
-            return actor.Position.Z > 100;
-        else if (actor.Position.Z < 90)
-            return actor.Position.X < 100;
-        else if (actor.Position.X > 110)
-            return actor.Position.Z < 100;
-        else if (actor.Position.Z > 110)
-            return actor.Position.X > 100;
-        else
-            return false;
+        return actor.Position.X < 90
+            ? actor.Position.Z > 100
+            : actor.Position.Z < 90
+            ? actor.Position.X < 100
+            : actor.Position.X > 110 ? actor.Position.Z < 100 : actor.Position.Z > 110 && actor.Position.X > 100;
     }
 
-    private bool IsAOE(Actor actor)
+    private static bool IsAOE(Actor actor)
     {
-        if (actor.Position.X < 90)
-            return actor.Position.Z < 100;
-        else if (actor.Position.Z < 90)
-            return actor.Position.X > 100;
-        else if (actor.Position.X > 110)
-            return actor.Position.Z > 100;
-        else if (actor.Position.Z > 110)
-            return actor.Position.X < 100;
-        else
-            return false;
+        return actor.Position.X < 90
+            ? actor.Position.Z < 100
+            : actor.Position.Z < 90
+            ? actor.Position.X > 100
+            : actor.Position.X > 110 ? actor.Position.Z > 100 : actor.Position.Z > 110 && actor.Position.X < 100;
     }
 }

@@ -98,6 +98,13 @@ public abstract record class ArenaBounds(float Radius, float MapResolution)
         var side = halfWidth * dir.OrthoR();
         return ClipAndTriangulate([startOffset + side, startOffset - side, endOffset - side, endOffset + side]);
     }
+
+    public void AddToInstanceCache(object key, object value)
+    {
+        if (Cache.Count > 2500)
+            Cache.Clear();
+        Cache[key] = value;
+    }
 }
 
 public record class ArenaBoundsCircle(float Radius, float MapResolution = 0.5f) : ArenaBounds(Radius, MapResolution)
@@ -183,27 +190,30 @@ public record class ArenaBoundsCustom(float Radius, RelSimplifiedComplexPolygon 
 
     public override bool Contains(WDir offset)
     {
-        if (Cache.TryGetValue((Poly, offset, Radius), out var cachedResult)) // caching contains seems to lower drawtime by ~33%
+        var cacheKey = (Poly, offset, Radius);
+        if (Cache.TryGetValue(cacheKey, out var cachedResult)) // caching contains seems to lower drawtime by ~33%
             return (bool)cachedResult;
-        var contains = Poly.Contains(offset);
-        Cache[(Poly, offset, Radius)] = contains;
-        return contains;
+        var result = Poly.Contains(offset);
+        AddToInstanceCache(cacheKey, result);
+        return result;
     }
 
     public override float IntersectRay(WDir originOffset, WDir dir)
     {
-        if (Cache.TryGetValue((Poly, originOffset, dir), out var cachedResult)) // caching intersections seems to lower drawtime by ~12.5% while in use
+        var cacheKey = (Poly, originOffset, dir);
+        if (Cache.TryGetValue(cacheKey, out var cachedResult)) // caching intersections seems to lower drawtime by ~12.5% while in use
             return (float)cachedResult;
-        var intersection = Intersect.RayPolygon(originOffset, dir, Poly);
-        Cache[(Poly, originOffset, dir)] = intersection;
-        return intersection;
+        var result = Intersect.RayPolygon(originOffset, dir, Poly);
+        AddToInstanceCache(cacheKey, result);
+        return result;
     }
 
     public override WDir ClampToBounds(WDir offset)
     {
-        if (Cache.TryGetValue((Poly, offset), out var cachedResult)) // caching ClampToBounds seems to lower drawtime by about 50%
+        var cacheKey = (Poly, offset);
+        if (Cache.TryGetValue(cacheKey, out var cachedResult)) // caching ClampToBounds seems to lower drawtime by about 50%
             return (WDir)cachedResult;
-        if (Contains(offset))
+        if (Contains(offset) || offset.AlmostEqual(default, 0.1f)) // if actor is almost in the center of the arena, do nothing (eg donut arena)
         {
             Cache[(Poly, offset)] = offset;
             return offset;
@@ -227,11 +237,11 @@ public record class ArenaBoundsCustom(float Radius, RelSimplifiedComplexPolygon 
                 }
             }
         }
-        Cache[(Poly, offset)] = nearestPoint;
+        AddToInstanceCache(cacheKey, nearestPoint);
         return nearestPoint;
     }
 
-    private WDir NearestPointOnSegment(WDir point, WDir segmentStart, WDir segmentEnd)
+    private static WDir NearestPointOnSegment(WDir point, WDir segmentStart, WDir segmentEnd)
     {
         var segmentVector = segmentEnd - segmentStart;
         var segmentLengthSq = segmentVector.LengthSq();
@@ -266,9 +276,9 @@ public record class ArenaBoundsCustom(float Radius, RelSimplifiedComplexPolygon 
 
         var halfWidth = (maxX - minX) / 2;
         var halfHeight = (maxZ - minZ) / 2;
-
-        StaticCache[Poly] = (halfWidth, halfHeight);
-        return (halfWidth, halfHeight);
+        var result = (halfWidth, halfHeight);
+        StaticCache[Poly] = result;
+        return result;
     }
 
     private Pathfinding.Map BuildMap()
@@ -290,7 +300,7 @@ public record class ArenaBoundsCustom(float Radius, RelSimplifiedComplexPolygon 
         return map;
     }
 
-    private List<WDir> GenerateSamplePoints(WDir relativeCenter, float resolution)
+    private static WDir[] GenerateSamplePoints(WDir relativeCenter, float resolution)
     {
         var stepSize = resolution / 3;
         var halfResolution = resolution / 2;
@@ -360,9 +370,9 @@ public record class ArenaBoundsComplex : ArenaBoundsCustom
         var radius = Math.Max(maxDistX, maxDistZ);
 
         var combinedPolyCentered = CombinePolygons(ParseShapes(unionShapes, center), ParseShapes(differenceShapes, center), ParseShapes(additionalShapes, center));
-
-        StaticCache[cacheKey] = (center, radius, combinedPolyCentered);
-        return (center, radius, combinedPolyCentered);
+        var result = (center, radius, combinedPolyCentered);
+        StaticCache[cacheKey] = result;
+        return result;
     }
 
     private static string CreateCacheKey(IEnumerable<Shape> unionShapes, IEnumerable<Shape> differenceShapes, IEnumerable<Shape> additionalShapes)

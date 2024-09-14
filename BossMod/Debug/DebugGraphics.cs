@@ -116,7 +116,7 @@ class DebugGraphics
         foreach (var v in _watchedRenderObjects)
         {
             var obj = (FFXIVClientStructs.FFXIV.Client.Graphics.Scene.Object*)v.Key;
-            Camera.Instance?.DrawWorldLine(Service.ClientState.LocalPlayer!.Position, obj->Position, 0xff0000ff);
+            Camera.Instance?.DrawWorldLine(Service.ClientState.LocalPlayer!.Position, obj->Position, Colors.TextColor3);
         }
     }
 
@@ -200,11 +200,11 @@ class DebugGraphics
         var sb = new StringBuilder();
         foreach ((var end, var nextStart) in w.Modifications)
         {
-            DrawHexString(w, ref start, end, 0xff808080, sb);
-            DrawHexString(w, ref start, nextStart, 0xff0000ff, sb);
+            DrawHexString(w, ref start, end, Colors.PlayerGeneric, sb);
+            DrawHexString(w, ref start, nextStart, Colors.TextColor3, sb);
         }
         sb.Clear();
-        DrawHexString(w, ref start, w.Data.Count, 0xff808080, sb);
+        DrawHexString(w, ref start, w.Data.Count, Colors.PlayerGeneric, sb);
     }
 
     private void DrawHexString(WatchedRenderObject w, ref int start, int end, uint color, StringBuilder sb)

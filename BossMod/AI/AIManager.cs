@@ -19,6 +19,7 @@ sealed class AIManager : IDisposable
 
     public WorldState WorldState => Autorot.Bossmods.WorldState;
     public float ForceMovementIn => Beh?.ForceMovementIn ?? float.MaxValue;
+    public string GetAIPreset => AiPreset?.Name ?? string.Empty;
 
     public AIManager(RotationModuleManager autorot, ActionManagerEx amex, MovementOverride movement)
     {
@@ -62,7 +63,7 @@ sealed class AIManager : IDisposable
             Beh.Execute(player, master);
         else
             Controller.Clear();
-        Controller.Update(player, Autorot.Hints);
+        Controller.Update(player, Autorot.Hints, WorldState.CurrentTime);
     }
 
     public void SwitchToIdle()

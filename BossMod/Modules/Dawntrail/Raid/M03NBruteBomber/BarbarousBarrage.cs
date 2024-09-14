@@ -8,7 +8,7 @@ class BarbarousBarrageTower(BossModule module) : Components.GenericTowers(module
     {
         if (index == 0x01 && state == 0x00020004)
             foreach (var p in positions)
-                Towers.Add(new(p, 4, 1, 1, default, Module.WorldState.FutureTime(10)));
+                Towers.Add(new(p, 4, 1, 1, default, WorldState.FutureTime(10)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -33,7 +33,7 @@ class BarbarousBarrageKnockback(BossModule module) : Components.Knockback(module
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         var towers = Module.FindComponent<BarbarousBarrageTower>()!.Towers;
-        var isDelayDeltaLow = (towers.FirstOrDefault().Activation - Module.WorldState.CurrentTime).TotalSeconds < 5;
+        var isDelayDeltaLow = (towers.FirstOrDefault().Activation - WorldState.CurrentTime).TotalSeconds < 5;
         var isActorInsideTower = towers.Any(x => x.IsInside(actor));
         if (towers.Count > 0 && isDelayDeltaLow && isActorInsideTower)
         {

@@ -42,7 +42,7 @@ public enum AID : uint
 public enum SID : uint
 {
     CannonOrder = 2552, // none->ArmoredDrudge, extra=0x180/0x181 (first/second wave)
-    ReflectionShield = 2195, // none->Boss, extra=0x182/0x183 (NE+SW/NW+SE)
+    ReflectionShield = 2195 // none->Boss, extra=0x182/0x183 (NE+SW/NW+SE)
 }
 
 class Voidzone(BossModule module) : Components.GenericAOEs(module)
@@ -61,7 +61,7 @@ class Voidzone(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.ArticulatedBits)
-            _aoe = new(circle, Module.Center, default, Module.CastFinishAt(spell, 0.8f));
+            _aoe = new(circle, Arena.Center, default, Module.CastFinishAt(spell, 0.8f));
     }
 }
 
@@ -75,10 +75,7 @@ class AssaultCannon(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCone cone = new(30, 45.Degrees());
     private static readonly AOEShapeRect rectShort = new(28, 4);
     private static readonly AOEShapeRect rectLong = new(40, 4);
-    private static readonly Angle angle135 = 134.999f.Degrees();
-    private static readonly Angle angleM45 = -45.003f.Degrees();
-    private static readonly Angle angleM135 = -135.005f.Degrees();
-    private static readonly Angle angle45 = 44.998f.Degrees();
+    private static readonly Angle[] angles = Helpers.AnglesIntercardinals;
     private static readonly HashSet<WPos> cornerPositions = [new(-20.5f, -202.5f), new(20.5f, -161.5f), new(-20.5f, -161.5f), new(20.5f, -202.5f)];
     private int numCastsReflections;
     private int numCastsCannons;
@@ -109,29 +106,29 @@ class AssaultCannon(BossModule module) : Components.GenericAOEs(module)
 
     private void AddTwoWaveAOEs(byte modelState)
     {
-        var activationFirst = Module.WorldState.FutureTime(7.1f);
-        var activationSecond = Module.WorldState.FutureTime(15);
+        var activationFirst = WorldState.FutureTime(7.1f);
+        var activationSecond = WorldState.FutureTime(15);
 
         if (modelState == 4)
         {
-            AddConeAOEs(activationFirst, angle135, angleM45);
-            AddConeAOEs(activationSecond, angleM135, angle45);
+            AddConeAOEs(activationFirst, angles[2], angles[0]);
+            AddConeAOEs(activationSecond, angles[3], angles[1]);
         }
         else if (modelState == 5)
         {
-            AddConeAOEs(activationFirst, angleM135, angle45);
-            AddConeAOEs(activationSecond, angle135, angleM45);
+            AddConeAOEs(activationFirst, angles[3], angles[1]);
+            AddConeAOEs(activationSecond, angles[2], angles[0]);
         }
     }
 
     private void AddOneWaveAOEs(byte modelState)
     {
-        var activation = Module.WorldState.FutureTime(6.9f);
+        var activation = WorldState.FutureTime(6.9f);
 
         if (modelState == 4)
-            AddConeAOEs(activation, angle135, angleM45);
+            AddConeAOEs(activation, angles[2], angles[0]);
         else if (modelState == 5)
-            AddConeAOEs(activation, angleM135, angle45);
+            AddConeAOEs(activation, angles[3], angles[1]);
         foreach (var drudge in _activeDrudges)
         {
             var shape = cornerPositions.Contains(drudge.Position) ? rectShort : rectLong;
@@ -142,7 +139,7 @@ class AssaultCannon(BossModule module) : Components.GenericAOEs(module)
     private void AddConeAOEs(DateTime activation, params Angle[] angles)
     {
         foreach (var angle in angles)
-            _aoesCones.Add(new AOEInstance(cone, Module.Center, angle, activation));
+            _aoesCones.Add(new(cone, Arena.Center, angle, activation));
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -150,7 +147,7 @@ class AssaultCannon(BossModule module) : Components.GenericAOEs(module)
         if ((SID)status.ID == SID.CannonOrder)
         {
             var activation = status.Extra == 0x180 ? 6.9f : 15;
-            _aoesRects.Add(new(rectShort, actor.Position, actor.Rotation, Module.WorldState.FutureTime(activation)));
+            _aoesRects.Add(new(rectShort, actor.Position, actor.Rotation, WorldState.FutureTime(activation)));
         }
     }
 

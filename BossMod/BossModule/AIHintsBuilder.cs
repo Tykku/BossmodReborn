@@ -13,6 +13,7 @@ public sealed class AIHintsBuilder : IDisposable
     private readonly EventSubscriptions _subscriptions;
     private readonly Dictionary<ulong, (Actor Caster, Actor? Target, AOEShape Shape, bool IsCharge)> _activeAOEs = [];
     private ArenaBoundsCircle? _activeFateBounds;
+    private static readonly HashSet<uint> ignore = [27503, 33626]; // action IDs that the AI should ignore
 
     public AIHintsBuilder(WorldState ws, BossModuleManager bmm)
     {
@@ -56,6 +57,16 @@ public sealed class AIHintsBuilder : IDisposable
         else
         {
             hints.Center = player.Position.Rounded(5);
+            // try to keep player near grid center
+            var playerOffset = player.Position - hints.Center;
+            if (playerOffset.X < -1.25f)
+                hints.Center.X -= 2.5f;
+            else if (playerOffset.X > 1.25f)
+                hints.Center.X += 2.5f;
+            if (playerOffset.Z < -1.25f)
+                hints.Center.Z -= 2.5f;
+            else if (playerOffset.Z > 1.25f)
+                hints.Center.Z += 2.5f;
             // keep default bounds
         }
 
@@ -82,9 +93,11 @@ public sealed class AIHintsBuilder : IDisposable
         var data = actor.CastInfo!.IsSpell() ? Service.LuminaRow<Lumina.Excel.GeneratedSheets.Action>(actor.CastInfo.Action.ID) : null;
         if (data == null || data.CastType == 1)
             return;
+        //if (data.Omen.Row == 0)
+        //    return; // to consider: ignore aoes without omen, such aoes typically need a module to resolve...
         if (data.CastType is 2 or 5 && data.EffectRange >= RaidwideSize)
             return;
-        if (actor.CastInfo!.IsSpell((AID)27503)) // friendly AOE in aitiascope that gets dodged for some reason
+        if (ignore.Contains(actor.CastInfo!.Action.ID))
             return;
         AOEShape? shape = data.CastType switch
         {
@@ -95,7 +108,7 @@ public sealed class AIHintsBuilder : IDisposable
             //6 => custom shapes
             //7 => new AOEShapeCircle(data.EffectRange), - used for player ground-targeted circles a-la asylum
             8 => new AOEShapeRect((actor.CastInfo!.LocXZ - actor.Position).Length(), data.XAxisModifier * HalfWidth),
-            10 => new AOEShapeDonut(DetermineDonutInner(data), data.EffectRange),
+            10 => new AOEShapeDonut(3, data.EffectRange),
             11 => new AOEShapeCross(data.EffectRange, data.XAxisModifier * HalfWidth),
             12 => new AOEShapeRect(data.EffectRange, data.XAxisModifier * HalfWidth),
             13 => new AOEShapeCone(data.EffectRange, DetermineConeAngle(data) * HalfWidth),
@@ -130,24 +143,24 @@ public sealed class AIHintsBuilder : IDisposable
         return angle.Degrees();
     }
 
-    private float DetermineDonutInner(Lumina.Excel.GeneratedSheets.Action data)
-    {
-        var omen = data.Omen.Value;
-        if (omen == null)
-        {
-            Service.Log($"[AutoHints] No omen data for {data.RowId} '{data.Name}'...");
-            return 0;
-        }
-        var path = omen.Path.ToString();
-        var pos = path.IndexOf("sircle_", StringComparison.Ordinal);
-        if (pos >= 0 && pos + 11 <= path.Length && int.TryParse(path.AsSpan(pos + 9, 2), out var inner))
-            return inner;
+    // private float DetermineDonutInner(Lumina.Excel.GeneratedSheets.Action data)
+    // {
+    //     var omen = data.Omen.Value;
+    //     if (omen == null)
+    //     {
+    //         Service.Log($"[AutoHints] No omen data for {data.RowId} '{data.Name}'...");
+    //         return 0;
+    //     }
+    //     var path = omen.Path.ToString();
+    //     var pos = path.IndexOf("sircle_", StringComparison.Ordinal);
+    //     if (pos >= 0 && pos + 11 <= path.Length && int.TryParse(path.AsSpan(pos + 9, 2), out var inner))
+    //         return inner;
 
-        pos = path.IndexOf("circle", StringComparison.Ordinal);
-        if (pos >= 0 && pos + 10 <= path.Length && int.TryParse(path.AsSpan(pos + 8, 2), out inner))
-            return inner;
+    //     pos = path.IndexOf("circle", StringComparison.Ordinal);
+    //     if (pos >= 0 && pos + 10 <= path.Length && int.TryParse(path.AsSpan(pos + 8, 2), out inner))
+    //         return inner;
 
-        Service.Log($"[AutoHints] Can't determine inner radius from omen ({path}/{omen.PathAlly}) for {data.RowId} '{data.Name}'...");
-        return 0;
-    }
+    //     Service.Log($"[AutoHints] Can't determine inner radius from omen ({path}/{omen.PathAlly}) for {data.RowId} '{data.Name}'...");
+    //     return 0;
+    // }
 }

@@ -82,7 +82,7 @@ public abstract class GenericGaze(BossModule module, ActionID aid = new(), bool 
 // gaze that happens on cast end
 public class CastGaze(BossModule module, ActionID aid, bool inverted = false) : GenericGaze(module, aid, inverted)
 {
-    private readonly List<Actor> _casters = [];
+    public readonly List<Actor> _casters = [];
 
     public override IEnumerable<Eye> ActiveEyes(int slot, Actor actor) => _casters.Select(c => new Eye(c.Position, Module.CastFinishAt(c.CastInfo)));
 

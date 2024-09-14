@@ -3,13 +3,14 @@ namespace BossMod.Endwalker.Dungeon.D01TheTowerOifZot.D012Sanduruva;
 public enum OID : uint
 {
     Boss = 0x33EF, // R=2.5
-    BerserkerSphere = 0x33F0, // R=1.5-2.5
+    BerserkerSphere = 0x33F0 // R=1.5-2.5
 }
 
 public enum AID : uint
 {
     AutoAttack = 871, // Boss->player, no cast, single-target
     Teleport = 25254,  // Boss->location, no cast, single-target
+
     ExplosiveForce = 25250, //Boss->self, 3.0s cast, single-target
     IsitvaSiddhi = 25257, // Boss->player, 4.0s cast, single-target
     ManusyaBerserk = 25249, // Boss->self, 3.0s cast, single-target
@@ -17,7 +18,7 @@ public enum AID : uint
     ManusyaStop = 25255, // Boss->self, 3.0s cast, range 40 circle
     PrakamyaSiddhi = 25251, // Boss->self, 4.0s cast, range 5 circle
     PraptiSiddhi = 25256, //Boss->self, 2.0s cast, range 40 width 4 rect
-    SphereShatter = 25252, // BerserkerSphere->self, 2.0s cast, range 15 circle
+    SphereShatter = 25252 // BerserkerSphere->self, 2.0s cast, range 15 circle
 }
 
 public enum SID : uint
@@ -27,7 +28,7 @@ public enum SID : uint
     TemporalDisplacement = 900, // none->player, extra=0x0
     ManusyaConfuse = 2652, // Boss->player, extra=0x1C6
     WhoIsShe = 2655, // none->Boss, extra=0x0
-    WhoIsShe2 = 2654, // none->BerserkerSphere, extra=0x1A8
+    WhoIsShe2 = 2654 // none->BerserkerSphere, extra=0x1A8
 }
 
 class IsitvaSiddhi(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.IsitvaSiddhi));

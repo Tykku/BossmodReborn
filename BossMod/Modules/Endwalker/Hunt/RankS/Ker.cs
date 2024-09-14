@@ -2,37 +2,45 @@
 
 public enum OID : uint
 {
-    Boss = 0x35CF, // R8.000, x1
+    Boss = 0x35CF // R8.000, x1
 }
 
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     MinaxGlare = 27635, // Boss->self, 6.0s cast, range 40 circle
     Heliovoid = 27636, // Boss->self, 6.0s cast, range 12 circle
-    AncientBlizzard = 27637, // Boss->self, 6.0s cast, range 8-40 donut
+
+    AncientBlizzard1 = 27637, // Boss->self, 6.0s cast, range 8-40 donut
     AncientBlizzard2 = 27652, // Boss->self, 6.0s cast, range 8-40 donut
     WhispersManifest3 = 27659, // Boss->self, 6.0s cast, range 8-40 donut (remembered skill from Whispered Incantation)
-    ForeInterment = 27641, // Boss->self, 6.0s cast, range 40 180-degree cone
-    RearInterment = 27642, // Boss->self, 6.0s cast, range 40 180-degree cone
-    RightInterment = 27643, // Boss->self, 6.0s cast, range 40 180-degree cone
-    LeftInterment = 27644, // Boss->self, 6.0s cast, range 40 180-degree cone
+
     WhisperedIncantation = 27645, // Boss->self, 5.0s cast, single-target, applies status to boss, remembers next skill
-    EternalDamnation = 27647, // Boss->self, 6.0s cast, range 40 circle gaze, applies doom
+
+    EternalDamnation1 = 27647, // Boss->self, 6.0s cast, range 40 circle gaze, applies doom
     EternalDamnation2 = 27640, // Boss->self, 6.0s cast, range 40 circle gaze, applies doom
     WhispersManifest4 = 27654, // Boss->self, 6.0s cast, range 40 circle gaze, applies doom
+
     AncientFlare = 27704, // Boss->self, 6.0s cast, range 40 circle, applies pyretic
     AncientFlare2 = 27638, // Boss->self, 6.0s cast, range 40 circle, applies pyretic
-    WhispersManifest = 27706, // Boss->self, 6.0s cast, range 40 circle, applies pyretc (remembered skill from Whispered Incantation)
-    AncientHoly = 27646, // Boss->self, 6.0s cast, range 40 circle, circle with dmg fall off, harmless after ca. range 20 (it is hard to say because people accumulate vuln stacks which skews the damage fall off with distance from source)
+    WhispersManifest1 = 27706, // Boss->self, 6.0s cast, range 40 circle, applies pyretc (remembered skill from Whispered Incantation)
+
+    AncientHoly1 = 27646, // Boss->self, 6.0s cast, range 40 circle, circle with dmg fall off, harmless after ca. range 20 (it is hard to say because people accumulate vuln stacks which skews the damage fall off with distance from source)
     AncientHoly2 = 27639, // Boss->self, 6.0s cast, range 40 circle, circle with dmg fall off, harmless after around range 20
     WhispersManifest2 = 27653, // Boss->self, 6.0s cast, range 40 circle, circle with dmg fall off, harmless after around range 20
-    MirroredIncantation = 27927, // Boss->self, 3.0s cast, single-target, mirrors the next 3 interments
+
+    MirroredIncantation1 = 27927, // Boss->self, 3.0s cast, single-target, mirrors the next 3 interments
     MirroredIncantation2 = 27928, // Boss->self, 3.0s cast, single-target, mirrors the next 4 interments
     MirroredRightInterment = 27663, // Boss->self, 6.0s cast, range 40 180-degree cone
     MirroredLeftInterment = 27664, // Boss->self, 6.0s cast, range 40 180-degree cone
     MirroredForeInterment = 27661, // Boss->self, 6.0s cast, range 40 180-degree cone
     MirroredRearInterment = 27662, // Boss->self, 6.0s cast, range 40 180-degree cone
+    ForeInterment = 27641, // Boss->self, 6.0s cast, range 40 180-degree cone
+    RearInterment = 27642, // Boss->self, 6.0s cast, range 40 180-degree cone
+    RightInterment = 27643, // Boss->self, 6.0s cast, range 40 180-degree cone
+    LeftInterment = 27644, // Boss->self, 6.0s cast, range 40 180-degree cone
+
     Visual = 25698, // Boss->player, no cast, single-target
 }
 
@@ -48,31 +56,42 @@ public enum SID : uint
 
 class MinaxGlare(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.MinaxGlare), "Applies temporary misdirection");
 class Heliovoid(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Heliovoid), new AOEShapeCircle(12));
-class AncientBlizzard(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AncientBlizzard), new AOEShapeDonut(8, 40));
-class AncientBlizzard2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AncientBlizzard2), new AOEShapeDonut(8, 40));
-class AncientBlizzardWhispersManifest(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WhispersManifest3), new AOEShapeDonut(8, 40));
-class ForeInterment(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ForeInterment), new AOEShapeCone(40, 90.Degrees()));
-class RearInterment(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RearInterment), new AOEShapeCone(40, 90.Degrees()));
-class RightInterment(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RightInterment), new AOEShapeCone(40, 90.Degrees()));
-class LeftInterment(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeftInterment), new AOEShapeCone(40, 90.Degrees()));
-class MirroredForeInterment(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MirroredForeInterment), new AOEShapeCone(40, 90.Degrees()));
-class MirroredRearInterment(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MirroredRearInterment), new AOEShapeCone(40, 90.Degrees()));
-class MirroredRightInterment(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MirroredRightInterment), new AOEShapeCone(40, 90.Degrees()));
-class MirroredLeftInterment(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MirroredLeftInterment), new AOEShapeCone(40, 90.Degrees()));
-class EternalDamnation(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EternalDamnation));
-class EternalDamnationWhispersManifest(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.WhispersManifest4));
+
+class Blizzard(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(8, 40));
+class AncientBlizzard1(BossModule module) : Blizzard(module, AID.AncientBlizzard1);
+class AncientBlizzard2(BossModule module) : Blizzard(module, AID.AncientBlizzard2);
+class AncientBlizzardWhispersManifest(BossModule module) : Blizzard(module, AID.WhispersManifest3);
+
+class AncientHoly(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(20));
+class AncientHoly1(BossModule module) : AncientHoly(module, AID.AncientHoly1);
+class AncientHoly2(BossModule module) : AncientHoly(module, AID.AncientHoly2);
+class AncientHolyWhispersManifest(BossModule module) : AncientHoly(module, AID.WhispersManifest2);
+
+class Interment(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
+class ForeInterment(BossModule module) : Interment(module, AID.ForeInterment);
+class RearInterment(BossModule module) : Interment(module, AID.RearInterment);
+class RightInterment(BossModule module) : Interment(module, AID.RightInterment);
+class LeftInterment(BossModule module) : Interment(module, AID.LeftInterment);
+class MirroredForeInterment(BossModule module) : Interment(module, AID.MirroredForeInterment);
+class MirroredRearInterment(BossModule module) : Interment(module, AID.MirroredRearInterment);
+class MirroredRightInterment(BossModule module) : Interment(module, AID.MirroredRightInterment);
+class MirroredLeftInterment(BossModule module) : Interment(module, AID.MirroredLeftInterment);
+
+class EternalDamnation1(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EternalDamnation1));
 class EternalDamnation2(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EternalDamnation2));
+class EternalDamnationWhispersManifest(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.WhispersManifest4));
+
 class WhisperedIncantation(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.WhisperedIncantation), "Remembers the next skill and uses it again when casting Whispers Manifest");
 
 class MirroredIncantation(BossModule module) : BossComponent(module)
 {
     private int Mirrorstacks;
-    public enum Types { None, Mirroredx3, Mirroredx4 }
-    public Types Type { get; private set; }
+    private enum Types { None, Mirroredx3, Mirroredx4 }
+    private Types Type;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.MirroredIncantation)
+        if ((AID)spell.Action.ID == AID.MirroredIncantation1)
             Type = Types.Mirroredx3;
         if ((AID)spell.Action.ID == AID.MirroredIncantation2)
             Type = Types.Mirroredx4;
@@ -80,7 +99,7 @@ class MirroredIncantation(BossModule module) : BossComponent(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.MirroredIncantation or AID.MirroredIncantation2)
+        if ((AID)spell.Action.ID is AID.MirroredIncantation1 or AID.MirroredIncantation2)
             Type = Types.None;
     }
 
@@ -131,13 +150,13 @@ class AncientFlare(BossModule module) : BossComponent(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.AncientFlare or AID.AncientFlare2 or AID.WhispersManifest)
+        if ((AID)spell.Action.ID is AID.AncientFlare or AID.AncientFlare2 or AID.WhispersManifest1)
             casting = true;
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.AncientFlare or AID.AncientFlare2 or AID.WhispersManifest)
+        if ((AID)spell.Action.ID is AID.AncientFlare or AID.AncientFlare2 or AID.WhispersManifest1)
             casting = false;
     }
 
@@ -166,10 +185,6 @@ class AncientFlare(BossModule module) : BossComponent(module)
     }
 }
 
-class AncientHoly(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AncientHoly), new AOEShapeCircle(20));
-class AncientHoly2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AncientHoly2), new AOEShapeCircle(20));
-class AncientHolyWhispersManifest(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WhispersManifest2), new AOEShapeCircle(20));
-
 // TODO: wicked swipe, check if there are even more skills missing
 
 class KerStates : StateMachineBuilder
@@ -179,7 +194,7 @@ class KerStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<MinaxGlare>()
             .ActivateOnEnter<Heliovoid>()
-            .ActivateOnEnter<AncientBlizzard>()
+            .ActivateOnEnter<AncientBlizzard1>()
             .ActivateOnEnter<AncientBlizzard2>()
             .ActivateOnEnter<AncientBlizzardWhispersManifest>()
             .ActivateOnEnter<ForeInterment>()
@@ -191,11 +206,11 @@ class KerStates : StateMachineBuilder
             .ActivateOnEnter<MirroredRightInterment>()
             .ActivateOnEnter<MirroredLeftInterment>()
             .ActivateOnEnter<MirroredIncantation>()
-            .ActivateOnEnter<EternalDamnation>()
+            .ActivateOnEnter<EternalDamnation1>()
             .ActivateOnEnter<EternalDamnation2>()
             .ActivateOnEnter<EternalDamnationWhispersManifest>()
             .ActivateOnEnter<AncientFlare>()
-            .ActivateOnEnter<AncientHoly>()
+            .ActivateOnEnter<AncientHoly1>()
             .ActivateOnEnter<AncientHoly2>()
             .ActivateOnEnter<AncientHolyWhispersManifest>();
     }

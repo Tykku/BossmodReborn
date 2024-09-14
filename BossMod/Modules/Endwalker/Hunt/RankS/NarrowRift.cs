@@ -17,7 +17,7 @@ public enum AID : uint
     ContinualMeddlingFL = 27328, // Boss->self, 4.0s cast, range 60 circle, applies forward march/left face debuffs
     ContinualMeddlingBL = 27329, // Boss->self, 4.0s cast, range 60 circle, applies about face/left face debuffs
     ContinualMeddlingBR = 27330, // Boss->self, 4.0s cast, range 60 circle, applies about face/right face debuffs
-    // also meddling: 27325
+    ContinualMeddlingFA = 27325, // Boss->self, 4.0s cast, range 60 circle, applies forward march/about face debuffs
     EmptyRefrainCircleFirst = 27331, // Boss->self, 12.0s cast, range 10 circle
     EmptyRefrainDonutFirst = 27332, // Boss->self, 13.5s cast, range 6-40 donut
     EmptyRefrainCircleSecond = 27335, // Boss->self, 1.0s cast, range 10 circle

@@ -25,7 +25,7 @@ public enum AID : uint
     NerveGasRing = 32930, // Helper->self, 7.2s cast, range 8-30 donut
     Resonance = 31422, // Boss->player, 5.0s cast, range 12 90-degree cone, tankbuster
 
-    NanosporeJet = 31429, // Boss->self, 5.0s cast, range 100 circle
+    NanosporeJet = 31429 // Boss->self, 5.0s cast, range 100 circle
 }
 
 public enum SID : uint
@@ -34,7 +34,7 @@ public enum SID : uint
     NegativeChargePlayer = 3419, // none->player, extra=0x0
     PositiveChargePlayer = 3418, // none->player, extra=0x0
     NegativeChargeDrone = 3417, // none->WeaponsDrone, extra=0x0
-    PositiveChargeDrone = 3416, // none->WeaponsDrone, extra=0x0
+    PositiveChargeDrone = 3416 // none->WeaponsDrone, extra=0x0
 }
 
 public enum TetherID : uint
@@ -76,7 +76,7 @@ class Magnetism(BossModule module) : Components.Knockback(module, ignoreImmunes:
         if (tether.ID == (uint)TetherID.Magnetism)
         {
             var target = WorldState.Actors.Find(tether.Target)!;
-            var activation = Module.WorldState.FutureTime(10);
+            var activation = WorldState.FutureTime(10);
             if (IsPull(source, target))
                 sourceByActor.Add((target, new(source.Position, 10, activation, Kind: Kind.TowardsOrigin)));
             else if (IsKnockback(source, target))
@@ -108,7 +108,7 @@ class Magnetism(BossModule module) : Components.Knockback(module, ignoreImmunes:
         {
             var target = sourceByActor.FirstOrDefault(x => x.Item1 == actor);
             var offset = target.Item2.Kind == Kind.TowardsOrigin ? 180.Degrees() : default;
-            hints.AddForbiddenZone(ShapeDistance.InvertedDonutSector(Module.Center, 15, 18, Angle.FromDirection(target.Item2.Origin - Module.Center) + offset, 35.Degrees()));
+            hints.AddForbiddenZone(ShapeDistance.InvertedDonutSector(Arena.Center, 15, 18, Angle.FromDirection(target.Item2.Origin - Arena.Center) + offset, 35.Degrees()));
         }
     }
 }
@@ -149,15 +149,15 @@ class NerveGasRingAndAutoCannons(BossModule module) : Components.GenericAOEs(mod
     {
         if ((AID)spell.Action.ID == AID.NerveGasRing)
         {
-            _aoes.Add(new(donut, Module.Center, default, Module.CastFinishAt(spell), Risky: false));
-            _aoes.Add(new(cross, Module.Center, default, Module.CastFinishAt(spell)));
+            _aoes.Add(new(donut, Arena.Center, default, Module.CastFinishAt(spell), Risky: false));
+            _aoes.Add(new(cross, Arena.Center, default, Module.CastFinishAt(spell)));
         }
         if (_aoes.Count == 0 && (AID)spell.Action.ID == AID.AutoCannons)
-            _aoes.Add(new(cross, Module.Center, default, Module.CastFinishAt(spell)));
+            _aoes.Add(new(cross, Arena.Center, default, Module.CastFinishAt(spell)));
         else if (_aoes.Count == 2 && (AID)spell.Action.ID == AID.AutoCannons)
         {
             _aoes.RemoveAt(1);
-            _aoes.Add(new(cross, Module.Center, default, Module.CastFinishAt(spell)));
+            _aoes.Add(new(cross, Arena.Center, default, Module.CastFinishAt(spell)));
         }
     }
 
@@ -168,9 +168,12 @@ class NerveGasRingAndAutoCannons(BossModule module) : Components.GenericAOEs(mod
     }
 }
 
-class LeftNerveGas(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeftwardNerveGas), new AOEShapeCone(30, 90.Degrees()));
-class RightNerveGas(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RightwardNerveGas), new AOEShapeCone(30, 90.Degrees()));
+class NerveGas(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 90.Degrees()));
+class LeftNerveGas(BossModule module) : NerveGas(module, AID.LeftwardNerveGas);
+class RightNerveGas(BossModule module) : NerveGas(module, AID.RightwardNerveGas);
+
 class CentralizedNerveGas(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CentralizedNerveGas), new AOEShapeCone(30, 60.Degrees()));
+
 class AutoAttack(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.AutoAttack), new AOEShapeCone(11, 45.Degrees()))
 {
     private bool Inactive(int slot, Actor actor) => !Module.FindComponent<Barofield>()!.ActiveAOEs(slot, actor).Any();

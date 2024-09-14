@@ -230,9 +230,9 @@ class M01SBlackCatStates : StateMachineBuilder
         CastStartMulti(id + 0x100, [AID.Overshadow, AID.SplinteringNails], 8.4f)
             .ActivateOnEnter<ElevateAndEviscerate>()
             .ActivateOnEnter<ElevateAndEviscerateHint>()
-            .ActivateOnEnter<ElevateAndEviscerateShockwave>();
+            .ActivateOnEnter<ElevateAndEviscerateShockwave>()
+            .ActivateOnEnter<Overshadow>();
         ComponentCondition<ElevateAndEviscerate>(id + 0x101, 4.7f, comp => comp.NumCasts >= 1, "Jump 1")
-            .ActivateOnEnter<Overshadow>()
             .ActivateOnEnter<SplinteringNails>();
         CastEnd(id + 0x102, 0.3f); // note: splintering nails resolve ~0.8s later, overshadow ~0.3s later
         CastStartMulti(id + 0x110, [AID.Overshadow, AID.SplinteringNails], 7.4f);
