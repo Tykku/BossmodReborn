@@ -41,7 +41,7 @@ public class A30Trash1States : StateMachineBuilder
         // as soon as the last serpent dies, other adds are spawned; serpents are destroyed a bit later
         TrivialPhase()
             .ActivateOnEnter<WaterIII>()
-            .Raw.Update = () => module.Enemies(OID.Serpent).All(e => e.IsDead);
+            .Raw.Update = () => module.Enemies(OID.Serpent).All(e => e.IsDeadOrDestroyed);
         TrivialPhase(1)
             .ActivateOnEnter<PelagicCleaver1>()
             .ActivateOnEnter<PelagicCleaver2>()
@@ -49,7 +49,7 @@ public class A30Trash1States : StateMachineBuilder
             .ActivateOnEnter<PelagicCleaver2Hint>()
             .ActivateOnEnter<WaterFlood>()
             .ActivateOnEnter<DivineFlood>()
-            .Raw.Update = () => module.Enemies(OID.Serpent).Count == 0 && module.Enemies(OID.Triton).All(e => e.IsDead) && module.Enemies(OID.DivineSprite).All(e => e.IsDead) && module.Enemies(OID.WaterSprite).All(e => e.IsDead);
+            .Raw.Update = () => module.Enemies(OID.Serpent).Count == 0 && module.Enemies(OID.Triton).Concat(module.Enemies(OID.DivineSprite)).Concat(module.Enemies(OID.WaterSprite)).All(e => e.IsDeadOrDestroyed);
     }
 }
 
@@ -58,9 +58,6 @@ public class A30Trash1(WorldState ws, Actor primary) : BossModule(ws, primary, n
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Serpent));
-        Arena.Actors(Enemies(OID.Triton));
-        Arena.Actors(Enemies(OID.DivineSprite));
-        Arena.Actors(Enemies(OID.WaterSprite));
+        Arena.Actors(Enemies(OID.Serpent).Concat(Enemies(OID.Triton)).Concat(Enemies(OID.DivineSprite)).Concat(Enemies(OID.WaterSprite)));
     }
 }

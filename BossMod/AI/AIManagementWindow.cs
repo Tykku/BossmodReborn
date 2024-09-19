@@ -52,14 +52,11 @@ sealed class AIManagementWindow : UIWindow
             if (leaderCombo)
             {
                 if (ImGui.Selectable("<idle>", _manager.Beh == null))
-                {
                     _manager.SwitchToIdle();
-                }
                 foreach (var (i, p) in _manager.WorldState.Party.WithSlot(true))
                 {
                     if (ImGui.Selectable(p.Name, _manager.MasterSlot == i))
                     {
-                        _config.Enabled = true;
                         _manager.SwitchToFollow(i);
                         _config.FollowSlot = i;
                         _config.Modified.Fire();
@@ -116,8 +113,16 @@ sealed class AIManagementWindow : UIWindow
             {
                 if (ImGui.Selectable(p.Name, p == _manager.AiPreset))
                     _manager.SetAIPreset(p);
+                if (ImGui.Selectable("Deactivate autorotation presets", p == _manager.AiPreset))
+                    _manager.SetAIPreset(null);
             }
         }
+        // ImGui.SameLine();
+        // if (ImGui.Button("Deactivate autorotation presets"))
+        // {
+        //     if (_beh != null)
+        //         _beh.AIPreset = null;
+        // }
     }
 
     public override void OnClose() => SetVisible(false);

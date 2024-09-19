@@ -86,10 +86,10 @@ public class DirectionalParry(BossModule module, uint actorOID) : Adds(module, a
         if (active.HasFlag(check))
             DrawParry(actor, offset, Colors.Enemy);
         else if (imminent.HasFlag(check))
-            DrawParry(actor, offset, Colors.Danger);
+            DrawParry(actor, offset);
     }
 
-    private void DrawParry(Actor actor, Angle offset, uint color)
+    private void DrawParry(Actor actor, Angle offset, uint color = 0)
     {
         var dir = actor.Rotation + offset;
         Arena.PathArcTo(actor.Position, 1.5f, (dir - 45.Degrees()).Rad, (dir + 45.Degrees()).Rad);

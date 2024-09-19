@@ -304,6 +304,6 @@ public class D013Philia(WorldState ws, Actor primary) : BossModule(ws, primary, 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actor(Enemies(OID.IronChain).FirstOrDefault(), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.IronChain), Colors.Vulnerable);
     }
 }

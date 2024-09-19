@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C013Shadowcaster;
 
-class InfernWave(BossModule module, bool savage, bool showHints, int maxActive) : Components.CastCounter(module, ActionID.MakeSpell(savage ? AID.SInfernWaveAOE : AID.NInfernWaveAOE))
+abstract class InfernWave(BossModule module, bool savage, bool showHints, int maxActive) : Components.CastCounter(module, ActionID.MakeSpell(savage ? AID.SInfernWaveAOE : AID.NInfernWaveAOE))
 {
     private class Beacon(Actor source, DateTime activation)
     {

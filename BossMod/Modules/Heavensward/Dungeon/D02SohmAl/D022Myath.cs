@@ -66,7 +66,7 @@ class D022MyathStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 37, NameID = 3793)]
 public class D022Myath(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> vertices = [new(162.7f, -125.94f), new(166.72f, -125.83f), new(167.19f, -125.64f), new(189.76f, -103.09f), new(189.69f, -102.56f),
+    private static readonly WPos[] vertices = [new(162.7f, -125.94f), new(166.72f, -125.83f), new(167.19f, -125.64f), new(189.76f, -103.09f), new(189.69f, -102.56f),
     new(189.8f, -101.97f), new(190.27f, -100.43f), new(190.34f, -99.91f), new(190.3f, -92.25f), new(190.5f, -88.93f),
     new(188.68f, -82.66f), new(188.44f, -82.12f), new(187.65f, -80.67f), new(187.42f, -80.14f), new(186.57f, -77.84f),
     new(186.27f, -77.42f), new(183.4f, -73.77f), new(183.06f, -73.37f), new(182.02f, -72.75f), new(181.6f, -72.39f),

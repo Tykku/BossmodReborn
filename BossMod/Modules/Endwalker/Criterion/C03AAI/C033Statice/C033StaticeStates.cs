@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C033Statice;
 
-class C033StaticeStates : StateMachineBuilder
+abstract class C033StaticeStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    public C033StaticeStates(BossModule module, bool savage) : base(module)
+    protected C033StaticeStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase);

@@ -21,25 +21,23 @@ public enum AID : uint
     SBloodyCaress = 31095, // SSapria->self, 3.0s cast, range 12 120-degree cone
 }
 
-class HoneyedLeft(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 90.Degrees()));
-class NHoneyedLeft(BossModule module) : HoneyedLeft(module, AID.NHoneyedLeft);
-class SHoneyedLeft(BossModule module) : HoneyedLeft(module, AID.SHoneyedLeft);
+abstract class Honeyed(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 90.Degrees()));
+class NHoneyedLeft(BossModule module) : Honeyed(module, AID.NHoneyedLeft);
+class SHoneyedLeft(BossModule module) : Honeyed(module, AID.SHoneyedLeft);
+class NHoneyedRight(BossModule module) : Honeyed(module, AID.NHoneyedRight);
+class SHoneyedRight(BossModule module) : Honeyed(module, AID.SHoneyedRight);
 
-class HoneyedRight(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 90.Degrees()));
-class NHoneyedRight(BossModule module) : HoneyedRight(module, AID.NHoneyedRight);
-class SHoneyedRight(BossModule module) : HoneyedRight(module, AID.SHoneyedRight);
-
-class HoneyedFront(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 60.Degrees()));
+abstract class HoneyedFront(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 60.Degrees()));
 class NHoneyedFront(BossModule module) : HoneyedFront(module, AID.NHoneyedFront);
 class SHoneyedFront(BossModule module) : HoneyedFront(module, AID.SHoneyedFront);
 
-class BloodyCaress(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(12, 60.Degrees()));
+abstract class BloodyCaress(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(12, 60.Degrees()));
 class NBloodyCaress(BossModule module) : BloodyCaress(module, AID.NBloodyCaress);
 class SBloodyCaress(BossModule module) : BloodyCaress(module, AID.SBloodyCaress);
 
-class C010UdumbaraStates : StateMachineBuilder
+abstract class C010UdumbaraStates : StateMachineBuilder
 {
-    public C010UdumbaraStates(BossModule module, bool savage) : base(module)
+    protected C010UdumbaraStates(BossModule module, bool savage) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<NHoneyedLeft>(!savage)

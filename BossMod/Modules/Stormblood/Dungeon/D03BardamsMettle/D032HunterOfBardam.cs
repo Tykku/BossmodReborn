@@ -175,7 +175,7 @@ class D032HunterOfBardamStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 240, NameID = 6180)]
 public class D032HunterOfBardam(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> vertices = [new(-25.46f, -32.82f), new(-25.08f, -32.37f), new(-24.46f, -32.23f), new(-23.34f, -32.04f), new(-20.11f, -31.35f),
+    private static readonly WPos[] vertices = [new(-25.46f, -32.82f), new(-25.08f, -32.37f), new(-24.46f, -32.23f), new(-23.34f, -32.04f), new(-20.11f, -31.35f),
     new(-19.58f, -31.16f), new(-17.25f, -29.93f), new(-16.76f, -29.55f), new(-16.38f, -29.2f), new(-16.05f, -28.81f),
     new(-15.52f, -27.91f), new(-15.18f, -27.5f), new(-14.23f, -26.97f), new(-13.8f, -26.6f), new(-12.47f, -25),
     new(-12.16f, -24.57f), new(-12.18f, -24.04f), new(-12.17f, -23.54f), new(-11.75f, -22.49f), new(-11.15f, -21.71f),

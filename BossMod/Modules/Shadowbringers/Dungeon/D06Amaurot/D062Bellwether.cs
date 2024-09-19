@@ -52,9 +52,7 @@ class D062BellwetherStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 652, NameID = 8202)]
 public class D062Bellwether(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> union = [new Circle(new(60, -361), 19.5f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(60, -341), 20, 1)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(60, -361), 19.5f)], [new Rectangle(new(60, -341), 20, 1)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

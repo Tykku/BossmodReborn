@@ -52,7 +52,7 @@ class Stage07Act3States : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.MaskedCarnivale, GroupID = 617, NameID = 8095, SortOrder = 3)]
 public class Stage07Act3 : BossModule
 {
-    public Stage07Act3(WorldState ws, Actor primary) : base(ws, primary, new(100, 100), Layout2Corners.arena)
+    public Stage07Act3(WorldState ws, Actor primary) : base(ws, primary, new(100, 100), Layouts.Layout2Corners)
     {
         ActivateComponent<Hints>();
         ActivateComponent<SlimeExplosion>();

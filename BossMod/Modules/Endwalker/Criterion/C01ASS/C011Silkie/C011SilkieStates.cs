@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C011Silkie;
 
-class C011SilkieStates : StateMachineBuilder
+abstract class C011SilkieStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    public C011SilkieStates(BossModule module, bool savage) : base(module)
+    protected C011SilkieStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase)

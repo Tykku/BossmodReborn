@@ -58,7 +58,7 @@ class D031GarulaStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 240, NameID = 6173)]
 public class D031Garula(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> vertices = [new(7.87f, 224.08f), new(8.22f, 224.47f), new(8.65f, 224.78f), new(9.77f, 224.86f), new(13.65f, 226.15f),
+    private static readonly WPos[] vertices = [new(7.87f, 224.08f), new(8.22f, 224.47f), new(8.65f, 224.78f), new(9.77f, 224.86f), new(13.65f, 226.15f),
     new(14.72f, 226.61f), new(15.14f, 226.89f), new(16.27f, 228.18f), new(16.78f, 228.48f), new(17.78f, 228.9f),
     new(18.31f, 229.1f), new(18.84f, 229.36f), new(19.57f, 230.25f), new(19.99f, 230.67f), new(20.85f, 231.43f),
     new(21.28f, 231.7f), new(21.58f, 232.11f), new(22.21f, 233.06f), new(22.58f, 233.52f), new(23.97f, 235.06f),

@@ -66,7 +66,7 @@ class ArenaBounds
                 var playerPoints = _points.Where(p => p.Item2.OID == 0).Select(x => new WPos(x.Item4.XZ())).ToList();
                 var points = ConcaveHull.GenerateConcaveHull(playerPoints, 0.5f, 0.1f);
                 var center = CalculateCentroid(points);
-                var sb = new StringBuilder("private static readonly List<WPos> vertices = [");
+                var sb = new StringBuilder("private static readonly WPos[] vertices = [");
 
                 for (var i = 0; i < points.Count; i++)
                 {

@@ -88,13 +88,11 @@ public sealed class AIHintsBuilder : IDisposable
 
     private void OnCastStarted(Actor actor)
     {
-        if (actor.Type != ActorType.Enemy || actor.IsAlly)
+        if (actor.Type is not ActorType.Enemy and not ActorType.Helper || actor.IsAlly)
             return;
         var data = actor.CastInfo!.IsSpell() ? Service.LuminaRow<Lumina.Excel.GeneratedSheets.Action>(actor.CastInfo.Action.ID) : null;
         if (data == null || data.CastType == 1)
             return;
-        //if (data.Omen.Row == 0)
-        //    return; // to consider: ignore aoes without omen, such aoes typically need a module to resolve...
         if (data.CastType is 2 or 5 && data.EffectRange >= RaidwideSize)
             return;
         if (ignore.Contains(actor.CastInfo!.Action.ID))

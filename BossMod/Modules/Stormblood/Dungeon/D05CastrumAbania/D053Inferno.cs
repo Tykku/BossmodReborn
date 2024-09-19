@@ -11,6 +11,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 870, // Boss->player, no cast, single-target
+
     KetuCut = 8326, // Boss->self, no cast, single-target
     RahuCut = 8327, // Boss->self, no cast, single-target
 

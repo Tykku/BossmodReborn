@@ -167,11 +167,11 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
         if (!AlwaysShowSpreads && Spreads.FindIndex(s => s.Target == pc) is var iSpread && iSpread >= 0)
         {
             // Draw only own circle if spreading; no one should be inside.
-            Arena.AddCircle(pc.Position, Spreads[iSpread].Radius, Colors.Danger);
+            Arena.AddCircle(pc.Position, Spreads[iSpread].Radius);
         }
         else
         {
-            void DrawCircle(WPos position, float radius, uint color) => Arena.AddCircle(position, radius, color);
+            void DrawCircle(WPos position, float radius, uint color = 0) => Arena.AddCircle(position, radius, color);
             // Handle safe stack circles
             foreach (var s in ActiveStacks.Where(x => x.Target == pc || !x.ForbiddenPlayers[pcSlot]
                     && !IsSpreadTarget(pc) && !IsStackTarget(pc) && (x.IsInside(pc)
@@ -182,11 +182,11 @@ public class GenericStackSpread(BossModule module, bool alwaysShowSpreads = fals
             foreach (var s in ActiveStacks.Where(x => x.Target != pc && (IsStackTarget(pc) || x.ForbiddenPlayers[pcSlot] || IsSpreadTarget(pc) ||
                 !x.IsInside(pc) && (x.CorrectAmountInside(Module) || x.TooManyInside(Module)) ||
                 x.IsInside(pc) && x.TooManyInside(Module))))
-                DrawCircle(s.Target.Position, s.Radius, Colors.Danger);
+                DrawCircle(s.Target.Position, s.Radius);
 
             // Handle spread circles
             foreach (var s in ActiveSpreads)
-                DrawCircle(s.Target.Position, s.Radius, Colors.Danger);
+                DrawCircle(s.Target.Position, s.Radius);
         }
     }
 }
@@ -434,22 +434,17 @@ public class DonutStack(BossModule module, ActionID aid, uint icon, float innerR
     public float ActivationDelay { get; init; } = activationDelay;
     public uint Icon { get; init; } = icon;
     public ActionID Aid { get; init; } = aid;
-    private DateTime activation;
-    private readonly List<Actor> actors = [];
 
     public override void OnEventIcon(Actor actor, uint iconID)
     {
         if (iconID == Icon)
-        {
-            activation = WorldState.FutureTime(ActivationDelay);
-            actors.Add(actor);
-        }
+            AddStack(actor, WorldState.FutureTime(ActivationDelay));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if (spell.Action == Aid)
-            actors.Clear();
+            Stacks.Clear();
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -457,7 +452,7 @@ public class DonutStack(BossModule module, ActionID aid, uint icon, float innerR
         if (!ActiveStacks.Any())
             return;
         var forbidden = new List<Func<WPos, float>>();
-        foreach (var c in Raid.WithoutSlot().Exclude(actor))
+        foreach (var c in Raid.WithoutSlot().Where(x => ActiveStacks.Any(y => y.Target == x)).Exclude(actor))
             forbidden.Add(ShapeDistance.InvertedCircle(c.Position, Donut.InnerRadius / 4));
         if (forbidden.Count > 0)
             hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Max(), ActiveStacks.FirstOrDefault().Activation);
@@ -465,15 +460,8 @@ public class DonutStack(BossModule module, ActionID aid, uint icon, float innerR
 
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
-        Stacks.Clear();
-        if (actors.Count > 0)
-        {
-            var closestTarget = actors.Exclude(pc).Closest(pc.Position);
-            if (closestTarget != null)
-                AddStack(closestTarget, activation);
-        }
-        foreach (var c in actors)
-            Donut.Draw(Arena, c.Position, default, Colors.AOE);
+        foreach (var c in ActiveStacks)
+            Donut.Draw(Arena, c.Target.Position, default, Colors.AOE);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc) { }

@@ -78,7 +78,7 @@ class D033YolStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 240, NameID = 6155)]
 public class D033Yol(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> vertices = [new(24.09f, -494.71f), new(26.37f, -494.25f), new(26.91f, -494.23f), new(28.47f, -494.12f), new(29.03f, -494.01f),
+    private static readonly WPos[] vertices = [new(24.09f, -494.71f), new(26.37f, -494.25f), new(26.91f, -494.23f), new(28.47f, -494.12f), new(29.03f, -494.01f),
     new(29.52f, -493.81f), new(30.02f, -493.58f), new(31.4f, -492.64f), new(32.91f, -491.81f), new(33.52f, -491.82f),
     new(34.05f, -491.81f), new(35.46f, -491.02f), new(37.03f, -489.31f), new(37.91f, -488.51f), new(39.15f, -487.43f),
     new(39.42f, -486.91f), new(39.64f, -486.41f), new(41.24f, -484.25f), new(42.09f, -482.24f), new(42.26f, -481.74f),

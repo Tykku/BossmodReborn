@@ -104,7 +104,7 @@ public class StandardChasingAOEs(BossModule module, AOEShape shape, ActionID act
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var c in Chasers)
-            Arena.AddLine(c.PrevPos, c.Target.Position, Colors.Danger);
+            Arena.AddLine(c.PrevPos, c.Target.Position);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

@@ -6,7 +6,6 @@ public enum OID : uint
     Orbs = 0x2896, // R1.1
     Helper2 = 0x2A4B, // R3.45
     Helper = 0x233C
-
 }
 
 public enum AID : uint

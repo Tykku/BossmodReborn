@@ -1,11 +1,8 @@
 ﻿namespace BossMod.AI;
 
-[ConfigDisplay(Name = "AI configuration", Order = 6)]
+[ConfigDisplay(Name = "AI configuration (AI is very experimental, use at your own risk!)", Order = 6)]
 sealed class AIConfig : ConfigNode
 {
-    [PropertyDisplay("Enable AI", tooltip: "Disclaimer: AI is very experimental, use at your own risk!")]
-    public bool Enabled = false;
-
     [PropertyDisplay("Show status in DTR bar")]
     public bool ShowDTR = false;
 

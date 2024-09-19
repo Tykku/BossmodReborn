@@ -1,22 +1,22 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C030Trash1;
 
-class Hydrocannon(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(15, 3));
+abstract class Hydrocannon(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(15, 3));
 class NHydrocannon(BossModule module) : Hydrocannon(module, AID.NHydrocannon);
 class SHydrocannon(BossModule module) : Hydrocannon(module, AID.SHydrocannon);
 
-class Expulsion(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(8));
+abstract class Expulsion(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(8));
 class NExpulsion(BossModule module) : Expulsion(module, AID.NExpulsion);
 class SExpulsion(BossModule module) : Expulsion(module, AID.SExpulsion);
 
-class ElectricWhorl(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(8, 60));
+abstract class ElectricWhorl(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(8, 60));
 class NElectricWhorl(BossModule module) : ElectricWhorl(module, AID.NElectricWhorl);
 class SElectricWhorl(BossModule module) : ElectricWhorl(module, AID.SElectricWhorl);
 
-class C030RayStates : StateMachineBuilder
+abstract class C030RayStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    public C030RayStates(BossModule module, bool savage) : base(module)
+    protected C030RayStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase)

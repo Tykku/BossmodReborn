@@ -338,7 +338,7 @@ public abstract class BossModule : IDisposable
                         {
                             ClassCategory.Tank => Colors.Tank,
                             ClassCategory.Healer => Colors.Healer,
-                            ClassCategory.Melee => Colors.Healer,
+                            ClassCategory.Melee => Colors.Melee,
                             ClassCategory.Caster => Colors.Caster,
                             ClassCategory.PhysRanged => Colors.PhysRanged,
                             _ => color

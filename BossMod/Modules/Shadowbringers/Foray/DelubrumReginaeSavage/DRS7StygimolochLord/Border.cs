@@ -10,14 +10,14 @@ class Border(BossModule module) : Components.GenericAOEs(module)
     private const float _alcoveDepth = 1;
     private const float _alcoveWidth = 2;
     private bool Active;
-    private static readonly List<Shape> labyrinth = [new PolygonCustom(InDanger()), new PolygonCustom(MidDanger()), new PolygonCustom(OutDanger())];
-    public static readonly AOEShapeCustom customShape = new(labyrinth);
-    public static readonly ArenaBounds labPhase = new ArenaBoundsComplex([new Circle(BoundsCenter, 34.5f)], labyrinth);
+    private static readonly Shape[] labyrinth = [new PolygonCustom(InDanger()), new PolygonCustom(MidDanger()), new PolygonCustom(OutDanger())];
+    private static readonly AOEShapeCustom customShape = new(labyrinth);
+    private static readonly ArenaBounds labPhase = new ArenaBoundsComplex([new Circle(BoundsCenter, 34.5f)], labyrinth);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (!Active)
-            yield return new(customShape, Module.Arena.Center);
+            yield return new(customShape, Arena.Center);
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
@@ -25,7 +25,7 @@ class Border(BossModule module) : Components.GenericAOEs(module)
         if ((AID)spell.Action.ID == AID.MemoryOfTheLabyrinth)
         {
             Active = true;
-            Module.Arena.Bounds = labPhase;
+            Arena.Bounds = labPhase;
         }
     }
 

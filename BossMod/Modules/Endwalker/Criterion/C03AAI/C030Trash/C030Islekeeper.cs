@@ -1,18 +1,18 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C030Trash2;
 
-class GravityForce(BossModule module, AID aid) : Components.StackWithCastTargets(module, ActionID.MakeSpell(aid), 6, 4, 4);
+abstract class GravityForce(BossModule module, AID aid) : Components.StackWithCastTargets(module, ActionID.MakeSpell(aid), 6, 4, 4);
 class NGravityForce(BossModule module) : GravityForce(module, AID.NGravityForce);
 class SGravityForce(BossModule module) : GravityForce(module, AID.SGravityForce);
 
-class IsleDrop(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class IsleDrop(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
 class NIsleDrop(BossModule module) : IsleDrop(module, AID.NIsleDrop);
 class SIsleDrop(BossModule module) : IsleDrop(module, AID.SIsleDrop);
 
-class C030IslekeeperStates : StateMachineBuilder
+abstract class C030IslekeeperStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    public C030IslekeeperStates(BossModule module, bool savage) : base(module)
+    protected C030IslekeeperStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase);

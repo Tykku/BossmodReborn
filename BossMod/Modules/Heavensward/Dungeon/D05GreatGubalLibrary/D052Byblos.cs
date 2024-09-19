@@ -94,7 +94,7 @@ class D052ByblosStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 31, NameID = 3925)]
 public class D052Byblos(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> vertices = [new(182.26f, 3.32f), new(182.73f, 3.56f), new(183.19f, 3.90f), new(183.75f, 3.97f), new(184.83f, 3.93f),
+    private static readonly WPos[] vertices = [new(182.26f, 3.32f), new(182.73f, 3.56f), new(183.19f, 3.90f), new(183.75f, 3.97f), new(184.83f, 3.93f),
     new(185.39f, 3.94f), new(186.84f, 4.77f), new(187.35f, 4.97f), new(187.86f, 5.11f), new(188.42f, 5.24f),
     new(188.97f, 5.45f), new(190.39f, 6.58f), new(191.87f, 7.27f), new(192.3f, 7.56f), new(193.11f, 8.43f),
     new(193.52f, 8.86f), new(195, 9.83f), new(195.3f, 10.24f), new(195.94f, 11.22f), new(196.26f, 11.63f),

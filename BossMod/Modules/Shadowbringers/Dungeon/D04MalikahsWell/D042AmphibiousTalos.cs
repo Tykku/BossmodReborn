@@ -27,6 +27,7 @@ public enum IconID : uint
 
 class SwiftSpillRotation(BossModule module) : Components.GenericRotatingAOE(module)
 {
+    private static readonly Angle a60 = 60.Degrees();
     private Angle _increment;
     private Angle _rotation;
     private DateTime _activation;
@@ -36,8 +37,8 @@ class SwiftSpillRotation(BossModule module) : Components.GenericRotatingAOE(modu
     {
         var increment = (IconID)iconID switch
         {
-            IconID.RotateCW => -60.Degrees(),
-            IconID.RotateCCW => 60.Degrees(),
+            IconID.RotateCW => -a60,
+            IconID.RotateCCW => a60,
             _ => default
         };
         if (increment != default)

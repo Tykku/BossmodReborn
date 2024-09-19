@@ -138,7 +138,7 @@ public class BaitAwayTethers(BossModule module, AOEShape shape, uint tetherID, A
         if (DrawTethers)
         {
             foreach (var b in ActiveBaits)
-                Arena.AddLine(b.Source.Position, b.Target.Position, Colors.Danger);
+                Arena.AddLine(b.Source.Position, b.Target.Position);
         }
     }
 

@@ -51,7 +51,7 @@ class D021RaskovnikStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 37, NameID = 3791)]
 public class D021Raskovnik(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> vertices = [new(-136.33f, 145.18f), new(-117.95f, 145.43f), new(-117.36f, 145.39f), new(-116.81f, 145.63f), new(-116.27f, 145.82f),
+    private static readonly WPos[] vertices = [new(-136.33f, 145.18f), new(-117.95f, 145.43f), new(-117.36f, 145.39f), new(-116.81f, 145.63f), new(-116.27f, 145.82f),
     new(-114.15f, 146.2f), new(-113.69f, 146.41f), new(-112.32f, 147.3f), new(-111.88f, 147.66f), new(-110.25f, 149.21f),
     new(-107.98f, 151.7f), new(-107.55f, 152.13f), new(-106.13f, 153.03f), new(-105.67f, 153.39f), new(-105.03f, 155.54f),
     new(-103.08f, 159.25f), new(-102.87f, 159.73f), new(-101.84f, 163.71f), new(-101.74f, 164.29f), new(-101.45f, 168.35f),

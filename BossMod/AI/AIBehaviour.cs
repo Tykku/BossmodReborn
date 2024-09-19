@@ -4,7 +4,7 @@ using ImGuiNET;
 
 namespace BossMod.AI;
 
-public record struct Targeting(AIHints.Enemy Target, float PreferredRange = 3, Positional PreferredPosition = Positional.Any, bool PreferTanking = false);
+public record struct Targeting(AIHints.Enemy Target, float PreferredRange = 2.6f, Positional PreferredPosition = Positional.Any, bool PreferTanking = false);
 
 // constantly follow master
 sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Preset? aiPreset) : IDisposable
@@ -38,10 +38,10 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         _afkMode = !master.InCombat && (WorldState.CurrentTime - _masterLastMoved).TotalSeconds > 10;
         var gazeImminent = autorot.Hints.ForbiddenDirections.Count > 0 && autorot.Hints.ForbiddenDirections[0].activation <= WorldState.FutureTime(0.5f);
         var pyreticImminent = autorot.Hints.ImminentSpecialMode.mode == AIHints.SpecialMode.Pyretic && autorot.Hints.ImminentSpecialMode.activation <= WorldState.FutureTime(1);
-        var forbidActions = _config.ForbidActions || _afkMode || gazeImminent || pyreticImminent || autorot.Preset != null && autorot.Preset != AIPreset;
+        var forbidActions = _config.ForbidActions || _afkMode || gazeImminent || pyreticImminent;
 
         Targeting target = new();
-        if (!forbidActions && autorot.ActiveModules != null && autorot.ActiveModules.Count > 0)
+        if (!forbidActions && (AIPreset != null || autorot.Preset != null))
         {
             target = SelectPrimaryTarget(player, master);
             if (target.Target != null || TargetIsForbidden(player.TargetID))

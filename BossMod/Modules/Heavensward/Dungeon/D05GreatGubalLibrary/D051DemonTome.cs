@@ -73,7 +73,7 @@ class D051DemonTomeStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 31, NameID = 3923)]
 public class D051DemonTome(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultArena.Center, DefaultArena)
 {
-    private static readonly List<WPos> vertices = [new(19.49f, -9.58f), new(19.57f, -9.02f), new(19.57f, -8.51f), new(19.38f, -7.99f), new(19.23f, 7.30f),
+    private static readonly WPos[] vertices = [new(19.49f, -9.58f), new(19.57f, -9.02f), new(19.57f, -8.51f), new(19.38f, -7.99f), new(19.23f, 7.30f),
     new(19.54f, 7.76f), new(19.56f, 8.86f), new(19.62f, 9.37f), new(-14.67f, 9.60f), new(-18.81f, 9.59f),
     new(-19.47f, 9.58f), new(-19.58f, 9.00f), new(-19.57f, 8.46f), new(-19.44f, 7.89f), new(-19.33f, -7.38f),
     new(-19.57f, -7.85f), new(-19.59f, -8.96f), new(-19.68f, -9.47f), new(-17.27f, -9.59f), new(-3.43f, -9.60f)];

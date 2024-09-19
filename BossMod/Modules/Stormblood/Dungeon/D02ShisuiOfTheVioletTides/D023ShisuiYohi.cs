@@ -68,7 +68,7 @@ class D023ShisuiYohiStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 235, NameID = 6243)]
 public class D023ShisuiYohi(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> vertices = [new(2.79f, -452.34f), new(4.19f, -452.35f), new(4.76f, -452.15f), new(10.37f, -449.83f), new(10.9f, -449.57f),
+    private static readonly WPos[] vertices = [new(2.79f, -452.34f), new(4.19f, -452.35f), new(4.76f, -452.15f), new(10.37f, -449.83f), new(10.9f, -449.57f),
     new(16.48f, -443.99f), new(16.9f, -443.55f), new(19.45f, -437.37f), new(19.6f, -435.43f), new(19.58f, -428.49f),
     new(16.99f, -422.23f), new(16.64f, -421.71f), new(12.82f, -417.88f), new(12.4f, -417.49f), new(10.77f, -415.88f),
     new(6.6f, -414.16f), new(-6.31f, -414.07f), new(-6.89f, -414.27f), new(-10.64f, -415.82f), new(-11.2f, -416.27f),

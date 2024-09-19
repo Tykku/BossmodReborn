@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C021Shishio;
 
-class SplittingCry(BossModule module, AID aid) : Components.BaitAwayCast(module, ActionID.MakeSpell(aid), new AOEShapeRect(60, 7));
+abstract class SplittingCry(BossModule module, AID aid) : Components.BaitAwayCast(module, ActionID.MakeSpell(aid), new AOEShapeRect(60, 7));
 class NSplittingCry(BossModule module) : SplittingCry(module, AID.NSplittingCry);
 class SSplittingCry(BossModule module) : SplittingCry(module, AID.SSplittingCry);
 
-class ThunderVortex(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(8, 30));
+abstract class ThunderVortex(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(8, 30));
 class NThunderVortex(BossModule module) : ThunderVortex(module, AID.NThunderVortex);
 class SThunderVortex(BossModule module) : ThunderVortex(module, AID.SThunderVortex);
 

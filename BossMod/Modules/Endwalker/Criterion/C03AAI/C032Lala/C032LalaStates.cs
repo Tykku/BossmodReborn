@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C032Lala;
 
-class C032LalaStates : StateMachineBuilder
+abstract class C032LalaStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    public C032LalaStates(BossModule module, bool savage) : base(module)
+    protected C032LalaStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase);

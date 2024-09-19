@@ -102,7 +102,7 @@ class D031RangdaStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 39, NameID = 3452)]
 public class D031Rangda(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> vertices = [new(332.34f, -228.43f), new(337.76f, -228.37f), new(338.36f, -228.27f), new(343.49f, -227.03f), new(344.03f, -226.78f),
+    private static readonly WPos[] vertices = [new(332.34f, -228.43f), new(337.76f, -228.37f), new(338.36f, -228.27f), new(343.49f, -227.03f), new(344.03f, -226.78f),
     new(348.5f, -224.57f), new(348.95f, -224.28f), new(353.31f, -220.68f), new(356.57f, -216.48f), new(356.89f, -215.99f),
     new(359.19f, -211.05f), new(359.34f, -210.45f), new(360.39f, -205.52f), new(360.44f, -204.98f), new(360.38f, -199.62f),
     new(360.27f, -199.1f), new(359.12f, -194.36f), new(358.97f, -193.81f), new(356.49f, -189.12f), new(356.18f, -188.66f),

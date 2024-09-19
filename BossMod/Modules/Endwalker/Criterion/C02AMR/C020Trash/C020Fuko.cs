@@ -1,26 +1,26 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C020Trash1;
 
-class Tornado(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class Tornado(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
 class NTornado(BossModule module) : Tornado(module, AID.NTornado);
 class STornado(BossModule module) : Tornado(module, AID.STornado);
 
-class ScytheTail(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(10));
+abstract class ScytheTail(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(10));
 class NScytheTail(BossModule module) : ScytheTail(module, AID.NScytheTail);
 class SScytheTail(BossModule module) : ScytheTail(module, AID.SScytheTail);
 
-class Twister(BossModule module, AID aid) : Components.StackWithCastTargets(module, ActionID.MakeSpell(aid), 8, 4, 4);
+abstract class Twister(BossModule module, AID aid) : Components.StackWithCastTargets(module, ActionID.MakeSpell(aid), 8, 4, 4);
 class NTwister(BossModule module) : Twister(module, AID.NTwister);
 class STwister(BossModule module) : Twister(module, AID.STwister);
 
-class Crosswind(BossModule module, AID aid) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(aid), 25);
+abstract class Crosswind(BossModule module, AID aid) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(aid), 25);
 class NCrosswind(BossModule module) : Crosswind(module, AID.NCrosswind);
 class SCrosswind(BossModule module) : Crosswind(module, AID.SCrosswind);
 
-class C020FukoStates : StateMachineBuilder
+abstract class C020FukoStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    public C020FukoStates(BossModule module, bool savage) : base(module)
+    protected C020FukoStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase)

@@ -43,7 +43,7 @@ class VirginTearsArenaChange(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.VirginTears && Module.Arena.Bounds == D013Lorelei.DefaultArena)
+        if ((AID)spell.Action.ID == AID.VirginTears && Arena.Bounds == D013Lorelei.DefaultArena)
         {
             if (++NumCasts > 3)
                 _aoe = new(donut, D013Lorelei.ArenaCenter, default, Module.CastFinishAt(spell, 0.7f));

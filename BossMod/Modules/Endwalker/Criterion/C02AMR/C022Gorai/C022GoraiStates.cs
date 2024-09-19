@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C022Gorai;
 
-class C022GoraiStates : StateMachineBuilder
+abstract class C022GoraiStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    public C022GoraiStates(BossModule module, bool savage) : base(module)
+    protected C022GoraiStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase)

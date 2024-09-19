@@ -229,12 +229,12 @@ public sealed class Plugin : IDalamudPlugin
         currentConfig.ButtonPushColor = defaultConfig.ButtonPushColor;
         currentConfig.TextColors = defaultConfig.TextColors;
         currentConfig.PositionalColors = defaultConfig.PositionalColors;
-        currentConfig.PlayerColorsTank = defaultConfig.PlayerColorsTank;
-        currentConfig.PlayerColorsHealer = defaultConfig.PlayerColorsHealer;
-        currentConfig.PlayerColorsPhysRanged = defaultConfig.PlayerColorsPhysRanged;
-        currentConfig.PlayerColorsCaster = defaultConfig.PlayerColorsCaster;
-        currentConfig.PlayerColorsMelee = defaultConfig.PlayerColorsMelee;
-        currentConfig.PlayerColorsFocus = defaultConfig.PlayerColorsFocus;
+        currentConfig.ArenaPlayerGenericTank = defaultConfig.ArenaPlayerGenericTank;
+        currentConfig.ArenaPlayerGenericHealer = defaultConfig.ArenaPlayerGenericHealer;
+        currentConfig.ArenaPlayerGenericPhysRanged = defaultConfig.ArenaPlayerGenericPhysRanged;
+        currentConfig.ArenaPlayerGenericCaster = defaultConfig.ArenaPlayerGenericCaster;
+        currentConfig.ArenaPlayerGenericMelee = defaultConfig.ArenaPlayerGenericMelee;
+        currentConfig.ArenaPlayerGenericFocus = defaultConfig.ArenaPlayerGenericFocus;
         currentConfig.Modified.Fire();
         Service.Log("Colors have been reset to default values.");
     }

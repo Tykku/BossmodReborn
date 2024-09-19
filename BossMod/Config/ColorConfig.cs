@@ -9,37 +9,31 @@ public sealed class ColorConfig : ConfigNode
     [PropertyDisplay("Arena: border")]
     public Color ArenaBorder = new(0xffffffff);
 
-    [PropertyDisplay("Arena: AOE")]
+    [PropertyDisplay("Arena: typical danger zone (AOE)")]
     public Color ArenaAOE = new(0x80008080);
 
-    [PropertyDisplay("Arena: safe from AOE")]
+    [PropertyDisplay("Arena: typical safe zone")]
     public Color ArenaSafeFromAOE = new(0x80008000);
 
-    [PropertyDisplay("Arena: danger")]
+    // TODO: imminent aoes and dangerous players should use separate color
+    [PropertyDisplay("Arena: typical danger foreground element (tether, etc)")]
     public Color ArenaDanger = new(0xff00ffff);
 
-    [PropertyDisplay("Arena: safe")]
+    [PropertyDisplay("Arena: typical safe foreground element (tether, etc)")]
     public Color ArenaSafe = new(0xff00ff00);
-
-    [PropertyDisplay("Arena: trap")]
-    public Color ArenaTrap = new(0x80000080);
-
-    [PropertyDisplay("Arena: player character")]
-    public Color ArenaPC = new(0xff00ff00);
 
     [PropertyDisplay("Arena: enemy")]
     public Color ArenaEnemy = new(0xff0000ff);
 
-    [PropertyDisplay("Arena: object")]
+    [PropertyDisplay("Arena: non-enemy important object (untargetable origin of a tether, interactible object, etc)")]
     public Color ArenaObject = new(0xff0080ff);
 
-    [PropertyDisplay("Arena: player interesting")]
-    public Color ArenaPlayerInteresting = new(0xffc0c0c0);
+    [PropertyDisplay("Arena: player character")]
+    public Color ArenaPC = new(0xff00ff00);
+    [PropertyDisplay("Arena: trap")]
+    public Color ArenaTrap = new(0x80000080);
 
-    [PropertyDisplay("Arena: player generic")]
-    public Color ArenaPlayerGeneric = new(0xff808080);
-
-    [PropertyDisplay("Arena: vulnerable")]
+    [PropertyDisplay("Arena: vulnerable, needs special attention")]
     public Color ArenaVulnerable = new(0xffff00ff);
 
     [PropertyDisplay("Arena: future vulnerable")]
@@ -49,7 +43,31 @@ public sealed class ColorConfig : ConfigNode
     public Color ArenaMeleeRangeIndicator = new(0xffff0000);
 
     [PropertyDisplay("Arena: other")]
-    public Color[] ArenaOther = [new(0xffff0080), new(0xff8080ff), new(0xff80ff80), new(0xffff8040), new(0xff40c0c0)];
+    public Color[] ArenaOther = [new(0xffff0080), new(0xff8080ff), new(0xff80ff80), new(0xffff8040), new(0xff40c0c0), new(0x40008080)];
+
+    [PropertyDisplay("Arena: interesting player, important for a mechanic")]
+    public Color ArenaPlayerInteresting = new(0xffc0c0c0);
+
+    [PropertyDisplay("Arena: generic/irrelevant player (can be overridden by role-specific colors, depending on settings)")]
+    public Color ArenaPlayerGeneric = new(0xff808080);
+
+    [PropertyDisplay("Arena: generic/irrelevant tank")]
+    public Color ArenaPlayerGenericTank = Color.FromComponents(30, 50, 110);
+
+    [PropertyDisplay("Arena: generic/irrelevant healer")]
+    public Color ArenaPlayerGenericHealer = Color.FromComponents(30, 110, 50);
+
+    [PropertyDisplay("Arena: generic/irrelevant melee")]
+    public Color ArenaPlayerGenericMelee = Color.FromComponents(110, 30, 30);
+
+    [PropertyDisplay("Arena: generic/irrelevant caster")]
+    public Color ArenaPlayerGenericCaster = Color.FromComponents(70, 30, 110);
+
+    [PropertyDisplay("Arena: generic/irrelevant phys. ranged")]
+    public Color ArenaPlayerGenericPhysRanged = Color.FromComponents(110, 90, 30);
+
+    [PropertyDisplay("Arena: generic/irrelevant focus target")]
+    public Color ArenaPlayerGenericFocus = Color.FromComponents(0, 255, 255);
 
     [PropertyDisplay("Outlines and shadows")]
     public Color Shadows = new(0xFF000000);
@@ -107,24 +125,6 @@ public sealed class ColorConfig : ConfigNode
      new(0xff00ff00), new(0xff0080ff), new(0xffff00ff), new(0x80808080), new(0x80800080),
      new(0x80ffffff), new(0x8000ff00), new(0xffffff00), new(0x800000ff), new(0xff404040),
      new(0xffff0000), new(0xff000000), new(0x80008080), new(0x8080ff80), new(0xffc0c0c0)];
-
-    [PropertyDisplay("Player colors: tank")]
-    public Color PlayerColorsTank = Color.FromComponents(30, 50, 110);
-
-    [PropertyDisplay("Player colors: healer")]
-    public Color PlayerColorsHealer = Color.FromComponents(30, 110, 50);
-
-    [PropertyDisplay("Player colors: melee")]
-    public Color PlayerColorsMelee = Color.FromComponents(110, 30, 30);
-
-    [PropertyDisplay("Player colors: caster")]
-    public Color PlayerColorsCaster = Color.FromComponents(70, 30, 110);
-
-    [PropertyDisplay("Player colors: phys. ranged")]
-    public Color PlayerColorsPhysRanged = Color.FromComponents(110, 90, 30);
-
-    [PropertyDisplay("Player colors: focus")]
-    public Color PlayerColorsFocus = Color.FromComponents(0, 255, 255);
 
     public static ColorConfig DefaultConfig => new();
 }

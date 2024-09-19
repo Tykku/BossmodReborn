@@ -3,4 +3,4 @@
 class BrutalImpact(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.BrutalImpactAOE));
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 990, NameID = 13356, PlanLevel = 100)]
-public class M03SBruteBomber(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsSquare(15));
+public class M03SBruteBomber(WorldState ws, Actor primary) : Raid.M03NBruteBomber.M03NBruteBomber(ws, primary);

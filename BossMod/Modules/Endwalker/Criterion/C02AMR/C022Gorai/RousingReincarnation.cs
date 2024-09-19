@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C022Gorai;
 
-class RousingReincarnation(BossModule module, AID aid) : Components.CastCounter(module, ActionID.MakeSpell(aid));
+abstract class RousingReincarnation(BossModule module, AID aid) : Components.CastCounter(module, ActionID.MakeSpell(aid));
 class NRousingReincarnation(BossModule module) : RousingReincarnation(module, AID.NRousingReincarnationAOE);
 class SRousingReincarnation(BossModule module) : RousingReincarnation(module, AID.SRousingReincarnationAOE);
 

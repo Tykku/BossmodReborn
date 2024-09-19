@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C031Ketuduke;
 
-class SpringCrystalsRect(BossModule module, bool moveCasters, bool risky, float delay) : Components.GenericAOEs(module)
+abstract class SpringCrystalsRect(BossModule module, bool moveCasters, bool risky, float delay) : Components.GenericAOEs(module)
 {
     public List<WPos> SafeZoneCenters = InitialSafeZoneCenters(module.Center);
     private readonly List<AOEInstance> _aoes = [];

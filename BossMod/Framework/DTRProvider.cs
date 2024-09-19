@@ -21,23 +21,13 @@ internal sealed class DTRProvider : IDisposable
     {
         _mgr = manager;
         _ai = ai;
-
         _autorotationEntry.OnClick = () => _wantOpenPopup = true;
         _aiEntry.OnClick = () =>
         {
             if (_ai.Beh == null)
-            {
-                if (!_aiConfig.Enabled)
-                {
-                    _aiConfig.Enabled = true;
-                    _aiConfig.Modified.Fire();
-                }
                 _ai.SwitchToFollow(_aiConfig.FollowSlot);
-            }
             else
-            {
                 _ai.SwitchToIdle();
-            }
         };
     }
 

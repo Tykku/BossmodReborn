@@ -52,7 +52,7 @@ class StringRock(BossModule module) : Components.ConcentricAOEs(module, _shapes)
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 945, NameID = 12393, SortOrder = 6)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 945, NameID = 12393, SortOrder = 7)]
 public class V025Enenra(WorldState ws, Actor primary) : BossModule(ws, primary, new(900, -900), StartingBounds)
 {
     public static readonly ArenaBoundsCircle StartingBounds = new(20.5f);

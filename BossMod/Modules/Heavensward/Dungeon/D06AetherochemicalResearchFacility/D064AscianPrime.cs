@@ -236,7 +236,7 @@ class D064AscianPrimeStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 38, NameID = 3823)]
 public class D064AscianPrime(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> vertices = [new(230.1f, 58.66f), new(234.87f, 59.29f), new(235.46f, 59.42f), new(240.04f, 61.32f), new(240.54f, 61.66f),
+    private static readonly WPos[] vertices = [new(230.1f, 58.66f), new(234.87f, 59.29f), new(235.46f, 59.42f), new(240.04f, 61.32f), new(240.54f, 61.66f),
     new(244.09f, 64.38f), new(244.52f, 64.77f), new(247.63f, 68.83f), new(249.53f, 73.43f), new(249.69f, 74),
     new(250.3f, 78.68f), new(250.33f, 79.19f), new(249.72f, 83.76f), new(249.62f, 84.35f), new(247.73f, 88.91f),
     new(247.47f, 89.37f), new(244.53f, 93.2f), new(244.15f, 93.57f), new(240.69f, 96.23f), new(240.26f, 96.52f),

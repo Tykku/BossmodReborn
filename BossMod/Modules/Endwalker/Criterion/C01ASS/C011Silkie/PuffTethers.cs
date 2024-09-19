@@ -1,12 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C011Silkie;
 
-class PuffTethers(BossModule module, bool originAtBoss) : BossComponent(module)
+abstract class PuffTethers(BossModule module, bool originAtBoss) : BossComponent(module)
 {
     private readonly bool _originAtBoss = originAtBoss;
     private readonly PuffTracker? _tracker = module.FindComponent<PuffTracker>();
     private SlipperySoap.Color _bossColor;
-
-    private const uint _hintColor = 0x40008080;
 
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
@@ -44,24 +42,24 @@ class PuffTethers(BossModule module, bool originAtBoss) : BossComponent(module)
         var moveAngle = Angle.FromDirection(moveDir);
         if (yellow)
         {
-            C011Silkie.ShapeYellow.Draw(Arena, movePos, moveAngle + 45.Degrees(), _hintColor);
-            C011Silkie.ShapeYellow.Draw(Arena, movePos, moveAngle + 135.Degrees(), _hintColor);
-            C011Silkie.ShapeYellow.Draw(Arena, movePos, moveAngle - 135.Degrees(), _hintColor);
-            C011Silkie.ShapeYellow.Draw(Arena, movePos, moveAngle - 45.Degrees(), _hintColor);
+            C011Silkie.ShapeYellow.Draw(Arena, movePos, moveAngle + 45.Degrees(), Colors.Other6);
+            C011Silkie.ShapeYellow.Draw(Arena, movePos, moveAngle + 135.Degrees(), Colors.Other6);
+            C011Silkie.ShapeYellow.Draw(Arena, movePos, moveAngle - 135.Degrees(), Colors.Other6);
+            C011Silkie.ShapeYellow.Draw(Arena, movePos, moveAngle - 45.Degrees(), Colors.Other6);
         }
         else
         {
-            C011Silkie.ShapeBlue.Draw(Arena, movePos, moveAngle, _hintColor);
+            C011Silkie.ShapeBlue.Draw(Arena, movePos, moveAngle, Colors.Other6);
         }
 
-        var bossOrigin = _originAtBoss ? Module.PrimaryActor.Position : Module.Center;
+        var bossOrigin = _originAtBoss ? Module.PrimaryActor.Position : Arena.Center;
         switch (_bossColor)
         {
             case SlipperySoap.Color.Green:
-                C011Silkie.ShapeGreen.Draw(Arena, bossOrigin, new(), _hintColor);
+                C011Silkie.ShapeGreen.Draw(Arena, bossOrigin, new(), Colors.Other6);
                 break;
             case SlipperySoap.Color.Blue:
-                C011Silkie.ShapeBlue.Draw(Arena, bossOrigin, new(), _hintColor);
+                C011Silkie.ShapeBlue.Draw(Arena, bossOrigin, new(), Colors.Other6);
                 break;
         }
     }
@@ -71,7 +69,7 @@ class PuffTethers(BossModule module, bool originAtBoss) : BossComponent(module)
         var source = puffs.Find(p => p.Tether.Target == player.InstanceID);
         if (source != null)
         {
-            Arena.AddLine(source.Position, player.Position, Colors.Danger);
+            Arena.AddLine(source.Position, player.Position);
         }
     }
 }

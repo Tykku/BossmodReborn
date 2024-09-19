@@ -42,20 +42,20 @@ class Border(BossModule module) : Components.GenericAOEs(module, warningText: "P
 
     public readonly List<AOEInstance> BreakingPlatforms = [];
 
-    public static readonly List<WPos> positions = [new(-12, -71), new(12, -71), new(-12, -51),
+    public static readonly WPos[] positions = [new(-12, -71), new(12, -71), new(-12, -51),
     new(12, -51), new(-12, -31), new(12, -31), new(-12, -17), new(12, -17), new(0, -65), new(0, -45)];
 
-    private static readonly List<Shape> shapes = [new Square(positions[0], SquareHalfWidth),
+    private static readonly Shape[] shapes = [new Square(positions[0], SquareHalfWidth),
     new Square(positions[1], SquareHalfWidth), new Square(positions[2], SquareHalfWidth),
     new Square(positions[3], SquareHalfWidth), new Square(positions[4], SquareHalfWidth),
     new Square(positions[5], SquareHalfWidth), new Square(positions[6], SquareHalfWidth),
     new Square(positions[7], SquareHalfWidth), new Square(positions[8], RectangleHalfWidth),
     new Square(positions[9], RectangleHalfWidth)];
 
-    private static readonly List<Shape> rect = [new Rectangle(new WPos(0, -45), 10, 30)];
+    private static readonly Shape[] rect = [new Rectangle(new WPos(0, -45), 10, 30)];
     public readonly List<Shape> unionRefresh = new(rect.Concat(shapes.Take(8)));
     private readonly List<Shape> difference = [];
-    public static readonly ArenaBounds arenaDefault = new ArenaBoundsComplex(rect.Concat(shapes.Take(8)), Offset: PathfindingOffset);
+    public static readonly ArenaBounds DefaultArena = new ArenaBoundsComplex(rect.Concat(shapes.Take(8)), Offset: PathfindingOffset);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -189,9 +189,9 @@ class DeathlyRayFaces(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         foreach (var a in _aoesFirst)
-            yield return new(a.Shape, a.Origin, a.Rotation, default, Colors.Danger);
+            yield return a;
         foreach (var a in _aoesRest)
-            yield return new(a.Shape, a.Origin, a.Rotation, a.Activation, _aoesFirst.Count > 0 ? Colors.AOE : Colors.Danger, _aoesFirst.Count == 0);
+            yield return a with { Color = _aoesFirst.Count > 0 ? Colors.AOE : Colors.Danger, Risky = _aoesFirst.Count == 0 };
 
     }
 
@@ -200,7 +200,7 @@ class DeathlyRayFaces(BossModule module) : Components.GenericAOEs(module)
         if ((AID)spell.Action.ID == AID.DeathlyRayFacesFirst && _aoesFirst.Count == 0 && _aoesRest.Count == 0)
         {
             foreach (var c in Module.Enemies(OID.TheFaceOfTheBeast).Where(x => x.Rotation.AlmostEqual(caster.Rotation, Angle.DegToRad)))
-                _aoesFirst.Add(new(_rect, c.Position, c.Rotation));
+                _aoesFirst.Add(new(_rect, c.Position, c.Rotation, default, Colors.Danger));
             foreach (var c in Module.Enemies(OID.TheFaceOfTheBeast).Where(x => !x.Rotation.AlmostEqual(caster.Rotation, Angle.DegToRad)))
                 _aoesRest.Add(new(_rect, c.Position, c.Rotation, WorldState.FutureTime(8.5f)));
         }
@@ -238,4 +238,4 @@ class D063TherionStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 652, NameID = 8210)]
-public class D063Therion(WorldState ws, Actor primary) : BossModule(ws, primary, Border.arenaDefault.Center, Border.arenaDefault);
+public class D063Therion(WorldState ws, Actor primary) : BossModule(ws, primary, Border.DefaultArena.Center, Border.DefaultArena);

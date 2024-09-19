@@ -17,7 +17,7 @@ class IncendiaryRing(BossModule module) : Components.SelfTargetedAOEs(module, Ac
 
 class D040VanguardAerostat1States : StateMachineBuilder
 {
-    public D040VanguardAerostat1States(D040VanguardAerostat1 module) : base(module)
+    public D040VanguardAerostat1States(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<IncendiaryRing>()

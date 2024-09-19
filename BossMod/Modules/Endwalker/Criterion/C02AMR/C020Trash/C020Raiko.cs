@@ -1,31 +1,30 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C020Trash1;
 
-class BloodyCaress(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(12, 60.Degrees()));
+abstract class BloodyCaress(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(12, 60.Degrees()));
 class NBloodyCaress(BossModule module) : BloodyCaress(module, AID.NBloodyCaress);
 class SBloodyCaress(BossModule module) : BloodyCaress(module, AID.SBloodyCaress);
 
-class DisciplesOfLevin(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(10));
+abstract class DisciplesOfLevin(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(10));
 class NDisciplesOfLevin(BossModule module) : DisciplesOfLevin(module, AID.NDisciplesOfLevin);
 class SDisciplesOfLevin(BossModule module) : DisciplesOfLevin(module, AID.SDisciplesOfLevin);
 
-// TODO: better component (auto update rect length)
-class BarrelingSmash(BossModule module, AID aid) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(aid), 3.5f);
+abstract class BarrelingSmash(BossModule module, AID aid) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(aid), 3.5f);
 class NBarrelingSmash(BossModule module) : BarrelingSmash(module, AID.NBarrelingSmash);
 class SBarrelingSmash(BossModule module) : BarrelingSmash(module, AID.SBarrelingSmash);
 
-class Howl(BossModule module, AID aid) : Components.RaidwideCast(module, ActionID.MakeSpell(aid));
+abstract class Howl(BossModule module, AID aid) : Components.RaidwideCast(module, ActionID.MakeSpell(aid));
 class NHowl(BossModule module) : Howl(module, AID.NHowl);
 class SHowl(BossModule module) : Howl(module, AID.SHowl);
 
-class MasterOfLevin(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(5, 30));
+abstract class MasterOfLevin(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(5, 30));
 class NMasterOfLevin(BossModule module) : MasterOfLevin(module, AID.NMasterOfLevin);
 class SMasterOfLevin(BossModule module) : MasterOfLevin(module, AID.SMasterOfLevin);
 
-class C020RaikoStates : StateMachineBuilder
+abstract class C020RaikoStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    public C020RaikoStates(BossModule module, bool savage) : base(module)
+    protected C020RaikoStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase)

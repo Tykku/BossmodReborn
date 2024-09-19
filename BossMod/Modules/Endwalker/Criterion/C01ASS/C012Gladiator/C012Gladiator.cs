@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C012Gladiator;
 
-class RushOfMightFront(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 90.Degrees()));
+abstract class RushOfMightFront(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 90.Degrees()));
 class NRushOfMightFront(BossModule module) : RushOfMightFront(module, AID.NRushOfMightFront);
 class SRushOfMightFront(BossModule module) : RushOfMightFront(module, AID.SRushOfMightFront);
 
-class RushOfMightBack(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 90.Degrees()));
+abstract class RushOfMightBack(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 90.Degrees()));
 class NRushOfMightBack(BossModule module) : RushOfMightBack(module, AID.NRushOfMightBack);
 class SRushOfMightBack(BossModule module) : RushOfMightBack(module, AID.SRushOfMightBack);
 
