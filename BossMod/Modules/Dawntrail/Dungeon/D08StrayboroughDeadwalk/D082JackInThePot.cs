@@ -163,5 +163,5 @@ class D082JackInThePotStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 981, NameID = 12760)]
 public class D082JackInThePot(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(17, -170), 19.5f)], [new Rectangle(new(17, -150.15f), 20, 1.25f), new Rectangle(new(17, -189.5f), 20, 1.25f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(17, -170), 19.5f)], [new Rectangle(new(17, -150.15f), 20, 1.25f), new Rectangle(new(17, -189.5f), 20, 1.25f)]);
 }

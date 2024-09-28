@@ -13,15 +13,13 @@ public class GenericTowers(BossModule module, ActionID aid = default) : CastCoun
 
         public readonly bool IsInside(WPos pos) => pos.InCircle(Position, Radius);
         public readonly bool IsInside(Actor actor) => IsInside(actor.Position);
-        public readonly int NumInside(BossModule module, List<Actor> additionalAllies) => module.Raid.WithSlot().ExcludedFromMask(ForbiddenSoakers)
-                .Select(slot => slot.Item2).Concat(additionalAllies).InRadius(Position, Radius).Count();
-        public readonly bool CorrectAmountInside(BossModule module, List<Actor> additionalAllies) => NumInside(module, additionalAllies) is var count && count >= MinSoakers && count <= MaxSoakers;
-        public readonly bool InsufficientAmountInside(BossModule module, List<Actor> additionalAllies) => NumInside(module, additionalAllies) is var count && count < MaxSoakers;
-        public readonly bool TooManyInside(BossModule module, List<Actor> additionalAllies) => NumInside(module, additionalAllies) is var count && count > MaxSoakers;
+        public readonly int NumInside(BossModule module) => module.Raid.WithSlot().ExcludedFromMask(ForbiddenSoakers).InRadius(Position, Radius).Count();
+        public readonly bool CorrectAmountInside(BossModule module) => NumInside(module) is var count && count >= MinSoakers && count <= MaxSoakers;
+        public readonly bool InsufficientAmountInside(BossModule module) => NumInside(module) is var count && count < MaxSoakers;
+        public readonly bool TooManyInside(BossModule module) => NumInside(module) is var count && count > MaxSoakers;
     }
 
     public List<Tower> Towers = [];
-    public List<Actor> AdditionalAllies = []; // optional for helper NPCs that are not in your party, eg solo duties
 
     // default tower styling
     public static void DrawTower(MiniArena arena, WPos pos, float radius, bool safe)
@@ -37,7 +35,7 @@ public class GenericTowers(BossModule module, ActionID aid = default) : CastCoun
         }
         else if (Towers.FindIndex(t => !t.ForbiddenSoakers[slot] && t.IsInside(actor)) is var soakedIndex && soakedIndex >= 0) // note: this assumes towers don't overlap
         {
-            var count = Towers[soakedIndex].NumInside(Module, AdditionalAllies);
+            var count = Towers[soakedIndex].NumInside(Module);
             if (count < Towers[soakedIndex].MinSoakers)
                 hints.Add("Too few soakers in the tower!");
             else if (count > Towers[soakedIndex].MaxSoakers)
@@ -45,7 +43,7 @@ public class GenericTowers(BossModule module, ActionID aid = default) : CastCoun
             else
                 hints.Add("Soak the tower!", false);
         }
-        else if (Towers.Any(t => !t.ForbiddenSoakers[slot] && t.InsufficientAmountInside(Module, AdditionalAllies)))
+        else if (Towers.Any(t => !t.ForbiddenSoakers[slot] && t.InsufficientAmountInside(Module)))
         {
             hints.Add("Soak the tower!");
         }
@@ -54,7 +52,7 @@ public class GenericTowers(BossModule module, ActionID aid = default) : CastCoun
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var t in Towers)
-            DrawTower(Arena, t.Position, t.Radius, !t.ForbiddenSoakers[pcSlot] && !t.IsInside(pc) && t.NumInside(Module, AdditionalAllies) < t.MaxSoakers || t.IsInside(pc) && !t.ForbiddenSoakers[pcSlot] && t.NumInside(Module, AdditionalAllies) <= t.MaxSoakers);
+            DrawTower(Arena, t.Position, t.Radius, !t.ForbiddenSoakers[pcSlot] && !t.IsInside(pc) && t.NumInside(Module) < t.MaxSoakers || t.IsInside(pc) && !t.ForbiddenSoakers[pcSlot] && t.NumInside(Module) <= t.MaxSoakers);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -65,15 +63,15 @@ public class GenericTowers(BossModule module, ActionID aid = default) : CastCoun
         var forbidden = new List<Func<WPos, float>>();
         if (!Towers.Any(x => x.ForbiddenSoakers[slot]))
         {
-            foreach (var t in Towers.Where(x => !x.IsInside(actor) && x.InsufficientAmountInside(Module, AdditionalAllies) && x.NumInside(Module, AdditionalAllies) > 0))
+            foreach (var t in Towers.Where(x => !x.IsInside(actor) && x.InsufficientAmountInside(Module) && x.NumInside(Module) > 0))
                 forbiddenInverted.Add(ShapeDistance.InvertedCircle(t.Position, t.Radius));
-            var inTower = Towers.Any(x => x.IsInside(actor) && x.CorrectAmountInside(Module, AdditionalAllies));
-            var missingSoakers = !inTower && Towers.Any(x => x.InsufficientAmountInside(Module, AdditionalAllies));
+            var inTower = Towers.Any(x => x.IsInside(actor) && x.CorrectAmountInside(Module));
+            var missingSoakers = !inTower && Towers.Any(x => x.InsufficientAmountInside(Module));
             if (forbiddenInverted.Count == 0)
             {
-                foreach (var t in Towers.Where(x => x.InsufficientAmountInside(Module, AdditionalAllies) || x.IsInside(actor) && x.CorrectAmountInside(Module, AdditionalAllies)))
+                foreach (var t in Towers.Where(x => x.InsufficientAmountInside(Module) || x.IsInside(actor) && x.CorrectAmountInside(Module)))
                     forbiddenInverted.Add(ShapeDistance.InvertedCircle(t.Position, t.Radius));
-                foreach (var t in Towers.Where(x => x.TooManyInside(Module, AdditionalAllies) || !x.IsInside(actor) && x.CorrectAmountInside(Module, AdditionalAllies)))
+                foreach (var t in Towers.Where(x => x.TooManyInside(Module) || !x.IsInside(actor) && x.CorrectAmountInside(Module)))
                     forbidden.Add(ShapeDistance.Circle(t.Position, t.Radius));
             }
             if (forbidden.Count == 0 || inTower || missingSoakers && forbiddenInverted.Count > 0)

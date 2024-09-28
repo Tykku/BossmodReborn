@@ -33,7 +33,6 @@ class Misfortune(BossModule module) : Components.LocationTargetedAOEs(module, Ac
 
 class Border(BossModule module) : Components.GenericAOEs(module, warningText: "Platform will be removed during next Apokalypsis!")
 {
-    private ArenaBounds? arena;
     private const int SquareHalfWidth = 2;
     private const float RectangleHalfWidth = 10.1f;
     private const int MaxError = 5;
@@ -45,17 +44,14 @@ class Border(BossModule module) : Components.GenericAOEs(module, warningText: "P
     public static readonly WPos[] positions = [new(-12, -71), new(12, -71), new(-12, -51),
     new(12, -51), new(-12, -31), new(12, -31), new(-12, -17), new(12, -17), new(0, -65), new(0, -45)];
 
-    private static readonly Shape[] shapes = [new Square(positions[0], SquareHalfWidth),
-    new Square(positions[1], SquareHalfWidth), new Square(positions[2], SquareHalfWidth),
-    new Square(positions[3], SquareHalfWidth), new Square(positions[4], SquareHalfWidth),
-    new Square(positions[5], SquareHalfWidth), new Square(positions[6], SquareHalfWidth),
-    new Square(positions[7], SquareHalfWidth), new Square(positions[8], RectangleHalfWidth),
-    new Square(positions[9], RectangleHalfWidth)];
+    private static readonly Square[] shapes = [new(positions[0], SquareHalfWidth), new(positions[1], SquareHalfWidth), new(positions[2], SquareHalfWidth),
+    new(positions[3], SquareHalfWidth), new(positions[4], SquareHalfWidth), new(positions[5], SquareHalfWidth), new(positions[6], SquareHalfWidth),
+    new(positions[7], SquareHalfWidth), new(positions[8], RectangleHalfWidth), new(positions[9], RectangleHalfWidth)];
 
     private static readonly Shape[] rect = [new Rectangle(new WPos(0, -45), 10, 30)];
     public readonly List<Shape> unionRefresh = new(rect.Concat(shapes.Take(8)));
     private readonly List<Shape> difference = [];
-    public static readonly ArenaBounds DefaultArena = new ArenaBoundsComplex(rect.Concat(shapes.Take(8)), Offset: PathfindingOffset);
+    public static readonly ArenaBoundsComplex DefaultArena = new(rect.Concat(shapes.Take(8)), Offset: PathfindingOffset);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -77,7 +73,7 @@ class Border(BossModule module) : Components.GenericAOEs(module, warningText: "P
                             difference.Add(shapes[8]);
                         if (unionRefresh.Count == 5)
                             difference.Add(shapes[9]);
-                        arena = new ArenaBoundsComplex(unionRefresh, difference, Offset: PathfindingOffset);
+                        ArenaBoundsComplex arena = new(unionRefresh, difference, Offset: PathfindingOffset);
                         Arena.Bounds = arena;
                         Arena.Center = arena.Center;
                     }

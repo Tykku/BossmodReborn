@@ -140,7 +140,7 @@ class Shatter(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Impact(BossModule module, AID aid, int distance) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(aid), distance, stopAfterWall: true);
+abstract class Impact(BossModule module, AID aid, int distance) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(aid), distance, stopAfterWall: true);
 
 class Impact1(BossModule module) : Impact(module, AID.Impact1, 18)
 {
@@ -182,7 +182,7 @@ class Impact3(BossModule module) : Impact(module, AID.Impact3, 20)
     }
 }
 
-class Crush(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(10));
+abstract class Crush(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(10));
 class ColossalImpact(BossModule module) : Crush(module, AID.ColossalImpact);
 class Skullcrush1(BossModule module) : Crush(module, AID.Skullcrush1);
 class Skullcrush2(BossModule module) : Crush(module, AID.Skullcrush2);
@@ -221,7 +221,7 @@ class DestructiveHeat(BossModule module) : Components.SpreadFromCastTargets(modu
 
 class Landing(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Landing), 8);
 
-class DeepThunder(BossModule module, AID aid) : Components.CastTowers(module, ActionID.MakeSpell(aid), 6, 4, 4);
+abstract class DeepThunder(BossModule module, AID aid) : Components.CastTowers(module, ActionID.MakeSpell(aid), 6, 4, 4);
 class DeepThunder1(BossModule module) : DeepThunder(module, AID.DeepThunderTower1);
 class DeepThunder2(BossModule module) : DeepThunder(module, AID.DeepThunderTower2);
 

@@ -121,7 +121,7 @@ class D023TiomanStates : StateMachineBuilder
 public class D023Tioman(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     public static readonly WPos ArenaCenter = new(-104, -395);
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(ArenaCenter, 27.5f)], [new Rectangle(new(-112.465f, -368.177f), 20, 1.25f, 19.24f.Degrees())]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(ArenaCenter, 27.5f)], [new Rectangle(new(-112.465f, -368.177f), 20, 1.25f, 19.24f.Degrees())]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

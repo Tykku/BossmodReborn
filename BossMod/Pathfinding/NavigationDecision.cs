@@ -29,8 +29,7 @@ public struct NavigationDecision
         SafeBlocked,
         UptimeToPositional,
         UptimeBlocked,
-        Optimal,
-        CustomWaypoints
+        Optimal
     }
 
     public WPos? Destination;
@@ -46,23 +45,6 @@ public struct NavigationDecision
     {
         if (targetRadius < 1)
             targetRadius = 1; // ensure targetRadius is at least 1 to prevent game from freezing
-
-        hints.WaypointManager.UpdateCurrentWaypoint(player.Position);
-
-        if (hints.WaypointManager.HasWaypoints)
-        {
-            var currentWaypoint = hints.WaypointManager.CurrentWaypoint;
-            if (currentWaypoint.HasValue)
-            {
-                return new NavigationDecision
-                {
-                    Destination = currentWaypoint.Value,
-                    LeewaySeconds = float.MaxValue,
-                    TimeToGoal = (currentWaypoint.Value - player.Position).Length() / playerSpeed,
-                    DecisionType = Decision.CustomWaypoints
-                };
-            }
-        }
 
         // TODO: skip pathfinding if there are no forbidden zones, just find closest point in circle/cone...
 

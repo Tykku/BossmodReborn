@@ -12,7 +12,6 @@ public abstract record class ArenaBounds(float Radius, float MapResolution)
     private readonly PolygonClipper.Operand _clipOperand = new();
     public static readonly Dictionary<object, object> StaticCache = [];
     public readonly Dictionary<object, object> Cache = [];
-    public WPos Center;
 
     private float _screenHalfSize;
     public float ScreenHalfSize
@@ -126,7 +125,7 @@ public record class ArenaBoundsCircle(float Radius, float MapResolution = 0.5f) 
     private Pathfinding.Map BuildMap()
     {
         var map = new Pathfinding.Map(MapResolution, default, Radius, Radius);
-        map.BlockPixelsInside(ShapeDistance.InvertedCircle(default, Radius), 0, 0);
+        map.BlockPixelsInsideArenaBounds(ShapeDistance.InvertedCircle(default, Radius), 0, 0);
         return map;
     }
 }
@@ -134,7 +133,6 @@ public record class ArenaBoundsCircle(float Radius, float MapResolution = 0.5f) 
 // if rotation is 0, half-width is along X and half-height is along Z
 public record class ArenaBoundsRect(float HalfWidth, float HalfHeight, Angle Rotation = default, float MapResolution = 0.5f) : ArenaBounds(CalculateRadius(HalfHeight, HalfWidth, Rotation), MapResolution)
 {
-    private Pathfinding.Map? _cachedMap;
     public readonly WDir Orientation = Rotation.ToDirection();
 
     private static float CalculateRadius(float HalfWidth, float HalfHeight, Angle Rotation)
@@ -155,16 +153,9 @@ public record class ArenaBoundsRect(float HalfWidth, float HalfHeight, Angle Rot
     }
 
     protected override PolygonClipper.Operand BuildClipPoly() => new(CurveApprox.Rect(Orientation, HalfWidth, HalfHeight));
-    public override void PathfindMap(Pathfinding.Map map, WPos center) => map.Init(_cachedMap ??= BuildMap(), center);
+    public override void PathfindMap(Pathfinding.Map map, WPos center) => map.Init(MapResolution, center, HalfWidth, HalfHeight, Rotation);
     public override bool Contains(WDir offset) => offset.InRect(Orientation, HalfHeight, HalfHeight, HalfWidth);
     public override float IntersectRay(WDir originOffset, WDir dir) => Intersect.RayRect(originOffset, dir, Orientation, HalfWidth, HalfHeight);
-
-    private Pathfinding.Map BuildMap()
-    {
-        var map = new Pathfinding.Map(MapResolution, default, HalfWidth, HalfHeight, Rotation);
-        map.BlockPixelsInside(ShapeDistance.InvertedRect(default, Rotation, HalfHeight, HalfHeight, HalfWidth), 0, 0);
-        return map;
-    }
 
     public override WDir ClampToBounds(WDir offset)
     {
@@ -274,47 +265,51 @@ public record class ArenaBoundsCustom(float Radius, RelSimplifiedComplexPolygon 
             }
         }
 
-        var halfWidth = (maxX - minX) / 2;
-        var halfHeight = (maxZ - minZ) / 2;
-        var result = (halfWidth, halfHeight);
+        var result = ((maxX - minX) / 2, (maxZ - minZ) / 2);
         StaticCache[Poly] = result;
         return result;
     }
 
     private Pathfinding.Map BuildMap()
     {
+        // faster than using the polygonwithholes shapedistance method directly
         var polygon = Offset != 0 ? Poly.Offset(Offset) : Poly;
-        var (halfWidth, halfHeight) = CalculatePolygonProperties(polygon);
-        var map = new Pathfinding.Map(MapResolution, Center, halfWidth, halfHeight);
 
-        // due to being an embarassingly parallel problem this is faster than using a proper ShapeDistance func
-        Parallel.ForEach(map.EnumeratePixels(), (pixel) =>
+        var (halfWidth, halfHeight) = CalculatePolygonProperties(polygon);
+        var map = new Pathfinding.Map(MapResolution, default, halfWidth, halfHeight);
+        var halfSample = MapResolution / 2 - 1e-5f; // tiny offset to account for floating point inaccuracies
+        WDir[] sampleOffsets =
+        [
+        new(-halfSample, -halfSample),
+        new(-halfSample,  0),
+        new(-halfSample,  halfSample),
+        new(0, -halfSample),
+        new(0, 0),
+        new(0, halfSample),
+        new(halfSample, -halfSample),
+        new(halfSample, 0),
+        new(halfSample, halfSample)
+        ];
+
+        Parallel.ForEach(map.EnumeratePixels(), pixel =>
         {
             var (x, y, pos) = pixel;
-            var relativeCenter = new WDir(pos.X - Center.X, pos.Z - Center.Z);
-            var samplePoints = GenerateSamplePoints(relativeCenter, MapResolution);
-            var allPointsInside = samplePoints.All(polygon.Contains);
-            map.Pixels[y * map.Width + x].MaxG = allPointsInside ? float.MaxValue : 0;
+            var relativeCenter = new WDir(pos.X, pos.Z);
+            var allInside = true;
+            for (var i = 0; i < 9; i++)
+            {
+                var samplePoint = relativeCenter + sampleOffsets[i];
+                if (!Poly.Contains(samplePoint))
+                {
+                    allInside = false;
+                    break;
+                }
+            }
+
+            map.Pixels[y * map.Width + x].MaxG = allInside ? float.MaxValue : 0;
         });
 
         return map;
-    }
-
-    private static WDir[] GenerateSamplePoints(WDir relativeCenter, float resolution)
-    {
-        var stepSize = resolution / 3;
-        var halfResolution = resolution / 2;
-
-        return
-        [new(relativeCenter.X - halfResolution + stepSize, relativeCenter.Z - halfResolution + stepSize),
-        new(relativeCenter.X - halfResolution + stepSize, relativeCenter.Z),
-        new(relativeCenter.X - halfResolution + stepSize, relativeCenter.Z + halfResolution - stepSize),
-        new(relativeCenter.X, relativeCenter.Z - halfResolution + stepSize),
-        new(relativeCenter.X, relativeCenter.Z),
-        new(relativeCenter.X, relativeCenter.Z + halfResolution - stepSize),
-        new(relativeCenter.X + halfResolution - stepSize, relativeCenter.Z - halfResolution + stepSize),
-        new(relativeCenter.X + halfResolution - stepSize, relativeCenter.Z),
-        new(relativeCenter.X + halfResolution - stepSize, relativeCenter.Z + halfResolution - stepSize)];
     }
 }
 
@@ -323,6 +318,8 @@ public record class ArenaBoundsCustom(float Radius, RelSimplifiedComplexPolygon 
 // for convenience third list will optionally perform additional unions at the end
 public record class ArenaBoundsComplex : ArenaBoundsCustom
 {
+    public WPos Center;
+
     public ArenaBoundsComplex(IEnumerable<Shape> UnionShapes, IEnumerable<Shape>? DifferenceShapes = null, IEnumerable<Shape>? AdditionalShapes = null, float MapResolution = 0.5f, float Offset = 0)
         : base(BuildBounds(UnionShapes, DifferenceShapes, AdditionalShapes, MapResolution, Offset, out var center))
     {
@@ -337,7 +334,7 @@ public record class ArenaBoundsComplex : ArenaBoundsCustom
         return new ArenaBoundsCustom(properties.Radius, properties.Poly, mapResolution, offset);
     }
 
-    private static (WPos Center, float Radius, RelSimplifiedComplexPolygon Poly) CalculatePolygonProperties(string cacheKey, IEnumerable<Shape> unionShapes, IEnumerable<Shape> differenceShapes, IEnumerable<Shape> additionalShapes)
+    private static (WPos Center, float Radius, RelSimplifiedComplexPolygon Poly) CalculatePolygonProperties(int cacheKey, IEnumerable<Shape> unionShapes, IEnumerable<Shape> differenceShapes, IEnumerable<Shape> additionalShapes)
     {
         if (StaticCache.TryGetValue(cacheKey, out var cachedResult))
             return ((WPos, float, RelSimplifiedComplexPolygon))cachedResult;
@@ -375,13 +372,12 @@ public record class ArenaBoundsComplex : ArenaBoundsCustom
         return result;
     }
 
-    private static string CreateCacheKey(IEnumerable<Shape> unionShapes, IEnumerable<Shape> differenceShapes, IEnumerable<Shape> additionalShapes)
+    private static int CreateCacheKey(IEnumerable<Shape> unionShapes, IEnumerable<Shape> differenceShapes, IEnumerable<Shape> additionalShapes)
     {
-        var unionKey = string.Join(",", unionShapes.Select(s => s.ComputeHash()));
-        var differenceKey = string.Join(",", differenceShapes.Select(s => s.ComputeHash()));
-        var additionalKey = string.Join(",", additionalShapes.Select(s => s.ComputeHash()));
-        var combinedKey = $"{unionKey}|{differenceKey}|{additionalKey}";
-        return Shape.ComputeSHA512(combinedKey);
+        var hashCode = new HashCode();
+        foreach (var shape in unionShapes.Concat(differenceShapes).Concat(additionalShapes))
+            hashCode.Add(shape.GetHashCode());
+        return hashCode.ToHashCode();
     }
 
     private static RelSimplifiedComplexPolygon CombinePolygons(List<RelSimplifiedComplexPolygon> unionPolygons, List<RelSimplifiedComplexPolygon> differencePolygons, List<RelSimplifiedComplexPolygon> secondUnionPolygons)

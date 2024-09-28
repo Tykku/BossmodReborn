@@ -165,17 +165,17 @@ public enum OperandType
 // shapes1 for unions, shapes 2 for shapes for XOR/intersection with shapes1, differences for shapes that get subtracted after previous operations
 public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerable<Shape>? DifferenceShapes = null, IEnumerable<Shape>? Shapes2 = null, bool InvertForbiddenZone = false, OperandType Operand = OperandType.Union) : AOEShape
 {
-    private static readonly Dictionary<string, RelSimplifiedComplexPolygon> _polygonCache = [];
-    private static readonly Queue<string> _polygonCacheQueue = new();
-    private readonly Dictionary<(string, WPos, WPos, Angle), bool> _checkCache = [];
-    private static readonly Dictionary<(string, WPos, Angle, bool), Func<WPos, float>> _distanceFuncCache = [];
-    private readonly string sha512key = CreateCacheKey(Shapes1, Shapes2 ?? [], DifferenceShapes ?? [], Operand);
+    private static readonly Dictionary<int, RelSimplifiedComplexPolygon> _polygonCache = [];
+    private static readonly Queue<int> _polygonCacheQueue = new();
+    private readonly Dictionary<(int, WPos, WPos, Angle), bool> _checkCache = [];
+    private static readonly Dictionary<(int, WPos, Angle, bool), Func<WPos, float>> _distanceFuncCache = [];
+    private readonly int hashkey = CreateCacheKey(Shapes1, Shapes2 ?? [], DifferenceShapes ?? [], Operand);
 
-    public override string ToString() => $"Custom AOE shape: sha512key={sha512key}, ifz={InvertForbiddenZone}";
+    public override string ToString() => $"Custom AOE shape: hashkey={hashkey}, ifz={InvertForbiddenZone}";
 
     private RelSimplifiedComplexPolygon GetCombinedPolygon(WPos origin)
     {
-        if (_polygonCache.TryGetValue(sha512key, out var cachedResult))
+        if (_polygonCache.TryGetValue(hashkey, out var cachedResult))
             return cachedResult;
 
         var shapes1 = CreateOperandFromShapes(Shapes1, origin);
@@ -194,11 +194,11 @@ public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerabl
             ? clipper.Difference(new PolygonClipper.Operand(combinedShapes), differenceOperands)
             : clipper.Difference(shapes1, differenceOperands);
 
-        AddToPolygonCache(sha512key, finalResult);
+        AddToPolygonCache(hashkey, finalResult);
         return finalResult;
     }
 
-    private PolygonClipper.Operand CreateOperandFromShapes(IEnumerable<Shape>? shapes, WPos origin)
+    private static PolygonClipper.Operand CreateOperandFromShapes(IEnumerable<Shape>? shapes, WPos origin)
     {
         var operand = new PolygonClipper.Operand();
         if (shapes != null)
@@ -209,29 +209,29 @@ public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerabl
 
     public override bool Check(WPos position, WPos origin, Angle rotation)
     {
-        var cacheKey = (sha512key, position, origin, rotation);
+        var cacheKey = (hashkey, position, origin, rotation);
         if (_checkCache.TryGetValue(cacheKey, out var cachedResult))
             return cachedResult;
 
         var combinedPolygon = GetCombinedPolygon(origin);
         var relativePosition = position - origin;
-        var result = combinedPolygon.Contains(new WDir(relativePosition.X, relativePosition.Z));
+        var result = combinedPolygon.Contains(new(relativePosition.X, relativePosition.Z));
         AddToCheckCache(cacheKey, result);
         return result;
     }
 
-    private static string CreateCacheKey(IEnumerable<Shape> shapes1, IEnumerable<Shape> shapes2, IEnumerable<Shape> differenceShapes, OperandType operand)
+    private static int CreateCacheKey(IEnumerable<Shape> shapes1, IEnumerable<Shape> shapes2, IEnumerable<Shape> differenceShapes, OperandType operand)
     {
-        var shapes1Key = string.Join(",", shapes1.Select(s => s.ComputeHash()));
-        var shapes2Key = string.Join(",", shapes2.Select(s => s.ComputeHash()));
-        var differenceKey = string.Join(",", differenceShapes.Select(s => s.ComputeHash()));
-        var combinedKey = $"{shapes1Key}|{shapes2Key}|{differenceKey}|{operand}";
-        return Shape.ComputeSHA512(combinedKey);
+        var hashCode = new HashCode();
+        foreach (var shape in shapes1.Concat(shapes2).Concat(differenceShapes))
+            hashCode.Add(shape.GetHashCode());
+        hashCode.Add(operand);
+        return hashCode.ToHashCode();
     }
 
     public override void Draw(MiniArena arena, WPos origin, Angle rotation, uint color = 0)
     {
-        arena.ZoneRelPoly(sha512key, GetCombinedPolygon(origin), color);
+        arena.ZoneRelPoly(hashkey, GetCombinedPolygon(origin), color);
     }
 
     public override void Outline(MiniArena arena, WPos origin, Angle rotation, uint color = 0)
@@ -266,7 +266,7 @@ public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerabl
 
     public override Func<WPos, float> Distance(WPos origin, Angle rotation)
     {
-        var cacheKey = (sha512key, origin, rotation, InvertForbiddenZone);
+        var cacheKey = (hashkey, origin, rotation, InvertForbiddenZone);
         if (_distanceFuncCache.TryGetValue(cacheKey, out var cachedFunc))
             return cachedFunc;
 
@@ -275,7 +275,7 @@ public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerabl
         return result;
     }
 
-    private void AddToPolygonCache(string key, RelSimplifiedComplexPolygon polygon)
+    private static void AddToPolygonCache(int key, RelSimplifiedComplexPolygon polygon)
     {
         _polygonCache[key] = polygon;
         _polygonCacheQueue.Enqueue(key);
@@ -283,7 +283,7 @@ public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerabl
             _polygonCache.Remove(_polygonCacheQueue.Dequeue());
     }
 
-    private void AddToCheckCache((string, WPos, WPos, Angle) key, bool result)
+    private void AddToCheckCache((int, WPos, WPos, Angle) key, bool result)
     {
         if (_checkCache.Count > 2500)
             _checkCache.Clear();

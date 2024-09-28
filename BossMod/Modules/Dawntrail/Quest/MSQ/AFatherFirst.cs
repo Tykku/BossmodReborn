@@ -151,7 +151,7 @@ class BrawlEnder(BossModule module) : Components.Knockback(module, stopAtWall: t
     }
 }
 
-class TheThrill(BossModule module, AID aid) : Components.CastTowers(module, ActionID.MakeSpell(aid), 3);
+abstract class TheThrill(BossModule module, AID aid) : Components.CastTowers(module, ActionID.MakeSpell(aid), 3);
 class TheThrill1(BossModule module) : TheThrill(module, AID.TheThrill1);
 class TheThrill2(BossModule module) : TheThrill(module, AID.TheThrill2);
 
@@ -161,7 +161,7 @@ class CoiledStrike(BossModule module) : Components.SelfTargetedAOEs(module, Acti
 class GloryBlaze(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GloryBlaze), new AOEShapeRect(40, 3));
 class BattleBreaker(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BattleBreaker));
 
-class MorningStars(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 4);
+abstract class MorningStars(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 4);
 class MorningStars1(BossModule module) : MorningStars(module, AID.MorningStars1);
 class MorningStars2(BossModule module) : MorningStars(module, AID.MorningStars2);
 

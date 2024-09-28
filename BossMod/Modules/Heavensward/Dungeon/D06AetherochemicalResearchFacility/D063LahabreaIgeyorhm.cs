@@ -167,7 +167,7 @@ public class D063LahabreaIgeyorhm(WorldState ws, Actor primary) : BossModule(ws,
     new(209.66f, -180.9f), new(209.71f, -181.43f), new(210.29f, -185.84f), new(210.39f, -186.39f), new(212.37f, -191.13f),
     new(212.72f, -191.62f), new(215.54f, -195.29f), new(215.93f, -195.64f), new(219.66f, -198.5f), new(220.15f, -198.76f),
     new(224.76f, -200.66f), new(229.87f, -201.33f)];
-    public static readonly ArenaBounds arena = new ArenaBoundsComplex([new PolygonCustom(vertices)]);
+    public static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);

@@ -32,6 +32,7 @@ class InhalePull(BossModule module) : Components.KnockbackFromCastTarget(module,
 class HeavyScrapline(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeavyScrapline), new AOEShapeCircle(11));
 class MoldyPhlegm(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.MoldyPhlegm), m => m.Enemies(OID.ResinVoidzone).Where(z => z.EventState != 7), 1.4f);
 class MoldySneeze(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.MoldySneeze), new AOEShapeCone(12, 60.Degrees()), (uint)OID.Boss);
+
 class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
 class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
 class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));

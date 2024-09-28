@@ -14,11 +14,11 @@ abstract class TailScrew(BossModule module, AID aid) : Components.LocationTarget
 class NTailScrew(BossModule module) : TailScrew(module, AID.NTailScrew);
 class STailScrew(BossModule module) : TailScrew(module, AID.STailScrew);
 
-abstract class C030KiwakinStates : StateMachineBuilder
+class C030KiwakinStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    protected C030KiwakinStates(BossModule module, bool savage) : base(module)
+    public C030KiwakinStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase)

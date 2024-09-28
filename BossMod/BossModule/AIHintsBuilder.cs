@@ -1,6 +1,4 @@
-﻿using BossMod.AST;
-
-namespace BossMod;
+﻿namespace BossMod;
 
 // utility that recalculates ai hints based on different data sources (eg active bossmodule, etc)
 // when there is no active bossmodule (eg in outdoor or on trash), we try to guess things based on world state (eg actor casts)

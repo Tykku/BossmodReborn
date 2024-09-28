@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Raid.M02NHoneyBLovely;
 
-class Sweethearts(BossModule module, uint oid, uint aid) : Components.GenericAOEs(module)
+abstract class Sweethearts(BossModule module, uint oid, uint aid) : Components.GenericAOEs(module)
 {
     private const int Radius = 1;
     private readonly HashSet<Actor> _hearts = [];

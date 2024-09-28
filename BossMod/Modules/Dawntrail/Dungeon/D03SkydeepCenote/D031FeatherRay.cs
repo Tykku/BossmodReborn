@@ -39,7 +39,7 @@ class HydroRing(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.HydroRing)
-            _aoe = new(donut, Module.Center, default, Module.CastFinishAt(spell));
+            _aoe = new(donut, Arena.Center, default, Module.CastFinishAt(spell));
     }
 
     public override void OnEventEnvControl(byte index, uint state)
@@ -48,11 +48,11 @@ class HydroRing(BossModule module) : Components.GenericAOEs(module)
         {
             if (state == 0x00020001)
             {
-                Module.Arena.Bounds = D031FeatherRay.CircleBounds;
+                Arena.Bounds = D031FeatherRay.CircleBounds;
                 _aoe = null;
             }
             else if (state == 0x00080004)
-                Module.Arena.Bounds = D031FeatherRay.NormalBounds;
+                Arena.Bounds = D031FeatherRay.NormalBounds;
         }
     }
 }
@@ -146,7 +146,7 @@ class WorrisomeWavePlayer(BossModule module) : Components.GenericBaitAway(module
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.WorrisomeWave1)
-            CurrentBaits.AddRange(Raid.WithoutSlot(false).Select(p => new Bait(p, p, cone)));
+            CurrentBaits.AddRange(Raid.WithoutSlot().Select(p => new Bait(p, p, cone)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -160,6 +160,14 @@ class WorrisomeWavePlayer(BossModule module) : Components.GenericBaitAway(module
         base.AddHints(slot, actor, hints);
         if (CurrentBaits.Any(x => x.Source == actor))
             hints.Add("Bait away!");
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        base.AddAIHints(slot, actor, assignment, hints);
+        foreach (var b in ActiveBaitsOn(actor))
+            foreach (var p in Raid.WithoutSlot().Exclude(actor))
+                hints.ForbiddenDirections.Add((Angle.FromDirection(p.Position - actor.Position), 15.Degrees(), b.Activation));
     }
 }
 

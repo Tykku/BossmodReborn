@@ -118,7 +118,7 @@ class ElevateAndEviscerateHint(BossModule module) : Components.GenericAOEs(modul
             foreach (var index in damagedCells.SetBits())
             {
                 var tile = tiles[index];
-                yield return new AOEInstance(Mouser.Rect, tile.Center, Color: Colors.FutureVulnerable, Risky: false);
+                yield return new(Mouser.Rect, tile.Center, Color: Colors.FutureVulnerable, Risky: false);
             }
         }
     }

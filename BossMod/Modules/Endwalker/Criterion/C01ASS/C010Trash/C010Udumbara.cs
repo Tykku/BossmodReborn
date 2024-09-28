@@ -35,9 +35,9 @@ abstract class BloodyCaress(BossModule module, AID aid) : Components.SelfTargete
 class NBloodyCaress(BossModule module) : BloodyCaress(module, AID.NBloodyCaress);
 class SBloodyCaress(BossModule module) : BloodyCaress(module, AID.SBloodyCaress);
 
-abstract class C010UdumbaraStates : StateMachineBuilder
+class C010UdumbaraStates : StateMachineBuilder
 {
-    protected C010UdumbaraStates(BossModule module, bool savage) : base(module)
+    public C010UdumbaraStates(BossModule module, bool savage) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<NHoneyedLeft>(!savage)

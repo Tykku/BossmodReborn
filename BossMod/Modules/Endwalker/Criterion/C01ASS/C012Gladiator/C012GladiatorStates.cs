@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C012Gladiator;
 
-abstract class C012GladiatorStates : StateMachineBuilder
+class C012GladiatorStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    protected C012GladiatorStates(BossModule module, bool savage) : base(module)
+    public C012GladiatorStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase);

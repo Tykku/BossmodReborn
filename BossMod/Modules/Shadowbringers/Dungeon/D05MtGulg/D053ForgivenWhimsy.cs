@@ -3,30 +3,31 @@ namespace BossMod.Shadowbringers.Dungeon.D05MtGulg.D053ForgivenWhimsy;
 public enum OID : uint
 {
     Boss = 0x27CC, //R=20.00
-    Helper = 0x2E8, //R=0.5
-    Helper2 = 0x233C,
     Brightsphere = 0x27CD, //R=1.0
     Towers = 0x1EAACF, //R=0.5
+    Helper2 = 0x2E8, //R=0.5
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
-    AutoAttack = 15624, // 27CC->player, no cast, single-target
-    SacramentOfPenance = 15627, // 27CC->self, 4.0s cast, single-target
-    SacramentOfPenance2 = 15628, // 233C->self, no cast, range 50 circle
-    Reformation = 15620, // 27CC->self, no cast, single-target, boss changes pattern
-    ExegesisA = 16989, // 27CC->self, 5.0s cast, single-target
-    ExegesisB = 16987, // 27CC->self, 5.0s cast, single-target
-    ExegesisC = 15622, // 27CC->self, 5.0s cast, single-target
-    ExegesisD = 16988, // 27CC->self, 5.0s cast, single-target
-    Exegesis = 15623, // 233C->self, no cast, range 10 width 10 rect
-    Catechism = 15625, // 27CC->self, 4.0s cast, single-target
-    Catechism2 = 15626, // 233C->player, no cast, single-target
-    JudgmentDay = 15631, // 27CC->self, 3.0s cast, single-target, tower circle 5
-    Judged = 15633, // 233C->self, no cast, range 5 circle, tower success
-    FoundWanting = 15632, // 233C->self, no cast, range 40 circle, tower fail
-    RiteOfTheSacrament = 15629, // 27CC->self, no cast, single-target
-    PerfectContrition = 15630, // 27CD->self, 6.0s cast, range 5-15 donut
+    AutoAttack = 15624, // Boss->player, no cast, single-target
+
+    SacramentOfPenanceVisual = 15627, // Boss->self, 4.0s cast, single-target
+    SacramentOfPenance = 15628, // Helper->self, no cast, range 50 circle
+    Reformation = 15620, // Boss->self, no cast, single-target, boss changes pattern
+    ExegesisA = 16989, // Boss->self, 5.0s cast, single-target
+    ExegesisB = 16987, // Boss->self, 5.0s cast, single-target
+    ExegesisC = 15622, // Boss->self, 5.0s cast, single-target
+    ExegesisD = 16988, // Boss->self, 5.0s cast, single-target
+    Exegesis = 15623, // Helper->self, no cast, range 10 width 10 rect
+    Catechism = 15625, // Boss->self, 4.0s cast, single-target
+    Catechism2 = 15626, // Helper->player, no cast, single-target
+    JudgmentDay = 15631, // Boss->self, 3.0s cast, single-target, tower circle 5
+    Judged = 15633, // Helper->self, no cast, range 5 circle, tower success
+    FoundWanting = 15632, // Helper->self, no cast, range 40 circle, tower fail
+    RiteOfTheSacrament = 15629, // Boss->self, no cast, single-target
+    PerfectContrition = 15630, // Brightsphere->self, 6.0s cast, range 5-15 donut
 }
 
 class PerfectContrition(BossModule module) : Components.GenericAOEs(module)
@@ -50,7 +51,7 @@ class PerfectContrition(BossModule module) : Components.GenericAOEs(module)
 }
 
 class Catechism(BossModule module) : Components.SingleTargetCastDelay(module, ActionID.MakeSpell(AID.Catechism), ActionID.MakeSpell(AID.Catechism2), 0.5f);
-class SacramentOfPenance(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.SacramentOfPenance), ActionID.MakeSpell(AID.SacramentOfPenance2), 0.5f);
+class SacramentOfPenance(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.SacramentOfPenanceVisual), ActionID.MakeSpell(AID.SacramentOfPenance), 0.5f);
 
 class JudgmentDay(BossModule module) : Components.GenericTowers(module)
 {

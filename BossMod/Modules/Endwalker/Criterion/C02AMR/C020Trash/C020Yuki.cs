@@ -8,9 +8,9 @@ abstract class LeftSwipe(BossModule module, AID aid) : Components.SelfTargetedAO
 class NLeftSwipe(BossModule module) : LeftSwipe(module, AID.NLeftSwipe);
 class SLeftSwipe(BossModule module) : LeftSwipe(module, AID.SLeftSwipe);
 
-abstract class C020YukiStates : StateMachineBuilder
+class C020YukiStates : StateMachineBuilder
 {
-    protected C020YukiStates(BossModule module, bool savage) : base(module)
+    public C020YukiStates(BossModule module, bool savage) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<NRightSwipe>(!savage)

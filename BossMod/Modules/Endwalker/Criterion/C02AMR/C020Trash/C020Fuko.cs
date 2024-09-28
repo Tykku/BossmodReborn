@@ -16,11 +16,11 @@ abstract class Crosswind(BossModule module, AID aid) : Components.KnockbackFromC
 class NCrosswind(BossModule module) : Crosswind(module, AID.NCrosswind);
 class SCrosswind(BossModule module) : Crosswind(module, AID.SCrosswind);
 
-abstract class C020FukoStates : StateMachineBuilder
+class C020FukoStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    protected C020FukoStates(BossModule module, bool savage) : base(module)
+    public C020FukoStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase)

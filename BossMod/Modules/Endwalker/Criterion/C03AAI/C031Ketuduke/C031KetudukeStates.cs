@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C031Ketuduke;
 
-abstract class C031KetudukeStates : StateMachineBuilder
+class C031KetudukeStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    protected C031KetudukeStates(BossModule module, bool savage) : base(module)
+    public C031KetudukeStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase);

@@ -44,9 +44,9 @@ abstract class GazeOfTheTengu(BossModule module, AID aid) : Components.CastGaze(
 class NGazeOfTheTengu(BossModule module) : GazeOfTheTengu(module, AID.NGazeOfTheTengu);
 class SGazeOfTheTengu(BossModule module) : GazeOfTheTengu(module, AID.SGazeOfTheTengu);
 
-abstract class C020KotenguStates : StateMachineBuilder
+class C020KotenguStates : StateMachineBuilder
 {
-    protected C020KotenguStates(BossModule module, bool savage) : base(module)
+    public C020KotenguStates(BossModule module, bool savage) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<BladeOfTheTengu>()

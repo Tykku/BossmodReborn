@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C021Shishio;
 
-abstract class C021ShishioStates : StateMachineBuilder
+class C021ShishioStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    protected C021ShishioStates(BossModule module, bool savage) : base(module)
+    public C021ShishioStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase)

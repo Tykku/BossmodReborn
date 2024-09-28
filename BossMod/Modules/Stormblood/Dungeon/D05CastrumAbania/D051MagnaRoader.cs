@@ -134,11 +134,10 @@ class D051MagnaRoaderStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 242, NameID = 6263)]
 public class D051MagnaRoader(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(-212.99f, 186.99f), 19.55f)], [new Rectangle(new(-213, 167), 20, 1.25f), new Rectangle(new(-213, 208), 20, 2.1f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(-212.99f, 186.99f), 19.55f)], [new Rectangle(new(-213, 167), 20, 1.25f), new Rectangle(new(-213, 208), 20, 2.1f)]);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.TwelfthLegionOptio));
+        Arena.Actors(Enemies(OID.TwelfthLegionOptio).Concat([PrimaryActor]));
         Arena.Actors(Enemies(OID.MarkXLIIIMiniCannon), Colors.Object);
     }
 

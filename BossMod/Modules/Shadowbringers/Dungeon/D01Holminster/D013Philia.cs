@@ -57,7 +57,7 @@ class SludgeVoidzone(BossModule module) : Components.PersistentVoidzone(module, 
 class ScavengersDaughter(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ScavengersDaughter));
 class HeadCrusher(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.HeadCrusher));
 
-class Chains(BossModule module) : BossComponent(module)
+class Fetters(BossModule module) : BossComponent(module)
 {
     private bool chained;
     private bool chainsactive;
@@ -82,9 +82,9 @@ class Chains(BossModule module) : BossComponent(module)
     public override void AddGlobalHints(GlobalHints hints)
     {
         if (chaintarget != null && !chainsactive)
-            hints.Add($"{chaintarget.Name} is about to be chained!");
+            hints.Add($"{chaintarget.Name} is about to be fettered!");
         else if (chaintarget != null && chainsactive)
-            hints.Add($"Destroy chains on {chaintarget.Name}!");
+            hints.Add($"Destroy fetters on {chaintarget.Name}!");
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -284,7 +284,7 @@ class D013PhiliaStates : StateMachineBuilder
             .ActivateOnEnter<PendulumFlare>()
             .ActivateOnEnter<PendulumAOE>()
             .ActivateOnEnter<Aethersup>()
-            .ActivateOnEnter<Chains>()
+            .ActivateOnEnter<Fetters>()
             .ActivateOnEnter<SludgeVoidzone>()
             .ActivateOnEnter<LeftKnout>()
             .ActivateOnEnter<RightKnout>()
@@ -299,7 +299,7 @@ class D013PhiliaStates : StateMachineBuilder
 public class D013Philia(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     public static readonly WPos ArenaCenter = new(134, -465); // slightly different from calculated center due to difference operation
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(ArenaCenter, 19.5f)], [new Rectangle(new(134, -445), 20, 1.5f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(ArenaCenter, 19.5f)], [new Rectangle(new(134, -445), 20, 1.5f)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

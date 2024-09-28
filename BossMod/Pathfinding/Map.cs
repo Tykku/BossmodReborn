@@ -114,6 +114,41 @@ public class Map
         });
     }
 
+    // for testing 9 points per pixel for increased accuracy
+    public void BlockPixelsInsideArenaBounds(Func<WPos, float> shape, float maxG, float threshold)
+    {
+        MaxG = MathF.Max(MaxG, maxG);
+        float[] offsets = [1e-5f, 0.5f, 1 - 1e-5f];
+        Parallel.ForEach(Partitioner.Create(0, Pixels.Length), range =>
+        {
+            for (var i = range.Item1; i < range.Item2; i++)
+            {
+                var x = i % Width;
+                var y = i / Width;
+                var blocked = false;
+                foreach (var dx in offsets)
+                {
+                    foreach (var dy in offsets)
+                    {
+                        var point = GridToWorld(x, y, dx, dy);
+                        if (shape(point) <= threshold)
+                        {
+                            blocked = true;
+                            break;
+                        }
+                    }
+                    if (blocked)
+                        break;
+                }
+                if (blocked)
+                {
+                    ref var pixel = ref Pixels[i];
+                    pixel.MaxG = MathF.Min(pixel.MaxG, maxG);
+                }
+            }
+        });
+    }
+
     public int AddGoal(int x, int y, int deltaPriority)
     {
         ref var pixel = ref Pixels[y * Width + x];

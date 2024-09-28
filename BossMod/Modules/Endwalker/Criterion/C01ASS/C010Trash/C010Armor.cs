@@ -29,9 +29,9 @@ abstract class HellsNebula(BossModule module, AID aid) : Components.CastHint(mod
 class NHellsNebula(BossModule module) : HellsNebula(module, AID.NHellsNebula);
 class SHellsNebula(BossModule module) : HellsNebula(module, AID.SHellsNebula);
 
-abstract class C010ArmorStates : StateMachineBuilder
+class C010ArmorStates : StateMachineBuilder
 {
-    protected C010ArmorStates(BossModule module, bool savage) : base(module)
+    public C010ArmorStates(BossModule module, bool savage) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<NDominionSlash>(!savage)

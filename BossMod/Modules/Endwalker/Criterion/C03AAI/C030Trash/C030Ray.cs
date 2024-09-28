@@ -12,11 +12,11 @@ abstract class ElectricWhorl(BossModule module, AID aid) : Components.SelfTarget
 class NElectricWhorl(BossModule module) : ElectricWhorl(module, AID.NElectricWhorl);
 class SElectricWhorl(BossModule module) : ElectricWhorl(module, AID.SElectricWhorl);
 
-abstract class C030RayStates : StateMachineBuilder
+class C030RayStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    protected C030RayStates(BossModule module, bool savage) : base(module)
+    public C030RayStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase)

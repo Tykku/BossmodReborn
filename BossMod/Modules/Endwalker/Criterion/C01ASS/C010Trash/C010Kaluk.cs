@@ -31,7 +31,7 @@ class SCreepingIvy(BossModule module) : CreepingIvy(module, AID.SCreepingIvy);
 
 class C010KalukStates : StateMachineBuilder
 {
-    protected C010KalukStates(BossModule module, bool savage) : base(module)
+    public C010KalukStates(BossModule module, bool savage) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<NRightSweep>(!savage)

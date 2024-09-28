@@ -5,20 +5,6 @@
 
 public static class ShapeDistance
 {
-    // for concave polygons this seems to provide a big speed up (seen 10x uplift), for others not so much or even detrimental. not sure why.
-    public static Func<WPos, float> CacheFunction(Func<WPos, float> func)
-    {
-        var cache = new ConcurrentDictionary<WPos, float>();
-        return p =>
-        {
-            if (cache.TryGetValue(p, out var cachedValue))
-                return cachedValue;
-            var result = func(p);
-            cache[p] = result;
-            return result;
-        };
-    }
-
     public static Func<WPos, float> HalfPlane(WPos point, WDir normal) => p => normal.Dot(p - point);
 
     public static Func<WPos, float> Circle(WPos origin, float radius) => radius <= 0 ? (_ => float.MaxValue) : (p => (p - origin).Length() - radius);
@@ -215,12 +201,12 @@ public static class ShapeDistance
         Func<WPos, float> edge((WPos p1, WPos p2) e)
         {
             if (e.p1 == e.p2)
-                return CacheFunction(_ => float.MinValue);
+                return _ => float.MinValue;
             var dir = (e.p2 - e.p1).Normalized();
             var normal = cw ? dir.OrthoL() : dir.OrthoR();
-            return CacheFunction(p => normal.Dot(p - e.p1));
+            return p => normal.Dot(p - e.p1);
         }
-        return CacheFunction(Intersection([.. edges.Select(edge)], offset));
+        return Intersection([.. edges.Select(edge)], offset);
     }
 
     public static Func<WPos, float> ConvexPolygon(IEnumerable<WPos> vertices, bool cw, float offset = 0) => ConvexPolygon(PolygonUtil.EnumerateEdges(vertices), cw, offset);
@@ -229,23 +215,6 @@ public static class ShapeDistance
     {
         var convexPolygon = ConvexPolygon(vertices, cw, offset);
         return p => -convexPolygon(p);
-    }
-
-    public static Func<WPos, float> ConcavePolygon(IEnumerable<WPos> vertices)
-    {
-        var edges = PolygonUtil.EnumerateEdges(vertices).ToList();
-        return CacheFunction(p =>
-        {
-            var isInside = PolygonUtil.IsPointInsideConcavePolygon(p, vertices);
-            var minDistance = edges.Min(e => PolygonUtil.DistanceToEdge(p, e));
-            return isInside ? -minDistance : minDistance;
-        });
-    }
-
-    public static Func<WPos, float> InvertedConcavePolygon(IEnumerable<WPos> vertices)
-    {
-        var concavePolygon = ConcavePolygon(vertices);
-        return p => -concavePolygon(p);
     }
 
     public static Func<WPos, float> Intersection(List<Func<WPos, float>> funcs, float offset = 0) => p => funcs.Max(e => e(p)) - offset;

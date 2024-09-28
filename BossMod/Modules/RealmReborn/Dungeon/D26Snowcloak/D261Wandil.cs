@@ -75,9 +75,9 @@ public class D261Wandil(WorldState ws, Actor primary) : BossModule(ws, primary, 
     new(39.18f, -82.29f), new(38.94f, -82.8f), new(38.12f, -87.95f), new(38.11f, -88.52f), new(38.94f, -93.76f),
     new(39.15f, -94.28f), new(41.39f, -98.67f), new(41.7f, -99.13f), new(45.25f, -102.67f), new(45.67f, -103.03f),
     new(50.41f, -105.45f), new(50.93f, -105.65f), new(55.56f, -107.02f)];
-    public static readonly ArenaBounds DefaultArena = new ArenaBoundsComplex([new PolygonCustom(vertices)]);
+    public static readonly ArenaBoundsComplex DefaultArena = new([new PolygonCustom(vertices)]);
     public static readonly Polygon[] Polygon = [new Polygon(ArenaCenter, 12, 20)];
-    public static readonly ArenaBounds SmallArena = new ArenaBoundsComplex(Polygon);
+    public static readonly ArenaBoundsComplex SmallArena = new(Polygon);
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

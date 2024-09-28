@@ -94,7 +94,7 @@ class DisruptionArenaChange(BossModule module) : Components.GenericAOEs(module)
 
 class Disruption(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Disruption));
 
-class Partition(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
+abstract class Partition(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
 class Partition1(BossModule module) : Partition(module, AID.Partition1);
 class Partition2(BossModule module) : Partition(module, AID.Partition2);
 class Partition3(BossModule module) : Partition(module, AID.Partition3);

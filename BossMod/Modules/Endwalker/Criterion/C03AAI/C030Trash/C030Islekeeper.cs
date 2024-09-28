@@ -8,11 +8,11 @@ abstract class IsleDrop(BossModule module, AID aid) : Components.LocationTargete
 class NIsleDrop(BossModule module) : IsleDrop(module, AID.NIsleDrop);
 class SIsleDrop(BossModule module) : IsleDrop(module, AID.SIsleDrop);
 
-abstract class C030IslekeeperStates : StateMachineBuilder
+class C030IslekeeperStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    protected C030IslekeeperStates(BossModule module, bool savage) : base(module)
+    public C030IslekeeperStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase);

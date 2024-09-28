@@ -29,9 +29,9 @@ abstract class InfernalPain(BossModule module, AID aid) : Components.RaidwideCas
 class NInfernalPain(BossModule module) : InfernalPain(module, AID.NInfernalPain);
 class SInfernalPain(BossModule module) : InfernalPain(module, AID.SInfernalPain);
 
-abstract class C010DullahanStates : StateMachineBuilder
+class C010DullahanStates : StateMachineBuilder
 {
-    protected C010DullahanStates(BossModule module, bool savage) : base(module)
+    public C010DullahanStates(BossModule module, bool savage) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<NBlightedGloom>(!savage)

@@ -32,11 +32,11 @@ class BubbleShowerCrabDribble(BossModule module) : Components.GenericAOEs(module
     }
 }
 
-abstract class C030SnipperStates : StateMachineBuilder
+class C030SnipperStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    protected C030SnipperStates(BossModule module, bool savage) : base(module)
+    public C030SnipperStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase)

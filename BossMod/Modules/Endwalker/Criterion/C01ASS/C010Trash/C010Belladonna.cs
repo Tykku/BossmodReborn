@@ -29,9 +29,9 @@ abstract class Deracinator(BossModule module, AID aid) : Components.SingleTarget
 class NDeracinator(BossModule module) : Deracinator(module, AID.NDeracinator);
 class SDeracinator(BossModule module) : Deracinator(module, AID.SDeracinator);
 
-abstract class C010BelladonnaStates : StateMachineBuilder
+class C010BelladonnaStates : StateMachineBuilder
 {
-    protected C010BelladonnaStates(BossModule module, bool savage) : base(module)
+    public C010BelladonnaStates(BossModule module, bool savage) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<NAtropineSpore>(!savage)

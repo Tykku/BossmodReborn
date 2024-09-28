@@ -183,7 +183,7 @@ class Crosshatch(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class ImperialAuthority(BossModule module, AID aid) : Components.CastHint(module, ActionID.MakeSpell(aid), "Enrage!", true);
+abstract class ImperialAuthority(BossModule module, AID aid) : Components.CastHint(module, ActionID.MakeSpell(aid), "Enrage!", true);
 class ImperialAuthorityAnnia(BossModule module) : ImperialAuthority(module, AID.ImperialAuthorityAnnia);
 class ImperialAuthorityJulia(BossModule module) : ImperialAuthority(module, AID.ImperialAuthorityJulia);
 
@@ -216,7 +216,7 @@ class D153SoranusDuoStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 611, NameID = 7861, SortOrder = 5)]
 public class D153SoranusDuo(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Polygon(new(371, -265), 19.5f, 24)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(371, -265), 19.5f, 24)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

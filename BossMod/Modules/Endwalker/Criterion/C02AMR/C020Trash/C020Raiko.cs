@@ -20,11 +20,11 @@ abstract class MasterOfLevin(BossModule module, AID aid) : Components.SelfTarget
 class NMasterOfLevin(BossModule module) : MasterOfLevin(module, AID.NMasterOfLevin);
 class SMasterOfLevin(BossModule module) : MasterOfLevin(module, AID.SMasterOfLevin);
 
-abstract class C020RaikoStates : StateMachineBuilder
+class C020RaikoStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    protected C020RaikoStates(BossModule module, bool savage) : base(module)
+    public C020RaikoStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase)

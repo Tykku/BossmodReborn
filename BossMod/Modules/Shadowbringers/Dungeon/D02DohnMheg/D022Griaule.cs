@@ -78,12 +78,11 @@ class D022GriauleStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 649, NameID = 8143)]
 public class D022Griaule(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(7.17f, -339), 24.6f)], [new Rectangle(new(7, -363.5f), 20, 1), new Rectangle(new(7, -315), 20, 0.75f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(7.17f, -339), 24.6f)], [new Rectangle(new(7, -363.5f), 20, 1), new Rectangle(new(7, -315), 20, 0.75f)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.PaintedRoot));
+        Arena.Actors(Enemies(OID.PaintedRoot).Concat([PrimaryActor]));
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

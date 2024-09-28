@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C023Moko;
 
-abstract class C023MokoStates : StateMachineBuilder
+class C023MokoStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    protected C023MokoStates(BossModule module, bool savage) : base(module)
+    public C023MokoStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase)

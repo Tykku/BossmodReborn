@@ -14,9 +14,9 @@ class SJujiShuriken(BossModule module) : JujiShuriken(module, AID.SJujiShuriken)
 class NJujiShurikenFast(BossModule module) : JujiShuriken(module, AID.NJujiShurikenFast);
 class SJujiShurikenFast(BossModule module) : JujiShuriken(module, AID.SJujiShurikenFast);
 
-abstract class C020OnmitsugashiraStates : StateMachineBuilder
+class C020OnmitsugashiraStates : StateMachineBuilder
 {
-    protected C020OnmitsugashiraStates(BossModule module, bool savage) : base(module)
+    public C020OnmitsugashiraStates(BossModule module, bool savage) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<NIssen>(!savage)

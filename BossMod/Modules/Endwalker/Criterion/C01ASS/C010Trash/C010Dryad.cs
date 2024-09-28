@@ -37,9 +37,9 @@ abstract class Uproot(BossModule module, AID aid) : Components.SelfTargetedAOEs(
 class NUproot(BossModule module) : Uproot(module, AID.NUproot);
 class SUproot(BossModule module) : Uproot(module, AID.SUproot);
 
-abstract class C010DryadStates : StateMachineBuilder
+class C010DryadStates : StateMachineBuilder
 {
-    protected C010DryadStates(BossModule module, bool savage) : base(module)
+    public C010DryadStates(BossModule module, bool savage) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<NArborealStorm>(!savage)

@@ -1,7 +1,7 @@
+using System.Security.Cryptography;
+
 namespace BossMod;
 // for optional waypoints that have priority over automated pathfinding eg. Dohn Mheg boss 3
-// this is required because the pathfinding algorithm has problems navigating properly around corners since its always trying to find the shortest path
-// this is likely due to rounding errors and can lead to player falling out of the arena
 public class WaypointManager
 {
     public readonly Queue<WPos> waypoints = new();

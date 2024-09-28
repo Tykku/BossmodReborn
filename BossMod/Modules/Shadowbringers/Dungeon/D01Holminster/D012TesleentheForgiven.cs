@@ -83,5 +83,5 @@ class D012TesleentheForgivenStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "legendoficeman, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 676, NameID = 8300)]
 public class D012TesleentheForgiven(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(78, -82), 19.5f)], [new Rectangle(new(78, -62), 20, 1), new Rectangle(new(78, -102), 20, 1)]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(78, -82), 19.5f)], [new Rectangle(new(78, -62), 20, 1), new Rectangle(new(78, -102), 20, 1)]);
 }

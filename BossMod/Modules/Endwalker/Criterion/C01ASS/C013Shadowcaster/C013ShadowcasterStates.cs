@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C013Shadowcaster;
 
-abstract class C013ShadowcasterStates : StateMachineBuilder
+class C013ShadowcasterStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    protected C013ShadowcasterStates(BossModule module, bool savage) : base(module)
+    public C013ShadowcasterStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase);

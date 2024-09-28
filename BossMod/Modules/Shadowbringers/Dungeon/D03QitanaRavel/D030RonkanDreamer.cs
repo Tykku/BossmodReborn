@@ -86,8 +86,8 @@ class D030RonkanDreamerStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 651, NameID = 8639)]
 public class D030RonkanDreamer(WorldState ws, Actor primary) : BossModule(ws, primary, primary.Position.Z > 550 ? arena1.Center : arena2.Center, primary.Position.Z > 550 ? arena1 : arena2)
 {
-    private static readonly ArenaBounds arena1 = new ArenaBoundsComplex([new Rectangle(new(0, 640), 17.5f, 23)], [new Rectangle(new(-5.2f, 642.7f), 1.15f, 3.5f), new Rectangle(new(5.1f, 627.6f), 1.15f, 3.5f)]);
-    private static readonly ArenaBounds arena2 = new ArenaBoundsComplex([new Rectangle(new(0, 434.5f), 17.5f, 24)], [new Rectangle(new(-5.1f, 421.7f), 1.15f, 3.5f), new Rectangle(new(5.1f, 436.6f), 1.15f, 3.5f)]);
+    private static readonly ArenaBoundsComplex arena1 = new([new Rectangle(new(0, 640), 17.5f, 23)], [new Rectangle(new(-5.2f, 642.7f), 1.15f, 3.5f), new Rectangle(new(5.1f, 627.6f), 1.15f, 3.5f)]);
+    private static readonly ArenaBoundsComplex arena2 = new([new Rectangle(new(0, 434.5f), 17.5f, 24)], [new Rectangle(new(-5.1f, 421.7f), 1.15f, 3.5f), new Rectangle(new(5.1f, 436.6f), 1.15f, 3.5f)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

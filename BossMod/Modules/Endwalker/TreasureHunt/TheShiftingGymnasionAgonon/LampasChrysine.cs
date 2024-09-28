@@ -10,6 +10,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 32287, // Boss->player, no cast, single-target
+
     AetherialLight = 32293, // Boss->self, 1.3s cast, single-target
     AetherialLight2 = 32294, // Helper->self, 3.0s cast, range 40 60-degree cone
     unknown = 32236, // Boss->self, no cast, single-target, seems to be connected to Aetherial Light

@@ -16,7 +16,7 @@ public enum AID : uint
     CripplingBlow = 13732, // Boss->player, 4.0s cast, single-target
     VirtuosicCapriccio = 13708, // Boss->self, 5.0s cast, range 80+R circle
     ImpChoir = 13552, // Boss->self, 4.0s cast, range 80+R circle
-    ToadChoir = 13551, // Boss->self, 4.0s cast, range 17+R 120-degree cone
+    ToadChoir = 13551, // Boss->self, 4.0s cast, range 17+R 150-degree cone
 
     FunambulistsFantasia = 13498, // Boss->self, 4.0s cast, single-target, changes arena to planks over a chasm
     FunambulistsFantasiaPull = 13519, // Helper->self, 4.0s cast, range 50 circle, pull 50, between hitboxes
@@ -63,9 +63,9 @@ class FunambulistsFantasia(BossModule module) : BossComponent(module)
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.FunambulistsFantasia)
-            Module.Arena.Bounds = D033AencThon.chasmArena;
+            Arena.Bounds = D033AencThon.chasmArena;
         else if ((AID)spell.Action.ID == AID.Finale)
-            Module.Arena.Bounds = D033AencThon.arena;
+            Arena.Bounds = D033AencThon.arena;
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -76,9 +76,20 @@ class FunambulistsFantasia(BossModule module) : BossComponent(module)
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
+        if (AI.AIManager.Instance?.Beh == null)
+            return;
         var lyre = Module.Enemies(OID.LiarsLyre).FirstOrDefault();
         hints.WaypointManager.module = Module;
-        if (Module.Arena.Bounds == D033AencThon.chasmArena && lyre != null)
+        hints.WaypointManager.UpdateCurrentWaypoint(actor.Position);
+        if (hints.WaypointManager.HasWaypoints)
+        {
+            var currentWaypoint = hints.WaypointManager.CurrentWaypoint;
+            if (currentWaypoint.HasValue)
+            {
+                hints.ForcedMovement = (currentWaypoint.Value - actor.Position).ToVec3();
+            }
+        }
+        if (Arena.Bounds == D033AencThon.chasmArena && lyre != null)
         {
             hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Sprint), actor, ActionQueue.Priority.High);
             hints.AddForbiddenZone(ShapeDistance.InvertedCircle(lyre.Position, 3));
@@ -90,7 +101,7 @@ class FunambulistsFantasia(BossModule module) : BossComponent(module)
                 hints.WaypointManager.AddWaypointsWithRandomization(waypoints, 0.1f, 10);
             }
         }
-        else if (Module.Arena.Bounds == D033AencThon.arena)
+        else if (Arena.Bounds == D033AencThon.arena)
             hints.WaypointManager.ClearWaypoints();
     }
 }
@@ -100,13 +111,14 @@ class Finale(BossModule module) : Components.CastHint(module, ActionID.MakeSpell
 class CorrosiveBile(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
+    private static readonly AOEShapeCone cone = new(24.875f, 45.Degrees());
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.CorrosiveBileFirst)
-            _aoe = new(new AOEShapeCone(24.875f, 45.Degrees()), caster.Position, spell.Rotation, Module.CastFinishAt(spell));
+            _aoe = new(cone, caster.Position, spell.Rotation, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -128,13 +140,14 @@ class CorrosiveBile(BossModule module) : Components.GenericAOEs(module)
 class FlailingTentacles(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
+    private static readonly AOEShapeCross cross = new(38.875f, 3.5f);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.FlailingTentaclesVisual)
-            _aoe = new(new AOEShapeCross(38.875f, 3.5f), caster.Position, Module.PrimaryActor.Rotation + 45.Degrees(), Module.CastFinishAt(spell, 1));
+            _aoe = new(cross, caster.Position, Module.PrimaryActor.Rotation + 45.Degrees(), Module.CastFinishAt(spell, 1));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -174,12 +187,12 @@ class D033AencThonStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 649, NameID = 8146)]
 public class D033AencThon(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly Shape[] union = [new Circle(new(-128.5f, -244), 19.75f)];
-    public static readonly ArenaBounds arena = new ArenaBoundsComplex(union, [new Rectangle(new(-128.5f, -224), 20, 1.25f)]);
-    private static readonly Shape[] union2 = [new PolygonCustom([new(-142.32f, -233.89f), new(-140.52f, -245.64f), new(-129.91f, -241.9f), new(-113.72f, -243.84f),
+    private static readonly Circle[] union = [new Circle(new(-128.5f, -244), 19.75f)];
+    public static readonly ArenaBoundsComplex arena = new(union, [new Rectangle(new(-128.5f, -224), 20, 1.25f)]);
+    private static readonly PolygonCustom[] union2 = [new([new(-142.32f, -233.89f), new(-140.52f, -245.64f), new(-129.91f, -241.9f), new(-113.72f, -243.84f),
     new(-113.81f, -244.74f), new(-125.19f, -249.54f), new(-123.72f, -254.08f), new(-124.58f, -254.05f), new(-126.13f, -249.73f), new(-126.39f, -249.05f),
     new(-115.51f, -244.47f), new(-129.9f, -242.73f), new(-140.47f, -246.47f), new(-141.19f, -246.74f), new(-143.12f, -233.92f)])];
-    public static readonly ArenaBounds chasmArena = new ArenaBoundsComplex(union, [new Rectangle(new(-128.5f, -224), 20, 1.25f), new Rectangle(new(-128.5f, -244), 20, 10)], union2);
+    public static readonly ArenaBoundsComplex chasmArena = new(union, [new Rectangle(new(-128.5f, -224), 20, 1.25f), new Rectangle(new(-128.5f, -244), 20, 10)], union2);
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

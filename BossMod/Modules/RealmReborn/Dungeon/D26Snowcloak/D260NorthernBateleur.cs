@@ -172,8 +172,8 @@ public class D260NorthernBateleur(WorldState ws, Actor primary) : BossModule(ws,
     new(-45.05f, -153.96f), new(-45.32f, -154.4f), new(-48.66f, -156.18f), new(-48.98f, -156.6f), new(-49.53f, -157.66f),
     new(-49.02f, -157.71f), new(-48.47f, -157.89f), new(-47.9f, -158.01f)];
 
-    public static readonly ArenaBounds Arena1 = new ArenaBoundsComplex([new PolygonCustom(vertices1)]);
-    public static readonly ArenaBounds Arena2 = new ArenaBoundsComplex([new PolygonCustom(vertices1), new PolygonCustom(vertices2)]);
+    public static readonly ArenaBoundsComplex Arena1 = new([new PolygonCustom(vertices1)]);
+    public static readonly ArenaBoundsComplex Arena2 = new([new PolygonCustom(vertices1), new PolygonCustom(vertices2)]);
 
     protected override bool CheckPull() => Enemies(OID.IceSprite).Concat(Enemies(OID.Boss))
     .Concat(Enemies(OID.Hrimthurs)).Concat(Enemies(OID.SnowcloakGoobbue)).Any(x => x.InCombat);

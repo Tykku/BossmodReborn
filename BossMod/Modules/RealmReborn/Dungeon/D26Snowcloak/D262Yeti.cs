@@ -86,5 +86,5 @@ public class D262Yeti(WorldState ws, Actor primary) : BossModule(ws, primary, ar
     new(-117.42f, -110.91f), new(-118, -115.26f), new(-118.02f, -115.76f), new(-117.4f, -120.4f), new(-117.25f, -120.96f),
     new(-115.59f, -124.96f), new(-115.31f, -125.52f), new(-112.33f, -129.4f), new(-108.27f, -132.53f), new(-103.85f, -134.37f),
     new(-103.33f, -134.53f), new(-98.95f, -135.11f)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new PolygonCustom(vertices)]);
+    private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
 }

@@ -50,7 +50,7 @@ class AlpineDraft(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 class FeatherRain(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FeatherRain), 6);
 class AeroII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AeroII), 4);
 
-class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

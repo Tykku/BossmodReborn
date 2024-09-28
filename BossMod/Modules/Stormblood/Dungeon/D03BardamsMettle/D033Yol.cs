@@ -99,7 +99,7 @@ public class D033Yol(WorldState ws, Actor primary) : BossModule(ws, primary, are
     new(11.14f, -489.57f), new(12.51f, -490.54f), new(13.31f, -491.39f), new(13.76f, -491.83f), new(14.34f, -491.8f),
     new(14.83f, -491.96f), new(15.35f, -492.1f), new(17.65f, -493.47f), new(18.15f, -493.73f), new(20.83f, -494.52f),
     new(21.4f, -494.52f), new(22.55f, -494.49f), new(23.63f, -494.68f)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new PolygonCustom(vertices)]);
+    private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -116,9 +116,6 @@ public class D033Yol(WorldState ws, Actor primary) : BossModule(ws, primary, are
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.LeftWing));
-        Arena.Actors(Enemies(OID.RightWing));
-        Arena.Actors(Enemies(OID.CorpsecleanerEagle));
+        Arena.Actors(Enemies(OID.LeftWing).Concat(Enemies(OID.RightWing)).Concat(Enemies(OID.CorpsecleanerEagle)).Concat([PrimaryActor]));
     }
 }

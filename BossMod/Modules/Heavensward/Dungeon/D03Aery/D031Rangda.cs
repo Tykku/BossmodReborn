@@ -44,7 +44,7 @@ class Electrocution(BossModule module) : Components.GenericBaitAway(module)
         if ((AID)spell.Action.ID == AID.Electrocution)
         {
             ++NumCasts;
-            if (NumCasts == 3 || NumCasts == CurrentBaits.Count) // hits upto random players
+            if (NumCasts == 3 || NumCasts == CurrentBaits.Count) // hits upto 3 random players
                 CurrentBaits.Clear();
         }
     }
@@ -114,7 +114,7 @@ public class D031Rangda(WorldState ws, Actor primary) : BossModule(ws, primary, 
     new(316.64f, -221.13f), new(317.1f, -221.53f), new(320.95f, -224.51f), new(321.45f, -224.86f), new(326.29f, -227.11f),
     new(326.84f, -227.29f), new(332.07f, -228.41f)];
 
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new PolygonCustom(vertices)]);
+    private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

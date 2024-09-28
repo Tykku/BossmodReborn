@@ -136,11 +136,11 @@ class HeightOfChaos(BossModule module) : Components.BaitAwayCast(module, ActionI
 
 class AncientEruption(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AncientEruption), 5);
 
-class ChillingCross(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCross(40, 2.5f));
+abstract class ChillingCross(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCross(40, 2.5f));
 class ChillingCross1(BossModule module) : ChillingCross(module, AID.ChillingCross1);
 class ChillingCross2(BossModule module) : ChillingCross(module, AID.ChillingCross2);
 
-class DarkBlizzard(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(41, 10.Degrees()));
+abstract class DarkBlizzard(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(41, 10.Degrees()));
 class DarkBlizzardIIIAOE1(BossModule module) : DarkBlizzard(module, AID.DarkBlizzardIII1);
 class DarkBlizzardIIIAOE2(BossModule module) : DarkBlizzard(module, AID.DarkBlizzardIII2);
 class DarkBlizzardIIIAOE3(BossModule module) : DarkBlizzard(module, AID.DarkBlizzardIII3);
@@ -245,7 +245,7 @@ public class D064AscianPrime(WorldState ws, Actor primary) : BossModule(ws, prim
     new(210.39f, 84.36f), new(210.29f, 83.78f), new(209.66f, 79.02f), new(210.34f, 73.83f), new(210.54f, 73.27f),
     new(212.22f, 69.21f), new(212.47f, 68.7f), new(215.59f, 64.64f), new(219.87f, 61.36f), new(224.41f, 59.48f),
     new(224.99f, 59.31f), new(229.86f, 58.67f)];
-    public static readonly ArenaBounds arena = new ArenaBoundsComplex([new PolygonCustom(vertices)]);
+    public static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

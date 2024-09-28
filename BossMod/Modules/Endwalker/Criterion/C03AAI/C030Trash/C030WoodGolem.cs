@@ -8,11 +8,11 @@ abstract class Ovation(BossModule module, AID aid) : Components.SelfTargetedAOEs
 class NOvation(BossModule module) : Ovation(module, AID.NOvation);
 class SOvation(BossModule module) : Ovation(module, AID.SOvation);
 
-abstract class C030WoodGolemStates : StateMachineBuilder
+class C030WoodGolemStates : StateMachineBuilder
 {
     private readonly bool _savage;
 
-    protected C030WoodGolemStates(BossModule module, bool savage) : base(module)
+    public C030WoodGolemStates(BossModule module, bool savage) : base(module)
     {
         _savage = savage;
         DeathPhase(0, SinglePhase);

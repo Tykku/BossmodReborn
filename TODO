@@ -1,5 +1,9 @@
 immediate plans
-- m2s ai/plan
+- merge prs!
+- auto control
+- goal priority for aoes
+- collisions for pathfinding
+- brd rotation
 
 general:
 - horizontal timeline / cooldown planner

@@ -11,45 +11,66 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    BladeFlurry1 = 23788, // Ally2B->Boss, no cast, single-target
-    BladeFlurry2 = 23789, // Ally2B->Boss, no cast, single-target
     BossAutoAttack = 24575, // Boss->player, no cast, single-target
-    DancingBlade = 23790, // Ally2B->Boss, no cast, width 2 rect charge
+
+    // Building through floor mechanic
     Pervasion = 23520, // Boss->self, 3.0s cast, single-target
-    BalancedEdge = 23791, // Ally2B->self, 2.0s cast, range 5 circle
     RecreateStructure = 23521, // Boss->self, 3.0s cast, single-target
-    UnknownAbility1 = 18683, // Ally2B->location, no cast, single-target
     UnevenFooting = 23522, // Helper->self, 1.9s cast, range 80 width 30 rect
+
+    // Train mechanic
     RecreateSignal = 23523, // Boss->self, 3.0s cast, single-target
     MixedSignals = 23524, // Boss->self, 3.0s cast, single-target
     Crash = 23525, // Helper->self, 0.8s cast, range 50 width 10 rect
+
+    // Player baited marching AOEs
     LighterNote1 = 23564, // Boss->self, 3.0s cast, single-target
     LighterNote2 = 23513, // Helper->location, no cast, range 6 circle
     LighterNote3 = 23514, // Helper->location, no cast, range 6 circle
+
+    // Raidwide
     ScreamingScore = 23541, // Boss->self, 5.0s cast, range 71 circle
-    WhirlingAssault = 23792, // Ally2B->self, 2.0s cast, range 40 width 4 rect
+
+    // all three tanks get a pink AoE damage marker
     DarkerNote1 = 23516, // Helper->player, 5.0s cast, range 6 circle
     DarkerNote2 = 23562, // Boss->self, 5.0s cast, single-target
+
+    // Boss forms arms into pillars and signals where they will fall, to her flanks or front and rear
     HeavyArms1 = 23535, // Helper->self, 7.0s cast, range 44 width 100 rect
     HeavyArms2 = 23534, // Boss->self, 7.0s cast, single-target
     HeavyArms3 = 23533, // Boss->self, 7.0s cast, range 100 width 12 rect
+
+    // players get a circle surrounding them - half white/half black - likely going to need to be similar to gaze code
+    // a large ring will start to drop in the center
+    // you need to match your half of color to it to avoid damage
     Distortion1 = 23529, // Boss->self, 3.0s cast, range 60 circle
+    Distortion2 = 24664, // Boss->self, 3.0s cast, range 60 circle
     TheFinalSong = 23530, // Boss->self, 3.0s cast, single-target
-    PlaceOfPower = 23565, // Helper->location, 3.0s cast, range 6 circle
     WhiteDissonance = 23531, // Helper->self, no cast, range 60 circle
     BlackDissonance = 23532, // Helper->self, no cast, range 60 circle
-    PillarImpact1 = 23536, // Boss->self, 10.0s cast, single-target
-    Shockwave1 = 23538, // Helper->self, 6.5s cast, range 71 circle
+    PlaceOfPower = 23565, // Helper->location, 3.0s cast, range 6 circle
+
+    PillarImpact1 = 23566, // Boss->self, no cast, single-target
+    PillarImpact2 = 23536, // Boss->self, 10.0s cast, single-target
+    Shockwave1 = 23538, // Helper->self, 6.5s cast, range 71 circle knockback 35
     Shockwave2 = 23537, // Helper->self, 6.5s cast, range 7 circle
-    PillarImpact2 = 23566, // Boss->self, no cast, single-target
     Towerfall1 = 23539, // Boss->self, 3.0s cast, single-target
     Towerfall2 = 23540, // Helper->self, 3.0s cast, range 70 width 14 rect
+
     UnknownAbility2 = 23526, // RedGirl->self, no cast, single-target
-    Distortion2 = 24664, // Boss->self, 3.0s cast, range 60 circle
-    ScatteredMagic = 23528, // Energy->player, no cast, single-target
     UnknownAbility3 = 23527, // RedGirl->self, no cast, single-target
+    ScatteredMagic = 23528, // Energy->player, no cast, single-target
+
+    // Beams firing across the arena - need to figure out indicators
     RhythmRings = 23563, // Boss->self, 3.0s cast, single-target
     MagicalInterference = 23509, // Helper->self, no cast, range 50 width 10 rect
+
+    BladeFlurry1 = 23788, // Ally2B->Boss, no cast, single-target
+    BladeFlurry2 = 23789, // Ally2B->Boss, no cast, single-target
+    DancingBlade = 23790, // Ally2B->Boss, no cast, width 2 rect charge
+    BalancedEdge = 23791, // Ally2B->self, 2.0s cast, range 5 circle
+    UnknownAbility1 = 18683, // Ally2B->location, no cast, single-target
+    WhirlingAssault = 23792, // Ally2B->self, 2.0s cast, range 40 width 4 rect
 }
 
 public enum SID : uint
