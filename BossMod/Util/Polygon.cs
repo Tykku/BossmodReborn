@@ -54,7 +54,7 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
 
         var tess = Earcut.Tessellate([.. pts[..(vertexCount * 2)]], HoleStarts);
         for (var i = 0; i < tess.Count; i += 3)
-            result.Add(new RelTriangle(Vertices[tess[i]], Vertices[tess[i + 1]], Vertices[tess[i + 2]]));
+            result.Add(new(Vertices[tess[i]], Vertices[tess[i + 1]], Vertices[tess[i + 2]]));
         return tess.Count > 0;
     }
     public List<RelTriangle> Triangulate()

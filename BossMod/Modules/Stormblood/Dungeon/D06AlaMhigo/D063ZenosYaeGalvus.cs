@@ -69,21 +69,24 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeDonut donut = new(20, 35);
     private AOEInstance? _aoe;
+    private bool begin;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+
     public override void OnActorEAnim(Actor actor, uint state)
     {
         if (state == 0x00040008 && (OID)actor.OID == OID.ArenaVoidzone)
         {
             Arena.Bounds = D063ZenosYaeGalvus.DefaultBounds;
             _aoe = null;
+            begin = true;
         }
     }
 
-    public override void OnActorNpcYell(Actor actor, ushort id)
+    public override void Update()
     {
-        if ((ushort)NPCYell.Begin == id)
-            _aoe = new(donut, Arena.Center, default, WorldState.FutureTime(1));
+        if (!begin && _aoe == null)
+            _aoe = new(donut, Arena.Center, default, WorldState.FutureTime(10));
     }
 }
 
@@ -173,7 +176,7 @@ class LightlessSparkBaitaway(BossModule module) : Components.BaitAwayTethers(mod
         base.AddAIHints(slot, actor, assignment, hints);
         var bait = CurrentBaits.FirstOrDefault(x => x.Target == actor).Source;
         if (CurrentBaits.Any(x => x.Target == actor))
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(bait.Position - 3 * (Arena.Center - bait.Position).Normalized(), 2), WorldState.FutureTime(ActivationDelay));
+            hints.AddForbiddenZone(ShapeDistance.InvertedCone(bait.Position, 10, Angle.FromDirection(bait.Position - Arena.Center), 45.Degrees()), WorldState.FutureTime(ActivationDelay));
     }
 }
 

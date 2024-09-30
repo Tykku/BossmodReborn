@@ -62,7 +62,7 @@ class SnortsaultCircle(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.ActiveCasters.Any() && _aoe.HasValue)
+        if (!_aoes.ActiveCasters.Any() && _aoe.HasValue)
             yield return _aoe.Value;
     }
 
