@@ -1,13 +1,15 @@
 ﻿using BossMod.Autorotation;
 using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Plugin;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using ImGuiNET;
 
 namespace BossMod;
 
-class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ActionManagerEx amex) : UIWindow("Boss mod debug UI", false, new(300, 200))
+class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ActionManagerEx amex, AIHintsBuilder hintBuilder, IDalamudPluginInterface dalamud) : UIWindow("Boss mod debug UI", false, new(300, 200))
 {
+    private readonly DebugObstacles _debugObstacles = new(hintBuilder.Obstacles, dalamud);
     private readonly DebugObjects _debugObjects = new();
     private readonly DebugParty _debugParty = new();
     private readonly DebugEnvControl _debugEnvControl = new();
@@ -29,7 +31,7 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ActionManage
         _debugClassDefinitions.Dispose();
         _debugAddon.Dispose();
         // _debugCollision.Dispose();
-        //_debugVfx.Dispose();
+        // _debugVfx.Dispose();
         base.Dispose(disposing);
     }
 
@@ -51,6 +53,10 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ActionManage
             DebugGraphics.DumpScene();
         }
 
+        if (ImGui.CollapsingHeader("Obstacles"))
+        {
+            _debugObstacles.Draw();
+        }
         if (ImGui.CollapsingHeader("Full object list"))
         {
             _debugObjects.DrawObjectTable();
@@ -110,6 +116,10 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ActionManage
         if (ImGui.CollapsingHeader("Duty actions"))
         {
             _debugAction.DrawDutyActions();
+        }
+        if (ImGui.CollapsingHeader("Auto attacks"))
+        {
+            _debugAction.DrawAutoAttack();
         }
         if (ImGui.CollapsingHeader("Hate"))
         {
