@@ -1,6 +1,6 @@
 ﻿namespace BossMod.AI;
 
-[ConfigDisplay(Name = "AI configuration (AI is very experimental, use at your own risk!)", Order = 6)]
+[ConfigDisplay(Name = "AI configuration (AI is very experimental, use at your own risk!)", Order = 7)]
 sealed class AIConfig : ConfigNode
 {
     [PropertyDisplay("Show status in DTR bar")]
