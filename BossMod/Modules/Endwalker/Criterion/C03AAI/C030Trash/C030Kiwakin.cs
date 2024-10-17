@@ -2,14 +2,15 @@
 
 class LeadHook(BossModule module) : Components.CastCounter(module, default)
 {
+    private static readonly HashSet<AID> castEnd = [AID.NLeadHook, AID.NLeadHookAOE1, AID.NLeadHookAOE2, AID.SLeadHook, AID.SLeadHookAOE1, AID.SLeadHookAOE2];
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.NLeadHook or AID.NLeadHookAOE1 or AID.NLeadHookAOE2 or AID.SLeadHook or AID.SLeadHookAOE1 or AID.SLeadHookAOE2)
+        if (castEnd.Contains((AID)spell.Action.ID))
             ++NumCasts;
     }
 }
 
-class TailScrew(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 4);
+abstract class TailScrew(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 4);
 class NTailScrew(BossModule module) : TailScrew(module, AID.NTailScrew);
 class STailScrew(BossModule module) : TailScrew(module, AID.STailScrew);
 

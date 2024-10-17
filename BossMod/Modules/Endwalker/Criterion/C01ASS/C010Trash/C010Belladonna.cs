@@ -17,15 +17,15 @@ public enum AID : uint
     SDeracinator = 31098, // SBoss->player, 4.0s cast, single-target tankbuster
 }
 
-class AtropineSpore(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(10, 40));
+abstract class AtropineSpore(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(10, 40));
 class NAtropineSpore(BossModule module) : AtropineSpore(module, AID.NAtropineSpore);
 class SAtropineSpore(BossModule module) : AtropineSpore(module, AID.SAtropineSpore);
 
-class FrondAffront(BossModule module, AID aid) : Components.CastGaze(module, ActionID.MakeSpell(aid));
+abstract class FrondAffront(BossModule module, AID aid) : Components.CastGaze(module, ActionID.MakeSpell(aid));
 class NFrondAffront(BossModule module) : FrondAffront(module, AID.NFrondAffront);
 class SFrondAffront(BossModule module) : FrondAffront(module, AID.SFrondAffront);
 
-class Deracinator(BossModule module, AID aid) : Components.SingleTargetCast(module, ActionID.MakeSpell(aid));
+abstract class Deracinator(BossModule module, AID aid) : Components.SingleTargetCast(module, ActionID.MakeSpell(aid));
 class NDeracinator(BossModule module) : Deracinator(module, AID.NDeracinator);
 class SDeracinator(BossModule module) : Deracinator(module, AID.SDeracinator);
 

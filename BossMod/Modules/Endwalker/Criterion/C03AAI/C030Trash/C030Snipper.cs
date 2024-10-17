@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C030Trash1;
 
-class Water(BossModule module, AID aid) : Components.StackWithCastTargets(module, ActionID.MakeSpell(aid), 8, 4, 4);
+abstract class Water(BossModule module, AID aid) : Components.StackWithCastTargets(module, ActionID.MakeSpell(aid), 8, 4, 4);
 class NWater(BossModule module) : Water(module, AID.NWater);
 class SWater(BossModule module) : Water(module, AID.SWater);
 

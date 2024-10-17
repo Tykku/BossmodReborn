@@ -13,6 +13,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     Heave = 7927, // Boss->self, 2.5s cast, range 9+R 120-degree cone
     CrumblingCrustVisual = 7928, // Boss->self, 4.0s cast, single-target
     CrumblingCrust = 7955, // Helper->location, 1.5s cast, range 3 circle
@@ -27,11 +28,11 @@ public enum AID : uint
 class CrumblingCrust(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.CrumblingCrust), 3);
 class Heave(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Heave), new AOEShapeCone(13, 60.Degrees()));
 class WideBlaster(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WideBlaster), new AOEShapeCone(29.15f, 60.Degrees()));
-class Rush(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.Rush), 4);
-class RushTether(BossModule module) : Components.StretchTetherDuo(module, 16, 10.1f)
+class Rush(BossModule module) : Components.BaitAwayChargeTether(module, 4, 10.1f, ActionID.MakeSpell(AID.Rush), minimumDistance: 23)
 {
     public override void Update()
     {
+        base.Update();
         if (Module.PrimaryActor.CastInfo == null)
             CurrentBaits.Clear();
     }
@@ -49,7 +50,6 @@ class D031GarulaStates : StateMachineBuilder
             .ActivateOnEnter<Heave>()
             .ActivateOnEnter<WideBlaster>()
             .ActivateOnEnter<Rush>()
-            .ActivateOnEnter<RushTether>()
             .ActivateOnEnter<RushYamaa>()
             .ActivateOnEnter<Lullaby>();
     }
@@ -58,7 +58,7 @@ class D031GarulaStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 240, NameID = 6173)]
 public class D031Garula(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> vertices = [new(7.87f, 224.08f), new(8.22f, 224.47f), new(8.65f, 224.78f), new(9.77f, 224.86f), new(13.65f, 226.15f),
+    private static readonly WPos[] vertices = [new(7.87f, 224.08f), new(8.22f, 224.47f), new(8.65f, 224.78f), new(9.77f, 224.86f), new(13.65f, 226.15f),
     new(14.72f, 226.61f), new(15.14f, 226.89f), new(16.27f, 228.18f), new(16.78f, 228.48f), new(17.78f, 228.9f),
     new(18.31f, 229.1f), new(18.84f, 229.36f), new(19.57f, 230.25f), new(19.99f, 230.67f), new(20.85f, 231.43f),
     new(21.28f, 231.7f), new(21.58f, 232.11f), new(22.21f, 233.06f), new(22.58f, 233.52f), new(23.97f, 235.06f),
@@ -82,5 +82,5 @@ public class D031Garula(WorldState ws, Actor primary) : BossModule(ws, primary, 
     new(-12.45f, 230.66f), new(-12.03f, 230.31f), new(-9.34f, 228.28f), new(-8.9f, 228), new(-6.05f, 226.45f),
     new(-5.58f, 226.21f), new(-3.53f, 225.55f), new(-2.96f, 225.33f), new(-1.87f, 224.98f), new(-1.31f, 224.82f),
     new(-0.79f, 224.75f), new(-0.24f, 224.57f), new(0.13f, 224.07f), new(5.77f, 224.07f), new(7.73f, 224.02f)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new PolygonCustom(vertices)]);
+    private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
 }

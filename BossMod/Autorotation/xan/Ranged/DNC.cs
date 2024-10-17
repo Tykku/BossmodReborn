@@ -82,8 +82,8 @@ public sealed class DNC(RotationModuleManager manager, Actor player) : Attackxan
         ImprovisationLeft = StatusLeft(SID.Improvisation);
         ImprovisedFinishLeft = StatusLeft(SID.ImprovisedFinish);
         DevilmentLeft = StatusLeft(SID.Devilment);
-        SymmetryLeft = MathF.Max(StatusLeft(SID.SilkenSymmetry), StatusLeft(SID.FlourishingSymmetry));
-        FlowLeft = MathF.Max(StatusLeft(SID.SilkenFlow), StatusLeft(SID.FlourishingFlow));
+        SymmetryLeft = Math.Max(StatusLeft(SID.SilkenSymmetry), StatusLeft(SID.FlourishingSymmetry));
+        FlowLeft = Math.Max(StatusLeft(SID.SilkenFlow), StatusLeft(SID.FlourishingFlow));
         FlourishingStarfallLeft = StatusLeft(SID.FlourishingStarfall);
         ThreefoldLeft = StatusLeft(SID.ThreefoldFanDance);
         FourfoldLeft = StatusLeft(SID.FourfoldFanDance);
@@ -320,7 +320,7 @@ public sealed class DNC(RotationModuleManager manager, Actor player) : Attackxan
 
     private Actor? FindDancePartner()
     {
-        var partner = World.Party.WithoutSlot(partyOnly: true).Exclude(Player).Where(x => Player.DistanceToHitbox(x) <= 30).MaxBy(p => p.Class switch
+        var partner = World.Party.WithoutSlot(excludeAlliance: true).Exclude(Player).Where(x => Player.DistanceToHitbox(x) <= 30).MaxBy(p => p.Class switch
         {
             Class.SAM => 100,
             Class.NIN or Class.VPR => 99,

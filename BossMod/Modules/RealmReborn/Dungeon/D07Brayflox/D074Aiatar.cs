@@ -36,5 +36,5 @@ class D074AiatarStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 8, NameID = 1279)]
 public class D074Aiatar(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    public static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(-26, -236), 19.5f)], [new Rectangle(new(-46.75f, -236), 20, 2, 90.Degrees())]);
+    public static readonly ArenaBoundsComplex arena = new([new Circle(new(-26, -236), 19.5f)], [new Rectangle(new(-46.75f, -236), 20, 2, 90.Degrees())]);
 }

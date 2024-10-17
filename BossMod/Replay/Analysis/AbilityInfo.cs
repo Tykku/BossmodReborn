@@ -99,7 +99,7 @@ class AbilityInfo : CommonEnumInfo
         private readonly UIPlot _plot = new();
         private readonly List<(Instance Inst, Replay.Participant Target, float Normal, float Length, bool Hit)> _points = [];
 
-        public RectAnalysis(List<Instance> infos, bool originAtSource)
+        public RectAnalysis(List<Instance> infos, bool useActionRotation)
         {
             _plot.DataMin = new(-50, -50);
             _plot.DataMax = new(50, 50);
@@ -108,7 +108,7 @@ class AbilityInfo : CommonEnumInfo
             {
                 var sourcePosRot = i.Action.Source.PosRotAt(i.Action.Timestamp);
                 var origin = new WPos(sourcePosRot.XZ());
-                var dir = sourcePosRot.W.Radians().ToDirection();
+                var dir = (useActionRotation ? i.Action.Rotation : sourcePosRot.W.Radians()).ToDirection();
                 var left = dir.OrthoL();
                 foreach (var target in AlivePlayersAt(i.Replay, i.Action.Timestamp))
                 {
@@ -146,7 +146,7 @@ class AbilityInfo : CommonEnumInfo
                 foreach (var target in i.Action.Targets)
                 {
                     var offset = target.Target.PosRotAt(i.Action.Timestamp).XYZ() - origin;
-                    var dist = useMaxComp ? MathF.Max(Math.Abs(offset.X), Math.Abs(offset.Z)) : offset.Length();
+                    var dist = useMaxComp ? Math.Max(Math.Abs(offset.X), Math.Abs(offset.Z)) : offset.Length();
                     _points.Add((i, target.Target, dist, ReplayUtils.ActionDamage(target)));
                 }
             }
@@ -318,7 +318,7 @@ class AbilityInfo : CommonEnumInfo
                 foreach (var other in i.Replay.Participants.Where(p => p != i.Action.Source && p.OID == i.Action.Source.OID && p.ExistsInWorldAt(i.Action.Timestamp)))
                 {
                     var otherPos = other.PosRotAt(i.Action.Timestamp).XYZ();
-                    minDistance = MathF.Min(minDistance, (otherPos - pos).Length());
+                    minDistance = Math.Min(minDistance, (otherPos - pos).Length());
                 }
 
                 _points.Add((i, minDistance));
@@ -345,7 +345,8 @@ class AbilityInfo : CommonEnumInfo
         public ConeAnalysis? ConeAnalysisSourcePosRot;
         public ConeAnalysis? ConeAnalysisTargetPosSourceRot;
         public ConeAnalysis? ConeAnalysisSourcePosDirToTarget;
-        public RectAnalysis? RectAnalysis;
+        public RectAnalysis? RectAnalysisActionRot;
+        public RectAnalysis? RectAnalysisSourceRot;
         public DamageFalloffAnalysis? DamageFalloffAnalysisDist;
         public DamageFalloffAnalysis? DamageFalloffAnalysisDistFromSource;
         public DamageFalloffAnalysis? DamageFalloffAnalysisMinCoord;
@@ -359,7 +360,7 @@ class AbilityInfo : CommonEnumInfo
 
     public AbilityInfo(List<Replay> replays, uint oid)
     {
-        var moduleInfo = ModuleRegistry.FindByOID(oid);
+        var moduleInfo = BossModuleRegistry.FindByOID(oid);
         _oidType = moduleInfo?.ObjectIDType;
         _aidType = moduleInfo?.ActionIDType;
         foreach (var replay in replays)
@@ -419,7 +420,7 @@ class AbilityInfo : CommonEnumInfo
             }
             foreach (var n in tree.Node("Instances", data.Instances.Count == 0))
             {
-                foreach (var an in tree.Nodes(data.Instances, inst => new($"{inst.TimestampString()}: {ReplayUtils.ParticipantPosRotString(inst.Action.Source, inst.Action.Timestamp)} -> {ReplayUtils.ParticipantString(inst.Action.MainTarget, inst.Action.Timestamp)} {Utils.Vec3String(inst.Action.TargetPos)} ({inst.Action.Targets.Count} affected)", inst.Action.Targets.Count == 0)))
+                foreach (var an in tree.Nodes(data.Instances, inst => new($"{inst.TimestampString()}: {ReplayUtils.ParticipantPosRotString(inst.Action.Source, inst.Action.Timestamp)} -> {ReplayUtils.ParticipantString(inst.Action.MainTarget, inst.Action.Timestamp)} {Utils.Vec3String(inst.Action.TargetPos)} / {inst.Action.Rotation} ({inst.Action.Targets.Count} affected)", inst.Action.Targets.Count == 0)))
                 {
                     foreach (var tn in tree.Nodes(an.Action.Targets, t => new(ReplayUtils.ActionTargetString(t, an.Action.Timestamp))))
                     {
@@ -451,10 +452,15 @@ class AbilityInfo : CommonEnumInfo
                 data.ConeAnalysisSourcePosDirToTarget ??= new(data.Instances, ConeAnalysis.Targeting.SourcePosDirToTarget);
                 data.ConeAnalysisSourcePosDirToTarget.Draw();
             }
-            foreach (var an in tree.Node("Rect analysis"))
+            foreach (var an in tree.Node("Rect analysis (rotation from action)"))
             {
-                data.RectAnalysis ??= new(data.Instances, true);
-                data.RectAnalysis.Draw();
+                data.RectAnalysisActionRot ??= new(data.Instances, true);
+                data.RectAnalysisActionRot.Draw();
+            }
+            foreach (var an in tree.Node("Rect analysis (rotation from source)"))
+            {
+                data.RectAnalysisSourceRot ??= new(data.Instances, false);
+                data.RectAnalysisSourceRot.Draw();
             }
             foreach (var an in tree.Node("Damage falloff analysis (by distance)"))
             {
@@ -582,7 +588,7 @@ class AbilityInfo : CommonEnumInfo
         4 => $"range {data.EffectRange}+R width {data.XAxisModifier} rect",
         5 => $"range {data.EffectRange}+R circle",
         8 => $"width {data.XAxisModifier} rect charge",
-        10 => $"range {DetermineDonutInner(data).ToString() ?? "?"}-{data.EffectRange} donut",
+        10 => $"range {DetermineDonutInner(data)?.ToString() ?? "?"}-{data.EffectRange} donut",
         11 => $"range {data.EffectRange} width {data.XAxisModifier} cross",
         12 => $"range {data.EffectRange} width {data.XAxisModifier} rect",
         13 => $"range {data.EffectRange} {DetermineConeAngle(data)?.ToString() ?? "?"}-degree cone",

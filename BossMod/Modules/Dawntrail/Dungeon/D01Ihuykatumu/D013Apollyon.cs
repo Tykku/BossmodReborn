@@ -80,7 +80,7 @@ class CuttingWind(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(4);
 
-    private static readonly Dictionary<WPos, List<WPos>> coords = new()
+    private static readonly Dictionary<WPos, WPos[]> coords = new()
     {
         [new WPos(-121, 279)] = [new(-102.935f, 274.357f), new(-108.935f, 262.224f), new(-105.733f, 252.340f)], // SW whirlwind
         [new WPos(-93, 251)] = [new(-111.688f, 253.942f), new(-102.276f, 264.313f), new(-108.922f, 276.528f)] // NW whirlwind
@@ -101,7 +101,7 @@ class CuttingWind(BossModule module) : Components.GenericAOEs(module)
             foreach (var pos in coords.Keys)
                 if (actor.Position.AlmostEqual(pos, 1))
                 {
-                    for (var i = 0; i < coords[pos].Count; i++)
+                    for (var i = 0; i < coords[pos].Length; i++)
                         AddAOEs(coords[pos][i], delays[i]);
                     break;
                 }

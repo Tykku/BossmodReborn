@@ -5,7 +5,6 @@
 // on enrage, boss does 8 sets of 4 jumps, destroying all cells
 class ArenaChanges(BossModule module) : BossComponent(module)
 {
-    private ArenaBounds? arena;
     public static readonly WPos ArenaCenter = new(100, 100);
     public static readonly ArenaBoundsSquare DefaultBounds = new(20);
     private static readonly Square defaultSquare = new(ArenaCenter, 20);
@@ -75,7 +74,7 @@ class ArenaChanges(BossModule module) : BossComponent(module)
     {
         var brokenTiles = Tiles.Where((tile, index) => DestroyedCells[index]).ToList();
         var brokenTilesCount = brokenTiles.Count == 16 ? [] : brokenTiles; // prevents empty sequence error at end of enrage
-        arena = new ArenaBoundsComplex([defaultSquare], brokenTilesCount, Offset: -0.5f);
+        ArenaBoundsComplex arena = new([defaultSquare], brokenTilesCount, Offset: -0.5f);
         Arena.Bounds = arena;
         Arena.Center = arena.Center;
     }

@@ -10,7 +10,7 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 870, // SecretShark->player, no cast, single-target
+    AutoAttack1 = 870, // SecretShark->player, no cast, single-target
     AutoAttack2 = 872, // Boss->player, no cast, single-target
 
     TidalGuillotine = 21704, // Boss->self, 4.0s cast, range 13 circle
@@ -72,7 +72,7 @@ class PelagicCleaverRotation(BossModule module) : Components.GenericRotatingAOE(
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (Sequences.Count > 0 && (AID)spell.Action.ID is AID.PelagicCleaverFirst or AID.PelagicCleaverRest)
+        if ((AID)spell.Action.ID is AID.PelagicCleaverFirst or AID.PelagicCleaverRest)
             AdvanceSequence(0, WorldState.CurrentTime);
     }
 
@@ -92,6 +92,7 @@ class TidalGuillotine(BossModule module) : Components.SelfTargetedAOEs(module, A
 class ProtolithicPuncture(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ProtolithicPuncture));
 class BiteAndRun(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.BiteAndRun), 2.5f);
 class AquaticLance(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.AquaticLance), 8);
+
 class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
 class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
 class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));

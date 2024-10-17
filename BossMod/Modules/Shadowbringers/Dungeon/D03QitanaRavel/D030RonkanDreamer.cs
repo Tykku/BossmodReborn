@@ -37,7 +37,7 @@ class WrathOfTheRonka(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeRect rectShort = new(12, 4);
     private static readonly AOEShapeRect rectMedium = new(22, 4);
     private static readonly AOEShapeRect rectLong = new(35, 4);
-    private static readonly (WPos Position, AOEShapeRect Shape)[] AOEMap =
+    private static readonly (WPos Position, AOEShapeRect Shape)[] aoeMap =
         [(new(-17, 627), rectMedium), (new(17, 642), rectMedium),
         (new(-17, 436), rectMedium), (new(17, 421), rectMedium),
         (new(-17, 642), rectShort), (new(17, 627), rectShort),
@@ -50,7 +50,7 @@ class WrathOfTheRonka(BossModule module) : Components.GenericAOEs(module)
         if (tether.ID == (uint)TetherID.StatueActivate)
         {
             var aoeShape = GetAOEShape(source.Position) ?? rectLong;
-            _aoes.Add(new AOEInstance(aoeShape, source.Position, source.Rotation, WorldState.FutureTime(6)));
+            _aoes.Add(new(aoeShape, source.Position, source.Rotation, WorldState.FutureTime(6)));
         }
     }
 
@@ -62,7 +62,7 @@ class WrathOfTheRonka(BossModule module) : Components.GenericAOEs(module)
 
     private static AOEShapeRect? GetAOEShape(WPos position)
     {
-        foreach (var (pos, shape) in AOEMap)
+        foreach (var (pos, shape) in aoeMap)
             if (position.AlmostEqual(pos, 1))
                 return shape;
         return null;
@@ -86,18 +86,11 @@ class D030RonkanDreamerStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 651, NameID = 8639)]
 public class D030RonkanDreamer(WorldState ws, Actor primary) : BossModule(ws, primary, primary.Position.Z > 550 ? arena1.Center : arena2.Center, primary.Position.Z > 550 ? arena1 : arena2)
 {
-    private static readonly List<Shape> union1 = [new Rectangle(new(0, 640), 17.5f, 23)];
-    private static readonly List<Shape> difference1 = [new Rectangle(new(-5.2f, 642.7f), 1.15f, 3.5f), new Rectangle(new(5.1f, 627.6f), 1.15f, 3.5f)];
-    private static readonly ArenaBounds arena1 = new ArenaBoundsComplex(union1, difference1);
-    private static readonly List<Shape> union2 = [new Rectangle(new(0, 434.5f), 17.5f, 24f)];
-    private static readonly List<Shape> difference2 = [new Rectangle(new(-5.1f, 421.7f), 1.15f, 3.5f), new Rectangle(new(5.1f, 436.6f), 1.15f, 3.5f)];
-    private static readonly ArenaBounds arena2 = new ArenaBoundsComplex(union2, difference2);
+    private static readonly ArenaBoundsComplex arena1 = new([new Rectangle(new(0, 640), 17.5f, 23)], [new Rectangle(new(-5.2f, 642.7f), 1.15f, 3.5f), new Rectangle(new(5.1f, 627.6f), 1.15f, 3.5f)]);
+    private static readonly ArenaBoundsComplex arena2 = new([new Rectangle(new(0, 434.5f), 17.5f, 24)], [new Rectangle(new(-5.1f, 421.7f), 1.15f, 3.5f), new Rectangle(new(5.1f, 436.6f), 1.15f, 3.5f)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.RonkanVessel));
-        Arena.Actors(Enemies(OID.RonkanThorn));
-        Arena.Actors(Enemies(OID.RonkanIdol));
+        Arena.Actors(Enemies(OID.RonkanVessel).Concat([PrimaryActor]).Concat(Enemies(OID.RonkanThorn)).Concat(Enemies(OID.RonkanIdol)));
     }
 }

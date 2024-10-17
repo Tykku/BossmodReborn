@@ -15,14 +15,9 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    BladeFlurry1 = 23788, // Ally2B->Boss, no cast, single-target
-    BladeFlurry2 = 23789, // Ally2B->Boss, no cast, single-target
-    DancingBlade = 23790, // Ally2B->Boss, no cast, width 2 rect charge
-    BalancedEdge = 23791, // Ally2B->self, 2.0s cast, range 5 circle
     Cruelty1 = 24595, // Boss->self, 5.0s cast, single-target
     Cruelty2 = 24596, // Helper->location, no cast, range 75 circle
     BossAutoAttack = 24597, // Helper->player, no cast, single-target
-    WhirlingAssault = 23792, // Ally2B->self, 2.0s cast, range 40 width 4 rect
     ChildsPlay1 = 24612, // Boss/RedGirl1->self, 10.0s cast, single-target
     Explosion = 24614, // BlackPylon->self, 15.0s cast, range 9 circle
     Shockwave = 24590, // Boss->self, 2.0s cast, single-target
@@ -39,7 +34,6 @@ public enum AID : uint
     GenerateBarrier7 = 25363, // Helper->self, no cast, range 24 width 3 rect
     PointWhite2 = 24609, // WhiteLance->self, no cast, range 24 width 6 rect
     RecreateMeteor = 24903, // Boss->self, 2.0s cast, single-target
-    UnknownAbility = 18683, // Ally2B->location, no cast, single-target
     WipeWhite = 24588, // Helper->self, 13.0s cast, range 75 circle
     WipeBlack = 24589, // Helper->self, 13.0s cast, range 75 circle
     Replicate = 24587, // Boss->self, 3.0s cast, single-target
@@ -49,6 +43,14 @@ public enum AID : uint
     ManipulateEnergy2 = 24602, // Helper->player, no cast, range 3 circle
     ChildsPlay2 = 24613, // Boss->self, 10.0s cast, single-target
     ManipulateEnergy3 = 24600, // Boss->self, 4.0s cast, single-target
+
+    // 2B abilties, ignore
+    BladeFlurry1 = 23788, // Ally2B->Boss, no cast, single-target
+    BladeFlurry2 = 23789, // Ally2B->Boss, no cast, single-target
+    DancingBlade = 23790, // Ally2B->Boss, no cast, width 2 rect charge
+    BalancedEdge = 23791, // Ally2B->self, 2.0s cast, range 5 circle
+    WhirlingAssault = 23792, // Ally2B->self, 2.0s cast, range 40 width 4 rect
+    UnknownAbility = 18683, // Ally2B->location, no cast, single-target
 }
 
 public enum SID : uint

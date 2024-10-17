@@ -33,6 +33,13 @@ public class StateMachineBuilder(BossModule module)
         public Phase ActivateOnEnter<C>(bool condition = true) where C : BossComponent => OnEnter(module.ActivateComponent<C>, condition);
         public Phase DeactivateOnEnter<C>(bool condition = true) where C : BossComponent => OnEnter(module.DeactivateComponent<C>, condition); // TODO: reconsider...
         public Phase DeactivateOnExit<C>(bool condition = true) where C : BossComponent => OnExit(module.DeactivateComponent<C>, condition);
+
+        public Phase SetHint(StateMachine.PhaseHint h, bool condition = true)
+        {
+            if (condition)
+                Raw.Hint |= h;
+            return this;
+        }
     }
 
     // wrapper that simplifies building states
@@ -55,6 +62,7 @@ public class StateMachineBuilder(BossModule module)
         }
 
         public State ActivateOnEnter<C>(bool condition = true) where C : BossComponent => OnEnter(module.ActivateComponent<C>, condition);
+        public State ActivateOnExit<C>(bool condition = true) where C : BossComponent => OnExit(module.ActivateComponent<C>, condition);
         public State DeactivateOnEnter<C>(bool condition = true) where C : BossComponent => OnEnter(module.DeactivateComponent<C>, condition);
         public State DeactivateOnExit<C>(bool condition = true) where C : BossComponent => OnExit(module.DeactivateComponent<C>, condition);
         public State ExecOnEnter<C>(Action<C> fn, bool condition = true) where C : BossComponent => OnEnter(ExecForComponent(fn), condition);

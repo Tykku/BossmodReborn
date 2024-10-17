@@ -66,8 +66,8 @@ class GoldenSilverFlame(BossModule module) : BossComponent(module)
 
     private IEnumerable<WPos> SafeCenters(int debuff)
     {
-        var limit = Module.Center + new WDir(Module.Bounds.Radius, Module.Bounds.Radius);
-        var first = Module.Center - new WDir(Module.Bounds.Radius - _shape.HalfWidth, Module.Bounds.Radius - _shape.HalfWidth);
+        var limit = Arena.Center + new WDir(Arena.Bounds.Radius, Module.Bounds.Radius);
+        var first = Arena.Center - new WDir(Arena.Bounds.Radius - _shape.HalfWidth, Module.Bounds.Radius - _shape.HalfWidth);
         var advance = 2 * _shape.HalfWidth;
         for (var x = first.X; x < limit.X; x += advance)
             for (var z = first.Z; z < limit.Z; z += advance)
@@ -78,10 +78,10 @@ class GoldenSilverFlame(BossModule module) : BossComponent(module)
 
 // note: actual spell targets location, but it seems to be incorrect...
 // note: we can predict cast start during Regret actor spawn...
-class RackAndRuin(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 2.5f), 8);
+abstract class RackAndRuin(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 2.5f), 8);
 class NRackAndRuin(BossModule module) : RackAndRuin(module, AID.NRackAndRuin);
 class SRackAndRuin(BossModule module) : RackAndRuin(module, AID.SRackAndRuin);
 
-class NothingBesideRemains(BossModule module, AID aid) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(aid), 8);
+abstract class NothingBesideRemains(BossModule module, AID aid) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(aid), 8);
 class NNothingBesideRemains(BossModule module) : NothingBesideRemains(module, AID.NNothingBesideRemainsAOE);
 class SNothingBesideRemains(BossModule module) : NothingBesideRemains(module, AID.SNothingBesideRemainsAOE);

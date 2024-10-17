@@ -54,7 +54,7 @@ class Comet(BossModule module) : Components.StandardChasingAOEs(module, new AOES
 class CometFirst(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.CometFirst), 4);
 class CometRest(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.CometRest), 4);
 
-class MeteorImpact(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.MeteorImpact), 50, false)
+class MeteorImpact(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.MeteorImpact), 50, safeInsideHitbox: false)
 {
     private DateTime activation;
 
@@ -175,7 +175,7 @@ class D032HunterOfBardamStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 240, NameID = 6180)]
 public class D032HunterOfBardam(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> vertices = [new(-25.46f, -32.82f), new(-25.08f, -32.37f), new(-24.46f, -32.23f), new(-23.34f, -32.04f), new(-20.11f, -31.35f),
+    private static readonly WPos[] vertices = [new(-25.46f, -32.82f), new(-25.08f, -32.37f), new(-24.46f, -32.23f), new(-23.34f, -32.04f), new(-20.11f, -31.35f),
     new(-19.58f, -31.16f), new(-17.25f, -29.93f), new(-16.76f, -29.55f), new(-16.38f, -29.2f), new(-16.05f, -28.81f),
     new(-15.52f, -27.91f), new(-15.18f, -27.5f), new(-14.23f, -26.97f), new(-13.8f, -26.6f), new(-12.47f, -25),
     new(-12.16f, -24.57f), new(-12.18f, -24.04f), new(-12.17f, -23.54f), new(-11.75f, -22.49f), new(-11.15f, -21.71f),
@@ -190,7 +190,7 @@ public class D032HunterOfBardam(WorldState ws, Actor primary) : BossModule(ws, p
     new(-47.57f, -13), new(-47.66f, -13.55f), new(-48.09f, -15.17f), new(-48.1f, -15.76f), new(-48.07f, -16.97f),
     new(-47.21f, -19.5f), new(-46.98f, -20.07f), new(-44.27f, -25.31f), new(-42.1f, -27.62f), new(-41.09f, -28.98f),
     new(-40.7f, -29.32f), new(-36.5f, -31.89f), new(-36.03f, -32.14f), new(-32.68f, -32.83f)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new PolygonCustom(vertices)]);
+    private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

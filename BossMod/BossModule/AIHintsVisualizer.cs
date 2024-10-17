@@ -42,10 +42,6 @@ public class AIHintsVisualizer(AIHints hints, WorldState ws, Actor player, ulong
         {
             tree.LeafNodes(hints.ActionsToExecute.Entries, e => $"{e.Action} @ {e.Target} (priority {e.Priority})");
         }
-        foreach (var _1 in tree.Node("Custom waypoints", !hints.WaypointManager.HasWaypoints))
-        {
-            tree.LeafNodes(hints.WaypointManager.waypoints, wp => $"{wp}");
-        }
         foreach (var _1 in tree.Node("Pathfinding"))
         {
             _pathfindVisualizer ??= BuildPathfindingVisualizer();
@@ -57,7 +53,7 @@ public class AIHintsVisualizer(AIHints hints, WorldState ws, Actor player, ulong
     private MapVisualizer BuildZoneVisualizer(Func<WPos, float> shape)
     {
         var map = new Map();
-        hints.Bounds.PathfindMap(map, hints.Center);
+        hints.InitPathfindMap(map);
         map.BlockPixelsInside(shape, 0, NavigationDecision.DefaultForbiddenZoneCushion);
         return new MapVisualizer(map, 0, player.Position);
     }
@@ -70,7 +66,7 @@ public class AIHintsVisualizer(AIHints hints, WorldState ws, Actor player, ulong
         if (_navi.Map == null)
         {
             _navi.Map = new();
-            hints.Bounds.PathfindMap(_navi.Map, hints.Center);
+            hints.PathfindMapBounds.PathfindMap(_navi.Map, hints.PathfindMapCenter);
             var imm = NavigationDecision.ImminentExplosionTime(ws.CurrentTime);
             foreach (var (shape, activation) in hints.ForbiddenZones)
                 NavigationDecision.AddBlockerZone(_navi.Map, imm, activation, shape, NavigationDecision.DefaultForbiddenZoneCushion);

@@ -6,7 +6,6 @@ public enum OID : uint
     Orbs = 0x2896, // R1.1
     Helper2 = 0x2A4B, // R3.45
     Helper = 0x233C
-
 }
 
 public enum AID : uint
@@ -49,5 +48,5 @@ class D011ForgivenDissonanceStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "legendoficeman, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 676, NameID = 8299)]
 public class D011ForgivenDissonance(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(-15, 240), 19.5f)], [new Rectangle(new(-15, 260), 20, 1.25f), new Rectangle(new(-15, 220), 20, 1.2f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(-15, 240), 19.5f)], [new Rectangle(new(-15, 260), 20, 1.25f), new Rectangle(new(-15, 220), 20, 1.2f)]);
 }

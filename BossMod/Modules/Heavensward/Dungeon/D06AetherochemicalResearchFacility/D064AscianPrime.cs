@@ -136,11 +136,11 @@ class HeightOfChaos(BossModule module) : Components.BaitAwayCast(module, ActionI
 
 class AncientEruption(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AncientEruption), 5);
 
-class ChillingCross(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCross(40, 2.5f));
+abstract class ChillingCross(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCross(40, 2.5f));
 class ChillingCross1(BossModule module) : ChillingCross(module, AID.ChillingCross1);
 class ChillingCross2(BossModule module) : ChillingCross(module, AID.ChillingCross2);
 
-class DarkBlizzard(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(41, 10.Degrees()));
+abstract class DarkBlizzard(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(41, 10.Degrees()));
 class DarkBlizzardIIIAOE1(BossModule module) : DarkBlizzard(module, AID.DarkBlizzardIII1);
 class DarkBlizzardIIIAOE2(BossModule module) : DarkBlizzard(module, AID.DarkBlizzardIII2);
 class DarkBlizzardIIIAOE3(BossModule module) : DarkBlizzard(module, AID.DarkBlizzardIII3);
@@ -236,7 +236,7 @@ class D064AscianPrimeStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 38, NameID = 3823)]
 public class D064AscianPrime(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> vertices = [new(230.1f, 58.66f), new(234.87f, 59.29f), new(235.46f, 59.42f), new(240.04f, 61.32f), new(240.54f, 61.66f),
+    private static readonly WPos[] vertices = [new(230.1f, 58.66f), new(234.87f, 59.29f), new(235.46f, 59.42f), new(240.04f, 61.32f), new(240.54f, 61.66f),
     new(244.09f, 64.38f), new(244.52f, 64.77f), new(247.63f, 68.83f), new(249.53f, 73.43f), new(249.69f, 74),
     new(250.3f, 78.68f), new(250.33f, 79.19f), new(249.72f, 83.76f), new(249.62f, 84.35f), new(247.73f, 88.91f),
     new(247.47f, 89.37f), new(244.53f, 93.2f), new(244.15f, 93.57f), new(240.69f, 96.23f), new(240.26f, 96.52f),
@@ -245,7 +245,7 @@ public class D064AscianPrime(WorldState ws, Actor primary) : BossModule(ws, prim
     new(210.39f, 84.36f), new(210.29f, 83.78f), new(209.66f, 79.02f), new(210.34f, 73.83f), new(210.54f, 73.27f),
     new(212.22f, 69.21f), new(212.47f, 68.7f), new(215.59f, 64.64f), new(219.87f, 61.36f), new(224.41f, 59.48f),
     new(224.99f, 59.31f), new(229.86f, 58.67f)];
-    public static readonly ArenaBounds arena = new ArenaBoundsComplex([new PolygonCustom(vertices)]);
+    public static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

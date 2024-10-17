@@ -60,12 +60,14 @@ class DynamicDominanceArenaChange(BossModule module) : Components.GenericAOEs(mo
 class DynamicDominance(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DynamicDominance));
 
 class ThunderlightBurstAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderlightBurstAOE), new AOEShapeCircle(35));
-class ThunderlightBurst1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderlightBurst1), new AOEShapeRect(42, 4));
-class ThunderlightBurst2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderlightBurst2), new AOEShapeRect(49, 4));
-class ThunderlightBurst3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderlightBurst3), new AOEShapeRect(35, 4));
-class ThunderlightBurst4(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderlightBurst4), new AOEShapeRect(36, 4));
 
-class Artillery(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(5, 5, 5));
+abstract class ThunderlightBurst(BossModule module, AID aid, int length) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(length, 4));
+class ThunderlightBurst1(BossModule module) : ThunderlightBurst(module, AID.ThunderlightBurst1, 42);
+class ThunderlightBurst2(BossModule module) : ThunderlightBurst(module, AID.ThunderlightBurst2, 49);
+class ThunderlightBurst3(BossModule module) : ThunderlightBurst(module, AID.ThunderlightBurst3, 35);
+class ThunderlightBurst4(BossModule module) : ThunderlightBurst(module, AID.ThunderlightBurst4, 36);
+
+abstract class Artillery(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(5, 5, 5));
 class Artillery1(BossModule module) : Artillery(module, AID.Artillery1);
 class Artillery2(BossModule module) : Artillery(module, AID.Artillery2);
 class Artillery3(BossModule module) : Artillery(module, AID.Artillery3);

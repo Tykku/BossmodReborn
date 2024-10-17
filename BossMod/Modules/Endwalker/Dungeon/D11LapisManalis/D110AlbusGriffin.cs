@@ -36,7 +36,7 @@ class D110AlbusGriffinStates : StateMachineBuilder
             .ActivateOnEnter<WindsOfWinter>()
             .ActivateOnEnter<WindsOfWinterStunHint>()
             .ActivateOnEnter<GoldenTalons>()
-            .Raw.Update = () => module.Enemies(OID.Caladrius).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.AlbusGriffin)).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(OID.Caladrius).Concat([module.PrimaryActor]).All(e => e.IsDestroyed) && module.Enemies(OID.AlbusGriffin).All(e => e.IsDeadOrDestroyed);
     }
 }
 

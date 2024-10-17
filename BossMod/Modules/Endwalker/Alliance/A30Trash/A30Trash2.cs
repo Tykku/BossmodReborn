@@ -42,7 +42,7 @@ public class A30Trash2Pack1(WorldState ws, Actor primary) : BossModule(ws, prima
     private static readonly List<Shape> union = [new Rectangle(new(800, 786), 21, 13.5f), new Rectangle(new(800, 767), 7.5f, 10), new Rectangle(new(800, 758), 10, 4)];
     private static readonly List<Shape> difference = [new Square(new(811.25f, 787), 1.5f), new Square(new(811.25f, 777.4f), 1.5f), new Square(new(788.75f, 787), 1.5f), new Square(new(788.75f, 777.4f), 1.5f),
     new Circle(new(793.4f, 762.75f), 1.25f), new Circle(new(806.6f, 762.75f), 1.25f)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    private static readonly ArenaBoundsComplex arena = new(union, difference);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

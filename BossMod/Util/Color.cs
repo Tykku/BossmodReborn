@@ -15,6 +15,7 @@ public record struct Color(uint ABGR)
 
     public static Color FromComponents(uint r, uint g, uint b, uint a = 255) => new(((a & 0xFF) << 24) | ((b & 0xFF) << 16) | ((g & 0xFF) << 8) | (r & 0xFF));
     public static Color FromRGBA(uint rgba) => FromComponents(rgba >> 24, rgba >> 16, rgba >> 8, rgba);
+    public static Color FromARGB(uint argb) => FromComponents(argb >> 16, argb >> 8, argb, argb >> 24);
 
     public static Color FromFloat4(Vector4 vec)
     {
@@ -26,6 +27,7 @@ public record struct Color(uint ABGR)
     }
 
     public readonly uint ToRGBA() => (R << 24) | (G << 16) | (B << 8) | A;
+    public readonly uint ToARGB() => (A << 24) | (R << 16) | (G << 8) | B;
     public readonly Vector4 ToFloat4() => new Vector4(R, G, B, A) * ToFloat;
 }
 
@@ -67,6 +69,7 @@ public static class Colors
     public static uint Other3 => _config.ArenaOther[2].ABGR;
     public static uint Other4 => _config.ArenaOther[3].ABGR;
     public static uint Other5 => _config.ArenaOther[4].ABGR;
+    public static uint Other6 => _config.ArenaOther[5].ABGR;
     public static uint Shadows => _config.Shadows.ABGR;
     public static uint WaymarkA => _config.WaymarkA.ABGR;
     public static uint WaymarkB => _config.WaymarkB.ABGR;
@@ -104,10 +107,10 @@ public static class Colors
     public static uint PositionalColor2 => _config.PositionalColors[1].ABGR;
     public static uint PositionalColor3 => _config.PositionalColors[2].ABGR;
     public static uint PositionalColor4 => _config.PositionalColors[3].ABGR;
-    public static uint Tank => _config.PlayerColorsTank.ABGR;
-    public static uint Healer => _config.PlayerColorsHealer.ABGR;
-    public static uint Melee => _config.PlayerColorsMelee.ABGR;
-    public static uint Caster => _config.PlayerColorsCaster.ABGR;
-    public static uint PhysRanged => _config.PlayerColorsPhysRanged.ABGR;
-    public static uint Focus => _config.PlayerColorsFocus.ABGR;
+    public static uint Tank => _config.ArenaPlayerGenericTank.ABGR;
+    public static uint Healer => _config.ArenaPlayerGenericHealer.ABGR;
+    public static uint Melee => _config.ArenaPlayerGenericMelee.ABGR;
+    public static uint Caster => _config.ArenaPlayerGenericCaster.ABGR;
+    public static uint PhysRanged => _config.ArenaPlayerGenericPhysRanged.ABGR;
+    public static uint Focus => _config.ArenaPlayerGenericFocus.ABGR;
 }

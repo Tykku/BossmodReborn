@@ -111,14 +111,20 @@ class VoidCall(BossModule module) : Components.GenericTowers(module)
             Towers.RemoveAll(x => x.Position == actor.Position);
     }
 
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID == AID.VoidCall) // there seems to be a rare bug where a tower bugs, safeguard against it
+            Towers.Clear();
+    }
+
     public override void Update()
     {
         if (Towers.Count == 0)
             return;
         var towerCount = Module.Enemies(OID.Tower).Count;
-        var minSoakers = towerCount == 2 ? 3 : towerCount == 3 ? 2 : 1;
+        var soakers = towerCount == 2 ? 3 : towerCount == 3 ? 2 : 1;
         for (var i = 0; i < Towers.Count; i++)
-            Towers[i] = new(Towers[i].Position, Towers[i].Radius, minSoakers, minSoakers, default, Towers[i].Activation);
+            Towers[i] = Towers[i] with { MinSoakers = soakers, MaxSoakers = soakers };
     }
 }
 
@@ -141,12 +147,11 @@ class D053EverlivingBibliotaphStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 31, NameID = 3930)]
 public class D053EverlivingBibliotaph(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(377.8f, -59.7f), 24.5f)], [new Rectangle(new(353.541f, -59.553f), 20, 1.25f, 89.977f.Degrees())]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(377.8f, -59.7f), 24.5f)], [new Rectangle(new(353.541f, -59.553f), 20, 1.25f, 89.977f.Degrees())]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Bibliophile).Concat(Enemies(OID.Biblioklept)).Concat(Enemies(OID.Bibliomancer)));
+        Arena.Actors(Enemies(OID.Bibliophile).Concat([PrimaryActor]).Concat(Enemies(OID.Biblioklept)).Concat(Enemies(OID.Bibliomancer)));
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

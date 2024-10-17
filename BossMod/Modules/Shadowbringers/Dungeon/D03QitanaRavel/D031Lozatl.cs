@@ -38,9 +38,9 @@ class RonkanLight(BossModule module) : Components.GenericAOEs(module)
         if (state == 0x00040008)
         {
             if (actor.Position.AlmostEqual(new(8, 328), 1))
-                _aoe = new(rect, Module.Center, 90.Degrees(), WorldState.FutureTime(8));
+                _aoe = new(rect, Arena.Center, 90.Degrees(), WorldState.FutureTime(8));
             else if (actor.Position.AlmostEqual(new(-7, 328), 1))
-                _aoe = new(rect, Module.Center, -90.Degrees(), WorldState.FutureTime(8));
+                _aoe = new(rect, Arena.Center, -90.Degrees(), WorldState.FutureTime(8));
         }
     }
 
@@ -68,7 +68,5 @@ class D031LozatlStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 651, NameID = 8231)]
 public class D031Lozatl(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> union = [new Circle(new(0, 315), 19.6f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(0, 335.25f), 20, 2), new Rectangle(new(0, 294.5f), 20, 2)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(0, 315), 19.6f)], [new Rectangle(new(0, 335.25f), 20, 2), new Rectangle(new(0, 294.5f), 20, 2)]);
 }

@@ -11,7 +11,7 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 872, // Boss->player, no cast, single-target
+    AutoAttack1 = 872, // Boss->player, no cast, single-target
     AutoAttack2 = 870, // TwelfthLegionOptio->player, no cast, single-target
 
     MagitekFireII = 7957, // Boss->location, 3.0s cast, range 5 circle
@@ -60,10 +60,18 @@ class MagitekPulsePlayer(BossModule module) : BossComponent(module)
         }
     }
 
-    public override void AddHints(int slot, Actor actor, TextHints hints)
+    public override void AddGlobalHints(GlobalHints hints)
     {
-        if (Module.Enemies(OID.MarkXLIIIMiniCannon).Any(x => x.IsTargetable) && _aoe.ActiveAOEs(slot, actor).Any())
+        if (Module.Enemies(OID.MarkXLIIIMiniCannon).Any(x => x.IsTargetable) && _aoe.ActiveAOEs(default, Helpers.FakeActor).Any())
             hints.Add("Use the turrets to stun the boss!");
+    }
+
+    public override void DrawArenaForeground(int pcSlot, Actor pc)
+    {
+        if (!(Module.Enemies(OID.MarkXLIIIMiniCannon).Any(x => x.IsTargetable) && _aoe.ActiveAOEs(pcSlot, pc).Any()))
+            return;
+        foreach (var a in Module.Enemies(OID.MarkXLIIIMiniCannon).Where(x => x.IsTargetable))
+            Arena.AddCircle(a.Position, 3, Colors.Safe);
     }
 }
 
@@ -126,11 +134,11 @@ class D051MagnaRoaderStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 242, NameID = 6263)]
 public class D051MagnaRoader(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(-212.99f, 186.99f), 19.55f)], [new Rectangle(new(-213, 167), 20, 1.25f), new Rectangle(new(-213, 208), 20, 2.1f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(-212.99f, 186.99f), 19.55f)], [new Rectangle(new(-213, 167), 20, 1.25f), new Rectangle(new(-213, 208), 20, 2.1f)]);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.TwelfthLegionOptio));
+        Arena.Actors(Enemies(OID.TwelfthLegionOptio).Concat([PrimaryActor]));
+        Arena.Actors(Enemies(OID.MarkXLIIIMiniCannon), Colors.Object);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

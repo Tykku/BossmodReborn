@@ -31,7 +31,8 @@ class StrewnBubbles(BossModule module) : Components.GenericAOEs(module)
 class RecedingEncroachingTwintides(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
-
+    private static readonly HashSet<AID> castEnd = [AID.NRecedingTwintides, AID.NEncroachingTwintides, AID.NFarTide, AID.NNearTide,
+    AID.SRecedingTwintides, AID.SEncroachingTwintides, AID.SFarTide, AID.SNearTide];
     private static readonly AOEShapeCircle _shapeOut = new(14);
     private static readonly AOEShapeDonut _shapeIn = new(8, 60);
 
@@ -56,7 +57,7 @@ class RecedingEncroachingTwintides(BossModule module) : Components.GenericAOEs(m
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.NRecedingTwintides or AID.NEncroachingTwintides or AID.NFarTide or AID.NNearTide or AID.SRecedingTwintides or AID.SEncroachingTwintides or AID.SFarTide or AID.SNearTide)
+        if (castEnd.Contains((AID)spell.Action.ID))
             ++NumCasts;
     }
 }

@@ -8,6 +8,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     ProximityPlasma1 = 39106, // Boss->self, 5.0s cast, range 20 circle
     ProximityPlasma2 = 39113, // Boss->self, 1.0s cast, range 20 circle
     RingLightning1 = 39107, // Boss->self, 5.0s cast, range 8-60 donut

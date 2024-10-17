@@ -5,7 +5,7 @@ class ScarletFever(BossModule module) : BossComponent(module)
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.ScarletFever)
-            Module.Arena.Bounds = T08Suzaku.phase2Arena;
+            Arena.Bounds = T08Suzaku.Phase2Arena;
     }
 }
 
@@ -24,9 +24,8 @@ class Swoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.Ma
 class WellOfFlame(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WellOfFlame), new AOEShapeRect(41, 10));
 
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 596, NameID = 6221)]
-public class T08Suzaku(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
+public class T08Suzaku(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, new ArenaBoundsCircle(20))
 {
-    private static readonly List<Shape> union = [new Circle(new(100, 100), 20)];
-    public static readonly ArenaBounds arena = new ArenaBoundsComplex(union);
-    public static readonly ArenaBounds phase2Arena = new ArenaBoundsComplex([new Donut(new(100, 100), 4, 20)]);
+    private static readonly WPos ArenaCenter = new(100, 100);
+    public static readonly ArenaBoundsComplex Phase2Arena = new([new Donut(ArenaCenter, 4, 20)]);
 }

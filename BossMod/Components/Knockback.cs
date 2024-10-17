@@ -53,7 +53,7 @@ public abstract class Knockback(BossModule module, ActionID aid = new(), bool ig
     private const float approxHitBoxRadius = 0.499f; // calculated because due to floating point errors this does not result in 0.001
     private const float maxIntersectionError = 0.5f - approxHitBoxRadius; // calculated because due to floating point errors this does not result in 0.001
 
-    protected PlayerImmuneState[] PlayerImmunes = new PlayerImmuneState[PartyState.MaxAllianceSize];
+    protected PlayerImmuneState[] PlayerImmunes = new PlayerImmuneState[PartyState.MaxAllies];
 
     public bool IsImmune(int slot, DateTime time) => !IgnoreImmunes && PlayerImmunes[slot].ImmuneAt(time);
 
@@ -65,7 +65,7 @@ public abstract class Knockback(BossModule module, ActionID aid = new(), bool ig
         if (from != to)
         {
             arena.ActorProjected(from, to, rot, Colors.Danger);
-            arena.AddLine(from, to, Colors.Danger);
+            arena.AddLine(from, to);
         }
     }
     public static void DrawKnockback(Actor actor, WPos adjPos, MiniArena arena) => DrawKnockback(actor.Position, adjPos, actor.Rotation, arena);

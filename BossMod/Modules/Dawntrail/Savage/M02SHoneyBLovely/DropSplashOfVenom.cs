@@ -61,9 +61,14 @@ class DropSplashOfVenom(BossModule module) : Components.UniformStackSpread(modul
     }
 }
 
-class TemptingTwist(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TemptingTwistAOE), new AOEShapeDonut(7, 30));
-class TemptingTwistBeat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TemptingTwistBeatAOE), new AOEShapeDonut(7, 30));
-class HoneyBeeline(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HoneyBeelineAOE), new AOEShapeRect(30, 7, 30));
-class HoneyBeelineBeat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HoneyBeelineBeatAOE), new AOEShapeRect(30, 7, 30));
-class PoisonCloudSplinter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PoisonCloudSplinter), new AOEShapeCircle(8));
-class SweetheartSplinter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SweetheartSplinter), new AOEShapeCircle(8));
+class Twist(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(7, 30));
+class TemptingTwist(BossModule module) : Twist(module, AID.TemptingTwistAOE);
+class TemptingTwistBeat(BossModule module) : Twist(module, AID.TemptingTwistBeatAOE);
+
+class Beeline(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(30, 7, 30));
+class HoneyBeeline(BossModule module) : Beeline(module, AID.HoneyBeelineAOE);
+class HoneyBeelineBeat(BossModule module) : Beeline(module, AID.HoneyBeelineBeatAOE);
+
+class Splinter(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(8));
+class PoisonCloudSplinter(BossModule module) : Splinter(module, AID.PoisonCloudSplinter);
+class SweetheartSplinter(BossModule module) : Splinter(module, AID.SweetheartSplinter);

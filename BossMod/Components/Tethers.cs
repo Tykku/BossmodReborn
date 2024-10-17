@@ -69,8 +69,8 @@ public class TankbusterTether(BossModule module, ActionID aid, uint tetherID, fl
         // show tethered targets with circles
         foreach (var side in _tethers)
         {
-            Arena.AddLine(side.Enemy.Position, side.Player.Position, side.Player.Role == Role.Tank ? Colors.Safe : Colors.Danger);
-            Arena.AddCircle(side.Player.Position, Radius, Colors.Danger);
+            Arena.AddLine(side.Enemy.Position, side.Player.Position, side.Player.Role == Role.Tank ? Colors.Safe : 0);
+            Arena.AddCircle(side.Player.Position, Radius);
         }
     }
 
@@ -144,7 +144,7 @@ public class InterceptTether(BossModule module, ActionID aid, uint tetherID) : C
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var side in _tethers)
-            Arena.AddLine(side.Enemy.Position, side.Player.Position, side.Player.Type is ActorType.Player or ActorType.Buddy ? Colors.Safe : Colors.Danger);
+            Arena.AddLine(side.Enemy.Position, side.Player.Position, side.Player.Type is ActorType.Player or ActorType.Buddy ? Colors.Safe : 0);
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
@@ -210,7 +210,7 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
         public readonly bool ImmuneAt(DateTime time) => RoleBuffExpire > time || JobBuffExpire > time || DutyBuffExpire > time;
     }
 
-    protected PlayerImmuneState[] PlayerImmunes = new PlayerImmuneState[PartyState.MaxAllianceSize];
+    protected PlayerImmuneState[] PlayerImmunes = new PlayerImmuneState[PartyState.MaxAllies];
 
     public bool IsImmune(int slot, DateTime time) => KnockbackImmunity && PlayerImmunes[slot].ImmuneAt(time);
 
@@ -264,7 +264,7 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
         if (!IsImmune(pcSlot, ActiveBaits.FirstOrDefault(x => x.Target == pc).Activation))
         {
             if (IsTether(pc, TIDBad))
-                DrawTetherLines(pc, Colors.Danger);
+                DrawTetherLines(pc);
             else if (IsTether(pc, TIDGood))
                 DrawTetherLines(pc, Colors.Safe);
         }
@@ -272,7 +272,7 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
 
     private bool IsTether(Actor actor, uint tetherID) => TetherOnActor.Contains((actor, tetherID));
 
-    private void DrawTetherLines(Actor target, uint color)
+    private void DrawTetherLines(Actor target, uint color = 0)
     {
         foreach (var bait in ActiveBaits.Where(x => x.Target == target))
             Arena.AddLine(bait.Source.Position, bait.Target.Position, color);
@@ -330,7 +330,7 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
     }
 
     // we support both player->enemy and enemy->player tethers
-    private (Actor? player, Actor? enemy) DetermineTetherSides(Actor source, ActorTetherInfo tether)
+    public (Actor? player, Actor? enemy) DetermineTetherSides(Actor source, ActorTetherInfo tether)
     {
         if (tether.ID != TIDGood && tether.ID != TIDBad)
             return (null, null);
@@ -339,8 +339,8 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
         if (target == null)
             return (null, null);
 
-        var (player, enemy) = source.Type is ActorType.Player or ActorType.Buddy ? (source, target) : (target, source);
-        if (player.Type is not ActorType.Player and not ActorType.Buddy || enemy.Type is ActorType.Player or ActorType.Buddy)
+        var (player, enemy) = Raid.WithoutSlot().Contains(source) ? (source, target) : (target, source);
+        if (!Raid.WithoutSlot().Contains(player) || enemy.Type is ActorType.Player or ActorType.Buddy)
         {
             ReportError($"Unexpected tether pair: {source.InstanceID:X} -> {target.InstanceID:X}");
             return (null, null);

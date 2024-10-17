@@ -27,6 +27,7 @@ public enum IconID : uint
 
 class SwiftSpillRotation(BossModule module) : Components.GenericRotatingAOE(module)
 {
+    private static readonly Angle a60 = 60.Degrees();
     private Angle _increment;
     private Angle _rotation;
     private DateTime _activation;
@@ -36,8 +37,8 @@ class SwiftSpillRotation(BossModule module) : Components.GenericRotatingAOE(modu
     {
         var increment = (IconID)iconID switch
         {
-            IconID.RotateCW => -60.Degrees(),
-            IconID.RotateCCW => 60.Degrees(),
+            IconID.RotateCW => -a60,
+            IconID.RotateCCW => a60,
             _ => default
         };
         if (increment != default)
@@ -100,7 +101,7 @@ class D042AmphibiousTalosStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 656, NameID = 8250)]
 public class D042AmphibiousTalos(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> union = [new Circle(new(208, 275), 19.55f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(208, 255.4f), 20, 1), new Rectangle(new(208, 294.55f), 20, 1)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    private static readonly Circle[] union = [new Circle(new(208, 275), 19.55f)];
+    private static readonly Rectangle[] difference = [new Rectangle(new(208, 255.4f), 20, 1), new Rectangle(new(208, 294.55f), 20, 1)];
+    private static readonly ArenaBoundsComplex arena = new(union, difference);
 }

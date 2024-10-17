@@ -1,6 +1,4 @@
-﻿using BossMod.AST;
-
-namespace BossMod;
+﻿namespace BossMod;
 
 // utility that recalculates ai hints based on different data sources (eg active bossmodule, etc)
 // when there is no active bossmodule (eg in outdoor or on trash), we try to guess things based on world state (eg actor casts)
@@ -8,17 +6,21 @@ public sealed class AIHintsBuilder : IDisposable
 {
     private const float RaidwideSize = 30;
     private const float HalfWidth = 0.5f;
+    public readonly Pathfinding.ObstacleMapManager Obstacles;
     private readonly WorldState _ws;
     private readonly BossModuleManager _bmm;
+    private readonly ZoneModuleManager _zmm;
     private readonly EventSubscriptions _subscriptions;
     private readonly Dictionary<ulong, (Actor Caster, Actor? Target, AOEShape Shape, bool IsCharge)> _activeAOEs = [];
     private ArenaBoundsCircle? _activeFateBounds;
     private static readonly HashSet<uint> ignore = [27503, 33626]; // action IDs that the AI should ignore
 
-    public AIHintsBuilder(WorldState ws, BossModuleManager bmm)
+    public AIHintsBuilder(WorldState ws, BossModuleManager bmm, ZoneModuleManager zmm)
     {
         _ws = ws;
         _bmm = bmm;
+        _zmm = zmm;
+        Obstacles = new(ws);
         _subscriptions = new
         (
             ws.Actors.CastStarted.Subscribe(OnCastStarted),
@@ -27,46 +29,73 @@ public sealed class AIHintsBuilder : IDisposable
         );
     }
 
-    public void Dispose() => _subscriptions.Dispose();
+    public void Dispose()
+    {
+        _subscriptions.Dispose();
+        Obstacles.Dispose();
+    }
 
-    public void Update(AIHints hints, int playerSlot)
+    public void Update(AIHints hints, int playerSlot, float maxCastTime)
     {
         hints.Clear();
+        hints.MaxCastTimeEstimate = maxCastTime;
         var player = _ws.Party[playerSlot];
         if (player != null)
         {
             var playerAssignment = Service.Config.Get<PartyRolesConfig>()[_ws.Party.Members[playerSlot].ContentId];
             var activeModule = _bmm.ActiveModule?.StateMachine.ActivePhase != null ? _bmm.ActiveModule : null;
             hints.FillPotentialTargets(_ws, playerAssignment == PartyRolesConfig.Assignment.MT || playerAssignment == PartyRolesConfig.Assignment.OT && !_ws.Party.WithoutSlot().Any(p => p != player && p.Role == Role.Tank));
-            hints.RecommendedRangeToTarget = player.Role is Role.Melee or Role.Tank ? 3 : 25;
             if (activeModule != null)
+            {
                 activeModule.CalculateAIHints(playerSlot, player, playerAssignment, hints);
+            }
             else
+            {
                 CalculateAutoHints(hints, player);
+                _zmm.ActiveModule?.CalculateAIHints(player, hints);
+            }
         }
         hints.Normalize();
     }
 
     private void CalculateAutoHints(AIHints hints, Actor player)
     {
+        var (e, bitmap) = Obstacles.Find(player.PosRot.XYZ());
+        var resolution = bitmap?.PixelSize ?? 0.5f;
         if (_ws.Client.ActiveFate.ID != 0 && player.Level <= Service.LuminaRow<Lumina.Excel.GeneratedSheets.Fate>(_ws.Client.ActiveFate.ID)?.ClassJobLevelMax)
         {
-            hints.Center = new(_ws.Client.ActiveFate.Center.XZ());
-            hints.Bounds = (_activeFateBounds ??= new ArenaBoundsCircle(_ws.Client.ActiveFate.Radius));
+            hints.PathfindMapCenter = new(_ws.Client.ActiveFate.Center.XZ());
+            hints.PathfindMapBounds = (_activeFateBounds ??= new ArenaBoundsCircle(_ws.Client.ActiveFate.Radius));
+            // TODO: obstactles for fates, if we care?..
+        }
+        else if (e != null && bitmap != null)
+        {
+            var originCell = (player.Position - e.Origin) / resolution;
+            var originX = (int)originCell.X;
+            var originZ = (int)originCell.Z;
+            // if player is too close to the border, adjust origin
+            originX = Math.Min(originX, bitmap.Width - e.ViewWidth);
+            originZ = Math.Min(originZ, bitmap.Height - e.ViewHeight);
+            originX = Math.Max(originX, e.ViewWidth);
+            originZ = Math.Max(originZ, e.ViewHeight);
+            // TODO: consider quantizing even more, to reduce jittering when player moves?..
+            hints.PathfindMapCenter = e.Origin + resolution * new WDir(originX, originZ);
+            hints.PathfindMapBounds = new ArenaBoundsRect(e.ViewWidth * resolution, e.ViewHeight * resolution, MapResolution: resolution); // note: we don't bother caching these bounds, they are very lightweight
+            hints.PathfindMapObstacles = new(bitmap, new(originX - e.ViewWidth, originZ - e.ViewHeight, originX + e.ViewWidth, originZ + e.ViewHeight));
         }
         else
         {
-            hints.Center = player.Position.Rounded(5);
+            hints.PathfindMapCenter = player.Position.Rounded(5);
             // try to keep player near grid center
-            var playerOffset = player.Position - hints.Center;
+            var playerOffset = player.Position - hints.PathfindMapCenter;
             if (playerOffset.X < -1.25f)
-                hints.Center.X -= 2.5f;
+                hints.PathfindMapCenter.X -= 2.5f;
             else if (playerOffset.X > 1.25f)
-                hints.Center.X += 2.5f;
+                hints.PathfindMapCenter.X += 2.5f;
             if (playerOffset.Z < -1.25f)
-                hints.Center.Z -= 2.5f;
+                hints.PathfindMapCenter.Z -= 2.5f;
             else if (playerOffset.Z > 1.25f)
-                hints.Center.Z += 2.5f;
+                hints.PathfindMapCenter.Z += 2.5f;
             // keep default bounds
         }
 
@@ -88,13 +117,11 @@ public sealed class AIHintsBuilder : IDisposable
 
     private void OnCastStarted(Actor actor)
     {
-        if (actor.Type != ActorType.Enemy || actor.IsAlly)
+        if (actor.Type is not ActorType.Enemy and not ActorType.Helper || actor.IsAlly)
             return;
         var data = actor.CastInfo!.IsSpell() ? Service.LuminaRow<Lumina.Excel.GeneratedSheets.Action>(actor.CastInfo.Action.ID) : null;
         if (data == null || data.CastType == 1)
             return;
-        //if (data.Omen.Row == 0)
-        //    return; // to consider: ignore aoes without omen, such aoes typically need a module to resolve...
         if (data.CastType is 2 or 5 && data.EffectRange >= RaidwideSize)
             return;
         if (ignore.Contains(actor.CastInfo!.Action.ID))

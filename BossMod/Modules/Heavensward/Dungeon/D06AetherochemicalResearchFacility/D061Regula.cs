@@ -60,10 +60,10 @@ class D061RegulaStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 38, NameID = 3818)]
 public class D061Regula(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> shape = [new PolygonCustom([new(-89.11f, -301.95f), new(-93.32f, -310.37f), new(-106.99f, -318.19f), new(-115.01f, -318.19f),
+    private static readonly PolygonCustom[] shape = [new ([new(-89.11f, -301.95f), new(-93.32f, -310.37f), new(-106.99f, -318.19f), new(-115.01f, -318.19f),
     new(-128.64f, -310.32f), new(-132.28f, -303.07f), new(-132.29f, -287.96f), new(-128.64f, -280.69f), new(-115.04f, -272.8f), new(-107.04f, -272.8f),
     new(-93.35f, -280.7f), new(-89.11f, -289.1f)])];
-    public static readonly ArenaBounds arena = new ArenaBoundsComplex(shape);
+    public static readonly ArenaBoundsComplex arena = new(shape);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

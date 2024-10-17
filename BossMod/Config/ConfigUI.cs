@@ -101,11 +101,12 @@ public sealed class ConfigUI : IDisposable
 
     private static readonly Dictionary<string, string> _autorotationCommands = new()
     {
-        { "ar", "Lists all autorotation commands." },
         { "ar clear", "Clear current preset; autorotation will do nothing unless plan is active" },
-        { "ar set Preset", "Force disable autorotation; no actions will be executed automatically even if plan is active." },
+        { "ar disable", "Force disable autorotation; no actions will be executed automatically even if plan is active." },
+        { "ar set Preset", "Start executing specified preset." },
         { "ar toggle", "Force disable autorotation if not already; otherwise clear overrides." },
         { "ar toggle Preset", "Start executing specified preset unless it's already active; clear otherwise" },
+        { "ar ui", "Toggle autorotation ui." },
     };
 
     private static readonly Dictionary<string, string> _availableOtherCommands = new()
@@ -219,6 +220,7 @@ public sealed class ConfigUI : IDisposable
         Enum v => DrawProperty(label, tooltip, node, member, v),
         float v => DrawProperty(label, tooltip, node, member, v),
         int v => DrawProperty(label, tooltip, node, member, v),
+        string v => DrawProperty(label, tooltip, node, member, v),
         Color v => DrawProperty(label, tooltip, node, member, v),
         Color[] v => DrawProperty(label, tooltip, node, member, v),
         GroupAssignment v => DrawProperty(label, tooltip, node, member, v, root, tree, ws),
@@ -268,7 +270,7 @@ public sealed class ConfigUI : IDisposable
             var flags = ImGuiSliderFlags.None;
             if (slider.Logarithmic)
                 flags |= ImGuiSliderFlags.Logarithmic;
-            ImGui.SetNextItemWidth(MathF.Min(ImGui.GetWindowWidth() * 0.30f, 175));
+            ImGui.SetNextItemWidth(Math.Min(ImGui.GetWindowWidth() * 0.30f, 175));
             if (ImGui.DragFloat(label, ref v, slider.Speed, slider.Min, slider.Max, "%.3f", flags))
             {
                 member.SetValue(node, v);
@@ -295,7 +297,7 @@ public sealed class ConfigUI : IDisposable
             var flags = ImGuiSliderFlags.None;
             if (slider.Logarithmic)
                 flags |= ImGuiSliderFlags.Logarithmic;
-            ImGui.SetNextItemWidth(MathF.Min(ImGui.GetWindowWidth() * 0.30f, 175));
+            ImGui.SetNextItemWidth(Math.Min(ImGui.GetWindowWidth() * 0.30f, 175));
             if (ImGui.DragInt(label, ref v, slider.Speed, (int)slider.Min, (int)slider.Max, "%d", flags))
             {
                 member.SetValue(node, v);
@@ -309,6 +311,17 @@ public sealed class ConfigUI : IDisposable
                 member.SetValue(node, v);
                 return true;
             }
+        }
+        return false;
+    }
+
+    private static bool DrawProperty(string label, string tooltip, ConfigNode node, FieldInfo member, string v)
+    {
+        DrawHelp(tooltip);
+        if (ImGui.InputText(label, ref v, 256))
+        {
+            member.SetValue(node, v);
+            return true;
         }
         return false;
     }

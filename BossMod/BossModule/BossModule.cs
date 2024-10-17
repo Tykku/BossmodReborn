@@ -1,4 +1,5 @@
-﻿using ImGuiNET;
+﻿using Dalamud.Interface.Utility.Raii;
+using ImGuiNET;
 
 namespace BossMod;
 
@@ -10,7 +11,7 @@ public abstract class BossModule : IDisposable
     public readonly Actor PrimaryActor;
     public readonly BossModuleConfig WindowConfig = Service.Config.Get<BossModuleConfig>();
     public readonly MiniArena Arena;
-    public readonly ModuleRegistry.Info? Info;
+    public readonly BossModuleRegistry.Info? Info;
     public readonly StateMachine StateMachine;
 
     private readonly EventSubscriptions _subscriptions;
@@ -80,7 +81,7 @@ public abstract class BossModule : IDisposable
         WorldState = ws;
         PrimaryActor = primary;
         Arena = new(WindowConfig, center, bounds);
-        Info = ModuleRegistry.FindByOID(primary.OID);
+        Info = BossModuleRegistry.FindByOID(primary.OID);
         StateMachine = Info != null ? ((StateMachineBuilder)Activator.CreateInstance(Info.StatesType, this)!).Build() : new([]);
 
         _subscriptions = new
@@ -223,8 +224,8 @@ public abstract class BossModule : IDisposable
 
     public void CalculateAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        hints.Center = Center;
-        hints.Bounds = Bounds;
+        hints.PathfindMapCenter = Center;
+        hints.PathfindMapBounds = Bounds;
         foreach (var comp in _components)
             comp.AddAIHints(slot, actor, assignment, hints);
         CalculateModuleAIHints(slot, actor, assignment, hints);
@@ -248,6 +249,10 @@ public abstract class BossModule : IDisposable
     // default implementation activates if primary target is both targetable and in combat
     protected virtual bool CheckPull() { return PrimaryActor.IsTargetable && PrimaryActor.InCombat; }
 
+    // called during update if module is active; should return true if module is to be reset (i.e. deleted and new instance recreated for same actor)
+    // default implementation never resets, but it's useful for outdoor bosses that can be leashed
+    public virtual bool CheckReset() => false;
+
     protected virtual void UpdateModule() { }
     protected virtual void DrawArenaBackground(int pcSlot, Actor pc) { } // before modules background
     protected virtual void DrawArenaForeground(int pcSlot, Actor pc) { } // after border, before modules foreground
@@ -261,13 +266,12 @@ public abstract class BossModule : IDisposable
 
     private void DrawGlobalHints(BossComponent.GlobalHints hints)
     {
-        ImGui.PushStyleColor(ImGuiCol.Text, Colors.TextColor11);
+        using var color = ImRaii.PushColor(ImGuiCol.Text, Colors.TextColor11);
         foreach (var hint in hints)
         {
             ImGui.TextUnformatted(hint);
             ImGui.SameLine();
         }
-        ImGui.PopStyleColor();
         ImGui.NewLine();
     }
 
@@ -275,9 +279,8 @@ public abstract class BossModule : IDisposable
     {
         foreach ((var hint, var risk) in hints)
         {
-            ImGui.PushStyleColor(ImGuiCol.Text, risk ? Colors.Danger : Colors.Safe);
+            using var color = ImRaii.PushColor(ImGuiCol.Text, risk ? Colors.Danger : Colors.Safe);
             ImGui.TextUnformatted(hint);
-            ImGui.PopStyleColor();
             ImGui.SameLine();
         }
         ImGui.NewLine();
@@ -338,7 +341,7 @@ public abstract class BossModule : IDisposable
                         {
                             ClassCategory.Tank => Colors.Tank,
                             ClassCategory.Healer => Colors.Healer,
-                            ClassCategory.Melee => Colors.Healer,
+                            ClassCategory.Melee => Colors.Melee,
                             ClassCategory.Caster => Colors.Caster,
                             ClassCategory.PhysRanged => Colors.PhysRanged,
                             _ => color

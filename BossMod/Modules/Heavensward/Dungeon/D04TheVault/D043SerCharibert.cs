@@ -12,10 +12,10 @@ public enum OID : uint
 
 public enum AID : uint
 {
+    AutoAttack = 4143, // Boss->player, no cast, single-target
     Visual1 = 4121, // Boss->self, no cast, single-target
     Visual2 = 4120, // Boss->self, no cast, single-target
 
-    AutoAttack = 4143, // Boss->player, no cast, single-target
     AltarCandle = 4144, // Boss->player, no cast, single-target tankbuster
 
     HeavensflameTelegraph = 4145, // Boss->self, 2.5s cast, single-target

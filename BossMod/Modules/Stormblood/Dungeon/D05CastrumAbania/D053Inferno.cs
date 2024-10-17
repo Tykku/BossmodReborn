@@ -11,6 +11,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 870, // Boss->player, no cast, single-target
+
     KetuCut = 8326, // Boss->self, no cast, single-target
     RahuCut = 8327, // Boss->self, no cast, single-target
 
@@ -106,12 +107,11 @@ class D053InfernoStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 242, NameID = 6268)]
 public class D053Inferno(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex([new Circle(new(282.5f, -27.25f), 19.51f)], [new Rectangle(new(277.157f, -7.933f), 20, 1.25f, 17.532f.Degrees())]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(282.5f, -27.25f), 19.51f)], [new Rectangle(new(277.157f, -7.933f), 20, 1.25f, 17.532f.Degrees())]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.TwelfthLegionPacker).Concat(Enemies(OID.TwelfthLegionDeathClaw)));
+        Arena.Actors(Enemies(OID.TwelfthLegionPacker).Concat(Enemies(OID.TwelfthLegionDeathClaw)).Concat([PrimaryActor]));
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

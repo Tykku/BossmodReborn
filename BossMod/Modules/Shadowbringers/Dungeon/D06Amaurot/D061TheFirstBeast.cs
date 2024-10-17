@@ -46,42 +46,36 @@ class TheBurningSky2(BossModule module) : Components.SpreadFromCastTargets(modul
 
 class Meteors(BossModule module) : Components.GenericBaitAway(module)
 {
-    public List<Actor> targets = [];
+    private static readonly AOEShapeCircle circle = new(10);
 
     public override void OnEventIcon(Actor actor, uint iconID)
     {
         if (iconID == (uint)IconID.Meteor)
-        {
-            CurrentBaits.Add(new(actor, actor, new AOEShapeCircle(10)));
-            targets.Add(actor);
-        }
+            CurrentBaits.Add(new(actor, actor, circle));
     }
 
     public override void OnActorCreated(Actor actor)
     {
         if ((OID)actor.OID == OID.FallenStar)
-        {
             CurrentBaits.Clear();
-            targets.Clear();
-        }
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
         base.AddHints(slot, actor, hints);
-        if (targets.Contains(actor))
+        if (CurrentBaits.Any(x => x.Target == actor))
             hints.Add("Place meteor!");
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (targets.Contains(actor))
+        if (CurrentBaits.Any(x => x.Target == actor))
             hints.AddForbiddenZone(ShapeDistance.InvertedRect(new(-80, 97), new(-80, 67), 15));
     }
 }
 
-class TheFinalSky(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.TheFinalSky), 70, false)
+class TheFinalSky(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.TheFinalSky), 70, safeInsideHitbox: false)
 {
     public override IEnumerable<Actor> BlockerActors() => Module.Enemies(OID.FallenStar);
 }

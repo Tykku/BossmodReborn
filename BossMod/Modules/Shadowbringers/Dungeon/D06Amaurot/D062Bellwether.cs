@@ -52,19 +52,11 @@ class D062BellwetherStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 652, NameID = 8202)]
 public class D062Bellwether(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<Shape> union = [new Circle(new(60, -361), 19.5f)];
-    private static readonly List<Shape> difference = [new Rectangle(new(60, -341), 20, 1)];
-    private static readonly ArenaBounds arena = new ArenaBoundsComplex(union, difference);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(60, -361), 19.5f)], [new Rectangle(new(60, -341), 20, 1)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.TerminusRoiler));
-        Arena.Actors(Enemies(OID.TerminusShriver));
-        Arena.Actors(Enemies(OID.TerminusFlesher));
-        Arena.Actors(Enemies(OID.TerminusDetonator));
-        Arena.Actors(Enemies(OID.TerminusBeholder));
-        Arena.Actors(Enemies(OID.TerminusCrier));
-        Arena.Actors(Enemies(OID.TerminusSprinter));
+        Arena.Actors(Enemies(OID.TerminusRoiler).Concat([PrimaryActor]).Concat(Enemies(OID.TerminusShriver)).Concat(Enemies(OID.TerminusFlesher))
+        .Concat(Enemies(OID.TerminusDetonator)).Concat(Enemies(OID.TerminusBeholder)).Concat(Enemies(OID.TerminusCrier)).Concat(Enemies(OID.TerminusSprinter)));
     }
 }

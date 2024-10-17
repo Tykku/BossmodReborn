@@ -26,7 +26,7 @@ class SpreadShot(BossModule module) : Components.SelfTargetedAOEs(module, Action
 
 class D040VanguardAerostat2States : StateMachineBuilder
 {
-    public D040VanguardAerostat2States(D040VanguardAerostat2 module) : base(module)
+    public D040VanguardAerostat2States(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<IncendiaryRing>()
@@ -39,12 +39,12 @@ class D040VanguardAerostat2States : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 831, NameID = 12780, SortOrder = 5)]
 public class D040VanguardAerostat2(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> arenacoords = [new(-12.5f, -328.5f), new(12.5f, -328.5f), new(12.637f, -327.677f), new(21.5f, -327.759f),
+    private static readonly WPos[] vertices = [new(-12.5f, -328.5f), new(12.5f, -328.5f), new(12.637f, -327.677f), new(21.5f, -327.759f),
     new(21.649f, -321.3f), new(40.939f, -321.27f), new(41.304f, -327.909f), new(87.469f, -327.561f), new(87.57f, -312.112f), new(41.304f, -312.84f),
     new(41.242f, -318.724f), new(21.684f, -318.724f), new(12.648f, -312.733f),
     new(12.5f, -311.5f), new(4.283f, -311.468f), new(3.086f, -310.288f),
     new(3, -302.5f), new(-3, -302.5f), new(-3.086f, -310.288f), new(-4.283f, -311.468f), new(-12.5f, -311.5f)];
-    private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(arenacoords)]);
+    private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

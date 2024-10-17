@@ -58,7 +58,7 @@ class Chainsaw(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoe != null)
-            yield return _aoe.Value with { Origin = Module.PrimaryActor.Position };
+            yield return _aoe.Value with { Origin = Module.PrimaryActor.Position, Rotation = Module.PrimaryActor.Rotation };
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -108,7 +108,7 @@ class ChainMine(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class ThermobaricChargeBait(BossModule module) : Components.GenericBaitAway(module)
+class ThermobaricChargeBait(BossModule module) : Components.GenericBaitAway(module, centerAtTarget: true)
 {
     private static readonly AOEShapeCircle circle = new(30);
 
@@ -137,47 +137,24 @@ class ThermobaricChargeBait(BossModule module) : Components.GenericBaitAway(modu
     }
 }
 
-class Gunsaw(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.GunsawFirst), new AOEShapeRect(60.9f, 1))
+class Gunsaw(BossModule module) : Components.GenericBaitAway(module)
 {
-    private bool imminent;
-    private bool first;
-    private int numCasts;
+    private static readonly AOEShapeRect rect = new(60.9f, 1);
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.GunsawRest)
+        if ((AID)spell.Action.ID == AID.GunsawFirst)
         {
-            if (++numCasts == 4)
+            var target = Raid.WithoutSlot().FirstOrDefault(x => x.Position.InRect(Module.PrimaryActor.Position, Module.PrimaryActor.Rotation, rect.LengthFront, 0, 0.02f));
+            if (target != default)
+                CurrentBaits.Add(new(caster, target, rect));
+        }
+        else if ((AID)spell.Action.ID == AID.GunsawRest)
+            if (++NumCasts == 4)
             {
-                imminent = false;
-                numCasts = 0;
+                CurrentBaits.Clear();
+                NumCasts = 0;
             }
-        }
-        else if ((AID)spell.Action.ID == AID.ThermobaricChargeVisual2)
-            imminent = true;
-        else if ((AID)spell.Action.ID == AID.DelayActionChargeVisual && !first)
-        {
-            imminent = true;
-            first = true;
-        }
-    }
-
-    public override void AddHints(int slot, Actor actor, TextHints hints)
-    {
-        if (imminent)
-            base.AddHints(slot, actor, hints);
-    }
-
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (imminent)
-            base.AddAIHints(slot, actor, assignment, hints);
-    }
-
-    public override void DrawArenaForeground(int pcSlot, Actor pc)
-    {
-        if (imminent)
-            base.DrawArenaForeground(pcSlot, pc);
     }
 }
 

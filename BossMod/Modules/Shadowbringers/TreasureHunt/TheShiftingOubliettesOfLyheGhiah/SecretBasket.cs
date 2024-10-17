@@ -9,18 +9,19 @@ public enum OID : uint
     SecretTomato = 0x3020, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
     SecretOnion = 0x301D, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
     SecretEgg = 0x301E, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    KeeperOfKeys = 0x3034, // R3.23
     Helper = 0x233C
 }
 
 public enum AID : uint
 {
-    AutoAttack = 872, // Boss/SecretEchivore/Mandragoras->player, no cast, single-target
+    AutoAttack = 872, // Boss/SecretEchivore/Mandragoras/KeeperOfKeys->player, no cast, single-target
 
     HeavyStrikeVisual1 = 21698, // Boss->self, no cast, single-target
     HeavyStrikeVisual2 = 21723, // Boss->self, no cast, single-target
-    HeavyStrike1 = 21724, // Helper->self, 4.0s cast, range 6+R 270-degree cone, donut segment
-    HeavyStrike2 = 21725, // Helper->self, 4.0s cast, range 12+R 270-degree cone, donut segment
-    HeavyStrike3 = 21726, // Helper->self, 4.9s cast, range 18+R 270-degree cone, donut segment
+    HeavyStrike1 = 21724, // Helper->self, 4.0s cast, range 6+R 270-degree cone
+    HeavyStrike2 = 21725, // Helper->self, 4.0s cast, range 12+R 270-degree donut segment
+    HeavyStrike3 = 21726, // Helper->self, 4.9s cast, range 18+R 270-degree donut segment
 
     PollenCorona = 21722, // Boss->self, 3.0s cast, range 8 circle
     StraightPunch = 21721, // Boss->player, 4.0s cast, single-target
@@ -36,34 +37,38 @@ public enum AID : uint
     HeirloomScream = 6451, // SecretTomato->self, 3.5s cast, range 6+R circle
     PluckAndPrune = 6449, // SecretEgg->self, 3.5s cast, range 6+R circle
     PungentPirouette = 6450, // SecretGarlic->self, 3.5s cast, range 6+R circle
+    Mash = 21767, // KeeperOfKeys->self, 3.0s cast, range 13 width 4 rect
+    Inhale = 21770, // KeeperOfKeys->self, no cast, range 20 120-degree cone, attract 25 between hitboxes, shortly before Spin
+    Spin = 21769, // KeeperOfKeys->self, 4.0s cast, range 11 circle
+    Scoop = 21768, // KeeperOfKeys->self, 4.0s cast, range 15 120-degree cone
     Telega = 9630 // Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
 class Earthquake(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.EarthquakeVisual), ActionID.MakeSpell(AID.Earthquake), 1.2f);
 
-class HeavyStrike1 : Components.SelfTargetedAOEs
+class HeavyStrike(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 {
-    public HeavyStrike1(BossModule module) : base(module, ActionID.MakeSpell(AID.HeavyStrike1), new AOEShapeDonutSector(0.5f, 6.5f, 135.Degrees()))
-    {
-        Color = Colors.Danger;
-    }
-}
+    private static readonly AOEShape[] _shapes = [new AOEShapeCone(6.5f, 135.Degrees()), new AOEShapeDonutSector(6.5f, 12.5f, 135.Degrees()), new AOEShapeDonutSector(12.5f, 18.5f, 135.Degrees())];
 
-class HeavyStrike2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeavyStrike2), new AOEShapeDonutSector(6.5f, 12.5f, 135.Degrees()))
-{
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        base.OnCastFinished(caster, spell);
-        Color = (AID)spell.Action.ID == AID.HeavyStrike1 ? Colors.Danger : Colors.AOE;
+        if ((AID)spell.Action.ID == AID.HeavyStrike1)
+            AddSequence(caster.Position, Module.CastFinishAt(spell), spell.Rotation);
     }
-}
 
-class HeavyStrike3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeavyStrike3), new AOEShapeDonutSector(12.5f, 18.5f, 135.Degrees()))
-{
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        base.OnCastFinished(caster, spell);
-        Color = (AID)spell.Action.ID == AID.HeavyStrike2 ? Colors.Danger : Colors.AOE;
+        if (Sequences.Count > 0)
+        {
+            var order = (AID)spell.Action.ID switch
+            {
+                AID.HeavyStrike1 => 0,
+                AID.HeavyStrike2 => 1,
+                AID.HeavyStrike3 => 2,
+                _ => -1
+            };
+            AdvanceSequence(order, caster.Position, WorldState.FutureTime(1.1f), caster.Rotation);
+        }
     }
 }
 
@@ -72,12 +77,16 @@ class StraightPunch(BossModule module) : Components.SingleTargetCast(module, Act
 class Leafcutter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Leafcutter), new AOEShapeRect(15, 2));
 class EarthCrusher(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.EarthCrusher2), new AOEShapeDonut(10, 20));
 
-class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+
+class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
+class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
+class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
 
 class SecretBasketStates : StateMachineBuilder
 {
@@ -85,9 +94,7 @@ class SecretBasketStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<Earthquake>()
-            .ActivateOnEnter<HeavyStrike1>()
-            .ActivateOnEnter<HeavyStrike2>()
-            .ActivateOnEnter<HeavyStrike3>()
+            .ActivateOnEnter<HeavyStrike>()
             .ActivateOnEnter<PollenCorona>()
             .ActivateOnEnter<StraightPunch>()
             .ActivateOnEnter<Leafcutter>()
@@ -97,8 +104,12 @@ class SecretBasketStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
+            .ActivateOnEnter<Spin>()
+            .ActivateOnEnter<Mash>()
+            .ActivateOnEnter<Scoop>()
             .Raw.Update = () => module.Enemies(OID.SecretEchivore).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.SecretEgg)).Concat(module.Enemies(OID.SecretQueen))
-            .Concat(module.Enemies(OID.SecretOnion)).Concat(module.Enemies(OID.SecretGarlic)).Concat(module.Enemies(OID.SecretTomato)).All(e => e.IsDeadOrDestroyed);
+            .Concat(module.Enemies(OID.SecretOnion)).Concat(module.Enemies(OID.SecretGarlic)).Concat(module.Enemies(OID.SecretTomato))
+            .Concat(module.Enemies(OID.KeeperOfKeys)).All(e => e.IsDeadOrDestroyed);
     }
 }
 
@@ -107,9 +118,9 @@ public class SecretBasket(WorldState ws, Actor primary) : BossModule(ws, primary
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.SecretEchivore));
-        Arena.Actors(Enemies(OID.SecretEgg).Concat(Enemies(OID.SecretTomato)).Concat(Enemies(OID.SecretQueen)).Concat(Enemies(OID.SecretGarlic)).Concat(Enemies(OID.SecretOnion)), Colors.Vulnerable);
+        Arena.Actors(Enemies(OID.SecretEchivore).Concat([PrimaryActor]));
+        Arena.Actors(Enemies(OID.SecretEgg).Concat(Enemies(OID.SecretTomato)).Concat(Enemies(OID.SecretQueen)).Concat(Enemies(OID.SecretGarlic)).Concat(Enemies(OID.SecretOnion)
+        .Concat(Enemies(OID.KeeperOfKeys))), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -122,7 +133,7 @@ public class SecretBasket(WorldState ws, Actor primary) : BossModule(ws, primary
                 OID.SecretEgg => 6,
                 OID.SecretGarlic => 5,
                 OID.SecretTomato => 4,
-                OID.SecretQueen => 3,
+                OID.SecretQueen or OID.KeeperOfKeys => 3,
                 OID.SecretEchivore => 2,
                 OID.Boss => 1,
                 _ => 0

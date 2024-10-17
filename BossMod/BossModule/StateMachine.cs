@@ -27,6 +27,13 @@ public class StateMachine(List<StateMachine.Phase> phases)
         VulnerableEnd = 1 << 11, // at state end vulnerability phase ends
     }
 
+    [Flags]
+    public enum PhaseHint
+    {
+        None = 0,
+        StartWithDowntime = 1 << 0, // the phase starts with downtime
+    }
+
     public class State
     {
         public uint ID;
@@ -48,6 +55,7 @@ public class StateMachine(List<StateMachine.Phase> phases)
         public Action? Enter; // callbacks executed when phase is activated
         public Action? Exit; // callbacks executed when phase is deactivated; note that this can happen unexpectedly, e.g. due to external reset
         public Func<bool>? Update; // callback executed every frame when phase is active; should return whether transition to next phase should happen
+        public PhaseHint Hint = PhaseHint.None; // special flags for phase
     }
 
     public List<Phase> Phases { get; private init; } = phases;
@@ -59,7 +67,7 @@ public class StateMachine(List<StateMachine.Phase> phases)
     public float TimeSinceActivation => (float)(_curTime - _activation).TotalSeconds;
     public float TimeSincePhaseEnter => (float)(_curTime - _phaseEnter).TotalSeconds;
     public float TimeSinceTransition => (float)(_curTime - _lastTransition).TotalSeconds;
-    public float TimeSinceTransitionClamped => MathF.Min(TimeSinceTransition, ActiveState?.Duration ?? 0);
+    public float TimeSinceTransitionClamped => Math.Min(TimeSinceTransition, ActiveState?.Duration ?? 0);
 
     public int ActivePhaseIndex { get; private set; } = -1;
     public Phase? ActivePhase => Phases.ElementAtOrDefault(ActivePhaseIndex);
@@ -151,7 +159,7 @@ public class StateMachine(List<StateMachine.Phase> phases)
     private (string, State?) BuildComplexStateNameAndDuration(State start, float timeActive, bool writeTime)
     {
         var res = new StringBuilder(start.Name);
-        var timeLeft = MathF.Max(0, start.Duration - timeActive);
+        var timeLeft = Math.Max(0, start.Duration - timeActive);
         if (writeTime && res.Length > 0)
         {
             res.Append($" in {timeLeft:f1}s");
@@ -161,7 +169,7 @@ public class StateMachine(List<StateMachine.Phase> phases)
         while (start.EndHint.HasFlag(StateHint.GroupWithNext) && start.NextStates?.Length == 1)
         {
             start = start.NextStates[0];
-            timeLeft += MathF.Max(0, start.Duration);
+            timeLeft += Math.Max(0, start.Duration);
             if (start.Name.Length > 0)
             {
                 if (res.Length > 0)

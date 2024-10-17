@@ -21,7 +21,7 @@ class SpinningAxle(BossModule module) : Components.SelfTargetedAOEs(module, Acti
 
 class D040VanguardSentryR7States : StateMachineBuilder
 {
-    public D040VanguardSentryR7States(D040VanguardSentryR7 module) : base(module)
+    public D040VanguardSentryR7States(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<Swoop>()
@@ -34,10 +34,10 @@ class D040VanguardSentryR7States : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 831, NameID = 12778, SortOrder = 1)]
 public class D040VanguardSentryR7(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> arenacoords = [new(-90.423f, 263.603f), new(-90.23f, 280.48f), new(-82.081f, 280.704f), new(-82.235f, 288.316f), new(-89.289f, 288.557f), new(-89.909f, 302.169f),
+    private static readonly WPos[] vertices = [new(-90.423f, 263.603f), new(-90.23f, 280.48f), new(-82.081f, 280.704f), new(-82.235f, 288.316f), new(-89.289f, 288.557f), new(-89.909f, 302.169f),
     new(-90.005f, 307.76f), new(-74.234f, 318.768f), new(-48.199f, 318.908f), new(-47.511f, 333.532f), new(-97.889f, 334.552f), new(-97.019f, 331.294f), new(-109.076f, 316.539f), new(-108.71f, 287.42f),
     new(-117.732f, 287.449f), new(-118.057f, 273.564f), new(-109.382f, 273.519f), new(-109.449f, 263.178f)];
-    private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(arenacoords)]);
+    private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

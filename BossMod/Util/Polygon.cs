@@ -1,5 +1,6 @@
 ﻿using Clipper2Lib;
 using EarcutNet;
+using System.Buffers;
 
 // currently we use Clipper2 library (based on Vatti algorithm) for boolean operations and Earcut.net library (earcutting) for triangulating
 // note: the major user of these primitives is bounds clipper; since they operate in 'local' coordinates, we use WDir everywhere (offsets from center) and call that 'relative polygons' - i'm not quite happy with that, it's not very intuitive
@@ -14,7 +15,6 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
 {
     // constructor for simple polygon
     public RelPolygonWithHoles(List<WDir> simpleVertices) : this(simpleVertices, []) { }
-
     public ReadOnlySpan<WDir> AllVertices => Vertices.AsSpan();
     public ReadOnlySpan<WDir> Exterior => AllVertices[..ExteriorEnd];
     public ReadOnlySpan<WDir> Interior(int index) => AllVertices[HoleStarts[index]..HoleEnd(index)];
@@ -22,8 +22,10 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
     public IEnumerable<(WDir, WDir)> ExteriorEdges => PolygonUtil.EnumerateEdges(Vertices.Take(ExteriorEnd));
     public IEnumerable<(WDir, WDir)> InteriorEdges(int index) => PolygonUtil.EnumerateEdges(Vertices.Skip(HoleStarts[index]).Take(HoleEnd(index) - HoleStarts[index]));
 
-    public bool IsSimple => HoleStarts.Count == 0;
-    public bool IsConvex => IsSimple && PolygonUtil.IsConvex(Exterior);
+    private static readonly ArrayPool<double> _doublePool = ArrayPool<double>.Shared;
+    private ContourEdgeBuckets? _exteriorEdgeBuckets;
+    private List<ContourEdgeBuckets> _holeEdgeBuckets = [];
+    private const int BucketCount = 10;
 
     private int ExteriorEnd => HoleStarts.Count > 0 ? HoleStarts[0] : Vertices.Count;
     private int HoleEnd(int index) => index + 1 < HoleStarts.Count ? HoleStarts[index + 1] : Vertices.Count;
@@ -43,19 +45,29 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
     // build a triangulation of the polygon
     public bool Triangulate(List<RelTriangle> result)
     {
-        var pts = new List<double>(Vertices.Count * 2);
-        foreach (var p in Vertices)
+        var vertexCount = Vertices.Count;
+        var pts = _doublePool.Rent(vertexCount * 2);
+        try
         {
-            pts.Add(p.X);
-            pts.Add(p.Z);
+            for (int i = 0, j = 0; i < vertexCount; i++, j += 2)
+            {
+                var v = Vertices[i];
+                pts[j] = v.X;
+                pts[j + 1] = v.Z;
+            }
+
+            var tess = Earcut.Tessellate(new Span<double>(pts, 0, vertexCount * 2), HoleStarts);
+            for (var i = 0; i < tess.Count; i += 3)
+            {
+                result.Add(new(Vertices[tess[i]], Vertices[tess[i + 1]], Vertices[tess[i + 2]]));
+            }
+            return tess.Count > 0;
         }
-
-        var tess = Earcut.Tessellate(pts, HoleStarts);
-        for (var i = 0; i < tess.Count; i += 3)
-            result.Add(new(Vertices[tess[i]], Vertices[tess[i + 1]], Vertices[tess[i + 2]]));
-        return tess.Count > 0;
+        finally
+        {
+            _doublePool.Return(pts, true);
+        }
     }
-
     public List<RelTriangle> Triangulate()
     {
         List<RelTriangle> result = [];
@@ -66,97 +78,129 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
     // point-in-polygon test; point is defined as offset from shape center
     public bool Contains(WDir p)
     {
-        if (!InSimplePolygon(p, ExteriorEdges))
+        if (_exteriorEdgeBuckets == null)
+        {
+            _exteriorEdgeBuckets = BuildEdgeBucketsForContour(Exterior);
+            if (HoleStarts.Count > 0)
+            {
+                _holeEdgeBuckets = new List<ContourEdgeBuckets>(HoleStarts.Count);
+                for (var i = 0; i < HoleStarts.Count; i++)
+                {
+                    _holeEdgeBuckets.Add(BuildEdgeBucketsForContour(Interior(i)));
+                }
+            }
+        }
+
+        if (!InSimplePolygon(p, _exteriorEdgeBuckets!))
             return false;
-        foreach (var h in Holes)
-            if (InSimplePolygon(p, InteriorEdges(h)))
+        for (var i = 0; i < _holeEdgeBuckets.Count; i++)
+        {
+            if (InSimplePolygon(p, _holeEdgeBuckets[i]))
                 return false;
+        }
         return true;
     }
 
-    private static bool InSimplePolygon(WDir p, IEnumerable<(WDir, WDir)> edges)
+    private static bool InSimplePolygon(WDir p, ContourEdgeBuckets buckets)
     {
-        // for simple polygons, it doesn't matter which rule (even-odd, non-zero, etc) we use
-        // so let's just use non-zero rule and calculate winding order
-        // we need to select arbitrary direction to count winding intersections - let's select unit X
-        var winding = 0;
-        const float epsilon = 1e-6f;
-
-        foreach (var (a, b) in edges)
+        float x = p.X, y = p.Z;
+        var bucketIndex = (int)((y - buckets.MinY) * buckets.InvBucketHeight);
+        if ((uint)bucketIndex >= BucketCount)
+            return false;
+        var edges = buckets.EdgeBuckets[bucketIndex];
+        var inside = false;
+        for (var i = 0; i < edges.Length; ++i)
         {
-            // see whether edge ab intersects our test ray - it has to intersect the infinite line on the correct side
-            var pa = a - p;
-            var pb = b - p;
-
-            if (PointOnLineSegment(p, a, b, epsilon))
-                return true;
-
-            // if pa.Z and pb.Z have the same signs, the edge is fully above or below the test ray
-            if (pa.Z <= 0)
+            var edge = edges[i];
+            if ((edge.y0 > y) != (edge.y1 > y) && x < edge.x0 + edge.slopeX * (y - edge.y0))
             {
-                if (pb.Z > 0 && pa.Cross(pb) > 0)
-                    ++winding;
-            }
-            else
-            {
-                if (pb.Z <= 0 && pa.Cross(pb) < 0)
-                    --winding;
+                inside = !inside;
             }
         }
-        return winding != 0;
+
+        return inside;
     }
 
-    private static bool PointOnLineSegment(WDir point, WDir a, WDir b, float epsilon)
+    private static ContourEdgeBuckets BuildEdgeBucketsForContour(ReadOnlySpan<WDir> contour)
     {
-        var crossProduct = (point.Z - a.Z) * (b.X - a.X) - (point.X - a.X) * (b.Z - a.Z);
-        if (MathF.Abs(crossProduct) > epsilon)
-            return false;
+        float minY = float.MaxValue, maxY = float.MinValue;
+        var count = contour.Length;
 
-        var dotProduct = (point.X - a.X) * (b.X - a.X) + (point.Z - a.Z) * (b.Z - a.Z);
-        if (dotProduct < 0)
-            return false;
-
-        var squaredLengthBA = (b.X - a.X) * (b.X - a.X) + (b.Z - a.Z) * (b.Z - a.Z);
-        return dotProduct <= squaredLengthBA;
-    }
-
-    public static Func<WPos, float> PolygonWithHoles(WPos origin, RelSimplifiedComplexPolygon polygon)
-    {
-        float distanceFunc(WPos p)
+        for (var i = 0; i < count; i++)
         {
-            var localPoint = new WDir(p.X - origin.X, p.Z - origin.Z);
-            var isInside = polygon.Contains(localPoint);
-            var minDistance = polygon.Parts.SelectMany(part => part.ExteriorEdges)
-                .Min(edge => PolygonUtil.DistanceToEdge(p, PolygonUtil.ConvertToWPos(origin, edge)));
-
-            Parallel.ForEach(polygon.Parts, part =>
-            {
-                Parallel.ForEach(part.Holes, holeIndex =>
-                {
-                    var holeMinDistance = part.InteriorEdges(holeIndex)
-                        .Min(edge => PolygonUtil.DistanceToEdge(p, PolygonUtil.ConvertToWPos(origin, edge)));
-                    lock (polygon)
-                        minDistance = Math.Min(minDistance, holeMinDistance);
-                });
-            });
-            return isInside ? -minDistance : minDistance;
+            var y = contour[i].Z;
+            if (y < minY)
+                minY = y;
+            if (y > maxY)
+                maxY = y;
         }
-        return ShapeDistance.CacheFunction(distanceFunc);
+
+        var invBucketHeight = BucketCount / (maxY - minY + 1e-8f);
+
+        var buckets = new List<Edges>[BucketCount];
+        for (var i = 0; i < BucketCount; i++)
+        {
+            buckets[i] = [];
+        }
+
+        var prev = contour[^1];
+        for (var i = 0; i < count; i++)
+        {
+            var curr = contour[i];
+            var edge = new Edges(prev.X, prev.Z, curr.X, curr.Z);
+
+            var edgeMinY = Math.Min(edge.y0, edge.y1);
+            var edgeMaxY = Math.Max(edge.y0, edge.y1);
+
+            var bucketStart = (int)((edgeMinY - minY) * invBucketHeight);
+            var bucketEnd = (int)((edgeMaxY - minY) * invBucketHeight);
+
+            bucketStart = Math.Clamp(bucketStart, 0, BucketCount - 1);
+            bucketEnd = Math.Clamp(bucketEnd, 0, BucketCount - 1);
+
+            for (var b = bucketStart; b <= bucketEnd; b++)
+            {
+                buckets[b].Add(edge);
+            }
+
+            prev = curr;
+        }
+
+        var edgeBuckets = new Edges[BucketCount][];
+        for (var i = 0; i < BucketCount; i++)
+        {
+            edgeBuckets[i] = [.. buckets[i]];
+        }
+
+        return new ContourEdgeBuckets(edgeBuckets, minY, invBucketHeight);
     }
 
-    public static Func<WPos, float> InvertedPolygonWithHoles(WPos origin, RelSimplifiedComplexPolygon polygon)
+    private readonly struct Edges
     {
-        var polygonWithHoles = PolygonWithHoles(origin, polygon);
-        return p => -polygonWithHoles(p);
+        public readonly float x0, y0, x1, y1, slopeX;
+
+        public Edges(float ax, float ay, float bx, float by)
+        {
+            x0 = ax;
+            y0 = ay;
+            x1 = bx;
+            y1 = by;
+            var dy = by - ay;
+            var invDy = dy != 0 ? 1 / dy : 0;
+            slopeX = (x1 - x0) * invDy;
+        }
+    }
+
+    private sealed class ContourEdgeBuckets(Edges[][] edgeBuckets, float minY, float invBucketHeight)
+    {
+        public readonly Edges[][] EdgeBuckets = edgeBuckets;
+        public readonly float MinY = minY, InvBucketHeight = invBucketHeight;
     }
 }
 
 // generic 'simplified' complex polygon that consists of 0 or more non-intersecting polygons with holes (note however that some polygons could be fully inside other polygon's hole)
 public record class RelSimplifiedComplexPolygon(List<RelPolygonWithHoles> Parts)
 {
-    public bool IsSimple => Parts.Count == 1 && Parts[0].IsSimple;
-    public bool IsConvex => Parts.Count == 1 && Parts[0].IsConvex;
-
     public RelSimplifiedComplexPolygon() : this(new List<RelPolygonWithHoles>()) { }
 
     // constructors for simple polygon
@@ -167,66 +211,62 @@ public record class RelSimplifiedComplexPolygon(List<RelPolygonWithHoles> Parts)
     public List<RelTriangle> Triangulate()
     {
         List<RelTriangle> result = [];
-        foreach (var p in Parts)
-            p.Triangulate(result);
+        for (var i = 0; i < Parts.Count; ++i)
+            Parts[i].Triangulate(result);
         return result;
     }
 
     // point-in-polygon test; point is defined as offset from shape center
-    public bool Contains(WDir p) => Parts.Any(part => part.Contains(p));
+    public bool Contains(WDir p)
+    {
+        for (var i = 0; i < Parts.Count; ++i)
+            if (Parts[i].Contains(p))
+                return true;
+        return false;
+    }
 
     // positive offsets inflate, negative shrink polygon
-    public RelSimplifiedComplexPolygon Offset(float Offset)
+    public RelSimplifiedComplexPolygon Offset(float offset)
     {
-        var offset = new ClipperOffset();
-        var exteriorPaths = new List<Path64>();
-        var holePaths = new List<Path64>();
+        var clipperOffset = new ClipperOffset();
+        var allPaths = new Paths64();
 
         foreach (var part in Parts)
         {
-            var exteriorPath = new Path64(part.Exterior.Length);
-            foreach (var vertex in part.Exterior)
-                exteriorPath.Add(new Point64(vertex.X * PolygonClipper.Scale, vertex.Z * PolygonClipper.Scale));
-            exteriorPaths.Add(exteriorPath);
-
-            foreach (var holeIndex in part.Holes)
-            {
-                var holePath = new Path64(part.Interior(holeIndex).Length);
-                foreach (var vertex in part.Interior(holeIndex))
-                    holePath.Add(new Point64(vertex.X * PolygonClipper.Scale, vertex.Z * PolygonClipper.Scale));
-                holePaths.Add(holePath);
-            }
-        }
-
-        foreach (var path in exteriorPaths)
-            offset.AddPath(path, JoinType.Miter, EndType.Polygon);
-
-        var expandedHoles = new List<Path64>();
-        foreach (var path in holePaths)
-        {
-            var holeOffset = new ClipperOffset();
-            holeOffset.AddPath(path, JoinType.Miter, EndType.Polygon);
-            var expandedHole = new Paths64();
-            holeOffset.Execute(-Offset * PolygonClipper.Scale, expandedHole);
-            expandedHoles.AddRange(expandedHole);
+            allPaths.Add(ToPath64(part.Exterior));
+            foreach (var i in part.Holes)
+                allPaths.Add(ToPath64(part.Interior(i)));
         }
 
         var solution = new Paths64();
-        offset.Execute(Offset * PolygonClipper.Scale, solution);
+        clipperOffset.AddPaths(allPaths, JoinType.Miter, EndType.Polygon);
+        clipperOffset.Execute(offset * PolygonClipper.Scale, solution);
 
         var result = new RelSimplifiedComplexPolygon();
-        foreach (var path in solution)
-        {
-            var vertices = path.Select(pt => new WDir(pt.X * PolygonClipper.InvScale, pt.Y * PolygonClipper.InvScale)).ToList();
-            result.Parts.Add(new RelPolygonWithHoles(vertices));
-        }
-
-        foreach (var path in expandedHoles)
-        {
-            var vertices = path.Select(pt => new WDir(pt.X * PolygonClipper.InvScale, pt.Y * PolygonClipper.InvScale)).ToList();
-            result.Parts.Last().AddHole(vertices);
-        }
+        BuildResultFromPaths(result, solution);
         return result;
+    }
+
+    private void BuildResultFromPaths(RelSimplifiedComplexPolygon result, Paths64 paths)
+    {
+        var c = new Clipper64();
+        c.AddPaths(paths, PathType.Subject);
+        var tree = new PolyTree64();
+        c.Execute(ClipType.Union, FillRule.NonZero, tree);
+
+        PolygonClipper.BuildResult(result, tree);
+    }
+
+    private static Path64 ToPath64(ReadOnlySpan<WDir> vertices)
+    {
+        var count = vertices.Length;
+        var path = new Path64(count);
+        for (var i = 0; i < count; i++)
+        {
+            var vertex = vertices[i];
+            path.Add(new(vertex.X * PolygonClipper.Scale, vertex.Z * PolygonClipper.Scale));
+        }
+        return path;
     }
 }
 
@@ -304,19 +344,32 @@ public class PolygonClipper
         return result;
     }
 
-    private static void BuildResult(RelSimplifiedComplexPolygon result, PolyPath64 parent)
+    public static void BuildResult(RelSimplifiedComplexPolygon result, PolyPath64 parent)
     {
         for (var i = 0; i < parent.Count; ++i)
         {
             var exterior = parent[i];
-            RelPolygonWithHoles poly = new([.. exterior.Polygon?.Select(ConvertPoint) ?? throw new InvalidOperationException("Unexpected null polygon list")]);
+            if (exterior.Polygon == null || exterior.Polygon.Count == 0)
+                continue;
+            var polygonPoints = new List<WDir>(exterior.Polygon.Count);
+            var extPolygon = exterior.Polygon;
+            for (var j = 0; j < extPolygon.Count; j++)
+                polygonPoints.Add(ConvertPoint(extPolygon[j]));
+
+            var poly = new RelPolygonWithHoles(polygonPoints);
             result.Parts.Add(poly);
+
             for (var j = 0; j < exterior.Count; ++j)
             {
                 var interior = exterior[j];
-                poly.AddHole(interior.Polygon?.Select(ConvertPoint) ?? throw new InvalidOperationException("Unexpected null hole list"));
+                if (interior.Polygon == null || interior.Polygon.Count == 0)
+                    continue;
+                var holePoints = new List<WDir>(interior.Polygon.Count);
+                var intPolygon = interior.Polygon;
+                for (var k = 0; k < intPolygon.Count; k++)
+                    holePoints.Add(ConvertPoint(intPolygon[k]));
 
-                // add nested polygons
+                poly.AddHole(holePoints);
                 BuildResult(result, interior);
             }
         }
@@ -330,97 +383,172 @@ public static class PolygonUtil
 {
     public static IEnumerable<(T, T)> EnumerateEdges<T>(IEnumerable<T> contour) where T : struct, IEquatable<T>
     {
-        using var e = contour.GetEnumerator();
-        if (!e.MoveNext())
+        var contourList = contour as IList<T> ?? contour.ToArray();
+        var count = contourList.Count;
+        if (count == 0)
             yield break;
 
-        var prev = e.Current;
-        var first = prev;
-        while (e.MoveNext())
+        var prevPoint = contourList[count - 1];
+        foreach (var currentPoint in contourList)
         {
-            var curr = e.Current;
-            yield return (prev, curr);
-            prev = curr;
+            yield return (prevPoint, currentPoint);
+            prevPoint = currentPoint;
         }
-        if (!first.Equals(prev))
-            yield return (prev, first);
+    }
+}
+
+public readonly struct Edge(float ax, float ay, float dx, float dy)
+{
+    public readonly float Ax = ax, Ay = ay, Dx = dx, Dy = dy, InvLengthSq = 1 / (dx * dx + dy * dy + 1e-8f);
+}
+
+public class SpatialIndex
+{
+    private readonly List<int>[] _grid;
+    private readonly Edge[] _edges;
+    private readonly int _minX, _minY, _gridWidth, _gridHeight;
+    public SpatialIndex(Edge[] edges)
+    {
+        _edges = edges;
+        ComputeGridBounds(out _minX, out _minY, out _gridWidth, out _gridHeight);
+        _grid = new List<int>[_gridWidth * _gridHeight];
+        BuildIndex();
     }
 
-    public static bool IsConvex(ReadOnlySpan<WDir> contour)
+    private void ComputeGridBounds(out int minX, out int minY, out int gridWidth, out int gridHeight)
     {
-        // polygon is convex if cross-product of all successive edges has same sign
-        if (contour.Length < 3)
-            return false;
+        minX = minY = int.MaxValue;
+        int maxX = int.MinValue, maxY = int.MinValue;
 
-        var prevEdge = contour[0] - contour[^1];
-        var cross = (contour[^1] - contour[^2]).Cross(prevEdge);
-        if (contour.Length > 3)
+        foreach (var edge in _edges)
         {
-            for (var i = 1; i < contour.Length; ++i)
+            var ex0 = (int)MathF.Floor(Math.Min(edge.Ax, edge.Ax + edge.Dx));
+            var ex1 = (int)MathF.Floor(Math.Max(edge.Ax, edge.Ax + edge.Dx));
+            var ey0 = (int)MathF.Floor(Math.Min(edge.Ay, edge.Ay + edge.Dy));
+            var ey1 = (int)MathF.Floor(Math.Max(edge.Ay, edge.Ay + edge.Dy));
+
+            minX = Math.Min(minX, ex0);
+            minY = Math.Min(minY, ey0);
+            maxX = Math.Max(maxX, ex1);
+            maxY = Math.Max(maxY, ey1);
+        }
+
+        gridWidth = maxX - minX + 1;
+        gridHeight = maxY - minY + 1;
+    }
+
+    private void BuildIndex()
+    {
+        for (var i = 0; i < _grid.Length; i++)
+        {
+            _grid[i] = [];
+        }
+
+        for (var i = 0; i < _edges.Length; i++)
+        {
+            var edge = _edges[i];
+            var minX = Math.Min(edge.Ax, edge.Ax + edge.Dx);
+            var maxX = Math.Max(edge.Ax, edge.Ax + edge.Dx);
+            var minY = Math.Min(edge.Ay, edge.Ay + edge.Dy);
+            var maxY = Math.Max(edge.Ay, edge.Ay + edge.Dy);
+
+            var x0 = (int)MathF.Floor(minX) - _minX;
+            var x1 = (int)MathF.Floor(maxX) - _minX;
+            var y0 = (int)MathF.Floor(minY) - _minY;
+            var y1 = (int)MathF.Floor(maxY) - _minY;
+
+            for (var x = x0; x <= x1; x++)
             {
-                var currEdge = contour[i] - contour[i - 1];
-                var curCross = prevEdge.Cross(currEdge);
-                prevEdge = currEdge;
-                if (curCross == 0)
-                    continue;
-                else if (cross == 0)
-                    cross = curCross;
-                else if ((cross < 0) != (curCross < 0))
-                    return false;
+                for (var y = y0; y <= y1; y++)
+                {
+                    var index = y * _gridWidth + x;
+                    if (_grid[index] == null)
+                    {
+                        _grid[index] = [];
+                    }
+                    _grid[index].Add(i);
+                }
             }
         }
-        return cross != 0;
     }
 
-    public static bool IsPointInsideConcavePolygon(WPos point, IEnumerable<WPos> vertices)
+    public List<int> Query(float px, float py)
     {
-        var intersections = 0;
-        var verticesList = vertices.ToList();
-        for (var i = 0; i < verticesList.Count; i++)
+        var cellX = (int)MathF.Floor(px) - _minX;
+        var cellY = (int)MathF.Floor(py) - _minY;
+
+        return (uint)cellX >= _gridWidth || (uint)cellY >= _gridHeight ? [] : _grid[cellY * _gridWidth + cellX] ?? [];
+    }
+}
+
+public readonly struct PolygonWithHolesDistanceFunction
+{
+    private readonly RelSimplifiedComplexPolygon _polygon;
+    private readonly WPos _origin;
+    private readonly Edge[] _edges;
+    private readonly SpatialIndex _spatialIndex;
+
+    public PolygonWithHolesDistanceFunction(WPos origin, RelSimplifiedComplexPolygon polygon)
+    {
+        _origin = origin;
+        _polygon = polygon;
+
+        List<Edge> edges = [];
+        foreach (var part in polygon.Parts)
         {
-            var a = verticesList[i];
-            var b = verticesList[(i + 1) % verticesList.Count];
-            if (RayIntersectsEdge(point, a, b))
-                intersections++;
+            AddEdgesFromPart(part, origin, edges);
         }
-        return intersections % 2 != 0;
+        _edges = [.. edges];
+        _spatialIndex = new(_edges);
     }
 
-    public static bool RayIntersectsEdge(WPos point, WPos a, WPos b)
+    public readonly float Distance(WPos p)
     {
-        if (a.Z > b.Z)
-            (b, a) = (a, b);
-        if (point.Z == a.Z || point.Z == b.Z)
-            point = new WPos(point.X, point.Z + 0.0001f);
-        if (point.Z > b.Z || point.Z < a.Z || point.X >= Math.Max(a.X, b.X))
-            return false;
-        if (point.X < Math.Min(a.X, b.X))
-            return true;
-        var red = (point.Z - a.Z) / (b.Z - a.Z);
-        var blue = (b.X - a.X) * red + a.X;
-        return point.X < blue;
+        var localPoint = new WDir(p.X - _origin.X, p.Z - _origin.Z);
+        var isInside = _polygon.Contains(localPoint);
+
+        var minDistanceSq = float.MaxValue;
+        foreach (var i in _spatialIndex.Query(p.X, p.Z))
+        {
+            var edge = _edges[i];
+            var t = Math.Clamp(((p.X - edge.Ax) * edge.Dx + (p.Z - edge.Ay) * edge.Dy) * edge.InvLengthSq, 0, 1);
+            var distX = p.X - (edge.Ax + t * edge.Dx);
+            var distY = p.Z - (edge.Ay + t * edge.Dy);
+
+            minDistanceSq = Math.Min(minDistanceSq, distX * distX + distY * distY);
+        }
+
+        var minDistance = MathF.Sqrt(minDistanceSq);
+        return isInside ? -minDistance : minDistance;
     }
 
-    public static float DistanceToEdge(WPos p, (WPos p1, WPos p2) edge)
+    private static void AddEdgesFromPart(RelPolygonWithHoles part, WPos origin, List<Edge> edges)
     {
-        var (p1, p2) = edge;
-        var edgeDir = p2 - p1;
-        var len = edgeDir.Length();
-        if (len == 0)
-            return (p - p1).Length();
+        edges.AddRange(GetEdges(part.Exterior, origin));
 
-        var proj = (p - p1).Dot(edgeDir) / len;
-        if (proj < 0)
-            return (p - p1).Length();
-        if (proj > len)
-            return (p - p2).Length();
-
-        var closestPoint = p1 + edgeDir * (proj / len);
-        return (p - closestPoint).Length();
+        foreach (var holeIndex in part.Holes)
+        {
+            edges.AddRange(GetEdges(part.Interior(holeIndex), origin));
+        }
     }
 
-    public static (WPos p1, WPos p2) ConvertToWPos(WPos origin, (WDir p1, WDir p2) edge)
+    private static Edge[] GetEdges(ReadOnlySpan<WDir> vertices, WPos origin)
     {
-        return (new WPos(origin.X + edge.p1.X, origin.Z + edge.p1.Z), new WPos(origin.X + edge.p2.X, origin.Z + edge.p2.Z));
+        var count = vertices.Length;
+
+        if (count == 0)
+            return [];
+
+        var edges = new Edge[count];
+
+        var prev = vertices[count - 1];
+        for (var i = 0; i < count; i++)
+        {
+            var curr = vertices[i];
+            edges[i] = new(origin.X + prev.X, origin.Z + prev.Z, curr.X - prev.X, curr.Z - prev.Z);
+            prev = curr;
+        }
+
+        return edges;
     }
 }

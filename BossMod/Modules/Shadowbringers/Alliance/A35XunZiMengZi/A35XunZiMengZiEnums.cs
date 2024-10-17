@@ -14,12 +14,6 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    BladeFlurry1 = 23788, // Ally2B->XunZi, no cast, single-target
-    BladeFlurry2 = 23789, // Ally2B->XunZi, no cast, single-target
-    DancingBlade = 23790, // Ally2B->XunZi, no cast, width 2 rect charge
-    BalancedEdge = 23791, // Ally2B->self, 2.0s cast, range 5 circle
-    WhirlingAssault = 23792, // Ally2B->self, 2.0s cast, range 40 width 4 rect
-
     DeployArmaments1 = 23552, // XunZi/MengZi->self, 6.0s cast, range 50 width 18 rect
     DeployArmaments2 = 23553, // MengZi->self, 7.0s cast, range 50 width 18 rect
     DeployArmaments3 = 23554, // Helper->self, 6.7s cast, range 50 width 18 rect
@@ -32,6 +26,12 @@ public enum AID : uint
     HighPoweredLaser = 23561, // SerialJointedModel->self, no cast, range 70 width 4 rect
     UniversalAssault = 23558, // XunZi/MengZi->self, 5.0s cast, range 50 width 50 rect
     LowPoweredOffensive = 23559, // SmallFlyer->self, 2.0s cast, single-target
+
+    BladeFlurry1 = 23788, // Ally2B->XunZi, no cast, single-target
+    BladeFlurry2 = 23789, // Ally2B->XunZi, no cast, single-target
+    DancingBlade = 23790, // Ally2B->XunZi, no cast, width 2 rect charge
+    BalancedEdge = 23791, // Ally2B->self, 2.0s cast, range 5 circle
+    WhirlingAssault = 23792, // Ally2B->self, 2.0s cast, range 40 width 4 rect
 }
 
 public enum SID : uint

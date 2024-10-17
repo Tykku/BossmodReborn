@@ -4,6 +4,7 @@ class OneTwoPawBoss(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly PredaceousPounce? _pounce = module.FindComponent<PredaceousPounce>();
     private readonly List<AOEInstance> _aoes = [];
+    private static readonly HashSet<AID> casts = [AID.OneTwoPawBossAOERFirst, AID.OneTwoPawBossAOELSecond, AID.OneTwoPawBossAOELFirst, AID.OneTwoPawBossAOERSecond];
 
     private static readonly AOEShapeCone _shape = new(100, 90.Degrees());
 
@@ -18,7 +19,7 @@ class OneTwoPawBoss(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.OneTwoPawBossAOERFirst or AID.OneTwoPawBossAOELSecond or AID.OneTwoPawBossAOELFirst or AID.OneTwoPawBossAOERSecond)
+        if (casts.Contains((AID)spell.Action.ID))
         {
             _aoes.Add(new(_shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
             _aoes.SortBy(aoe => aoe.Activation);
@@ -27,7 +28,7 @@ class OneTwoPawBoss(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.OneTwoPawBossAOERFirst or AID.OneTwoPawBossAOELSecond or AID.OneTwoPawBossAOELFirst or AID.OneTwoPawBossAOERSecond)
+        if (casts.Contains((AID)spell.Action.ID))
         {
             ++NumCasts;
             if (_aoes.Count > 0)
@@ -80,6 +81,8 @@ class LeapingOneTwoPaw(BossModule module) : Components.GenericAOEs(module)
     private Angle _leapDirection;
     private Angle _firstDirection;
     private Actor? _clone;
+    private static readonly HashSet<AID> castEnds = [AID.LeapingOneTwoPawBossAOERFirst, AID.LeapingOneTwoPawBossAOELSecond, AID.LeapingOneTwoPawBossAOELFirst,
+    AID.LeapingOneTwoPawBossAOERSecond, AID.LeapingOneTwoPawShadeAOERFirst, AID.LeapingOneTwoPawShadeAOELSecond, AID.LeapingOneTwoPawShadeAOELFirst, AID.LeapingOneTwoPawShadeAOERSecond];
 
     private static readonly AOEShapeCone _shape = new(100, 90.Degrees());
     private static readonly List<Angle> angles = [89.999f.Degrees(), -90.004f.Degrees()];
@@ -118,8 +121,7 @@ class LeapingOneTwoPaw(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.LeapingOneTwoPawBossAOERFirst or AID.LeapingOneTwoPawBossAOELSecond or AID.LeapingOneTwoPawBossAOELFirst or AID.LeapingOneTwoPawBossAOERSecond
-            or AID.LeapingOneTwoPawShadeAOERFirst or AID.LeapingOneTwoPawShadeAOELSecond or AID.LeapingOneTwoPawShadeAOELFirst or AID.LeapingOneTwoPawShadeAOERSecond)
+        if (castEnds.Contains((AID)spell.Action.ID))
         {
             ++NumCasts;
             if (AOEs.Count > 0)

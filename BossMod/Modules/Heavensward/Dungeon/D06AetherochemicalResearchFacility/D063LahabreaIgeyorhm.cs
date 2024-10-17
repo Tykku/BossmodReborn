@@ -159,7 +159,7 @@ class D063LahabreaIgeyorhmStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 38, NameID = 2143)]
 public class D063LahabreaIgeyorhm(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WPos> vertices = [new(230.1f, -201.34f), new(234.87f, -200.71f), new(235.38f, -200.61f), new(240.02f, -198.69f), new(240.45f, -198.41f),
+    private static readonly WPos[] vertices = [new(230.1f, -201.34f), new(234.87f, -200.71f), new(235.38f, -200.61f), new(240.02f, -198.69f), new(240.45f, -198.41f),
     new(244.38f, -195.4f), new(247.63f, -191.14f), new(249.61f, -186.38f), new(249.71f, -185.81f), new(250.29f, -181.43f),
     new(250.33f, -180.92f), new(249.62f, -175.65f), new(247.73f, -171.08f), new(247.43f, -170.58f), new(244.36f, -166.6f),
     new(240.13f, -163.36f), new(236.08f, -161.86f), new(223.25f, -161.84f), new(222.41f, -161.88f), new(221.95f, -162.24f),
@@ -167,7 +167,7 @@ public class D063LahabreaIgeyorhm(WorldState ws, Actor primary) : BossModule(ws,
     new(209.66f, -180.9f), new(209.71f, -181.43f), new(210.29f, -185.84f), new(210.39f, -186.39f), new(212.37f, -191.13f),
     new(212.72f, -191.62f), new(215.54f, -195.29f), new(215.93f, -195.64f), new(219.66f, -198.5f), new(220.15f, -198.76f),
     new(224.76f, -200.66f), new(229.87f, -201.33f)];
-    public static readonly ArenaBounds arena = new ArenaBoundsComplex([new PolygonCustom(vertices)]);
+    public static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);

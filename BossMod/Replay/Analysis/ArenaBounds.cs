@@ -64,9 +64,9 @@ class ArenaBounds
             Task.Run(() =>
             {
                 var playerPoints = _points.Where(p => p.Item2.OID == 0).Select(x => new WPos(x.Item4.XZ())).ToList();
-                var points = ConcaveHull.GenerateConcaveHull(playerPoints, 0.5f, 0.1f);
+                var points = ConcaveHull.GenerateConcaveHull(playerPoints, 0.5f, 0);
                 var center = CalculateCentroid(points);
-                var sb = new StringBuilder("private static readonly List<WPos> vertices = [");
+                var sb = new StringBuilder("private static readonly WPos[] vertices = [");
 
                 for (var i = 0; i < points.Count; i++)
                 {
@@ -206,7 +206,7 @@ public static class ConcaveHull
         var ab = b - a;
         var bc = c - b;
         var crossProduct = ab.X * bc.Z - ab.Z * bc.X;
-        return Math.Abs(crossProduct) < 0.01f;
+        return Math.Abs(crossProduct) < 0.015f;
     }
 }
 

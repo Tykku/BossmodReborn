@@ -54,9 +54,6 @@ sealed class AIManager : IDisposable
         if (!WorldState.Party.Members[MasterSlot].IsValid())
             SwitchToIdle();
 
-        if (!_config.Enabled && Beh != null)
-            SwitchToIdle();
-
         var player = WorldState.Party.Player();
         var master = WorldState.Party[MasterSlot];
         if (Beh != null && player != null && master != null)
@@ -102,7 +99,7 @@ sealed class AIManager : IDisposable
 
     private void OnChatMessage(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled)
     {
-        if (!_config.Enabled || type != XivChatType.Party)
+        if (Beh == null || type != XivChatType.Party)
             return;
 
         var messagePrefix = message.Payloads.FirstOrDefault() as TextPayload;
@@ -197,10 +194,9 @@ sealed class AIManager : IDisposable
             _config.Modified.Fire();
     }
 
-    private bool EnableConfig(bool isEnabled)
+    private bool EnableConfig(bool enable)
     {
-        _config.Enabled = isEnabled;
-        if (isEnabled)
+        if (enable)
             SwitchToFollow(_config.FollowSlot);
         else
             SwitchToIdle();
@@ -209,7 +205,6 @@ sealed class AIManager : IDisposable
 
     private bool ToggleConfig()
     {
-        _config.Enabled = !_config.Enabled;
         if (Beh == null)
             SwitchToFollow(_config.FollowSlot);
         else

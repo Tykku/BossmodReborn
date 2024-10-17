@@ -1,6 +1,6 @@
 namespace BossMod.Endwalker.VariantCriterion.C01ASS.C013Shadowcaster;
 
-class BlazingBenifice(BossModule module, AID aid, OID oid) : Components.GenericAOEs(module)
+abstract class BlazingBenifice(BossModule module, AID aid, OID oid) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
     private static readonly AOEShapeRect rect = new(100, 5);

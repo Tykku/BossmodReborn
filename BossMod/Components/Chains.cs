@@ -5,7 +5,7 @@ public class Chains(BossModule module, uint tetherID, ActionID aid = default, fl
 {
     public uint TID { get; init; } = tetherID;
     public bool TethersAssigned { get; private set; }
-    private readonly Actor?[] _partner = new Actor?[PartyState.MaxAllianceSize];
+    private readonly Actor?[] _partner = new Actor?[PartyState.MaxAllies];
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
@@ -35,7 +35,7 @@ public class Chains(BossModule module, uint tetherID, ActionID aid = default, fl
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (_partner[pcSlot] is var partner && partner != null)
-            Arena.AddLine(pc.Position, partner.Position, spreadChains ? Colors.Danger : Colors.Safe);
+            Arena.AddLine(pc.Position, partner.Position, spreadChains ? 0 : Colors.Safe);
     }
 
     public override void OnUntethered(Actor source, ActorTetherInfo tether)

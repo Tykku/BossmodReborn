@@ -170,7 +170,6 @@ class PalladionClearCut(BossModule module) : Components.GenericAOEs(module)
 class PalladionWhiteFlame : Components.GenericBaitAway
 {
     private readonly Palladion? _palladion;
-    private static readonly Actor _fakeSource = new(0, 0, -1, "dummy", 0, ActorType.None, Class.None, 0, new(100, 0, 100, 0)); // fake actor used as bait source
 
     private static readonly AOEShapeRect _shape = new(100, 2);
 
@@ -185,7 +184,7 @@ class PalladionWhiteFlame : Components.GenericBaitAway
         CurrentBaits.Clear();
         if (_palladion != null && _palladion.NumBaitsDone < _palladion.NumBaitsAssigned && _palladion.BaitOrder[_palladion.NumBaitsDone])
             foreach (var t in Raid.WithoutSlot().SortedByRange(Module.Center).Take(2))
-                CurrentBaits.Add(new(_fakeSource, t, _shape));
+                CurrentBaits.Add(new(Helpers.FakeActor, t, _shape));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)

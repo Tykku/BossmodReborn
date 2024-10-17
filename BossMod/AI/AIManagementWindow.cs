@@ -52,14 +52,11 @@ sealed class AIManagementWindow : UIWindow
             if (leaderCombo)
             {
                 if (ImGui.Selectable("<idle>", _manager.Beh == null))
-                {
                     _manager.SwitchToIdle();
-                }
                 foreach (var (i, p) in _manager.WorldState.Party.WithSlot(true))
                 {
                     if (ImGui.Selectable(p.Name, _manager.MasterSlot == i))
                     {
-                        _config.Enabled = true;
                         _manager.SwitchToFollow(i);
                         _config.FollowSlot = i;
                         _config.Modified.Fire();
@@ -108,15 +105,17 @@ sealed class AIManagementWindow : UIWindow
         ImGui.Text("Autorotation AI preset");
         ImGui.SameLine();
         ImGui.SetNextItemWidth(250);
-        ImGui.SetNextWindowSizeConstraints(new Vector2(0, 0), new Vector2(float.MaxValue, ImGui.GetTextLineHeightWithSpacing() * 50));
+        ImGui.SetNextWindowSizeConstraints(default, new Vector2(float.MaxValue, ImGui.GetTextLineHeightWithSpacing() * 50));
         using var presetCombo = ImRaii.Combo("##AI preset", _manager.AiPreset?.Name ?? "");
         if (presetCombo)
         {
-            foreach (var p in _manager.Autorot.Database.Presets.Presets)
+            foreach (var p in _manager.Autorot.Database.Presets.VisiblePresets)
             {
                 if (ImGui.Selectable(p.Name, p == _manager.AiPreset))
                     _manager.SetAIPreset(p);
             }
+            if (_manager.AiPreset != null && ImGui.Selectable("Deactivate"))
+                _manager.SetAIPreset(null);
         }
     }
 
