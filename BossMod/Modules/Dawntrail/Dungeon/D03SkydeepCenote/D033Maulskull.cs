@@ -68,9 +68,11 @@ public enum AID : uint
 
 class StayInBounds(BossModule module) : BossComponent(module)
 {
+    private static readonly WDir offset = new(0, 19);
+
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        hints.AddForbiddenZone(ShapeDistance.InvertedRect(Arena.Center + new WDir(0, 19), Arena.Center + new WDir(0, -19), 19));
+        hints.AddForbiddenZone(ShapeDistance.InvertedRect(Arena.Center + offset, Arena.Center - offset, 19));
     }
 }
 
@@ -79,6 +81,7 @@ class Stonecarver(BossModule module) : Components.GenericAOEs(module)
     private readonly List<AOEInstance> _aoes = [];
     private static readonly AOEShapeRect rect = new(40, 10);
     private static readonly HashSet<AID> aids = [AID.Stonecarver1, AID.Stonecarver2, AID.Stonecarver3, AID.Stonecarver4];
+    private static readonly WDir offset = new(0, 20);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -101,6 +104,13 @@ class Stonecarver(BossModule module) : Components.GenericAOEs(module)
     {
         if (_aoes.Count > 0 && aids.Contains((AID)spell.Action.ID))
             _aoes.RemoveAt(0);
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        base.AddAIHints(slot, actor, assignment, hints);
+        if (_aoes.Count > 0)
+            hints.AddForbiddenZone(ShapeDistance.InvertedRect(Arena.Center + offset, Arena.Center - offset, 2), _aoes[0].Activation);
     }
 }
 
@@ -154,7 +164,7 @@ class Impact1(BossModule module) : Impact(module, AID.Impact1, 18)
 
 class Impact2(BossModule module) : Impact(module, AID.Impact2, 18)
 {
-    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<Stonecarver>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation) && z.Risky) ?? false) || !Module.InBounds(pos);
+    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<Stonecarver>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation) && z.Risky) ?? false) || !Arena.InBounds(pos);
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

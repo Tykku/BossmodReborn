@@ -159,7 +159,7 @@ public abstract class BossModule : IDisposable
         }
         if (includeArena)
         {
-            Arena.Begin(cameraAzimuth);
+            _ = Arena.Begin(cameraAzimuth);
             DrawArena(pcSlot, pc, pcHints.Any(h => h.Item2));
             MiniArena.End();
         }
@@ -232,8 +232,6 @@ public abstract class BossModule : IDisposable
         if (!WindowConfig.AllowAutomaticActions)
             hints.ActionsToExecute.Clear();
     }
-
-    public virtual bool NeedToJump(WPos from, WDir dir) => false; // if arena has complicated shape that requires jumps to navigate, module can provide this info to AI
 
     public void ReportError(BossComponent? comp, string message)
     {

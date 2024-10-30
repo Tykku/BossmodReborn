@@ -45,4 +45,6 @@ sealed class AIConfig : ConfigNode
 
     [PropertyDisplay("Max distance to target")]
     public float MaxDistanceToTarget = 2.6f;
+
+    public string? AIAutorotPresetName;
 }

@@ -21,13 +21,13 @@ public class BossModuleConfig : ConfigNode
     public bool Lock = false;
 
     [PropertyDisplay("Transparent radar window background", tooltip: "Removes the black window around the radar; this will not work if you move the radar to a different monitor")]
-    public bool TrishaMode = false;
+    public bool TrishaMode = true;
 
     [PropertyDisplay("Add opaque background to the arena in the radar")]
-    public bool OpaqueArenaBackground = false;
+    public bool OpaqueArenaBackground = true;
 
     [PropertyDisplay("Show outlines and shadows on various radar markings")]
-    public bool ShowOutlinesAndShadows = false;
+    public bool ShowOutlinesAndShadows = true;
 
     [PropertyDisplay("Radar arena scale factor", tooltip: "Scale of the arena inside of the radar window")]
     [PropertySlider(0.1f, 10, Speed = 0.1f, Logarithmic = true)]
@@ -39,8 +39,9 @@ public class BossModuleConfig : ConfigNode
     [PropertyDisplay("Rotate map by 180° if rotating map is off")]
     public bool FlipArena = false;
 
-    [PropertyDisplay("Give radar extra space for rotations", tooltip: "If you are using the above setting, this gives the radar extra space on the sides before the edges are clipped in order to account for rotating your camera during an encounter")]
-    public bool AddSlackForRotations = true;
+    [PropertyDisplay("Give radar extra space for rotations", tooltip: "If you are using the above setting, you can give the radar extra space on the sides before the edges are clipped in order to account for rotating your camera during an encounter or to give the cardinal directions space.", since: "7.2.0.169")]
+    [PropertySlider(1, 2, Speed = 0.1f, Logarithmic = true)]
+    public float SlackForRotations = 1.5f;
 
     [PropertyDisplay("Show arena border in radar")]
     public bool ShowBorder = true;

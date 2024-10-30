@@ -11,6 +11,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     ScavengersDaughter = 15832, // Boss->self, 4.0s cast, range 40 circle
     HeadCrusher = 15831, // Boss->player, 4.0s cast, single-target
     Pendulum = 16777, // Boss->self, 5.0s cast, single-target, cast to jump
@@ -211,9 +212,9 @@ class FierceBeating(BossModule module) : Components.Exaflare(module, 4)
         foreach (var (c, t, r) in ImminentAOEs())
             yield return new(Shape, c, r, t, ImminentColor);
         if (Lines.Count > 0 && linesstartedcount1 < 8)
-            yield return new(circle, Helpers.RotateAroundOrigin(linesstartedcount1 * 45, D013Philia.ArenaCenter, _casters[0]), default, _activation.AddSeconds(linesstartedcount1 * 3.7f));
+            yield return new(circle, WPos.RotateAroundOrigin(linesstartedcount1 * 45, D013Philia.ArenaCenter, _casters[0]), default, _activation.AddSeconds(linesstartedcount1 * 3.7f));
         if (Lines.Count > 1 && linesstartedcount2 < 8)
-            yield return new(circle, Helpers.RotateAroundOrigin(linesstartedcount2 * 45, D013Philia.ArenaCenter, _casters[1]), default, _activation.AddSeconds(linesstartedcount2 * 3.7f));
+            yield return new(circle, WPos.RotateAroundOrigin(linesstartedcount2 * 45, D013Philia.ArenaCenter, _casters[1]), default, _activation.AddSeconds(linesstartedcount2 * 3.7f));
     }
 
     public override void Update()

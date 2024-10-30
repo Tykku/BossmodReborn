@@ -54,8 +54,33 @@ public enum AID : uint
     // Misc
     Resurrection = 173, // L12 SMN/SCH, 8.0s cast, GCD, range 30, single-target, targets=party/alliance/friendly
 
-    // Duties
+    // Duty actions
+    SmokeScreen = 7816,
     MagitekPulse = 7962, // MarkXLIIIMiniCannon->location, 1.0s cast, range 6 circle, Castrum Abania, 1st boss
+    AethericSiphon = 9102,
+    Shatterstone = 9823,
+    Deflect = 10006,
+    DeflectVeryEasy = 18863
+}
+
+public enum SID : uint
+{
+    None = 0,
+
+    // Tank
+    Reprisal = 1193, // applied by Reprisal to target
+
+    // Melee
+    Feint = 1195, // applied by Feint to self
+    TrueNorth = 1250, // applied by True North to self
+
+    // PhysRanged
+    Peloton = 1199, // applied by Peloton to self/party
+
+    // Caster/Healer
+    Addle = 1203, // applied by Addle to target
+    Swiftcast = 167, // applied by Swiftcast to self
+    Raise = 148, // applied by Raise to target
 }
 
 public sealed class Definitions : IDisposable
@@ -113,8 +138,13 @@ public sealed class Definitions : IDisposable
         // Misc
         d.RegisterSpell(AID.Resurrection);
 
-        // Duties
+        // duty actions
         d.RegisterSpell(AID.MagitekPulse);
+        d.RegisterSpell(AID.SmokeScreen);
+        d.RegisterSpell(AID.AethericSiphon);
+        d.RegisterSpell(AID.Shatterstone);
+        d.RegisterSpell(AID.Deflect);
+        d.RegisterSpell(AID.DeflectVeryEasy);
 
         Customize(d);
     }
