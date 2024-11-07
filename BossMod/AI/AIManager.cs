@@ -68,6 +68,7 @@ sealed class AIManager : IDisposable
         Beh?.Dispose();
         Beh = null;
         MasterSlot = PartyState.PlayerSlot;
+        Autorot.Preset = null;
         Controller.Clear();
         _wndAI.UpdateTitle();
     }
@@ -488,7 +489,7 @@ sealed class AIManager : IDisposable
 
     private int FindPartyMemberByName(string name)
     {
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < 8; ++i)
         {
             var member = Autorot.WorldState.Party[i];
             if (member != null && member.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
@@ -506,16 +507,12 @@ sealed class AIManager : IDisposable
         }
 
         var userInput = string.Join(" ", presetName.Skip(1)).Trim();
-        if (userInput == "null")
+        if (userInput == "null" || string.IsNullOrWhiteSpace(userInput))
         {
+            SetAIPreset(null);
             Autorot.Preset = null;
             _config.AIAutorotPresetName = null;
             Service.Log("Disabled AI autorotation preset.");
-            return;
-        }
-        if (string.IsNullOrWhiteSpace(userInput))
-        {
-            Service.Log("No valid preset name provided.");
             return;
         }
 
@@ -526,10 +523,9 @@ sealed class AIManager : IDisposable
 
         if (preset != null)
         {
-            var newPreset = Autorot.Preset == preset ? null : preset;
-            Service.Log($"Console: Changed preset from '{Autorot.Preset?.Name ?? "<n/a>"}' to '{newPreset?.Name ?? "<n/a>"}'");
-            Autorot.Preset = newPreset;
-            _config.AIAutorotPresetName = preset.Name;
+            Service.Log($"Console: Changed preset from '{Beh?.AIPreset?.Name ?? "<n/a>"}' to '{preset?.Name ?? "<n/a>"}'");
+            SetAIPreset(preset);
+            _config.AIAutorotPresetName = preset?.Name;
         }
         else
         {

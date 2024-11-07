@@ -115,15 +115,18 @@ abstract class BaitAway(BossModule module) : Components.GenericBaitAway(module)
 
     protected void DrawPositionsInBounds(WPos[] positions)
     {
-        foreach (var position in positions)
+        for (var i = 0; i < positions.Length; ++i)
+        {
+            var position = positions[i];
             if (Module.InBounds(position))
                 circle.Outline(Arena, position);
+        }
     }
 
     protected static WPos[] CalculatePositions(Actor boss, Actor target, int count = 5)
     {
         var positions = new WPos[count];
-        for (var i = 0; i < count; i++)
+        for (var i = 0; i < count; ++i)
             positions[i] = CalculatePosition(boss, target, boss.HitboxRadius + i * 9);
         return positions;
     }

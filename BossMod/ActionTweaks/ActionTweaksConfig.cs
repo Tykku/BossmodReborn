@@ -41,7 +41,7 @@ public sealed class ActionTweaksConfig : ConfigNode
     [PropertySlider(0, 10, Speed = 0.01f)]
     public float PyreticThreshold = 1.0f;
 
-    [PropertyDisplay("Restore character orientation after action use (deprecated)", tooltip: "Note: this is deprecated in favour of smart character orientation and will be removed in future")]
+    [PropertyDisplay("Restore character orientation after action use")]
     public bool RestoreRotation = false;
 
     [PropertyDisplay("Use actions on mouseover target")]

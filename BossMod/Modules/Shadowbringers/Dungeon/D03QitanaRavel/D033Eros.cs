@@ -39,10 +39,10 @@ class HoundOutOfHeaven(BossModule module) : Components.StretchTetherDuo(module, 
 class ViperPoisonVoidzone(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.ViperPoisonPatterns), m => m.Enemies(OID.PoisonVoidzone).Where(z => z.EventState != 7), 0);
 class ConfessionOfFaithStack(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ConfessionOfFaithStack), 6, 4, 4);
 class ConfessionOfFaithSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.ConfessionOfFaithSpread), 5);
+
 class ConfessionOfFaithBreath(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCone cone = new(60, 30.Degrees());
-    private static readonly AOEShapeCone cone2 = new(60, 30.Degrees());
     private readonly List<AOEInstance> _aoes = [];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
@@ -50,7 +50,7 @@ class ConfessionOfFaithBreath(BossModule module) : Components.GenericAOEs(module
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.ConfessionOfFaithCenter)
-            _aoes.Add(new(cone2, caster.Position + 5 * (caster.Rotation + 180.Degrees()).ToDirection(), spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.Add(new(cone, caster.Position + 5 * (caster.Rotation + 180.Degrees()).ToDirection(), spell.Rotation, Module.CastFinishAt(spell)));
         else if ((AID)spell.Action.ID is AID.ConfessionOfFaithLeft or AID.ConfessionOfFaithRight)
             _aoes.Add(new(cone, caster.Position + Module.PrimaryActor.HitboxRadius * (caster.Rotation + 180.Degrees()).ToDirection(), spell.Rotation, Module.CastFinishAt(spell)));
     }
@@ -61,6 +61,7 @@ class ConfessionOfFaithBreath(BossModule module) : Components.GenericAOEs(module
             _aoes.Clear();
     }
 }
+
 class ViperPoisonBait(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.ViperPoisonBait), new AOEShapeCircle(6), true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -85,7 +86,7 @@ class Inhale(BossModule module) : Components.KnockbackFromCastTarget(module, Act
             foreach (var c in component)
                 forbidden.Add(ShapeDistance.Rect(c.Origin, Module.PrimaryActor.Rotation, 40, 0, 6));
             if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Min(), source.Activation);
+                hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), source.Activation);
         }
     }
 
@@ -106,7 +107,7 @@ class HeavingBreath(BossModule module) : Components.KnockbackFromCastTarget(modu
             foreach (var c in component)
                 forbidden.Add(ShapeDistance.Rect(c.Origin, new Angle(), 40, 40, 6));
             if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Min(), source.Activation);
+                hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), source.Activation);
         }
     }
 

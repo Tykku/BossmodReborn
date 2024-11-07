@@ -51,7 +51,7 @@ class MagitekPulsePlayer(BossModule module) : BossComponent(module)
         {
             var distance = (actor.Position - closestTurret.Position).LengthSq();
             if (forbidden.Count > 0 && distance > 9)
-                hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Max());
+                hints.AddForbiddenZone(p => forbidden.Max(f => f(p)));
             else if (distance < 9)
             {
                 hints.InteractWithTarget = closestTurret;

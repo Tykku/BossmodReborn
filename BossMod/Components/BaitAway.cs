@@ -83,7 +83,7 @@ public class GenericBaitAway(BossModule module, ActionID aid = default, bool alw
                     break;
 
                 case AOEShapeRect rect:
-                    hints.AddForbiddenZone(ShapeDistance.Cone(bait.Source.Position, 100, bait.Source.AngleTo(a), Angle.Asin(rect.HalfWidth / (actor.Position - bait.Source.Position).Length())), bait.Activation);
+                    hints.AddForbiddenZone(ShapeDistance.Cone(bait.Source.Position, 100, bait.Source.AngleTo(a), Angle.Asin(rect.HalfWidth / (a.Position - bait.Source.Position).Length())), bait.Activation);
                     break;
                 case AOEShapeCross cross:
                     hints.AddForbiddenZone(cross, a.Position, bait.Rotation, bait.Activation);
@@ -229,33 +229,27 @@ public class BaitAwayCast(BossModule module, ActionID aid, AOEShape shape, bool 
 // a variation of BaitAwayCast for charges that end at target
 public class BaitAwayChargeCast(BossModule module, ActionID aid, float halfWidth) : GenericBaitAway(module, aid)
 {
-    public float HalfWidth = halfWidth;
-
-    public override void Update()
-    {
-        foreach (ref var b in CurrentBaits.AsSpan())
-        {
-            if (b.Shape is AOEShapeRect shape)
-            {
-                var length = (b.Target.Position - b.Source.Position).Length();
-                if (shape.LengthFront != length)
-                {
-                    b.Shape = shape with { LengthFront = length };
-                }
-            }
-        }
-    }
+    private readonly AOEShapeRect rect = new(default, halfWidth);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action == WatchedAction && WorldState.Actors.Find(spell.TargetID) is var target && target != null)
-            CurrentBaits.Add(new(caster, target, new AOEShapeRect(0, HalfWidth), Module.CastFinishAt(spell)));
+            CurrentBaits.Add(new(caster, target, rect, Module.CastFinishAt(spell)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action == WatchedAction)
             CurrentBaits.RemoveAll(b => b.Source == caster);
+    }
+
+    public override void Update()
+    {
+        for (var i = 0; i < CurrentBaits.Count; ++i)
+        {
+            var b = CurrentBaits[i];
+            CurrentBaits[i] = b with { Shape = rect with { LengthFront = (b.Target.Position - b.Source.Position).Length() } };
+        }
     }
 }
 

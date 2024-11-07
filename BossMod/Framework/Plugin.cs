@@ -349,10 +349,10 @@ public sealed class Plugin : IDalamudPlugin
                 if (cmd.Length <= 2)
                     Service.Log("Specify an autorotation preset name.");
                 else
-                    ParseAutorotationSetCommand(cmd[2], false);
+                    ParseAutorotationSetCommand(cmd.Skip(1).ToArray(), false);
                 break;
             case "TOGGLE":
-                ParseAutorotationSetCommand(cmd.Length > 2 ? cmd[2] : "", true);
+                ParseAutorotationSetCommand(cmd.Length > 2 ? cmd.Skip(1).ToArray() : [""], true);
                 break;
             case "ui":
                 _wndRotation.SetVisible(!_wndRotation.IsOpen);
@@ -360,9 +360,25 @@ public sealed class Plugin : IDalamudPlugin
         }
     }
 
-    private void ParseAutorotationSetCommand(string presetName, bool toggle)
+    private void ParseAutorotationSetCommand(string[] presetName, bool toggle)
     {
-        var preset = presetName.Length > 0 ? _rotation.Database.Presets.VisiblePresets.FirstOrDefault(p => p.Name == presetName) : RotationModuleManager.ForceDisable;
+        if (presetName.Length < 2)
+        {
+            Service.Log("No valid preset name provided.");
+            return;
+        }
+
+        var userInput = string.Join(" ", presetName.Skip(1)).Trim();
+        if (userInput == "null" || string.IsNullOrWhiteSpace(userInput))
+        {
+            _rotation.Preset = null;
+            Service.Log("Disabled AI autorotation preset.");
+            return;
+        }
+        var normalizedInput = userInput.ToUpperInvariant();
+        var preset = _rotation.Database.Presets.VisiblePresets
+            .FirstOrDefault(p => p.Name.Trim().Equals(normalizedInput, StringComparison.OrdinalIgnoreCase))
+            ?? RotationModuleManager.ForceDisable;
         if (preset != null)
         {
             var newPreset = toggle && _rotation.Preset == preset ? null : preset;

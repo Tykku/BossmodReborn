@@ -4,22 +4,14 @@ class Spiritflame(BossModule module) : Components.LocationTargetedAOEs(module, A
 class Spiritflames(BossModule module) : Components.GenericAOEs(module)
 {
     private const float Radius = 2.4f;
+    private const int Length = 6;
+    private static readonly AOEShapeCapsule capsule = new(Radius, Length);
     private readonly HashSet<Actor> _flames = [];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        return _flames.Select(a =>
-        {
-            var position = a.Position;
-            var directionOffset = 6 * a.Rotation.ToDirection();
-            var shapes = new Shape[]
-            {
-                new Circle(a.Position, Radius),
-                new Circle(a.Position + directionOffset, Radius),
-                new RectangleSE(a.Position, a.Position + directionOffset, Radius)
-            };
-            return new AOEInstance(new AOEShapeCustom(shapes), Arena.Center);
-        });
+        foreach (var f in _flames)
+            yield return new(capsule, f.Position, f.Rotation);
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
@@ -38,8 +30,8 @@ class Spiritflames(BossModule module) : Components.GenericAOEs(module)
         if (_flames.Count == 0)
             return;
         var forbidden = new List<Func<WPos, float>>();
-        foreach (var o in _flames)
-            forbidden.Add(ShapeDistance.Capsule(o.Position, o.Rotation, 6, Radius));
-        hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Min());
+        foreach (var f in _flames)
+            forbidden.Add(ShapeDistance.Capsule(f.Position, f.Rotation, Length, Radius));
+        hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
     }
 }

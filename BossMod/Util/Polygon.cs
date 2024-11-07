@@ -24,6 +24,7 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
     private ContourEdgeBuckets? _exteriorEdgeBuckets;
     private List<ContourEdgeBuckets> _holeEdgeBuckets = [];
     private const int BucketCount = 10;
+    private const float Epsilon = 1e-8f;
 
     private int ExteriorEnd => HoleStarts.Count > 0 ? HoleStarts[0] : Vertices.Count;
     private int HoleEnd(int index) => index + 1 < HoleStarts.Count ? HoleStarts[index + 1] : Vertices.Count;
@@ -40,7 +41,7 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
     {
         var vertexCount = Vertices.Count;
         Span<double> pts = vertexCount <= 128 ? stackalloc double[vertexCount * 2] : new double[vertexCount * 2];
-        for (int i = 0, j = 0; i < vertexCount; i++, j += 2)
+        for (int i = 0, j = 0; i < vertexCount; ++i, j += 2)
         {
             var v = Vertices[i];
             pts[j] = v.X;
@@ -80,7 +81,7 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
 
         if (!InSimplePolygon(p, _exteriorEdgeBuckets!))
             return false;
-        for (var i = 0; i < _holeEdgeBuckets.Count; i++)
+        for (var i = 0; i < _holeEdgeBuckets.Count; ++i)
         {
             if (InSimplePolygon(p, _holeEdgeBuckets[i]))
                 return false;
@@ -112,7 +113,7 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
         float minY = float.MaxValue, maxY = float.MinValue;
         var count = contour.Length;
 
-        for (var i = 0; i < count; i++)
+        for (var i = 0; i < count; ++i)
         {
             var y = contour[i].Z;
             if (y < minY)
@@ -121,7 +122,7 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
                 maxY = y;
         }
 
-        var invBucketHeight = BucketCount / (maxY - minY + 1e-8f);
+        var invBucketHeight = BucketCount / (maxY - minY + Epsilon);
 
         var edgeBucketsArray = new List<Edges>[BucketCount];
         for (var b = 0; b < BucketCount; b++)
@@ -130,7 +131,7 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
         }
 
         var prev = contour[^1];
-        for (var i = 0; i < count; i++)
+        for (var i = 0; i < count; ++i)
         {
             var curr = contour[i];
             var edge = new Edges(prev.X, prev.Z, curr.X, curr.Z);
@@ -214,11 +215,12 @@ public record class RelSimplifiedComplexPolygon(List<RelPolygonWithHoles> Parts)
         var clipperOffset = new ClipperOffset();
         var allPaths = new Paths64();
 
-        foreach (var part in Parts)
+        for (var i = 0; i < Parts.Count; ++i)
         {
+            var part = Parts[i];
             allPaths.Add(ToPath64(part.Exterior));
-            foreach (var i in part.Holes)
-                allPaths.Add(ToPath64(part.Interior(i)));
+            foreach (var j in part.Holes)
+                allPaths.Add(ToPath64(part.Interior(j)));
         }
 
         var solution = new Paths64();
@@ -244,7 +246,7 @@ public record class RelSimplifiedComplexPolygon(List<RelPolygonWithHoles> Parts)
     {
         var count = vertices.Length;
         var path = new Path64(count);
-        for (var i = 0; i < count; i++)
+        for (var i = 0; i < count; ++i)
         {
             var vertex = vertices[i];
             path.Add(new(vertex.X * PolygonClipper.Scale, vertex.Z * PolygonClipper.Scale));
@@ -274,9 +276,10 @@ public class PolygonClipper
 
         public void AddContour(ReadOnlySpan<WDir> contour, bool isOpen = false)
         {
-            Path64 path = new(contour.Length);
-            foreach (var p in contour)
-                path.Add(ConvertPoint(p));
+            var count = contour.Length;
+            Path64 path = new(count);
+            for (var i = 0; i < count; ++i)
+                path.Add(ConvertPoint(contour[i]));
             AddContour(path, isOpen);
         }
 
@@ -336,7 +339,7 @@ public class PolygonClipper
                 continue;
             var polygonPoints = new List<WDir>(exterior.Polygon.Count);
             var extPolygon = exterior.Polygon;
-            for (var j = 0; j < extPolygon.Count; j++)
+            for (var j = 0; j < extPolygon.Count; ++j)
                 polygonPoints.Add(ConvertPoint(extPolygon[j]));
 
             var poly = new RelPolygonWithHoles(polygonPoints);
@@ -374,15 +377,18 @@ public static class PolygonUtil
         var prevPoint = contourList[count - 1];
         for (var i = 0; i < count; ++i)
         {
-            yield return (prevPoint, contourList[i]);
-            prevPoint = contourList[i];
+            var list = contourList[i];
+            yield return (prevPoint, list);
+            prevPoint = list;
         }
     }
 }
 
 public readonly struct Edge(float ax, float ay, float dx, float dy)
 {
-    public readonly float Ax = ax, Ay = ay, Dx = dx, Dy = dy, InvLengthSq = 1 / (dx * dx + dy * dy + 1e-8f);
+    private const float Epsilon = 1e-8f;
+
+    public readonly float Ax = ax, Ay = ay, Dx = dx, Dy = dy, InvLengthSq = 1 / (dx * dx + dy * dy + Epsilon);
 }
 
 public class SpatialIndex
@@ -403,7 +409,7 @@ public class SpatialIndex
         minX = minY = int.MaxValue;
         int maxX = int.MinValue, maxY = int.MinValue;
 
-        for (var i = 0; i < _edges.Length; i++)
+        for (var i = 0; i < _edges.Length; ++i)
         {
             var edge = _edges[i];
             var ex0 = (int)MathF.Floor(Math.Min(edge.Ax, edge.Ax + edge.Dx));
@@ -425,13 +431,12 @@ public class SpatialIndex
     {
         var cellCount = _gridWidth * _gridHeight;
         var grid = new List<int>[cellCount];
-
-        for (var i = 0; i < cellCount; i++)
+        for (var i = 0; i < cellCount; ++i)
         {
             grid[i] = [];
         }
 
-        for (var i = 0; i < _edges.Length; i++)
+        for (var i = 0; i < _edges.Length; ++i)
         {
             var edge = _edges[i];
             var minX = Math.Min(edge.Ax, edge.Ax + edge.Dx);
@@ -444,19 +449,18 @@ public class SpatialIndex
             var y0 = (int)MathF.Floor(minY) - _minY;
             var y1 = (int)MathF.Floor(maxY) - _minY;
 
-            for (var y = y0; y <= y1; y++)
+            for (var y = y0; y <= y1; ++y)
             {
                 var rowIndex = y * _gridWidth;
-                for (var x = x0; x <= x1; x++)
+                for (var x = x0; x <= x1; ++x)
                 {
-                    var cellIndex = rowIndex + x;
-                    grid[cellIndex].Add(i);
+                    grid[rowIndex + x].Add(i);
                 }
             }
         }
 
         _grid = new int[cellCount][];
-        for (var i = 0; i < cellCount; i++)
+        for (var i = 0; i < cellCount; ++i)
         {
             _grid[i] = [.. grid[i]];
         }
@@ -496,14 +500,16 @@ public readonly struct PolygonWithHolesDistanceFunction
         {
             var part = polygon.Parts[i];
             var exteriorEdges = GetEdges(part.Exterior, origin);
-            Array.Copy(exteriorEdges, 0, _edges, edgeIndex, exteriorEdges.Length);
-            edgeIndex += exteriorEdges.Length;
+            var exteriorCount = exteriorEdges.Length;
+            Array.Copy(exteriorEdges, 0, _edges, edgeIndex, exteriorCount);
+            edgeIndex += exteriorCount;
 
             for (var j = 0; j < part.Holes.Count(); ++j)
             {
                 var holeEdges = GetEdges(part.Interior(j), origin);
-                Array.Copy(holeEdges, 0, _edges, edgeIndex, holeEdges.Length);
-                edgeIndex += holeEdges.Length;
+                var holeEdgesCount = holeEdges.Length;
+                Array.Copy(holeEdges, 0, _edges, edgeIndex, holeEdgesCount);
+                edgeIndex += holeEdgesCount;
             }
         }
         _spatialIndex = new(_edges);
@@ -540,7 +546,7 @@ public readonly struct PolygonWithHolesDistanceFunction
         var edges = new Edge[count];
 
         var prev = vertices[count - 1];
-        for (var i = 0; i < count; i++)
+        for (var i = 0; i < count; ++i)
         {
             var curr = vertices[i];
             edges[i] = new(origin.X + prev.X, origin.Z + prev.Z, curr.X - prev.X, curr.Z - prev.Z);

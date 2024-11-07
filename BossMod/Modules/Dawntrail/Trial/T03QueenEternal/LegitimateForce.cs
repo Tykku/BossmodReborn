@@ -6,8 +6,7 @@ class LegitimateForce(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeRect rect = new(20, 40);
     private static readonly HashSet<AID> castEnds = [AID.LegitimateForceLL, AID.LegitimateForceLR, AID.LegitimateForceRR, AID.LegitimateForceRL,
     AID.LegitimateForceR, AID.LegitimateForceL];
-    private static readonly WDir offset1 = new(0, 20);
-    private static readonly WDir offset2 = new(0, 8);
+    private static readonly WDir offset1 = new(0, 20), offset2 = new(0, 8);
     private readonly Besiegement _aoe = module.FindComponent<Besiegement>()!;
     private static readonly Func<WPos, float> stayInBounds = p =>
         Math.Max(ShapeDistance.InvertedRect(T03QueenEternal.LeftSplitCenter + offset2, T03QueenEternal.LeftSplitCenter - offset2, 4)(p),
@@ -19,7 +18,7 @@ class LegitimateForce(BossModule module) : Components.GenericAOEs(module)
         {
             var count = _aoes.Count;
             var compare = count > 1 && _aoes[0].Rotation != _aoes[1].Rotation;
-            for (var i = 0; i < count; i++)
+            for (var i = 0; i < count; ++i)
             {
                 if (i == 0)
                     yield return compare ? _aoes[i] with { Color = Colors.Danger } : _aoes[i];

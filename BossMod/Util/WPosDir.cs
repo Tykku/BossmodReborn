@@ -75,7 +75,7 @@ public record struct WPos(float X, float Z)
 
     public static WPos RotateAroundOrigin(float rotateByDegrees, WPos origin, WPos caster)
     {
-        var (sin, cos) = MathF.SinCos(rotateByDegrees * Angle.DegToRad);
+        var (sin, cos) = ((float, float))Math.SinCos(rotateByDegrees * Angle.DegToRad);
         var deltaX = caster.X - origin.X;
         var deltaZ = caster.Z - origin.Z;
         var rotatedX = cos * deltaX - sin * deltaZ;
@@ -117,46 +117,29 @@ public record struct WPos(float X, float Z)
     public readonly bool InDonutCone(WPos origin, float innerRadius, float outerRadius, WDir direction, Angle halfAngle) => InDonut(origin, innerRadius, outerRadius) && InCone(origin, direction, halfAngle);
     public readonly bool InDonutCone(WPos origin, float innerRadius, float outerRadius, Angle direction, Angle halfAngle) => InDonut(origin, innerRadius, outerRadius) && InCone(origin, direction, halfAngle);
 
-    public readonly bool InConvexPolygon(IEnumerable<WPos> vertices)
+    public readonly bool InCapsule(WPos origin, WDir direction, float radius, float length)
     {
-        var verts = vertices as WPos[] ?? vertices.ToArray();
-        var count = verts.Length;
-        var inside = false;
-        for (int i = 0, j = count - 1; i < count; j = i++)
+        var D = direction.Normalized();
+        var OP = this - origin;
+        var t = WDir.Dot(OP, D);
+
+        if (t <= 0)
         {
-            var vi = verts[i];
-            var vj = verts[j];
-            if ((vi.Z > Z) != (vj.Z > Z) && X < (vj.X - vi.X) * (Z - vi.Z) / (vj.Z - vi.Z) + vi.X)
-            {
-                inside = !inside;
-            }
+            // Closest point is at the origin
+            return OP.LengthSq() <= radius * radius;
         }
-        return inside;
-    }
-
-    public readonly bool InConcavePolygon(IEnumerable<WPos> vertices)
-    {
-        float windingNumber = 0;
-        var verticesList = vertices.ToList();
-        var verticesCount = verticesList.Count;
-
-        for (var i = 0; i < verticesCount; i++)
+        else if (t >= length)
         {
-            var vi = verticesList[i];
-            var vj = verticesList[(i + 1) % verticesCount];
-            var di = this - vi;
-            var dj = this - vj;
-            var cross = di.Cross(dj);
-
-            if (vi.Z <= Z)
-            {
-                if (vj.Z > Z && cross > 0)
-                    ++windingNumber;
-            }
-            else if (vj.Z <= Z && cross < 0)
-                --windingNumber;
+            // Closest point is at the end point of the capsule
+            var EP = this - (origin + D * length);
+            return EP.LengthSq() <= radius * radius;
         }
-
-        return windingNumber != 0;
+        else
+        {
+            // Closest point is along the segment between origin and end point
+            var closestPoint = origin + D * t;
+            var CP = this - closestPoint;
+            return CP.LengthSq() <= radius * radius;
+        }
     }
 }
