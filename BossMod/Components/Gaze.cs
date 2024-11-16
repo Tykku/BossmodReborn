@@ -13,13 +13,11 @@ public abstract class GenericGaze(BossModule module, ActionID aid = new(), bool 
 
     public bool Inverted = inverted; // if inverted, player should face eyes instead of averting
 
-    private const float _eyeOuterH = 10;
-    private const float _eyeOuterV = 6;
-    private const float _eyeInnerR = 4;
+    private const float _eyeOuterH = 10, _eyeOuterV = 6, _eyeInnerR = 4;
     private const float _eyeOuterR = (_eyeOuterH * _eyeOuterH + _eyeOuterV * _eyeOuterV) / (2 * _eyeOuterV);
     private const float _eyeOffsetV = _eyeOuterR - _eyeOuterV;
 
-    private static readonly float _eyeHalfAngle = MathF.Asin(_eyeOuterH / _eyeOuterR);
+    private static readonly float _eyeHalfAngle = (float)Math.Asin(_eyeOuterH / _eyeOuterR);
     private static readonly Vector2 offset = new(0, _eyeOffsetV);
     private static readonly float halfPIHalfAngleP = Angle.HalfPi + _eyeHalfAngle;
     private static readonly float halfPIHalfAngleM = Angle.HalfPi - _eyeHalfAngle;

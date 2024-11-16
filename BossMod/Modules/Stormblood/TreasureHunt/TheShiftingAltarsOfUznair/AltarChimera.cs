@@ -47,7 +47,7 @@ class TheRamsKeeperBait(BossModule module) : Components.GenericBaitAway(module)
 {
     private static readonly AOEShapeCircle circle = new(6);
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == (uint)IconID.Baitaway)
             CurrentBaits.Add(new(actor, actor, circle));

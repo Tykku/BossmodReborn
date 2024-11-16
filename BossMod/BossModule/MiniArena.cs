@@ -86,7 +86,7 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
 
         if (Config.OpaqueArenaBackground)
         {
-            await GenerateBackgroundAsync().ConfigureAwait(false);
+            await GenerateBackgroundAsync().ConfigureAwait(true);
         }
     }
     private Task GenerateBackgroundAsync()
@@ -189,6 +189,44 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
         drawlist.PathStroke(color != 0 ? color : Colors.Danger, ImDrawFlags.Closed, thickness);
     }
 
+    public void AddCapsule(WPos start, WDir direction, float radius, float length, uint color = 0, float thickness = 1)
+    {
+        var dirNorm = direction.Normalized();
+        var halfLength = length * 0.5f;
+        var capsuleStart = start - dirNorm * halfLength;
+        var capsuleEnd = start + dirNorm * halfLength;
+        var orthoDir = dirNorm.OrthoR();
+
+        var drawList = ImGui.GetWindowDrawList();
+
+        var screenRadius = radius / Bounds.Radius * ScreenHalfSize;
+        var screenCapsuleStart = WorldPositionToScreenPosition(capsuleStart);
+        var screenCapsuleEnd = WorldPositionToScreenPosition(capsuleEnd);
+
+        var dirAngle = MathF.Atan2(dirNorm.Z, dirNorm.X);
+        var sDirAngle = Angle.HalfPi - dirAngle + _cameraAzimuth.Rad;
+        var dirMHalfPI = sDirAngle - Angle.HalfPi;
+        var dirPHalfPI = sDirAngle + Angle.HalfPi;
+        var orthoDirRadius = orthoDir * radius;
+
+        // Start path at capsuleStart + orthoDir * radius
+        drawList.PathLineTo(WorldPositionToScreenPosition(capsuleStart + orthoDirRadius));
+
+        // Line to capsuleEnd + orthoDir * radius
+        drawList.PathLineTo(WorldPositionToScreenPosition(capsuleEnd + orthoDirRadius));
+
+        // Arc around capsuleEnd from sDirAngle - π/2 to sDirAngle + π/2
+        drawList.PathArcTo(screenCapsuleEnd, screenRadius, dirMHalfPI, dirPHalfPI);
+
+        // Line back to capsuleStart - orthoDir * radius
+        drawList.PathLineTo(WorldPositionToScreenPosition(capsuleStart - orthoDirRadius));
+
+        // Arc around capsuleStart from sDirAngle + π/2 to sDirAngle - π/2
+        drawList.PathArcTo(screenCapsuleStart, screenRadius, dirPHalfPI, dirMHalfPI);
+
+        drawList.PathStroke(color != 0 ? color : Colors.Danger, ImDrawFlags.Closed, thickness);
+    }
+
     public void AddPolygon(ReadOnlySpan<WPos> vertices, uint color = 0, float thickness = 1)
     {
         foreach (var p in vertices)
@@ -264,6 +302,8 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
         => Zone(_triCache[TriangulationCache.GetKeyHash(11, key)] ??= Bounds.ClipAndTriangulate(relContour), color);
     public void ZoneRelPoly(int key, RelSimplifiedComplexPolygon poly, uint color)
         => Zone(_triCache[key] ??= Bounds.ClipAndTriangulate(poly), color);
+    public void ZoneCapsule(WPos start, WDir direction, float radius, float length, uint color)
+        => Zone(_triCache[TriangulationCache.GetKeyHash(12, start, direction, radius, length)] ??= Bounds.ClipAndTriangulateCapsule(start - Center, direction, radius, length), color);
 
     public void TextScreen(Vector2 center, string text, uint color, float fontSize = 17)
     {
@@ -281,28 +321,37 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
     public void Border(uint color)
     {
         var dl = ImGui.GetWindowDrawList();
-        foreach (var p in Bounds.ShapeSimplified.Parts)
+
+        for (var partIndex = 0; partIndex < Bounds.ShapeSimplified.Parts.Count; partIndex++)
         {
+            var part = Bounds.ShapeSimplified.Parts[partIndex];
             Vector2? lastPoint = null;
-            foreach (var off in p.Exterior)
+
+            for (var exteriorIndex = 0; exteriorIndex < part.Exterior.Length; exteriorIndex++)
             {
-                var currentPoint = ScreenCenter + WorldOffsetToScreenOffset(off);
+                var offset = part.Exterior[exteriorIndex];
+                var currentPoint = ScreenCenter + WorldOffsetToScreenOffset(offset);
                 if (lastPoint != currentPoint)
                     dl.PathLineTo(currentPoint);
                 lastPoint = currentPoint;
             }
+
             dl.PathStroke(color, ImDrawFlags.Closed, 2);
 
-            foreach (var i in p.Holes)
+            foreach (var holeIndex in part.Holes)
             {
                 lastPoint = null;
-                foreach (var off in p.Interior(i))
+
+                var holeInteriorPoints = part.Interior(holeIndex);
+                for (var interiorIndex = 0; interiorIndex < holeInteriorPoints.Length; interiorIndex++)
                 {
-                    var currentPoint = ScreenCenter + WorldOffsetToScreenOffset(off);
+                    var offset = holeInteriorPoints[interiorIndex];
+                    var currentPoint = ScreenCenter + WorldOffsetToScreenOffset(offset);
                     if (lastPoint != currentPoint)
                         dl.PathLineTo(currentPoint);
                     lastPoint = currentPoint;
                 }
+
                 dl.PathStroke(color, ImDrawFlags.Closed, 2);
             }
         }
@@ -315,10 +364,10 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
         var sizeoffset = fontSetting - 17;
         var offS = RotatedCoords(new(0, offCenter + sizeoffset));
         var offE = RotatedCoords(new(offCenter + sizeoffset, 0));
-        TextScreen(ScreenCenter - offS, "N", Colors.Border, fontSetting);
-        TextScreen(ScreenCenter + offS, "S", Colors.Border, fontSetting);
-        TextScreen(ScreenCenter + offE, "E", Colors.Border, fontSetting);
-        TextScreen(ScreenCenter - offE, "W", Colors.Border, fontSetting);
+        TextScreen(ScreenCenter - offS, "N", Colors.CardinalN, fontSetting);
+        TextScreen(ScreenCenter + offS, "S", Colors.CardinalS, fontSetting);
+        TextScreen(ScreenCenter + offE, "E", Colors.CardinalE, fontSetting);
+        TextScreen(ScreenCenter - offE, "W", Colors.CardinalW, fontSetting);
     }
 
     public void ActorInsideBounds(WPos position, Angle rotation, uint color)

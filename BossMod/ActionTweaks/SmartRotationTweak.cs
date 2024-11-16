@@ -22,19 +22,19 @@ public sealed class SmartRotationTweak(WorldState ws, AIHints hints)
 {
     private readonly SmartRotationConfig _config = Service.Config.Get<SmartRotationConfig>();
     private readonly DisjointSegmentList _forbidden = new();
-    private readonly Angle _minWindow = 5.Degrees();
+    private static readonly Angle _minWindow = 5.Degrees();
     public bool Enabled => _config.Enabled;
 
     // return 'ideal orientation' for a spell, or null if spell is not oriented (self-targeted or does not require facing)
     public Angle? GetSpellOrientation(uint spellId, WPos playerPos, bool targetIsSelf, WPos? targetPos, WPos targetLoc)
     {
-        var data = Service.LuminaRow<Lumina.Excel.GeneratedSheets.Action>(spellId);
-        if (data == null || !data.Unknown26) // does not require facing
+        var data = Service.LuminaRow<Lumina.Excel.Sheets.Action>(spellId);
+        if (data == null || !data.Value.NeedToFaceTarget) // does not require facing
             return null;
-        if (data.TargetArea)
+        if (data.Value.TargetArea)
             return Angle.FromDirection(targetLoc - playerPos);
         // see ActionManager.ResolveTarget
-        targetIsSelf |= ActionDefinitions.Instance.SpellAllowedTargets(data) == ActionTargets.Self;
+        targetIsSelf |= ActionDefinitions.Instance.SpellAllowedTargets(data.Value) == ActionTargets.Self;
         return targetIsSelf || targetPos == null ? null : Angle.FromDirection(targetPos.Value - playerPos); // self-targeted don't have ideal orientation
     }
 
@@ -57,13 +57,13 @@ public sealed class SmartRotationTweak(WorldState ws, AIHints hints)
                 var min = center - d.halfWidth;
                 if (min.Rad < -MathF.PI)
                 {
-                    _forbidden.Add(min.Rad + 2 * MathF.PI, MathF.PI);
+                    _forbidden.Add(min.Rad + Angle.DoublePI, MathF.PI);
                     min = -MathF.PI.Radians();
                 }
                 var max = center + d.halfWidth;
                 if (max.Rad > MathF.PI)
                 {
-                    _forbidden.Add(-MathF.PI, max.Rad - 2 * MathF.PI);
+                    _forbidden.Add(-MathF.PI, max.Rad - Angle.DoublePI);
                     max = MathF.PI.Radians();
                 }
                 _forbidden.Add(min.Rad, max.Rad);
@@ -107,7 +107,7 @@ public sealed class SmartRotationTweak(WorldState ws, AIHints hints)
 
             // find widest safe range in a cone around preferred direction
             var best = initBest(coneMin, Math.Max(_forbidden[intersection.first].Min, coneMin));
-            for (int i = 1; i < intersection.count; ++i)
+            for (var i = 1; i < intersection.count; ++i)
                 updateBest(ref best, _forbidden[intersection.first + i - 1].Max, _forbidden[intersection.first + i].Min);
             updateBest(ref best, Math.Min(_forbidden[intersection.first + intersection.count - 1].Max, coneMax), coneMax);
 
@@ -117,8 +117,8 @@ public sealed class SmartRotationTweak(WorldState ws, AIHints hints)
 
         // find widest safe range in the whole circle
         {
-            var best = initBest(_forbidden[^1].Max, _forbidden[0].Min + 2 * MathF.PI);
-            for (int i = 1; i < _forbidden.Count; ++i)
+            var best = initBest(_forbidden[^1].Max, _forbidden[0].Min + Angle.DoublePI);
+            for (var i = 1; i < _forbidden.Count; ++i)
                 updateBest(ref best, _forbidden[i - 1].Max, _forbidden[i].Min);
             return midpoint + best.mid.Radians();
         }

@@ -15,7 +15,12 @@ public record struct WDir(float X, float Z)
     public static WDir operator -(WDir a, WPos b) => new(a.X - b.X, a.Z - b.Z);
     public static WDir operator *(WDir a, float b) => new(a.X * b, a.Z * b);
     public static WDir operator *(float a, WDir b) => new(a * b.X, a * b.Z);
-    public static WDir operator /(WDir a, float b) => new(a.X / b, a.Z / b);
+    public static WDir operator /(WDir a, float b)
+    {
+        var invB = 1 / b;
+        return new(a.X * invB, a.Z * invB);
+    }
+
     public readonly WDir Abs() => new(Math.Abs(X), Math.Abs(Z));
     public readonly WDir Sign() => new(Math.Sign(X), Math.Sign(Z));
     public readonly WDir OrthoL() => new(Z, -X); // CCW, same length
@@ -36,7 +41,7 @@ public record struct WDir(float X, float Z)
     public readonly bool AlmostEqual(WDir b, float eps) => AlmostZero(this - b, eps);
     public readonly WDir Scaled(float multiplier) => new(X * multiplier, Z * multiplier);
     public readonly WDir Rounded() => new(MathF.Round(X), MathF.Round(Z));
-    public readonly WDir Rounded(float precision) => Scaled(1.0f / precision).Rounded().Scaled(precision);
+    public readonly WDir Rounded(float precision) => Scaled(1f / precision).Rounded().Scaled(precision);
     public readonly WDir Floor() => new(MathF.Floor(X), MathF.Floor(Z));
 
     public override readonly string ToString() => $"({X:f3}, {Z:f3})";
@@ -60,8 +65,17 @@ public record struct WPos(float X, float Z)
 
     public static WPos operator *(WPos a, float b) => new(a.X * b, a.Z * b);
     public static WPos operator +(WPos a, float b) => new(a.X + b, a.Z + b);
-    public static WPos operator /(WPos a, int b) => new(a.X / b, a.Z / b);
-    public static WPos operator /(WPos a, float b) => new(a.X / b, a.Z / b);
+    public static WPos operator /(WPos a, int b)
+    {
+        var invB = 1f / b;
+        return new(a.X * invB, a.Z * invB);
+    }
+
+    public static WPos operator /(WPos a, float b)
+    {
+        var invB = 1 / b;
+        return new(a.X * invB, a.Z * invB);
+    }
     public static WPos operator +(WPos a, WDir b) => new(a.X + b.X, a.Z + b.Z);
     public static WPos operator +(WDir a, WPos b) => new(a.X + b.X, a.Z + b.Z);
     public static WPos operator -(WPos a, WDir b) => new(a.X - b.X, a.Z - b.Z);
@@ -70,14 +84,14 @@ public record struct WPos(float X, float Z)
     public readonly bool AlmostEqual(WPos b, float eps) => (this - b).AlmostZero(eps);
     public readonly WPos Scaled(float multiplier) => new(X * multiplier, Z * multiplier);
     public readonly WPos Rounded() => new(MathF.Round(X), MathF.Round(Z));
-    public readonly WPos Rounded(float precision) => Scaled(1.0f / precision).Rounded().Scaled(precision);
+    public readonly WPos Rounded(float precision) => Scaled(1f / precision).Rounded().Scaled(precision);
     public static WPos Lerp(WPos from, WPos to, float progress) => new(from.ToVec2() * (1 - progress) + to.ToVec2() * progress);
 
-    public static WPos RotateAroundOrigin(float rotateByDegrees, WPos origin, WPos caster)
+    public static WPos RotateAroundOrigin(float rotateByDegrees, WPos origin, WPos point)
     {
-        var (sin, cos) = MathF.SinCos(rotateByDegrees * Angle.DegToRad);
-        var deltaX = caster.X - origin.X;
-        var deltaZ = caster.Z - origin.Z;
+        var (sin, cos) = ((float, float))Math.SinCos(rotateByDegrees * Angle.DegToRad);
+        var deltaX = point.X - origin.X;
+        var deltaZ = point.Z - origin.Z;
         var rotatedX = cos * deltaX - sin * deltaZ;
         var rotatedZ = sin * deltaX + cos * deltaZ;
         return new(origin.X + rotatedX, origin.Z + rotatedZ);
@@ -117,46 +131,29 @@ public record struct WPos(float X, float Z)
     public readonly bool InDonutCone(WPos origin, float innerRadius, float outerRadius, WDir direction, Angle halfAngle) => InDonut(origin, innerRadius, outerRadius) && InCone(origin, direction, halfAngle);
     public readonly bool InDonutCone(WPos origin, float innerRadius, float outerRadius, Angle direction, Angle halfAngle) => InDonut(origin, innerRadius, outerRadius) && InCone(origin, direction, halfAngle);
 
-    public readonly bool InConvexPolygon(IEnumerable<WPos> vertices)
+    public readonly bool InCapsule(WPos origin, WDir direction, float radius, float length)
     {
-        var verts = vertices as WPos[] ?? vertices.ToArray();
-        var count = verts.Length;
-        var inside = false;
-        for (int i = 0, j = count - 1; i < count; j = i++)
+        var D = direction.Normalized();
+        var OP = this - origin;
+        var t = WDir.Dot(OP, D);
+
+        if (t <= 0)
         {
-            var vi = verts[i];
-            var vj = verts[j];
-            if ((vi.Z > Z) != (vj.Z > Z) && X < (vj.X - vi.X) * (Z - vi.Z) / (vj.Z - vi.Z) + vi.X)
-            {
-                inside = !inside;
-            }
+            // Closest point is at the origin
+            return OP.LengthSq() <= radius * radius;
         }
-        return inside;
-    }
-
-    public readonly bool InConcavePolygon(IEnumerable<WPos> vertices)
-    {
-        float windingNumber = 0;
-        var verticesList = vertices.ToList();
-        var verticesCount = verticesList.Count;
-
-        for (var i = 0; i < verticesCount; i++)
+        else if (t >= length)
         {
-            var vi = verticesList[i];
-            var vj = verticesList[(i + 1) % verticesCount];
-            var di = this - vi;
-            var dj = this - vj;
-            var cross = di.Cross(dj);
-
-            if (vi.Z <= Z)
-            {
-                if (vj.Z > Z && cross > 0)
-                    ++windingNumber;
-            }
-            else if (vj.Z <= Z && cross < 0)
-                --windingNumber;
+            // Closest point is at the end point of the capsule
+            var EP = this - (origin + D * length);
+            return EP.LengthSq() <= radius * radius;
         }
-
-        return windingNumber != 0;
+        else
+        {
+            // Closest point is along the segment between origin and end point
+            var closestPoint = origin + D * t;
+            var CP = this - closestPoint;
+            return CP.LengthSq() <= radius * radius;
+        }
     }
 }

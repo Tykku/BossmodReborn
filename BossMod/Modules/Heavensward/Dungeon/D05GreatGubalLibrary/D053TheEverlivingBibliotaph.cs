@@ -44,7 +44,7 @@ class VoidSparkBait(BossModule module) : Components.GenericBaitAway(module)
 {
     public static readonly AOEShapeCircle Circle = new(8);
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == (uint)IconID.VoidSpark)
             CurrentBaits.Add(new(actor, actor, Circle, WorldState.FutureTime(5.1f)));
@@ -123,7 +123,7 @@ class VoidCall(BossModule module) : Components.GenericTowers(module)
             return;
         var towerCount = Module.Enemies(OID.Tower).Count;
         var soakers = towerCount == 2 ? 3 : towerCount == 3 ? 2 : 1;
-        for (var i = 0; i < Towers.Count; i++)
+        for (var i = 0; i < Towers.Count; ++i)
             Towers[i] = Towers[i] with { MinSoakers = soakers, MaxSoakers = soakers };
     }
 }

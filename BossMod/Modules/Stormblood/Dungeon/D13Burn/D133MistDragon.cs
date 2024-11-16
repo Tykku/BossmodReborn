@@ -115,15 +115,18 @@ abstract class BaitAway(BossModule module) : Components.GenericBaitAway(module)
 
     protected void DrawPositionsInBounds(WPos[] positions)
     {
-        foreach (var position in positions)
+        for (var i = 0; i < positions.Length; ++i)
+        {
+            var position = positions[i];
             if (Module.InBounds(position))
                 circle.Outline(Arena, position);
+        }
     }
 
     protected static WPos[] CalculatePositions(Actor boss, Actor target, int count = 5)
     {
         var positions = new WPos[count];
-        for (var i = 0; i < count; i++)
+        for (var i = 0; i < count; ++i)
             positions[i] = CalculatePosition(boss, target, boss.HitboxRadius + i * 9);
         return positions;
     }
@@ -171,7 +174,7 @@ abstract class BaitAway(BossModule module) : Components.GenericBaitAway(module)
 
 class ChillingAspiration(BossModule module) : BaitAway(module)
 {
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if ((IconID)iconID == IconID.BaitawayRect)
             CurrentBaits.Add(new(Module.PrimaryActor, actor, rect, Module.WorldState.FutureTime(6.1f)));
@@ -204,7 +207,7 @@ class ChillingAspiration(BossModule module) : BaitAway(module)
 
 class FrostBreath(BossModule module) : BaitAway(module)
 {
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if ((IconID)iconID == IconID.BaitawayCone)
             CurrentBaits.Add(new(Module.PrimaryActor, actor, cone, Module.WorldState.FutureTime(4.1f)));

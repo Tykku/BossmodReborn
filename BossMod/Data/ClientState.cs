@@ -60,7 +60,7 @@ public sealed class ClientState
 
     public int ClassJobLevel(Class c)
     {
-        var index = Service.LuminaRow<Lumina.Excel.GeneratedSheets.ClassJob>((uint)c)?.ExpArrayIndex ?? -1;
+        var index = Service.LuminaRow<Lumina.Excel.Sheets.ClassJob>((uint)c)?.ExpArrayIndex ?? -1;
         return index >= 0 && index < ClassJobLevels.Length ? ClassJobLevels[index] : -1;
     }
 
@@ -295,7 +295,7 @@ public sealed class ClientState
         protected override void Exec(WorldState ws)
         {
             Array.Fill(ws.Client.ClassJobLevels, (short)0);
-            for (var i = 0; i < Values.Length; i++)
+            for (var i = 0; i < Values.Length; ++i)
                 ws.Client.ClassJobLevels[i] = Values[i];
             ws.Client.ClassJobLevelsChanged.Fire(this);
         }

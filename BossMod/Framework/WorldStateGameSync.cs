@@ -12,14 +12,16 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.Interop;
+using System.Text;
 
 namespace BossMod;
 
 // utility that updates a world state to correspond to game state
 sealed class WorldStateGameSync : IDisposable
 {
-    private const int ObjectTableSize = 629; // should match CS; note that different ranges are used for different purposes - consider splitting?..
+    private const int ObjectTableSize = 819; // should match CS; note that different ranges are used for different purposes - consider splitting?..
     private const uint InvalidEntityId = 0xE0000000;
+    private const float Thousandth = 1e-3f;
 
     private readonly WorldState _ws;
     private readonly ActionManagerEx _amex;
@@ -70,8 +72,13 @@ sealed class WorldStateGameSync : IDisposable
         _startTime = DateTime.Now;
         _startQPC = Framework.Instance()->PerformanceCounterValue;
         _interceptor.ServerIPCReceived += ServerIPCReceived;
+        _interceptor.ClientIPCSent += ClientIPCSent;
 
-        _netConfig = Service.Config.GetAndSubscribe<ReplayManagementConfig>(config => _interceptor.Active = config.RecordServerPackets || config.DumpServerPackets);
+        _netConfig = Service.Config.GetAndSubscribe<ReplayManagementConfig>(config =>
+        {
+            _interceptor.ActiveRecv = config.RecordServerPackets || config.DumpServerPackets;
+            _interceptor.ActiveSend = config.DumpClientPackets;
+        });
         _subscriptions = new
         (
             amex.ActionRequestExecuted.Subscribe(OnActionRequested),
@@ -164,7 +171,7 @@ sealed class WorldStateGameSync : IDisposable
 
         _playerEnmity.Clear();
         var uiState = UIState.Instance();
-        for (var i = 0; i < uiState->Hater.HaterCount; i++)
+        for (var i = 0; i < uiState->Hater.HaterCount; ++i)
             _playerEnmity.Add(uiState->Hater.Haters[i].EntityId);
 
         UpdateWaymarks();
@@ -178,7 +185,7 @@ sealed class WorldStateGameSync : IDisposable
         var wm = Waymark.A;
         foreach (ref var marker in MarkingController.Instance()->FieldMarkers)
         {
-            Vector3? pos = marker.Active ? new(marker.X / 1000.0f, marker.Y / 1000.0f, marker.Z / 1000.0f) : null;
+            Vector3? pos = marker.Active ? new(marker.X * Thousandth, marker.Y * Thousandth, marker.Z * Thousandth) : null;
             if (_ws.Waymarks[wm] != pos)
                 _ws.Execute(new WaymarkState.OpWaymarkChange(wm, pos));
             ++wm;
@@ -377,7 +384,7 @@ sealed class WorldStateGameSync : IDisposable
 
     private unsafe void UpdateParty()
     {
-        var replay = Service.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.DutyRecorderPlayback];
+        var replay = Service.Condition[ConditionFlag.DutyRecorderPlayback];
         var group = GroupManager.Instance()->GetGroup(replay);
 
         // update party members
@@ -676,8 +683,19 @@ sealed class WorldStateGameSync : IDisposable
         var ipc = new NetworkState.ServerIPC(id, opcode, epoch, sourceServerActor, sendTimestamp, [.. payload]);
         if (_netConfig.Data.RecordServerPackets)
             _globalOps.Add(new NetworkState.OpServerIPC(ipc));
-        if (_netConfig.Data.DumpServerPackets)
+        if (_netConfig.Data.DumpServerPackets && (!_netConfig.Data.DumpServerPacketsPlayerOnly || sourceServerActor == UIState.Instance()->PlayerState.EntityId))
             _decoder.LogNode(_decoder.Decode(ipc, DateTime.UtcNow), "");
+    }
+
+    private unsafe void ClientIPCSent(uint opcode, Span<byte> payload)
+    {
+        if (_netConfig.Data.DumpClientPackets)
+        {
+            var sb = new StringBuilder($"Client IPC [0x{opcode:X4}]: data=");
+            foreach (byte b in payload)
+                sb.Append($"{b:X2}");
+            _decoder.LogNode(new(sb.ToString()), "");
+        }
     }
 
     private void OnActionRequested(ClientActionRequest arg)
@@ -733,7 +751,7 @@ sealed class WorldStateGameSync : IDisposable
         switch ((Network.ServerIPC.ActorControlCategory)category)
         {
             case Network.ServerIPC.ActorControlCategory.TargetIcon:
-                _actorOps.GetOrAdd(actorID).Add(new ActorState.OpIcon(actorID, p1 - Network.IDScramble.Delta));
+                _actorOps.GetOrAdd(actorID).Add(new ActorState.OpIcon(actorID, p1 - Network.IDScramble.Delta, p2));
                 break;
             case Network.ServerIPC.ActorControlCategory.Tether:
                 _actorOps.GetOrAdd(actorID).Add(new ActorState.OpTether(actorID, new(p2, p3)));

@@ -62,9 +62,10 @@ class VioletVoltage(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
+        var count = _aoes.Count;
+        if (count > 0)
             yield return _aoes[0] with { Color = Colors.Danger };
-        if (_aoes.Count > 1)
+        if (count > 1)
             yield return _aoes[1] with { Risky = _aoes[1].Rotation.AlmostEqual(_aoes[0].Rotation + 180.Degrees(), Angle.DegToRad) };
     }
 
@@ -95,7 +96,7 @@ class RoaringBoltKB(BossModule module) : Components.KnockbackFromCastTarget(modu
             foreach (var c in component)
                 forbidden.Add(ShapeDistance.Cone(Arena.Center, 19.5f, Angle.FromDirection(c.Origin - Arena.Center), 25.Degrees()));
             if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Min(), source.Activation);
+                hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), source.Activation);
         }
     }
 }
@@ -153,8 +154,6 @@ public class Gwyddrud(WorldState ws, Actor primary) : BossModule(ws, primary, ne
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.BallOfLevin));
-        Arena.Actors(Enemies(OID.SuperchargedLevin));
+        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
     }
 }

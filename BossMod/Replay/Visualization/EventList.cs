@@ -119,7 +119,7 @@ class EventList(Replay r, Action<DateTime> scrollTo, PlanDatabase planDB, Replay
 
         foreach (var n in _tree.Node("Icons", !icons.Any()))
         {
-            _tree.LeafNodes(icons, i => $"{tp(i.Timestamp)}: {i.ID} ({iidType?.GetEnumName(i.ID)}) @ {ReplayUtils.ParticipantString(i.Target, i.Timestamp)}");
+            _tree.LeafNodes(icons, i => $"{tp(i.Timestamp)}: {i.ID} ({iidType?.GetEnumName(i.ID)}) @ {ReplayUtils.ParticipantString(i.Source, i.Timestamp)} -> {ReplayUtils.ParticipantString(i.Target, i.Timestamp)}");
         }
 
         foreach (var n in _tree.Node("EnvControls", !envControls.Any()))
@@ -237,7 +237,7 @@ class EventList(Replay r, Action<DateTime> scrollTo, PlanDatabase planDB, Replay
         if (ImGui.Button("Show timeline"))
             OpenTimeline(enc, new());
         ImGui.SameLine();
-        for (var i = 0; i < enc.PartyMembers.Count; i++)
+        for (var i = 0; i < enc.PartyMembers.Count; ++i)
         {
             var (p, c, l) = enc.PartyMembers[i];
             if (ImGui.Button($"{c}{l} {p.NameHistory.FirstOrDefault().Value.name}"))

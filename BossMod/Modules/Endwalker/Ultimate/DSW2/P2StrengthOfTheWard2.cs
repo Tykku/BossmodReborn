@@ -58,7 +58,7 @@ class P2StrengthOfTheWard2SpreadStack : Components.UniformStackSpread
         }
     }
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if ((IconID)iconID == IconID.SkywardLeapP2)
             AddSpread(actor);
@@ -94,7 +94,7 @@ class P2StrengthOfTheWard2SpreadStack : Components.UniformStackSpread
 }
 
 // growing voidzones
-class P2StrengthOfTheWard2Voidzones(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DimensionalCollapseAOE), 9, "GTFO from voidzone aoe!");
+class P2StrengthOfTheWard2Voidzones(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DimensionalCollapseAOE), 9);
 
 // charges on tethered targets
 class P2StrengthOfTheWard2Charges(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.HolyShieldBash))

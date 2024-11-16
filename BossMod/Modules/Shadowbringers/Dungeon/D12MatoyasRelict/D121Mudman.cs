@@ -127,7 +127,7 @@ class RockyRoll(BossModule module) : Components.GenericBaitAway(module)
         if (CurrentBaits.Count == 0)
             return;
 
-        for (var i = 0; i < CurrentBaits.Count; i++)
+        for (var i = 0; i < CurrentBaits.Count; ++i)
         {
             var b = CurrentBaits[i];
             var activation = WorldState.FutureTime(9.7f);
@@ -160,7 +160,7 @@ class RockyRoll(BossModule module) : Components.GenericBaitAway(module)
             foreach (var h in activeHoles)
                 forbidden.Add(ShapeDistance.InvertedRect(b.Source.Position, h, 1));
         if (forbidden.Count > 0)
-            hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Max());
+            hints.AddForbiddenZone(p => forbidden.Max(f => f(p)));
     }
 }
 

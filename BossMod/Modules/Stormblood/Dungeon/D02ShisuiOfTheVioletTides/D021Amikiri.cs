@@ -35,7 +35,7 @@ class DigestiveFluidBait(BossModule module) : Components.GenericBaitAway(module)
 {
     private static readonly AOEShapeCircle circle = new(5);
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == (uint)IconID.DigestiveFluid)
             CurrentBaits.Add(new(actor, actor, circle, WorldState.FutureTime(7.2f)));
@@ -71,7 +71,7 @@ class BindBait(BossModule module) : Components.GenericBaitAway(module)
 {
     private static readonly AOEShapeCircle circle = new(3);
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == (uint)IconID.Bind)
             CurrentBaits.Add(new(actor, actor, circle));
@@ -99,7 +99,7 @@ class D021AmikiriStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 235, NameID = 6237)]
 public class D021Amikiri(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(0, 69.221f), 19.5f / MathF.Cos(MathF.PI / 8), 8, 22.5f.Degrees())]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(0, 69.221f), 19.5f * CosPI.Pi8th, 8, 22.5f.Degrees())]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

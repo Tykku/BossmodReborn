@@ -50,7 +50,7 @@ class Thundercall2(BossModule module) : Components.GenericBaitAway(module)
 {
     private static readonly AOEShapeCircle circle = new(18);
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == (uint)IconID.Thundercall)
             CurrentBaits.Add(new(actor, actor, circle));

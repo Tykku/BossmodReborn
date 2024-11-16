@@ -22,7 +22,7 @@ public enum AID : uint
     MagitekSlashRest = 14671, // Helper->self, no cast, range 20+R 60-degree cone
 
     Exhaust = 14192, // Boss->self, 3.0s cast, range 40+R width 10 rect
-    CeruleumVent = 14195, // Boss->self, 4.0s cast, range 40 circle
+    CeruleumVent = 14195 // Boss->self, 4.0s cast, range 40 circle
 }
 
 public enum IconID : uint
@@ -42,7 +42,7 @@ class MagitektSlashRotation(BossModule module) : Components.GenericRotatingAOE(m
     private DateTime _activation;
     public static readonly AOEShapeCone Cone = new(23.5f, 30.Degrees());
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         var increment = (IconID)iconID switch
         {

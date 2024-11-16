@@ -135,9 +135,10 @@ class NeedleGunOilShower(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
+        var count = _aoes.Count;
+        if (count > 0)
             yield return _aoes[0] with { Color = Colors.Danger };
-        if (_aoes.Count > 1)
+        if (count > 1)
             yield return _aoes[1] with { Risky = false };
     }
 
@@ -224,10 +225,7 @@ public class TheMightiestShield(WorldState ws, Actor primary) : BossModule(ws, p
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.UnyieldingMettle1).Concat([PrimaryActor]).Concat(Enemies(OID.UnyieldingMettle2)).Concat(Enemies(OID.UnyieldingMettle3))
-        .Concat(Enemies(OID.CrackedMettle1)).Concat(Enemies(OID.CrackedMettle2)).Concat(Enemies(OID.CravenFollower1)).Concat(Enemies(OID.CravenFollower2))
-        .Concat(Enemies(OID.CravenFollower3)).Concat(Enemies(OID.CravenFollower4)).Concat(Enemies(OID.CravenFollower5)).Concat(Enemies(OID.CravenFollower6)
-        .Concat(Enemies(OID.CravenFollower7))).Concat(Enemies(OID.CravenFollower8)).Concat(Enemies(OID.MagitekMissile)));
+        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
     }
 
     protected override bool CheckPull() => Raid.WithoutSlot().Any(x => x.InCombat);

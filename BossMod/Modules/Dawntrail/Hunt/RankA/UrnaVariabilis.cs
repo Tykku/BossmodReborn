@@ -62,7 +62,7 @@ class Magnetism(BossModule module) : Components.Knockback(module)
 
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => Module.FindComponent<MagnetismCircleDonut>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false;
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         switch (iconID)
         {
@@ -135,7 +135,7 @@ class Magnetism(BossModule module) : Components.Knockback(module)
         else if (IsPull(actor, Shape.Donut, MagneticPole.Plus) || IsPull(actor, Shape.Donut, MagneticPole.Minus))
             forbidden.Add(ShapeDistance.InvertedCircle(Module.PrimaryActor.Position, 18));
         if (forbidden.Count > 0)
-            hints.AddForbiddenZone(p => forbidden.Select(f => f(p)).Max(), activation);
+            hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), activation);
     }
 }
 

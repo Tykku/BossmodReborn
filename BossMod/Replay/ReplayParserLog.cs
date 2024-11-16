@@ -267,6 +267,7 @@ public sealed class ReplayParserLog : IDisposable
     private ulong _qpcStart;
     private uint _legacyFrameIndex;
     private DateTime _legacyPrevTS;
+    private readonly Dictionary<ulong, uint> _legacyIcons = []; // TODO: remove
     private double _invQPF = 1.0 / TimeSpan.TicksPerSecond;
 
     private ReplayParserLog(Input input, ReplayBuilder builder)
@@ -582,7 +583,11 @@ public sealed class ReplayParserLog : IDisposable
 
     private ActorState.OpEffectResult ParseActorEffectResult() => new(_input.ReadActorID(), _input.ReadUInt(false), _input.ReadInt());
     private ActorState.OpStatus ParseActorStatus(bool gainOrUpdate) => new(_input.ReadActorID(), _input.ReadInt(), gainOrUpdate ? _input.ReadStatus() : default);
-    private ActorState.OpIcon ParseActorIcon() => new(_input.ReadActorID(), _input.ReadUInt(false));
+    private ActorState.OpIcon ParseActorIcon()
+    {
+        var source = _input.ReadActorID();
+        return new(source, _input.ReadUInt(false), _version >= 22 ? _input.ReadActorID() : _legacyIcons.Remove(source, out var target) ? target : 0);
+    }
     private ActorState.OpEventObjectStateChange ParseActorEventObjectStateChange() => new(_input.ReadActorID(), _input.ReadUShort(true));
     private ActorState.OpEventObjectAnimation ParseActorEventObjectAnimation() => new(_input.ReadActorID(), _input.ReadUShort(true), _input.ReadUShort(true));
     private ActorState.OpPlayActionTimelineEvent ParseActorPlayActionTimelineEvent() => new(_input.ReadActorID(), _input.ReadUShort(true));
@@ -656,7 +661,7 @@ public sealed class ReplayParserLog : IDisposable
     {
         var contents = new uint[ClientState.NumBlueMageSpells];
         var count = _input.ReadByte(false);
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; ++i)
             contents[i] = _input.ReadUInt(false);
         return new(contents);
     }
@@ -664,7 +669,7 @@ public sealed class ReplayParserLog : IDisposable
     private ClientState.OpClassJobLevelsChange ParseClientClassJobLevels()
     {
         var contents = new short[_input.ReadByte(false)];
-        for (int i = 0; i < contents.Length; i++)
+        for (var i = 0; i < contents.Length; ++i)
             contents[i] = _input.ReadShort();
         return new(contents);
     }
@@ -674,7 +679,28 @@ public sealed class ReplayParserLog : IDisposable
     private ClientState.OpFocusTargetChange ParseClientFocusTarget() => new(_input.ReadULong(true));
 
     private NetworkState.OpIDScramble ParseNetworkIDScramble() => new(_input.ReadUInt(false));
-    private NetworkState.OpServerIPC ParseNetworkServerIPC() => new(new((Network.ServerIPC.PacketID)_input.ReadInt(), _input.ReadUShort(false), _input.ReadUInt(false), _input.ReadUInt(true), new(_input.ReadLong()), _input.ReadBytes()));
+    private NetworkState.OpServerIPC ParseNetworkServerIPC()
+    {
+        var packet = new NetworkState.ServerIPC((Network.ServerIPC.PacketID)_input.ReadInt(), _input.ReadUShort(false), _input.ReadUInt(false), _input.ReadUInt(true), new(_input.ReadLong()), _input.ReadBytes());
+
+        if (_version < 22 && packet.ID == Network.ServerIPC.PacketID.ActorControl)
+        {
+            if (packet.Payload.Length > 0 && packet.Payload[0] == (byte)Network.ServerIPC.ActorControlCategory.TargetIcon)
+            {
+                if (packet.Payload.Length >= 12)
+                {
+                    unsafe
+                    {
+                        fixed (byte* p = &packet.Payload[8])
+                        {
+                            _legacyIcons[packet.SourceServerActor] = *(uint*)p;
+                        }
+                    }
+                }
+            }
+        }
+        return new(packet);
+    }
 
     private ActorHPMP ReadActorHPMP()
     {

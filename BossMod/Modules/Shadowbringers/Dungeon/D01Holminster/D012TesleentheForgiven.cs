@@ -38,18 +38,7 @@ class ScoldsBridle(BossModule module) : Components.RaidwideCast(module, ActionID
 
 class FeveredFlagellation(BossModule module) : Components.GenericBaitAway(module)
 {
-    public override void Update()
-    {
-        foreach (ref var b in CurrentBaits.AsSpan())
-        {
-            if (b.Shape is AOEShapeRect shape)
-            {
-                var len = (b.Target.Position - b.Source.Position).Length();
-                if (shape.LengthFront != len)
-                    b.Shape = shape with { LengthFront = len };
-            }
-        }
-    }
+    private static readonly AOEShapeRect rect = new(default, 2);
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
@@ -57,10 +46,19 @@ class FeveredFlagellation(BossModule module) : Components.GenericBaitAway(module
             CurrentBaits.RemoveAt(0);
     }
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if ((IconID)iconID is >= IconID.Icon1 and <= IconID.Icon4)
-            CurrentBaits.Add(new(Module.PrimaryActor, actor, new AOEShapeRect(0, 2)));
+            CurrentBaits.Add(new(Module.PrimaryActor, actor, rect));
+    }
+
+    public override void Update()
+    {
+        for (var i = 0; i < CurrentBaits.Count; ++i)
+        {
+            var b = CurrentBaits[i];
+            CurrentBaits[i] = b with { Shape = rect with { LengthFront = (b.Target.Position - b.Source.Position).Length() } };
+        }
     }
 }
 

@@ -18,12 +18,7 @@ public enum AID : uint
     CoilingIvy = 8901 // Boss->self, 3.0s cast, single-target
 }
 
-public enum TetherID : uint
-{
-    GrowthTether = 84 // EFB->Boss/player
-}
-
-class FeedingTime(BossModule module) : Components.InterceptTether(module, ActionID.MakeSpell(AID.FeedingTime), (uint)TetherID.GrowthTether)
+class FeedingTime(BossModule module) : Components.InterceptTether(module, ActionID.MakeSpell(AID.FeedingTime))
 {
     private DateTime _activation;
     public override void OnActorCreated(Actor actor)
@@ -32,14 +27,13 @@ class FeedingTime(BossModule module) : Components.InterceptTether(module, Action
             _activation = WorldState.FutureTime(10.9f);
     }
 
-    //TODO: consider moving this logic to the component
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         if (Active)
         {
-            var source = Module.Enemies(OID.PaintedSapling)[slot].Position;
-            var direction = (Module.PrimaryActor.Position - source).Normalized();
-            hints.AddForbiddenZone(ShapeDistance.InvertedRect(Module.PrimaryActor.Position - (Module.PrimaryActor.HitboxRadius + 0.1f) * Angle.FromDirection(direction).ToDirection(), source, 1), _activation);
+            var source = Module.Enemies(OID.PaintedSapling)[slot];
+            var target = Module.PrimaryActor;
+            hints.AddForbiddenZone(ShapeDistance.InvertedRect(Module.PrimaryActor.Position - (Module.PrimaryActor.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 1), _activation);
         }
     }
 }
