@@ -44,7 +44,7 @@ class VoidSparkBait(BossModule module) : Components.GenericBaitAway(module)
 {
     public static readonly AOEShapeCircle Circle = new(8);
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == (uint)IconID.VoidSpark)
             CurrentBaits.Add(new(actor, actor, Circle, WorldState.FutureTime(5.1f)));

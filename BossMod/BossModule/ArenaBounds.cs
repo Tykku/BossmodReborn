@@ -176,7 +176,7 @@ public record class ArenaBoundsCustom : ArenaBounds
 {
     private const float Epsilon = 1e-5f;
     private Pathfinding.Map? _cachedMap;
-    private readonly RelSimplifiedComplexPolygon poly;
+    public readonly RelSimplifiedComplexPolygon poly;
     private readonly (WDir, WDir)[] edges;
     private readonly float offset;
     public float HalfWidth, HalfHeight;

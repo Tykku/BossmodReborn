@@ -265,7 +265,7 @@ public class IconStackSpread(BossModule module, uint stackIcon, uint spreadIcon,
     public int MaxCasts { get; init; } = maxCasts; // for stacks where the final AID hits multiple times
     private int castCounter;
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == StackIcon)
         {
@@ -435,7 +435,7 @@ public class DonutStack(BossModule module, ActionID aid, uint icon, float innerR
     public uint Icon { get; init; } = icon;
     public ActionID Aid { get; init; } = aid;
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == Icon)
             AddStack(actor, WorldState.FutureTime(ActivationDelay));

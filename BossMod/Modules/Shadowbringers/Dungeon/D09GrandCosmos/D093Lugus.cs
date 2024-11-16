@@ -140,7 +140,7 @@ class BlackFlame(BossModule module) : Components.GenericBaitAway(module)
         }
     }
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == (uint)IconID.BlackFlame)
         {
@@ -218,7 +218,7 @@ class FiresDomain(BossModule module) : Components.GenericBaitAway(module)
             CurrentBaits.RemoveAt(0);
     }
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if ((IconID)iconID is >= IconID.Target1 and <= IconID.Target4)
             CurrentBaits.Add(new(Module.PrimaryActor, actor, rect));
@@ -262,7 +262,7 @@ class FiresIreBait(BossModule module) : Components.GenericBaitAway(module)
         }
     }
 
-    public override void OnEventIcon(Actor actor, uint iconID)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if ((IconID)iconID is >= IconID.Target1 and <= IconID.Target4)
             CurrentBaits.Add(new(Module.PrimaryActor, actor, cone));

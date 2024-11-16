@@ -41,7 +41,7 @@ class Shock(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.Shock)
+        if ((AID)spell.Action.ID == AID.Shock)
             _aoes.Clear();
     }
 }
@@ -61,6 +61,6 @@ class D072MithridatesStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 655, NameID = 8165)]
 public class D072Mithridates(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(200, 68), 19.5f / MathF.Cos(MathF.PI / 36), 36)],
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(200, 68), 19.5f * CosPI.Pi36th, 36)],
     [new Rectangle(new(200, 88), 20, 1.25f), new Rectangle(new(200, 48), 20, 1.25f)]);
 }

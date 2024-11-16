@@ -87,7 +87,7 @@ class ArenaBounds
                 }
 
                 sb.Append("];");
-                sb.Append($"\n// Centroid of the polygon is at: ({center.X.ToString("F2", CultureInfo.InvariantCulture)}f, {center.Z.ToString("F2", CultureInfo.InvariantCulture)}f)");
+                sb.Append($"\n// Centroid of the polygon is at: ({center.X.ToString("F3", CultureInfo.InvariantCulture)}f, {center.Z.ToString("F3", CultureInfo.InvariantCulture)}f)");
                 ImGui.SetClipboardText(sb.ToString());
             });
         }

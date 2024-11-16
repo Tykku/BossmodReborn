@@ -77,7 +77,7 @@ sealed class AIManager : IDisposable
     {
         SwitchToIdle();
         MasterSlot = WorldState.Party[masterSlot]?.Name == null ? 0 : masterSlot;
-        Beh = new AIBehaviour(Controller, Autorot, AiPreset);
+        Beh = new AIBehaviour(Controller, Autorot, Autorot.Database.Presets.VisiblePresets.FirstOrDefault(p => p.Name == _config.AIAutorotPresetName));
         _wndAI.UpdateTitle();
     }
 
