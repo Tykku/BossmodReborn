@@ -57,11 +57,6 @@ public enum IconID : uint
     Spreadmarker = 140 // WukLamat/Koana/player->self
 }
 
-public enum SID : uint
-{
-    Rehabilitation = 279 // Boss->Boss, extra=0x0
-}
-
 class CandescentRayLineStack(BossModule module) : Components.LineStack(module, null, ActionID.MakeSpell(AID.CandescentRayLineStack), minStackSize: 3, maxStackSize: 3);
 class CandescentRayTB(BossModule module) : Components.CastSharedTankbuster(module, ActionID.MakeSpell(AID.CandescentRayTB), new AOEShapeRect(50, 4))
 {
@@ -90,10 +85,10 @@ class SearingSwell(BossModule module) : Components.SelfTargetedAOEs(module, Acti
 class Ensnare(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Ensnare), 6);
 class TriceraSnare(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.TriceraSnare), 6, 4.7f)
 {
-    public override void OnStatusLose(Actor actor, ActorStatus status)
+    public override void OnEventDirectorUpdate(uint updateID, uint param1, uint param2, uint param3, uint param4)
     {
-        if ((SID)status.ID == SID.Rehabilitation) // on phase change all pending spreads get cancelled
-            Spreads.Clear();
+        // on phase change all pending spreads get cancelled
+        Spreads.Clear();
     }
 }
 

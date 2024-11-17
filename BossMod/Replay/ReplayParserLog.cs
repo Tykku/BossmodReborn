@@ -219,7 +219,23 @@ public sealed class ReplayParserLog : IDisposable
         public override long ReadLong() => _input.ReadInt64();
         public override byte ReadByte(bool hex) => _input.ReadByte();
         public override ushort ReadUShort(bool hex) => _input.ReadUInt16();
-        public override uint ReadUInt(bool hex) => _input.ReadUInt32();
+        public override uint ReadUInt(bool hex)
+        {
+            try
+            {
+                return _input.ReadUInt32();
+            }
+            catch (EndOfStreamException)
+            {
+                Service.Log("Reached the end of the file unexpectedly. Returning default value.");
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Service.Log($"An unexpected error occurred: {ex.Message}");
+                throw;
+            }
+        }
         public override ulong ReadULong(bool hex) => _input.ReadUInt64();
         public override byte[] ReadBytes() => _input.ReadBytes(_input.ReadInt32());
         public override ActionID ReadAction() => new(_input.ReadUInt32());

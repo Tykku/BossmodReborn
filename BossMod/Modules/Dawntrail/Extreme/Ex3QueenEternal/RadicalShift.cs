@@ -71,15 +71,19 @@ class RadicalShift(BossModule module) : Components.GenericAOEs(module)
         _ => null
     };
 
-    private void UpdateAOE(ArenaBoundsCustom? platform)
+    private void UpdateAOE(ArenaBoundsComplex? platform)
     {
         var activation = WorldState.FutureTime(6);
+        var center = Arena.Bounds == Ex3QueenEternal.NormalBounds ? Ex3QueenEternal.ArenaCenter
+        : Arena.Bounds == Ex3QueenEternal.IceBridgeBounds ? Ex3QueenEternal.IceBridgeBounds.Center
+        : Arena.Bounds == Ex3QueenEternal.EarthBounds ? Ex3QueenEternal.EarthBounds.Center
+        : Arena.Bounds == Ex3QueenEternal.WindBounds ? Ex3QueenEternal.WindBounds.Center : Arena.Center;
         if (platform == Ex3QueenEternal.WindBounds)
-            _aoe = new(windArena, Arena.Center, default, activation);
+            _aoe = new(windArena, center, default, activation);
         else if (platform == Ex3QueenEternal.EarthBounds)
-            _aoe = new(earthArena, Arena.Center, default, activation);
+            _aoe = new(earthArena, center, default, activation);
         else if (platform == Ex3QueenEternal.IceBridgeBounds)
-            _aoe = new(iceArena, Arena.Center, default, activation);
+            _aoe = new(iceArena, center, default, activation);
     }
 }
 

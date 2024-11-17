@@ -184,7 +184,7 @@ public record class ConeV(WPos Center, float Radius, Angle CenterDir, Angle Half
     {
         var angleIncrement = 2 * HalfAngle.Rad / Edges;
         var startAngle = CenterDir.Rad - HalfAngle.Rad;
-        var vertices = new List<WDir>(Edges);
+        var vertices = new List<WDir>(Edges + 1);
 
         for (var i = 0; i < Edges + 1; ++i)
         {
@@ -206,7 +206,7 @@ public record class DonutSegmentV(WPos Center, float InnerRadius, float OuterRad
     {
         var angleIncrement = 2 * HalfAngle.Rad / Edges;
         var startAngle = CenterDir.Rad - HalfAngle.Rad;
-        var contourVertices = new List<WDir>();
+        var contourVertices = new List<WDir>(2 * (Edges + 1));
 
         for (var i = Edges; i >= 0; --i)
         {
@@ -224,4 +224,29 @@ public record class DonutSegmentV(WPos Center, float InnerRadius, float OuterRad
     }
 
     public override string ToString() => $"{nameof(DonutSegmentV)}:{Center.X},{Center.Z},{InnerRadius},{OuterRadius},{CenterDir},{HalfAngle},{Edges}";
+}
+
+public record class DonutV(WPos Center, float InnerRadius, float OuterRadius, int Edges) : Shape
+{
+    public override List<WDir> Contour(WPos center)
+    {
+        var angleIncrement = Angle.DoublePI / Edges;
+        var contourVertices = new List<WDir>(2 * (Edges + 1));
+
+        for (var i = 0; i <= Edges; ++i)
+        {
+            var (sin, cos) = ((float, float))Math.SinCos(i * angleIncrement);
+            contourVertices.Add(new(Center.X + OuterRadius * cos - center.X, Center.Z + OuterRadius * sin - center.Z));
+        }
+
+        for (var i = Edges; i >= 0; --i)
+        {
+            var (sin, cos) = ((float, float))Math.SinCos(i * angleIncrement);
+            contourVertices.Add(new(Center.X + InnerRadius * cos - center.X, Center.Z + InnerRadius * sin - center.Z));
+        }
+
+        return contourVertices;
+    }
+
+    public override string ToString() => $"{nameof(DonutV)}:{Center.X},{Center.Z},{InnerRadius},{OuterRadius},{Edges}";
 }
