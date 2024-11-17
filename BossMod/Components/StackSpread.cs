@@ -306,11 +306,11 @@ public class StackWithIcon(BossModule module, uint icon, ActionID aid, float rad
 
 // generic single hit "line stack" component, usually do not have an iconID, instead players get marked by cast event
 // usually these have 50 range and 4 halfWidth, but it can be modified
-public class LineStack(BossModule module, ActionID aidMarker, ActionID aidResolve, float activationDelay, float range = 50, float halfWidth = 4, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true) : GenericBaitAway(module)
+public class LineStack(BossModule module, ActionID? aidMarker, ActionID aidResolve, float activationDelay = 5.1f, float range = 50, float halfWidth = 4, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true) : GenericBaitAway(module)
 {
     // TODO: add forbidden slots logic?
     // TODO: add logic for min and max stack size
-    public ActionID AidMarker { get; init; } = aidMarker;
+    public ActionID? AidMarker { get; init; } = aidMarker;
     public ActionID AidResolve { get; init; } = aidResolve;
     public float ActionDelay { get; init; } = activationDelay;
     public float Range { get; init; } = range;
@@ -324,12 +324,15 @@ public class LineStack(BossModule module, ActionID aidMarker, ActionID aidResolv
     public const string HintStack = "Stack!";
     public const string HintAvoidOther = "GTFO from other line stacks!";
     public const string HintAvoid = "GTFO from line stacks!";
+    private readonly AOEShape rect = new AOEShapeRect(range, halfWidth);
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
+        if (AidMarker == null)
+            return;
         if (spell.Action == AidMarker)
-            CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.MainTargetID)!, new AOEShapeRect(Range, HalfWidth), WorldState.FutureTime(ActionDelay)));
-        else if (spell.Action == AidResolve && CurrentBaits.Count > 0)
+            CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.MainTargetID)!, rect, WorldState.FutureTime(ActionDelay)));
+        else if (spell.Action == AidResolve && CurrentBaits.Count != 0)
         {
             if (MarkerIsFinalTarget)
             {
@@ -338,6 +341,43 @@ public class LineStack(BossModule module, ActionID aidMarker, ActionID aidResolv
                 if (++castCounter == MaxCasts)
                 {
                     CurrentBaits.RemoveAll(s => s.Target.InstanceID == spell.MainTargetID);
+                    castCounter = 0;
+                    ++NumCasts;
+                }
+            }
+            else
+            {
+                if (++castCounter == MaxCasts)
+                {
+                    CurrentBaits.RemoveAt(0);
+                    castCounter = 0;
+                    ++NumCasts;
+                }
+            }
+        }
+    }
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if (AidMarker != null)
+            return;
+        if (spell.Action == AidResolve)
+            CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.TargetID)!, rect, Module.CastFinishAt(spell)));
+    }
+
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    {
+        if (AidMarker != null)
+            return;
+        if (spell.Action == AidResolve && CurrentBaits.Count != 0)
+        {
+            if (MarkerIsFinalTarget)
+            {
+                if (CurrentBaits.Count == 1 && CurrentBaits.Any(x => x.Target.InstanceID != spell.TargetID))
+                    CurrentBaits[0] = CurrentBaits[0] with { Target = WorldState.Actors.Find(spell.TargetID)! };
+                if (++castCounter == MaxCasts)
+                {
+                    CurrentBaits.RemoveAll(s => s.Target.InstanceID == spell.TargetID);
                     castCounter = 0;
                     ++NumCasts;
                 }

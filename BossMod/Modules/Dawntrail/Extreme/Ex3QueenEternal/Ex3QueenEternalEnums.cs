@@ -1,4 +1,4 @@
-﻿namespace BossMod.Dawntrail.Extreme.Ex3Sphene;
+﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
 public enum OID : uint
 {
@@ -91,6 +91,7 @@ public enum AID : uint
 
     AuthorityEternal = 41034, // BossP1->self, 10.0s cast, single-target, visual (phase change)
     AuthorityEternalAOE = 41035, // BossP1->self, no cast, range 100 circle, raidwide
+    AuthorityEternalEnrage = 41036, // BossP1->self, no cast, range 100 circle
     IntermissionEnd = 41037, // BossP2->self, no cast, single-target, visual (intermission end)
 
     AutoAttackP2 = 40969, // QueenEternalHandP2->player, no cast, single-target
@@ -102,6 +103,7 @@ public enum AID : uint
     DimensionalDistortionRest = 41044, // Helper->self, no cast, range 6 circle
     TyrannysGrasp = 41045, // BossP2->location, 5.0s cast, visual (half-arena cleave + tankbuster towers)
     TyrannysGraspAOE = 41046, // Helper->self, 5.0s cast, range 20 width 40 rect
+    TyrannysGraspExplosion = 41048, // Helper->self, no cast, range 100 circle, tower fail
     TyrannysGraspTower1 = 41047, // Helper->self, 6.2s cast, range 4 circle tankbuster tower
     TyrannysGraspTower2 = 30418, // Helper->self, 8.9s cast, range 4 circle tankbuster tower
     DyingMemory = 41049, // BossP2->self, no cast, range 40 circle raidwide

@@ -1,14 +1,14 @@
-﻿namespace BossMod.Dawntrail.Extreme.Ex3Sphene;
+﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
-class Ex3SpheneStates : StateMachineBuilder
+class Ex3QueenEternalStates : StateMachineBuilder
 {
-    private readonly Ex3Sphene _module;
+    private readonly Ex3QueenEternal _module;
 
-    public Ex3SpheneStates(Ex3Sphene module) : base(module)
+    public Ex3QueenEternalStates(Ex3QueenEternal module) : base(module)
     {
         _module = module;
         SimplePhase(0, Phase1, "P1")
-            .Raw.Update = () => Module.PrimaryActor.IsDeadOrDestroyed || (Module.PrimaryActor.CastInfo?.IsSpell(AID.AuthorityEternal) ?? false);
+            .Raw.Update = () => Module.PrimaryActor.IsDeadOrDestroyed || Module.PrimaryActor.HPMP.CurHP == 1 && (Module.PrimaryActor.CastInfo?.IsSpell(AID.AuthorityEternal) ?? false);
         SimplePhase(1, Phase2, "P2")
             .Raw.Update = () => Module.PrimaryActor.IsDeadOrDestroyed && (_module.BossP2()?.IsDeadOrDestroyed ?? true);
     }
@@ -24,7 +24,11 @@ class Ex3SpheneStates : StateMachineBuilder
         P1Coronation(id + 0x60000, 3.1f);
         P1AbsoluteAuthority(id + 0x70000, 6.2f);
         P1VirtualShiftIce(id + 0x80000, 12.3f);
-        // TODO: prosecution > royal domain > legitimate force > royal domain > enrage
+        P1ProsecutionOfWar(id + 0x90000, 7.2f);
+        P1RoyalDomain(id + 0xA0000, 8.1f);
+        P1LegitimateForce(id + 0xB0000, 6.1f);
+        P1RoyalDomain(id + 0xC0000, 3);
+        P1Enrage(id + 0xD0000, 8.2f);
         SimpleState(id + 0xFF0000, 10000, "???");
     }
 
@@ -86,6 +90,19 @@ class Ex3SpheneStates : StateMachineBuilder
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 
+    private void P1LegitimateForce(uint id, float delay)
+    {
+        CastMulti(id + 0x100, [AID.LegitimateForceFirstR, AID.LegitimateForceFirstL], delay, 8, "Side 1")
+            .ActivateOnEnter<LegitimateForce>();
+        ComponentCondition<LegitimateForce>(id + 0x110, 3.1f, comp => comp.NumCasts > 1, "Side 2")
+            .DeactivateOnExit<LegitimateForce>();
+    }
+
+    private void P1Enrage(uint id, float delay)
+    {
+        Cast(id, AID.AuthorityEternal, delay, 10, "Enrage");
+    }
+
     private void P1Coronation(uint id, float delay)
     {
         Cast(id, AID.Coronation, delay, 3);
@@ -120,8 +137,8 @@ class Ex3SpheneStates : StateMachineBuilder
     private void P1VirtualShiftWind(uint id, float delay)
     {
         Cast(id, AID.VirtualShiftWind, delay, 5, "Raidwide (wind platform)")
-            .OnExit(() => _module.Arena.Bounds = Ex3Sphene.WindBounds)
-            .OnExit(() => _module.Arena.Center = Ex3Sphene.WindBounds.Center)
+            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.WindBounds)
+            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.WindBounds.Center)
             .SetHint(StateMachine.StateHint.Raidwide);
         Cast(id + 0x10, AID.LawsOfWind, 5.2f, 4);
         ComponentCondition<Aeroquell>(id + 0x20, 0.1f, comp => comp.Active)
@@ -144,8 +161,8 @@ class Ex3SpheneStates : StateMachineBuilder
             .DeactivateOnExit<MissingLink>();
 
         Cast(id + 0x300, AID.WorldShatterP1, 3, 5, "Raidwide + platform end")
-            .OnExit(() => _module.Arena.Bounds = Ex3Sphene.NormalBounds)
-            .OnExit(() => _module.Arena.Center = Ex3Sphene.ArenaCenter)
+            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.NormalBounds)
+            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.ArenaCenter)
             .SetHint(StateMachine.StateHint.Raidwide);
         ComponentCondition<AeroquellTwister>(id + 0x310, 2.6f, comp => !comp.Sources(Module).Any())
             .DeactivateOnExit<AeroquellTwister>();
@@ -202,15 +219,15 @@ class Ex3SpheneStates : StateMachineBuilder
     private void P1VirtualShiftIce(uint id, float delay)
     {
         Cast(id, AID.VirtualShiftIce, delay, 5, "Raidwide (ice platform)")
-            .OnExit(() => _module.Arena.Bounds = Ex3Sphene.IceBounds)
-            .OnExit(() => _module.Arena.Center = Ex3Sphene.IceBounds.Center)
+            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.IceBounds)
+            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.IceBounds.Center)
             .SetHint(StateMachine.StateHint.Raidwide);
         CastStart(id + 0x10, AID.LawsOfIce, 5.2f);
         CastEnd(id + 0x11, 4)
             .ActivateOnEnter<LawsOfIce>();
         ComponentCondition<LawsOfIce>(id + 0x12, 1, comp => comp.NumCasts > 0, "Move")
-            .OnExit(() => _module.Arena.Bounds = Ex3Sphene.IceBridgeBounds)
-            .OnExit(() => _module.Arena.Center = Ex3Sphene.IceBridgeBounds.Center);
+            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.IceBridgeBounds)
+            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.IceBridgeBounds.Center);
 
         ComponentCondition<Rush>(id + 0x100, 4.3f, comp => comp.Activation != default)
             .ActivateOnEnter<VirtualShiftIce>()
@@ -239,8 +256,8 @@ class Ex3SpheneStates : StateMachineBuilder
 
         Cast(id + 0x300, AID.WorldShatterP1, 3.1f, 5, "Raidwide + platform end")
             .DeactivateOnExit<VirtualShiftIce>()
-            .OnExit(() => _module.Arena.Bounds = Ex3Sphene.NormalBounds)
-            .OnExit(() => _module.Arena.Center = Ex3Sphene.ArenaCenter)
+            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.NormalBounds)
+            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.ArenaCenter)
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 
@@ -269,8 +286,8 @@ class Ex3SpheneStates : StateMachineBuilder
             .DeactivateOnExit<RadicalShiftAOE>();
 
         ActorCast(id + 0x200, _module.BossP2, AID.WorldShatterP2, 3, 5, true, "Raidwide + platform end")
-            .OnExit(() => _module.Arena.Bounds = Ex3Sphene.NormalBounds)
-            .OnExit(() => _module.Arena.Center = Ex3Sphene.ArenaCenter)
+            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.NormalBounds)
+            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.ArenaCenter)
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 

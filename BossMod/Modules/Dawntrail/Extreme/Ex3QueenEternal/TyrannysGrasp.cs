@@ -1,4 +1,4 @@
-﻿namespace BossMod.Dawntrail.Extreme.Ex3Sphene;
+﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
 class TyrannysGraspAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TyrannysGraspAOE), new AOEShapeRect(20, 20));
 

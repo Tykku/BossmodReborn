@@ -1,4 +1,4 @@
-﻿namespace BossMod.Dawntrail.Extreme.Ex3Sphene;
+﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
 class Coronation(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.RuthlessRegalia))
 {

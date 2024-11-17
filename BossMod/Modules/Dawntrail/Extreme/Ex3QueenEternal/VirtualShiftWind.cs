@@ -1,4 +1,4 @@
-﻿namespace BossMod.Dawntrail.Extreme.Ex3Sphene;
+﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
 class Aeroquell(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Aeroquell), 5, 4);
 class AeroquellTwister(BossModule module) : Components.PersistentVoidzone(module, 5, m => m.Enemies(OID.Twister));

@@ -1,4 +1,4 @@
-﻿namespace BossMod.Dawntrail.Extreme.Ex3Sphene;
+﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
 class VirtualShiftEarth(BossModule module) : BossComponent(module)
 {
@@ -66,7 +66,7 @@ class LawsOfEarthBurst1 : LawsOfEarthBurst
 {
     public LawsOfEarthBurst1(BossModule module) : base(module)
     {
-        AddTowers(WorldState.FutureTime(5), new(100, 94), new(8, 0), new(0, 6), new(2, 0));
+        AddTowers(WorldState.FutureTime(5), VirtualShiftEarth.Midpoint, VirtualShiftEarth.CenterOffset, new(0, 6), new(2, 0));
     }
 }
 
@@ -74,7 +74,7 @@ class LawsOfEarthBurst2 : LawsOfEarthBurst
 {
     public LawsOfEarthBurst2(BossModule module) : base(module)
     {
-        AddTowers(WorldState.FutureTime(8.8f), new(100, 94), new(8, 0), new(0, 5));
+        AddTowers(WorldState.FutureTime(8.8f), VirtualShiftEarth.Midpoint, VirtualShiftEarth.CenterOffset, new(0, 5));
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -232,5 +232,5 @@ class WeightyBlow(BossModule module) : Components.CastCounter(module, ActionID.M
         }
     }
 
-    private WPos BaitSource(Actor player) => new(player.Position.X < Module.Center.X ? 92 : 108, 79.5f);
+    private WPos BaitSource(Actor player) => new(player.Position.X < Ex3QueenEternal.ArenaCenter.X ? 92 : 108, 79.5f);
 }

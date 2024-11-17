@@ -1,4 +1,4 @@
-﻿namespace BossMod.Dawntrail.Extreme.Ex3Sphene;
+﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
 class DivideAndConquerBait(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.DivideAndConquerBait))
 {
@@ -15,7 +15,7 @@ class DivideAndConquerBait(BossModule module) : Components.GenericBaitAway(modul
         if (spell.Action == WatchedAction)
         {
             ++NumCasts;
-            if (CurrentBaits.Count > 0)
+            if (CurrentBaits.Count != 0)
                 CurrentBaits.RemoveAt(0);
         }
     }
