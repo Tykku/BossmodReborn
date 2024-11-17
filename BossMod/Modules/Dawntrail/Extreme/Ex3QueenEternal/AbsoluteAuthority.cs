@@ -1,11 +1,11 @@
-﻿namespace BossMod.Dawntrail.Extreme.Ex3Sphene;
+﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
 class AbsoluteAuthorityPuddles(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AbsoluteAuthorityPuddlesAOE), 8);
 
 class AbsoluteAuthorityExpansionBoot(BossModule module) : Components.UniformStackSpread(module, 6, 15, 4, alwaysShowSpreads: true) // TODO: verify falloff
 {
     public int NumCasts;
-    private readonly Ex3SpheneConfig _config = Service.Config.Get<Ex3SpheneConfig>();
+    private readonly Ex3QueenEternalConfig _config = Service.Config.Get<Ex3QueenEternalConfig>();
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {

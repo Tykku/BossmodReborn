@@ -1,4 +1,4 @@
-﻿namespace BossMod.Dawntrail.Extreme.Ex3Sphene;
+﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
 class VirtualShiftIce(BossModule module) : Components.GenericAOEs(module, default, "GTFO from broken bridge!")
 {
@@ -24,7 +24,7 @@ class VirtualShiftIce(BossModule module) : Components.GenericAOEs(module, defaul
         if (offset == default)
             return;
 
-        var center = Module.Center + offset;
+        var center = Ex3QueenEternal.ArenaCenter + offset;
         switch (state)
         {
             case 0x00200010:
@@ -131,19 +131,20 @@ class Rush(BossModule module) : Components.GenericBaitAway(module)
 
     private WPos SafeSpot(Actor source)
     {
-        var safeSide = source.Position.X > Module.Center.X ? -1 : +1;
-        var offX = Math.Abs(source.Position.X - Module.Center.X);
+        var center = Ex3QueenEternal.ArenaCenter;
+        var safeSide = source.Position.X > center.X ? -1 : +1;
+        var offX = Math.Abs(source.Position.X - center.X);
         if (source.Position.Z > 110)
         {
             // first order
             var inner = offX < 6;
-            return Module.Center + new WDir(safeSide * (inner ? 15 : 10), -19);
+            return center + new WDir(safeSide * (inner ? 15 : 10), -19);
         }
         else
         {
             // second order
             var central = source.Position.Z < 96;
-            return Module.Center + new WDir(safeSide * 15, central ? -2 : 10);
+            return center + new WDir(safeSide * 15, central ? -2 : 10);
         }
     }
 }

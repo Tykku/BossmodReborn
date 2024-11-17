@@ -176,10 +176,42 @@ public sealed class ReplayParserLog : IDisposable
         public override bool CanRead() => true;
         public override void ReadVoid() { }
         public override string ReadString() => _input.ReadString();
-        public override float ReadFloat() => _input.ReadSingle();
+        public override float ReadFloat()
+        {
+            try
+            {
+                return _input.ReadSingle();
+            }
+            catch (EndOfStreamException)
+            {
+                Service.Log("Reached the end of the file unexpectedly. Returning default value.");
+                return 0f;
+            }
+            catch (Exception ex)
+            {
+                Service.Log($"An unexpected error occurred: {ex.Message}");
+                throw;
+            }
+        }
         public override double ReadDouble() => _input.ReadDouble();
         public override Vector3 ReadVec3() => new(_input.ReadSingle(), _input.ReadSingle(), _input.ReadSingle());
-        public override Angle ReadAngle() => _input.ReadSingle().Radians();
+        public override Angle ReadAngle()
+        {
+            try
+            {
+                return _input.ReadSingle().Radians();
+            }
+            catch (EndOfStreamException)
+            {
+                Service.Log("Reached the end of the file unexpectedly. Returning default angle.");
+                return 0f.Radians();
+            }
+            catch (Exception ex)
+            {
+                Service.Log($"An unexpected error occurred while reading an angle: {ex.Message}");
+                throw;
+            }
+        }
         public override bool ReadBool() => _input.ReadBoolean();
         public override sbyte ReadSByte() => _input.ReadSByte();
         public override short ReadShort() => _input.ReadInt16();
@@ -187,7 +219,23 @@ public sealed class ReplayParserLog : IDisposable
         public override long ReadLong() => _input.ReadInt64();
         public override byte ReadByte(bool hex) => _input.ReadByte();
         public override ushort ReadUShort(bool hex) => _input.ReadUInt16();
-        public override uint ReadUInt(bool hex) => _input.ReadUInt32();
+        public override uint ReadUInt(bool hex)
+        {
+            try
+            {
+                return _input.ReadUInt32();
+            }
+            catch (EndOfStreamException)
+            {
+                Service.Log("Reached the end of the file unexpectedly. Returning default value.");
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Service.Log($"An unexpected error occurred: {ex.Message}");
+                throw;
+            }
+        }
         public override ulong ReadULong(bool hex) => _input.ReadUInt64();
         public override byte[] ReadBytes() => _input.ReadBytes(_input.ReadInt32());
         public override ActionID ReadAction() => new(_input.ReadUInt32());
@@ -267,7 +315,6 @@ public sealed class ReplayParserLog : IDisposable
     private ulong _qpcStart;
     private uint _legacyFrameIndex;
     private DateTime _legacyPrevTS;
-    private readonly Dictionary<ulong, uint> _legacyIcons = []; // TODO: remove
     private double _invQPF = 1.0 / TimeSpan.TicksPerSecond;
 
     private ReplayParserLog(Input input, ReplayBuilder builder)
@@ -583,11 +630,7 @@ public sealed class ReplayParserLog : IDisposable
 
     private ActorState.OpEffectResult ParseActorEffectResult() => new(_input.ReadActorID(), _input.ReadUInt(false), _input.ReadInt());
     private ActorState.OpStatus ParseActorStatus(bool gainOrUpdate) => new(_input.ReadActorID(), _input.ReadInt(), gainOrUpdate ? _input.ReadStatus() : default);
-    private ActorState.OpIcon ParseActorIcon()
-    {
-        var source = _input.ReadActorID();
-        return new(source, _input.ReadUInt(false), _version >= 22 ? _input.ReadActorID() : _legacyIcons.Remove(source, out var target) ? target : 0);
-    }
+    private ActorState.OpIcon ParseActorIcon() => new(_input.ReadActorID(), _input.ReadUInt(false), _version >= 22 ? _input.ReadActorID() : 0);
     private ActorState.OpEventObjectStateChange ParseActorEventObjectStateChange() => new(_input.ReadActorID(), _input.ReadUShort(true));
     private ActorState.OpEventObjectAnimation ParseActorEventObjectAnimation() => new(_input.ReadActorID(), _input.ReadUShort(true), _input.ReadUShort(true));
     private ActorState.OpPlayActionTimelineEvent ParseActorPlayActionTimelineEvent() => new(_input.ReadActorID(), _input.ReadUShort(true));
@@ -679,28 +722,7 @@ public sealed class ReplayParserLog : IDisposable
     private ClientState.OpFocusTargetChange ParseClientFocusTarget() => new(_input.ReadULong(true));
 
     private NetworkState.OpIDScramble ParseNetworkIDScramble() => new(_input.ReadUInt(false));
-    private NetworkState.OpServerIPC ParseNetworkServerIPC()
-    {
-        var packet = new NetworkState.ServerIPC((Network.ServerIPC.PacketID)_input.ReadInt(), _input.ReadUShort(false), _input.ReadUInt(false), _input.ReadUInt(true), new(_input.ReadLong()), _input.ReadBytes());
-
-        if (_version < 22 && packet.ID == Network.ServerIPC.PacketID.ActorControl)
-        {
-            if (packet.Payload.Length > 0 && packet.Payload[0] == (byte)Network.ServerIPC.ActorControlCategory.TargetIcon)
-            {
-                if (packet.Payload.Length >= 12)
-                {
-                    unsafe
-                    {
-                        fixed (byte* p = &packet.Payload[8])
-                        {
-                            _legacyIcons[packet.SourceServerActor] = *(uint*)p;
-                        }
-                    }
-                }
-            }
-        }
-        return new(packet);
-    }
+    private NetworkState.OpServerIPC ParseNetworkServerIPC() => new(new((Network.ServerIPC.PacketID)_input.ReadInt(), _input.ReadUShort(false), _input.ReadUInt(false), _input.ReadUInt(true), new(_input.ReadLong()), _input.ReadBytes()));
 
     private ActorHPMP ReadActorHPMP()
     {

@@ -60,7 +60,9 @@ sealed class AIManagementWindow : UIWindow
                     _config.Modified.Fire();
                 }
             }
+            ImGui.EndCombo();
         }
+        ImGui.Separator();
         ImGui.Text("Desired positional");
         ImGui.SameLine();
         ImGui.SetNextItemWidth(100);

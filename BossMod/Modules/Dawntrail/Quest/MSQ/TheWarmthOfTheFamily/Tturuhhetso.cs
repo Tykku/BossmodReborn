@@ -49,7 +49,7 @@ public enum AID : uint
 
     Aethercall = 40581, // Boss->self, 5.0s cast, single-target
     CollectOrb = 40582, // Orbs->player/Koana/WukLamat, no cast, single-target
-    BossOrb = 41117, // Orbs->Boss, no cast, single-target
+    BossOrb = 41117 // Orbs->Boss, no cast, single-target
 }
 
 public enum IconID : uint
@@ -57,7 +57,7 @@ public enum IconID : uint
     Spreadmarker = 140 // WukLamat/Koana/player->self
 }
 
-class CandescentRayLineStack(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.CandescentRayMarker), ActionID.MakeSpell(AID.CandescentRayLineStack), 8);
+class CandescentRayLineStack(BossModule module) : Components.LineStack(module, null, ActionID.MakeSpell(AID.CandescentRayLineStack), minStackSize: 3, maxStackSize: 3);
 class CandescentRayTB(BossModule module) : Components.CastSharedTankbuster(module, ActionID.MakeSpell(AID.CandescentRayTB), new AOEShapeRect(50, 4))
 {
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -83,7 +83,15 @@ class CandescentRayTB(BossModule module) : Components.CastSharedTankbuster(modul
 
 class SearingSwell(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SearingSwell), new AOEShapeCone(40, 22.5f.Degrees()));
 class Ensnare(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Ensnare), 6);
-class TriceraSnare(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.TriceraSnare), 6, 4.7f);
+class TriceraSnare(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.TriceraSnare), 6, 4.7f)
+{
+    public override void OnEventDirectorUpdate(uint updateID, uint param1, uint param2, uint param3, uint param4)
+    {
+        // on phase change all pending spreads get cancelled
+        Spreads.Clear();
+    }
+}
+
 class PrimordialRoar1(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PrimordialRoar1));
 class PrimordialRoar2(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PrimordialRoar2));
 
