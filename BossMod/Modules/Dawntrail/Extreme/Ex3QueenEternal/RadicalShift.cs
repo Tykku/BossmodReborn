@@ -7,13 +7,18 @@ class RadicalShift(BossModule module) : Components.GenericAOEs(module)
     private ArenaBoundsComplex? _left;
     private ArenaBoundsComplex? _right;
     private Rotation _nextRotation;
-    private AOEInstance? _aoe;
+    private AOEShapeCustom? _aoe;
+    private DateTime _activation;
     private static readonly Square[] defaultSquare = [new(Ex3QueenEternal.ArenaCenter, 20)];
     private static readonly AOEShapeCustom windArena = new(defaultSquare, Trial.T03QueenEternal.T03QueenEternal.XArenaRects);
     private static readonly AOEShapeCustom earthArena = new(defaultSquare, Trial.T03QueenEternal.T03QueenEternal.SplitArenaRects);
     private static readonly AOEShapeCustom iceArena = new(defaultSquare, Ex3QueenEternal.IceRectsAll);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        if (_aoe != null)
+            yield return new(_aoe, Arena.Center, default, _activation);
+    }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
@@ -73,17 +78,13 @@ class RadicalShift(BossModule module) : Components.GenericAOEs(module)
 
     private void UpdateAOE(ArenaBoundsComplex? platform)
     {
-        var activation = WorldState.FutureTime(6);
-        var center = Arena.Bounds == Ex3QueenEternal.NormalBounds ? Ex3QueenEternal.ArenaCenter
-        : Arena.Bounds == Ex3QueenEternal.IceBridgeBounds ? Ex3QueenEternal.IceBridgeBounds.Center
-        : Arena.Bounds == Ex3QueenEternal.EarthBounds ? Ex3QueenEternal.EarthBounds.Center
-        : Arena.Bounds == Ex3QueenEternal.WindBounds ? Ex3QueenEternal.WindBounds.Center : Arena.Center;
+        _activation = WorldState.FutureTime(6);
         if (platform == Ex3QueenEternal.WindBounds)
-            _aoe = new(windArena, center, default, activation);
+            _aoe = windArena;
         else if (platform == Ex3QueenEternal.EarthBounds)
-            _aoe = new(earthArena, center, default, activation);
+            _aoe = earthArena;
         else if (platform == Ex3QueenEternal.IceBridgeBounds)
-            _aoe = new(iceArena, center, default, activation);
+            _aoe = iceArena;
     }
 }
 

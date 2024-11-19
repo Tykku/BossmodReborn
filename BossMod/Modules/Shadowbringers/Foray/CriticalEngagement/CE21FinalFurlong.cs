@@ -58,7 +58,7 @@ class GraspingRancor : Components.LocationTargetedAOEs
             var hand = _hands.FirstOrDefault(h => h.Tether.Target == actor.InstanceID);
             if (hand != null)
             {
-                var shouldBeFrozen = Shape.Check(hand.Position, Casters[0].CastInfo!.LocXZ);
+                var shouldBeFrozen = Shape.Check(hand.Position, Casters[0].Origin, new());
                 var isFrozen = hand.Tether.ID == (uint)TetherID.Frozen;
                 hints.Add(shouldBeFrozen ? "Face the hand!" : "Look away from hand and kite into safezone!", shouldBeFrozen != isFrozen);
             }
