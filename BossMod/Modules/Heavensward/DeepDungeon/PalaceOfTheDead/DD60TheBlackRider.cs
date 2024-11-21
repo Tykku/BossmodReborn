@@ -1,4 +1,4 @@
-namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D60TheBlackRider;
+namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD60TheBlackRider;
 
 public enum OID : uint
 {
@@ -106,9 +106,9 @@ class ValfodrKB(BossModule module) : Components.Knockback(module)
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<HallOfSorrow>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || (Module.FindComponent<Infaturation>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false);
 }
 
-class D60TheBlackRiderStates : StateMachineBuilder
+class DD60TheBlackRiderStates : StateMachineBuilder
 {
-    public D60TheBlackRiderStates(BossModule module) : base(module)
+    public DD60TheBlackRiderStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<Geirrothr>()
@@ -121,4 +121,4 @@ class D60TheBlackRiderStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "legendoficeman, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 204, NameID = 5309)]
-public class D60TheBlackRider(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -220), new ArenaBoundsCircle(25));
+public class DD60TheBlackRider(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -220), new ArenaBoundsCircle(25));

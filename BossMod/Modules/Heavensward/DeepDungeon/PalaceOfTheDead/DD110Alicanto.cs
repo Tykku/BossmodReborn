@@ -1,4 +1,4 @@
-namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D110Alicanto;
+namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD110Alicanto;
 
 public enum OID : uint
 {
@@ -20,9 +20,9 @@ class Bombination(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 class Lumisphere(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Lumisphere), 6);
 class Stormwind(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Stormwind), new AOEShapeCone(18, 45.Degrees()));
 
-class D110AlicantoStates : StateMachineBuilder
+class DD110AlicantoStates : StateMachineBuilder
 {
-    public D110AlicantoStates(BossModule module) : base(module)
+    public DD110AlicantoStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<AeroBlast>()
@@ -33,4 +33,4 @@ class D110AlicantoStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "LegendofIceman", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 209, NameID = 5371)]
-public class D110Alicanto(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -235), new ArenaBoundsCircle(25));
+public class DD110Alicanto(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -235), new ArenaBoundsCircle(25));

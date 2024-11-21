@@ -83,13 +83,14 @@ public class SelfTargetedLegacyRotationAOEs(BossModule module, ActionID aid, AOE
 }
 
 // location-targeted circle aoe that happens at the end of the cast
-public class LocationTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, int maxCasts = int.MaxValue) : GenericAOEs(module, aid)
+public class LocationTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, int maxCasts = int.MaxValue, bool targetIsLocation = false) : GenericAOEs(module, aid)
 {
-    public LocationTargetedAOEs(BossModule module, ActionID aid, float radius, int maxCasts = int.MaxValue) : this(module, aid, new AOEShapeCircle(radius), maxCasts) { }
+    public LocationTargetedAOEs(BossModule module, ActionID aid, float radius, int maxCasts = int.MaxValue, bool targetIsLocation = false) : this(module, aid, new AOEShapeCircle(radius), maxCasts, targetIsLocation) { }
     public AOEShape Shape { get; init; } = shape;
     public int MaxCasts = maxCasts; // used for staggered aoes, when showing all active would be pointless
     public uint Color; // can be customized if needed
     public bool Risky = true; // can be customized if needed
+    public bool TargetIsLocation { get; init; } = targetIsLocation; // can be customized if needed
 
     public List<AOEInstance> Casters { get; } = [];
     public IEnumerable<AOEInstance> ActiveCasters => Casters.Take(MaxCasts);
@@ -99,7 +100,10 @@ public class LocationTargetedAOEs(BossModule module, ActionID aid, AOEShape shap
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action == WatchedAction)
-            Casters.Add(new(Shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell), Color, Risky));
+        {
+            var loc = TargetIsLocation ? WorldState.Actors.Find(caster.CastInfo!.TargetID)?.Position : spell.LocXZ;
+            Casters.Add(new(Shape, loc ?? default, spell.Rotation, Module.CastFinishAt(spell), Color, Risky));
+        }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)

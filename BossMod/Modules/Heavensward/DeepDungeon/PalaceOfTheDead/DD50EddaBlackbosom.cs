@@ -1,4 +1,4 @@
-namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D50EddaBlackbosom;
+namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD50EddaBlackbosom;
 
 public enum OID : uint
 {
@@ -36,9 +36,9 @@ class InHeathCircle(BossModule module) : Components.SelfTargetedAOEs(module, Act
 class InHeathDonut(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.InHealthDonut), new AOEShapeDonut(2.5f, 50));
 class TerrorEye(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TerrorEye), 6);
 
-class D50EddaBlackbosomStates : StateMachineBuilder
+class DD50EddaBlackbosomStates : StateMachineBuilder
 {
-    public D50EddaBlackbosomStates(BossModule module) : base(module)
+    public DD50EddaBlackbosomStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<BlackHoneymoon>()
@@ -52,4 +52,4 @@ class D50EddaBlackbosomStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "LegendofIceman", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 178, NameID = 5038)]
-public class D50EddaBlackbosom(WorldState ws, Actor primary) : BossModule(ws, primary, new(300, 375), new ArenaBoundsCircle(25));
+public class DD50EddaBlackbosom(WorldState ws, Actor primary) : BossModule(ws, primary, new(300, 375), new ArenaBoundsCircle(25));

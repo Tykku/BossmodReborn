@@ -1,4 +1,4 @@
-namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D70Taquaru;
+namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD70Taquaru;
 
 public enum OID : uint
 {
@@ -81,9 +81,9 @@ class Drench(BossModule module) : Components.GenericAOEs(module)
 
 class Electrogenesis(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Electrogenesis), 8);
 
-class D70TaquaruStates : StateMachineBuilder
+class DD70TaquaruStates : StateMachineBuilder
 {
-    public D70TaquaruStates(BossModule module) : base(module)
+    public DD70TaquaruStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<Douse>()
@@ -94,4 +94,4 @@ class D70TaquaruStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "legendoficeman, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 205, NameID = 5321)]
-public class D70Taquaru(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -220), new ArenaBoundsCircle(25));
+public class DD70Taquaru(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -220), new ArenaBoundsCircle(25));

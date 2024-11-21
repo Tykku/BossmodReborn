@@ -1,4 +1,4 @@
-namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D20Spurge;
+namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD20Spurge;
 
 public enum OID : uint
 {
@@ -38,9 +38,9 @@ class GoldDust(BossModule module) : Components.LocationTargetedAOEs(module, Acti
 class Leafstorm(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Leafstorm));
 class RottenStench(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RottenStench), new AOEShapeRect(47.6f, 6));
 
-class D20SpurgeStates : StateMachineBuilder
+class DD20SpurgeStates : StateMachineBuilder
 {
-    public D20SpurgeStates(BossModule module) : base(module)
+    public DD20SpurgeStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<BossAdds>()

@@ -1,4 +1,4 @@
-namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D100NybethObdilord;
+namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD100NybethObdilord;
 
 public enum OID : uint
 {
@@ -37,9 +37,9 @@ class EncounterHints(BossModule module) : BossComponent(module)
     }
 }
 
-class D100NybethObdilordStates : StateMachineBuilder
+class DD100NybethObdilordStates : StateMachineBuilder
 {
-    public D100NybethObdilordStates(BossModule module) : base(module)
+    public DD100NybethObdilordStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<Abyss>()
@@ -53,9 +53,9 @@ class D100NybethObdilordStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "LegendofIceman", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 208, NameID = 5356)]
-public class D100NybethObdilord : BossModule
+public class DD100NybethObdilord : BossModule
 {
-    public D100NybethObdilord(WorldState ws, Actor primary) : base(ws, primary, new(300, 300), new ArenaBoundsCircle(24))
+    public DD100NybethObdilord(WorldState ws, Actor primary) : base(ws, primary, new(300, 300), new ArenaBoundsCircle(24))
     {
         ActivateComponent<EncounterHints>();
     }

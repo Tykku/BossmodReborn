@@ -189,10 +189,11 @@ public enum OperandType
 
 // shapes1 for unions, shapes 2 for shapes for XOR/intersection with shapes1, differences for shapes that get subtracted after previous operations
 // always create a new instance of AOEShapeCustom if something other than the invertforbiddenzone changes
-public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerable<Shape>? DifferenceShapes = null, IEnumerable<Shape>? Shapes2 = null, bool InvertForbiddenZone = false, OperandType Operand = OperandType.Union) : AOEShape
+// if the origin of the AOE can change, edit the origin default value to prevent cache issues
+public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerable<Shape>? DifferenceShapes = null, IEnumerable<Shape>? Shapes2 = null, bool InvertForbiddenZone = false, OperandType Operand = OperandType.Union, WPos Origin = default) : AOEShape
 {
     private RelSimplifiedComplexPolygon? polygon;
-    private readonly int hashkey = CreateCacheKey(Shapes1, Shapes2 ?? [], DifferenceShapes ?? [], Operand);
+    private readonly int hashkey = CreateCacheKey(Shapes1, Shapes2 ?? [], DifferenceShapes ?? [], Operand, Origin);
     public static readonly Dictionary<int, RelSimplifiedComplexPolygon> Cache = [];
     public static readonly LinkedList<int> CacheOrder = new();
     public void AddToCache(RelSimplifiedComplexPolygon value)
@@ -255,12 +256,13 @@ public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerabl
         return result;
     }
 
-    private static int CreateCacheKey(IEnumerable<Shape> shapes1, IEnumerable<Shape> shapes2, IEnumerable<Shape> differenceShapes, OperandType operand)
+    private static int CreateCacheKey(IEnumerable<Shape> shapes1, IEnumerable<Shape> shapes2, IEnumerable<Shape> differenceShapes, OperandType operand, WPos origin)
     {
         var hashCode = new HashCode();
         foreach (var shape in shapes1.Concat(shapes2).Concat(differenceShapes))
             hashCode.Add(shape.GetHashCode());
         hashCode.Add(operand);
+        hashCode.Add(origin);
         return hashCode.ToHashCode();
     }
 

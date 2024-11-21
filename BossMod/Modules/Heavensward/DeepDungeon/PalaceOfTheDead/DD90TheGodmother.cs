@@ -1,4 +1,4 @@
-namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D90TheGodmother;
+namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD90TheGodmother;
 
 public enum OID : uint
 {
@@ -69,9 +69,9 @@ class SelfDestruct(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class D90TheGodmotherStates : StateMachineBuilder
+class DD90TheGodmotherStates : StateMachineBuilder
 {
-    public D90TheGodmotherStates(BossModule module) : base(module)
+    public DD90TheGodmotherStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<BossAdds>()

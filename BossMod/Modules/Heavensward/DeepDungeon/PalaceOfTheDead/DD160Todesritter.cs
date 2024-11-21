@@ -1,4 +1,4 @@
-namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D160Todesritter;
+namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD160Todesritter;
 
 public enum OID : uint
 {
@@ -43,9 +43,9 @@ class ValfodrKB(BossModule module) : Components.Knockback(module) // note actual
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<HallOfSorrow>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || (Module.FindComponent<Infatuation>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false);
 }
 
-class D160TodesritterStates : StateMachineBuilder
+class DD160TodesritterStates : StateMachineBuilder
 {
-    public D160TodesritterStates(BossModule module) : base(module)
+    public DD160TodesritterStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<CleaveAuto>()
@@ -57,4 +57,4 @@ class D160TodesritterStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "LegendofIceman", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 214, NameID = 5438)]
-public class D160Todesritter(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsCircle(25));
+public class DD160Todesritter(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsCircle(25));

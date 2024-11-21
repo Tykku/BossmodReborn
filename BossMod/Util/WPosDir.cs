@@ -97,6 +97,15 @@ public record struct WPos(float X, float Z)
         return new(origin.X + rotatedX, origin.Z + rotatedZ);
     }
 
+    public static WPos[] GenerateRotatedVertices(WPos center, WPos[] vertices, float rotationAngle)
+    {
+        var len = vertices.Length;
+        var rotatedVertices = new WPos[len];
+        for (var i = 0; i < len; ++i)
+            rotatedVertices[i] = RotateAroundOrigin(rotationAngle, center, vertices[i]);
+        return rotatedVertices;
+    }
+
     public override readonly string ToString() => $"[{X:f3}, {Z:f3}]";
     public override readonly int GetHashCode() => (X, Z).GetHashCode(); // TODO: this is a hack, the default should be good enough, but for whatever reason (X, -Z).GetHashCode() == (-X, Z).GetHashCode()...
 

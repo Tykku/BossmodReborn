@@ -1,4 +1,4 @@
-﻿namespace BossMod.Stormblood.DeepDungeon.HeavenOnHigh.D60Suikazura;
+﻿namespace BossMod.Stormblood.DeepDungeon.HeavenOnHigh.DD60Suikazura;
 
 public enum OID : uint
 {
@@ -24,9 +24,9 @@ class Topple(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.M
 class SearingChain(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SearingChain), new AOEShapeRect(61, 2));
 class AncientFlare(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AncientFlare), "Raidwide, watch your feet after it goes off");
 
-class D60SuikazuraStates : StateMachineBuilder
+class DD60SuikazuraStates : StateMachineBuilder
 {
-    public D60SuikazuraStates(BossModule module) : base(module)
+    public DD60SuikazuraStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<Firewalker>()
@@ -39,5 +39,5 @@ class D60SuikazuraStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "LegendofIceman", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 545, NameID = 7487)]
-public class D60Suikazura(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsCircle(25f));
+public class DD60Suikazura(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsCircle(25f));
 

@@ -220,7 +220,7 @@ public record class ArenaBoundsCustom : ArenaBounds
         var cacheKey = (poly, offset);
         if (Cache.TryGetValue(cacheKey, out var cachedResult))
             return (WDir)cachedResult;
-        if (Contains(offset) || offset.AlmostEqual(default, 1) || offset.X == default) // if actor is almost in the center of the arena, do nothing (eg donut arena)
+        if (Contains(offset) || offset.AlmostEqual(default, 1) || Math.Abs(offset.X) < 0.1f) // if actor is almost in the center of the arena, do nothing (eg donut arena)
         {
             Cache[(poly, offset)] = offset;
             return offset;

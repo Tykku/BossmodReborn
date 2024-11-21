@@ -1,4 +1,4 @@
-﻿namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D180Dendainsonne;
+﻿namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD180Dendainsonne;
 
 public enum OID : uint
 {
@@ -89,9 +89,9 @@ class Hints(BossModule module) : BossComponent(module)
     }
 }
 
-class D180DendainsonneStates : StateMachineBuilder
+class DD180DendainsonneStates : StateMachineBuilder
 {
-    public D180DendainsonneStates(BossModule module) : base(module)
+    public DD180DendainsonneStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<Thunderbolt>()
@@ -105,9 +105,9 @@ class D180DendainsonneStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "LegendofIceman", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 216, NameID = 5461)]
-public class D180Dendainsonne : BossModule
+public class DD180Dendainsonne : BossModule
 {
-    public D180Dendainsonne(WorldState ws, Actor primary) : base(ws, primary, new(-300, -300), new ArenaBoundsCircle(25))
+    public DD180Dendainsonne(WorldState ws, Actor primary) : base(ws, primary, new(-300, -300), new ArenaBoundsCircle(25))
     {
         ActivateComponent<Hints>();
     }

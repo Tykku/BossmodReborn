@@ -1,4 +1,4 @@
-﻿namespace BossMod.Stormblood.DeepDungeon.HeavenOnHigh.D40Bhima;
+﻿namespace BossMod.Stormblood.DeepDungeon.HeavenOnHigh.DD40Bhima;
 
 public enum OID : uint
 {
@@ -22,9 +22,9 @@ class AncientAeroIII(BossModule module) : Components.KnockbackFromCastTarget(mod
 class Tornado(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Tornado), 6);
 class Windage(BossModule module) : Components.PersistentVoidzone(module, 8, m => m.Enemies(OID.Whirlwind).Where(z => z.EventState != 7));
 
-class D40BhimaStates : StateMachineBuilder
+class DD40BhimaStates : StateMachineBuilder
 {
-    public D40BhimaStates(BossModule module) : base(module)
+    public DD40BhimaStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<AncientAero>()
@@ -36,4 +36,4 @@ class D40BhimaStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "LegendofIceman", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 543, NameID = 7483)]
-public class D40Bhima(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsCircle(23.7f));
+public class DD40Bhima(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsCircle(23.7f));

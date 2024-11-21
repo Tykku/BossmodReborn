@@ -1,4 +1,4 @@
-﻿namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D190TheGodfather;
+﻿namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD190TheGodfather;
 
 public enum OID : uint
 {
@@ -97,9 +97,9 @@ class HypothermalMinion(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class D190TheGodfatherStates : StateMachineBuilder
+class DD190TheGodfatherStates : StateMachineBuilder
 {
-    public D190TheGodfatherStates(BossModule module) : base(module)
+    public DD190TheGodfatherStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<BossAdds>()
@@ -113,4 +113,4 @@ class D190TheGodfatherStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "LegendofIceman", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 217, NameID = 5471)]
-public class D190TheGodfather(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsCircle(25));
+public class DD190TheGodfather(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsCircle(25));

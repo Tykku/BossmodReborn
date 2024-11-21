@@ -21,4 +21,25 @@ class DivideAndConquerBait(BossModule module) : Components.GenericBaitAway(modul
     }
 }
 
-class DivideAndConquerAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DivideAndConquerAOE), new AOEShapeRect(60, 2.5f));
+class DivideAndConquerAOE(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.DivideAndConquerBait))
+{
+    private static readonly AOEShapeRect rect = new(60, 2.5f);
+    public readonly List<AOEInstance> AOEs = [];
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs;
+
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    {
+        if (spell.Action == WatchedAction)
+            AOEs.Add(new(rect, caster.Position, caster.Rotation, WorldState.FutureTime(11 - AOEs.Count)));
+    }
+
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID == AID.DivideAndConquerAOE)
+        {
+            ++NumCasts;
+            AOEs.Clear();
+        }
+    }
+}

@@ -53,7 +53,7 @@ class AlphaAlligatorStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<FeedingTime>()
             .ActivateOnEnter<CriticalBite>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
+            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
             .All(x => x.IsDestroyed) || Module.Enemies(OID.AlphaAlligator).Any(x => x.IsDead);
     }
 }
@@ -74,8 +74,6 @@ public class AlphaAlligator(WorldState ws, Actor primary) : BossModule(ws, prima
     new(406.61f, -125.40f), new(407.32f, -126.66f), new(407.47f, -127.25f), new(407.42f, -127.82f), new(406.67f, -128.79f),
     new(406.44f, -129.39f), new(407.78f, -134.79f), new(408.15f, -135.35f), new(420.82f, -140.11f), new(423.33f, -140.59f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
-
-    protected override bool CheckPull() => WorldState.Actors.Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

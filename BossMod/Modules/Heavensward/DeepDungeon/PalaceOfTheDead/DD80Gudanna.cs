@@ -1,4 +1,4 @@
-namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D80Gudanna;
+namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD80Gudanna;
 
 public enum OID : uint
 {
@@ -85,9 +85,9 @@ class Hints(BossModule module) : BossComponent(module)
     }
 }
 
-class D80GudannaStates : StateMachineBuilder
+class DD80GudannaStates : StateMachineBuilder
 {
-    public D80GudannaStates(BossModule module) : base(module)
+    public DD80GudannaStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<Thunderbolt>()
@@ -101,9 +101,9 @@ class D80GudannaStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "legendoficeman, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 206, NameID = 5333)]
-public class D80Gudanna : BossModule
+public class DD80Gudanna : BossModule
 {
-    public D80Gudanna(WorldState ws, Actor primary) : base(ws, primary, new(-300, -220), new ArenaBoundsCircle(25))
+    public DD80Gudanna(WorldState ws, Actor primary) : base(ws, primary, new(-300, -220), new ArenaBoundsCircle(25))
     {
         ActivateComponent<Hints>();
     }

@@ -1,4 +1,4 @@
-﻿namespace BossMod.Stormblood.DeepDungeon.HeavenOnHigh.D20Beccho;
+﻿namespace BossMod.Stormblood.DeepDungeon.HeavenOnHigh.DD20Beccho;
 
 public enum OID : uint
 {
@@ -19,9 +19,9 @@ class PsychoSquamaAOE(BossModule module) : Components.SelfTargetedAOEs(module, A
 class NeuroSquamaLookAway(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.NeuroSquama));
 class FragilityAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Fragility), new AOEShapeCircle(8));
 
-class D20BecchoStates : StateMachineBuilder
+class DD20BecchoStates : StateMachineBuilder
 {
-    public D20BecchoStates(BossModule module) : base(module)
+    public DD20BecchoStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<PsychoSquamaAOE>()
@@ -31,4 +31,4 @@ class D20BecchoStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "LegendofIceman", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 541, NameID = 7481)]
-public class D20Beccho(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsCircle(23.7f));
+public class DD20Beccho(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsCircle(23.7f));

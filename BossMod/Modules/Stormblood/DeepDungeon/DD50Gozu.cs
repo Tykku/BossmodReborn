@@ -1,4 +1,4 @@
-﻿namespace BossMod.Stormblood.DeepDungeon.HeavenOnHigh.D50Gozu;
+﻿namespace BossMod.Stormblood.DeepDungeon.HeavenOnHigh.DD50Gozu;
 
 public enum OID : uint
 {
@@ -23,9 +23,9 @@ class TheSpin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.
 class VoidSpark(BossModule module) : Components.PersistentVoidzone(module, 8, m => m.Enemies(OID.Gloom).Where(z => z.EventState != 7));
 class WordsofWoe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WordsOfWoe), new AOEShapeRect(48.45f, 3));
 
-class D50GozuStates : StateMachineBuilder
+class DD50GozuStates : StateMachineBuilder
 {
-    public D50GozuStates(BossModule module) : base(module)
+    public DD50GozuStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<EyeoftheFire>()
@@ -37,4 +37,4 @@ class D50GozuStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "LegendofIceman", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 544, NameID = 7485)]
-public class D50Gozu(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsCircle(23.7f));
+public class DD50Gozu(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsCircle(23.7f));

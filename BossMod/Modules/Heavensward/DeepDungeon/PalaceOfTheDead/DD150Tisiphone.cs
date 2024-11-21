@@ -1,4 +1,4 @@
-namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D150Tisiphone;
+namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD150Tisiphone;
 
 public enum OID : uint
 {
@@ -44,9 +44,9 @@ class EncounterHints(BossModule module) : BossComponent(module)
     }
 }
 
-class D150TisiphoneStates : StateMachineBuilder
+class DD150TisiphoneStates : StateMachineBuilder
 {
-    public D150TisiphoneStates(BossModule module) : base(module)
+    public DD150TisiphoneStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<BloodRain>()
@@ -64,10 +64,9 @@ class D150TisiphoneStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "LegendofIceman", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 213, NameID = 5424)]
-//public class D150Tisiphone(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -237.17f), new ArenaBoundsCircle(24));
-public class D150Tisiphone : BossModule
+public class DD150Tisiphone : BossModule
 {
-    public D150Tisiphone(WorldState ws, Actor primary) : base(ws, primary, new(-300, -237.17f), new ArenaBoundsCircle(24))
+    public DD150Tisiphone(WorldState ws, Actor primary) : base(ws, primary, new(-300, -237.17f), new ArenaBoundsCircle(24))
     {
         ActivateComponent<EncounterHints>();
     }

@@ -1,4 +1,4 @@
-namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D10PalaceDeathgaze;
+namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD10PalaceDeathgaze;
 
 public enum OID : uint
 {
@@ -21,9 +21,9 @@ class Bombination(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 class Lumisphere(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Lumisphere), 6);
 class Stormwind(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Stormwind), new AOEShapeCone(18, 45.Degrees()));
 
-class D10PalaceDeathgazeStates : StateMachineBuilder
+class DD10PalaceDeathgazeStates : StateMachineBuilder
 {
-    public D10PalaceDeathgazeStates(BossModule module) : base(module)
+    public DD10PalaceDeathgazeStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<AeroBlast>()
@@ -34,5 +34,5 @@ class D10PalaceDeathgazeStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "LegendofIceman", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 174, NameID = 4986)]
-public class D10PalaceDeathgaze(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -220), new ArenaBoundsCircle(25));
+public class DD10PalaceDeathgaze(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -220), new ArenaBoundsCircle(25));
 

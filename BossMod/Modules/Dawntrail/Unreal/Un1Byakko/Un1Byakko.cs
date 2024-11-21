@@ -9,9 +9,12 @@ class WhiteHerald(BossModule module) : Components.SpreadFromIcon(module, (uint)I
 class DistantClap(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DistantClap), new AOEShapeDonut(4, 25));
 class SweepTheLegBoss(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SweepTheLegBoss), new AOEShapeCone(28.3f, 135.Degrees()));
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1007, NameID = 7092, PlanLevel = 100)]
-public class Un1Byakko(WorldState ws, Actor primary) : BossModule(ws, primary, default, new ArenaBoundsCircle(20))
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1007, NameID = 7092, PlanLevel = 100)]
+public class Un1Byakko(WorldState ws, Actor primary) : BossModule(ws, primary, default, NormalBounds)
 {
+    public static readonly ArenaBoundsComplex NormalBounds = new([new Polygon(default, 19.5f, 48)]);
+    public static readonly ArenaBoundsComplex IntermissionBounds = new([new Polygon(default, 15, 48)]);
+
     private Actor? _hakutei;
     public Actor? Boss() => PrimaryActor;
     public Actor? Hakutei() => _hakutei;

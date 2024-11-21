@@ -7,18 +7,10 @@ class RadicalShift(BossModule module) : Components.GenericAOEs(module)
     private ArenaBoundsComplex? _left;
     private ArenaBoundsComplex? _right;
     private Rotation _nextRotation;
-    private AOEShapeCustom? _aoe;
-    private DateTime _activation;
+    private AOEInstance? _aoe;
     private static readonly Square[] defaultSquare = [new(Ex3QueenEternal.ArenaCenter, 20)];
-    private static readonly AOEShapeCustom windArena = new(defaultSquare, Trial.T03QueenEternal.T03QueenEternal.XArenaRects);
-    private static readonly AOEShapeCustom earthArena = new(defaultSquare, Trial.T03QueenEternal.T03QueenEternal.SplitArenaRects);
-    private static readonly AOEShapeCustom iceArena = new(defaultSquare, Ex3QueenEternal.IceRectsAll);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        if (_aoe != null)
-            yield return new(_aoe, Arena.Center, default, _activation);
-    }
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnEventEnvControl(byte index, uint state)
     {
@@ -78,13 +70,16 @@ class RadicalShift(BossModule module) : Components.GenericAOEs(module)
 
     private void UpdateAOE(ArenaBoundsComplex? platform)
     {
-        _activation = WorldState.FutureTime(6);
+        AOEShapeCustom? aoe = null;
+        var center = Arena.Center;
         if (platform == Ex3QueenEternal.WindBounds)
-            _aoe = windArena;
+            aoe = new(defaultSquare, Trial.T03QueenEternal.T03QueenEternal.XArenaRects, Origin: center);
         else if (platform == Ex3QueenEternal.EarthBounds)
-            _aoe = earthArena;
+            aoe = new(defaultSquare, Trial.T03QueenEternal.T03QueenEternal.SplitArenaRects, Origin: center);
         else if (platform == Ex3QueenEternal.IceBridgeBounds)
-            _aoe = iceArena;
+            aoe = new(defaultSquare, Ex3QueenEternal.IceRectsAll, Origin: center);
+        if (aoe != null)
+            _aoe = new(aoe, center, default, WorldState.FutureTime(6));
     }
 }
 

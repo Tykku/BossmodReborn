@@ -1,4 +1,4 @@
-﻿namespace BossMod.Stormblood.DeepDungeon.HeavenOnHigh.D30Hiruko;
+﻿namespace BossMod.Stormblood.DeepDungeon.HeavenOnHigh.DD30Hiruko;
 
 public enum OID : uint
 {
@@ -19,9 +19,9 @@ public enum AID : uint
 class LightningStrike(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LightningStrike), new AOEShapeRect(55.25f, 3));
 class LightningBolt(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LightningBolt), new AOEShapeCircle(8)); // problem child. Need to create a safe area for players to stand in with the proxy AOE.
 
-class D30HirukoStates : StateMachineBuilder
+class DD30HirukoStates : StateMachineBuilder
 {
-    public D30HirukoStates(BossModule module) : base(module)
+    public DD30HirukoStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<LightningStrike>()

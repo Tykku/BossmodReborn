@@ -1,4 +1,4 @@
-﻿namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.D120Kirtimukha;
+﻿namespace BossMod.Heavensward.DeepDungeon.PalaceOfTheDead.DD120Kirtimukha;
 
 public enum OID : uint
 {
@@ -38,9 +38,9 @@ class GoldDust(BossModule module) : Components.LocationTargetedAOEs(module, Acti
 class Leafstorm(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Leafstorm));
 class RottenStench(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RottenStench), new AOEShapeRect(47.6f, 6));
 
-class D120KirtimukhaStates : StateMachineBuilder
+class DD120KirtimukhaStates : StateMachineBuilder
 {
-    public D120KirtimukhaStates(BossModule module) : base(module)
+    public DD120KirtimukhaStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<AcidMist>()
@@ -54,4 +54,4 @@ class D120KirtimukhaStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "LegendofIceman", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 210, NameID = 5384)]
-public class D120Kirtimukha(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -235), new ArenaBoundsCircle(24));
+public class DD120Kirtimukha(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -235), new ArenaBoundsCircle(24));
