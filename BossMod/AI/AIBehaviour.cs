@@ -125,13 +125,16 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
 
     private NavigationDecision BuildNavigationDecision(Actor player, Actor master, ref Targeting targeting)
     {
-        var target = autorot.WorldState.Actors.Find(player.TargetID);
         if (_config.ForbidMovement)
             return new() { LeewaySeconds = float.MaxValue };
-        if (_followMaster && !_config.FollowTarget || _followMaster && _config.FollowTarget && target == null)
-            return NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player, master.Position, _config.MaxDistanceToSlot, new(), Positional.Any);
-        if (_followMaster && _config.FollowTarget && target != null)
-            return NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player, target.Position, target.HitboxRadius + (_config.DesiredPositional != Positional.Any ? 2.6f : _config.MaxDistanceToTarget), target.Rotation, target != player ? _config.DesiredPositional : Positional.Any);
+        if (AIPreset == null || _config.OverrideAutorotation)
+        {
+            var target = autorot.WorldState.Actors.Find(player.TargetID);
+            if (_followMaster && !_config.FollowTarget || _followMaster && _config.FollowTarget && target == null)
+                return NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player, master.Position, _config.MaxDistanceToSlot, new(), Positional.Any);
+            if (_followMaster && _config.FollowTarget && target != null)
+                return NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player, target.Position, target.HitboxRadius + (_config.DesiredPositional != Positional.Any ? 2.6f : _config.MaxDistanceToTarget), target.Rotation, target != player ? _config.DesiredPositional : Positional.Any);
+        }
         if (targeting.Target == null)
             return NavigationDecision.Build(_naviCtx, autorot.WorldState, autorot.Hints, player, null, 0, new(), Positional.Any);
         var adjRange = targeting.PreferredRange + player.HitboxRadius + targeting.Target.Actor.HitboxRadius;
@@ -147,7 +150,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
             }
         }
         var adjRotation = targeting.PreferTanking ? targeting.Target.DesiredRotation : targeting.Target.Actor.Rotation;
-        return NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player, targeting.Target.Actor.Position, adjRange, adjRotation, targeting.PreferredPosition);
+        return NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player, autorot.Hints.RecommendedPositional.Target?.Position, adjRange, adjRotation, autorot.Hints.RecommendedPositional.Pos);
     }
 
     private void FocusMaster(Actor master)
@@ -224,6 +227,8 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         configModified |= ImGui.Checkbox("Forbid movement", ref _config.ForbidMovement);
         ImGui.SameLine();
         configModified |= ImGui.Checkbox("Follow during combat", ref _config.FollowDuringCombat);
+        ImGui.SameLine();
+        configModified |= ImGui.Checkbox("Override autorotation values", ref _config.OverrideAutorotation);
         ImGui.Spacing();
         configModified |= ImGui.Checkbox("Follow during active boss module", ref _config.FollowDuringActiveBossModule);
         ImGui.SameLine();

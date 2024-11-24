@@ -60,12 +60,13 @@ public enum AID : uint
     GigaSlashNightfallVisual1 = 42020, // Boss->self, 14.0+1.0s cast, single-target
     GigaSlashNightfallVisual2 = 42021, // Boss->self, 14.0+1.0s cast, single-target
     GigaSlashNightfallVisual3 = 42023, // Boss->self, 14.0+1.0s cast, single-target
-    GigaSlashNightfall1 = 42024, // Helper->self, 1.0s cast, range 60 210.000-degree cone
-    GigaSlashNightfall2 = 42025, // Helper->self, 1.0s cast, range 60 210.000-degree cone
-    GigaSlashNightfall3 = 42027, // Helper->self, 15.0s cast, range 60 225.000-degree cone
-    GigaSlashNightfall4 = 42028, // Helper->self, 1.0s cast, range 60 270.000-degree cone
-    GigaSlashNightfall5 = 42029, // Helper->self, 15.0s cast, range 60 225.000-degree cone
-    GigaSlashNightfall6 = 42030, // Helper->self, 1.0s cast, range 60 270.000-degree cone
+    GigaSlashNightfallVisual4 = 42022, // Boss->self, 14.0+1,0s cast, single-target
+    GigaSlashNightfall1 = 42024, // Helper->self, 1.0s cast, range 60 210-degree cone
+    GigaSlashNightfall2 = 42025, // Helper->self, 1.0s cast, range 60 210-degree cone
+    GigaSlashNightfall3 = 42027, // Helper->self, 15.0s cast, range 60 225-degree cone
+    GigaSlashNightfall4 = 42028, // Helper->self, 1.0s cast, range 60 270-degree cone
+    GigaSlashNightfall5 = 42029, // Helper->self, 15.0s cast, range 60 225-degree cone
+    GigaSlashNightfall6 = 42030, // Helper->self, 1.0s cast, range 60 270-degree cone
 
     ShadowSpawn = 40786, // Boss->self, 3.0s cast, single-target // Summons two untargetable Lordly Shadow clones
 
@@ -80,6 +81,13 @@ public enum AID : uint
     DamningStrikes1 = 40791, // Boss->self, 8.0s cast, single-target // Tower Stacks
     DamningStrikes2 = 40793, // Boss->self, no cast, single-target
     DamningStrikes3 = 42052, // Boss->self, no cast, single-target
+    DamningStrikes4 = 41054, // Boss->self, 8.7s cast, single-target
+    DamningStrikes5 = 42055, // Boss->location, no cast, single-target
+    DamningStrikes6 = 42053, // Boss->self, no cast, single-target
+    DamningStrikes7 = 42054, // Boss->location, no cast, single-target
+    DamningStrikes8 = 40794, // Boss->location, no cast, single-target
+
+    Shockwave = 41112, // Helper->self, no cast, range 100 circle
 
     Impact1 = 40792, // Helper->self, 10.5s cast, range 3 circle
     Impact2 = 41110, // Helper->self, 13.0s cast, range 3 circle

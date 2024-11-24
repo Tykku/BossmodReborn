@@ -306,21 +306,24 @@ public class StackWithIcon(BossModule module, uint icon, ActionID aid, float rad
 
 // generic single hit "line stack" component, usually do not have an iconID, instead players get marked by cast event
 // usually these have 50 range and 4 halfWidth, but it can be modified
-public class LineStack(BossModule module, ActionID? aidMarker, ActionID aidResolve, float activationDelay = 5.1f, float range = 50, float halfWidth = 4, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true) : GenericBaitAway(module)
+public class LineStack(BossModule module, ActionID? aidMarker, ActionID aidResolve, float activationDelay = 5.1f, float range = 50, float halfWidth = 4, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true, uint? iconid = null) : GenericBaitAway(module)
 {
+    public LineStack(BossModule module, uint iconid, ActionID aidResolve, float activationDelay = 5.1f, float range = 50, float halfWidth = 4, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true) : this(module, null, aidResolve, activationDelay, range, halfWidth, minStackSize, maxStackSize, maxCasts, markerIsFinalTarget, iconid) { }
+
     // TODO: add forbidden slots logic?
     // TODO: add logic for min and max stack size
-    public ActionID? AidMarker { get; init; } = aidMarker;
-    public ActionID AidResolve { get; init; } = aidResolve;
-    public float ActionDelay { get; init; } = activationDelay;
-    public float Range { get; init; } = range;
-    public float HalfWidth { get; init; } = halfWidth;
-    public int MaxStackSize { get; init; } = maxStackSize;
-    public int MinStackSize { get; init; } = minStackSize;
-    public int MaxCasts { get; init; } = maxCasts; // for stacks where the final AID hits multiple times
-    public bool MarkerIsFinalTarget { get; init; } = markerIsFinalTarget; // rarely the marked player is not the target of the line stack
-    public HashSet<Actor> ForbiddenActors { get; init; } = [];
+    public ActionID? AidMarker = aidMarker;
+    public ActionID AidResolve = aidResolve;
+    public float ActionDelay = activationDelay;
+    public float Range = range;
+    public float HalfWidth = halfWidth;
+    public int MaxStackSize = maxStackSize;
+    public int MinStackSize = minStackSize;
+    public int MaxCasts = maxCasts; // for stacks where the final AID hits multiple times
+    public bool MarkerIsFinalTarget = markerIsFinalTarget; // rarely the marked player is not the target of the line stack
+    public HashSet<Actor> ForbiddenActors = [];
     private int castCounter;
+    public uint? Iconid = iconid;
     public const string HintStack = "Stack!";
     public const string HintAvoidOther = "GTFO from other line stacks!";
     public const string HintAvoid = "GTFO from line stacks!";
@@ -328,7 +331,7 @@ public class LineStack(BossModule module, ActionID? aidMarker, ActionID aidResol
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (AidMarker == null)
+        if (AidMarker == null && Iconid == null)
             return;
         if (spell.Action == AidMarker)
             CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.MainTargetID)!, rect, WorldState.FutureTime(ActionDelay)));
@@ -357,9 +360,15 @@ public class LineStack(BossModule module, ActionID? aidMarker, ActionID aidResol
         }
     }
 
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
+    {
+        if (Iconid != null && iconID == Iconid && WorldState.Actors.Find(targetID) is var target && target != null)
+            CurrentBaits.Add(new(actor, WorldState.Actors.Find(targetID)!, rect, WorldState.FutureTime(ActionDelay)));
+    }
+
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (AidMarker != null)
+        if (AidMarker != null || Iconid != null)
             return;
         if (spell.Action == AidResolve)
             CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.TargetID)!, rect, Module.CastFinishAt(spell)));
@@ -367,7 +376,7 @@ public class LineStack(BossModule module, ActionID? aidMarker, ActionID aidResol
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (AidMarker != null)
+        if (AidMarker != null || Iconid != null)
             return;
         if (spell.Action == AidResolve && CurrentBaits.Count != 0)
         {

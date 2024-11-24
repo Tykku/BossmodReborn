@@ -42,6 +42,7 @@ public sealed class AIHints
 
     // list of potential targets
     public List<Enemy> PotentialTargets = [];
+    private int potentialTargetsCount;
     public int HighestPotentialTargetPriority;
 
     // forced target
@@ -99,6 +100,7 @@ public sealed class AIHints
         PathfindMapBounds = DefaultBounds;
         PathfindMapObstacles = default;
         PotentialTargets.Clear();
+        potentialTargetsCount = 0;
         ForcedTarget = null;
         ForcedMovement = null;
         InteractWithTarget = null;
@@ -143,28 +145,38 @@ public sealed class AIHints
             {
                 Priority = allowedAttack ? 0 : Enemy.PriorityForbidAI
             });
+            ++potentialTargetsCount;
         }
     }
 
     public void PrioritizeTargetsByOID(uint oid, int priority = 0)
     {
-        foreach (var h in PotentialTargets)
+        for (var i = 0; i < potentialTargetsCount; ++i)
+        {
+            var h = PotentialTargets[i];
             if (h.Actor.OID == oid)
                 h.Priority = Math.Max(priority, h.Priority);
+        }
     }
     public void PrioritizeTargetsByOID<OID>(OID oid, int priority = 0) where OID : Enum => PrioritizeTargetsByOID((uint)(object)oid, priority);
 
     public void PrioritizeTargetsByOID(uint[] oids, int priority = 0)
     {
-        foreach (var h in PotentialTargets)
+        for (var i = 0; i < potentialTargetsCount; ++i)
+        {
+            var h = PotentialTargets[i];
             if (oids.Contains(h.Actor.OID))
                 h.Priority = Math.Max(priority, h.Priority);
+        }
     }
 
     public void PrioritizeAll()
     {
-        foreach (var h in PotentialTargets)
+        for (var i = 0; i < potentialTargetsCount; ++i)
+        {
+            var h = PotentialTargets[i];
             h.Priority = Math.Max(h.Priority, 0);
+        }
     }
 
     public void InteractWithOID(WorldState ws, uint oid) => InteractWithTarget = ws.Actors.FirstOrDefault(a => a.OID == oid && a.IsTargetable);

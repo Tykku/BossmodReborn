@@ -128,7 +128,7 @@ class BoulderDance(BossModule module) : Components.GenericAOEs(module)
         }
     }
 }
-
+class LeapingEarth2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeapingEarth), new AOEShapeCircle(5));
 class JaggedEdge(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.JaggedEdge), 6);
 class TuraliStoneIV(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.TuraliStoneIV), 6, 4, 4);
 class LeporineLoaf(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.LeporineLoaf));
@@ -159,12 +159,12 @@ class LeapingEarth(BossModule module) : Components.GenericAOEs(module)
             var total = 0f;
             for (var i = 0; i < 4; ++i)
                 total += angles[i];
-            if (MathF.Round(total) is 5 or -2)
+            if ((int)total is 4 or -1)
                 GenerateAOEsForOppositePairPattern();
-            else if (MathF.Round(2 * total) == 3)
-                GenerateAOEsForMixedPattern1();
+            else if ((int)(2 * total) == 3)
+                GenerateAOEsForMixedPattern(-45, -135);
             else
-                GenerateAOEsForMixedPattern2();
+                GenerateAOEsForMixedPattern(45, -45);
             _aoes.SortBy(x => x.Activation);
             angles.Clear();
         }
@@ -182,26 +182,15 @@ class LeapingEarth(BossModule module) : Components.GenericAOEs(module)
             AddAOEs(WPos.GenerateRotatedVertices(D093Lunipyati.ArenaCenter, spiralSmallPoints, angles[i] * Angle.RadToDeg));
     }
 
-    private void GenerateAOEsForMixedPattern1()
+    private void GenerateAOEsForMixedPattern(int intercardinalOffset, int cardinalOffset)
     {
         for (var i = 0; i < 4; ++i)
         {
             var angle = angles[i];
             var deg = angle * Angle.RadToDeg;
             var isIntercardinal = Angle.AnglesIntercardinals.Any(x => x.AlmostEqual(new(angle), Angle.DegToRad));
-            var adjustedAngle = isIntercardinal ? deg - 45 : deg - 135;
+            var adjustedAngle = isIntercardinal ? deg + intercardinalOffset : deg + cardinalOffset;
             var rotatedPoints = WPos.GenerateRotatedVertices(D093Lunipyati.ArenaCenter, spiralSmallPoints, adjustedAngle);
-            AddAOEs(WPos.GenerateRotatedVertices(D093Lunipyati.ArenaCenter, spiralSmallPoints, adjustedAngle));
-        }
-    }
-
-    private void GenerateAOEsForMixedPattern2()
-    {
-        for (var i = 0; i < 4; ++i)
-        {
-            var angle = angles[i];
-            var isIntercardinal = Angle.AnglesIntercardinals.Any(x => x.AlmostEqual(new(angle), Angle.DegToRad));
-            var adjustedAngle = (isIntercardinal ? 1 : -1) * 45 + angle * Angle.RadToDeg;
             AddAOEs(WPos.GenerateRotatedVertices(D093Lunipyati.ArenaCenter, spiralSmallPoints, adjustedAngle));
         }
     }
@@ -277,6 +266,7 @@ class D093LunipyatiStates : StateMachineBuilder
             .ActivateOnEnter<SonicHowl>()
             .ActivateOnEnter<Slabber>()
             .ActivateOnEnter<LeapingEarth>()
+            .ActivateOnEnter<LeapingEarth2>()
             .ActivateOnEnter<RockBlast>();
     }
 }

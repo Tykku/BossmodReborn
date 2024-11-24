@@ -21,7 +21,6 @@ class OpList(Replay replay, Replay.Encounter? enc, BossModuleRegistry.Info? modu
 #pragma warning disable IDE0032
     private bool _showActorSizeEvents;
 #pragma warning restore IDE0032
-
     private bool _nodesUpToDate;
 
     public bool ShowActorSizeEvents

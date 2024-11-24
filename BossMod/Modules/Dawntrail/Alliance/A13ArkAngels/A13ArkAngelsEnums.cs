@@ -44,12 +44,14 @@ public enum AID : uint
     ConcertedDissolution = 41084, // Helper->self, 6.0s cast, range 40 ?-degree cone // need to confirm angle
     LightsChain = 41085, // Helper->self, 8.0s cast, range ?-40 donut
 
-    Meteor = 41098, // ArkAngelTT->self, 11.0s cast, single-target // interruptible VERY heavy raidwide
+    MeteorVisual = 41098, // ArkAngelTT->self, 11.0s cast, single-target, interruptible VERY heavy raidwide
+    Meteor = 41099, // Helper->location, no cast, range 100 circle
 
     Aethersplit1 = 41104, // Boss->ArkAngelEV/ArkAngelTT, no cast, single-target
     Aethersplit2 = 41105, // ArkAngelGK->ArkAngelTT/ArkAngelEV, no cast, single-target
     Aethersplit3 = 41106, // ArkAngelHM->ArkAngelEV/ArkAngelTT, no cast, single-target
     Aethersplit4 = 41107, // ArkAngelEV->ArkAngelTT, no cast, single-target
+    Aethersplit5 = 41103, // ArkAngelTT->Boss/ArkAngelGK/ArkAngelHM, no cast, single-target
 
     ArroganceIncarnate1 = 41095, // ArkAngelEV->self, 5.0s cast, single-target
     ArroganceIncarnate2 = 41096, // Helper->players, no cast, range 6 circle
@@ -68,7 +70,8 @@ public enum AID : uint
 
     //
     DominionSlash = 41093, // ArkAngelEV->self, 5.0s cast, range 100 circle
-    DivineDominion = 41094, // Helper->self, 2.0s cast, range 6 circle
+    DivineDominion1 = 41094, // Helper->self, 2.0s cast, range 6 circle
+    DivineDominion2 = 40628, // Helper->self, no cast, range 6 circle
 
     Utsusemi = 41088, // ArkAngelHM->self, 3.0s cast, single-target
     MightyStrikes1 = 41089, // ArkAngelHM/ArkAngelHM2->self, 5.0s cast, single-target
@@ -81,8 +84,8 @@ public enum AID : uint
 
     // Rotating conal aoes
     HavocSpiral1 = 41067, // Boss->self, 5.0+0.5s cast, single-target
-    HavocSpiral2 = 41070, // Helper->self, 5.5s cast, range 30 ?-degree cone
-    HavocSpiral3 = 41071, // Helper->self, no cast, range 30 30.000-degree cone
+    HavocSpiral2 = 41070, // Helper->self, 5.5s cast, range 30 30-degree cone
+    HavocSpiral3 = 41071, // Helper->self, no cast, range 30 30-degree cone
 
     SpiralFinish1 = 41068, // Boss->self, 11.0+0.5s cast, single-target
     SpiralFinish2 = 41069, // Helper->self, 11.5s cast, range 100 circle
@@ -106,6 +109,7 @@ public enum AID : uint
     UnknownWeaponskill2 = 41073, // Helper->location, 3.0s cast, width 10 rect charge
     UnknownWeaponskill3 = 41074, // Helper->location, 3.0s cast, range 20 circle
 
+    Raiton = 41109, // ArkAngelHM->self, 5.0s cast, range 100 circle
 }
 
 public enum SID : uint

@@ -193,7 +193,23 @@ public sealed class ReplayParserLog : IDisposable
                 throw;
             }
         }
-        public override double ReadDouble() => _input.ReadDouble();
+        public override double ReadDouble()
+        {
+            try
+            {
+                return _input.ReadDouble();
+            }
+            catch (EndOfStreamException)
+            {
+                Service.Log("Reached the end of the file unexpectedly. Returning default value.");
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Service.Log($"An unexpected error occurred: {ex.Message}");
+                throw;
+            }
+        }
         public override Vector3 ReadVec3() => new(_input.ReadSingle(), _input.ReadSingle(), _input.ReadSingle());
         public override Angle ReadAngle()
         {
@@ -236,7 +252,23 @@ public sealed class ReplayParserLog : IDisposable
                 throw;
             }
         }
-        public override ulong ReadULong(bool hex) => _input.ReadUInt64();
+        public override ulong ReadULong(bool hex)
+        {
+            try
+            {
+                return _input.ReadUInt64();
+            }
+            catch (EndOfStreamException)
+            {
+                Service.Log("Reached the end of the file unexpectedly. Returning default value.");
+                return (ulong)10e13;
+            }
+            catch (Exception ex)
+            {
+                Service.Log($"An unexpected error occurred: {ex.Message}");
+                throw;
+            }
+        }
         public override byte[] ReadBytes() => _input.ReadBytes(_input.ReadInt32());
         public override ActionID ReadAction() => new(_input.ReadUInt32());
         public override Class ReadClass() => (Class)_input.ReadByte();
@@ -433,22 +465,52 @@ public sealed class ReplayParserLog : IDisposable
         var frame = new FrameState();
         var prevUpdateTime = TimeSpan.FromMilliseconds(_input.ReadDouble());
         _input.ReadVoid();
-        var gauge = new ClientState.Gauge(_input.CanRead() ? _input.ReadULong(true) : 0, _version >= 18 ? _input.ReadULong(true) : 0);
+        var gauge = new ClientState.Gauge(
+            _input.CanRead() ? _input.ReadULong(true) : 0,
+            _version >= 18 ? _input.ReadULong(true) : 0
+        );
+
         if (_version >= 10)
         {
-            frame.QPC = _input.ReadULong(false);
-            frame.Index = _input.ReadUInt(false);
-            frame.DurationRaw = _input.ReadFloat();
-            frame.Duration = _input.ReadFloat();
-            frame.TickSpeedMultiplier = _input.ReadFloat();
-            if (_qpcStart != 0)
+            try
             {
-                frame.Timestamp = _tsStart.AddSeconds((frame.QPC - _qpcStart) * _invQPF);
+                frame.QPC = _input.ReadULong(false);
+                frame.Index = _input.ReadUInt(false);
+                frame.DurationRaw = _input.ReadFloat();
+                frame.Duration = _input.ReadFloat();
+                frame.TickSpeedMultiplier = _input.ReadFloat();
+
+                if (_qpcStart != 0 && frame.QPC >= _qpcStart)
+                {
+                    var timeDiff = (frame.QPC - _qpcStart) * _invQPF;
+                    if (timeDiff >= 0)
+                    {
+                        frame.Timestamp = _tsStart.AddSeconds(timeDiff);
+                    }
+                    else
+                    {
+                        frame.Timestamp = _tsStart;
+                        Service.Log($"Invalid time difference: {timeDiff}. Using default timestamp.");
+                    }
+                }
+                else
+                {
+                    if (_qpcStart == 0)
+                    {
+                        _qpcStart = frame.QPC;
+                        frame.Timestamp = _tsStart;
+                    }
+                    else
+                    {
+                        frame.Timestamp = _tsStart;
+                        Service.Log($"Invalid QPC values: _qpcStart={_qpcStart}, frame.QPC={frame.QPC}");
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _qpcStart = frame.QPC;
                 frame.Timestamp = _tsStart;
+                Service.Log($"Failed to parse frame start: {ex.Message}");
             }
         }
         else if (_input is TextInput ti)
@@ -459,7 +521,9 @@ public sealed class ReplayParserLog : IDisposable
             frame.Duration = frame.DurationRaw = (float)(ti.Timestamp - _legacyPrevTS).TotalSeconds;
             frame.TickSpeedMultiplier = 1;
         }
+
         _legacyPrevTS = frame.Timestamp;
+
         return new(frame, prevUpdateTime, gauge, _version >= 16 ? _input.ReadAngle() : default);
     }
 

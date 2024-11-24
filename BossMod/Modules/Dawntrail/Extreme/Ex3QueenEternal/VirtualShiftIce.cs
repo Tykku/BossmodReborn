@@ -3,6 +3,7 @@
 class VirtualShiftIce(BossModule module) : Components.GenericAOEs(module, default, "GTFO from broken bridge!")
 {
     private readonly List<AOEInstance> _unsafeBridges = [];
+    private readonly List<Rectangle> _destroyedBridges = [];
 
     private static readonly AOEShapeRect _shape = new(2, 3, 2);
 
@@ -10,9 +11,6 @@ class VirtualShiftIce(BossModule module) : Components.GenericAOEs(module, defaul
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state is not 0x00200010 and not 0x00400001)
-            return;
-
         WDir offset = index switch
         {
             4 => new(-5, -4),
@@ -31,7 +29,12 @@ class VirtualShiftIce(BossModule module) : Components.GenericAOEs(module, defaul
                 _unsafeBridges.Add(new(_shape, center));
                 break;
             case 0x00400001:
-                _unsafeBridges.RemoveAll(s => s.Origin.AlmostEqual(center, 1));
+                _unsafeBridges.RemoveAll(s => s.Origin == center);
+                break;
+            case 0x00800004:
+                _unsafeBridges.RemoveAll(s => s.Origin == center);
+                _destroyedBridges.Add(new(center, 3, 2));
+                Arena.Bounds = new ArenaBoundsComplex(Ex3QueenEternal.IceRectsAll, [.. _destroyedBridges], Offset: Trial.T03QueenEternal.T03QueenEternal.OffSet);
                 break;
         }
     }
@@ -78,8 +81,9 @@ class Rush(BossModule module) : Components.GenericBaitAway(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
-        foreach (var b in CurrentBaits)
+        for (var i = 0; i < CurrentBaits.Count; ++i)
         {
+            var b = CurrentBaits[i];
             Arena.Actor(b.Source, Colors.Object, true);
             if (b.Target == pc)
             {

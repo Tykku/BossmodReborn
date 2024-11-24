@@ -170,12 +170,11 @@ class GlassyEyed(BossModule module) : Components.GenericGaze(module)
 
 public class TenebrismTowers(BossModule module) : Components.GenericTowers(module)
 {
-    private WPos position;
-
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state == 0x00010008)
         {
+            WPos position = default;
             switch (index)
             {
                 case 0x07:

@@ -20,6 +20,7 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
     private readonly DebugAutorotation _debugAutorot = new(autorot);
     private readonly DebugAddon _debugAddon = new();
     private readonly DebugTiming _debugTiming = new();
+    private readonly DebugTeleport _debugTeleport = new();
     // private readonly DebugCollision _debugCollision = new();
     //private readonly DebugVfx _debugVfx = new();
 
@@ -167,6 +168,10 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
         if (ImGui.CollapsingHeader("Limit break"))
         {
             DrawLimitBreak();
+        }
+        if (ImGui.CollapsingHeader("Teleport"))
+        {
+            _debugTeleport.Draw();
         }
     }
 

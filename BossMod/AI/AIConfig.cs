@@ -46,6 +46,9 @@ sealed class AIConfig : ConfigNode
     [PropertyDisplay("Max distance to target")]
     public float MaxDistanceToTarget = 2.6f;
 
+    [PropertyDisplay("Override autorotation values", tooltip: "Uses your custom positional and distance settings instead of autorotation specific values")]
+    public bool OverrideAutorotation = true;
+
     [PropertyDisplay("Enable auto AFK", tooltip: "Enables auto AFK if out of combat. While AFK AI will not use autorotation or target anything")]
     public bool AutoAFK = false;
 

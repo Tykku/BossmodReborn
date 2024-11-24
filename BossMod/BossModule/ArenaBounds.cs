@@ -12,6 +12,7 @@ public abstract record class ArenaBounds(float Radius, float MapResolution, floa
     public List<RelTriangle> ShapeTriangulation { get; private set; } = [];
     private readonly PolygonClipper.Operand _clipOperand = new();
     public readonly Dictionary<object, object> Cache = [];
+
 #pragma warning disable IDE0032
     private float _screenHalfSize;
 #pragma warning restore IDE0032

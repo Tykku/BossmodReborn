@@ -27,8 +27,9 @@ public sealed unsafe class MovementOverride : IDisposable
     private float UserMoveUp;
     private float ActualMoveLeft;
     private float ActualMoveUp;
-
+#pragma warning disable IDE0032
     private bool _movementBlocked;
+#pragma warning restore IDE0032
     private bool _legacyMode;
 
     public bool IsMoving() => ActualMoveLeft != 0 || ActualMoveUp != 0;
@@ -78,7 +79,7 @@ public sealed unsafe class MovementOverride : IDisposable
     public void Dispose()
     {
         Service.GameConfig.UiControlChanged -= OnConfigChanged;
-        _movementBlocked = false;
+        MovementBlocked = false;
         UserMoveLeft = 0;
         UserMoveUp = 0;
         ActualMoveLeft = 0;
@@ -94,7 +95,7 @@ public sealed unsafe class MovementOverride : IDisposable
         UserMoveUp = *sumForward;
 
         // TODO: this allows AI mode to move even if movement is "blocked", is this the right behavior? AI mode should try to avoid moving while casting anyway...
-        if (MovementBlocked)
+        if (_movementBlocked)
         {
             *sumLeft = 0;
             *sumForward = 0;

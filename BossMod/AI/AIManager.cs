@@ -177,6 +177,9 @@ sealed class AIManager : IDisposable
             case "FOLLOWTARGET":
                 configModified = ToggleFollowTarget(messageData);
                 break;
+            case "OVERRIDEAUTOROTATION":
+                configModified = ToggleAutorotationOverride();
+                break;
             case "POSITIONAL":
                 configModified = HandlePositionalCommand(messageData);
                 break;
@@ -222,6 +225,12 @@ sealed class AIManager : IDisposable
     private bool ToggleFocusTargetLeader()
     {
         _config.FocusTargetLeader = !_config.FocusTargetLeader;
+        return true;
+    }
+
+    private bool ToggleAutorotationOverride()
+    {
+        _config.OverrideAutorotation = !_config.OverrideAutorotation;
         return true;
     }
 

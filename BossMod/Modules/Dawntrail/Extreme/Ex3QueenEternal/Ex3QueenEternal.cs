@@ -7,12 +7,13 @@ class DyingMemoryLast(BossModule module) : Components.CastCounter(module, Action
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn, Malediktus", PrimaryActorOID = (uint)OID.BossP1, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1017, NameID = 13029, PlanLevel = 100)]
 public class Ex3QueenEternal(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, NormalBounds)
 {
-    public static readonly WPos ArenaCenter = Trial.T03QueenEternal.T03QueenEternal.ArenaCenter;
+    public static readonly WPos ArenaCenter = Trial.T03QueenEternal.T03QueenEternal.ArenaCenter, HalfBoundsCenter = new(100, 110);
     public static readonly ArenaBoundsSquare NormalBounds = Trial.T03QueenEternal.T03QueenEternal.DefaultBounds;
+    public static readonly ArenaBoundsRect HalfBounds = new(20, 10);
     public static readonly ArenaBoundsComplex WindBounds = Trial.T03QueenEternal.T03QueenEternal.XArena;
     public static readonly ArenaBoundsComplex EarthBounds = Trial.T03QueenEternal.T03QueenEternal.SplitArena;
-    private static readonly Rectangle[] iceRects = [new Rectangle(new(112, 95), 4, 15), new Rectangle(new(88, 95), 4, 15), new Rectangle(ArenaCenter, 2, 10)];
-    public static readonly Rectangle[] IceRectsAll = [.. iceRects, new Rectangle(new(100, 96), 8, 2), new Rectangle(new(100, 104), 8, 2)];
+    private static readonly Rectangle[] iceRects = [new(new(112, 95), 4, 15), new(new(88, 95), 4, 15), new(ArenaCenter, 2, 10)];
+    public static readonly Rectangle[] IceRectsAll = [.. iceRects, new(new(100, 96), 8, 2), new(new(100, 104), 8, 2)];
     public static readonly ArenaBoundsComplex IceBounds = new(iceRects, Offset: Trial.T03QueenEternal.T03QueenEternal.OffSet);
     public static readonly ArenaBoundsComplex IceBridgeBounds = new(IceRectsAll, Offset: Trial.T03QueenEternal.T03QueenEternal.OffSet);
 

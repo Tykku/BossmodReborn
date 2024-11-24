@@ -318,12 +318,12 @@ public sealed class Plugin : IDalamudPlugin
                 if (cmd.Length <= 2)
                     Service.Log("Specify an autorotation preset name.");
                 else
-                    ParseAutorotationSetCommand(cmd.Skip(1).ToArray(), false);
+                    ParseAutorotationSetCommand([.. cmd.Skip(1)], false);
                 break;
             case "TOGGLE":
-                ParseAutorotationSetCommand(cmd.Length > 2 ? cmd.Skip(1).ToArray() : [""], true);
+                ParseAutorotationSetCommand(cmd.Length > 2 ? [.. cmd.Skip(1)] : [""], true);
                 break;
-            case "ui":
+            case "UI":
                 _wndRotation.SetVisible(!_wndRotation.IsOpen);
                 break;
         }
