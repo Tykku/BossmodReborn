@@ -29,7 +29,7 @@ public sealed class AIHints
         Normal,
         Pyretic, // pyretic/acceleration bomb type of effects - no movement, no actions, no casting allowed at activation time
         Freezing, // should be moving at activation time
-        // TODO: misdirection, etc
+        Misdirection, // temporary misdirection - if current time is greater than activation, use special pathfinding codepath
     }
 
     public static readonly ArenaBounds DefaultBounds = new ArenaBoundsSquare(30);
@@ -67,6 +67,10 @@ public sealed class AIHints
 
     // positioning: next positional hint (TODO: reconsider, maybe it should be a list prioritized by in-gcds, and imminent should be in-gcds instead? or maybe it should be property of an enemy? do we need correct?)
     public (Actor? Target, Positional Pos, bool Imminent, bool Correct) RecommendedPositional;
+    public void SetPositional(Positional positional)
+    {
+        RecommendedPositional = new(RecommendedPositional.Target, positional, RecommendedPositional.Imminent, RecommendedPositional.Correct);
+    }
 
     // orientation restrictions (e.g. for gaze attacks): a list of forbidden orientation ranges, now or in near future
     // AI will rotate to face allowed orientation at last possible moment, potentially losing uptime
@@ -74,6 +78,9 @@ public sealed class AIHints
 
     // closest special movement/targeting/action mode, if any
     public (SpecialMode mode, DateTime activation) ImminentSpecialMode;
+
+    // for misdirection: if forced movement is set, make real direction be within this angle
+    public Angle MisdirectionThreshold;
 
     // predicted incoming damage (raidwides, tankbusters, etc.)
     // AI will attempt to shield & mitigate
@@ -109,6 +116,7 @@ public sealed class AIHints
         RecommendedPositional = default;
         ForbiddenDirections.Clear();
         ImminentSpecialMode = default;
+        MisdirectionThreshold = 20.Degrees();
         PredictedDamage.Clear();
         MaxCastTimeEstimate = float.MaxValue;
         ActionsToExecute.Clear();

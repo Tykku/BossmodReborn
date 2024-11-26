@@ -10,13 +10,7 @@ class AsuranFists(BossModule module) : Components.GenericTowers(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.AsuranFists1 or AID.AsuranFists2 or AID.AsuranFists3)
-        {
-            if (++NumCasts == 8)
-            {
-                NumCasts = 0;
-                Towers.Clear();
-            }
-        }
+        if ((AID)spell.Action.ID == AID.AsuranFists3)
+            Towers.Clear();
     }
 }

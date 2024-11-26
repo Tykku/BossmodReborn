@@ -38,6 +38,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         _afkMode = _config.AutoAFK && !master.InCombat && (WorldState.CurrentTime - _masterLastMoved).TotalSeconds > _config.AFKModeTimer;
         var gazeImminent = autorot.Hints.ForbiddenDirections.Count > 0 && autorot.Hints.ForbiddenDirections[0].activation <= WorldState.FutureTime(0.5f);
         var pyreticImminent = autorot.Hints.ImminentSpecialMode.mode == AIHints.SpecialMode.Pyretic && autorot.Hints.ImminentSpecialMode.activation <= WorldState.FutureTime(1);
+        var misdirectionMode = autorot.Hints.ImminentSpecialMode.mode == AIHints.SpecialMode.Misdirection && autorot.Hints.ImminentSpecialMode.activation <= WorldState.CurrentTime;
         var forbidActions = _config.ForbidActions || _afkMode || gazeImminent || pyreticImminent;
 
         Targeting target = new();
@@ -63,12 +64,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         var moveWithMaster = masterIsMoving && (master == player || _followMaster);
         ForceMovementIn = moveWithMaster || gazeImminent || pyreticImminent ? 0 : _naviDecision.LeewaySeconds;
 
-        if (!forbidActions)
-        {
-            autorot.Preset = target.Target != null ? AIPreset : null;
-        }
-
-        UpdateMovement(player, master, target, gazeImminent || pyreticImminent, !forbidActions ? autorot.Hints.ActionsToExecute : null);
+        UpdateMovement(player, master, target, gazeImminent || pyreticImminent, misdirectionMode ? autorot.Hints.MisdirectionThreshold : default, !forbidActions ? autorot.Hints.ActionsToExecute : null);
     }
 
     // returns null if we're to be idle, otherwise target to attack
@@ -185,7 +181,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         return masterIsMoving;
     }
 
-    private void UpdateMovement(Actor player, Actor master, Targeting target, bool gazeOrPyreticImminent, ActionQueue? queueForSprint)
+    private void UpdateMovement(Actor player, Actor master, Targeting target, bool gazeOrPyreticImminent, Angle misdirectionAngle, ActionQueue? queueForSprint)
     {
         if (gazeOrPyreticImminent)
         {
@@ -193,6 +189,19 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
             ctrl.NaviTargetPos = null;
             ctrl.NaviTargetVertical = null;
             ctrl.ForceCancelCast = true;
+        }
+        else if (misdirectionAngle != default && _naviDecision.Destination != null)
+        {
+            ctrl.NaviTargetPos = _naviDecision.NextTurn == 0 ? _naviDecision.Destination
+                : player.Position + (_naviDecision.Destination.Value - player.Position).Rotate(_naviDecision.NextTurn > 0 ? -misdirectionAngle : misdirectionAngle);
+            ctrl.AllowInterruptingCastByMovement = true;
+
+            // debug
+            //void drawLine(WPos from, WPos to, uint color) => Camera.Instance!.DrawWorldLine(new(from.X, player.PosRot.Y, from.Z), new(to.X, player.PosRot.Y, to.Z), color);
+            //var toDest = _naviDecision.Destination.Value - player.Position;
+            //drawLine(player.Position, _naviDecision.Destination.Value, 0xff00ff00);
+            //drawLine(_naviDecision.Destination.Value, _naviDecision.Destination.Value + toDest.Normalized().OrthoL(), 0xff00ff00);
+            //drawLine(player.Position, ctrl.NaviTargetPos.Value, 0xff00ffff);
         }
         else
         {

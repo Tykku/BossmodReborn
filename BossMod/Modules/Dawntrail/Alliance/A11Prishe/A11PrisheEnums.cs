@@ -4,7 +4,7 @@ public enum OID : uint
 {
     Boss = 0x4673, // R6.342
     LuminousRemnant = 0x4674, // R1.000-1.86
-    Tower = 0x1EBCC9, // R0.500, x0 (spawn during fight), EventObj type
+    Tower = 0x1EBCC9, // R0.5
     Helper3 = 0x4696, // R0.465
     Helper2 = 0x46CF, // R1.2
     Helper = 0x233C

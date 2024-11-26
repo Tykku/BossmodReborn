@@ -308,3 +308,16 @@ public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerabl
         return InvertForbiddenZone ? p => -shapeDistance(p) : shapeDistance;
     }
 }
+
+public sealed record class AOEShapeCustomAlt(RelSimplifiedComplexPolygon Poly, Angle DirectionOffset = default, bool InvertForbiddenZone = false) : AOEShape
+{
+    public override string ToString() => $"Custom: off={DirectionOffset}, ifz={InvertForbiddenZone}";
+    public override bool Check(WPos position, WPos origin, Angle rotation) => Poly.Contains((position - origin).Rotate(-rotation - DirectionOffset));
+    public override void Draw(MiniArena arena, WPos origin, Angle rotation, uint color = 0) => arena.ZoneComplex(origin, rotation + DirectionOffset, Poly, color);
+    public override void Outline(MiniArena arena, WPos origin, Angle rotation, uint color = 0) => arena.AddComplexPolygon(origin, (rotation + DirectionOffset).ToDirection(), Poly, color);
+    public override Func<WPos, float> Distance(WPos origin, Angle rotation)
+    {
+        var shapeDistance = new PolygonWithHolesDistanceFunction(origin, Poly).Distance;
+        return InvertForbiddenZone ? p => -shapeDistance(p) : shapeDistance;
+    }
+}

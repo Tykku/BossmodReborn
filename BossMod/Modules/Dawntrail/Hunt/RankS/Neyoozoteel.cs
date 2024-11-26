@@ -20,6 +20,8 @@ public enum AID : uint
     NoxiousSap4 = 37370, // Boss->self, no cast, range 30 120-degree cone
     NoxiousSap5 = 37396, // Boss->self, no cast, range 30 120-degree cone
     NoxiousSap6 = 37371, // Boss->self, no cast, range 30 120-degree cone
+    NoxiousSap7 = 42174, // Boss->self, no cast, range 30 120-degree cone
+    NoxiousSap8 = 42173, // Boss->self, no cast, range 30 120-degree cone
 
     Neurotoxify = 38331, // Boss->self, 5.0s cast, range 40 circle
 
@@ -64,16 +66,21 @@ class SapSpiller(BossModule module) : Components.GenericAOEs(module)
     private static readonly Angle a90 = 90.Degrees();
     private readonly List<AOEInstance> _aoes = [];
     private static readonly HashSet<AID> castEnd = [AID.NoxiousSap2, AID.NoxiousSap3, AID.NoxiousSap4,
-    AID.NoxiousSap5, AID.NoxiousSap6];
+    AID.NoxiousSap5, AID.NoxiousSap6, AID.NoxiousSap7, AID.NoxiousSap8];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
         if (count > 0)
         {
-            yield return _aoes[0] with { Color = Colors.Danger };
-            foreach (var a in _aoes.Skip(1).Take(count - 1))
-                yield return a;
+            for (var i = 0; i < count; ++i)
+            {
+                var aoe = _aoes[i];
+                if (i == 0)
+                    yield return count > 1 ? aoe with { Color = Colors.Danger } : aoe;
+                else if (i > 0)
+                    yield return aoe;
+            }
         }
     }
 

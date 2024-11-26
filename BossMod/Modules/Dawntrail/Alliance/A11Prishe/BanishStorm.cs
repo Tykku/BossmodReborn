@@ -2,6 +2,8 @@ namespace BossMod.Dawntrail.Alliance.A11Prishe;
 
 class BanishStorm(BossModule module) : Components.Exaflare(module, 6)
 {
+    public bool Done;
+
     private static readonly WPos[] positions = [new(815, 415), new(800, 385), new(785, 400), new(785, 385), new(815, 400), new(800, 415)];
     private static readonly WDir[] directions =
     [
@@ -40,23 +42,32 @@ class BanishStorm(BossModule module) : Components.Exaflare(module, 6)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state == 0x00020001 && LineConfigs.TryGetValue(index, out var config))
+        if (LineConfigs.TryGetValue(index, out var config))
         {
-            var activation1 = WorldState.FutureTime(9.1f);
-            var activation2 = WorldState.FutureTime(9.8f);
-
-            for (var i = 0; i < 3; ++i)
+            if (state == 0x00020001) // rod appear
             {
-                Lines.Add(new()
+                var activation1 = WorldState.FutureTime(9.1f);
+                var activation2 = WorldState.FutureTime(9.8f);
+
+                for (var i = 0; i < 3; ++i)
                 {
-                    Next = positions[config.position] + (i > 0 ? directions[config.directions[i]] : default),
-                    Advance = directions[config.directions[i]],
-                    NextExplosion = i == 0 ? activation1 : activation2,
-                    TimeToMove = 0.7f,
-                    ExplosionsLeft = config.numExplosions[i],
-                    MaxShownExplosions = config.numExplosions[i]
-                });
+                    Lines.Add(new()
+                    {
+                        Next = positions[config.position] + (i > 0 ? directions[config.directions[i]] : default),
+                        Advance = directions[config.directions[i]],
+                        NextExplosion = i == 0 ? activation1 : activation2,
+                        TimeToMove = 0.7f,
+                        ExplosionsLeft = config.numExplosions[i],
+                        MaxShownExplosions = config.numExplosions[i]
+                    });
+                }
             }
+            else if (state == 0x00080004) // rod disappear
+            {
+                Done = true;
+            }
+            // 0x00200010 - aoe direction indicator appear
+            // 0x00800040 - aoe direction indicator disappear
         }
     }
 
@@ -64,6 +75,7 @@ class BanishStorm(BossModule module) : Components.Exaflare(module, 6)
     {
         if ((AID)spell.Action.ID == AID.Banish)
         {
+            ++NumCasts;
             var index = Lines.FindIndex(item => item.Next.AlmostEqual(caster.Position, 1));
             AdvanceLine(Lines[index], caster.Position);
             if (Lines[index].ExplosionsLeft == 0)

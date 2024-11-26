@@ -213,7 +213,7 @@ class RockBlast(BossModule module) : Components.GenericAOEs(module)
     private readonly List<AOEInstance> _aoes = [];
     private static readonly AOEShapeCircle circle = new(5);
 
-    private static readonly WPos[] ClockPositions = [new(34, -697), new(48, -710), new(21, -710), new(34, -724)];
+    private static readonly WPos[] clockPositions = [new(34, -697), new(48, -710), new(21, -710), new(34, -724)];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(8);
 
@@ -228,7 +228,7 @@ class RockBlast(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.RockBlast)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID == AID.RockBlast)
             _aoes.RemoveAt(0);
     }
 
@@ -236,7 +236,7 @@ class RockBlast(BossModule module) : Components.GenericAOEs(module)
     {
         for (var i = 0; i < 4; ++i)
         {
-            if (caster.Position.AlmostEqual(ClockPositions[i], 1))
+            if (caster.Position.AlmostEqual(clockPositions[i], 1))
                 return rotation.AlmostEqual(Angle.AnglesCardinals[i], Angle.DegToRad);
         }
         return false;

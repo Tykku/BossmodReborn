@@ -33,6 +33,7 @@ public struct NavigationDecision
     }
 
     public WPos? Destination;
+    public float NextTurn; // > 0 if we turn left after reaching first waypoint, < 0 if we turn right, 0 otherwise (no more waypoints)
     public float LeewaySeconds; // can be used for finishing casts / slidecasting etc.
     public float TimeToGoal;
     public Map? Map;

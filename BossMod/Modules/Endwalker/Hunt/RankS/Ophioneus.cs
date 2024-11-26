@@ -19,8 +19,9 @@ public enum AID : uint
     Scratch = 27348, // Boss->player, 5.0s cast, single-target
 }
 
-class RightMaw(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RightMaw), new AOEShapeCone(30, 90.Degrees()));
-class LeftMaw(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeftMaw), new AOEShapeCone(30, 90.Degrees()));
+abstract class Maw(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 90.Degrees()));
+class RightMaw(BossModule module) : Maw(module, AID.RightMaw);
+class LeftMaw(BossModule module) : Maw(module, AID.LeftMaw);
 
 class PyricCircleBurst(BossModule module) : Components.GenericAOEs(module)
 {

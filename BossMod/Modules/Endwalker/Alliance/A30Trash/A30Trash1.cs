@@ -23,7 +23,7 @@ public enum AID : uint
 
 class WaterIII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.WaterIII), 8);
 
-class PelagicCleaver(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 30.Degrees()));
+abstract class PelagicCleaver(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 30.Degrees()));
 class PelagicCleaver1(BossModule module) : PelagicCleaver(module, AID.PelagicCleaver1);
 class PelagicCleaver2(BossModule module) : PelagicCleaver(module, AID.PelagicCleaver2);
 

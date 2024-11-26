@@ -17,7 +17,7 @@ public enum AID : uint
 class WingsbreadthWinds(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WingsbreadthWinds), new AOEShapeCircle(8));
 class StormwallWinds(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.StormwallWinds), new AOEShapeDonut(8, 25));
 class DirgeOfTheLost(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DirgeOfTheLost), new AOEShapeCircle(40));
-class DirgeOfTheLostHint(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.DirgeOfTheLost), "Applies Temporary Misdirection!");
+class DirgeOfTheLostHint(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.DirgeOfTheLost));
 class AeroIV(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AeroIV));
 class SwiftwindSerenade(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SwiftwindSerenade), new AOEShapeRect(40, 4));
 

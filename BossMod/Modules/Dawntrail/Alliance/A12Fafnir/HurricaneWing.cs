@@ -1,40 +1,112 @@
 namespace BossMod.Dawntrail.Alliance.A12Fafnir;
 
-abstract class HurricaneWing(BossModule module, AID aid1, AID aid2, AID aid3, AID aid4, AOEShape shape1, AOEShape shape2, AOEShape shape3, AOEShape shape4)
-: Components.ConcentricAOEs(module, [shape1, shape2, shape3, shape4])
+class HurricaneWingRaidwide(BossModule module) : Components.CastCounterMulti(module, [ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE1), ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE2), ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE3),
+    ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE4), ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE5), ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE6),
+    ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE7), ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE8), ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE9)]);
+
+class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
 {
+    public readonly List<AOEInstance> AOEs = [];
+
+    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(9), new AOEShapeDonut(9, 16), new AOEShapeDonut(16, 23), new AOEShapeDonut(23, 30)];
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs.Take(1);
+
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == aid1)
-            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
+        AOEShape? shape = ShapeForAction(spell.Action);
+        if (shape != null)
+        {
+            NumCasts = 0;
+            AOEs.Add(new(shape, caster.Position, default, Module.CastFinishAt(spell)));
+            AOEs.SortBy(aoe => aoe.Activation);
+        }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count != 0)
+        AOEShape? shape = ShapeForAction(spell.Action);
+        if (shape != null)
         {
-            var order = -1;
-            if ((AID)spell.Action.ID == aid1)
-                order = 0;
-            else if ((AID)spell.Action.ID == aid2)
-                order = 1;
-            else if ((AID)spell.Action.ID == aid3)
-                order = 2;
-            else if ((AID)spell.Action.ID == aid4)
-                order = 3;
-            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(2));
+            AOEs.RemoveAll(aoe => aoe.Shape == shape);
+            ++NumCasts;
         }
     }
+
+    private AOEShape? ShapeForAction(ActionID aid) => (AID)aid.ID switch
+    {
+        AID.HurricaneWingLongExpanding1 or AID.HurricaneWingShortExpanding1 or AID.HurricaneWingLongShrinking4 or AID.HurricaneWingShortShrinking4 => _shapes[0],
+        AID.HurricaneWingLongExpanding2 or AID.HurricaneWingShortExpanding2 or AID.HurricaneWingLongShrinking3 or AID.HurricaneWingShortShrinking3 => _shapes[1],
+        AID.HurricaneWingLongExpanding3 or AID.HurricaneWingShortExpanding3 or AID.HurricaneWingLongShrinking2 or AID.HurricaneWingShortShrinking2 => _shapes[2],
+        AID.HurricaneWingLongExpanding4 or AID.HurricaneWingShortExpanding4 or AID.HurricaneWingLongShrinking1 or AID.HurricaneWingShortShrinking1 => _shapes[3],
+        _ => null
+    };
 }
-abstract class HurricaneWingOutIn(BossModule module, AID aid1, AID aid2, AID aid3, AID aid4) : HurricaneWing(module, aid1, aid2, aid3, aid4,
-new AOEShapeCircle(9), new AOEShapeDonut(9, 16), new AOEShapeDonut(16, 23), new AOEShapeDonut(23, 30));
-abstract class HurricaneWingInOut(BossModule module, AID aid1, AID aid2, AID aid3, AID aid4) : HurricaneWing(module, aid1, aid2, aid3, aid4,
-new AOEShapeDonut(23, 30), new AOEShapeDonut(16, 23), new AOEShapeDonut(9, 16), new AOEShapeCircle(9));
-class HurricaneWingOutInLong(BossModule module) : HurricaneWingOutIn(module, AID.HurricaneWingConcentricA1, AID.HurricaneWingConcentricA2,
-AID.HurricaneWingConcentricA3, AID.HurricaneWingConcentricA4);
-class HurricaneWingOutInShort(BossModule module) : HurricaneWingOutIn(module, AID.HurricaneWingConcentricB1, AID.HurricaneWingConcentricB2,
-AID.HurricaneWingConcentricB3, AID.HurricaneWingConcentricB4);
-class HurricaneWingInOutLong(BossModule module) : HurricaneWingInOut(module, AID.HurricaneWingConcentricD1, AID.HurricaneWingConcentricD2,
-AID.HurricaneWingConcentricD3, AID.HurricaneWingConcentricD4);
-class HurricaneWingInOutShort(BossModule module) : HurricaneWingInOut(module, AID.HurricaneWingConcentricC1, AID.HurricaneWingConcentricC2,
-AID.HurricaneWingConcentricC3, AID.HurricaneWingConcentricC4);
+
+class GreatWhirlwindLarge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindLarge), new AOEShapeCircle(10));
+class GreatWhirlwindSmall(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindSmall), new AOEShapeCircle(3));
+
+class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
+{
+    private const int Length = 5;
+    private static readonly AOEShapeCapsule capsuleSmall = new(3, Length), capsuleBig = new(9, Length);
+    private readonly List<Actor> _smallWhirldwinds = [], _bigWhirldwinds = [];
+    public bool Active => _smallWhirldwinds.Count is not 0 or not 0;
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var countSmall = _smallWhirldwinds.Count;
+        var countBig = _bigWhirldwinds.Count;
+        if (countSmall == 0 && countBig == 0)
+            yield break;
+        for (var i = 0; i < countSmall; ++i)
+        {
+            var w = _smallWhirldwinds[i];
+            yield return new(capsuleSmall, w.Position, w.Rotation);
+        }
+        for (var i = 0; i < countBig; ++i)
+        {
+            var w = _bigWhirldwinds[i];
+            yield return new(capsuleBig, w.Position, w.Rotation);
+        }
+    }
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID == AID.GreatWhirlwindLarge)
+            _bigWhirldwinds.Add(caster);
+        else if ((AID)spell.Action.ID == AID.GreatWhirlwindSmall)
+            _smallWhirldwinds.Add(caster);
+    }
+
+    public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
+    {
+        if ((OID)actor.OID == OID.BitingWind && id == 0x1E3C)
+            _smallWhirldwinds.Remove(actor);
+        else if ((OID)actor.OID == OID.RavagingWind && id == 0x1E39)
+            _bigWhirldwinds.Remove(actor);
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        var countSmall = _smallWhirldwinds.Count;
+        var countBig = _bigWhirldwinds.Count;
+        if (countSmall == 0 && countBig == 0)
+            return;
+        var forbidden = new List<Func<WPos, float>>(); // merging all forbidden zones into one to make pathfinding less demanding
+        for (var i = 0; i < countBig; ++i)
+        {
+            var w = _bigWhirldwinds[i];
+            forbidden.Add(ShapeDistance.Capsule(w.Position, w.Rotation, Length, 9));
+        }
+        for (var i = 0; i < countSmall; ++i)
+        {
+            var w = _smallWhirldwinds[i];
+            forbidden.Add(ShapeDistance.Capsule(w.Position, w.Rotation, Length, 3));
+        }
+        hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
+    }
+}
+
+class HorridRoarPuddle(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HorridRoarPuddle), 4);
+class HorridRoarSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HorridRoarSpread), 8);

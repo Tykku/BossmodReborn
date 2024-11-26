@@ -1,37 +1,27 @@
 ﻿namespace BossMod.Dawntrail.Alliance.A14ShadowLord;
 
-class GigaSlash3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GigaSlash3), new AOEShapeCone(60, 112.5f.Degrees()));
-class GigaSlash4(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GigaSlash4), new AOEShapeCone(60, 135.Degrees()));
-class GigaSlash5(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GigaSlash5), new AOEShapeCone(60, 112.5f.Degrees()));
-class GigaSlash6(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GigaSlash6), new AOEShapeCone(60, 135.Degrees()));
-class UmbraSmash2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.UmbraSmash2), new AOEShapeRect(60, 5));
-class UmbraSmash5(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.UmbraSmash5), new AOEShapeRect(60, 5));
-class UmbraSmash6(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.UmbraSmash6), new AOEShapeRect(60, 5));
-class UmbraSmash7(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.UmbraSmash7), new AOEShapeRect(60, 5));
-class UmbraSmash8(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.UmbraSmash8), new AOEShapeRect(60, 5));
-class UmbraWave(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.UmbraWave), new AOEShapeRect(5, 30));
-class FlamesOfHatred(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FlamesOfHatred));
-class Implosion1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Implosion1), new AOEShapeCone(60, 90.Degrees()));
-class Implosion2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Implosion2), new AOEShapeCone(12, 90.Degrees()));
-class Implosion3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Implosion3), new AOEShapeCone(60, 90.Degrees()));
-class Implosion4(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Implosion4), new AOEShapeCone(12, 90.Degrees()));
-class CthonicFury1(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CthonicFury1));
-class CthonicFury2(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CthonicFury2));
-class BurningCourt(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BurningCourt), new AOEShapeCircle(8));
-class BurningKeep(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BurningKeep), new AOEShapeRect(23, 11.5f, 23));
-class TeraSlash(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.TeraSlash));
-class GigaSlashNightfall1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GigaSlashNightfall1), new AOEShapeCone(60, 105.Degrees()));
-class GigaSlashNightfall2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GigaSlashNightfall2), new AOEShapeCone(60, 105.Degrees()));
-class GigaSlashNightfall3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GigaSlashNightfall3), new AOEShapeCone(60, 112.5f.Degrees()));
-class GigaSlashNightfall4(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GigaSlashNightfall4), new AOEShapeCone(60, 135.Degrees()));
-class GigaSlashNightfall5(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GigaSlashNightfall5), new AOEShapeCone(60, 112.5f.Degrees()));
-class GigaSlashNightfall6(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GigaSlashNightfall6), new AOEShapeCone(60, 135.Degrees()));
+class TeraSlash(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.TeraSlash));
+class UnbridledRage(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeRect(100, 4), (uint)IconID.UnbridledRage, ActionID.MakeSpell(AID.UnbridledRageAOE), 5.9f);
 class DarkNova(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.DarkNova), 6);
-class SoulBinding(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SoulBinding), new AOEShapeCircle(9));
-class Impact1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Impact1), new AOEShapeCircle(3));
-class Impact2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Impact2), new AOEShapeCircle(3));
-class Impact3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Impact3), new AOEShapeCircle(3));
-class DoomArc(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DoomArc));
+public class StayInBounds(BossModule module) : BossComponent(module)
+{
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        if (!Arena.InBounds(actor.Position))
+            hints.AddForbiddenZone(ShapeDistance.InvertedDonut(Arena.Center, 11, 12));
+    }
+}
 
-[ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team (LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1015, NameID = 13653)]
-public class A14ShadowLord(WorldState ws, Actor primary) : BossModule(ws, primary, new(150, 800), new ArenaBoundsCircle(30));
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1015, NameID = 13653, SortOrder = 8)]
+public class A14ShadowLord(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, DefaultBounds)
+{
+    private const int RadiusSmall = 8;
+    public static readonly WPos ArenaCenter = new(150, 800);
+    public static readonly ArenaBoundsCircle DefaultBounds = new(30);
+    private static readonly Circle[] circles = [new(new(166, 800), RadiusSmall), new(new(134, 800), RadiusSmall),
+    new(new(150, 816), RadiusSmall), new(new(150, 784), RadiusSmall)];
+    private static readonly RectangleSE[] rects = [new(circles[1].Center, circles[2].Center, 2), new(circles[1].Center, circles[3].Center, 2),
+    new(circles[3].Center, circles[0].Center, 2), new(circles[0].Center, circles[2].Center, 2)];
+    public static readonly Shape[] Combined = [.. circles, .. rects];
+    public static readonly ArenaBoundsComplex ComplexBounds = new(Combined);
+}

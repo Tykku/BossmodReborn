@@ -90,71 +90,8 @@ class Bloodburst(BossModule module) : Components.RaidwideCast(module, ActionID.M
 class DarkSouls(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DarkSouls));
 class TelltaleTears(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.TelltaleTears), 5);
 class SoulDouse(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.SoulDouse), 6, 4, 4);
-class LostHope(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.LostHope), "Apply temporary misdirection");
-class Necrohazard(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Necrohazard), new AOEShapeCircle(18))
-{
-    private static readonly Vector3 SafeSpotCoordsThreeArm = new(99.179f, 12.5f, -57.336f);
-    private static readonly Vector3 SafeSpotCoordsFourArm = new(120.899f, 12.5f, -83.930f);
-    private bool teleported;
-
-    // AI cannot handle temporary misdirection at the moment. to enable AI to clear it on tanks at least, we press invuln
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (teleported)
-        {
-            base.AddAIHints(slot, actor, assignment, hints);
-            return;
-        }
-        if (AI.AIManager.Instance?.Beh == null || Casters.Count == 0)
-            return;
-        switch (Service.Config.Get<D092OverseerKanilokkaConfig>().NecroHazardMechanicHints)
-        {
-            case D092OverseerKanilokkaConfig.NecrohazardMechanic.TankInvuln:
-                if (actor.Role != Role.Tank)
-                    return;
-                if ((Module.CastFinishAt(Casters[0].CastInfo) - WorldState.CurrentTime).TotalSeconds < 5)
-                {
-                    switch (actor.Class)
-                    {
-                        case Class.PLD:
-                            hints.ActionsToExecute.Push(ActionID.MakeSpell(PLD.AID.HallowedGround), actor, ActionQueue.Priority.High);
-                            break;
-                        case Class.WAR:
-                            hints.ActionsToExecute.Push(ActionID.MakeSpell(WAR.AID.Holmgang), actor, ActionQueue.Priority.High);
-                            break;
-                        case Class.GNB:
-                            hints.ActionsToExecute.Push(ActionID.MakeSpell(GNB.AID.Superbolide), actor, ActionQueue.Priority.High);
-                            break;
-                        case Class.DRK:
-                            hints.ActionsToExecute.Push(ActionID.MakeSpell(DRK.AID.LivingDead), actor, ActionQueue.Priority.High);
-                            break;
-                    }
-                }
-                break;
-            case D092OverseerKanilokkaConfig.NecrohazardMechanic.TeleportHackAlways:
-                Teleport();
-                break;
-            case D092OverseerKanilokkaConfig.NecrohazardMechanic.TeleportHackNPC:
-                if (Raid.WithoutSlot().Any(x => x.Type == ActorType.Buddy))
-                    Teleport();
-                break;
-        }
-    }
-
-    private void Teleport()
-    {
-        if (Arena.Bounds == D092OverseerKanilokka.ArenaENVC00800040)
-        {
-            Util.PlayerEx.SetPlayerPosition(SafeSpotCoordsFourArm);
-            teleported = true;
-        }
-        else if (Arena.Bounds == D092OverseerKanilokka.ArenaENVC02000100)
-        {
-            Util.PlayerEx.SetPlayerPosition(SafeSpotCoordsThreeArm);
-            teleported = true;
-        }
-    }
-}
+class LostHope(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.LostHope));
+class Necrohazard(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Necrohazard), new AOEShapeCircle(18));
 
 class DarkII(BossModule module) : Components.GenericAOEs(module)
 {

@@ -24,6 +24,9 @@ class AuroralUppercut(BossModule module) : Components.Knockback(module, ignoreIm
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
         if (_source != null && (SID)status.ID == SID.Knockback)
+        {
+            NumCasts = 1;
             _source = null;
+        }
     }
 }

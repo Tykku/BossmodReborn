@@ -24,6 +24,9 @@ class Aspect(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEShape? _imminentAOE;
     private DateTime _activation;
+    private static readonly AOEShapeCone cone = new(30, 135.Degrees());
+    private static readonly AOEShapeDonut donut = new(10, 40);
+    private static readonly AOEShapeCircle circle = new(22);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -37,9 +40,9 @@ class Aspect(BossModule module) : Components.GenericAOEs(module)
             return;
         AOEShape? shape = (AID)spell.Action.ID switch
         {
-            AID.AspectEarth => new AOEShapeCone(30, 135.Degrees()),
-            AID.AspectWind => new AOEShapeDonut(10, 40),
-            AID.AspectLightning => new AOEShapeCircle(22),
+            AID.AspectEarth => cone,
+            AID.AspectWind => donut,
+            AID.AspectLightning => circle,
             _ => null
         };
         if (shape != null)

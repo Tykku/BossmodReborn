@@ -1,7 +1,8 @@
 namespace BossMod.Dawntrail.Alliance.A11Prishe;
 
-class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
+class ArenaChanges(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.Thornbite))
 {
+    public bool Active => _aoe != null || Arena.Bounds != A11Prishe.DefaultBounds;
     private AOEInstance? _aoe;
     private static readonly Square[] defaultSquare = [new(A11Prishe.ArenaCenter, 35)];
     private static readonly Shape[] differenceENVC00020001 = [new Square(new(795, 405), 10), new Square(new(805, 395), 10), new Rectangle(new(810, 430), 15, 5),

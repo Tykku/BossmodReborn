@@ -17,62 +17,54 @@ public enum AID : uint
     AutoAttack1 = 40633, // Darter->player, no cast, single-target
     AutoAttack2 = 40860, // Boss->player, no cast, single-target
 
-    AbsoluteTerrorVisual = 40845, // Boss->self, 6.0+1.4s cast, single-target
-    AbsoluteTerror = 40846, // Helper->self, 7.4s cast, range 70 width 20 rect
-
     BalefulNailVisual1 = 40812, // Boss->location, no cast, single-target, four hit line AOE
     BalefulNailVisual2 = 40813, // Boss->location, no cast, single-target
-    BalefulBreathVisual1 = 39922, // Boss->self, 8.0s cast, single-target
-    BalefulBreathVisual2 = 39798, // Boss->self, no cast, single-target
-    BalefulBreath1 = 40852, // Boss->self, no cast, range 70 width 6 rect
-    BalefulBreath2 = 40853, // Boss->self, no cast, range 70 width 6 rect
+    BalefulBreath = 39922, // Boss->self, 8.0s cast, single-target, visual (4-hit line stack)
+    BalefulBreathAOEFirst = 40852, // Boss->self, no cast, range 70 width 6 rect, first hit
+    BalefulBreathAOERest = 40853, // Boss->self, no cast, range 70 width 6 rect, hits 2-4
+    BalefulBreathEnd = 39798, // Boss->self, no cast, single-target, visual (mechanic end)
 
     DarkMatterBlast = 40854, // Boss->self, 5.0s cast, range 70 circle
 
-    GreatWhirlwindFirst1 = 39873, // RavagingWind->self, 4.5s cast, range 10 circle
-    GreatWhirlwindFirst2 = 39874, // BitingWind->self, 4.5s cast, range 3 circle
-    GreatWhirlwindrest1 = 40843, // Helper->self, no cast, range 9 circle
-    GreatWhirlwindRest2 = 40844, // Helper->self, no cast, range 3 circle
+    GreatWhirlwindLarge = 39873, // RavagingWind->self, 4.5s cast, range 10 circle
+    GreatWhirlwindSmall = 39874, // BitingWind->self, 4.5s cast, range 3 circle
+    GreatWhirlwindLargeAOE = 40843, // Helper->self, no cast, range 9 circle
+    GreatWhirlwindSmallAOE = 40844, // Helper->self, no cast, range 3 circle
 
-    HorridRoarVisual = 40849, // Boss->self, 3.0s cast, single-target
-    HorridRoarAOE = 40850, // Helper->location, 4.0s cast, range 4 circle
-    HorridRoarSpread = 40851, // Helper->players, 5.0s cast, range 8 circle, spreadmarker
+    HorridRoar = 40849, // Boss->self, 3.0s cast, single-target, visual (puddles + spread)
+    HorridRoarPuddle = 40850, // Helper->location, 4.0s cast, range 4 circle puddle
+    HorridRoarSpread = 40851, // Helper->player, 5.0s cast, range 8 circle spread
 
-    HurricaneWingVisual = 40817, // Boss->self, 3.0+2.5s cast, single-target
-    HurricaneWing1 = 40818, // Helper->self, no cast, range 70 circle
-    HurricaneWing2 = 40819, // Helper->self, no cast, range 70 circle
-    HurricaneWing3 = 40820, // Helper->self, no cast, range 70 circle
-    HurricaneWing4 = 40821, // Helper->self, no cast, range 70 circle
-    HurricaneWing5 = 40822, // Helper->self, no cast, range 70 circle
-    HurricaneWing6 = 41302, // Helper->self, no cast, range 70 circle
-    HurricaneWing7 = 41303, // Helper->self, no cast, range 70 circle
-    HurricaneWing8 = 41304, // Helper->self, no cast, range 70 circle
-    HurricaneWing9 = 41305, // Helper->self, no cast, range 70 circle
+    HurricaneWingRaidwide = 40817, // Boss->self, 3.0+2.5s cast, single-target, visual (multi-hit raidwide)
+    HurricaneWingRaidwideAOE1 = 40818, // Helper->self, no cast, range 70 circle
+    HurricaneWingRaidwideAOE2 = 40819, // Helper->self, no cast, range 70 circle
+    HurricaneWingRaidwideAOE3 = 40820, // Helper->self, no cast, range 70 circle
+    HurricaneWingRaidwideAOE4 = 40821, // Helper->self, no cast, range 70 circle
+    HurricaneWingRaidwideAOE5 = 40822, // Helper->self, no cast, range 70 circle
+    HurricaneWingRaidwideAOE6 = 41302, // Helper->self, no cast, range 70 circle
+    HurricaneWingRaidwideAOE7 = 41303, // Helper->self, no cast, range 70 circle
+    HurricaneWingRaidwideAOE8 = 41304, // Helper->self, no cast, range 70 circle
+    HurricaneWingRaidwideAOE9 = 41305, // Helper->self, no cast, range 70 circle
+    HurricaneWingLongShrinking1 = 40824, // Helper->self, 5.0s cast, range 23-30 donut
+    HurricaneWingLongShrinking2 = 40825, // Helper->self, 7.0s cast, range 16-23 donut
+    HurricaneWingLongShrinking3 = 40826, // Helper->self, 9.0s cast, range 9-16 donut
+    HurricaneWingLongShrinking4 = 40827, // Helper->self, 11.0s cast, range 9 circle
+    HurricaneWingLongExpanding1 = 40829, // Helper->self, 5.0s cast, range 9 circle
+    HurricaneWingLongExpanding2 = 40830, // Helper->self, 7.0s cast, range 9-16 donut
+    HurricaneWingLongExpanding3 = 40831, // Helper->self, 9.0s cast, range 16-23 donut
+    HurricaneWingLongExpanding4 = 40832, // Helper->self, 11.0s cast, range 23-30 donut
+    HurricaneWingShortShrinking1 = 40834, // Helper->self, 4.0s cast, range 23-30 donut
+    HurricaneWingShortShrinking2 = 40835, // Helper->self, 6.0s cast, range 16-23 donut
+    HurricaneWingShortShrinking3 = 40836, // Helper->self, 8.0s cast, range 9-16 donut
+    HurricaneWingShortShrinking4 = 40837, // Helper->self, 10.0s cast, range 9 circle
+    HurricaneWingShortExpanding1 = 40839, // Helper->self, 4.0s cast, range 9 circle
+    HurricaneWingShortExpanding2 = 40840, // Helper->self, 6.0s cast, range 9-16 donut
+    HurricaneWingShortExpanding3 = 40841, // Helper->self, 8.0s cast, range 16-23 donut
+    HurricaneWingShortExpanding4 = 40842, // Helper->self, 10.0s cast, range 23-30 donut
 
-    // Concentric AOEs
-    HurricaneWingConcentricA1 = 40829, // Helper->self, 5.0s cast, range 9 circle
-    HurricaneWingConcentricA2 = 40830, // Helper->self, 7.0s cast, range 9-16 donut
-    HurricaneWingConcentricA3 = 40831, // Helper->self, 9.0s cast, range 16-23 donut
-    HurricaneWingConcentricA4 = 40832, // Helper->self, 11.0s cast, range 23-30 donut
-
-    HurricaneWingConcentricB1 = 40839, // Helper->self, 4.0s cast, range 9 circle
-    HurricaneWingConcentricB2 = 40840, // Helper->self, 6.0s cast, range 9-16 donut
-    HurricaneWingConcentricB3 = 40841, // Helper->self, 8.0s cast, range 16-23 donut
-    HurricaneWingConcentricB4 = 40842, // Helper->self, 10.0s cast, range 23-30 donut
-
-    HurricaneWingConcentricC1 = 40834, // Helper->self, 4.0s cast, range 23-30 donut
-    HurricaneWingConcentricC2 = 40835, // Helper->self, 6.0s cast, range 16-23 donut
-    HurricaneWingConcentricC3 = 40836, // Helper->self, 8.0s cast, range 9-16 donut
-    HurricaneWingConcentricC4 = 40837, // Helper->self, 10.0s cast, range 9 circle
-
-    HurricaneWingConcentricD1 = 40824, // Helper->self, 5.0s cast, range 23-30 donut
-    HurricaneWingConcentricD2 = 40825, // Helper->self, 7.0s cast, range 16-23 donut
-    HurricaneWingConcentricD3 = 40826, // Helper->self, 9.0s cast, range 9-16 donut
-    HurricaneWingConcentricD4 = 40827, // Helper->self, 11.0s cast, range 9 circle
-
-    OffensivePostureVisual1 = 40811, // Boss->self, 8.0+1.0s cast, single-target, touchdown
-    OffensivePostureVisual2 = 40814, // Boss->self, 8.0+1.1s cast, single-target, dragon breath
-    OffensivePostureVisual3 = 40816, // Boss->self, 8.0+1.2s cast, single-target, spike flail
+    OffensivePostureSpikeFlail = 40811, // Boss->self, 8.0+1.0s cast, single-target, visual (back cleave)
+    OffensivePostureDragonBreath = 40814, // Boss->self, 8.0+1.1s cast, single-target, visual (donut with lingering fires)
+    OffensivePostureTouchdown = 40816, // Boss->self, 8.0+1.2s cast, single-target, visual (out)
 
     SpikeFlail = 41114, // Helper->self, 9.0s cast, range 80 270-degree cone, rear cone aoe
     DragonBreath = 40815, // Helper->self, no cast, range 16-30 donut segment
@@ -80,13 +72,15 @@ public enum AID : uint
 
     PestilentSphere = 40859, // Darter->player, 5.0s cast, single-target
 
-    SharpSpikeVisual = 40855, // Boss->self, 5.0+1.0s cast, single-target, AOE tankbusters on all 3 tanks
-    SharpSpike = 40856, // Helper->player, no cast, range 4 circle
+    SharpSpike = 40855, // Boss->self, 5.0+1.0s cast, single-target, visual (tankbusters)
+    SharpSpikeAOE = 40856, // Helper->player, no cast, range 4 circle tankbuster
 
     ShudderingEarth = 40857, // Boss->location, no cast, single-target
 
-    WingedTerrorVisual = 40847, // Boss->self, 6.0+1.4s cast, single-target
-    WingedTerror = 40848, // Helper->self, 7.4s cast, range 70 width 25 rect
+    AbsoluteTerror = 40845, // Boss->self, 6.0+1.4s cast, single-target, visual (center)
+    AbsoluteTerrorAOE = 40846, // Helper->self, 7.4s cast, range 70 width 20 rect
+    WingedTerror = 40847, // Boss->self, 6.0+1.4s cast, single-target, visual (sides)
+    WingedTerrorAOE = 40848, // Helper->self, 7.4s cast, range 70 width 25 rect
 
     Venom = 40858 // Darter->self, 4.0s cast, range 30 120-degree cone
 }
