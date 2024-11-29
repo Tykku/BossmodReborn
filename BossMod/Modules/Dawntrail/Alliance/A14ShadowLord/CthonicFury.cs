@@ -4,7 +4,7 @@ class CthonicFury(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
     public bool Active => _aoe != null || Arena.Bounds != A14ShadowLord.DefaultBounds;
-    private static readonly Square[] def = [new Square(A14ShadowLord.ArenaCenter, 45)]; // using a square for the difference instead of a circle since less vertices will result in slightly better performance
+    private static readonly Square[] def = [new Square(A14ShadowLord.ArenaCenter, 30)]; // using a square for the difference instead of a circle since less vertices will result in slightly better performance
     public static readonly AOEShapeCustom AOEBurningBattlements = new(def, [new Square(A14ShadowLord.ArenaCenter, 11.5f, 45.Degrees())]);
     private static readonly AOEShapeCustom aoeCthonicFury = new(def, A14ShadowLord.Combined);
 

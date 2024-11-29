@@ -33,7 +33,7 @@ class FeedingTime(BossModule module) : Components.InterceptTether(module, Action
         {
             var source = Module.Enemies(OID.PaintedSapling)[slot];
             var target = Module.PrimaryActor;
-            hints.AddForbiddenZone(ShapeDistance.InvertedRect(Module.PrimaryActor.Position - (Module.PrimaryActor.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 1), _activation);
+            hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.5f), _activation);
         }
     }
 }
@@ -72,7 +72,7 @@ class D022GriauleStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 649, NameID = 8143)]
 public class D022Griaule(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Circle(new(7.17f, -339), 24.6f)], [new Rectangle(new(7, -363.5f), 20, 1), new Rectangle(new(7, -315), 20, 0.75f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(7.156f, -339.132f), 24.5f * CosPI.Pi32th, 32)], [new Rectangle(new(7, -363.5f), 20, 1.1f), new Rectangle(new(7, -315), 20, 0.75f)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
@@ -81,12 +81,12 @@ public class D022Griaule(WorldState ws, Actor primary) : BossModule(ws, primary,
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.PaintedRoot => 2,
-                OID.Boss => 1,
+                OID.PaintedRoot => 1,
                 _ => 0
             };
         }

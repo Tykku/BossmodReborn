@@ -70,7 +70,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
         new(-12, -104)
     ];
 
-    private static readonly Circle[] circles = circlePositions.Select(pos => new Circle(pos, Radius)).ToArray();
+    private static readonly Circle[] circles = [.. circlePositions.Select(pos => new Circle(pos, Radius))];
 
     private static readonly (int, int)[] rectanglePairs =
     [
@@ -80,8 +80,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
         (24, 8), (0, 22), (0, 4), (2, 10), (22, 13),
     ];
 
-    private static readonly RectangleSE[] rectangles = rectanglePairs
-        .Select(pair => new RectangleSE(circles[pair.Item1].Center, circles[pair.Item2].Center, Radius)).ToArray();
+    private static readonly RectangleSE[] rectangles = [.. rectanglePairs.Select(pair => new RectangleSE(circles[pair.Item1].Center, circles[pair.Item2].Center, Radius))];
 
     private static readonly AOEShapeCustom rectArenaChange = new(startingRect, defaultRect);
 

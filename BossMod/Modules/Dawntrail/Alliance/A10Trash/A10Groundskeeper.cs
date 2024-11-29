@@ -26,7 +26,7 @@ public class A10GroundskeeperStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<IsleDrop>()
             .ActivateOnEnter<MysteriousLight>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => x.IsTargetable && !x.IsAlly).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable && x.InCombat).All(x => x.IsDeadOrDestroyed);
     }
 }
 

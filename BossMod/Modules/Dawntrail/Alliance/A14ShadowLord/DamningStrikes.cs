@@ -6,7 +6,7 @@ class DamningStrikes(BossModule module) : Components.GenericTowers(module)
     {
         if ((AID)spell.Action.ID is AID.DamningStrikesImpact1 or AID.DamningStrikesImpact2 or AID.DamningStrikesImpact3)
         {
-            Towers.Add(new(caster.Position, 3, 8, 8, default, Module.CastFinishAt(spell)));
+            Towers.Add(new(caster.Position, 3, 8, 12, default, Module.CastFinishAt(spell)));
         }
     }
 

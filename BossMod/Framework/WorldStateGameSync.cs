@@ -617,11 +617,11 @@ sealed class WorldStateGameSync : IDisposable
             _ws.Execute(new ClientState.OpBozjaHolsterChange(CalcBozjaHolster(bozjaHolster)));
 
         if (!MemoryExtensions.SequenceEqual(_ws.Client.BlueMageSpells.AsSpan(), actionManager->BlueMageActions))
-            _ws.Execute(new ClientState.OpBlueMageSpellsChange(actionManager->BlueMageActions.ToArray()));
+            _ws.Execute(new ClientState.OpBlueMageSpellsChange([.. actionManager->BlueMageActions]));
 
         var levels = uiState->PlayerState.ClassJobLevels;
         if (!MemoryExtensions.SequenceEqual(_ws.Client.ClassJobLevels.AsSpan(), levels))
-            _ws.Execute(new ClientState.OpClassJobLevelsChange(levels.ToArray()));
+            _ws.Execute(new ClientState.OpClassJobLevelsChange([.. levels]));
 
         var curFate = FateManager.Instance()->CurrentFate;
         ClientState.Fate activeFate = curFate != null ? new(curFate->FateId, curFate->Location, curFate->Radius) : default;

@@ -13,19 +13,20 @@ public enum AID : uint
     AutoAttack2 = 872, // Boss->player, no cast, single-target
 
     WingCutter = 41672, // Flamingo2->self, 2.5s cast, range 6 120-degree cone
-    ScraplineStorm = 40650, // Boss->self, 5.0s cast, range 30 circle, pull 10 between centers
+    ScraplineStorm = 40650, // Boss->self, 5.0s cast, range 30 circle, pull 12.5 between centers, log says distance 10, but it seems to be actually ~12.5?
     Scrapline = 41393, // Boss->self, 1.0s cast, range 10 circle
     Typhoon = 41902, // Boss->self, 1.5s cast, range 8-40 donut
     IsleDrop = 41699, // Boss->location, 3.0s cast, range 6 circle
     Peck = 41695, // Flamingo2->player, no cast, single-target
-    Panzerfaust = 41698 // Boss->player, 5.0s cast, single-target, interruptible tankbuster
+    Panzerfaust = 41698, // Boss->player, 5.0s cast, single-target, interruptible tankbuster
+    PanzerfaustRepeats = 41353, // Boss->player, no cast, single-target, knockback 10, apply concussion
 }
 
 class IsleDrop(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.IsleDrop), 6);
 class WingCutter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WingCutter), new AOEShapeCone(6, 60.Degrees()));
 class PanzerfaustHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Panzerfaust), showNameInHint: true);
 class Panzerfaust(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Panzerfaust));
-class ScraplineStorm(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ScraplineStorm), 10, kind: Kind.TowardsOrigin)
+class ScraplineStorm(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ScraplineStorm), 12.5f, kind: Kind.TowardsOrigin)
 {
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => Module.FindComponent<ScraplineTyphoon>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation) && z.Risky) ?? false;
 
@@ -33,7 +34,7 @@ class ScraplineStorm(BossModule module) : Components.KnockbackFromCastTarget(mod
     {
         var source = Sources(slot, actor).FirstOrDefault();
         if (source != default)
-            hints.AddForbiddenZone(ShapeDistance.Circle(source.Origin, 20), source.Activation);
+            hints.AddForbiddenZone(ShapeDistance.Circle(source.Origin, 22.5f), source.Activation);
     }
 }
 
@@ -45,19 +46,8 @@ class ScraplineTyphoon(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        var count = _aoes.Count;
-        if (count > 0)
-        {
-            for (var i = 0; i < count; ++i)
-            {
-                var boss = Module.PrimaryActor.Position; // if boss moves initial origin is not correct anymore, so we update it every frame to be safe
-                var aoe = _aoes[i];
-                if (i == 0)
-                    yield return count > 1 ? aoe with { Color = Colors.Danger, Origin = boss } : aoe with { Origin = boss };
-                else if (i > 0)
-                    yield return aoe with { Origin = boss, Risky = false };
-            }
-        }
+        if (_aoes.Count != 0)
+            yield return _aoes[0] with { Origin = Module.PrimaryActor.Position };
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -131,7 +121,7 @@ public class A10Despot(WorldState ws, Actor primary) : BossModule(ws, primary, a
     new(-585.55f, -640.25f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
 
-    protected override bool CheckPull() => WorldState.Actors.Any(x => (x.NameID == 13609 || x.OID == (uint)OID.Boss) && x.InCombat);
+    protected override bool CheckPull() => WorldState.Actors.Any(x => x.PosRot.Y > -960 & x.InCombat);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));

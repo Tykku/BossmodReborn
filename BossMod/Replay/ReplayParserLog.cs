@@ -184,13 +184,8 @@ public sealed class ReplayParserLog : IDisposable
             }
             catch (EndOfStreamException)
             {
-                Service.Log("Reached the end of the file unexpectedly. Returning default value.");
-                return 0f;
-            }
-            catch (Exception ex)
-            {
-                Service.Log($"An unexpected error occurred: {ex.Message}");
-                throw;
+                Service.Log("ReadSingle: Reached the end of the file unexpectedly. Returning default value.");
+                return default;
             }
         }
         public override double ReadDouble()
@@ -201,16 +196,22 @@ public sealed class ReplayParserLog : IDisposable
             }
             catch (EndOfStreamException)
             {
-                Service.Log("Reached the end of the file unexpectedly. Returning default value.");
-                return 0;
-            }
-            catch (Exception ex)
-            {
-                Service.Log($"An unexpected error occurred: {ex.Message}");
-                throw;
+                Service.Log("ReadDouble: Reached the end of the file unexpectedly. Returning default value.");
+                return default;
             }
         }
-        public override Vector3 ReadVec3() => new(_input.ReadSingle(), _input.ReadSingle(), _input.ReadSingle());
+        public override Vector3 ReadVec3()
+        {
+            try
+            {
+                return new(_input.ReadSingle(), _input.ReadSingle(), _input.ReadSingle());
+            }
+            catch (EndOfStreamException)
+            {
+                Service.Log("ReadVec3: Reached the end of the file unexpectedly. Returning default value.");
+                return default;
+            }
+        }
         public override Angle ReadAngle()
         {
             try
@@ -219,13 +220,8 @@ public sealed class ReplayParserLog : IDisposable
             }
             catch (EndOfStreamException)
             {
-                Service.Log("Reached the end of the file unexpectedly. Returning default angle.");
-                return 0f.Radians();
-            }
-            catch (Exception ex)
-            {
-                Service.Log($"An unexpected error occurred while reading an angle: {ex.Message}");
-                throw;
+                Service.Log("ReadAngle: Reached the end of the file unexpectedly. Returning default angle.");
+                return default;
             }
         }
         public override bool ReadBool() => _input.ReadBoolean();
@@ -243,13 +239,8 @@ public sealed class ReplayParserLog : IDisposable
             }
             catch (EndOfStreamException)
             {
-                Service.Log("Reached the end of the file unexpectedly. Returning default value.");
-                return 0;
-            }
-            catch (Exception ex)
-            {
-                Service.Log($"An unexpected error occurred: {ex.Message}");
-                throw;
+                Service.Log("ReadUInt: Reached the end of the file unexpectedly. Returning default value.");
+                return default;
             }
         }
         public override ulong ReadULong(bool hex)
@@ -260,13 +251,8 @@ public sealed class ReplayParserLog : IDisposable
             }
             catch (EndOfStreamException)
             {
-                Service.Log("Reached the end of the file unexpectedly. Returning default value.");
-                return (ulong)10e13;
-            }
-            catch (Exception ex)
-            {
-                Service.Log($"An unexpected error occurred: {ex.Message}");
-                throw;
+                Service.Log("ReadULong: Reached the end of the file unexpectedly. Returning default value.");
+                return default;
             }
         }
         public override byte[] ReadBytes() => _input.ReadBytes(_input.ReadInt32());

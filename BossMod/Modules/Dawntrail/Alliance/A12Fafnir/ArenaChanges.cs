@@ -50,7 +50,7 @@ class DragonBreathArenaChange(BossModule module) : BossComponent(module)
             var angle = initialRot - ((float)time * 30).Degrees(); // 30° of the outer arena turn safe again per second
             if (time >= 12)
             {
-                initialRot = default;
+                started = default;
                 Arena.Bounds = A12Fafnir.DefaultBounds;
                 Arena.Center = A12Fafnir.ArenaCenter;
                 return;

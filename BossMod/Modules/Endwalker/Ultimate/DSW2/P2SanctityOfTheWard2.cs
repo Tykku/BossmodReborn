@@ -426,7 +426,7 @@ class P2SanctityOfTheWard2Towers1(BossModule module) : Components.CastTowers(mod
         }
 
         // if we still have unassigned towers, assign each of them to each remaining player
-        var ambiguousSlots = _quadrants.Select(q => q.NonPreySlot).Where(slot => _players[slot].AssignedTowers.None()).ToArray();
+        int[] ambiguousSlots = [.. _quadrants.Select(q => q.NonPreySlot).Where(slot => _players[slot].AssignedTowers.None())];
         for (var t = 12; t < _towerIndices.Length; ++t)
         {
             if (TowerUnassigned(t))

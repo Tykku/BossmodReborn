@@ -336,6 +336,8 @@ public abstract class QuestBattle : ZoneModule
 
     public override void CalculateAIHints(int playerSlot, Actor player, AIHints hints)
     {
+        if (AI.AIManager.Instance?.Beh == null || !_config.EnableQuestBattles)
+            return;
         var restartPathfind = false;
 
         // update combat flag (TODO: the name is not great...)

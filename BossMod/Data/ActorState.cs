@@ -16,7 +16,11 @@ public sealed class ActorState : IEnumerable<Actor>
     public abstract record class Operation(ulong InstanceID) : WorldState.Operation
     {
         protected abstract void ExecActor(WorldState ws, Actor actor);
-        protected override void Exec(WorldState ws) => ExecActor(ws, ws.Actors._actors[InstanceID]);
+        protected override void Exec(WorldState ws)
+        {
+            if (ws.Actors._actors.TryGetValue(InstanceID, out var actor))
+                ExecActor(ws, actor);
+        }
     }
 
     public IEnumerable<Operation> CompareToInitial()

@@ -95,7 +95,7 @@ class OnHigh(BossModule module) : Components.Knockback(module)
     private static readonly SafeWall[] allSafeWalls = [.. safeWallsW, .. safeWallsN, .. safeWallsE, .. safeWallsS];
 
     private static SafeWall[] GenerateRotatedSafeWalls(SafeWall[] baseWalls, float angle)
-    => baseWalls.Select(wall => new SafeWall(GenerateRotatedVertice(wall.Vertex1, angle), GenerateRotatedVertice(wall.Vertex2, angle))).ToArray();
+    => [.. baseWalls.Select(wall => new SafeWall(GenerateRotatedVertice(wall.Vertex1, angle), GenerateRotatedVertice(wall.Vertex2, angle)))];
 
     private static WPos GenerateRotatedVertice(WPos vertex, float rotationAngle) => WPos.RotateAroundOrigin(rotationAngle, D152DotoliCiloc.ArenaCenter, vertex);
 

@@ -33,7 +33,7 @@ class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
         }
     }
 
-    private AOEShape? ShapeForAction(ActionID aid) => (AID)aid.ID switch
+    private static AOEShape? ShapeForAction(ActionID aid) => (AID)aid.ID switch
     {
         AID.HurricaneWingLongExpanding1 or AID.HurricaneWingShortExpanding1 or AID.HurricaneWingLongShrinking4 or AID.HurricaneWingShortShrinking4 => _shapes[0],
         AID.HurricaneWingLongExpanding2 or AID.HurricaneWingShortExpanding2 or AID.HurricaneWingLongShrinking3 or AID.HurricaneWingShortShrinking3 => _shapes[1],

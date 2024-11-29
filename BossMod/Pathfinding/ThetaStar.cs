@@ -137,11 +137,28 @@ public class ThetaStar
     private float LineOfSight(int x1, int y1, int x2, int y2, float maxG)
     {
         var minLeeway = float.MaxValue;
-        foreach (var (x, y) in _map.EnumeratePixelsInLine(x1, y1, x2, y2))
+        int dx = Math.Abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
+        int dy = -Math.Abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
+        int err = dx + dy, e2;
+
+        while (true)
         {
-            minLeeway = Math.Min(minLeeway, _map[x, y].MaxG - maxG);
+            minLeeway = Math.Min(minLeeway, _map[x1, y1].MaxG - maxG);
             if (minLeeway < 0)
                 return minLeeway;
+            if (x1 == x2 && y1 == y2)
+                break;
+            e2 = 2 * err;
+            if (e2 >= dy)
+            {
+                err += dy;
+                x1 += sx;
+            }
+            if (e2 <= dx)
+            {
+                err += dx;
+                y1 += sy;
+            }
         }
         return minLeeway;
     }
@@ -149,18 +166,22 @@ public class ThetaStar
     private float HeuristicDistance(int x, int y)
     {
         if (_goals.Count == 0)
-        {
             return float.MaxValue;
-        }
+
         var deltaGDiagMinus2DeltaGSide = _deltaGDiag - 2 * _deltaGSide;
-        return _goals.AsParallel()
-            .Select(goal =>
-            {
-                var dx = Math.Abs(x - goal.x);
-                var dy = Math.Abs(y - goal.y);
-                return _deltaGSide * (dx + dy) + deltaGDiagMinus2DeltaGSide * Math.Min(dx, dy);
-            })
-            .Min();
+        var minDistance = float.MaxValue;
+
+        for (var i = 0; i < _goals.Count; ++i)
+        {
+            var goal = _goals[i];
+            var dx = Math.Abs(x - goal.x);
+            var dy = Math.Abs(y - goal.y);
+            var distance = _deltaGSide * (dx + dy) + deltaGDiagMinus2DeltaGSide * Math.Min(dx, dy);
+            if (distance < minDistance)
+                minDistance = distance;
+        }
+
+        return minDistance;
     }
 
     private float DistanceSq(int x1, int y1, int x2, int y2)

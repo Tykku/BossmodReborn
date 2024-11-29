@@ -31,10 +31,10 @@ public abstract unsafe class PacketDecoder
     {
         Now = now;
         var sb = new StringBuilder($"Server IPC {ipc.ID} [0x{ipc.Opcode:X4}]: {DecodeActor(ipc.SourceServerActor)}, sent {(now - ipc.SendTimestamp).TotalMilliseconds:f3}ms ago, epoch={ipc.Epoch}, data=");
-        foreach (var b in ipc.Payload)
-            sb.Append($"{b:X2}");
+        for (var i = 0; i < ipc.Payload.Length; ++i)
+            sb.Append($"{ipc.Payload[i]:X2}");
         var node = new TextNode(sb.ToString());
-        var payloadArray = ipc.Payload.ToArray();
+        byte[] payloadArray = [.. ipc.Payload];
         fixed (byte* payloadPtr = payloadArray)
         {
             var child = DecodePacket(ipc.ID, payloadPtr);

@@ -92,7 +92,7 @@ class MortalFlame(BossModule module) : BossComponent(module)
             return;
         var forbidden = new List<Func<WPos, float>>();
         foreach (var h in _furniture)
-            forbidden.Add(ShapeDistance.InvertedCircle(h.Position, h.HitboxRadius));
+            forbidden.Add(ShapeDistance.InvertedCircle(h.Position, h.HitboxRadius - 0.5f));
         if (forbidden.Count > 0)
             hints.AddForbiddenZone(p => forbidden.Max(f => f(p)));
     }

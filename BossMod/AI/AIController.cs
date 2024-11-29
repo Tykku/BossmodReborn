@@ -68,7 +68,7 @@ sealed class AIController(WorldState ws, ActionManagerEx amex, MovementOverride 
 
     private unsafe void ExecuteInteract(DateTime now, Actor target)
     {
-        if (_amex.EffectiveAnimationLock > 0 || now < _nextInteract)
+        if (AIManager.Instance?.Beh == null || _amex.EffectiveAnimationLock > 0 || now < _nextInteract)
             return;
         var obj = GameObjectManager.Instance()->Objects.IndexSorted[target.SpawnIndex].Value;
         if (obj == null || obj->GetGameObjectId() != target.InstanceID)

@@ -116,7 +116,7 @@ public sealed class AIHints
         RecommendedPositional = default;
         ForbiddenDirections.Clear();
         ImminentSpecialMode = default;
-        MisdirectionThreshold = 20.Degrees();
+        MisdirectionThreshold = 15.Degrees();
         PredictedDamage.Clear();
         MaxCastTimeEstimate = float.MaxValue;
         ActionsToExecute.Clear();

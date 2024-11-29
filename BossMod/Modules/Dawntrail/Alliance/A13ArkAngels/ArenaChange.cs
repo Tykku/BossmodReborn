@@ -2,7 +2,7 @@ namespace BossMod.Dawntrail.Alliance.A13ArkAngels;
 
 class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donut = new(25, 30);
+    private static readonly AOEShapeDonut donut = new(25, 35);
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);

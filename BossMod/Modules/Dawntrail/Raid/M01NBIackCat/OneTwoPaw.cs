@@ -69,7 +69,7 @@ class OneTwoPaw(BossModule module) : Components.GenericAOEs(module)
     {
         if (helper != null && _currentPattern != Pattern.None)
         {
-            var angle = _currentPattern == Pattern.EastWest ? angles : angles.AsEnumerable().Reverse().ToArray();
+            var angle = _currentPattern == Pattern.EastWest ? angles : [.. angles.AsEnumerable().Reverse()];
             _aoes.Add(new(cone, helper.Position, angle[0], WorldState.FutureTime(8.7f)));
             _aoes.Add(new(cone, helper.Position, angle[1], WorldState.FutureTime(10.7f)));
             _currentPattern = Pattern.None;

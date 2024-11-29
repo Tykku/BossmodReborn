@@ -8,6 +8,7 @@ class A11PrisheStates : StateMachineBuilder
         // DeathPhase(0, SinglePhase);
         TrivialPhase()
             .ActivateOnEnter<ArenaChanges>()
+            .ActivateOnEnter<CrystallineThornsHint>()
             .ActivateOnEnter<Banishga>()
             .ActivateOnEnter<BanishgaIV>()
             .ActivateOnEnter<BanishStorm>()
@@ -15,6 +16,7 @@ class A11PrisheStates : StateMachineBuilder
             .ActivateOnEnter<KnuckleSandwich>()
             .ActivateOnEnter<AsuranFists>()
             .ActivateOnEnter<AuroralUppercut>()
+            .ActivateOnEnter<AuroralUppercutHint>()
             .ActivateOnEnter<Holy>()
             .ActivateOnEnter<NullifyingDropkick>();
     }

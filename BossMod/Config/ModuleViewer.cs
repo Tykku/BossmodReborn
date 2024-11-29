@@ -3,7 +3,7 @@ using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
 using Lumina.Excel.Sheets;
-using Lumina.Text;
+using System.Text.RegularExpressions;
 using Lumina.Text.ReadOnly;
 using System.Data;
 using System.Globalization;
@@ -35,8 +35,8 @@ public sealed class ModuleViewer : IDisposable
         _ws = ws;
 
         uint defaultIcon = 61762;
-        _expansions = Enum.GetNames<BossModuleInfo.Expansion>().Take((int)BossModuleInfo.Expansion.Count).Select(n => (n, defaultIcon)).ToArray();
-        _categories = Enum.GetNames<BossModuleInfo.Category>().Take((int)BossModuleInfo.Category.Count).Select(n => (n, defaultIcon)).ToArray();
+        _expansions = [.. Enum.GetNames<BossModuleInfo.Expansion>().Take((int)BossModuleInfo.Expansion.Count).Select(n => (n, defaultIcon))];
+        _categories = [.. Enum.GetNames<BossModuleInfo.Category>().Take((int)BossModuleInfo.Category.Count).Select(n => (n, defaultIcon))];
 
         var exVersion = Service.LuminaSheet<ExVersion>()!;
         Customize(BossModuleInfo.Expansion.RealmReborn, 61875, exVersion.GetRow(0).Name);
@@ -257,7 +257,9 @@ public sealed class ModuleViewer : IDisposable
                 groupId |= module.GroupID;
                 var cfcRow = Service.LuminaRow<ContentFinderCondition>(module.GroupID)!.Value;
                 var cfcSort = cfcRow.SortKey;
-                return (new(FixCase(cfcRow.Name), groupId, cfcSort != 0 ? cfcSort : groupId), new(module, BNpcName(module.NameID), module.SortOrder));
+                var fixedName = RegexHelper.RemoveTags(cfcRow.Name.ToString());
+                return (new(FixCase(fixedName), groupId, cfcSort != 0 ? cfcSort : groupId),
+                        new(module, BNpcName(module.NameID), module.SortOrder));
             case BossModuleInfo.GroupType.MaskedCarnivale:
                 groupId |= module.GroupID;
                 var mcRow = Service.LuminaRow<ContentFinderCondition>(module.GroupID)!.Value;
@@ -330,4 +332,12 @@ public sealed class ModuleViewer : IDisposable
             }
         }
     }
+}
+
+public static partial class RegexHelper
+{
+    [GeneratedRegex("<italic\\(\\d\\)>|<-->")]
+    private static partial Regex TagsRegex();
+
+    public static string RemoveTags(string input) => TagsRegex().Replace(input, string.Empty);
 }

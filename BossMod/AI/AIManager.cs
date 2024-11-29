@@ -57,7 +57,7 @@ sealed class AIManager : IDisposable
         var player = WorldState.Party.Player();
         var master = WorldState.Party[MasterSlot];
         if (Beh != null && player != null && master != null && !WorldState.Party.Members[PartyState.PlayerSlot].InCutscene)
-            Beh.Execute(player, master);
+            _ = Beh.Execute(player, master);
         else
             Controller.Clear();
         Controller.Update(player, Autorot.Hints, WorldState.CurrentTime);
