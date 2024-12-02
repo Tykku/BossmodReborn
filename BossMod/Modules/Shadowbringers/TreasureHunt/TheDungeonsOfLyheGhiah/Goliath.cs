@@ -72,9 +72,7 @@ class GoliathStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(OID.GoliathsJavelin).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.DungeonEgg)).Concat(module.Enemies(OID.DungeonQueen))
-            .Concat(module.Enemies(OID.DungeonOnion)).Concat(module.Enemies(OID.DungeonGarlic)).Concat(module.Enemies(OID.DungeonTomato)).Concat(module.Enemies(OID.KeeperOfKeys))
-            .All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -91,17 +89,17 @@ public class Goliath(WorldState ws, Actor primary) : BossModule(ws, primary, new
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.DungeonOnion => 7,
-                OID.DungeonEgg => 6,
-                OID.DungeonGarlic => 5,
-                OID.DungeonTomato => 4,
-                OID.DungeonQueen or OID.KeeperOfKeys => 3,
-                OID.GoliathsJavelin => 2,
-                OID.Boss => 1,
+                OID.DungeonOnion => 6,
+                OID.DungeonEgg => 5,
+                OID.DungeonGarlic => 4,
+                OID.DungeonTomato => 3,
+                OID.DungeonQueen or OID.KeeperOfKeys => 2,
+                OID.GoliathsJavelin => 1,
                 _ => 0
             };
         }

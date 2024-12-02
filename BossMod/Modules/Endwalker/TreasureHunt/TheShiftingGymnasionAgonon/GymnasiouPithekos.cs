@@ -108,9 +108,7 @@ class GymnasiouPithekosStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(OID.GymnasiouPithekosMikros).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.GymnasticEggplant))
-            .Concat(module.Enemies(OID.GymnasticQueen)).Concat(module.Enemies(OID.GymnasticOnion)).Concat(module.Enemies(OID.GymnasticGarlic))
-            .Concat(module.Enemies(OID.GymnasticTomato)).Concat(module.Enemies(OID.GymnasiouLyssa)).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -127,17 +125,17 @@ public class GymnasiouPithekos(WorldState ws, Actor primary) : BossModule(ws, pr
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.GymnasticOnion => 7,
-                OID.GymnasticEggplant => 6,
-                OID.GymnasticGarlic => 5,
-                OID.GymnasticTomato => 4,
-                OID.GymnasticQueen or OID.GymnasiouLyssa => 3,
-                OID.GymnasiouPithekosMikros => 2,
-                OID.Boss => 1,
+                OID.GymnasticOnion => 6,
+                OID.GymnasticEggplant => 5,
+                OID.GymnasticGarlic => 4,
+                OID.GymnasticTomato => 3,
+                OID.GymnasticQueen or OID.GymnasiouLyssa => 2,
+                OID.GymnasiouPithekosMikros => 1,
                 _ => 0
             };
         }

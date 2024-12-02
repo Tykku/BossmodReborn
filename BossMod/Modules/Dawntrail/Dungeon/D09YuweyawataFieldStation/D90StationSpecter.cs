@@ -29,7 +29,7 @@ class D90StationSpecterStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<GlassPunch>()
             .ActivateOnEnter<Catapult>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => x.IsTargetable && !x.IsAlly && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
+            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
             .All(x => x.IsDeadOrDestroyed);
     }
 }

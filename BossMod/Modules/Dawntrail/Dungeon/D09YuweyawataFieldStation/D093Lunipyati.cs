@@ -128,7 +128,7 @@ class BoulderDance(BossModule module) : Components.GenericAOEs(module)
         }
     }
 }
-class LeapingEarth2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeapingEarth), new AOEShapeCircle(5));
+
 class JaggedEdge(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.JaggedEdge), 6);
 class TuraliStoneIV(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.TuraliStoneIV), 6, 4, 4);
 class LeporineLoaf(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.LeporineLoaf));
@@ -266,7 +266,6 @@ class D093LunipyatiStates : StateMachineBuilder
             .ActivateOnEnter<SonicHowl>()
             .ActivateOnEnter<Slabber>()
             .ActivateOnEnter<LeapingEarth>()
-            .ActivateOnEnter<LeapingEarth2>()
             .ActivateOnEnter<RockBlast>();
     }
 }

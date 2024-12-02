@@ -35,9 +35,12 @@ public enum AID : uint
     Telega = 9630 // Mandragoras/GymnasiouLyssa->self, no cast, single-target, bonus add disappear
 }
 
-class InfernoBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.InfernoBlast), new AOEShapeRect(46, 20));
-class Roar(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Roar), new AOEShapeCircle(12));
-class FlareStar(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FlareStar), new AOEShapeCircle(12));
+class InfernoBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.InfernoBlast), new AOEShapeRect(46, 10));
+
+abstract class Circles(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(12));
+class Roar(BossModule module) : Circles(module, AID.Roar);
+class FlareStar(BossModule module) : Circles(module, AID.FlareStar);
+
 class MarkOfTheBeast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MarkOfTheBeast), new AOEShapeCone(8, 60.Degrees()));
 class Pounce(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Pounce));
 class MagmaChamber(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MagmaChamber), 8);
@@ -68,9 +71,7 @@ class GymnasiouLeonStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(OID.GymnasiouLeonMikros).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.GymnasticEggplant))
-            .Concat(module.Enemies(OID.GymnasticQueen)).Concat(module.Enemies(OID.GymnasticOnion)).Concat(module.Enemies(OID.GymnasticGarlic))
-            .Concat(module.Enemies(OID.GymnasticTomato)).Concat(module.Enemies(OID.GymnasiouLyssa)).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -87,17 +88,17 @@ public class GymnasiouLeon(WorldState ws, Actor primary) : BossModule(ws, primar
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.GymnasticOnion => 7,
-                OID.GymnasticEggplant => 6,
-                OID.GymnasticGarlic => 5,
-                OID.GymnasticTomato => 4,
-                OID.GymnasticQueen or OID.GymnasiouLyssa => 3,
-                OID.GymnasiouLeonMikros => 2,
-                OID.Boss => 1,
+                OID.GymnasticOnion => 6,
+                OID.GymnasticEggplant => 5,
+                OID.GymnasticGarlic => 4,
+                OID.GymnasticTomato => 3,
+                OID.GymnasticQueen or OID.GymnasiouLyssa => 2,
+                OID.GymnasiouLeonMikros => 1,
                 _ => 0
             };
         }

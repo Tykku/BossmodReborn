@@ -46,7 +46,7 @@ class SecretPegasusStates : StateMachineBuilder
             .ActivateOnEnter<Spin>()
             .ActivateOnEnter<Mash>()
             .ActivateOnEnter<Scoop>()
-            .Raw.Update = () => module.Enemies(OID.KeeperOfKeys).Concat([module.PrimaryActor]).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -61,12 +61,12 @@ public class SecretPegasus(WorldState ws, Actor primary) : BossModule(ws, primar
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.KeeperOfKeys => 2,
-                OID.Boss => 1,
+                OID.KeeperOfKeys => 1,
                 _ => 0
             };
         }

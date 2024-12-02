@@ -23,7 +23,7 @@ class D90RottenResearcherStates : StateMachineBuilder
     public D90RottenResearcherStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => x.IsTargetable && !x.IsAlly && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
+            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
             .All(x => x.IsDeadOrDestroyed);
     }
 }

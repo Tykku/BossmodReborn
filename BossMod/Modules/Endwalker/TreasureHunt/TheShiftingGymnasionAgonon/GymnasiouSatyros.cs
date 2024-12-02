@@ -49,8 +49,7 @@ class GymnasiouSatyrosStates : StateMachineBuilder
             .ActivateOnEnter<Wingblow>()
             .ActivateOnEnter<DreadDive>()
             .ActivateOnEnter<HeavySmash>()
-            .Raw.Update = () => module.Enemies(OID.GymnasiouElaphos).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.GymnasiouLampas))
-            .Concat(module.Enemies(OID.GymnasiouLyssa)).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -66,14 +65,14 @@ public class GymnasiouSatyros(WorldState ws, Actor primary) : BossModule(ws, pri
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.GymnasiouLampas => 4,
-                OID.GymnasiouLyssa => 3,
-                OID.GymnasiouElaphos => 2,
-                OID.Boss => 1,
+                OID.GymnasiouLampas => 3,
+                OID.GymnasiouLyssa => 2,
+                OID.GymnasiouElaphos => 1,
                 _ => 0
             };
         }

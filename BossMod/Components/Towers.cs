@@ -63,8 +63,9 @@ public class GenericTowers(BossModule module, ActionID aid = default) : CastCoun
         var forbidden = new List<Func<WPos, float>>();
         if (!Towers.Any(x => x.ForbiddenSoakers[slot]))
         {
-            foreach (var t in Towers.Where(x => !x.IsInside(actor) && x.InsufficientAmountInside(Module) && x.NumInside(Module) > 0))
-                forbiddenInverted.Add(ShapeDistance.InvertedCircle(t.Position, t.Radius));
+            if (Raid.WithoutSlot(true).Count() <= 8) // don't do this in unorganized content where people do whatever
+                foreach (var t in Towers.Where(x => !x.IsInside(actor) && x.InsufficientAmountInside(Module) && x.NumInside(Module) > 0))
+                    forbiddenInverted.Add(ShapeDistance.InvertedCircle(t.Position, t.Radius));
             var inTower = Towers.Any(x => x.IsInside(actor) && x.CorrectAmountInside(Module));
             var missingSoakers = !inTower && Towers.Any(x => x.InsufficientAmountInside(Module));
             if (forbiddenInverted.Count == 0)

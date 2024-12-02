@@ -22,6 +22,7 @@ public enum AID : uint
     NoxiousSap6 = 37371, // Boss->self, no cast, range 30 120-degree cone
     NoxiousSap7 = 42174, // Boss->self, no cast, range 30 120-degree cone
     NoxiousSap8 = 42173, // Boss->self, no cast, range 30 120-degree cone
+    NoxiousSap9 = 42172, // Boss->self, no cast, range 30 120-degree cone
 
     Neurotoxify = 38331, // Boss->self, 5.0s cast, range 40 circle
 
@@ -62,11 +63,10 @@ class RavagingRoots(BossModule module) : Components.GenericRotatingAOE(module)
 class SapSpiller(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCone cone = new(40, 60.Degrees());
-    private static readonly Angle a180 = 180.Degrees();
-    private static readonly Angle a90 = 90.Degrees();
+    private static readonly Angle a180 = 180.Degrees(), a90 = 90.Degrees();
     private readonly List<AOEInstance> _aoes = [];
     private static readonly HashSet<AID> castEnd = [AID.NoxiousSap2, AID.NoxiousSap3, AID.NoxiousSap4,
-    AID.NoxiousSap5, AID.NoxiousSap6, AID.NoxiousSap7, AID.NoxiousSap8];
+    AID.NoxiousSap5, AID.NoxiousSap6, AID.NoxiousSap7, AID.NoxiousSap8, AID.NoxiousSap9];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -113,7 +113,7 @@ class SapSpiller(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count > 0 && castEnd.Contains((AID)spell.Action.ID))
+        if (_aoes.Count != 0 && castEnd.Contains((AID)spell.Action.ID))
             _aoes.RemoveAt(0);
     }
 }

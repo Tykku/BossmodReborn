@@ -106,8 +106,7 @@ class LuckyFaceStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(OID.ExcitingTomato).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.ExcitingEgg)).Concat(module.Enemies(OID.ExcitingQueen))
-            .Concat(module.Enemies(OID.ExcitingOnion)).Concat(module.Enemies(OID.ExcitingGarlic)).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
     }
 }
 

@@ -53,9 +53,10 @@ class DoubleHammer(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
+        var count = _aoes.Count;
+        if (count > 0)
             yield return _aoes[0] with { Color = Colors.Danger };
-        if (_aoes.Count > 1)
+        if (count > 1)
             yield return _aoes[1] with { Risky = false };
     }
 
@@ -80,7 +81,7 @@ class DoubleHammer(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID is AID.LeftHammer or AID.RightHammer or AID.DoubleHammerFirst)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.LeftHammer or AID.RightHammer or AID.DoubleHammerFirst)
             _aoes.RemoveAt(0);
     }
 }
@@ -159,9 +160,7 @@ class GymnasiouAcheloiosStates : StateMachineBuilder
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
             .ActivateOnEnter<HeavySmash>()
-            .Raw.Update = () => module.Enemies(OID.GymnasiouSouchos).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.GymnasticEggplant)).Concat(module.Enemies(OID.GymnasticQueen))
-            .Concat(module.Enemies(OID.GymnasticOnion)).Concat(module.Enemies(OID.GymnasticGarlic)).Concat(module.Enemies(OID.GymnasticTomato)).Concat(module.Enemies(OID.GymnasiouLampas))
-            .Concat(module.Enemies(OID.GymnasiouLyssa)).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -178,17 +177,17 @@ public class GymnasiouAcheloios(WorldState ws, Actor primary) : BossModule(ws, p
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.GymnasticOnion => 7,
-                OID.GymnasticEggplant => 6,
-                OID.GymnasticGarlic => 5,
-                OID.GymnasticTomato => 4,
-                OID.GymnasticQueen or OID.GymnasiouLyssa or OID.GymnasiouLampas => 3,
-                OID.GymnasiouSouchos => 2,
-                OID.Boss => 1,
+                OID.GymnasticOnion => 6,
+                OID.GymnasticEggplant => 5,
+                OID.GymnasticGarlic => 4,
+                OID.GymnasticTomato => 3,
+                OID.GymnasticQueen or OID.GymnasiouLyssa or OID.GymnasiouLampas => 2,
+                OID.GymnasiouSouchos => 1,
                 _ => 0
             };
         }

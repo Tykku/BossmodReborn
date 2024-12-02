@@ -51,7 +51,7 @@ class LampasChrysineStates : StateMachineBuilder
             .ActivateOnEnter<AetherialLight>()
             .ActivateOnEnter<Lightburst>()
             .ActivateOnEnter<Summon>()
-            .Raw.Update = () => module.Enemies(OID.Boss).Concat(module.Enemies(OID.GymnasiouLampas)).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -66,12 +66,12 @@ public class LampasChrysine(WorldState ws, Actor primary) : BossModule(ws, prima
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.GymnasiouLampas => 2,
-                OID.Boss => 1,
+                OID.GymnasiouLampas => 1,
                 _ => 0
             };
         }

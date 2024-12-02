@@ -19,6 +19,7 @@ public class ThetaStar
     private float _deltaGSide;
     private float _deltaGDiag;
     private const float Epsilon = 1e-5f;
+    private readonly object _lock = new();
 
     public ref Node NodeByIndex(int index) => ref _nodes[index];
     public int CellIndex(int x, int y) => y * _map.Width + x;
@@ -27,25 +28,28 @@ public class ThetaStar
     // gMultiplier is typically inverse speed, which turns g-values into time
     public void Start(Map map, IEnumerable<(int x, int y)> goals, (int x, int y) start, float gMultiplier)
     {
-        _map = map;
-        _goals.Clear();
-        _goals.AddRange(goals);
-        var numPixels = map.Width * map.Height;
-        if (_nodes.Length < numPixels)
-            _nodes = new Node[numPixels];
-        Array.Fill(_nodes, default, 0, numPixels);
-        _openList.Clear();
-        _deltaGSide = map.Resolution * gMultiplier;
-        _deltaGDiag = _deltaGSide * 1.414214f;
+        lock (_lock)
+        {
+            _map = map;
+            _goals.Clear();
+            _goals.AddRange(goals);
+            var numPixels = map.Width * map.Height;
+            if (_nodes == null || _nodes.Length < numPixels)
+                _nodes = new Node[numPixels];
+            Array.Fill(_nodes, default, 0, numPixels);
+            _openList.Clear();
+            _deltaGSide = map.Resolution * gMultiplier;
+            _deltaGDiag = _deltaGSide * 1.414214f;
 
-        start = map.ClampToGrid(start);
-        var startIndex = CellIndex(start.x, start.y);
-        _nodes[startIndex].GScore = 0;
-        _nodes[startIndex].HScore = HeuristicDistance(start.x, start.y);
-        _nodes[startIndex].ParentX = start.x; // start's parent is self
-        _nodes[startIndex].ParentY = start.y;
-        _nodes[startIndex].PathLeeway = float.MaxValue; // min diff along path between node's g-value and cell's g-value
-        AddToOpen(startIndex);
+            start = map.ClampToGrid(start);
+            var startIndex = CellIndex(start.x, start.y);
+            _nodes[startIndex].GScore = 0;
+            _nodes[startIndex].HScore = HeuristicDistance(start.x, start.y);
+            _nodes[startIndex].ParentX = start.x; // start's parent is self
+            _nodes[startIndex].ParentY = start.y;
+            _nodes[startIndex].PathLeeway = float.MaxValue; // min diff along path between node's g-value and cell's g-value
+            AddToOpen(startIndex);
+        }
     }
 
     public void Start(Map map, int goalPriority, WPos startPos, float gMultiplier) => Start(map, map.Goals().Where(g => g.priority >= goalPriority).Select(g => (g.x, g.y)), map.WorldToGrid(startPos), gMultiplier);
@@ -53,40 +57,49 @@ public class ThetaStar
     // returns whether search is to be terminated; on success, first node of the open list would contain found goal
     public bool ExecuteStep()
     {
-        if (_goals.Count == 0 || _openList.Count == 0 || _nodes[_openList[0]].HScore <= 0)
-            return false;
+        lock (_lock)
+        {
+            if (_goals.Count == 0 || _openList.Count == 0 || _nodes[_openList[0]].HScore <= 0)
+                return false;
 
-        var nextNodeIndex = PopMinOpen();
-        var nextNodeX = nextNodeIndex % _map.Width;
-        var nextNodeY = nextNodeIndex / _map.Width;
-        var haveN = nextNodeY > 0;
-        var haveS = nextNodeY < _map.Height - 1;
-        var haveE = nextNodeX > 0;
-        var haveW = nextNodeX < _map.Width - 1;
-        if (haveN)
-        {
-            VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX, nextNodeY - 1, nextNodeIndex - _map.Width, _deltaGSide);
+            var nextNodeIndex = PopMinOpen();
+            var nextNodeX = nextNodeIndex % _map.Width;
+            var nextNodeY = nextNodeIndex / _map.Width;
+            var haveN = nextNodeY > 0;
+            var haveS = nextNodeY < _map.Height - 1;
+            var haveE = nextNodeX > 0;
+            var haveW = nextNodeX < _map.Width - 1;
+            if (haveN)
+            {
+                VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX, nextNodeY - 1, nextNodeIndex - _map.Width, _deltaGSide);
+                if (haveE)
+                    VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX - 1, nextNodeY - 1, nextNodeIndex - _map.Width - 1, _deltaGDiag);
+                if (haveW)
+                    VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX + 1, nextNodeY - 1, nextNodeIndex - _map.Width + 1, _deltaGDiag);
+            }
             if (haveE)
-                VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX - 1, nextNodeY - 1, nextNodeIndex - _map.Width - 1, _deltaGDiag);
+                VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX - 1, nextNodeY, nextNodeIndex - 1, _deltaGSide);
             if (haveW)
-                VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX + 1, nextNodeY - 1, nextNodeIndex - _map.Width + 1, _deltaGDiag);
+                VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX + 1, nextNodeY, nextNodeIndex + 1, _deltaGSide);
+            if (haveS)
+            {
+                VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX, nextNodeY + 1, nextNodeIndex + _map.Width, _deltaGSide);
+                if (haveE)
+                    VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX - 1, nextNodeY + 1, nextNodeIndex + _map.Width - 1, _deltaGDiag);
+                if (haveW)
+                    VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX + 1, nextNodeY + 1, nextNodeIndex + _map.Width + 1, _deltaGDiag);
+            }
+            return true;
         }
-        if (haveE)
-            VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX - 1, nextNodeY, nextNodeIndex - 1, _deltaGSide);
-        if (haveW)
-            VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX + 1, nextNodeY, nextNodeIndex + 1, _deltaGSide);
-        if (haveS)
-        {
-            VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX, nextNodeY + 1, nextNodeIndex + _map.Width, _deltaGSide);
-            if (haveE)
-                VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX - 1, nextNodeY + 1, nextNodeIndex + _map.Width - 1, _deltaGDiag);
-            if (haveW)
-                VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX + 1, nextNodeY + 1, nextNodeIndex + _map.Width + 1, _deltaGDiag);
-        }
-        return true;
     }
 
-    public int CurrentResult() => _openList.Count > 0 && _nodes[_openList[0]].HScore <= 0 ? _openList[0] : -1;
+    public int CurrentResult()
+    {
+        lock (_lock)
+        {
+            return _openList.Count > 0 && _nodes[_openList[0]].HScore <= 0 ? _openList[0] : -1;
+        }
+    }
 
     public int Execute()
     {
