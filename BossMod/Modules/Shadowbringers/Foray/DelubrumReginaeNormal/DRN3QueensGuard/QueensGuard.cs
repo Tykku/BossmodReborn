@@ -8,15 +8,15 @@ class PawnOff(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", PrimaryActorOID = (uint)OID.Knight, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 760, NameID = 9838)]
 public class DRN3QueensGuard : BossModule
 {
-    private readonly IReadOnlyList<Actor> _warrior;
-    private readonly IReadOnlyList<Actor> _soldier;
-    private readonly IReadOnlyList<Actor> _gunner;
+    private readonly List<Actor> _warrior;
+    private readonly List<Actor> _soldier;
+    private readonly List<Actor> _gunner;
 
     public Actor? Knight() => PrimaryActor.IsDestroyed ? null : PrimaryActor;
     public Actor? Warrior() => _warrior.FirstOrDefault();
     public Actor? Soldier() => _soldier.FirstOrDefault();
     public Actor? Gunner() => _gunner.FirstOrDefault();
-    public IReadOnlyList<Actor> GunTurrets;
+    public readonly List<Actor> GunTurrets;
 
     public DRN3QueensGuard(WorldState ws, Actor primary) : base(ws, primary, new(244, -162), new ArenaBoundsCircle(25))
     {

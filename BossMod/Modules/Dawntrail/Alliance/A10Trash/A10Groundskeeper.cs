@@ -26,7 +26,7 @@ public class A10GroundskeeperStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<IsleDrop>()
             .ActivateOnEnter<MysteriousLight>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable && x.InCombat).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.Enemies(A10Groundskeeper.Trash).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -52,9 +52,10 @@ public class A10Groundskeeper(WorldState ws, Actor primary) : BossModule(ws, pri
     new(-557.2f, -616.93f), new(-556.69f, -616.59f), new(-556.17f, -616.37f), new(-555.61f, -616.44f), new(-555.32f, -616.94f),
     new(-544.54f, -642.34f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.Groundskeeper, (uint)OID.Sprinkler];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(Trash));
     }
 }

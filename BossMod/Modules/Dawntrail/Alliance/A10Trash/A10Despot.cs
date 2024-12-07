@@ -19,7 +19,7 @@ public enum AID : uint
     IsleDrop = 41699, // Boss->location, 3.0s cast, range 6 circle
     Peck = 41695, // Flamingo2->player, no cast, single-target
     Panzerfaust = 41698, // Boss->player, 5.0s cast, single-target, interruptible tankbuster
-    PanzerfaustRepeats = 41353, // Boss->player, no cast, single-target, knockback 10, apply concussion
+    PanzerfaustRepeats = 41353 // Boss->player, no cast, single-target, knockback 10, apply concussion
 }
 
 class IsleDrop(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.IsleDrop), 6);
@@ -77,7 +77,7 @@ public class A10DespotStates : StateMachineBuilder
             .ActivateOnEnter<Panzerfaust>()
             .ActivateOnEnter<PanzerfaustHint>()
             .ActivateOnEnter<ScraplineStorm>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => x.IsTargetable && !x.IsAlly).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.Enemies(A10Despot.Trash).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -120,10 +120,11 @@ public class A10Despot(WorldState ws, Actor primary) : BossModule(ws, primary, a
     new(-586.45f, -635.02f), new(-587.01f, -635.5f), new(-587.48f, -636.06f), new(-587.43f, -636.72f), new(-586.1f, -639.84f),
     new(-585.55f, -640.25f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.Flamingo1, (uint)OID.Flamingo2];
 
-    protected override bool CheckPull() => WorldState.Actors.Any(x => x.PosRot.Y > -960 & x.InCombat);
+    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(Trash));
     }
 }

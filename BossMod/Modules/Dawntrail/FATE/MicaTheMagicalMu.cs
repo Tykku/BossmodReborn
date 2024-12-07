@@ -76,7 +76,7 @@ public enum AID : uint
 
 class Draw(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly IReadOnlyList<Actor>[] _cards = [
+    private readonly List<Actor>[] _cards = [
         module.Enemies(OID.Card1),
         module.Enemies(OID.Card2),
         module.Enemies(OID.Card3),
@@ -91,11 +91,14 @@ class Draw(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_safeZones.Count > 0)
-            for (int i = 0; i < _cards.Length; ++i)
+        if (_safeZones.Count != 0)
+            for (var i = 0; i < 6; ++i)
+            {
+                var card = _cards[i];
                 if (i != _safeZones[0])
-                    foreach (var a in _cards[i])
-                        yield return new(_shape, a.Position, default, _activation);
+                    for (var j = 0; j < _cards[j].Count; ++j)
+                        yield return new(_shape, card[j].Position, default, _activation);
+            }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

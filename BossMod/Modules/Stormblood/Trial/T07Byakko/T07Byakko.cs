@@ -16,7 +16,7 @@ class HighestStakes(BossModule module) : Components.StackWithIcon(module, (uint)
 
 class AratamaForce(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly IReadOnlyList<Actor> _bubbles = module.Enemies(OID.AratamaForce);
+    private readonly List<Actor> _bubbles = module.Enemies(OID.AratamaForce);
 
     private static readonly AOEShapeCircle _shape = new(2);
 

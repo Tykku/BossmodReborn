@@ -15,16 +15,15 @@ class Meteor(BossModule module) : Components.CastInterruptHint(module, ActionID.
 class TachiGekko(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.TachiGekko));
 class TachiKasha(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TachiKasha), new AOEShapeCircle(20));
 class TachiYukikaze(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TachiYukikaze), new AOEShapeRect(50, 2.5f));
-class ConcertedDissolution(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ConcertedDissolution), new AOEShapeCone(40, 15.Degrees()));
-class LightsChain(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LightsChain), new AOEShapeDonut(4, 40));
-class DivineDominion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DivineDominion), new AOEShapeCircle(6));
-class CrossReaver(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CrossReaverAOE), new AOEShapeCross(50, 6));
-class Holy(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Holy));
 class Raiton(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Raiton));
+class Utsusemi(BossModule module) : Components.StretchTetherSingle(module, (uint)TetherID.Utsusemi, 10, needToKite: true);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.BossGK, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1015, NameID = 13640, SortOrder = 7)]
 public class A13ArkAngels(WorldState ws, Actor primary) : BossModule(ws, primary, new(865, -820), new ArenaBoundsCircle(34.5f))
 {
+    public static readonly ArenaBoundsCircle DefaultBounds = new(25);
+    public static readonly uint[] Bosses = [(uint)OID.BossHM, (uint)OID.BossEV, (uint)OID.BossTT, (uint)OID.BossMR, (uint)OID.BossGK];
+
     private Actor? _bossHM;
     private Actor? _bossEV;
     private Actor? _bossMR;
@@ -45,9 +44,31 @@ public class A13ArkAngels(WorldState ws, Actor primary) : BossModule(ws, primary
         _bossTT ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies(OID.BossTT).FirstOrDefault() : null;
     }
 
-    public static readonly ArenaBoundsCircle DefaultBounds = new(25);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        var comp = FindComponent<DecisiveBattle>();
+        if (comp != null)
+        {
+            var slot = comp.AssignedBoss[pcSlot];
+            if (slot != null)
+                Arena.Actor(slot);
+        }
+        else if (Enemies(OID.ArkShield).Any(x => !x.IsDead))
+            Arena.Actor(Enemies(OID.ArkShield)[0]);
+        else
+            Arena.Actors(Enemies(Bosses));
+    }
+
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        {
+            var e = hints.PotentialTargets[i];
+            if (e.Actor.FindStatus(SID.Invincibility) != null)
+            {
+                e.Priority = AIHints.Enemy.PriorityForbidFully;
+                break;
+            }
+        }
     }
 }

@@ -26,8 +26,7 @@ class D90ForestBatStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<FlashFlood>()
             .ActivateOnEnter<LineVoltage>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => x.IsTargetable && !x.IsAlly && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
-            .All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(D90ForestBat.Trash).Where(x => x.Position.AlmostEqual(module.Arena.Center, module.Bounds.Radius)).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -63,11 +62,12 @@ public class D90ForestBat(WorldState ws, Actor primary) : BossModule(ws, primary
     new(-35.64f, 482.3f), new(-35.43f, 481.68f), new(-35.42f, 479.49f), new(-34.93f, 471.44f), new(-34.95f, 470.74f),
     new(-34.79f, 470.06f), new(-34.9f, 469.45f), new(-35.73f, 468.5f), new(-16.78f, 468.11f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.Electrogolem1, (uint)OID.Electrogolem1, (uint)OID.ForestWoolback];
 
-    protected override bool CheckPull() => WorldState.Actors.Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
+    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly && x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
+        Arena.Actors(Enemies(Trash).Where(x => x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
     }
 }

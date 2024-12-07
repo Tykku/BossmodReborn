@@ -28,8 +28,7 @@ class D90SprightlyPhoebadStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<Landslip>()
             .ActivateOnEnter<Plummet>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => x.IsTargetable && !x.IsAlly && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
-            .All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.Enemies(D90SprightlyPhoebad.Trash).Where(x => x.Position.AlmostEqual(module.Arena.Center, module.Bounds.Radius)).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -57,11 +56,12 @@ public class D90SprightlyPhoebad(WorldState ws, Actor primary) : BossModule(ws, 
     new(108.36f, -289.32f), new(108.72f, -289.86f), new(108.89f, -290.36f), new(110.23f, -292.79f), new(110.57f, -293.24f),
     new(110.83f, -293.82f), new(111.77f, -295.5f), new(112.26f, -296.71f), new(113.35f, -298.45f), new(113.98f, -298.78f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.SprightlyMole, (uint)OID.SprightlyStone, (uint)OID.SprightlyLoamkeep];
 
-    protected override bool CheckPull() => WorldState.Actors.Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
+    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly && x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
+        Arena.Actors(Enemies(Trash).Where(x => x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
     }
 }

@@ -5,7 +5,7 @@ class DSW2States : StateMachineBuilder
     private readonly DSW2 _module;
 
     private bool IsReset => Module.PrimaryActor.IsDestroyed && (_module.ArenaFeatures?.IsDestroyed ?? true);
-    private bool IsResetOrRewindFailed => IsReset || Module.Enemies(OID.BossP2).Any();
+    private bool IsResetOrRewindFailed => IsReset || Module.Enemies(OID.BossP2).Count != 0;
     private bool IsDead(Actor? actor) => actor != null && actor.IsDeadOrDestroyed;
     private bool IsEffectivelyDead(Actor? actor) => actor != null && (actor.IsDeadOrDestroyed || !actor.IsTargetable && actor.HPMP.CurHP <= 1);
 

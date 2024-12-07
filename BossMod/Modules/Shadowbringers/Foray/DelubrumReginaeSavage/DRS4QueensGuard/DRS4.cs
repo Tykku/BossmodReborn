@@ -16,17 +16,17 @@ class Fracture(BossModule module) : Components.CastCounter(module, ActionID.Make
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", PrimaryActorOID = (uint)OID.Knight, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 761, NameID = 9838, PlanLevel = 80)]
 public class DRS4 : BossModule
 {
-    private readonly IReadOnlyList<Actor> _warrior;
-    private readonly IReadOnlyList<Actor> _soldier;
-    private readonly IReadOnlyList<Actor> _gunner;
+    private readonly List<Actor> _warrior;
+    private readonly List<Actor> _soldier;
+    private readonly List<Actor> _gunner;
 
     public Actor? Knight() => PrimaryActor.IsDestroyed ? null : PrimaryActor;
     public Actor? Warrior() => _warrior.FirstOrDefault();
     public Actor? Soldier() => _soldier.FirstOrDefault();
     public Actor? Gunner() => _gunner.FirstOrDefault();
-    public IReadOnlyList<Actor> GunTurrets;
-    public IReadOnlyList<Actor> AuraSpheres;
-    public IReadOnlyList<Actor> SpiritualSpheres;
+    public readonly List<Actor> GunTurrets;
+    public readonly List<Actor> AuraSpheres;
+    public readonly List<Actor> SpiritualSpheres;
 
     public DRS4(WorldState ws, Actor primary) : base(ws, primary, new(244, -162), new ArenaBoundsCircle(25))
     {

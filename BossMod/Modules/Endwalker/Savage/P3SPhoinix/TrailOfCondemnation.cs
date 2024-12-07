@@ -12,13 +12,13 @@ class TrailOfCondemnation(BossModule module) : BossComponent(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (Module.PrimaryActor.Position == Module.Center)
+        if (Module.PrimaryActor.Position == Arena.Center)
             return;
 
         var dir = (Module.Center - Module.PrimaryActor.Position).Normalized();
         if (_isCenter)
         {
-            if (actor.Position.InRect(Module.PrimaryActor.Position, dir, 2 * Module.Bounds.Radius, 0, _halfWidth))
+            if (actor.Position.InRect(Module.PrimaryActor.Position, dir, 2 * Arena.Bounds.Radius, 0, _halfWidth))
             {
                 hints.Add("GTFO from aoe!");
             }
@@ -30,8 +30,8 @@ class TrailOfCondemnation(BossModule module) : BossComponent(module)
         else
         {
             var offset = _sidesOffset * dir.OrthoR();
-            if (actor.Position.InRect(Module.PrimaryActor.Position + offset, dir, 2 * Module.Bounds.Radius, 0, _halfWidth) ||
-                actor.Position.InRect(Module.PrimaryActor.Position - offset, dir, 2 * Module.Bounds.Radius, 0, _halfWidth))
+            if (actor.Position.InRect(Module.PrimaryActor.Position + offset, dir, 2 * Arena.Bounds.Radius, 0, _halfWidth) ||
+                actor.Position.InRect(Module.PrimaryActor.Position - offset, dir, 2 * Arena.Bounds.Radius, 0, _halfWidth))
             {
                 hints.Add("GTFO from aoe!");
             }
@@ -56,19 +56,19 @@ class TrailOfCondemnation(BossModule module) : BossComponent(module)
 
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
-        if (Module.PrimaryActor.Position == Module.Center)
+        if (Module.PrimaryActor.Position == Arena.Center)
             return;
 
-        var dir = (Module.Center - Module.PrimaryActor.Position).Normalized();
+        var dir = (Arena.Center - Module.PrimaryActor.Position).Normalized();
         if (_isCenter)
         {
-            Arena.ZoneRect(Module.PrimaryActor.Position, dir, 2 * Module.Bounds.Radius, 0, _halfWidth, Colors.AOE);
+            Arena.ZoneRect(Module.PrimaryActor.Position, dir, 2 * Arena.Bounds.Radius, 0, _halfWidth, Colors.AOE);
         }
         else
         {
             var offset = _sidesOffset * dir.OrthoR();
-            Arena.ZoneRect(Module.PrimaryActor.Position + offset, dir, 2 * Module.Bounds.Radius, 0, _halfWidth, Colors.AOE);
-            Arena.ZoneRect(Module.PrimaryActor.Position - offset, dir, 2 * Module.Bounds.Radius, 0, _halfWidth, Colors.AOE);
+            Arena.ZoneRect(Module.PrimaryActor.Position + offset, dir, 2 * Arena.Bounds.Radius, 0, _halfWidth, Colors.AOE);
+            Arena.ZoneRect(Module.PrimaryActor.Position - offset, dir, 2 * Arena.Bounds.Radius, 0, _halfWidth, Colors.AOE);
         }
     }
 

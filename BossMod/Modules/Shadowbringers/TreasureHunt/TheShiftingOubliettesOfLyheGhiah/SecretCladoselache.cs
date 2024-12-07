@@ -32,7 +32,6 @@ public enum AID : uint
 
 public enum IconID : uint
 {
-    spreadmarker = 135, // player
     RotateCCW = 168, // Boss
     RotateCW = 167 // Boss
 }
@@ -111,13 +110,15 @@ class SecretCladoselacheStates : StateMachineBuilder
             .ActivateOnEnter<Spin>()
             .ActivateOnEnter<Mash>()
             .ActivateOnEnter<Scoop>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(SecretCladoselache.All).All(x => x.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 745, NameID = 9778)]
-public class SecretCladoselache(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class SecretCladoselache(WorldState ws, Actor primary) : THTemplate(ws, primary)
 {
+    public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.SecretShark, (uint)OID.KeeperOfKeys];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);

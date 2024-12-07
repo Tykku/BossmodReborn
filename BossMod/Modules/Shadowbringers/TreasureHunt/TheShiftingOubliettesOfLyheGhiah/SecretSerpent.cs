@@ -10,6 +10,7 @@ public enum OID : uint
     SecretTomato = 0x3020, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
     SecretOnion = 0x301D, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
     SecretEgg = 0x301E, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    KeeperOfKeys = 0x3034, // R3.23
     Helper = 0x233C
 }
 
@@ -24,6 +25,10 @@ public enum AID : uint
     FangsEnd = 21699, // Boss->player, 4.0s cast, single-target
     ScaleRipple = 21702, // Boss->self, 2.5s cast, range 8 circle
 
+    Mash = 21767, // KeeperOfKeys->self, 3.0s cast, range 13 width 4 rect
+    Inhale = 21770, // KeeperOfKeys->self, no cast, range 20 120-degree cone, attract 25 between hitboxes, shortly before Spin
+    Spin = 21769, // KeeperOfKeys->self, 4.0s cast, range 11 circle
+    Scoop = 21768, // KeeperOfKeys->self, 4.0s cast, range 15 120-degree cone
     Pollen = 6452, // SecretQueen->self, 3.5s cast, range 6+R circle
     TearyTwirl = 6448, // SecretOnion->self, 3.5s cast, range 6+R circle
     HeirloomScream = 6451, // SecretTomato->self, 3.5s cast, range 6+R circle
@@ -32,7 +37,8 @@ public enum AID : uint
     Telega = 9630 // Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
-class Douse(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 8, ActionID.MakeSpell(AID.Douse), m => m.Enemies(OID.WaterVoidzone).Where(z => z.EventState != 7), 0);
+class DouseVoidzone(BossModule module) : Components.PersistentVoidzone(module, 7.5f, m => m.Enemies(OID.WaterVoidzone).Where(z => z.EventState != 7), 0);
+class Douse(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Douse), 8);
 class FangsEnd(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.FangsEnd));
 class Drench1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Drench1), new AOEShapeCone(15.29f, 45.Degrees()));
 class Drench2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Drench2), new AOEShapeCone(13.45f, 45.Degrees()));
@@ -45,12 +51,17 @@ class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
+class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
+class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
+class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+
 class SecretSerpentStates : StateMachineBuilder
 {
     public SecretSerpentStates(BossModule module) : base(module)
     {
         TrivialPhase()
             .ActivateOnEnter<Douse>()
+            .ActivateOnEnter<DouseVoidzone>()
             .ActivateOnEnter<FangsEnd>()
             .ActivateOnEnter<Drench1>()
             .ActivateOnEnter<Drench2>()
@@ -60,17 +71,25 @@ class SecretSerpentStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
+            .ActivateOnEnter<Spin>()
+            .ActivateOnEnter<Mash>()
+            .ActivateOnEnter<Scoop>()
+            .Raw.Update = () => module.Enemies(SecretSerpent.All).All(x => x.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 745, NameID = 9776)]
-public class SecretSerpent(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class SecretSerpent(WorldState ws, Actor primary) : THTemplate(ws, primary)
 {
+    private static readonly uint[] bonusAdds = [(uint)OID.SecretEgg, (uint)OID.SecretGarlic, (uint)OID.SecretOnion, (uint)OID.SecretTomato,
+    (uint)OID.SecretQueen, (uint)OID.KeeperOfKeys];
+    public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.SerpentHatchling, .. bonusAdds];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.SerpentHatchling).Concat([PrimaryActor]));
-        Arena.Actors(Enemies(OID.SecretEgg).Concat(Enemies(OID.SecretTomato)).Concat(Enemies(OID.SecretQueen)).Concat(Enemies(OID.SecretGarlic)).Concat(Enemies(OID.SecretOnion)), Colors.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SerpentHatchling));
+        Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -84,7 +103,7 @@ public class SecretSerpent(WorldState ws, Actor primary) : BossModule(ws, primar
                 OID.SecretEgg => 5,
                 OID.SecretGarlic => 4,
                 OID.SecretTomato => 3,
-                OID.SecretQueen => 2,
+                OID.SecretQueen or OID.KeeperOfKeys => 2,
                 OID.SerpentHatchling => 1,
                 _ => 0
             };

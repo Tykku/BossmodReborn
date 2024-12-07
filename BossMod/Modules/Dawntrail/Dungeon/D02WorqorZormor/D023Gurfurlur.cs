@@ -67,32 +67,35 @@ class HeavingHaymakerArenaChange(BossModule module) : Components.GenericAOEs(mod
 
 class AuraSphere(BossModule module) : BossComponent(module)
 {
-    private readonly IReadOnlyList<Actor> _orbs = module.Enemies(OID.AuraSphere);
-
-    private IEnumerable<Actor> ActiveOrbs => _orbs.Where(orb => !orb.IsDead);
+    private readonly IEnumerable<Actor> _orbs = module.Enemies(OID.AuraSphere).Where(orb => !orb.IsDead);
 
     public override void AddGlobalHints(GlobalHints hints)
     {
-        if (ActiveOrbs.Any())
+        if (_orbs.Any())
             hints.Add("Soak the orbs!");
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         var orbs = new List<Func<WPos, float>>();
-        if (ActiveOrbs.Any())
+        Actor[] sph = [.. _orbs];
+        var len = sph.Length;
+        if (len != 0)
         {
             hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Sprint), actor, ActionQueue.Priority.High);
-            foreach (var o in ActiveOrbs)
+            for (var i = 0; i < len; ++i)
+            {
+                var o = sph[i];
                 orbs.Add(ShapeDistance.InvertedCircle(o.Position + 0.5f * o.Rotation.ToDirection(), 0.5f));
+            }
         }
-        if (orbs.Count > 0)
+        if (orbs.Count != 0)
             hints.AddForbiddenZone(p => orbs.Max(f => f(p)));
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        foreach (var orb in ActiveOrbs)
+        foreach (var orb in _orbs)
             Arena.AddCircle(orb.Position, 1.4f, Colors.Safe);
     }
 }

@@ -22,6 +22,7 @@ class A14ShadowLordStates : StateMachineBuilder
             .ActivateOnEnter<BindingSigil>()
             .ActivateOnEnter<TeraSlash>()
             .ActivateOnEnter<UnbridledRage>()
+            .ActivateOnEnter<DoomArc>()
             .ActivateOnEnter<DarkNova>();
     }
 }

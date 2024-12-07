@@ -35,11 +35,43 @@ public enum AID : uint
     Electrify = 40634, // RawElectrope->self, 16.0s cast, range 40 circle
 }
 
-abstract class LineVoltage(BossModule module, AID aid, float halfWidth) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(50, halfWidth));
-class LineVoltageWide1(BossModule module) : LineVoltage(module, AID.LineVoltageWide1, 5);
-class LineVoltageWide2(BossModule module) : LineVoltage(module, AID.LineVoltageWide2, 5);
-class LineVoltageNarrow1(BossModule module) : LineVoltage(module, AID.LineVoltageNarrow1, 2.5f);
-class LineVoltageNarrow2(BossModule module) : LineVoltage(module, AID.LineVoltageNarrow2, 2.5f);
+abstract class LineVoltage(BossModule module, AID narrow, float delay, AID? wide1 = null, AID? wide2 = null) : Components.GenericAOEs(module)
+{
+    private static readonly AOEShapeRect rectNarrow = new(50, 2.5f), rectWide = new(50, 5);
+    public readonly List<AOEInstance> AOEs = [];
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = AOEs.Count;
+        if (count > 0)
+        {
+            for (var i = 0; i < count; ++i)
+            {
+                var aoe = AOEs[i];
+                yield return (aoe.Activation - AOEs[0].Activation).TotalSeconds <= delay ? aoe with { Color = Colors.Danger } : aoe with { Risky = false };
+            }
+        }
+    }
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID == narrow)
+            AOEs.Add(new(rectNarrow, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+        else if ((AID)spell.Action.ID == wide1 || (AID)spell.Action.ID == wide2)
+            AOEs.Add(new(rectWide, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+        if (AOEs.Count > 1)
+            AOEs.SortBy(x => x.Activation);
+    }
+
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    {
+        if (AOEs.Count != 0 && (AID)spell.Action.ID == narrow || (AID)spell.Action.ID == wide1 || (AID)spell.Action.ID == wide2)
+            AOEs.RemoveAt(0);
+    }
+}
+
+class LineVoltage1(BossModule module) : LineVoltage(module, AID.LineVoltageNarrow1, 1);
+class LineVoltage2(BossModule module) : LineVoltage(module, AID.LineVoltageNarrow2, 2, AID.LineVoltageWide1, AID.LineVoltageWide2);
 
 class LightningBolt(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 6);
 class LightningStorm(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.LightningStorm), 5);
@@ -49,8 +81,9 @@ class SparkingFissureFirst(BossModule module) : Components.RaidwideCast(module, 
 
 class CellShock(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCircle Circle = new(26);
+    private static readonly AOEShapeCircle circle = new(26);
     private AOEInstance? _aoe;
+    private readonly LineVoltage1 _aoes = module.FindComponent<LineVoltage1>()!;
 
     private static readonly Dictionary<byte, WPos> initialPositions = new()
     {
@@ -63,7 +96,7 @@ class CellShock(BossModule module) : Components.GenericAOEs(module)
         { 0x0D, 0x10 }, { 0x0E, 0x0F }, { 0x0F, 0x0E }, { 0x10, 0x0D }
     };
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.AOEs.Count == 0 ? Utils.ZeroOrOne(_aoe) : [];
 
     public override void OnEventEnvControl(byte index, uint state)
     {
@@ -73,7 +106,7 @@ class CellShock(BossModule module) : Components.GenericAOEs(module)
                 index = remappedIndex;
 
             if (initialPositions.TryGetValue(index, out var position))
-                _aoe = new(Circle, position, default, WorldState.FutureTime(8));
+                _aoe = new(circle, position, default, WorldState.FutureTime(8));
         }
     }
 
@@ -89,16 +122,14 @@ class D091LindblumZaghnalStates : StateMachineBuilder
     public D091LindblumZaghnalStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<CellShock>()
-            .ActivateOnEnter<LineVoltageNarrow1>()
-            .ActivateOnEnter<LineVoltageNarrow2>()
-            .ActivateOnEnter<LineVoltageWide1>()
-            .ActivateOnEnter<LineVoltageWide2>()
+            .ActivateOnEnter<LineVoltage1>()
+            .ActivateOnEnter<LineVoltage2>()
             .ActivateOnEnter<LightningBolt>()
             .ActivateOnEnter<LightningStorm>()
             .ActivateOnEnter<ElectricalOverload>()
             .ActivateOnEnter<SparkingFissure>()
-            .ActivateOnEnter<SparkingFissureFirst>();
+            .ActivateOnEnter<SparkingFissureFirst>()
+            .ActivateOnEnter<CellShock>();
     }
 }
 

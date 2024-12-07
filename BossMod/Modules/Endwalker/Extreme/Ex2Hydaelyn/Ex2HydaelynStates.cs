@@ -6,7 +6,7 @@ class Ex2HydaelynStates : StateMachineBuilder
     {
         SimplePhase(0, Phase1, "P1")
             .ActivateOnEnter<WeaponTracker>()
-            .Raw.Update = () => Module.Enemies(OID.CrystalOfLight).Any();
+            .Raw.Update = () => Module.Enemies(OID.CrystalOfLight).Count != 0;
         DeathPhase(1, Phase2)
             .ActivateOnEnter<WeaponTracker>();
     }

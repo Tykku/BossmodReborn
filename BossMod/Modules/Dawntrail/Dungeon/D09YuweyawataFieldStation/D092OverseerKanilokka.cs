@@ -81,9 +81,36 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-abstract class Soulweave(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(28, 32));
-class Soulweave1(BossModule module) : Soulweave(module, AID.Soulweave1);
-class Soulweave2(BossModule module) : Soulweave(module, AID.Soulweave2);
+class Soulweave(BossModule module) : Components.GenericAOEs(module)
+{
+    private static readonly AOEShapeDonut donut = new(28, 32);
+    private readonly List<AOEInstance> _aoes = [];
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count > 0)
+        {
+            for (var i = 0; i < count; ++i)
+            {
+                var aoe = _aoes[i];
+                yield return (aoe.Activation - _aoes[0].Activation).TotalSeconds <= 1.2 ? aoe with { Color = Colors.Danger } : aoe with { Risky = false };
+            }
+        }
+    }
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID is AID.Soulweave1 or AID.Soulweave2)
+            _aoes.Add(new(donut, spell.LocXZ, default, Module.CastFinishAt(spell)));
+    }
+
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    {
+        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.Soulweave1 or AID.Soulweave2)
+            _aoes.RemoveAt(0);
+    }
+}
 
 class FreeSpirits(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FreeSpirits));
 class Bloodburst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Bloodburst));
@@ -124,8 +151,7 @@ class D092OverseerKanilokkaStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<ArenaChanges>()
             .ActivateOnEnter<FreeSpirits>()
-            .ActivateOnEnter<Soulweave1>()
-            .ActivateOnEnter<Soulweave2>()
+            .ActivateOnEnter<Soulweave>()
             .ActivateOnEnter<DarkSouls>()
             .ActivateOnEnter<DarkII>()
             .ActivateOnEnter<TelltaleTears>()
@@ -140,7 +166,6 @@ class D092OverseerKanilokkaStates : StateMachineBuilder
 public class D092OverseerKanilokka(WorldState ws, Actor primary) : BossModule(ws, primary, StartingBounds.Center, StartingBounds)
 {
     private const int Edges = 60;
-    private const float Offset = -0.5f; // pathfinding offset
     public static readonly WPos ArenaCenter = new(116, -66);
     public static readonly Polygon[] StartingPolygon = [new Polygon(ArenaCenter, 19.5f * CosPI.Pi60th, Edges)];
     public static readonly Polygon[] TinyPolygon = [new Polygon(ArenaCenter, 5, Edges)];
@@ -172,7 +197,7 @@ public class D092OverseerKanilokka(WorldState ws, Actor primary) : BossModule(ws
     public static readonly ArenaBoundsComplex TinyArena = new(TinyPolygon, MapResolution: 0.1f);
     private static readonly DonutV[] difference = [new DonutV(ArenaCenter, 19.5f, 22, Edges)];
     public static readonly ArenaBoundsComplex ArenaENVC00800040 = new([new PolygonCustom(vertices00800040North), new PolygonCustom(vertices00800040East),
-    new PolygonCustom(vertices00800040South), new PolygonCustom(vertices00800040West), ..TinyPolygon], difference, Offset: Offset);
+    new PolygonCustom(vertices00800040South), new PolygonCustom(vertices00800040West), ..TinyPolygon], difference);
     public static readonly ArenaBoundsComplex ArenaENVC02000100 = new([new PolygonCustom(vertices02000100East), new PolygonCustom(vertices02000100North),
-    new PolygonCustom(vertices02000100West), ..TinyPolygon], difference, Offset: Offset);
+    new PolygonCustom(vertices02000100West), ..TinyPolygon], difference);
 }

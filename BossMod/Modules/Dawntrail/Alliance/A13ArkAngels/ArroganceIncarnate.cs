@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Alliance.A13ArkAngels;
 
-class ArroganceIncarnate(BossModule module) : Components.StackWithIcon(module, (uint)IconID.ArroganceIncarnate, ActionID.MakeSpell(AID.ArroganceIncarnateAOE), 6, 5.8f, 8, 24)
+class ArroganceIncarnate(BossModule module) : Components.StackWithIcon(module, (uint)IconID.ArroganceIncarnate, ActionID.MakeSpell(AID.ArroganceIncarnateAOE), 6, 5.8f, PartyState.MaxAllianceSize, PartyState.MaxAllianceSize)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

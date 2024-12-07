@@ -128,7 +128,7 @@ public record class ArenaBoundsCircle(float Radius, float MapResolution = ArenaB
     private Pathfinding.Map BuildMap()
     {
         var map = new Pathfinding.Map(MapResolution, default, Radius, Radius);
-        map.BlockPixelsInsideConvex(p => -ShapeDistance.Circle(default, Radius)(p), 0, 0);
+        map.BlockPixelsInsideConvex(p => -ShapeDistance.Circle(default, Radius)(p), float.NegativeInfinity, 0);
         return map;
     }
 }
@@ -149,7 +149,7 @@ public record class ArenaBoundsRect(float HalfWidth, float HalfHeight, Angle Rot
     private Pathfinding.Map BuildMap()
     {
         var map = new Pathfinding.Map(MapResolution, default, HalfWidth, HalfHeight, Rotation);
-        map.BlockPixelsInsideConvex(p => -ShapeDistance.Rect(default, Rotation, HalfHeight, HalfHeight, HalfWidth)(p), 0, 0);
+        map.BlockPixelsInsideConvex(p => -ShapeDistance.Rect(default, Rotation, HalfHeight, HalfHeight, HalfWidth)(p), float.NegativeInfinity, 0);
         return map;
     }
 
@@ -284,7 +284,6 @@ public record class ArenaBoundsCustom : ArenaBounds
         var width = map.Width;
         var height = map.Height;
         var resolution = map.Resolution;
-        var rotation = map.Rotation;
         var center = map.Center;
 
         var halfSample = MapResolution * Half - Epsilon; // tiny offset to account for floating point inaccuracies
@@ -302,9 +301,8 @@ public record class ArenaBoundsCustom : ArenaBounds
         new(halfSample, halfSample)
         ];
 
-        var dir = rotation.ToDirection();
-        var dx = dir.OrthoL() * resolution;
-        var dy = dir * resolution;
+        var dx = new WDir(resolution, 0);
+        var dy = new WDir(0, resolution);
         var startPos = center - (width * Half - Half) * dx - (height * Half - Half) * dy;
 
         Parallel.For(0, height, y =>
@@ -319,8 +317,7 @@ public record class ArenaBoundsCustom : ArenaBounds
                 var allInside = true;
                 for (var i = 0; i < 9; ++i)
                 {
-                    var samplePoint = relativeCenter + sampleOffsets[i];
-                    if (!polygon.Contains(samplePoint))
+                    if (!polygon.Contains(relativeCenter + sampleOffsets[i]))
                     {
                         allInside = false;
                         break;
@@ -328,7 +325,7 @@ public record class ArenaBoundsCustom : ArenaBounds
                 }
 
                 ref var pixel = ref pixels[rowOffset + x];
-                pixel.MaxG = allInside ? float.MaxValue : 0;
+                pixel.MaxG = allInside ? float.MaxValue : float.NegativeInfinity;
             }
         });
 

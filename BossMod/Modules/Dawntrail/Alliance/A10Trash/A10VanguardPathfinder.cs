@@ -28,7 +28,7 @@ public class A10VanguardPathfinderStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<Seismostomp>()
             .ActivateOnEnter<BombToss>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => x.IsTargetable && !x.IsAlly).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.Enemies(A10VanguardPathfinder.Trash).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -54,9 +54,10 @@ public class A10VanguardPathfinder(WorldState ws, Actor primary) : BossModule(ws
     new(790.4f, 624.3f), new(790.66f, 623.66f), new(790.86f, 623), new(790.61f, 622.49f), new(791.1f, 622.42f),
     new(791.62f, 622.18f), new(791.71f, 621.53f), new(802.28f, 621.41f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.VanguardsSlime1, (uint)OID.VanguardsSlime2, (uint)OID.GoblinReplica];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(Trash));
     }
 }

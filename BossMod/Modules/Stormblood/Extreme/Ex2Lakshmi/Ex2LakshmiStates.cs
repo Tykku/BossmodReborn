@@ -8,7 +8,7 @@ class InnerDemonsAOE(BossModule module) : Components.SelfTargetedAOEs(module, Ac
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 264, NameID = 6385)]
 public class Ex2Lakshmi : BossModule
 {
-    public readonly IReadOnlyList<Actor> DreamingKshatriya;
+    public readonly List<Actor> DreamingKshatriya;
 
     public Ex2Lakshmi(WorldState ws, Actor primary) : base(ws, primary, new(0, 0), new ArenaBoundsCircle(20))
     {

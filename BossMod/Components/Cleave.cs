@@ -9,7 +9,7 @@ public class Cleave(BossModule module, ActionID aid, AOEShape shape, uint enemyO
     public bool ActiveWhileCasting { get; init; } = activeWhileCasting;
     public bool OriginAtTarget { get; init; } = originAtTarget;
     public DateTime NextExpected;
-    private readonly IReadOnlyList<Actor> _enemies = module.Enemies(enemyOID != 0 ? enemyOID : module.PrimaryActor.OID);
+    private readonly List<Actor> _enemies = module.Enemies(enemyOID != 0 ? enemyOID : module.PrimaryActor.OID);
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {

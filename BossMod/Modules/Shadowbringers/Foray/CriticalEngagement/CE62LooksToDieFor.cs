@@ -104,7 +104,7 @@ class Flame(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSp
 
 class Burn(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly IReadOnlyList<Actor> _flames = module.Enemies(OID.BallOfFire);
+    private readonly List<Actor> _flames = module.Enemies(OID.BallOfFire);
     private readonly List<(Actor actor, AOEInstance? aoe)> _casters = [];
 
     private static readonly AOEShapeCircle _shape = new(8);

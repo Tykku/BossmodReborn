@@ -103,19 +103,22 @@ class GymnasiouMegakanthaStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(GymnasiouMegakantha.All).All(x => x.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 909, NameID = 12009)]
-public class GymnasiouMegakantha(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class GymnasiouMegakantha(WorldState ws, Actor primary) : THTemplate(ws, primary)
 {
+    private static readonly uint[] bonusAdds = [(uint)OID.GymnasticEggplant, (uint)OID.GymnasticGarlic, (uint)OID.GymnasticOnion, (uint)OID.GymnasticTomato,
+    (uint)OID.GymnasticQueen, (uint)OID.GymnasiouLyssa, (uint)OID.GymnasiouLampas];
+    private static readonly uint[] rest = [(uint)OID.Boss, (uint)OID.GymnasiouSinapi, (uint)OID.GymnasiouAkantha];
+    public static readonly uint[] All = [.. rest, .. bonusAdds];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.GymnasiouSinapi).Concat(Enemies(OID.GymnasiouAkantha)));
-        Arena.Actors(Enemies(OID.GymnasticEggplant).Concat(Enemies(OID.GymnasticTomato)).Concat(Enemies(OID.GymnasticQueen)).Concat(Enemies(OID.GymnasticGarlic))
-        .Concat(Enemies(OID.GymnasticOnion)).Concat(Enemies(OID.GymnasiouLyssa)).Concat(Enemies(OID.GymnasiouLampas)), Colors.Vulnerable);
+        Arena.Actors(Enemies(rest));
+        Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

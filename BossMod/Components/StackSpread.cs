@@ -165,14 +165,14 @@ public abstract class GenericStackSpread(BossModule module, bool alwaysShowSprea
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
+        void DrawCircle(WPos position, float radius, uint color = 0) => Arena.AddCircle(position, radius, color);
         if (!AlwaysShowSpreads && Spreads.FindIndex(s => s.Target == pc) is var iSpread && iSpread >= 0)
         {
             // Draw only own circle if spreading; no one should be inside.
-            Arena.AddCircle(pc.Position, Spreads[iSpread].Radius);
+            DrawCircle(pc.Position, Spreads[iSpread].Radius);
         }
         else
         {
-            void DrawCircle(WPos position, float radius, uint color = 0) => Arena.AddCircle(position, radius, color);
             // Handle safe stack circles
             foreach (var s in ActiveStacks.Where(x => x.Target == pc || !x.ForbiddenPlayers[pcSlot]
                     && !IsSpreadTarget(pc) && !IsStackTarget(pc) && (x.IsInside(pc)

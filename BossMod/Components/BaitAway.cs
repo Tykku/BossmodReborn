@@ -127,7 +127,7 @@ public class BaitAwayTethers(BossModule module, AOEShape shape, uint tetherID, A
     public AOEShape Shape = shape;
     public uint TID = tetherID;
     public bool DrawTethers = true;
-    public readonly IReadOnlyList<Actor> _enemies = module.Enemies(enemyOID);
+    public readonly List<Actor> _enemies = module.Enemies(enemyOID);
     public float ActivationDelay = activationDelay;
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)

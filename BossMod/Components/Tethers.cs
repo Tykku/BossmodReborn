@@ -203,7 +203,7 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
     public uint TIDBad = tetherIDBad;
     public float MinimumDistance = minimumDistance;
     public bool KnockbackImmunity { get; init; } = knockbackImmunity;
-    public readonly IReadOnlyList<Actor> _enemies = module.Enemies(enemyOID);
+    public readonly List<Actor> _enemies = module.Enemies(enemyOID);
     public readonly List<(Actor, uint)> TetherOnActor = [];
     public readonly List<(Actor, DateTime)> ActivationDelayOnActor = [];
     public float ActivationDelay = activationDelay;
@@ -281,7 +281,7 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
         }
     }
 
-    private bool IsTether(Actor actor, uint tetherID) => TetherOnActor.Contains((actor, tetherID));
+    protected bool IsTether(Actor actor, uint tetherID) => TetherOnActor.Contains((actor, tetherID));
 
     private void DrawTetherLines(Actor target, uint color = 0)
     {
@@ -389,5 +389,12 @@ StretchTetherDuo(module, minimumDistance, activationDelay, tetherID, tetherID, s
             hints.Add("Kite the add!");
         else
             base.AddHints(slot, actor, hints);
+    }
+
+    public override void DrawArenaForeground(int pcSlot, Actor pc)
+    {
+        base.DrawArenaForeground(pcSlot, pc);
+        if (needToKite && IsTether(pc, TIDBad))
+            Arena.Actor(ActiveBaits.FirstOrDefault(x => x.Target == pc).Source, Colors.Object, true);
     }
 }

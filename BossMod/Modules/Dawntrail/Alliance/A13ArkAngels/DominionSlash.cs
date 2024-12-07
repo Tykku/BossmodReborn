@@ -1,6 +1,5 @@
 namespace BossMod.Dawntrail.Alliance.A13ArkAngels;
 
-// TODO: how does it really work?
 class DominionSlash(BossModule module) : Components.GenericAOEs(module)
 {
     public readonly List<AOEInstance> AOEs = [];
@@ -20,7 +19,7 @@ class DominionSlash(BossModule module) : Components.GenericAOEs(module)
         if ((AID)spell.Action.ID is AID.DivineDominion or AID.DivineDominionFail)
         {
             ++NumCasts;
-            AOEs.RemoveAll(aoe => aoe.Origin.AlmostEqual(caster.Position, 1));
+            AOEs.RemoveAll(aoe => aoe.Origin == caster.Position);
         }
     }
 }

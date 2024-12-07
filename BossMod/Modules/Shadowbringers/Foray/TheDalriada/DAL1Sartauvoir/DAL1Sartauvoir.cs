@@ -87,8 +87,8 @@ class TimeEruption(BossModule module) : Components.GenericAOEs(module, ActionID.
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 32, SortOrder = 2)] //BossNameID = 9384
 public class DAL1Sartauvoir : BossModule
 {
-    public readonly IReadOnlyList<Actor> Boss;
-    public readonly IReadOnlyList<Actor> BossP2;
+    public readonly List<Actor> Boss;
+    public readonly List<Actor> BossP2;
 
     public DAL1Sartauvoir(WorldState ws, Actor primary) : base(ws, primary, new(631, 157), new ArenaBoundsSquare(20))
     {

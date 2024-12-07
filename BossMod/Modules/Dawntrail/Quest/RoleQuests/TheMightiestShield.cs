@@ -170,14 +170,16 @@ class HeavySurfaceMissiles(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if (casts.Contains((AID)spell.Action.ID))
+        {
             _aoes.Add(new(circle, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
-        if (_aoes.Count > 0)
-            _aoes.SortBy(x => x.Activation);
+            if (_aoes.Count > 1)
+                _aoes.SortBy(x => x.Activation);
+        }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (casts.Contains((AID)spell.Action.ID))
+        if (_aoes.Count != 0 && casts.Contains((AID)spell.Action.ID))
             _aoes.RemoveAt(0);
     }
 }
@@ -222,10 +224,13 @@ class TheMightiestShieldStates : StateMachineBuilder
 public class TheMightiestShield(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-191, 72), 14.5f, 20)]);
+    private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.CravenFollower1, (uint)OID.CravenFollower2, (uint)OID.CravenFollower3, (uint)OID.CravenFollower4,
+    (uint)OID.CravenFollower5, (uint)OID.CravenFollower6, (uint)OID.CravenFollower7, (uint)OID.CravenFollower8, (uint)OID.MagitekMissile, (uint)OID.UnyieldingMettle2,
+    (uint)OID.UnyieldingMettle3, (uint)OID.CrackedMettle1, (uint)OID.CrackedMettle2];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(all));
     }
 
     protected override bool CheckPull() => Raid.WithoutSlot().Any(x => x.InCombat);

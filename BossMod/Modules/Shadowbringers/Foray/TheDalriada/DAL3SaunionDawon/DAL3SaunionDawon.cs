@@ -16,8 +16,8 @@ class AntiPersonnelMissile(BossModule module) : Components.SpreadFromCastTargets
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 32, SortOrder = 4)] //BossNameID = 10192 & 10006
 public class DAL3SaunionDawon : BossModule
 {
-    public readonly IReadOnlyList<Actor> Boss;
-    public readonly IReadOnlyList<Actor> Dawon;
+    public readonly List<Actor> Boss;
+    public readonly List<Actor> Dawon;
 
     public DAL3SaunionDawon(WorldState ws, Actor primary) : base(ws, primary, new(650, -659), new ArenaBoundsSquare(25))
     {

@@ -456,6 +456,14 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
             Actor(a, color == 0 ? Colors.Enemy : color, allowDeadAndUntargetable);
     }
 
+    public void Actors(List<Actor> actors, uint color = 0, bool allowDeadAndUntargetable = false)
+    {
+        for (var i = 0; i < actors.Count; ++i)
+        {
+            Actor(actors[i], color == 0 ? Colors.Enemy : color, allowDeadAndUntargetable);
+        }
+    }
+
     public static void End()
     {
         ImGui.GetWindowDrawList().PopClipRect();

@@ -78,19 +78,22 @@ class GymnasiouSphinxStates : StateMachineBuilder
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
             .ActivateOnEnter<HeavySmash>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(GymnasiouSphinx.All).All(x => x.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 909, NameID = 12016)]
-public class GymnasiouSphinx(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class GymnasiouSphinx(WorldState ws, Actor primary) : THTemplate(ws, primary)
 {
+    private static readonly uint[] bonusAdds = [(uint)OID.GymnasticEggplant, (uint)OID.GymnasticGarlic, (uint)OID.GymnasticOnion, (uint)OID.GymnasticTomato,
+    (uint)OID.GymnasticQueen, (uint)OID.GymnasiouLyssa, (uint)OID.GymnasiouLampas];
+    public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.GymnasiouGryps, .. bonusAdds];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
         Arena.Actors(Enemies(OID.GymnasiouGryps));
-        Arena.Actors(Enemies(OID.GymnasticEggplant).Concat(Enemies(OID.GymnasticTomato)).Concat(Enemies(OID.GymnasticQueen)).Concat(Enemies(OID.GymnasticGarlic))
-        .Concat(Enemies(OID.GymnasticOnion)).Concat(Enemies(OID.GymnasiouLyssa)).Concat(Enemies(OID.GymnasiouLampas)), Colors.Vulnerable);
+        Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

@@ -27,8 +27,7 @@ class D90SprightlyClayGolemStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<WildHorn>()
             .ActivateOnEnter<Plummet>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => x.IsTargetable && !x.IsAlly && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
-            .All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.Enemies(D90SprightlyClayGolem.Trash).Where(x => x.Position.AlmostEqual(module.Arena.Center, module.Bounds.Radius)).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -79,11 +78,12 @@ public class D90SprightlyClayGolem(WorldState ws, Actor primary) : BossModule(ws
     new(93.72f, -413.32f), new(93.46f, -413.92f), new(93, -414.4f), new(93.22f, -414.95f), new(106.99f, -419.44f),
     new(107.5f, -419.32f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.SprightlyStone1, (uint)OID.SprightlyStone2, (uint)OID.SprightlyDhara];
 
-    protected override bool CheckPull() => WorldState.Actors.Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
+    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly && x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
+        Arena.Actors(Enemies(Trash).Where(x => x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
     }
 }

@@ -60,17 +60,21 @@ class SecretSwallowStates : StateMachineBuilder
             .ActivateOnEnter<Spin>()
             .ActivateOnEnter<Mash>()
             .ActivateOnEnter<Scoop>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(SecretSwallow.All).All(x => x.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 745, NameID = 9782)]
-public class SecretSwallow(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class SecretSwallow(WorldState ws, Actor primary) : THTemplate(ws, primary)
 {
+    private static readonly uint[] bonusAdds = [(uint)OID.FuathTrickster, (uint)OID.KeeperOfKeys];
+    public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.SwallowHatchling, .. bonusAdds];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.SwallowHatchling).Concat([PrimaryActor]));
-        Arena.Actors(Enemies(OID.KeeperOfKeys).Concat(Enemies(OID.FuathTrickster)), Colors.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SwallowHatchling));
+        Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

@@ -29,8 +29,7 @@ class D90StationSpecterStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<GlassPunch>()
             .ActivateOnEnter<Catapult>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
-            .All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.Enemies(D90StationSpecter.Trash).Where(x => x.Position.AlmostEqual(module.Arena.Center, module.Bounds.Radius)).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -75,11 +74,13 @@ public class D90StationSpecter(WorldState ws, Actor primary) : BossModule(ws, pr
     new(110.65f, -18.55f), new(110.54f, -19.18f), new(110.07f, -19.71f), new(109.97f, -23.91f), new(110.22f, -24.35f),
     new(110.66f, -24.76f), new(111.26f, -25.17f), new(111.95f, -25.35f), new(117.43f, -25.65f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.RottenResearcher1, (uint)OID.RottenResearcher2, (uint)OID.RottenResearcher3,
+    (uint)OID.GiantCorse, (uint)OID.StationSpecter];
 
-    protected override bool CheckPull() => WorldState.Actors.Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
+    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly && x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
+        Arena.Actors(Enemies(Trash).Where(x => x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
     }
 }

@@ -10,6 +10,7 @@ public enum OID : uint
     SecretOnion = 0x301D, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
     SecretEgg = 0x301E, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
     KeeperOfKeys = 0x3034, // R3.23
+    FuathTrickster = 0x3033, // R0.75
     Helper = 0x233C
 }
 
@@ -107,18 +108,22 @@ class SecretBasketStates : StateMachineBuilder
             .ActivateOnEnter<Spin>()
             .ActivateOnEnter<Mash>()
             .ActivateOnEnter<Scoop>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(SecretBasket.All).All(x => x.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 745, NameID = 9784)]
-public class SecretBasket(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class SecretBasket(WorldState ws, Actor primary) : THTemplate(ws, primary)
 {
+    private static readonly uint[] bonusAdds = [(uint)OID.SecretEgg, (uint)OID.SecretGarlic, (uint)OID.SecretOnion, (uint)OID.SecretTomato,
+    (uint)OID.SecretQueen, (uint)OID.FuathTrickster, (uint)OID.KeeperOfKeys];
+    public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.SecretEchivore, .. bonusAdds];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.SecretEchivore).Concat([PrimaryActor]));
-        Arena.Actors(Enemies(OID.SecretEgg).Concat(Enemies(OID.SecretTomato)).Concat(Enemies(OID.SecretQueen)).Concat(Enemies(OID.SecretGarlic)).Concat(Enemies(OID.SecretOnion)
-        .Concat(Enemies(OID.KeeperOfKeys))), Colors.Vulnerable);
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.SecretEchivore));
+        Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -131,7 +136,7 @@ public class SecretBasket(WorldState ws, Actor primary) : BossModule(ws, primary
                 OID.SecretOnion => 6,
                 OID.SecretEgg => 5,
                 OID.SecretGarlic => 4,
-                OID.SecretTomato => 3,
+                OID.SecretTomato or OID.FuathTrickster => 3,
                 OID.SecretQueen or OID.KeeperOfKeys => 2,
                 OID.SecretEchivore => 1,
                 _ => 0

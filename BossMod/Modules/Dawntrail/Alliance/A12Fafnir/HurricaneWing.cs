@@ -14,7 +14,7 @@ class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        AOEShape? shape = ShapeForAction(spell.Action);
+        var shape = ShapeForAction(spell.Action);
         if (shape != null)
         {
             NumCasts = 0;
@@ -25,7 +25,7 @@ class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        AOEShape? shape = ShapeForAction(spell.Action);
+        var shape = ShapeForAction(spell.Action);
         if (shape != null)
         {
             AOEs.RemoveAll(aoe => aoe.Shape == shape);
@@ -50,8 +50,11 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
 {
     private const int Length = 5;
     private static readonly AOEShapeCapsule capsuleSmall = new(3, Length), capsuleBig = new(9, Length);
+    private static readonly AOEShapeCircle circleSmall = new(3), circleBig = new(9);
     private readonly List<Actor> _smallWhirldwinds = [], _bigWhirldwinds = [];
-    public bool Active => _smallWhirldwinds.Count is not 0 or not 0;
+    public bool Active => _smallWhirldwinds.Count != 0 || _bigWhirldwinds.Count != 0;
+    private static readonly Angle a180 = 180.Degrees();
+    private bool moving;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -62,19 +65,22 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
         for (var i = 0; i < countSmall; ++i)
         {
             var w = _smallWhirldwinds[i];
-            yield return new(capsuleSmall, w.Position, w.Rotation);
+            yield return new(moving ? capsuleSmall : circleSmall, w.Position, w.Rotation);
         }
         for (var i = 0; i < countBig; ++i)
         {
             var w = _bigWhirldwinds[i];
-            yield return new(capsuleBig, w.Position, w.Rotation);
+            yield return new(moving ? capsuleBig : circleBig, w.Position, w.Rotation);
         }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.GreatWhirlwindLarge)
+        {
             _bigWhirldwinds.Add(caster);
+            moving = false;
+        }
         else if ((AID)spell.Action.ID == AID.GreatWhirlwindSmall)
             _smallWhirldwinds.Add(caster);
     }
@@ -87,6 +93,12 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
             _bigWhirldwinds.Remove(actor);
     }
 
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    {
+        if (!moving && (AID)spell.Action.ID is AID.GreatWhirlwindLargeAOE or AID.GreatWhirlwindSmallAOE)
+            moving = true;
+    }
+
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         var countSmall = _smallWhirldwinds.Count;
@@ -94,15 +106,17 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
         if (countSmall == 0 && countBig == 0)
             return;
         var forbidden = new List<Func<WPos, float>>(); // merging all forbidden zones into one to make pathfinding less demanding
+
+        const int length = Length + 5;
         for (var i = 0; i < countBig; ++i)
         {
             var w = _bigWhirldwinds[i];
-            forbidden.Add(ShapeDistance.Capsule(w.Position, w.Rotation, Length, 9));
+            forbidden.Add(ShapeDistance.Capsule(w.Position, !moving ? w.Rotation + a180 : w.Rotation, length, 10));
         }
         for (var i = 0; i < countSmall; ++i)
         {
             var w = _smallWhirldwinds[i];
-            forbidden.Add(ShapeDistance.Capsule(w.Position, w.Rotation, Length, 3));
+            forbidden.Add(ShapeDistance.Capsule(w.Position, !moving ? w.Rotation + a180 : w.Rotation, length, 5));
         }
         hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
     }

@@ -2,7 +2,7 @@
 
 class P1ProteanWaveTornado : Components.GenericBaitAway
 {
-    private readonly IReadOnlyList<Actor> _liquidRage;
+    private readonly List<Actor> _liquidRage;
 
     private static readonly AOEShapeCone _shape = new(40, 15.Degrees());
 

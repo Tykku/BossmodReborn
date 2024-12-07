@@ -51,7 +51,7 @@ public class A10AquariusStates : StateMachineBuilder
             .ActivateOnEnter<SpiderWeb>()
             .ActivateOnEnter<HundredFists>()
             .ActivateOnEnter<Agaricus>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => x.IsTargetable && !x.IsAlly).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.Enemies(A10Aquarius.Trash).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -97,9 +97,11 @@ public class A10Aquarius(WorldState ws, Actor primary) : BossModule(ws, primary,
     new(-503.55f, 696.32f), new(-504.41f, 695.37f), new(-504.92f, 695.35f), new(-506.16f, 695.72f), new(-506.72f, 695.68f),
     new(-505.95f, 688.81f), new(-505.83f, 688.18f), new(-505.76f, 687.58f), new(-505.52f, 686.9f), new(-500.62f, 686.9f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.ElderGobbue, (uint)OID.RobberCrab1, (uint)OID.RobberCrab2, (uint)OID.DeathCap,
+    (uint)OID.BarkSpider1, (uint)OID.BarkSpider2, (uint)OID.Skimmer1, (uint)OID.Skimmer2];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(Trash));
     }
 }

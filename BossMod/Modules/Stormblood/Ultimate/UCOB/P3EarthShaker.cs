@@ -28,7 +28,7 @@ class P3EarthShaker(BossModule module) : Components.GenericBaitAway(module, Acti
 
 class P3EarthShakerVoidzone(BossModule module) : Components.GenericAOEs(module, default, "GTFO from voidzone!")
 {
-    private readonly IReadOnlyList<Actor> _voidzones = module.Enemies(OID.VoidzoneEarthShaker);
+    private readonly List<Actor> _voidzones = module.Enemies(OID.VoidzoneEarthShaker);
     private readonly List<AOEInstance> _predicted = [];
     private BitMask _targets;
 

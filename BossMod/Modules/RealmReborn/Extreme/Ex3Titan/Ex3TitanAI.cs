@@ -7,7 +7,7 @@ class Ex3TitanAI(BossModule module) : BossComponent(module)
 
     public override void Update()
     {
-        if (KillNextBomb && !Module.Enemies(OID.BombBoulder).Any())
+        if (KillNextBomb && Module.Enemies(OID.BombBoulder).Count == 0)
             KillNextBomb = false;
     }
 

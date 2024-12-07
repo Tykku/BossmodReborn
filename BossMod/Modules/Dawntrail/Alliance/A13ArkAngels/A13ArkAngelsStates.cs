@@ -8,7 +8,8 @@ class A13ArkAngelsStates : StateMachineBuilder
     {
         _module = module;
         DeathPhase(0, SinglePhase)
-            .ActivateOnEnter<Components.StayInBounds>();
+            .ActivateOnEnter<Components.StayInBounds>()
+            .Raw.Update = () => module.Enemies(A13ArkAngels.Bosses).All(x => x.IsDeadOrDestroyed);
     }
 
     private void SinglePhase(uint id)
@@ -89,7 +90,7 @@ class A13ArkAngelsStates : StateMachineBuilder
             .DeactivateOnExit<TachiKasha>();
         ComponentCondition<LightsChain>(id + 0x17, 0.6f, comp => comp.Casters.Count > 0)
             .ActivateOnEnter<LightsChain>();
-        ComponentCondition<ConcertedDissolution>(id + 0x18, 2.5f, comp => comp.NumCasts > 0, "Cones")
+        ComponentCondition<ConcertedDissolution>(id + 0x18, 2.5f, comp => comp.NumCasts == 6, "Cones")
             .DeactivateOnExit<ConcertedDissolution>();
         ComponentCondition<LightsChain>(id + 0x19, 5.5f, comp => comp.NumCasts > 0, "Donut")
             .DeactivateOnExit<LightsChain>();
@@ -204,7 +205,7 @@ class A13ArkAngelsStates : StateMachineBuilder
             .ActivateOnEnter<LightsChain>();
 
         ActorCastStart(id + 0x20, _module.BossHM, AID.CrossReaver, 1.9f, true);
-        ComponentCondition<ConcertedDissolution>(id + 0x21, 0.5f, comp => comp.NumCasts > 0, "Cones")
+        ComponentCondition<ConcertedDissolution>(id + 0x21, 0.5f, comp => comp.NumCasts == 6, "Cones")
             .DeactivateOnExit<ConcertedDissolution>();
         ActorCastEnd(id + 0x22, _module.BossHM, 2.5f, true);
         ComponentCondition<CrossReaver>(id + 0x23, 1, comp => comp.Casters.Count > 0)

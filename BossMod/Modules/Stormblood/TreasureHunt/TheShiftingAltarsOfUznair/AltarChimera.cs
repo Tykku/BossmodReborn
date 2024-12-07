@@ -95,13 +95,15 @@ class AltarChimeraStates : StateMachineBuilder
             .ActivateOnEnter<Hurl>()
             .ActivateOnEnter<RaucousScritch>()
             .ActivateOnEnter<Spin>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(AltarChimera.All).All(x => x.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 586, NameID = 7591)]
-public class AltarChimera(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class AltarChimera(WorldState ws, Actor primary) : THTemplate(ws, primary)
 {
+    public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.AltarAhriman, (uint)OID.AltarMatanga];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);

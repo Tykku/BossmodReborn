@@ -90,18 +90,21 @@ class BullApollyonStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(BullApollyon.All).All(x => x.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "Kismet, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 993, NameID = 13247)]
-public class BullApollyon(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, -372), new ArenaBoundsCircle(20))
+public class BullApollyon(WorldState ws, Actor primary) : SharedBounds(ws, primary)
 {
+    private static readonly uint[] bonusAdds = [(uint)OID.TuraliEggplant, (uint)OID.TuraliTomato, (uint)OID.TuligoraQueen, (uint)OID.TuraliGarlic,
+    (uint)OID.TuraliOnion, (uint)OID.UolonOfFortune];
+    public static readonly uint[] All = [(uint)OID.Boss, .. bonusAdds];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.TuraliEggplant).Concat(Enemies(OID.TuraliTomato)).Concat(Enemies(OID.TuligoraQueen)).Concat(Enemies(OID.TuraliGarlic))
-        .Concat(Enemies(OID.TuraliOnion)).Concat(Enemies(OID.UolonOfFortune)), Colors.Vulnerable);
+        Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

@@ -170,7 +170,7 @@ public static class ShapeDistance
     public static Func<WPos, float> InvertedCross(WPos origin, Angle direction, float length, float halfWidth) => p => -Cross(origin, direction, length, halfWidth)(p);
 
     // positive offset increases area
-    public static Func<WPos, float> ConvexPolygon(IEnumerable<(WPos, WPos)> edges, bool cw, float offset = 0)
+    public static Func<WPos, float> ConvexPolygon(List<(WPos, WPos)> edges, bool cw, float offset = 0)
     {
         Func<WPos, float> edge((WPos p1, WPos p2) e)
         {
@@ -183,9 +183,7 @@ public static class ShapeDistance
         return Intersection([.. edges.Select(edge)], offset);
     }
 
-    public static Func<WPos, float> ConvexPolygon(IEnumerable<WPos> vertices, bool cw, float offset = 0) => ConvexPolygon(PolygonUtil.EnumerateEdges(vertices), cw, offset);
-
-    public static Func<WPos, float> InvertedConvexPolygon(IEnumerable<WPos> vertices, bool cw, float offset = 0) => p => -ConvexPolygon(vertices, cw, offset)(p);
+    public static Func<WPos, float> ConvexPolygon(ReadOnlySpan<WPos> vertices, bool cw, float offset = 0) => ConvexPolygon(PolygonUtil.EnumerateEdges(vertices), cw, offset);
 
     public static Func<WPos, float> Intersection(List<Func<WPos, float>> funcs, float offset = 0) => p => funcs.Max(e => e(p)) - offset;
     public static Func<WPos, float> Union(List<Func<WPos, float>> funcs, float offset = 0) => p => funcs.Min(e => e(p)) - offset;

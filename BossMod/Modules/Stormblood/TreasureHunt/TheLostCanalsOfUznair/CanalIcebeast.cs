@@ -48,17 +48,23 @@ class CanalIcebeastStates : StateMachineBuilder
             .ActivateOnEnter<Hurl>()
             .ActivateOnEnter<RaucousScritch>()
             .ActivateOnEnter<Spin>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(CanalIcebeast.All).All(x => x.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 268, NameID = 6650)]
-public class CanalIcebeast(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, -420), new ArenaBoundsCircle(20))
+public class CanalIcebeast(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
+    private static readonly WPos center = new(0, -420);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(center, 19.51f * CosPI.Pi8th, 8, 22.5f.Degrees()), new Rectangle(center, 27.66f, 5.5f),
+    new Rectangle(new(0, -440), 5.5f, 7.5f)], [new Rectangle(new(0, -400), 20, 3.35f)]);
+    private static readonly uint[] trash = [(uint)OID.CanalVindthurs, (uint)OID.CanalIceHomunculus];
+    public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.Abharamu, .. trash];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.CanalIceHomunculus).Concat(Enemies(OID.CanalVindthurs)));
+        Arena.Actors(Enemies(trash));
         Arena.Actors(Enemies(OID.Abharamu), Colors.Vulnerable);
     }
 

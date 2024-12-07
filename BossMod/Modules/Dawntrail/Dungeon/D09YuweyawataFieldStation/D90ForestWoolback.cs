@@ -26,8 +26,7 @@ class D90ForestWoolbackStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<Thunderball>()
             .ActivateOnEnter<SweepingGouge>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => x.IsTargetable && !x.IsAlly && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
-            .All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => Module.Enemies(D90ForestWoolback.Trash).Where(x => x.Position.AlmostEqual(module.Arena.Center, module.Bounds.Radius)).All(x => x.IsDeadOrDestroyed);
     }
 }
 
@@ -74,11 +73,12 @@ public class D90ForestWoolback(WorldState ws, Actor primary) : BossModule(ws, pr
     new(51.35f, 360.61f), new(51.7f, 360.07f), new(51.99f, 359.46f), new(52.32f, 359.07f), new(52.99f, 358.92f),
     new(53.49f, 358.63f), new(53.9f, 358.33f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.ForestAxeBeak, (uint)OID.ForestWoolback, (uint)OID.Electrogolem];
 
-    protected override bool CheckPull() => WorldState.Actors.Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
+    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly && x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
+        Arena.Actors(Enemies(Trash).Where(x => x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
     }
 }

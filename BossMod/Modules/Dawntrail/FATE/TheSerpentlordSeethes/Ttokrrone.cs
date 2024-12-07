@@ -99,6 +99,6 @@ class TtokrroneStates : StateMachineBuilder
 public class Ttokrrone(WorldState ws, Actor primary) : BossModule(ws, primary, new(53, -820), new ArenaBoundsCircle(29.5f))
 {
     // if boss is pulled when player is really far away and helpers aren't loaded, some components might never see resolve casts and get stuck forever
-    protected override bool CheckPull() => base.CheckPull() && Enemies(OID.Helper).Any();
+    protected override bool CheckPull() => base.CheckPull() && Enemies(OID.Helper).Count != 0;
 }
 

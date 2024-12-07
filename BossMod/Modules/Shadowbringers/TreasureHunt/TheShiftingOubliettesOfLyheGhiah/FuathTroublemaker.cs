@@ -38,13 +38,15 @@ class FuathTroublemakerStates : StateMachineBuilder
             .ActivateOnEnter<Spittle>()
             .ActivateOnEnter<Hydrocannon>()
             .ActivateOnEnter<FrigidNeedle>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(FuathTroublemaker.All).All(x => x.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 745, NameID = 9786)]
-public class FuathTroublemaker(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class FuathTroublemaker(WorldState ws, Actor primary) : THTemplate(ws, primary)
 {
+    public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.FuathTrickster];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);

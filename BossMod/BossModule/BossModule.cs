@@ -24,20 +24,33 @@ public abstract class BossModule : IDisposable
     public bool InBounds(WPos position) => Arena.InBounds(position);
 
     // per-oid enemy lists; filled on first request
-    private readonly Dictionary<uint, List<Actor>> _relevantEnemies = []; // key = actor OID
-    public IReadOnlyDictionary<uint, List<Actor>> RelevantEnemies => _relevantEnemies;
-    public IReadOnlyList<Actor> Enemies(uint oid)
+    public readonly Dictionary<uint, List<Actor>> RelevantEnemies = []; // key = actor OID
+
+    public List<Actor> Enemies(uint oid)
     {
-        IReadOnlyList<Actor>? entry = _relevantEnemies.GetValueOrDefault(oid);
-        entry ??= _relevantEnemies[oid] = WorldState.Actors.Where(actor => actor.OID == oid).ToList();
+        var entry = RelevantEnemies.GetValueOrDefault(oid);
+        entry ??= RelevantEnemies[oid] = [.. WorldState.Actors.Where(actor => actor.OID == oid)];
         return entry;
     }
-    public IReadOnlyList<Actor> Enemies<OID>(OID oid) where OID : Enum => Enemies((uint)(object)oid);
+
+    public List<Actor> Enemies(ReadOnlySpan<uint> enemies)
+    {
+        List<Actor> relevantenemies = [];
+        for (var i = 0; i < enemies.Length; ++i)
+        {
+            var enemy = enemies[i];
+            var entry = RelevantEnemies.GetValueOrDefault(enemy);
+            entry ??= RelevantEnemies[enemy] = [.. WorldState.Actors.Where(actor => actor.OID == enemy)];
+            relevantenemies.AddRange(entry);
+        }
+        return relevantenemies;
+    }
+    public List<Actor> Enemies<OID>(OID oid) where OID : Enum => Enemies((uint)(object)oid);
 
     // component management: at most one component of any given type can be active at any time
-    private readonly List<BossComponent> _components = [];
-    public IReadOnlyList<BossComponent> Components => _components;
-    public T? FindComponent<T>() where T : BossComponent => _components.OfType<T>().FirstOrDefault();
+    public readonly List<BossComponent> Components = [];
+
+    public T? FindComponent<T>() where T : BossComponent => Components.OfType<T>().FirstOrDefault();
     private int componentCount;
 
     public void ActivateComponent<T>() where T : BossComponent
@@ -48,7 +61,7 @@ public abstract class BossModule : IDisposable
             DeactivateComponent<T>();
         }
         var comp = New<T>.Create(this);
-        _components.Add(comp);
+        Components.Add(comp);
         ++componentCount;
 
         // execute callbacks for existing state
@@ -71,7 +84,7 @@ public abstract class BossModule : IDisposable
 
     public void DeactivateComponent<T>() where T : BossComponent
     {
-        var count = _components.RemoveAll(x => x is T);
+        var count = Components.RemoveAll(x => x is T);
         componentCount -= count;
         if (count == 0)
             ReportError(null, $"State {StateMachine.ActiveState?.ID:X}: Could not find a component of type {typeof(T)} to deactivate");
@@ -79,7 +92,7 @@ public abstract class BossModule : IDisposable
 
     public void ClearComponents(Predicate<BossComponent> condition)
     {
-        componentCount -= _components.RemoveAll(condition);
+        componentCount -= Components.RemoveAll(condition);
     }
 
     protected BossModule(WorldState ws, Actor primary, WPos center, ArenaBounds bounds)
@@ -125,7 +138,6 @@ public abstract class BossModule : IDisposable
     {
         StateMachine.Reset();
         ClearComponents(_ => true);
-
         _subscriptions.Dispose();
     }
 
@@ -141,7 +153,7 @@ public abstract class BossModule : IDisposable
         {
             UpdateModule();
             for (var i = 0; i < componentCount; ++i)
-                _components[i].Update();
+                Components[i].Update();
         }
     }
 
@@ -177,7 +189,7 @@ public abstract class BossModule : IDisposable
         DrawArenaBackground(pcSlot, pc);
 
         for (var i = 0; i < componentCount; ++i)
-            _components[i].DrawArenaBackground(pcSlot, pc);
+            Components[i].DrawArenaBackground(pcSlot, pc);
 
         // draw borders
         if (WindowConfig.ShowBorder)
@@ -193,7 +205,7 @@ public abstract class BossModule : IDisposable
         // draw foreground
         DrawArenaForeground(pcSlot, pc);
         for (var i = 0; i < componentCount; ++i)
-            _components[i].DrawArenaForeground(pcSlot, pc);
+            Components[i].DrawArenaForeground(pcSlot, pc);
         if (WindowConfig.ShowMeleeRangeIndicator)
         {
             var enemy = WorldState.Actors.FirstOrDefault(a => !a.IsAlly && a.IsTargetable && !a.IsDead && a.InCombat);
@@ -209,7 +221,7 @@ public abstract class BossModule : IDisposable
     {
         BossComponent.TextHints hints = [];
         for (var i = 0; i < componentCount; ++i)
-            _components[i].AddHints(slot, actor, hints);
+            Components[i].AddHints(slot, actor, hints);
         return hints;
     }
 
@@ -217,7 +229,7 @@ public abstract class BossModule : IDisposable
     {
         BossComponent.MovementHints hints = [];
         for (var i = 0; i < componentCount; ++i)
-            _components[i].AddMovementHints(slot, actor, hints);
+            Components[i].AddMovementHints(slot, actor, hints);
         return hints;
     }
 
@@ -225,7 +237,7 @@ public abstract class BossModule : IDisposable
     {
         BossComponent.GlobalHints hints = [];
         for (var i = 0; i < componentCount; ++i)
-            _components[i].AddGlobalHints(hints);
+            Components[i].AddGlobalHints(hints);
         return hints;
     }
 
@@ -234,7 +246,7 @@ public abstract class BossModule : IDisposable
         hints.PathfindMapCenter = Center;
         hints.PathfindMapBounds = Bounds;
         for (var i = 0; i < componentCount; ++i)
-            _components[i].AddAIHints(slot, actor, assignment, hints);
+            Components[i].AddAIHints(slot, actor, assignment, hints);
         CalculateModuleAIHints(slot, actor, assignment, hints);
         if (!WindowConfig.AllowAutomaticActions && AI.AIManager.Instance?.Beh == null)
             hints.ActionsToExecute.Clear();
@@ -365,7 +377,7 @@ public abstract class BossModule : IDisposable
         for (var i = 0; i < componentCount; ++i)
         {
             uint subColor = 0;
-            var subPrio = _components[i].CalcPriority(pcSlot, pc, playerSlot, player, ref subColor);
+            var subPrio = Components[i].CalcPriority(pcSlot, pc, playerSlot, player, ref subColor);
             if (subPrio > highestPrio)
             {
                 highestPrio = subPrio;
@@ -377,111 +389,111 @@ public abstract class BossModule : IDisposable
 
     private void OnActorCreated(Actor actor)
     {
-        _relevantEnemies.GetValueOrDefault(actor.OID)?.Add(actor);
+        RelevantEnemies.GetValueOrDefault(actor.OID)?.Add(actor);
         if (actor.Type is not ActorType.Player and not ActorType.Pet and not ActorType.Chocobo and not ActorType.Buddy)
             for (var i = 0; i < componentCount; ++i)
-                _components[i].OnActorCreated(actor);
+                Components[i].OnActorCreated(actor);
     }
 
     private void OnActorDestroyed(Actor actor)
     {
-        _relevantEnemies.GetValueOrDefault(actor.OID)?.Remove(actor);
+        RelevantEnemies.GetValueOrDefault(actor.OID)?.Remove(actor);
         if (actor.Type is not ActorType.Player and not ActorType.Pet and not ActorType.Chocobo and not ActorType.Buddy)
             for (var i = 0; i < componentCount; ++i)
-                _components[i].OnActorDestroyed(actor);
+                Components[i].OnActorDestroyed(actor);
     }
 
     private void OnActorCastStarted(Actor actor)
     {
         if (actor.Type is not ActorType.Player and not ActorType.Pet and not ActorType.Chocobo and not ActorType.Buddy && (actor.CastInfo?.IsSpell() ?? false))
             for (var i = 0; i < componentCount; ++i)
-                _components[i].OnCastStarted(actor, actor.CastInfo);
+                Components[i].OnCastStarted(actor, actor.CastInfo);
     }
 
     private void OnActorCastFinished(Actor actor)
     {
         if (actor.Type is not ActorType.Player and not ActorType.Pet and not ActorType.Chocobo and not ActorType.Buddy && (actor.CastInfo?.IsSpell() ?? false))
             for (var i = 0; i < componentCount; ++i)
-                _components[i].OnCastFinished(actor, actor.CastInfo);
+                Components[i].OnCastFinished(actor, actor.CastInfo);
     }
 
     private void OnActorTethered(Actor actor)
     {
         for (var i = 0; i < componentCount; ++i)
-            _components[i].OnTethered(actor, actor.Tether);
+            Components[i].OnTethered(actor, actor.Tether);
     }
 
     private void OnActorUntethered(Actor actor)
     {
         for (var i = 0; i < componentCount; ++i)
-            _components[i].OnUntethered(actor, actor.Tether);
+            Components[i].OnUntethered(actor, actor.Tether);
     }
 
     private void OnActorStatusGain(Actor actor, int index)
     {
         for (var i = 0; i < componentCount; ++i)
-            _components[i].OnStatusGain(actor, actor.Statuses[index]);
+            Components[i].OnStatusGain(actor, actor.Statuses[index]);
     }
 
     private void OnActorStatusLose(Actor actor, int index)
     {
         for (var i = 0; i < componentCount; ++i)
-            _components[i].OnStatusLose(actor, actor.Statuses[index]);
+            Components[i].OnStatusLose(actor, actor.Statuses[index]);
     }
 
     private void OnActorIcon(Actor actor, uint iconID, ulong targetID)
     {
         for (var i = 0; i < componentCount; ++i)
-            _components[i].OnEventIcon(actor, iconID, targetID);
+            Components[i].OnEventIcon(actor, iconID, targetID);
     }
 
     private void OnActorCastEvent(Actor actor, ActorCastEvent cast)
     {
         if (actor.Type is not ActorType.Player and not ActorType.Pet and not ActorType.Chocobo and not ActorType.Buddy && cast.IsSpell())
             for (var i = 0; i < componentCount; ++i)
-                _components[i].OnEventCast(actor, cast);
+                Components[i].OnEventCast(actor, cast);
     }
 
     private void OnActorEState(Actor actor, ushort state)
     {
         for (var i = 0; i < componentCount; ++i)
-            _components[i].OnActorEState(actor, state);
+            Components[i].OnActorEState(actor, state);
     }
 
     private void OnActorEAnim(Actor actor, ushort p1, ushort p2)
     {
         var state = ((uint)p1 << 16) | p2;
         for (var i = 0; i < componentCount; ++i)
-            _components[i].OnActorEAnim(actor, state);
+            Components[i].OnActorEAnim(actor, state);
     }
 
     private void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
         for (var i = 0; i < componentCount; ++i)
-            _components[i].OnActorPlayActionTimelineEvent(actor, id);
+            Components[i].OnActorPlayActionTimelineEvent(actor, id);
     }
 
     private void OnActorNpcYell(Actor actor, ushort id)
     {
         for (var i = 0; i < componentCount; ++i)
-            _components[i].OnActorNpcYell(actor, id);
+            Components[i].OnActorNpcYell(actor, id);
     }
 
     private void OnActorModelStateChange(Actor actor)
     {
         for (var i = 0; i < componentCount; ++i)
-            _components[i].OnActorModelStateChange(actor, actor.ModelState.ModelState, actor.ModelState.AnimState1, actor.ModelState.AnimState2);
+            Components[i].OnActorModelStateChange(actor, actor.ModelState.ModelState, actor.ModelState.AnimState1, actor.ModelState.AnimState2);
     }
 
     private void OnEnvControl(WorldState.OpEnvControl op)
     {
         for (var i = 0; i < componentCount; ++i)
-            _components[i].OnEventEnvControl(op.Index, op.State);
+            Components[i].OnEventEnvControl(op.Index, op.State);
     }
 
     private void OnDirectorUpdate(WorldState.OpDirectorUpdate op)
     {
         for (var i = 0; i < componentCount; ++i)
-            _components[i].OnEventDirectorUpdate(op.UpdateID, op.Param1, op.Param2, op.Param3, op.Param4);
+            Components[i].OnEventDirectorUpdate(op.UpdateID, op.Param1, op.Param2, op.Param3, op.Param4);
     }
 }

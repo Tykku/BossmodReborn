@@ -85,6 +85,7 @@ sealed class IPCProvider : IDisposable
         Register("AI.GetPreset", () => ai.GetAIPreset);
         Register("AI.GetPotentialTargets", () => autorotation.Hints.PotentialTargets);
         Register("AI.GetSpecialMode", () => autorotation.Hints.ImminentSpecialMode);
+        Register("AI.ForbiddenDirections", () => autorotation.Hints.ForbiddenDirections);
         Register("AI.ForcedTarget", () => autorotation.Hints.ForcedTarget);
         Register("AI.SetPositional", (Positional positional) => autorotation.Hints.SetPositional(positional));
     }

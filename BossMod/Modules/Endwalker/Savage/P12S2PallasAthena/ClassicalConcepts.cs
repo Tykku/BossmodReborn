@@ -15,9 +15,9 @@ class ClassicalConcepts(BossModule module, bool invert) : BossComponent(module)
 
     public int NumPlayerTethers { get; private set; }
     public int NumShapeTethers { get; private set; }
-    private readonly IReadOnlyList<Actor> _hexa = module.Enemies(OID.ConceptOfWater);
-    private readonly IReadOnlyList<Actor> _tri = module.Enemies(OID.ConceptOfFire);
-    private readonly IReadOnlyList<Actor> _sq = module.Enemies(OID.ConceptOfEarth);
+    private readonly List<Actor> _hexa = module.Enemies(OID.ConceptOfWater);
+    private readonly List<Actor> _tri = module.Enemies(OID.ConceptOfFire);
+    private readonly List<Actor> _sq = module.Enemies(OID.ConceptOfEarth);
     private readonly (WPos hexa, WPos tri, WPos sq)[] _resolvedShapes = new (WPos, WPos, WPos)[4];
     private readonly PlayerState[] _states = Utils.MakeArray(PartyState.MaxPartySize, new PlayerState() { Column = -1, PartnerSlot = -1 });
     private readonly bool _invert = invert;

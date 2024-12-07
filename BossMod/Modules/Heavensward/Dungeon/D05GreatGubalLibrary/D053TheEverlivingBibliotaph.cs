@@ -84,7 +84,7 @@ class VoidSpark(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.VoidSpark)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID == AID.VoidSpark)
             _aoes.RemoveAt(0);
     }
 }
@@ -95,7 +95,7 @@ class VoidBlizzardIIIAOE(BossModule module) : Components.LocationTargetedAOEs(mo
 class AbyssalSwing(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.AbyssalSwing), new AOEShapeCone(7.5f, 45.Degrees()), (uint)OID.Biblioklept);
 class AbyssalCharge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AbyssalCharge), new AOEShapeRect(41, 2));
 
-class VoidCall(BossModule module) : Components.GenericTowers(module)
+class VoidCall(BossModule module) : Components.GenericTowers(module, prioritizeInsufficient: true)
 {
     public override void OnActorCreated(Actor actor)
     {

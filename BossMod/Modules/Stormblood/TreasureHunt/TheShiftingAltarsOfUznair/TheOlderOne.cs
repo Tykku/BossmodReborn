@@ -80,18 +80,21 @@ class TheOlderOneStates : StateMachineBuilder
             .ActivateOnEnter<Hurl>()
             .ActivateOnEnter<RaucousScritch>()
             .ActivateOnEnter<Spin>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(TheOlderOne.All).All(x => x.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 586, NameID = 7597)]
-public class TheOlderOne(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class TheOlderOne(WorldState ws, Actor primary) : THTemplate(ws, primary)
 {
+    private static readonly uint[] bonusAdds = [(uint)OID.AltarEgg, (uint)OID.AltarGarlic, (uint)OID.AltarOnion, (uint)OID.AltarTomato,
+    (uint)OID.AltarQueen, (uint)OID.GoldWhisker, (uint)OID.AltarMatanga];
+    public static readonly uint[] All = [(uint)OID.Boss, .. bonusAdds];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.AltarEgg).Concat(Enemies(OID.AltarTomato)).Concat(Enemies(OID.AltarQueen)).Concat(Enemies(OID.AltarGarlic)).Concat(Enemies(OID.AltarOnion))
-        .Concat(Enemies(OID.AltarMatanga).Concat(Enemies(OID.GoldWhisker))), Colors.Vulnerable);
+        Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -101,11 +104,12 @@ public class TheOlderOne(WorldState ws, Actor primary) : BossModule(ws, primary,
             var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.AltarOnion => 5,
-                OID.AltarEgg => 4,
-                OID.AltarGarlic => 3,
-                OID.AltarTomato => 2,
-                OID.AltarQueen or OID.GoldWhisker or OID.AltarMatanga => 1,
+                OID.AltarOnion => 6,
+                OID.AltarEgg => 5,
+                OID.AltarGarlic => 4,
+                OID.AltarTomato => 3,
+                OID.AltarQueen or OID.GoldWhisker => 2,
+                OID.AltarMatanga => 1,
                 _ => 0
             };
         }

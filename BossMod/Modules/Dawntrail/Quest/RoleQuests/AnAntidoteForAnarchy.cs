@@ -179,9 +179,10 @@ class AnAntidoteForAnarchyStates : StateMachineBuilder
 public class AnAntidoteForAnarchy(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-5.65f, -84.73f), 14.5f, 20)]);
+    private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.KAModelMammet, (uint)OID.KRModelMammet, (uint)OID.SuffocatingCloud, (uint)OID.PoisonCloud];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(all));
     }
 }

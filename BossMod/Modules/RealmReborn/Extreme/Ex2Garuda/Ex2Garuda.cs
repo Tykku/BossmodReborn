@@ -14,12 +14,12 @@ class GreatWhirlwind(BossModule module) : Components.LocationTargetedAOEs(module
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 65, NameID = 1644)]
 public class Ex2Garuda : BossModule
 {
-    public IReadOnlyList<Actor> Monoliths;
-    public IReadOnlyList<Actor> RazorPlumes;
-    public IReadOnlyList<Actor> SpinyPlumes;
-    public IReadOnlyList<Actor> SatinPlumes;
-    public IReadOnlyList<Actor> Chirada;
-    public IReadOnlyList<Actor> Suparna;
+    public readonly List<Actor> Monoliths;
+    public readonly List<Actor> RazorPlumes;
+    public readonly List<Actor> SpinyPlumes;
+    public readonly List<Actor> SatinPlumes;
+    public readonly List<Actor> Chirada;
+    public readonly List<Actor> Suparna;
 
     public Ex2Garuda(WorldState ws, Actor primary) : base(ws, primary, new(0, 0), new ArenaBoundsCircle(22))
     {

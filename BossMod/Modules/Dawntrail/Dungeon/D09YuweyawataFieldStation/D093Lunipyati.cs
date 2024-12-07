@@ -147,7 +147,8 @@ class LeapingEarth(BossModule module) : Components.GenericAOEs(module)
     new(40, -711), new(38.7f, -705), new(34, -701.5f), new(28, -701.4f), new(24, -704.399f), new(22, -709.7f), new(23.1f, -715.099f),
     new(26.5f, -719.499f), new(32, -721.699f), new(38, -721.5f), new(43, -717.999f), new(45.7f, -712.699f), new(45.9f, -706.699f),
     new(42.9f, -701.2f), new(38.5f, -697), new(32.5f, -695.199f)];
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(16);
+    private int maxCasts;
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(maxCasts);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -167,12 +168,14 @@ class LeapingEarth(BossModule module) : Components.GenericAOEs(module)
                 GenerateAOEsForMixedPattern(45, -45);
             _aoes.SortBy(x => x.Activation);
             angles.Clear();
+            maxCasts = 16;
         }
         else if ((AID)spell.Action.ID == AID.LeapingEarthVisual2)
         {
             var rotatedPoints = WPos.GenerateRotatedVertices(D093Lunipyati.ArenaCenter, spiralBigPoints, spell.Rotation.Rad * Angle.RadToDeg);
             for (var i = 0; i < 20; ++i)
-                _aoes.Add(new(circle, rotatedPoints[i], default, WorldState.FutureTime(4.5f + 0.2f * i)));
+                _aoes.Add(new(circle, rotatedPoints[i], default, WorldState.FutureTime(4.5f + 0.25f * i)));
+            maxCasts = 10;
         }
     }
 

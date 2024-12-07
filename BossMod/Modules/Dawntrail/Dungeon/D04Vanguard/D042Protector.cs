@@ -130,7 +130,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
                 new { AOE = electricFences00200010AOE, Bounds = electricFences00200010Arena }
             };
 
-            for (var i = 0; i < aoeChecks.Length; ++i)
+            for (var i = 0; i < 4; ++i)
             {
                 var aoe = aoeChecks[i];
                 if (ActiveAOEs(0, Raid.Player()!).Any(c => c.Shape == aoe.AOE && c.Activation <= WorldState.CurrentTime))
@@ -156,16 +156,16 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
             switch (state)
             {
                 case 0x08000400:
-                    _aoe = new(electricFences08000400AOE, Module.Center, default, activation);
+                    _aoe = new(electricFences08000400AOE, Arena.Center, default, activation);
                     break;
                 case 0x01000080:
-                    _aoe = new(electricFences01000080AOE, Module.Center, default, activation);
+                    _aoe = new(electricFences01000080AOE, Arena.Center, default, activation);
                     break;
                 case 0x00020001:
-                    _aoe = new(electricFences00020001AOE, Module.Center, default, activation);
+                    _aoe = new(electricFences00020001AOE, Arena.Center, default, activation);
                     break;
                 case 0x00200010:
-                    _aoe = new(electricFences00200010AOE, Module.Center, default, activation);
+                    _aoe = new(electricFences00200010AOE, Arena.Center, default, activation);
                     break;
                 case 0x02000004 or 0x10000004 or 0x00080004 or 0x00400004:
                     Arena.Bounds = defaultBounds;
@@ -209,10 +209,41 @@ class BlastCannon(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 }
 
 class Shock(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Shock), 3);
-class HomingCannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HomingCannon), new AOEShapeRect(50, 1));
+
+class HomingCannon(BossModule module) : Components.GenericAOEs(module)
+{
+    private static readonly AOEShapeRect rect = new(50, 1);
+    private readonly List<AOEInstance> _aoes = [];
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count > 0)
+        {
+            for (var i = 0; i < count; ++i)
+            {
+                var aoe = _aoes[i];
+                yield return (aoe.Activation - _aoes[0].Activation).TotalSeconds <= 1 ? aoe with { Color = Colors.Danger } : aoe with { Risky = false };
+            }
+        }
+    }
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID == AID.HomingCannon)
+            _aoes.Add(new(rect, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+    }
+
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    {
+        if (_aoes.Count != 0 && (AID)spell.Action.ID == AID.HomingCannon)
+            _aoes.RemoveAt(0);
+    }
+}
+
 class Bombardment(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Bombardment), 5);
 
-class Electrowhirl(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
+abstract class Electrowhirl(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
 class Electrowhirl1(BossModule module) : Electrowhirl(module, AID.Electrowhirl1);
 class Electrowhirl2(BossModule module) : Electrowhirl(module, AID.Electrowhirl2);
 

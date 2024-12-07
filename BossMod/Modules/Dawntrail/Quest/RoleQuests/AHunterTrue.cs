@@ -159,9 +159,11 @@ class AHunterTrueStates : StateMachineBuilder
 public class AHunterTrue(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(4, 248), 19.5f, 20)]);
+    private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.Garula, (uint)OID.Dzo, (uint)OID.SteppeEagle, (uint)OID.BallOfNaught];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(all));
+        Arena.Actors(Enemies(OID.FilthyShackle), Colors.Object);
     }
 }

@@ -82,7 +82,7 @@ class GrynewahtStates : StateMachineBuilder
             .ActivateOnEnter<MagitekMissiles>();
 
         SimplePhase(1, id => build(id).ActivateOnEnter<Bounds>(), "P1")
-            .Raw.Update = () => Module.Enemies(OID.GrynewahtP2).Any();
+            .Raw.Update = () => Module.Enemies(OID.GrynewahtP2).Count != 0;
         DeathPhase(0x100, id => build(id).ActivateOnEnter<ReaperAI>().OnEnter(() =>
         {
             Module.Arena.Bounds = new ArenaBoundsCircle(20);

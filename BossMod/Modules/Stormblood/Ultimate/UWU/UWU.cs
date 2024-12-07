@@ -24,12 +24,12 @@ class P5AethericBoom(BossModule module) : Components.KnockbackFromCastTarget(mod
 [ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.Garuda, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 539, PlanLevel = 70)]
 public class UWU : BossModule
 {
-    private readonly IReadOnlyList<Actor> _titan;
-    private readonly IReadOnlyList<Actor> _lahabrea;
-    private readonly IReadOnlyList<Actor> _ultima;
+    private readonly List<Actor> _titan;
+    private readonly List<Actor> _lahabrea;
+    private readonly List<Actor> _ultima;
     private Actor? _mainIfrit;
 
-    public IReadOnlyList<Actor> Ifrits { get; }
+    public List<Actor> Ifrits { get; }
 
     public Actor? Garuda() => PrimaryActor.IsDestroyed ? null : PrimaryActor;
     public Actor? Ifrit() => _mainIfrit;

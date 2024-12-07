@@ -8,7 +8,7 @@ public enum OID : uint
     PerchOfTheApex = 0x428C, // R0.7
     CultivatedMorbolSeedling = 0x4207, // R0.9
     CultivatedMossFungus = 0x4208, // R1.32
-    Helper = 0x233C, // R0.5
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -34,7 +34,7 @@ public enum AID : uint
     PerchOfTheApexVisual1 = 37471, // PerchOfTheApex->self, no cast, single-target
     PerchOfTheApexVisual2 = 37474, // PerchOfTheApex->self, no cast, single-target
     ApexJudgment = 37472, // Helper->self, no cast, range 35 circle, raidwide
-    Visual = 37473, // Boss->self, no cast, single-target
+    Visual = 37473 // Boss->self, no cast, single-target
 }
 
 class FledglingFury(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FledglingFury), 4);
@@ -89,8 +89,11 @@ public class HeroesAndPretenders(WorldState ws, Actor primary) : BossModule(ws, 
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(676, 41), 14.5f, 20)]);
 
+    private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.PerchOfTheApex, (uint)OID.CultivatedMossFungus, (uint)OID.CultivatedOchu1, (uint)OID.CultivatedOchu2,
+    (uint)OID.CultivatedMorbolSeedling];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(all));
     }
 }

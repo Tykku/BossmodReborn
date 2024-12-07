@@ -70,12 +70,12 @@ class T04GauntletStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.TerminalStart, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 96)]
 public class T04Gauntlet : BossModule
 {
-    public IReadOnlyList<Actor> P1Bugs;
-    public IReadOnlyList<Actor> Bugs;
-    public IReadOnlyList<Actor> Soldiers;
-    public IReadOnlyList<Actor> Knights;
-    public IReadOnlyList<Actor> Rooks;
-    public IReadOnlyList<Actor> Dreadnaughts;
+    public readonly List<Actor> P1Bugs;
+    public readonly List<Actor> Bugs;
+    public readonly List<Actor> Soldiers;
+    public readonly List<Actor> Knights;
+    public readonly List<Actor> Rooks;
+    public readonly List<Actor> Dreadnaughts;
 
     public T04Gauntlet(WorldState ws, Actor primary) : base(ws, primary, new(0, 0), new ArenaBoundsCircle(25))
     {

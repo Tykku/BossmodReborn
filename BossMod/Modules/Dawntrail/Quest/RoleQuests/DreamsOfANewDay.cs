@@ -23,8 +23,8 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack1 = 870, // Boss/TentoawaTheWideEye->player/Boss/TentoawaTheWideEye, no cast, single-target
-    AutoAttack2 = 39796, // UnboundRavager4->4583, no cast, single-target
-    AutoAttack3 = 873, // UnboundRavager5->4583, no cast, single-target
+    AutoAttack2 = 39796, // UnboundRavager4->ZunduWarrior, no cast, single-target
+    AutoAttack3 = 873, // UnboundRavager5->ZunduWarrior, no cast, single-target
     Teleport = 39054, // Boss->location, no cast, single-target
     ZunduWarriorVisual = 39033, // Helper->self, no cast, single-target
 
@@ -48,7 +48,7 @@ public enum AID : uint
     BloodyTrinity = 39032, // BossP2->players, 5.0s cast, single-target, tankbuster
     AetherialExposure = 39041, // Helper->LoazenikweTheShutEye, 8.0s cast, range 6 circle, stack
     PoisonDaggersVisual = 39045, // BossP2->self, 8.0s cast, single-target
-    PoisonDaggers = 39046, // Helper->player/TentoawaTheWideEye/LoazenikweTheShutEye, no cast, single-target
+    PoisonDaggers = 39046 // Helper->player/TentoawaTheWideEye/LoazenikweTheShutEye, no cast, single-target
 }
 
 class Bladestorm(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Bladestorm), new AOEShapeCone(20, 45.Degrees()));
@@ -157,10 +157,12 @@ class DreamsOfANewDayP2States(BossModule module) : DreamsOfANewDayStates(module)
 public class DreamsOfANewDay(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-757, -719), 19.5f, 20)]);
+    private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.UnboundRaider1, (uint)OID.UnboundRaider2, (uint)OID.UnboundRaider3, (uint)OID.UnboundRaider4,
+    (uint)OID.UnboundRavager1, (uint)OID.UnboundRavager4, (uint)OID.UnboundRavager6, (uint)OID.UnboundRavager7, (uint)OID.UnboundRavager8, (uint)OID.BossP2];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(all));
     }
 
     protected override bool CheckPull() => Raid.WithoutSlot().Any(x => x.InCombat);

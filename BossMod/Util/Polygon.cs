@@ -27,8 +27,8 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
         }
     }
 
-    public IEnumerable<(WDir, WDir)> ExteriorEdges => PolygonUtil.EnumerateEdges(Vertices.Take(ExteriorEnd));
-    public IEnumerable<(WDir, WDir)> InteriorEdges(int index) => PolygonUtil.EnumerateEdges(Vertices.Skip(HoleStarts[index]).Take(HoleEnd(index) - HoleStarts[index]));
+    public List<(WDir, WDir)> ExteriorEdges => PolygonUtil.EnumerateEdges(Exterior);
+    public List<(WDir, WDir)> InteriorEdges(int index) => PolygonUtil.EnumerateEdges(Interior(index));
 
     private EdgeBuckets? _edgeBuckets;
     private const int BucketCount = 20;
@@ -65,13 +65,20 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
     }
     public List<RelTriangle> Triangulate()
     {
-        List<RelTriangle> result = [];
+        var result = new List<RelTriangle>(Vertices.Count);
         Triangulate(result);
         return result;
     }
 
     // build a new polygon by transformation
-    public RelPolygonWithHoles Transform(WDir offset, WDir rotation) => new([.. Vertices.Select(v => v.Rotate(rotation) + offset)], [.. HoleStarts]);
+    public RelPolygonWithHoles Transform(WDir offset, WDir rotation)
+    {
+        var count = Vertices.Count;
+        var newVerts = new List<WDir>(count);
+        for (var i = 0; i < count; ++i)
+            newVerts.Add(Vertices[i].Rotate(rotation) + offset);
+        return new RelPolygonWithHoles(newVerts, [.. HoleStarts]);
+    }
 
     // point-in-polygon test; point is defined as offset from shape center
     public bool Contains(WDir p)
@@ -411,20 +418,20 @@ public class PolygonClipper
 
 public static class PolygonUtil
 {
-    public static IEnumerable<(T, T)> EnumerateEdges<T>(IEnumerable<T> contour) where T : struct, IEquatable<T>
+    public static List<(T, T)> EnumerateEdges<T>(ReadOnlySpan<T> contour) where T : struct, IEquatable<T>
     {
-        var contourList = contour as IList<T> ?? [.. contour];
-        var count = contourList.Count;
+        var count = contour.Length;
+        var result = new List<(T, T)>(count);
         if (count == 0)
-            yield break;
+            return result;
 
-        var prevPoint = contourList[count - 1];
+        var prev = contour[count - 1];
         for (var i = 0; i < count; ++i)
         {
-            var list = contourList[i];
-            yield return (prevPoint, list);
-            prevPoint = list;
+            result.Add((prev, contour[i]));
+            prev = contour[i];
         }
+        return result;
     }
 }
 
@@ -534,9 +541,9 @@ public readonly struct PolygonWithHolesDistanceFunction
         for (var i = 0; i < polygon.Parts.Count; ++i)
         {
             var part = polygon.Parts[i];
-            edgeCount += part.ExteriorEdges.Count();
+            edgeCount += part.ExteriorEdges.Count;
             for (var j = 0; j < part.Holes.Count(); ++j)
-                edgeCount += part.InteriorEdges(j).Count();
+                edgeCount += part.InteriorEdges(j).Count;
         }
         _edges = new Edge[edgeCount];
         var edgeIndex = 0;

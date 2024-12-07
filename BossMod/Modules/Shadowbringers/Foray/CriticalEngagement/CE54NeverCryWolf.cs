@@ -198,7 +198,7 @@ class CE54NeverCryWolfStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 25)] // bnpcname=9941
 public class CE54NeverCryWolf : BossModule
 {
-    private readonly IReadOnlyList<Actor> _adds;
+    private readonly List<Actor> _adds;
 
     public CE54NeverCryWolf(WorldState ws, Actor primary) : base(ws, primary, new(-830, 190), new ArenaBoundsSquare(24))
     {

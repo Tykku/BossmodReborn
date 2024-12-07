@@ -64,10 +64,12 @@ public enum SID : uint
 
 class Lap(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Lap));
 class Lightburst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Lightburst));
+
 class Crypsis(BossModule module) : BossComponent(module)
 {
     private bool IsConcealed;
-    private readonly int RevealDistance = 9;
+    private const int RevealDistance = 9;
+
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         if (IsConcealed)
@@ -160,18 +162,21 @@ class GoldenMolterStates : StateMachineBuilder
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
             .ActivateOnEnter<Spin>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.OID != (uint)OID.Helper).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(GoldenMolter.All).All(x => x.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "Kismet, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 993, NameID = 13248)]
-public class GoldenMolter(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, -372), new ArenaBoundsCircle(20))
+public class GoldenMolter(WorldState ws, Actor primary) : SharedBounds(ws, primary)
 {
+    private static readonly uint[] bonusAdds = [(uint)OID.TuraliEggplant, (uint)OID.TuraliTomato, (uint)OID.TuligoraQueen, (uint)OID.TuraliGarlic,
+    (uint)OID.TuraliOnion, (uint)OID.UolonOfFortune, (uint)OID.AlpacaOfFortune];
+    public static readonly uint[] All = [(uint)OID.Boss, .. bonusAdds];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor, allowDeadAndUntargetable: true);
-        Arena.Actors(Enemies(OID.TuraliEggplant).Concat(Enemies(OID.TuraliTomato)).Concat(Enemies(OID.TuligoraQueen)).Concat(Enemies(OID.TuraliGarlic))
-        .Concat(Enemies(OID.TuraliOnion)).Concat(Enemies(OID.UolonOfFortune)).Concat(Enemies(OID.AlpacaOfFortune)), Colors.Vulnerable);
+        Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

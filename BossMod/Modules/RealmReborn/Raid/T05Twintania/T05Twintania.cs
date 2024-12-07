@@ -143,8 +143,8 @@ public class T05Twintania : BossModule
 {
     public const float NeurolinkRadius = 2;
 
-    public IReadOnlyList<Actor> ScourgeOfMeracydia;
-    public IReadOnlyList<Actor> Neurolinks;
+    public readonly List<Actor> ScourgeOfMeracydia;
+    public readonly List<Actor> Neurolinks;
 
     public T05Twintania(WorldState ws, Actor primary) : base(ws, primary, new(-3, -6.5f), new ArenaBoundsCircle(31))
     {
@@ -154,7 +154,7 @@ public class T05Twintania : BossModule
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, Colors.Enemy, true);
+        Arena.Actor(PrimaryActor, allowDeadAndUntargetable: true);
         Arena.Actors(ScourgeOfMeracydia);
     }
 }

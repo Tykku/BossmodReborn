@@ -110,7 +110,7 @@ public sealed class WorldState
     {
         protected override void Exec(WorldState ws)
         {
-            Service.LuminaRSV[Key] = System.Text.Encoding.UTF8.GetBytes(Value); // TODO: reconsider...
+            Service.LuminaRSV[Key] = Encoding.UTF8.GetBytes(Value); // TODO: reconsider...
             ws.RSVEntries[Key] = Value;
             ws.RSVDataReceived.Fire(this);
         }

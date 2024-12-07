@@ -71,7 +71,7 @@ class SapSpiller(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        if (count > 0)
+        if (count != 0)
         {
             for (var i = 0; i < count; ++i)
             {
@@ -89,26 +89,27 @@ class SapSpiller(BossModule module) : Components.GenericAOEs(module)
         switch ((AID)spell.Action.ID)
         {
             case AID.WhirlingOmen1:
-                AddAOEs(a180, -a90, -a90, spell);
+                AddAOEs([a180, -a90, -a90], spell);
                 break;
             case AID.WhirlingOmen2:
-                AddAOEs(a90, a180, -a90, spell);
+                AddAOEs([a90, a180, -a90], spell);
                 break;
             case AID.WhirlingOmen3:
-                AddAOEs(-a90, a90, a180, spell);
+                AddAOEs([-a90, a90, a180], spell);
                 break;
             case AID.WhirlingOmen4:
-                AddAOEs(a90, a180, a90, spell);
+                AddAOEs([a90, a180, a90], spell);
                 break;
         }
     }
 
-    private void AddAOEs(Angle first, Angle second, Angle third, ActorCastInfo spell)
+    private void AddAOEs(ReadOnlySpan<Angle> angles, ActorCastInfo spell)
     {
-        var position = Module.PrimaryActor.Position;
-        _aoes.Add(new(cone, position, spell.Rotation + first, Module.CastFinishAt(spell, 14.6f)));
-        _aoes.Add(new(cone, position, _aoes[0].Rotation + second, Module.CastFinishAt(spell, 16.8f)));
-        _aoes.Add(new(cone, position, _aoes[1].Rotation + third, Module.CastFinishAt(spell, 19.1f)));
+        for (var i = 0; i < 3; ++i)
+        {
+            var angle = (i == 0 ? spell.Rotation : _aoes[i - 1].Rotation) + angles[i];
+            _aoes.Add(new(cone, Module.PrimaryActor.Position, angle, Module.CastFinishAt(spell, 14.6f + 2.2f * i)));
+        }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

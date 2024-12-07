@@ -9,7 +9,7 @@ class Un3SophiaStates : StateMachineBuilder
         SimplePhase(1, Phase2, "Adds + next few mechanics (until 75%)")
             .Raw.Update = () => Module.PrimaryActor.IsDestroyed || (Module.PrimaryActor.CastInfo?.IsSpell(AID.ThunderCone) ?? false);
         SimplePhase(2, Phase3, "Skippable mechanics (until 68%)")
-            .Raw.Update = () => Module.PrimaryActor.IsDestroyed || Module.Enemies(OID.AionTeleos).Any();
+            .Raw.Update = () => Module.PrimaryActor.IsDestroyed || Module.Enemies(OID.AionTeleos).Count != 0;
         DeathPhase(3, Phase4);
     }
 

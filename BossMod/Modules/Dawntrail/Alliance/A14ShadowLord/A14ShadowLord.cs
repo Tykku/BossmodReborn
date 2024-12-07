@@ -1,6 +1,7 @@
 ﻿namespace BossMod.Dawntrail.Alliance.A14ShadowLord;
 
 class TeraSlash(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.TeraSlash));
+class DoomArc(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DoomArc));
 class UnbridledRage(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeRect(100, 4), (uint)IconID.UnbridledRage, ActionID.MakeSpell(AID.UnbridledRageAOE), 5.9f);
 class DarkNova(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.DarkNova), 6);
 public class StayInBounds(BossModule module) : BossComponent(module)

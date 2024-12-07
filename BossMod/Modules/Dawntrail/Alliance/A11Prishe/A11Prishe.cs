@@ -2,7 +2,6 @@
 
 class NullifyingDropkick(BossModule module) : Components.CastSharedTankbuster(module, ActionID.MakeSpell(AID.NullifyingDropkick), 6);
 class Holy(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Holy), 6);
-class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeCircle(8));
 class BanishgaIV(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BanishgaIV));
 class Banishga(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Banishga));
 

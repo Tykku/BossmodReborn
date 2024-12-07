@@ -62,22 +62,24 @@ class AiryBubble(BossModule module) : Components.GenericAOEs(module)
     private const float Radius = 1.1f;
     private const int Length = 3;
     private static readonly AOEShapeCapsule capsule = new(Radius, Length);
-    private readonly IReadOnlyList<Actor> _orbs = module.Enemies(OID.AiryBubble);
-    private IEnumerable<Actor> Orbs => _orbs.Where(x => x.HitboxRadius == Radius);
     private readonly List<Actor> _aoes = [];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        foreach (var o in _aoes)
+        for (var i = 0; i < _aoes.Count; ++i)
+        {
+            var o = _aoes[i];
             yield return new(capsule, o.Position, o.Rotation);
+        }
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if (id == 0x1E46 && Orbs.Contains(actor))
-            _aoes.Add(actor);
-        else if (id == 0x1E3C && Orbs.Contains(actor))
-            _aoes.Remove(actor);
+        if (Module.Enemies(OID.AiryBubble).Where(x => x.HitboxRadius == 1.1f).Contains(actor))
+            if (id == 0x1E46)
+                _aoes.Add(actor);
+            else if (id == 0x1E3C)
+                _aoes.Remove(actor);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -85,8 +87,11 @@ class AiryBubble(BossModule module) : Components.GenericAOEs(module)
         if (_aoes.Count == 0)
             return;
         var forbidden = new List<Func<WPos, float>>();
-        foreach (var o in _aoes)
+        for (var i = 0; i < _aoes.Count; ++i)
+        {
+            var o = _aoes[i];
             forbidden.Add(ShapeDistance.Capsule(o.Position, o.Rotation, Length, Radius));
+        }
         forbidden.Add(ShapeDistance.Circle(Arena.Center, Module.PrimaryActor.HitboxRadius));
         hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
     }
@@ -94,8 +99,6 @@ class AiryBubble(BossModule module) : Components.GenericAOEs(module)
 
 class Burst(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly IReadOnlyList<Actor> _orbs = module.Enemies(OID.AiryBubble);
-    private IEnumerable<Actor> Orbs => _orbs.Where(x => x.HitboxRadius != 1.1f);
     private static readonly AOEShapeCircle circle = new(6);
     private readonly List<AOEInstance> _aoes = [];
 
@@ -117,7 +120,7 @@ class Burst(BossModule module) : Components.GenericAOEs(module)
 
     private void AddAOEs(float offset, DateTime activation)
     {
-        foreach (var orb in Orbs)
+        foreach (var orb in Module.Enemies(OID.AiryBubble).Where(x => x.HitboxRadius != 1.1f))
             _aoes.Add(new(circle, orb.Position + new WDir(offset, 0), default, activation));
     }
 

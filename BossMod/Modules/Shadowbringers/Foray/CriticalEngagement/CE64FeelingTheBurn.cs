@@ -166,7 +166,7 @@ class CE64FeelingTheBurnStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 18)] // bnpcname=9945
 public class CE64FeelingTheBurn : BossModule
 {
-    public IReadOnlyList<Actor> Escorts;
+    public List<Actor> Escorts;
 
     public CE64FeelingTheBurn(WorldState ws, Actor primary) : base(ws, primary, new(-240, -230), new ArenaBoundsSquare(24))
     {
@@ -176,6 +176,6 @@ public class CE64FeelingTheBurn : BossModule
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(Escorts, Colors.Enemy);
+        Arena.Actors(Escorts);
     }
 }
