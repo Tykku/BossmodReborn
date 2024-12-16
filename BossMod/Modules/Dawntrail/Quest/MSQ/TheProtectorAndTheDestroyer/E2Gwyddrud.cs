@@ -3,14 +3,10 @@ namespace BossMod.Dawntrail.Quest.MSQ.TheProtectorAndTheDestroyer.Gwyddrud;
 public enum OID : uint
 {
     Boss = 0x4349, // R5.0    
-    Gwyddrud = 0x3A5E, // R1.000, x24
-    LimitBreakHelper = 0x40B5, // R1.000, x1
-    WukLamat = 0x4146, // R0.500, x1
-    Alisaie = 0x4339, // R0.485, x1
-    OtisOathmender = 0x4348, // R1.500, x1
-    Sphene = 0x4337, // R0.500, x1
-    BallOfLevin = 0x434A, // R1.500, x0 (spawn during fight)
-    SuperchargedLevin = 0x39C4, // R2.000, x0 (spawn during fight)
+    LimitBreakHelper = 0x40B5, // R1.0
+    BallOfLevin = 0x434A, // R1.5
+    SuperchargedLevin = 0x39C4, // R2.0
+    Helper2 = 0x3A5E, // R1.0
     Helper = 0x233C
 }
 
@@ -37,16 +33,16 @@ public enum AID : uint
     LevinStartMoving = 38226, // BallOfLevin/SuperchargedLevin->LimitBreakHelper, no cast, single-target
     GatheringSurge = 38243, // Boss->self, no cast, single-target
     UntamedCurrent = 38232, // Boss->self, 3.3+0,7s cast, range 40 circle, knockback 15, away from source
-    UntamedCurrentAOE1 = 38233, // Gwyddrud->location, 3.1s cast, range 5 circle
-    UntamedCurrentAOE2 = 19718, // Gwyddrud->location, 3.2s cast, range 5 circle
-    UntamedCurrentAOE3 = 19719, // Gwyddrud->location, 3.3s cast, range 5 circle
-    UntamedCurrentAOE4 = 19999, // Gwyddrud->location, 3.0s cast, range 5 circle
-    UntamedCurrentAOE5 = 38234, // Gwyddrud->location, 3.1s cast, range 5 circle
-    UntamedCurrentAOE6 = 19720, // Gwyddrud->location, 3.2s cast, range 5 circle
-    UntamedCurrentAOE7 = 19721, // Gwyddrud->location, 3.3s cast, range 5 circle
-    UntamedCurrentAOE8 = 19728, // Gwyddrud->location, 3.3s cast, range 5 circle
-    UntamedCurrentAOE9 = 19727, // Gwyddrud->location, 3.2s cast, range 5 circle
-    UntamedCurrentAOE10 = 19179, // Gwyddrud->location, 3.1s cast, range 5 circle
+    UntamedCurrentAOE1 = 38233, // Helper2->location, 3.1s cast, range 5 circle
+    UntamedCurrentAOE2 = 19718, // Helper2->location, 3.2s cast, range 5 circle
+    UntamedCurrentAOE3 = 19719, // Helper2->location, 3.3s cast, range 5 circle
+    UntamedCurrentAOE4 = 19999, // Helper2->location, 3.0s cast, range 5 circle
+    UntamedCurrentAOE5 = 38234, // Helper2->location, 3.1s cast, range 5 circle
+    UntamedCurrentAOE6 = 19720, // Helper2->location, 3.2s cast, range 5 circle
+    UntamedCurrentAOE7 = 19721, // Helper2->location, 3.3s cast, range 5 circle
+    UntamedCurrentAOE8 = 19728, // Helper2->location, 3.3s cast, range 5 circle
+    UntamedCurrentAOE9 = 19727, // Helper2->location, 3.2s cast, range 5 circle
+    UntamedCurrentAOE10 = 19179, // Helper2->location, 3.1s cast, range 5 circle
     UntamedCurrentSpread = 19181, // Helper->all, 5.0s cast, range 5 circle
     UntamedCurrentStack = 19276, // Helper->Alisaie, 5.0s cast, range 6 circle
 }
@@ -152,8 +148,10 @@ class GwyddrudStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.Quest, GroupID = 70478, NameID = 13170)]
 public class Gwyddrud(WorldState ws, Actor primary) : BossModule(ws, primary, new(349, -14), new ArenaBoundsCircle(19.5f))
 {
+    private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.SuperchargedLevin, (uint)OID.BallOfLevin];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(all));
     }
 }

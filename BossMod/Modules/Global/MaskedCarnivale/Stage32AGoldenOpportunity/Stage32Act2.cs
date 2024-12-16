@@ -7,12 +7,13 @@ public enum OID : uint
     GildedGolem = 0x3FA9, //R=2.1
     GildedMarionette = 0x3FA8, //R=1.2
     GildedCyclops = 0x3FAA, //R=3.2
-    Helper = 0x233C,
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttack = 34444, // Boss->player, no cast, single-target
+
     ShiningSummon = 34461, // Boss->self, 4.0s cast, single-target
     Teleport = 34129, // Helper->location, no cast, single-target
     GoldorAeroIII = 34460, // Boss->self, 4.0s cast, range 50 circle, raidwide, knockback 10 away from source
@@ -34,7 +35,7 @@ public enum AID : uint
     GoldorRush = 34468, // Boss->self, 4.0s cast, range 50 circle, knockback 10 away from source, raidwide
     GoldorFireIII = 34449, // Helper->location, 2.5s cast, range 8 circle
     GoldorBlizzardIIIVisual = 34589, // Boss->self, 6.0s cast, single-target, interruptible, freezes player
-    GoldorBlizzardIII = 34590, // Helper->player, no cast, range 6 circle
+    GoldorBlizzardIII = 34590 // Helper->player, no cast, range 6 circle
 }
 
 public enum SID : uint
@@ -42,13 +43,60 @@ public enum SID : uint
     Heavy = 240, // Helper->player, extra=0x63
     Electrocution = 3779, // Helper->player, extra=0x0
     MagicDamageUp = 3707, // none->Boss, extra=0x0
-    MagicResistance = 3621, // none->Boss, extra=0x0
+    MagicResistance = 3621 // none->Boss, extra=0x0
 }
 
 class GoldorFireIII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GoldorFireIII), 8);
 class GoldorBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GoldorBlast), new AOEShapeRect(60, 5));
 class GoldenCross(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GoldenCross), new AOEShapeCross(100, 3.5f));
-class GoldenBeam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GoldenBeam), new AOEShapeCone(40, 60.Degrees()));
+
+class GoldenBeam(BossModule module) : Components.GenericAOEs(module)
+{
+    private static readonly AOEShapeCone cone = new(40, 60.Degrees());
+    private AOEInstance? _aoe;
+    private readonly List<ConeV> cones = [];
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID == AID.GoldenBeam)
+        {
+            if (Module.Enemies(OID.GildedMarionette).Count == 1)
+                _aoe = new(cone, caster.Position, spell.Rotation, Module.CastFinishAt(spell));
+            else
+            {
+                cones.Add(new(caster.Position, cone.Radius, spell.Rotation, cone.HalfAngle, 2));
+                if (cones.Count == 4)
+                {
+                    AOEShapeCustom intersect = new([cones[0]], Shapes2: cones.Skip(1), Operand: OperandType.Intersection);
+                    AOEShapeCustom xor = new([cones[0]], Shapes2: cones.Skip(1), Operand: OperandType.Xor);
+                    var clipper = new PolygonClipper();
+                    var combinedShapes = clipper.Union(new PolygonClipper.Operand(intersect.GetCombinedPolygon(Arena.Center)),
+                    new PolygonClipper.Operand(xor.GetCombinedPolygon(Arena.Center)));
+                    _aoe = new(intersect with { Polygon = combinedShapes }, Arena.Center, default, Module.CastFinishAt(spell));
+                }
+            }
+        }
+    }
+
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID == AID.GoldenBeam)
+        {
+            _aoe = null;
+            cones.Clear();
+        }
+    }
+
+    public override void AddHints(int slot, Actor actor, TextHints hints)
+    {
+        base.AddHints(slot, actor, hints);
+        if (_aoe != null && Module.Enemies(OID.GildedMarionette).Count > 1)
+            hints.Add("Use Diamondback outside of marked area!");
+    }
+}
+
 class TwentyFourCaratSwing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TwentyFourCaratSwing), new AOEShapeCircle(12));
 
 class GoldorQuake(BossModule module) : Components.ConcentricAOEs(module, _shapes)
@@ -58,7 +106,7 @@ class GoldorQuake(BossModule module) : Components.ConcentricAOEs(module, _shapes
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.GoldorQuake1)
-            AddSequence(Module.PrimaryActor.Position, Module.CastFinishAt(spell));
+            AddSequence(Arena.Center, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -72,7 +120,7 @@ class GoldorQuake(BossModule module) : Components.ConcentricAOEs(module, _shapes
                 AID.GoldorQuake3 => 2,
                 _ => -1
             };
-            AdvanceSequence(order, Module.PrimaryActor.Position, WorldState.FutureTime(1.5f));
+            AdvanceSequence(order, Arena.Center, WorldState.FutureTime(1.5f));
         }
     }
 }
@@ -108,9 +156,6 @@ class Hints(BossModule module) : BossComponent(module)
         var heavy = actor.FindStatus(SID.Heavy);
         if (heavy != null)
             hints.Add("Use Loom to dodge AOEs!");
-        var marionettes = Module.Enemies(OID.GildedMarionette).Count > 1;
-        if (marionettes)
-            hints.Add("Use Diamondback behind + between 2 marionettes!");
     }
 }
 

@@ -54,10 +54,11 @@ class FangsOfTheViperStates : StateMachineBuilder
 public class FangsOfTheViper(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(264, 480), 19.5f, 20)]);
+    private static readonly uint[] all = [(uint)OID.FawningWivre, (uint)OID.FawningPeiste, (uint)OID.FawningRaptor, (uint)OID.WanderingGowrow];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.FawningWivre).Concat(Enemies(OID.FawningPeiste)).Concat(Enemies(OID.FawningRaptor)).Concat(Enemies(OID.WanderingGowrow)));
+        Arena.Actors(Enemies(all));
     }
 
     protected override bool CheckPull() => Raid.WithoutSlot().Any(x => x.InCombat);

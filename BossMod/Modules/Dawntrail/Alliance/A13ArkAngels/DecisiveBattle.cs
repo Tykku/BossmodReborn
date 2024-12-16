@@ -22,6 +22,20 @@ class DecisiveBattle(BossModule module) : BossComponent(module)
         }
     }
 
+    // fall back since players outside arena bounds do not get tethered but will still receive status effects
+    public override void OnStatusGain(Actor actor, ActorStatus status)
+    {
+        var boss = (SID)status.ID switch
+        {
+            SID.EpicHero => OID.BossMR,
+            SID.VauntedHero => OID.BossTT,
+            SID.FatedHero => OID.BossGK,
+            _ => default
+        };
+        if (boss != default && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
+            AssignedBoss[slot] = Module.Enemies(boss).FirstOrDefault();
+    }
+
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         if (slot < AssignedBoss.Length && AssignedBoss[slot] != null)

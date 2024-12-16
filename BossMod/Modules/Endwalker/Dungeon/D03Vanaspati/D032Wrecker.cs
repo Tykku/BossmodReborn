@@ -101,7 +101,6 @@ class D032WreckerStates : StateMachineBuilder
     public D032WreckerStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<QueerBubble>()
             .ActivateOnEnter<AetherSprayWater>()
             .ActivateOnEnter<AetherSprayWaterKB>()

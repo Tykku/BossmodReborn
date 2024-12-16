@@ -138,14 +138,14 @@ class ForbiddenFruitCommon(BossModule module, ActionID watchedAction) : Componen
         return -1;
     }
 
-    protected uint TetherColor(Actor source) => (OID)source.OID switch
+    protected static uint TetherColor(Actor source) => (OID)source.OID switch
     {
-        OID.ImmatureMinotaur => 0xffff00ff,
-        OID.BullTetherSource => 0xffffff00,
-        OID.ImmatureStymphalide => 0xff00ffff,
+        OID.ImmatureMinotaur => Colors.Vulnerable,
+        OID.BullTetherSource => Colors.Other7,
+        OID.ImmatureStymphalide => Colors.Danger,
         _ => 0
     };
 
-    protected int PlatformIDFromOffset(WDir offset) => offset.Z > 0 ? 1 : offset.X > 0 ? 2 : 0;
-    protected Angle PlatformDirection(int id) => (id - 1) * 120.Degrees();
+    protected static int PlatformIDFromOffset(WDir offset) => offset.Z > 0 ? 1 : offset.X > 0 ? 2 : 0;
+    protected static Angle PlatformDirection(int id) => (id - 1) * 120.Degrees();
 }

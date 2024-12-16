@@ -3,7 +3,7 @@ namespace BossMod.Dawntrail.Quest.MSQ.TakingAStand;
 public enum OID : uint
 {
     Boss = 0x4211, // R=3.5
-    BakoolJaJaShade = 0x4215, // R3.500, x3
+    BakoolJaJaShade = 0x4215, // R3.5
     Deathwall = 0x1EBA1F,
     MagickedStandardOrange = 0x4212, // R1.0
     MagickedStandardGreen = 0x4213, // R1.0
@@ -24,6 +24,7 @@ public enum AID : uint
     AutoAttack2 = 871, // HoobigoLancer->player, no cast, single-target
     AutoAttack3 = 873, // HiredThug3->player, no cast, single-target
     Teleport = 37089, // Boss->location, no cast, single-target
+
     Roar1 = 37090, // Boss->self, 5.0s cast, range 45 circle, spawns death wall
     Roar2 = 37091, // Boss->self, 5.0s cast, range 45 circle
     LethalSwipe = 37092, // Boss->self, 6.0s cast, range 45 180-degree cone
@@ -198,7 +199,6 @@ class TakingAStandStates : StateMachineBuilder
     public TakingAStandStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<RoarArenaChange>()
             .ActivateOnEnter<Roar1>()
             .ActivateOnEnter<Roar2>()
@@ -213,15 +213,31 @@ class TakingAStandStates : StateMachineBuilder
             .ActivateOnEnter<TuraliStoneIII>()
             .ActivateOnEnter<Fireflood>()
             .ActivateOnEnter<RunThrough1>()
-            .ActivateOnEnter<RunThrough2>();
+            .ActivateOnEnter<RunThrough2>()
+            .Raw.Update = () => module.PrimaryActor.IsDestroyed || module.PrimaryActor.HPMP.CurHP == 1;
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.Quest, GroupID = 70438, NameID = 12677)]
 public class TakingAStand(WorldState ws, Actor primary) : BossModule(ws, primary, new(500, -175), new ArenaBoundsCircle(24.5f))
 {
+    private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.HiredThug1, (uint)OID.HiredThug2, (uint)OID.HiredThug3, (uint)OID.HiredThug3, (uint)OID.HoobigoGuardian,
+    (uint)OID.HoobigoLancer, (uint)OID.DopproIllusionist];
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(all));
+    }
+
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        {
+            var e = hints.PotentialTargets[i];
+            e.Priority = (OID)e.Actor.OID switch
+            {
+                OID.BakoolJaJaShade => AIHints.Enemy.PriorityForbidFully,
+                _ => 0
+            };
+        }
     }
 }

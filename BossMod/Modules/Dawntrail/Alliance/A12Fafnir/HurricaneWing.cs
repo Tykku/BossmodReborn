@@ -6,6 +6,8 @@ class HurricaneWingRaidwide(BossModule module) : Components.CastCounterMulti(mod
 
 class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
 {
+    public override bool KeepOnPhaseChange => true;
+
     public readonly List<AOEInstance> AOEs = [];
 
     private static readonly AOEShape[] _shapes = [new AOEShapeCircle(9), new AOEShapeDonut(9, 16), new AOEShapeDonut(16, 23), new AOEShapeDonut(23, 30)];
@@ -43,11 +45,20 @@ class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
     };
 }
 
-class GreatWhirlwindLarge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindLarge), new AOEShapeCircle(10));
-class GreatWhirlwindSmall(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindSmall), new AOEShapeCircle(3));
+class GreatWhirlwindLarge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindLarge), new AOEShapeCircle(10))
+{
+    public override bool KeepOnPhaseChange => true;
+}
+
+class GreatWhirlwindSmall(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindSmall), new AOEShapeCircle(3))
+{
+    public override bool KeepOnPhaseChange => true;
+}
 
 class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
 {
+    public override bool KeepOnPhaseChange => true;
+
     private const int Length = 5;
     private static readonly AOEShapeCapsule capsuleSmall = new(3, Length), capsuleBig = new(9, Length);
     private static readonly AOEShapeCircle circleSmall = new(3), circleBig = new(9);
@@ -118,9 +129,16 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
             var w = _smallWhirldwinds[i];
             forbidden.Add(ShapeDistance.Capsule(w.Position, !moving ? w.Rotation + a180 : w.Rotation, length, 5));
         }
-        hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
+        hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), WorldState.FutureTime(1.1f));
     }
 }
 
-class HorridRoarPuddle(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HorridRoarPuddle), 4);
-class HorridRoarSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HorridRoarSpread), 8);
+class HorridRoarPuddle(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HorridRoarPuddle), 4)
+{
+    public override bool KeepOnPhaseChange => true;
+}
+
+class HorridRoarSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HorridRoarSpread), 8)
+{
+    public override bool KeepOnPhaseChange => true;
+}

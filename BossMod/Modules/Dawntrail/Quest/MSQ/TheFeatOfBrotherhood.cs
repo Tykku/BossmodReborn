@@ -3,7 +3,6 @@ namespace BossMod.Dawntrail.Quest.MSQ.TheFeatOfBrotherhood;
 public enum OID : uint
 {
     Boss = 0x4206, // R5.0    
-    WukLamat = 0x4209, // R1.0
     EphemeralSword = 0x4228, // R2.5
     BallOfFire = 0x44B6, // R1.0-2.5
     OathOfFire = 0x4229, // R2.500
@@ -257,6 +256,7 @@ public class TheFeatOfBrotherhood(WorldState ws, Actor primary) : BossModule(ws,
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.OathOfFire));
     }
 }

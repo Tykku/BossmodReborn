@@ -48,8 +48,8 @@ class Border(BossModule module) : Components.GenericAOEs(module, warningText: "P
     new(positions[3], SquareHalfWidth), new(positions[4], SquareHalfWidth), new(positions[5], SquareHalfWidth), new(positions[6], SquareHalfWidth),
     new(positions[7], SquareHalfWidth), new(positions[8], RectangleHalfWidth), new(positions[9], RectangleHalfWidth)];
 
-    private static readonly Shape[] rect = [new Rectangle(new WPos(0, -45), 10, 30)];
-    public readonly List<Shape> unionRefresh = new(rect.Concat(shapes.Take(8)));
+    private static readonly Rectangle[] rect = [new(new WPos(0, -45), 10, 30)];
+    public readonly List<Shape> unionRefresh = [.. rect.Concat(shapes.Take(8))];
     private readonly List<Shape> difference = [];
     public static readonly ArenaBoundsComplex DefaultArena = new([.. rect, .. shapes.Take(8)], Offset: PathfindingOffset);
 
@@ -223,7 +223,6 @@ class D063TherionStates : StateMachineBuilder
     public D063TherionStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<ThereionCharge>()
             .ActivateOnEnter<Misfortune>()
             .ActivateOnEnter<ShadowWreck>()

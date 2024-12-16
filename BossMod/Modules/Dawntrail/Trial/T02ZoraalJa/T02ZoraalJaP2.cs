@@ -31,7 +31,6 @@ class T02ZoraalJaP2States : StateMachineBuilder
     public T02ZoraalJaP2States(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<DawnOfAnAgeArenaChange>()
             .ActivateOnEnter<SmitingCircuitDonut>()
             .ActivateOnEnter<SmitingCircuitCircle>()

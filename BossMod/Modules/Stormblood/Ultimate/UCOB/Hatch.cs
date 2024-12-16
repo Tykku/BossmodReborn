@@ -1,20 +1,14 @@
 ﻿namespace BossMod.Stormblood.Ultimate.UCOB;
 
-class Hatch : Components.CastCounter
+class Hatch(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Hatch))
 {
     public bool Active = true;
+    public override bool KeepOnPhaseChange => true;
     public int NumNeurolinkSpawns { get; private set; }
     public int NumTargetsAssigned { get; private set; }
-    private readonly List<Actor> _orbs;
-    private readonly List<Actor> _neurolinks;
+    private readonly List<Actor> _orbs = module.Enemies(OID.Oviform);
+    private readonly List<Actor> _neurolinks = module.Enemies(OID.Neurolink);
     private BitMask _targets;
-
-    public Hatch(BossModule module) : base(module, ActionID.MakeSpell(AID.Hatch))
-    {
-        _orbs = module.Enemies(OID.Oviform);
-        _neurolinks = module.Enemies(OID.Neurolink);
-        KeepOnPhaseChange = true;
-    }
 
     public void Reset()
     {

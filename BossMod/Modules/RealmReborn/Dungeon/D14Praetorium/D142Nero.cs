@@ -68,7 +68,6 @@ class D142NeroStates : StateMachineBuilder
     public D142NeroStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<ArenaChange>()
             .ActivateOnEnter<IronUprising>()
             .ActivateOnEnter<SpineShatter>()

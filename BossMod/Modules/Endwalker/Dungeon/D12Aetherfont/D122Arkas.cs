@@ -179,7 +179,6 @@ class D122ArkasStates : StateMachineBuilder
     public D122ArkasStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<BattleCryArenaChange>()
             .ActivateOnEnter<LightningClaw>()
             .ActivateOnEnter<SpunLightning>()

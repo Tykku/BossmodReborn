@@ -204,28 +204,28 @@ class D013MagusSistersStates : StateMachineBuilder
             .ActivateOnEnter<DeltaBlizzardIII1>()
             .ActivateOnEnter<DeltaBlizzardIII2>()
             .ActivateOnEnter<DeltaBlizzardIII3>()
-            .Raw.Update = () => module.Enemies(OID.Sanduruva).Concat(module.Enemies(OID.Minduruva)).Concat([module.PrimaryActor]).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(D013MagusSisters.Bosses).All(e => e.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 783, NameID = 10265)]
 class D013MagusSisters(WorldState ws, Actor primary) : BossModule(ws, primary, new(-27.5f, -49.5f), new ArenaBoundsCircle(20))
 {
+    public static readonly uint[] Bosses = [(uint)OID.Boss, (uint)OID.Sanduruva, (uint)OID.Minduruva];
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Minduruva).Concat(Enemies(OID.Sanduruva)));
+        Arena.Actors(Enemies(Bosses));
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.Boss => 3,
-                OID.Minduruva => 2,
-                OID.Sanduruva => 1,
+                OID.Boss => 2,
+                OID.Minduruva => 1,
                 _ => 0
             };
         }

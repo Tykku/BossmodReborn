@@ -9,7 +9,7 @@
 public struct NavigationDecision
 {
     // context that allows reusing large memory allocations
-    public class Context
+    public sealed class Context
     {
         public Map Map = new();
         public Map Map2 = new();
@@ -29,6 +29,7 @@ public struct NavigationDecision
         SafeBlocked,
         UptimeToPositional,
         UptimeBlocked,
+        BackIntoBounds,
         Optimal
     }
 
@@ -40,14 +41,13 @@ public struct NavigationDecision
     public int MapGoal;
     public Decision DecisionType;
 
-    public const float DefaultForbiddenZoneCushion = 0.15f;
+    public const float DefaultForbiddenZoneCushion = 0.18f;
 
     public static NavigationDecision Build(Context ctx, WorldState ws, AIHints hints, Actor player, WPos? targetPos, float targetRadius, Angle targetRot, Positional positional, float playerSpeed = 6, float forbiddenZoneCushion = DefaultForbiddenZoneCushion)
     {
         if (targetRadius < 1)
             targetRadius = 1; // ensure targetRadius is at least 1 to prevent game from freezing
 
-        // TODO: skip pathfinding if there are no forbidden zones, just find closest point in circle/cone...
         (Func<WPos, float> shapeDistance, DateTime activation)[] localForbiddenZones = [.. hints.ForbiddenZones];
         var imminent = ImminentExplosionTime(ws.CurrentTime);
         var len = localForbiddenZones.Length;
@@ -63,6 +63,18 @@ public struct NavigationDecision
                 numImminentZones = mid;
                 right = mid - 1;
             }
+        }
+
+        hints.PathfindMapBounds.PathfindMap(ctx.Map, hints.PathfindMapCenter);
+
+        if (!Service.Config.Get<AI.AIConfig>().AllowAIToBeOutsideBounds && IsOutsideBounds(player.Position, ctx))
+        {
+            for (var i = 0; i < len; ++i)
+            {
+                var zf = localForbiddenZones[i];
+                AddBlockerZone(ctx.Map, imminent, zf.activation, zf.shapeDistance, forbiddenZoneCushion);
+            }
+            return FindPathFromOutsideBounds(ctx, player.Position, playerSpeed);
         }
 
         // Check whether player is inside each forbidden zone
@@ -87,7 +99,6 @@ public struct NavigationDecision
             // we're in forbidden zone => find path to safety (and ideally to uptime zone)
             // if such a path can't be found (that's always the case if we're inside imminent forbidden zone, but can also happen in other cases), try instead to find a path to safety that doesn't enter any other zones that we're not inside
             // first build a map with zones that we're outside of as blockers
-            hints.PathfindMapBounds.PathfindMap(ctx.Map, hints.PathfindMapCenter);
             for (var i = 0; i < len; ++i)
             {
                 if (!inZone[i])
@@ -145,7 +156,6 @@ public struct NavigationDecision
             if (!player.Position.InCircle(targetPos.Value, targetRadius))
             {
                 // we're not in uptime zone, just run to it, avoiding any aoes
-                hints.PathfindMapBounds.PathfindMap(ctx.Map, hints.PathfindMapCenter);
                 for (var i = 0; i < len; ++i)
                 {
                     var zf = localForbiddenZones[i];
@@ -192,7 +202,6 @@ public struct NavigationDecision
             if (!inPositional)
             {
                 // we're in uptime zone, but not in correct quadrant - move there, avoiding all aoes and staying within uptime zone
-                hints.PathfindMapBounds.PathfindMap(ctx.Map, hints.PathfindMapCenter);
                 ctx.Map.BlockPixelsInside(ShapeDistance.InvertedCircle(targetPos.Value, targetRadius), 0, 0);
                 for (var i = 0; i < len; ++i)
                 {
@@ -306,6 +315,26 @@ public struct NavigationDecision
         return adjPrio;
     }
 
+    public static NavigationDecision FindPathFromOutsideBounds(Context ctx, WPos startPos, float speed = 6)
+    {
+        WPos? closest = null;
+        var closestDistance = float.MaxValue;
+        foreach (var p in ctx.Map.EnumeratePixels())
+        {
+            var px = ctx.Map[p.x, p.y];
+            if (px.MaxG > 0) // assume any pixel not marked as blocked is better than being outside of bounds
+            {
+                var distance = (p.center - startPos).LengthSq();
+                if (distance < closestDistance)
+                {
+                    closest = p.center;
+                    closestDistance = distance;
+                }
+            }
+        }
+        return new() { Destination = closest, LeewaySeconds = 0, TimeToGoal = MathF.Sqrt(closestDistance) / speed, Map = ctx.Map, DecisionType = Decision.BackIntoBounds };
+    }
+
     public static NavigationDecision? FindPathFromUnsafe(ThetaStar pathfind, Map map, WPos startPos, int safeGoal, int maxGoal, WPos? targetPos, Angle targetRot, Positional positional, float speed = 6)
     {
         if (maxGoal - safeGoal == 2)
@@ -345,31 +374,47 @@ public struct NavigationDecision
 
     public static NavigationDecision FindPathFromImminent(ThetaStar pathfind, Map map, WPos startPos, float speed = 6)
     {
+        // Attempt to find a path to any safe goal
         pathfind.Start(map, 0, startPos, 1.0f / speed);
         var res = pathfind.Execute();
         if (res >= 0)
         {
-            return new() { Destination = GetFirstWaypoint(pathfind, res), LeewaySeconds = 0, TimeToGoal = pathfind.NodeByIndex(res).GScore, Map = map, MapGoal = 0, DecisionType = Decision.ImminentToSafe };
+            return new()
+            {
+                Destination = GetFirstWaypoint(pathfind, res),
+                LeewaySeconds = 0,
+                TimeToGoal = pathfind.NodeByIndex(res).GScore,
+                Map = map,
+                MapGoal = 0,
+                DecisionType = Decision.ImminentToSafe
+            };
         }
 
-        // just run to closest safe spot, if no good path can be found
-        WPos? closest = null;
-        var closestDistance = float.MaxValue;
-        foreach (var p in map.EnumeratePixels())
+        // If no path was found, attempt to find the closest reachable less dangerous pixel, pretend runspeed is over 100x higher than normal
+        pathfind.Start(map, 0, startPos, 0.001f);
+        var res2 = pathfind.Execute();
+        if (res2 >= 0)
         {
-            var px = map[p.x, p.y];
-            if (px.Priority == 0 && px.MaxG == float.MaxValue)
+            return new()
             {
-                // safe pixel, candidate
-                var distance = (p.center - startPos).LengthSq();
-                if (distance < closestDistance)
-                {
-                    closest = p.center;
-                    closestDistance = distance;
-                }
-            }
+                Destination = GetFirstWaypoint(pathfind, res2),
+                LeewaySeconds = 0,
+                TimeToGoal = pathfind.NodeByIndex(res2).GScore,
+                Map = map,
+                MapGoal = 0,
+                DecisionType = Decision.ImminentToClosest
+            };
         }
-        return new() { Destination = closest, LeewaySeconds = 0, TimeToGoal = MathF.Sqrt(closestDistance) / speed, Map = map, DecisionType = Decision.ImminentToClosest };
+
+        // No reachable safe pixel found; we just eat the AOE instead of risking to run into an even more dangerous pixel (eg holes in the arena)
+        return new()
+        {
+            Destination = null,
+            LeewaySeconds = 0,
+            TimeToGoal = 0,
+            Map = map,
+            DecisionType = Decision.None
+        };
     }
 
     public static WPos? GetFirstWaypoint(ThetaStar pf, int cell)
@@ -392,5 +437,14 @@ public struct NavigationDecision
         var dir = targetRot.ToDirection();
         var adjDest = targetPos.Value + dir * dir.Dot(dest.Value - targetPos.Value);
         return (dest.Value - adjDest).LengthSq() < 1 ? adjDest : dest;
+    }
+
+    public static bool IsOutsideBounds(WPos position, Context ctx)
+    {
+        var map = ctx.Map;
+        var (x, y) = map.WorldToGrid(position);
+        if (x < 0 || x >= map.Width || y < 0 || y >= map.Height)
+            return true; // outside current pathfinding map
+        return map.Pixels[y * map.Width + x].MaxG == -1; // inside pathfinding map, but outside actual walkable bounds
     }
 }

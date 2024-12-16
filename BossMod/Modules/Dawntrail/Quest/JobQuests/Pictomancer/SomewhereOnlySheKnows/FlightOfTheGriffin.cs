@@ -33,7 +33,7 @@ class FlightOfTheGriffinStates : StateMachineBuilder
             .ActivateOnEnter<FrigidPulse>()
             .ActivateOnEnter<FervidPulse>()
             .ActivateOnEnter<EyeOfTheFierce>()
-            .Raw.Update = () => module.Enemies(OID.TheBirdOfPrey).Concat([module.PrimaryActor]).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(FlightOfTheGriffin.All).All(e => e.IsDeadOrDestroyed);
     }
 }
 
@@ -79,11 +79,12 @@ public class FlightOfTheGriffin(WorldState ws, Actor primary) : BossModule(ws, p
     new(-8.3f, -292.66f), new(-7.07f, -292.66f), new(-7.07f, -292.13f), new(-7.01f, -291.61f), new(-5.11f, -291.43f),
     new(-4.58f, -291.43f), new(-4.08f, -291.51f), new(-3.91f, -291.99f), new(-3.67f, -292.43f), new(-3.58f, -292.94f),
     new(-3.58f, -294.47f)];
-
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.TheBirdOfPrey];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.TheBirdOfPrey).Concat([PrimaryActor]));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.TheBirdOfPrey));
     }
 }

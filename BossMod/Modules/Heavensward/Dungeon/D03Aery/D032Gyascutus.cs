@@ -66,7 +66,6 @@ class D032GyascutusStates : StateMachineBuilder
     public D032GyascutusStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<ArenaChange>()
             .ActivateOnEnter<ProximityPyre>()
             .ActivateOnEnter<Burst>()

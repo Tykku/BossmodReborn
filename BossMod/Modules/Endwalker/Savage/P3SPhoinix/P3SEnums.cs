@@ -10,6 +10,7 @@ public enum OID : uint
     DarkenedFire = 0x3545, // R2.0, spawned mid fight
     FountainOfFire = 0x3546, // R2.0, spawned mid fight, towers that healers soak
     DarkblazeTwister = 0x3547, // R2.5, spawned mid fight, tornadoes
+    TwisterVoidzone = 0x1EA1FA, // R0.5
     SparkfledgedHelper = 0x3800, // R2.3, spawned mid fight, have weird kind... - look like "eyes" during death toll?..
     Helper = 0x233C
 }
@@ -47,6 +48,7 @@ public enum AID : uint
     DevouringBrand = 26318, // Boss->self, 3.0s cast, single-target
     DevouringBrandExpanding = 26320, // Helper->self, no cast, range 4 width 5 rect
     DevouringBrandMiniAOE = 26319, // Helper->self, 3.0s cast, range 2 width 5 rect (cardinals)
+    DevouringBrandAOE = 28035, // Helper->self, 20.0s cast, range 40 width 10 cross (in center)
     DevouringBrandLargeAOE = 26321, // Helper->self, no cast, range 40 width 10 cross (ones standing on cardinals)
     GreatWhirlwindSmall = 26323, // SunbirdSmall->self, 3.0s cast, range 60 circle (enrage)
     GreatWhirlwindLarge = 26325, // SunbirdLarge->self, 3.0s cast, range 60 circle (enrage)
@@ -91,20 +93,21 @@ public enum AID : uint
     SearingBreezeAOE = 26373, // Helper->self, 3.0s cast, range 6 circle
     ScorchedExaltation = 26374, // Boss->self, 5.0s cast, range 60 circle
     FinalExaltation = 27691, // Boss->Boss
-    DevouringBrandAOE = 28035, // Helper->self, 20.0s cast, range 40 width 10 cross (in center)
     BlazingRain = 26322, // Helper->self, no cast, range 60 circle
 }
 
 public enum SID : uint
 {
     DeathsToll = 2762,
+    Invincibility = 775, // none->DarkenedFire, extra=0x0
 }
 
 public enum TetherID : uint
 {
-    LargeBirdFar = 1,
-    LargeBirdClose = 57,
-    HeatOfCondemnation = 89,
-    BurningTwister = 167,
-    DarkTwister = 168,
+    HeatOfCondemnation = 89, // player->Boss
+    LargeBirdClose = 57, // player/SunbirdLarge/Sunshadow->player
+    LargeBirdFar = 1, // player/SunbirdLarge/Sunshadow->player
+    FountainOfFire = 27, // FountainOfFire->player/Boss
+    BurningTwister = 167, // DarkblazeTwister->Boss
+    DarkTwister = 168, // DarkblazeTwister->Boss
 }

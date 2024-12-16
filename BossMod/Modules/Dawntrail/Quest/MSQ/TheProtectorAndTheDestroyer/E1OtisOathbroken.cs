@@ -72,7 +72,7 @@ class Rush(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.Rush)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID == AID.Rush)
             _aoes.RemoveAt(0);
     }
 }
@@ -101,8 +101,11 @@ public class OtisOathbroken(WorldState ws, Actor primary) : BossModule(ws, prima
 {
     protected override bool CheckPull() => Raid.WithoutSlot().Any(x => x.InCombat);
 
+    private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.EverkeepTurret, (uint)OID.EverkeepAerostat, (uint)OID.EverkeepAerostat2, (uint)OID.EverkeepSentryG10,
+    (uint)OID.EverkeepSentryR10];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(all));
     }
 }

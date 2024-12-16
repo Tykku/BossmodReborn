@@ -178,7 +178,6 @@ class D152DotoliCilocStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<ArenaChange>()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<DarkWings>()
             .ActivateOnEnter<Whirlwind>()
             .ActivateOnEnter<Stormcoming>()

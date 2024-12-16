@@ -273,6 +273,8 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         configModified |= ImGui.Checkbox("Follow out of combat", ref _config.FollowOutOfCombat);
         ImGui.SameLine();
         configModified |= ImGui.Checkbox("Follow target", ref _config.FollowTarget);
+        ImGui.SameLine();
+        configModified |= ImGui.Checkbox("Allow outside bounds", ref _config.AllowAIToBeOutsideBounds);
 
         if (configModified)
             _config.Modified.Fire();

@@ -221,7 +221,6 @@ class D113SpectralBerserkerStates : StateMachineBuilder
     public D113SpectralBerserkerStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<BeastlyFuryArenaChange>()
             .ActivateOnEnter<BeastlyFury>()
             .ActivateOnEnter<FallingRock>()

@@ -192,52 +192,86 @@ public enum OperandType
 // if the origin of the AOE can change, edit the origin default value to prevent cache issues
 public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerable<Shape>? DifferenceShapes = null, IEnumerable<Shape>? Shapes2 = null, bool InvertForbiddenZone = false, OperandType Operand = OperandType.Union, WPos Origin = default) : AOEShape
 {
-    private RelSimplifiedComplexPolygon? polygon;
+    public RelSimplifiedComplexPolygon? Polygon;
+    private PolygonWithHolesDistanceFunction? shapeDistance;
     private readonly int hashkey = CreateCacheKey(Shapes1, Shapes2 ?? [], DifferenceShapes ?? [], Operand, Origin);
-    public static readonly Dictionary<int, RelSimplifiedComplexPolygon> Cache = [];
-    public static readonly LinkedList<int> CacheOrder = new();
+    private static readonly Dictionary<int, RelSimplifiedComplexPolygon> cache = [];
+    private static readonly LinkedList<int> cacheOrder = new();
     public void AddToCache(RelSimplifiedComplexPolygon value)
     {
-        if (Cache.Count >= 50)
+        if (cache.Count >= 50)
         {
-            var lruKey = CacheOrder.Last?.Value;
+            var lruKey = cacheOrder.Last?.Value;
             if (lruKey != null)
             {
-                Cache.Remove(lruKey.Value);
-                CacheOrder.RemoveLast();
+                cache.Remove(lruKey.Value);
+                cacheOrder.RemoveLast();
             }
         }
-        Cache[hashkey] = value;
-        CacheOrder.Remove(hashkey);
-        CacheOrder.AddFirst(hashkey);
+        cache[hashkey] = value;
+        cacheOrder.Remove(hashkey);
+        cacheOrder.AddFirst(hashkey);
     }
+
     public override string ToString() => $"Custom AOE shape: hashkey={hashkey}, ifz={InvertForbiddenZone}";
 
-    private RelSimplifiedComplexPolygon GetCombinedPolygon(WPos origin)
+    public RelSimplifiedComplexPolygon GetCombinedPolygon(WPos origin)
     {
-        if (Cache.TryGetValue(hashkey, out var cachedResult)) // for moving custom AOEs we don't want to recalculate the polygon every frame since they move at server ticks and not frame
+        if (cache.TryGetValue(hashkey, out var cachedResult))
         {
-            CacheOrder.Remove(hashkey);
-            CacheOrder.AddFirst(hashkey);
-            return polygon = cachedResult;
+            cacheOrder.Remove(hashkey);
+            cacheOrder.AddFirst(hashkey);
+            return Polygon = cachedResult;
         }
+
         var shapes1 = CreateOperandFromShapes(Shapes1, origin);
-        var shapes2 = CreateOperandFromShapes(Shapes2, origin);
         var differenceOperands = CreateOperandFromShapes(DifferenceShapes, origin);
 
         var clipper = new PolygonClipper();
-        var combinedShapes = Operand switch
+        if (Shapes2 == null)
         {
-            OperandType.Xor => clipper.Xor(shapes1, shapes2),
-            OperandType.Intersection => clipper.Intersect(shapes1, shapes2),
-            _ => null
-        };
+            if (DifferenceShapes != null)
+            {
+                Polygon = clipper.Difference(shapes1, differenceOperands);
+                AddToCache(Polygon);
+                return Polygon;
+            }
+            else
+            {
+                Polygon = clipper.Simplify(shapes1);
+                AddToCache(Polygon);
+                return Polygon;
+            }
+        }
+        if (Shapes2 != null)
+        {
+            Polygon = clipper.Simplify(shapes1);
+            foreach (var shape in Shapes2)
+            {
+                var singleShapeOperand = CreateOperandFromShape(shape, origin);
 
-        polygon = combinedShapes != null
-            ? clipper.Difference(new PolygonClipper.Operand(combinedShapes), differenceOperands)
-            : clipper.Difference(shapes1, differenceOperands);
-        AddToCache(polygon);
-        return polygon;
+                switch (Operand)
+                {
+                    case OperandType.Intersection:
+                        Polygon = clipper.Intersect(new PolygonClipper.Operand(Polygon), singleShapeOperand);
+                        break;
+                    case OperandType.Xor:
+                        Polygon = clipper.Xor(new PolygonClipper.Operand(Polygon), singleShapeOperand);
+                        break;
+                }
+            }
+            Polygon = DifferenceShapes != null ? clipper.Difference(new PolygonClipper.Operand(Polygon), differenceOperands) : Polygon;
+            AddToCache(Polygon);
+            return Polygon;
+        }
+        return new();
+    }
+
+    private static PolygonClipper.Operand CreateOperandFromShape(Shape shape, WPos origin)
+    {
+        var operand = new PolygonClipper.Operand();
+        operand.AddPolygon(shape.ToPolygon(origin));
+        return operand;
     }
 
     private static PolygonClipper.Operand CreateOperandFromShapes(IEnumerable<Shape>? shapes, WPos origin)
@@ -251,8 +285,8 @@ public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerabl
 
     public override bool Check(WPos position, WPos origin, Angle rotation)
     {
-        var relativePosition = position - origin;
-        var result = (polygon ?? GetCombinedPolygon(origin)).Contains(new(relativePosition.X, relativePosition.Z));
+        var (x, z) = position - origin;
+        var result = (Polygon ?? GetCombinedPolygon(origin)).Contains(new(x, z));
         return result;
     }
 
@@ -268,12 +302,12 @@ public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerabl
 
     public override void Draw(MiniArena arena, WPos origin, Angle rotation, uint color = 0)
     {
-        arena.ZoneRelPoly(hashkey, polygon ?? GetCombinedPolygon(origin), color);
+        arena.ZoneRelPoly(hashkey, Polygon ?? GetCombinedPolygon(origin), color);
     }
 
     public override void Outline(MiniArena arena, WPos origin, Angle rotation, uint color = 0)
     {
-        var combinedPolygon = polygon ?? GetCombinedPolygon(origin);
+        var combinedPolygon = Polygon ?? GetCombinedPolygon(origin);
         for (var i = 0; i < combinedPolygon.Parts.Count; ++i)
         {
             var part = combinedPolygon.Parts[i];
@@ -304,8 +338,9 @@ public sealed record class AOEShapeCustom(IEnumerable<Shape> Shapes1, IEnumerabl
 
     public override Func<WPos, float> Distance(WPos origin, Angle rotation)
     {
-        var shapeDistance = new PolygonWithHolesDistanceFunction(origin, polygon ?? GetCombinedPolygon(origin)).Distance;
-        return InvertForbiddenZone ? p => -shapeDistance(p) : shapeDistance;
+        shapeDistance ??= new PolygonWithHolesDistanceFunction(origin, Polygon ?? GetCombinedPolygon(origin));
+        var dis = shapeDistance.Value.Distance;
+        return InvertForbiddenZone ? p => -dis(p) : dis;
     }
 }
 
@@ -317,7 +352,7 @@ public sealed record class AOEShapeCustomAlt(RelSimplifiedComplexPolygon Poly, A
     public override void Outline(MiniArena arena, WPos origin, Angle rotation, uint color = 0) => arena.AddComplexPolygon(origin, (rotation + DirectionOffset).ToDirection(), Poly, color);
     public override Func<WPos, float> Distance(WPos origin, Angle rotation)
     {
-        var shapeDistance = new PolygonWithHolesDistanceFunction(origin, Poly).Distance;
+        var shapeDistance = new PolygonWithHolesDistanceFunction(origin, Poly.Transform(default, (-rotation - DirectionOffset).ToDirection())).Distance;
         return InvertForbiddenZone ? p => -shapeDistance(p) : shapeDistance;
     }
 }

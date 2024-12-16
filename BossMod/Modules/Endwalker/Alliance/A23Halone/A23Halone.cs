@@ -11,4 +11,8 @@ class IceRondel(BossModule module) : Components.StackWithCastTargets(module, Act
 class Niphas(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Niphas), new AOEShapeCircle(9));
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 911, NameID = 12064)]
-public class A23Halone(WorldState ws, Actor primary) : BossModule(ws, primary, new(-700, 600), Octagons.arenaDefault);
+public class A23Halone(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, DefaultBounds)
+{
+    public static readonly WPos ArenaCenter = new(-700, 600);
+    public static readonly ArenaBoundsCircle DefaultBounds = new(29.5f);
+}

@@ -70,7 +70,6 @@ class D013LoreleiStates : StateMachineBuilder
     public D013LoreleiStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<VirginTearsArenaChange>()
             .ActivateOnEnter<Voidzone>()
             .ActivateOnEnter<MorbidAdvance>()

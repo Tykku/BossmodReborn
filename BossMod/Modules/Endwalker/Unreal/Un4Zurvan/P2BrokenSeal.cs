@@ -47,7 +47,7 @@ class P2BrokenSeal(BossModule module) : BossComponent(module)
         var partner = state.Color != Color.None && state.Partner >= 0 ? Raid[state.Partner] : null;
         if (partner != null)
         {
-            Arena.AddLine(pc.Position, partner.Position, state.Color == Color.Fire ? 0xff0080ff : 0xffff8000, state.TooFar ? 2 : 1);
+            Arena.AddLine(pc.Position, partner.Position, state.Color == Color.Fire ? Colors.Object : Colors.Other8, state.TooFar ? 2 : 1);
         }
 
         foreach (var t in _fireTowers)

@@ -170,7 +170,6 @@ class D071BarreltenderStates : StateMachineBuilder
     public D071BarreltenderStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<HeavyweightNeedlesArenaChange>()
             .ActivateOnEnter<NeedleStormSuperstormHeavyWeightNeedles>()
             .ActivateOnEnter<PricklyRight>()

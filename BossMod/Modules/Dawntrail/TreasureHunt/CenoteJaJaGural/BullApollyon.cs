@@ -9,6 +9,7 @@ public enum OID : uint
     TuraliTomato = 0x4303, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
     TuligoraQueen = 0x4304, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
     UolonOfFortune = 0x42FF, // R3.5
+    AlpacaOfFortune = 0x42FE, // R1.8
     Helper = 0x233C
 }
 
@@ -37,6 +38,9 @@ public enum AID : uint
     BlazingBlastVisual = 38259, // Boss->self, 3s cast, single-target visual
     BlazingBlast = 38260, // Helper->location, 3s cast, range 6 circle
 
+    Inhale = 38280, // UolonOfFortune->self, 0.5s cast, range 27 120-degree cone
+    Spin = 38279, // UolonOfFortune->self, 3.0s cast, range 11 circle
+    RottenSpores = 38277, // UolonOfFortune->location, 3.0s cast, range 6 circle
     TearyTwirl = 32301, // TuraliOnion->self, 3.5s cast, range 7 circle
     HeirloomScream = 32304, // TuraliTomato->self, 3.5s cast, range 7 circle
     PungentPirouette = 32303, // TuraliGarlic->self, 3.5s cast, range 7 circle
@@ -63,6 +67,9 @@ class CrossfireBlade2(BossModule module) : Crosses(module, AID.CrossfireBlade2);
 class BlazingBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlazingBreath), new AOEShapeRect(44, 5));
 class BlazingBlast(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BlazingBlast), 6);
 
+class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
+class RottenSpores(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RottenSpores), 6);
+
 abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
@@ -85,6 +92,8 @@ class BullApollyonStates : StateMachineBuilder
             .ActivateOnEnter<CrossfireBlade2>()
             .ActivateOnEnter<CrossfireBlade3>()
             .ActivateOnEnter<BlazingBlast>()
+            .ActivateOnEnter<Spin>()
+            .ActivateOnEnter<RottenSpores>()
             .ActivateOnEnter<PluckAndPrune>()
             .ActivateOnEnter<TearyTwirl>()
             .ActivateOnEnter<HeirloomScream>()
@@ -94,11 +103,11 @@ class BullApollyonStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "Kismet, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 993, NameID = 13247)]
-public class BullApollyon(WorldState ws, Actor primary) : SharedBounds(ws, primary)
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Kismet, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 993, NameID = 13247)]
+public class BullApollyon(WorldState ws, Actor primary) : SharedBoundsBoss(ws, primary)
 {
     private static readonly uint[] bonusAdds = [(uint)OID.TuraliEggplant, (uint)OID.TuraliTomato, (uint)OID.TuligoraQueen, (uint)OID.TuraliGarlic,
-    (uint)OID.TuraliOnion, (uint)OID.UolonOfFortune];
+    (uint)OID.TuraliOnion, (uint)OID.UolonOfFortune, (uint)OID.AlpacaOfFortune];
     public static readonly uint[] All = [(uint)OID.Boss, .. bonusAdds];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)

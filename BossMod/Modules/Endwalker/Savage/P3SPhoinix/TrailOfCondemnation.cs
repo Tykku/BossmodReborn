@@ -5,23 +5,14 @@ class TrailOfCondemnation(BossModule module) : BossComponent(module)
 {
     public bool Done { get; private set; }
     private readonly bool _isCenter = module.PrimaryActor.CastInfo?.IsSpell(AID.TrailOfCondemnationCenter) ?? false;
-
-    private const float _halfWidth = 7.5f;
-    private const float _sidesOffset = 12.5f;
     private const float _aoeRadius = 6;
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
         if (Module.PrimaryActor.Position == Arena.Center)
             return;
-
-        var dir = (Module.Center - Module.PrimaryActor.Position).Normalized();
         if (_isCenter)
         {
-            if (actor.Position.InRect(Module.PrimaryActor.Position, dir, 2 * Arena.Bounds.Radius, 0, _halfWidth))
-            {
-                hints.Add("GTFO from aoe!");
-            }
             if (Raid.WithoutSlot().InRadiusExcluding(actor, _aoeRadius).Any())
             {
                 hints.Add("Spread!");
@@ -29,12 +20,6 @@ class TrailOfCondemnation(BossModule module) : BossComponent(module)
         }
         else
         {
-            var offset = _sidesOffset * dir.OrthoR();
-            if (actor.Position.InRect(Module.PrimaryActor.Position + offset, dir, 2 * Arena.Bounds.Radius, 0, _halfWidth) ||
-                actor.Position.InRect(Module.PrimaryActor.Position - offset, dir, 2 * Arena.Bounds.Radius, 0, _halfWidth))
-            {
-                hints.Add("GTFO from aoe!");
-            }
             // note: sparks either target all tanks & healers or all dds - so correct pairings are always dd+tank/healer
             var numStacked = 0;
             var goodPair = false;
@@ -51,24 +36,6 @@ class TrailOfCondemnation(BossModule module) : BossComponent(module)
             {
                 hints.Add("Incorrect pairing!");
             }
-        }
-    }
-
-    public override void DrawArenaBackground(int pcSlot, Actor pc)
-    {
-        if (Module.PrimaryActor.Position == Arena.Center)
-            return;
-
-        var dir = (Arena.Center - Module.PrimaryActor.Position).Normalized();
-        if (_isCenter)
-        {
-            Arena.ZoneRect(Module.PrimaryActor.Position, dir, 2 * Arena.Bounds.Radius, 0, _halfWidth, Colors.AOE);
-        }
-        else
-        {
-            var offset = _sidesOffset * dir.OrthoR();
-            Arena.ZoneRect(Module.PrimaryActor.Position + offset, dir, 2 * Arena.Bounds.Radius, 0, _halfWidth, Colors.AOE);
-            Arena.ZoneRect(Module.PrimaryActor.Position - offset, dir, 2 * Arena.Bounds.Radius, 0, _halfWidth, Colors.AOE);
         }
     }
 

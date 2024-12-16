@@ -2,7 +2,6 @@ namespace BossMod.Dawntrail.Quest.JobQuests.Pictomancer.SomewhereOnlySheKnows.Ja
 
 public enum OID : uint
 {
-
     Boss = 0x4298, // R4.000, x1
     AFlowerInTheSun = 0x4299, // R2.72
     OerTheAncientArbor = 0x429A, // R2.6

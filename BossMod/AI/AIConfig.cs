@@ -55,5 +55,8 @@ sealed class AIConfig : ConfigNode
     [PropertyDisplay("Auto AFK timer", tooltip: "Time in seconds out of combat until AFK mode enables. Any movement will reset timer or disable AFK mode if already active.")]
     public float AFKModeTimer = 10;
 
+    [PropertyDisplay("Allow AI to be out of pathfinding map bounds")]
+    public bool AllowAIToBeOutsideBounds = false;
+
     public string? AIAutorotPresetName;
 }

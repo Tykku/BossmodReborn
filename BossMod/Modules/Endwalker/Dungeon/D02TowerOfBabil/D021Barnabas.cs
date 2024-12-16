@@ -183,7 +183,6 @@ class D021BarnabasStates : StateMachineBuilder
     public D021BarnabasStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<ArenaChange>()
             .ActivateOnEnter<Magnetism>()
             .ActivateOnEnter<ElectromagneticRelease1>()

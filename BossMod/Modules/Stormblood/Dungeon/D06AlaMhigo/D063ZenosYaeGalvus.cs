@@ -189,7 +189,6 @@ class D063ZenosYaeGalvusStates : StateMachineBuilder
     public D063ZenosYaeGalvusStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<ArenaChange>()
             .ActivateOnEnter<ArtOfTheSwell1>()
             .ActivateOnEnter<ArtOfTheSwell2>()

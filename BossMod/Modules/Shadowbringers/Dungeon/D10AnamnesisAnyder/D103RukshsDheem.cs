@@ -43,11 +43,6 @@ public enum AID : uint
 
 class ArenaChanges(BossModule module) : BossComponent(module)
 {
-    private static readonly WDir offset = new(0, 8);
-    private static readonly Func<WPos, float> stayInBounds = p =>
-        Math.Max(ShapeDistance.InvertedCircle(D103RukshsDheem.ArenaCenter + offset, 3)(p),
-            ShapeDistance.InvertedCircle(D103RukshsDheem.ArenaCenter - offset, 3)(p));
-
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state == 0x00020001)
@@ -64,12 +59,6 @@ class ArenaChanges(BossModule module) : BossComponent(module)
         }
         else if (state == 0x00080004 && index is 0x017 or 0x18)
             Arena.Bounds = D103RukshsDheem.DefaultBounds;
-    }
-
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (Arena.Bounds != D103RukshsDheem.DefaultBounds && !Arena.InBounds(actor.Position))
-            hints.AddForbiddenZone(stayInBounds);
     }
 }
 

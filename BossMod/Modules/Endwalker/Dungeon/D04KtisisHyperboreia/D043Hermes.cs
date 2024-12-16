@@ -127,7 +127,6 @@ class D043HermesStates : StateMachineBuilder
     public D043HermesStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<TrismegistosArenaChange>()
             .ActivateOnEnter<TrueBraveryInterruptHint>()
             .ActivateOnEnter<CosmicKiss>()
@@ -145,8 +144,9 @@ class D043HermesStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 787, NameID = 10363)]
-public class D043Hermes(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, -50), StartingBounds)
+public class D043Hermes(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, StartingBounds)
 {
-    public static readonly ArenaBounds StartingBounds = new ArenaBoundsCircle(21.5f);
-    public static readonly ArenaBounds DefaultBounds = new ArenaBoundsCircle(20);
+    private static readonly WPos ArenaCenter = new(0, -50);
+    public static readonly ArenaBoundsComplex StartingBounds = new([new Polygon(ArenaCenter, 21.5f, 64)]);
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Polygon(ArenaCenter, 20, 64)]);
 }

@@ -67,6 +67,11 @@ public class StateMachineBuilder(BossModule module)
         public State DeactivateOnExit<C>(bool condition = true) where C : BossComponent => OnExit(module.DeactivateComponent<C>, condition);
         public State ExecOnEnter<C>(Action<C> fn, bool condition = true) where C : BossComponent => OnEnter(ExecForComponent(fn), condition);
         public State ExecOnExit<C>(Action<C> fn, bool condition = true) where C : BossComponent => OnExit(ExecForComponent(fn), condition);
+        public State ResetComp<C>(bool condition = true) where C : BossComponent
+        {
+            OnExit(module.DeactivateComponent<C>, condition);
+            return OnExit(module.ActivateComponent<C>, condition);
+        }
 
         public State SetHint(StateMachine.StateHint h, bool condition = true)
         {

@@ -185,7 +185,6 @@ class D074GreatestSerpentOfTuralStates : StateMachineBuilder
     public D074GreatestSerpentOfTuralStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<DubiousTulidisasterArenaChange>()
             .ActivateOnEnter<DubiousTulidisaster>()
             .ActivateOnEnter<ScreesOfFury>()

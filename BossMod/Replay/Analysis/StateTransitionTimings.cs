@@ -86,10 +86,11 @@ class StateTransitionTimings
 
     public void Draw(UITree tree)
     {
+        Action? actions = null;
         ImGui.Checkbox("Show transitions to end", ref _showTransitionsToEnd);
         foreach (var n in tree.Node("Encounters", _encounters.Count == 0))
         {
-            tree.LeafNodes(_encounters, e => $"{e.Item1.Path} @ {e.Item2.Time.Start:O} ({e.Item2.Time.Duration:f3}s)");
+            tree.LeafNodes(_encounters, e => $"{e.Item1.Path} @ {e.Item2.Time.Start:O} ({e.Item2.Time.Duration:f3}s)", e => EncounterContextMenu(e.Item2, ref actions));
         }
 
         foreach (var n in tree.Node("Errors", _errors.Count == 0))
@@ -98,7 +99,6 @@ class StateTransitionTimings
             tree.LeafNodes(_errors.Where(e => (e.Item2.Time.End - e.Item3.Timestamp).TotalSeconds >= _lastSecondsToIgnore), error => $"{LocationString(error.Item1, error.Item2, error.Item3.Timestamp)} [{error.Item3.CompType}] {error.Item3.Message}");
         }
 
-        Action? actions = null;
         foreach (var from in _metrics.Values)
         {
             UITree.NodeProperties map(KeyValuePair<uint, TransitionMetrics> kv)
@@ -108,9 +108,9 @@ class StateTransitionTimings
                 var value = kv.Value.Instances.Count > 0
                     ? $"avg={kv.Value.AvgTime:f2}-{from.ExpectedTime:f2}={kv.Value.AvgTime - from.ExpectedTime:f2} +- {kv.Value.StdDev:f2}, [{kv.Value.MinTime:f2}, {kv.Value.MaxTime:f2}] range, {kv.Value.Instances.Count} seen"
                     : $"never seen ({from.ExpectedTime:f2} expected)";
-                var color = !kv.Value.Expected ? 0xff0080ff
-                    : kv.Value.Instances.Count > 0 && Math.Abs(from.ExpectedTime - kv.Value.AvgTime) > Math.Ceiling(kv.Value.StdDev * 10) / 10 ? 0xff00ffff
-                    : 0xffffffff;
+                var color = !kv.Value.Expected ? Colors.TextColor5
+                    : kv.Value.Instances.Count > 0 && Math.Abs(from.ExpectedTime - kv.Value.AvgTime) > Math.Ceiling(kv.Value.StdDev * 10) / 10 ? Colors.TextColor2
+                    : Colors.TextColor1;
                 //bool warn = from.ExpectedTime < Math.Round(m.MinTime, 1) || from.ExpectedTime > Math.Round(m.MaxTime, 1);
                 return new($"{name}: {value}###{name}", kv.Value.Instances.Count == 0, color);
             }
@@ -148,6 +148,28 @@ class StateTransitionTimings
         else
         {
             trans.MinTime = trans.MaxTime = trans.AvgTime = trans.StdDev = 0;
+        }
+    }
+
+    private void EncounterContextMenu(Replay.Encounter enc, ref Action? actions)
+    {
+        if (ImGui.MenuItem("Ignore this encounter"))
+        {
+            actions += () =>
+            {
+                foreach (var (from, metrics) in _metrics)
+                {
+                    foreach (var (to, metric) in metrics.Transitions)
+                    {
+                        if (metric.Instances.RemoveAll(i => i.Encounter == enc) > 0)
+                        {
+                            RecalculateMetrics(metric);
+                        }
+                    }
+                }
+                _errors.RemoveAll(e => e.Item2 == enc);
+                _encounters.RemoveAll(e => e.Item2 == enc);
+            };
         }
     }
 

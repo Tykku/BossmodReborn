@@ -153,7 +153,7 @@ public class MapVisualizer
         }
         foreach (var l in Lines)
         {
-            dl.AddLine(tl + Map.WorldToGridFrac(l.origin) * ScreenPixelSize, tl + Map.WorldToGridFrac(l.dest) * ScreenPixelSize, 0xff0000ff);
+            dl.AddLine(tl + Map.WorldToGridFrac(l.origin) * ScreenPixelSize, tl + Map.WorldToGridFrac(l.dest) * ScreenPixelSize, Colors.TextColor3);
         }
 
         ImGui.SetCursorPos(cursorEnd);

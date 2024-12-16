@@ -1,19 +1,24 @@
 namespace BossMod.Dawntrail.Alliance.A12Fafnir;
 
-class SpikeFlail(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpikeFlail), new AOEShapeCone(80, 135.Degrees()));
+class SpikeFlail(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpikeFlail), new AOEShapeCone(80, 135.Degrees()))
+{
+    public override bool KeepOnPhaseChange => true;
+}
+
 class Touchdown(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Touchdown), new AOEShapeCircle(24))
 {
-    private readonly DragonBreath? _aoe = module.FindComponent<DragonBreath>();
+    public override bool KeepOnPhaseChange => true;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        return _aoe?.AOE == null || Arena.Bounds != A12Fafnir.FireArena
+        return Module.FindComponent<DragonBreath>()?.AOE == null || Arena.Bounds != A12Fafnir.FireArena
             ? ActiveCasters.Select(c => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo))) : [];
     }
 }
 
 class DragonBreath(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.DragonBreath))
 {
+    public override bool KeepOnPhaseChange => true;
     public AOEInstance? AOE;
 
     private static readonly AOEShapeDonut donut = new(16, 30);

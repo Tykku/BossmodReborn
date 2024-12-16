@@ -45,7 +45,24 @@ class Ceras(BossModule module) : Components.SingleTargetCast(module, ActionID.Ma
 
 class WaveOfTurmoil(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.WaveOfTurmoil), 20, stopAtWall: true)
 {
-    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => Module.FindComponent<Hydrobomb>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false;
+    private readonly Hydrobomb _aoe = module.FindComponent<Hydrobomb>()!;
+
+    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => _aoe?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false;
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        var forbidden = new List<Func<WPos, float>>();
+        var source = Sources(slot, actor).FirstOrDefault();
+        if (source != default)
+        {
+            foreach (var c in _aoe.ActiveAOEs(slot, actor))
+            {
+                forbidden.Add(ShapeDistance.Cone(Arena.Center, 20, Angle.FromDirection(c.Origin - Module.Center), 30.Degrees()));
+            }
+            if (forbidden.Count > 0)
+                hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), source.Activation);
+        }
+    }
 }
 
 class Hydrobomb(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrobomb), 10);
@@ -70,8 +87,8 @@ class GymnasiouMeganereisStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<Ceras>()
-            .ActivateOnEnter<WaveOfTurmoil>()
             .ActivateOnEnter<Hydrobomb>()
+            .ActivateOnEnter<WaveOfTurmoil>()
             .ActivateOnEnter<Waterspout>()
             .ActivateOnEnter<Hydrocannon>()
             .ActivateOnEnter<Hydrocannon2>()

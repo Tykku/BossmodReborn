@@ -31,7 +31,7 @@ class BindingSigil(BossModule module) : Components.GenericAOEs(module)
         if ((AID)spell.Action.ID == AID.SoulBinding)
         {
             ++NumCasts;
-            if (_aoes.Count > 0)
+            if (_aoes.Count != 0)
                 _aoes.RemoveAt(0);
         }
     }

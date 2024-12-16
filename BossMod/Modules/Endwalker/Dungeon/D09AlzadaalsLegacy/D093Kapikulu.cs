@@ -137,7 +137,6 @@ class D093KapikuluStates : StateMachineBuilder
     public D093KapikuluStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<BillowingBoltsArenaChange>()
             .ActivateOnEnter<ManaExplosion>()
             .ActivateOnEnter<BastingBlade>()

@@ -101,7 +101,6 @@ class D062PeacekeeperStates : StateMachineBuilder
     public D062PeacekeeperStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<DecimationArenaChange>()
             .ActivateOnEnter<ElectromagneticRepellant>()
             .ActivateOnEnter<InfantryDeterrent>()

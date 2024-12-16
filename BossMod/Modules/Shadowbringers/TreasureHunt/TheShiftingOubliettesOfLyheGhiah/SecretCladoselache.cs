@@ -5,6 +5,7 @@ public enum OID : uint
     Boss = 0x3027, //R=2.47
     SecretShark = 0x3028, //R=3.0 
     KeeperOfKeys = 0x3034, // R3.23
+    FuathTrickster = 0x3033, // R0.75
     Helper = 0x233C
 }
 
@@ -117,13 +118,14 @@ class SecretCladoselacheStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 745, NameID = 9778)]
 public class SecretCladoselache(WorldState ws, Actor primary) : THTemplate(ws, primary)
 {
-    public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.SecretShark, (uint)OID.KeeperOfKeys];
+    private static readonly uint[] bonusAdds = [(uint)OID.FuathTrickster, (uint)OID.KeeperOfKeys];
+    public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.SecretShark, .. bonusAdds];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
         Arena.Actors(Enemies(OID.SecretShark));
-        Arena.Actors(Enemies(OID.KeeperOfKeys), Colors.Vulnerable);
+        Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -133,6 +135,7 @@ public class SecretCladoselache(WorldState ws, Actor primary) : THTemplate(ws, p
             var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
+                OID.FuathTrickster => 3,
                 OID.KeeperOfKeys => 2,
                 OID.SecretShark => 1,
                 _ => 0

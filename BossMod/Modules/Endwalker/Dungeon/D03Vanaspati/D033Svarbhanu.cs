@@ -206,7 +206,6 @@ class D033SvarbhanuStates : StateMachineBuilder
     public D033SvarbhanuStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<ChaoticUndercurrent>()
             .ActivateOnEnter<CosmicKissSpread>()
             .ActivateOnEnter<CosmicKissCircle>()

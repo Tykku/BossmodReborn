@@ -71,6 +71,7 @@ class CrystallineThornsHint(BossModule module) : Components.GenericAOEs(module)
     private AOEInstance? _aoe;
     private static readonly AOEShapeCustom hintENVC00020001 = new(ArenaChanges.MiddleENVC00020001, InvertForbiddenZone: true);
     private static readonly AOEShapeCustom hintENVC02000100 = new(ArenaChanges.MiddleENVC02000100, InvertForbiddenZone: true);
+
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnEventEnvControl(byte index, uint state)

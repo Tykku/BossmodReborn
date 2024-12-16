@@ -115,7 +115,7 @@ class WreathOfThorns4(BossModule module) : BossComponent(module)
             return; // pc is not tethered anymore, nothing to draw...
 
         var pcIcon = _playerIcons[pcSlot];
-        Arena.AddLine(pc.Position, pcTetherSource.Position, pcIcon == IconID.AkanthaiWater ? 0xffff8000 : 0xffff00ff);
+        Arena.AddLine(pc.Position, pcTetherSource.Position, pcIcon == IconID.AkanthaiWater ? Colors.Other8 : Colors.Vulnerable);
 
         if (_doneTowers < 4)
         {

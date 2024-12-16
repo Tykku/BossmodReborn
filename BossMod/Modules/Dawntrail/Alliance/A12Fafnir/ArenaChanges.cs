@@ -24,6 +24,8 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 
 class DragonBreathArenaChange(BossModule module) : BossComponent(module)
 {
+    public override bool KeepOnPhaseChange => true;
+
     private Angle initialRot;
     private DateTime started;
     private static readonly Circle circle = new(A12Fafnir.ArenaCenter, 16);

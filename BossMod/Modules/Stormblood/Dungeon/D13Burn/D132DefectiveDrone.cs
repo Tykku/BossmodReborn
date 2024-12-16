@@ -72,7 +72,6 @@ class D132DefectiveDroneStates : StateMachineBuilder
     public D132DefectiveDroneStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<Throttle>()
             .ActivateOnEnter<AetherochemicalFlame>()
             .ActivateOnEnter<AetherochemicalResidue>()

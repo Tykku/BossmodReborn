@@ -187,9 +187,10 @@ class VengeanceOfTheViperStates : StateMachineBuilder
 public class VengeanceOfTheViper(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-402, 738), 19.5f, 20)]);
+    private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.RightWing, (uint)OID.LeftWing];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.RightWing).Concat(Enemies(OID.LeftWing)).Concat([PrimaryActor]));
+        Arena.Actors(Enemies(all));
     }
 }

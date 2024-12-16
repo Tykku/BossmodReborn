@@ -30,39 +30,38 @@ class CthonicFury(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class BurningCourt(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BurningCourt), new AOEShapeCircle(8));
-class BurningMoat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BurningMoat), new AOEShapeDonut(5, 15));
-class BurningKeep(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BurningKeep), new AOEShapeRect(11.5f, 11.5f, 11.5f));
-class BurningBattlements(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BurningBattlements), CthonicFury.AOEBurningBattlements);
-
-class DarkNebula(BossModule module) : Components.Knockback(module)
+class BurningCourtMoatKeepBattlements(BossModule module) : Components.GenericAOEs(module)
 {
-    public readonly List<Actor> Casters = [];
+    public readonly List<AOEInstance> AOEs = [];
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
-    {
-        foreach (var caster in Casters.Take(2))
-        {
-            var dir = caster.CastInfo?.Rotation ?? caster.Rotation;
-            var kind = dir.ToDirection().OrthoL().Dot(actor.Position - caster.Position) > 0 ? Kind.DirLeft : Kind.DirRight;
-            yield return new(caster.Position, 20, Module.CastFinishAt(caster.CastInfo), null, dir, kind);
-        }
-    }
+    private static readonly AOEShape _shapeC = new AOEShapeCircle(8);
+    private static readonly AOEShape _shapeM = new AOEShapeDonut(5, 15);
+    private static readonly AOEShape _shapeK = new AOEShapeRect(11.5f, 11.5f, 11.5f);
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.DarkNebulaShort or AID.DarkNebulaLong)
-            Casters.Add(caster);
+        var shape = ShapeForAction(spell.Action);
+        if (shape != null)
+            AOEs.Add(new(shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.DarkNebulaShort or AID.DarkNebulaLong)
-        {
-            ++NumCasts;
-            Casters.Remove(caster);
-        }
+        var shape = ShapeForAction(spell.Action);
+        if (shape != null)
+            AOEs.RemoveAll(aoe => aoe.Shape == shape && aoe.Origin == caster.Position);
     }
+
+    private static AOEShape? ShapeForAction(ActionID aid) => (AID)aid.ID switch
+    {
+        AID.BurningCourt => _shapeC,
+        AID.BurningMoat => _shapeM,
+        AID.BurningKeep => _shapeK,
+        AID.BurningBattlements => CthonicFury.AOEBurningBattlements,
+        _ => null
+    };
 }
 
 class EchoesOfAgony(BossModule module) : Components.StackWithIcon(module, (uint)IconID.EchoesOfAgony, ActionID.MakeSpell(AID.EchoesOfAgonyAOE), 5, 9.2f, PartyState.MaxAllianceSize, PartyState.MaxAllianceSize)

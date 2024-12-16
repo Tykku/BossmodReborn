@@ -6,7 +6,7 @@ class Implosion(BossModule module) : Components.GenericAOEs(module)
 
     private static readonly AOEShapeCone _shapeSmall = new(12, 90.Degrees()), _shapeLarge = new(90, 90.Degrees());
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Module.FindComponent<GigaSlash>()?.AOEs.Count == 0 ? _aoes : [];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

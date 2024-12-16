@@ -200,7 +200,6 @@ class D132DamcyanAntlionStates : StateMachineBuilder
     public D132DamcyanAntlionStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<SandblastVoidzone>()
             .ActivateOnEnter<Sandblast>()
             .ActivateOnEnter<Landslip>()

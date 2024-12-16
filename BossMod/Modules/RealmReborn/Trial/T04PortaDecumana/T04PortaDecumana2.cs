@@ -89,7 +89,7 @@ class Aetheroplasm(BossModule module) : BossComponent(module)
         {
             hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Sprint), actor, ActionQueue.Priority.High);
             foreach (var o in ActiveOrbs)
-                orbs.Add(ShapeDistance.InvertedCircle(o.Position + 0.5f * o.Rotation.ToDirection(), 0.5f));
+                orbs.Add(ShapeDistance.InvertedCircle(o.Position + 0.55f * o.Rotation.ToDirection(), 0.5f));
         }
         if (orbs.Count > 0)
             hints.AddForbiddenZone(p => orbs.Max(f => f(p)));

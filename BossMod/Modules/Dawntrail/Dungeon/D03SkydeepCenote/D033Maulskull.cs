@@ -66,16 +66,6 @@ public enum AID : uint
     Ashlayer = 36712 // Helper->self, no cast, range 60 circle
 }
 
-class StayInBounds(BossModule module) : BossComponent(module)
-{
-    private static readonly WDir offset = new(0, 19);
-
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        hints.AddForbiddenZone(ShapeDistance.InvertedRect(Arena.Center + offset, Arena.Center - offset, 19));
-    }
-}
-
 class Stonecarver(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
@@ -252,7 +242,6 @@ class D033MaulskullStates : StateMachineBuilder
     public D033MaulskullStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<StayInBounds>()
             .ActivateOnEnter<Stonecarver>()
             .ActivateOnEnter<Impact1>()
             .ActivateOnEnter<Impact2>()

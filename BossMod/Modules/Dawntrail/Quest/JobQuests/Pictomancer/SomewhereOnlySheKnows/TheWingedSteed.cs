@@ -27,7 +27,7 @@ class TheWingedSteedStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<BurningBright>()
             .ActivateOnEnter<Nicker>()
-            .Raw.Update = () => module.Enemies(OID.SonOfTheKingdom1).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.SonOfTheKingdom2)).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(TheWingedSteed.All).All(e => e.IsDeadOrDestroyed);
     }
 }
 
@@ -59,9 +59,10 @@ public class TheWingedSteed(WorldState ws, Actor primary) : BossModule(ws, prima
     new(25.8f, -229.2f), new(26.32f, -229.19f), new(26.58f, -230.24f), new(26.95f, -230.62f), new(27.47f, -230.59f),
     new(27.9f, -230.94f), new(27.9f, -232.19f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.SonOfTheKingdom1, (uint)OID.SonOfTheKingdom2];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.SonOfTheKingdom1).Concat([PrimaryActor]).Concat(Enemies(OID.SonOfTheKingdom2)));
+        Arena.Actors(Enemies(All));
     }
 }

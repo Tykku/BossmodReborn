@@ -25,10 +25,10 @@ class LightsChain(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 
 class CrossReaver(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CrossReaverAOE), new AOEShapeCross(50, 6))
 {
-    private readonly LightsChain? _aoe = module.FindComponent<LightsChain>();
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        var check = _aoe != null && _aoe.Casters.Count != 0;
+        var chain = Module.FindComponent<LightsChain>();
+        var check = chain != null && chain.Casters.Count != 0;
         return ActiveCasters.Select(c => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), Risky: !check));
     }
 }

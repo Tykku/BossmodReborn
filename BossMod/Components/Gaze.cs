@@ -74,9 +74,13 @@ public abstract class GenericGaze(BossModule module, ActionID aid = new(), bool 
 
     private Vector2 IndicatorScreenPos(WPos eye)
     {
-        if (Arena.InBounds(eye))
+        if (Arena.InBounds(eye) || Arena.Bounds is not ArenaBoundsCircle and not ArenaBoundsSquare)
         {
             return Arena.WorldPositionToScreenPosition(eye);
+        }
+        else if (Arena.Bounds is ArenaBoundsRect)
+        {
+            return Arena.WorldPositionToScreenPosition(Arena.ClampToBounds(eye) + 2 * (eye - Arena.Center).Normalized());
         }
         else
         {

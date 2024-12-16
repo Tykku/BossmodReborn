@@ -44,7 +44,7 @@ public sealed class ColorConfig : ConfigNode
     public Color ArenaMeleeRangeIndicator = new(0xffff0000);
 
     [PropertyDisplay("Arena: other")]
-    public Color[] ArenaOther = [new(0xffff0080), new(0xff8080ff), new(0xff80ff80), new(0xffff8040), new(0xff40c0c0), new(0x40008080)];
+    public Color[] ArenaOther = [new(0xffff0080), new(0xff8080ff), new(0xff80ff80), new(0xffff8040), new(0xff40c0c0), new(0x40008080), new(0xffffff00), new(0xffff8000)];
 
     [PropertyDisplay("Arena: interesting player, important for a mechanic")]
     public Color ArenaPlayerInteresting = new(0xffc0c0c0);

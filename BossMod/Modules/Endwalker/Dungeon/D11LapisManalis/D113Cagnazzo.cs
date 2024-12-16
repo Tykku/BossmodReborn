@@ -211,7 +211,6 @@ class D113CagnazzoStates : StateMachineBuilder
     public D113CagnazzoStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<StygianDelugeArenaChange>()
             .ActivateOnEnter<Voidcleaver>()
             .ActivateOnEnter<Lifescleaver>()

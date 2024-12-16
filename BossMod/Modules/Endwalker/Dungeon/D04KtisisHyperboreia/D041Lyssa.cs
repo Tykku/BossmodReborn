@@ -3,8 +3,8 @@
 public enum OID : uint
 {
     Boss = 0x3323, // R=4.0
-    Helper = 0x233C,
-    IcePillar = 0x3324, // R2.000, x0 (spawn during fight)
+    IcePillar = 0x3324, // R2.0
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -83,5 +83,5 @@ class D041LyssaStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 787, NameID = 10396)]
 public class D041Lyssa(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    public static readonly ArenaBoundsComplex arena = new([new Circle(new(-144, 49), 19.5f)], [new Rectangle(new(-144, 28), 20, 2), new Rectangle(new(-144, 70), 20, 2)]);
+    public static readonly ArenaBoundsComplex arena = new([new Polygon(new(-144, 49), 19.5f, 32)], [new Rectangle(new(-144, 28), 20, 2.1f), new Rectangle(new(-144, 70), 20, 2)]);
 }

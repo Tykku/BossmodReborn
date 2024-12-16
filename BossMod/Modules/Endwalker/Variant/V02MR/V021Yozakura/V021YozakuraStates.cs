@@ -6,7 +6,6 @@ class V021YozakuraStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<ArenaChange>()
-            .ActivateOnEnter<Components.StayInBounds>()
             //Right No Dogu
             .ActivateOnEnter<RootArrangement>()
             .ActivateOnEnter<AccursedSeedling>()
@@ -29,7 +28,6 @@ class V021YozakuraStates : StateMachineBuilder
             .ActivateOnEnter<LevinblossomLance>()
             .ActivateOnEnter<TatamiGaeshi>()
             //Standard
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<GloryNeverlasting>()
             .ActivateOnEnter<KugeRantsui>()
             .ActivateOnEnter<OkaRanman>()

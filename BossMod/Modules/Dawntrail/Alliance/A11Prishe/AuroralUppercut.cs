@@ -3,7 +3,7 @@ namespace BossMod.Dawntrail.Alliance.A11Prishe;
 class AuroralUppercut(BossModule module) : Components.Knockback(module, ignoreImmunes: true)
 {
     private Source? _source;
-    public override IEnumerable<Source> Sources(int slot, Actor actor) => Utils.ZeroOrOne(_source);
+    public override IEnumerable<Source> Sources(int slot, Actor actor) => _source != null && actor.FindStatus(SID.Knockback) == null ? Utils.ZeroOrOne(_source) : [];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -30,15 +30,15 @@ class AuroralUppercut(BossModule module) : Components.Knockback(module, ignoreIm
 
 class AuroralUppercutHint(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly Angle a45 = 45.Degrees(), a135 = 135.Degrees(), a44 = 44.Degrees(), a10 = 10.Degrees(), a59 = 59.Degrees();
+    private static readonly Angle a45 = 45.Degrees(), a135 = 135.Degrees(), a44 = 44.Degrees(), a13 = 12.5f.Degrees(), a59 = 59.Degrees();
     private static readonly WPos center = A11Prishe.ArenaCenter;
     private AOEInstance? _aoe;
     private static readonly AOEShapeCustom hintENVC00020001KB25 = new([new DonutSegmentHA(center, 4, 10, -144.Degrees(), a44), new DonutSegmentHA(center, 4, 10, 36.Degrees(), a44)],
-    [new ConeHA(center, 10, -a135, a10), new ConeHA(center, 10, a45, a10)], InvertForbiddenZone: true);
+    [new ConeHA(center, 10, -a135, a13), new ConeHA(center, 10, a45, a13)], InvertForbiddenZone: true);
     private static readonly AOEShapeCustom hintENVC02000100KB25 = new([new DonutSegmentHA(center, 4, 10, 126.Degrees(), a44), new DonutSegmentHA(center, 4, 10, -54.Degrees(), a44)],
-    [new ConeHA(center, 10, a135, a10), new ConeHA(center, 10, -a45, a10)], InvertForbiddenZone: true);
-    private static readonly AOEShapeCustom hintENVC00020001KB38 = new([new ConeHA(center, 5, -a135, a10), new ConeHA(center, 5, a45, a10)], InvertForbiddenZone: true);
-    private static readonly AOEShapeCustom hintENVC02000100KB38 = new([new ConeHA(center, 5, a135, a10), new ConeHA(center, 5, -a45, a10)], InvertForbiddenZone: true);
+    [new ConeHA(center, 10, a135, a13), new ConeHA(center, 10, -a45, a13)], InvertForbiddenZone: true);
+    private static readonly AOEShapeCustom hintENVC00020001KB38 = new([new ConeHA(center, 5, -a135, a13), new ConeHA(center, 5, a45, a13)], InvertForbiddenZone: true);
+    private static readonly AOEShapeCustom hintENVC02000100KB38 = new([new ConeHA(center, 5, a135, a13), new ConeHA(center, 5, -a45, a13)], InvertForbiddenZone: true);
     private static readonly AOEShapeCustom hintENVC00020001KB12 = new([new ConeHA(center, 5, a135, a59), new ConeHA(center, 5, -a45, a59),
     new ConeV(ArenaChanges.MiddleENVC00020001[0].Center + new WDir(-9, -9), 3, -a135, a45, 3),
     new ConeV(ArenaChanges.MiddleENVC00020001[1].Center + new WDir(9, 9), 3, a45, a45, 3),

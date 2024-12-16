@@ -92,12 +92,12 @@ public class D012Sanduruva(WorldState ws, Actor primary) : BossModule(ws, primar
 {
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.Boss => 1,
-                OID.BerserkerSphere => -1,
+                OID.BerserkerSphere => AIHints.Enemy.PriorityForbidFully,
                 _ => 0
             };
         }
