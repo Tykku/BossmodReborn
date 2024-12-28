@@ -56,28 +56,28 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
         switch (state)
         {
             case 0x00020001:
-                SetArena(D092OverseerKanilokka.DefaultArena, D092OverseerKanilokka.DefaultArena.Center);
+                SetArena(D092OverseerKanilokka.DefaultArena);
                 break;
             case 0x00200010:
-                SetArena(D092OverseerKanilokka.TinyArena, D092OverseerKanilokka.TinyArena.Center);
+                SetArena(D092OverseerKanilokka.TinyArena);
                 break;
             case 0x00800040:
-                SetArena(D092OverseerKanilokka.ArenaENVC00800040, D092OverseerKanilokka.ArenaENVC00800040.Center);
+                SetArena(D092OverseerKanilokka.ArenaENVC00800040);
                 break;
             case 0x02000100:
-                SetArena(D092OverseerKanilokka.ArenaENVC02000100, D092OverseerKanilokka.ArenaENVC02000100.Center);
+                SetArena(D092OverseerKanilokka.ArenaENVC02000100);
                 break;
             case 0x00080004:
-                SetArena(D092OverseerKanilokka.StartingBounds, D092OverseerKanilokka.StartingBounds.Center);
+                SetArena(D092OverseerKanilokka.StartingBounds);
                 break;
         }
         _aoe = null;
     }
 
-    private void SetArena(ArenaBounds bounds, WPos center)
+    private void SetArena(ArenaBoundsComplex bounds)
     {
         Arena.Bounds = bounds;
-        Arena.Center = center;
+        Arena.Center = bounds.Center;
     }
 }
 
@@ -123,9 +123,16 @@ class Necrohazard(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 class DarkII(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCone cone = new(35, 15.Degrees());
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(12);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(6);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < (count > 6 ? 6 : count); ++i)
+            yield return _aoes[i];
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

@@ -7,10 +7,10 @@ sealed class AIConfig : ConfigNode
     public bool ShowDTR = false;
 
     [PropertyDisplay("Show AI interface")]
-    public bool DrawUI = true;
+    public bool DrawUI = false;
 
     [PropertyDisplay("Focus target master")]
-    public bool FocusTargetLeader = true;
+    public bool FocusTargetLeader = false;
 
     [PropertyDisplay("Broadcast keypresses to other windows")]
     public bool BroadcastToSlaves = false;
@@ -20,6 +20,9 @@ sealed class AIConfig : ConfigNode
 
     [PropertyDisplay("Forbid actions")]
     public bool ForbidActions = false;
+
+    [PropertyDisplay("Manual targeting")]
+    public bool ManualTarget = false;
 
     [PropertyDisplay("Forbid movement")]
     public bool ForbidMovement = false;

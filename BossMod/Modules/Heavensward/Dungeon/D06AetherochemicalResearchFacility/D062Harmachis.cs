@@ -102,8 +102,8 @@ class D062HarmachisStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 38, NameID = 3821)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 38, NameID = 3821, SortOrder = 6)]
 public class D062Harmachis(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    public static readonly ArenaBoundsComplex arena = new([new Circle(new(248, 272), 19.5f)], [new Rectangle(new(228, 272), 20, 1.8f, 90.Degrees()), new Rectangle(new(268.25f, 272), 20, 2, 90.Degrees())]);
+    public static readonly ArenaBoundsComplex arena = new([new Polygon(new(248, 272), 19.25f, 44)], [new Rectangle(new(228, 272), 20, 1.8f, 90.Degrees()), new Rectangle(new(268.25f, 272), 20, 2, 90.Degrees())]);
 }

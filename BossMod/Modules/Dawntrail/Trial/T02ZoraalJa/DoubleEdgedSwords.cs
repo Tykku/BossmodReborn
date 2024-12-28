@@ -7,10 +7,17 @@ class DoubleEdgedSwords(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (_aoes.Count > 1)
-            yield return _aoes[1] with { Risky = false };
+        var count = _aoes.Count;
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i == 0)
+                yield return count != 1 ? aoe with { Color = Colors.Danger } : aoe;
+            else if (i == 1)
+                yield return aoe with { Risky = false };
+        }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

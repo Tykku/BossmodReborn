@@ -75,10 +75,17 @@ class Stonecarver(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (_aoes.Count > 1)
-            yield return _aoes[1] with { Risky = false };
+        var count = _aoes.Count;
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i == 0)
+                yield return count != 1 ? aoe with { Color = Colors.Danger } : aoe;
+            else if (i == 1)
+                yield return aoe with { Risky = false };
+        }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -92,29 +99,33 @@ class Stonecarver(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && aids.Contains((AID)spell.Action.ID))
+        if (_aoes.Count != 0 && aids.Contains((AID)spell.Action.ID))
             _aoes.RemoveAt(0);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (_aoes.Count > 0)
+        if (_aoes.Count != 0)
             hints.AddForbiddenZone(ShapeDistance.InvertedRect(Arena.Center + offset, Arena.Center - offset, 2), _aoes[0].Activation);
     }
 }
 
 class Shatter(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
-
-    private static readonly AOEShapeRect rectCenter = new(40, 10);
-    private static readonly AOEShapeRect rectSides = new(42, 11, 4);
+    private readonly List<AOEInstance> _aoes = new(2);
+    private static readonly AOEShapeRect rectCenter = new(40, 10), rectSides = new(42, 11, 4);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        foreach (var c in _aoes)
-            yield return new(c.Shape, c.Origin, c.Rotation, c.Activation, Risky: c.Activation.AddSeconds(-6) <= WorldState.CurrentTime);
+        var count = _aoes.Count;
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < count; ++i)
+        {
+            var a = _aoes[i];
+            yield return new(a.Shape, a.Origin, a.Rotation, a.Activation, Risky: a.Activation.AddSeconds(-6) <= WorldState.CurrentTime);
+        }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
@@ -144,30 +155,33 @@ abstract class Impact(BossModule module, AID aid, int distance) : Components.Kno
 
 class Impact1(BossModule module) : Impact(module, AID.Impact1, 18)
 {
+    private static readonly Angle halfAngle = 30.Degrees();
+
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         var source = Sources(slot, actor).FirstOrDefault();
         if (source != default)
-            hints.AddForbiddenZone(ShapeDistance.InvertedDonutSector(source.Origin, 10, 12, default, 30.Degrees()), source.Activation);
+            hints.AddForbiddenZone(ShapeDistance.InvertedDonutSector(source.Origin, 10, 12, default, halfAngle), source.Activation);
     }
 }
 
 class Impact2(BossModule module) : Impact(module, AID.Impact2, 18)
 {
+    private static readonly Angle halfAngle = 20.Degrees();
+
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<Stonecarver>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation) && z.Risky) ?? false) || !Arena.InBounds(pos);
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         var source = Sources(slot, actor).FirstOrDefault();
         if (source != default)
-            hints.AddForbiddenZone(ShapeDistance.InvertedDonutSector(source.Origin, 10, 12, default, 20.Degrees()), source.Activation);
+            hints.AddForbiddenZone(ShapeDistance.InvertedDonutSector(source.Origin, 10, 12, default, halfAngle), source.Activation);
     }
 }
 
 class Impact3(BossModule module) : Impact(module, AID.Impact3, 20)
 {
-    private static readonly Angle halfAngle = 10.Degrees();
-    private static readonly Angle direction = 135.Degrees();
+    private static readonly Angle halfAngle = 10.Degrees(), direction = 135.Degrees();
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

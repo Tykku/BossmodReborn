@@ -3,7 +3,7 @@ namespace BossMod.Heavensward.Dungeon.D05GreatGubalLibrary.D051DemonTome;
 public enum OID : uint
 {
     Boss = 0xE82, // R7.84
-    IceFloot = 0x1E9944, // R0.5
+    IceFloor = 0x1E9944, // R0.5
     Helper = 0xED6
 }
 
@@ -58,11 +58,14 @@ class Disclosure(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
+class ThinIce(BossModule module) : Components.ThinIce(module, 15, stopAtWall: true);
+
 class D051DemonTomeStates : StateMachineBuilder
 {
     public D051DemonTomeStates(BossModule module) : base(module)
     {
         TrivialPhase()
+            .ActivateOnEnter<ThinIce>()
             .ActivateOnEnter<LiquefyCenter>()
             .ActivateOnEnter<LiquefySides>()
             .ActivateOnEnter<Repel>()

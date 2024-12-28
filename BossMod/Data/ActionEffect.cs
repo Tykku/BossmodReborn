@@ -83,6 +83,7 @@ public enum KnockbackDirection
     SourceForward = 3, // direction = src.direction
     SourceRight = 4, // direction = src.direction - pi/2
     SourceLeft = 5, // direction = src.direction + pi/2
+    AwayFromSource2 = 6, // direction = target-source
 }
 
 public enum ActionResourceType

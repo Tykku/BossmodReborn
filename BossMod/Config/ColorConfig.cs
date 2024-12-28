@@ -139,5 +139,8 @@ public sealed class ColorConfig : ConfigNode
      new(0x80ffffff), new(0x8000ff00), new(0xffffff00), new(0x800000ff), new(0xff404040),
      new(0xffff0000), new(0xff000000), new(0x80008080), new(0x8080ff80), new(0xffc0c0c0)];
 
+    [PropertyDisplay("Collision debug colors")]
+    public Color[] CollisionColors = [new(0xff00ff00), new(0xff00ffff), new(0xff0000ff)];
+
     public static ColorConfig DefaultConfig => new();
 }

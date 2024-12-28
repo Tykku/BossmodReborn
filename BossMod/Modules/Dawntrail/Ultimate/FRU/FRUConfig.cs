@@ -19,19 +19,24 @@ public class FRUConfig() : ConfigNode()
     public bool P1FallOfFaithEW = false;
 
     [PropertyDisplay("P1 Explosions: tower fill priority (lower number goes north)")]
-    [GroupDetails(["MT (ignore)", "OT (ignore)", "Fixed N", "Fixed Center", "Fixed S", "Flex 1", "Flex 2", "Flex 3"])]
+    [GroupDetails(["Tank N", "Tank S", "Fixed N", "Fixed Center", "Fixed S", "Flex 1", "Flex 2", "Flex 3"])]
     [GroupPreset("H1-R2-H2 fixed, M1-M2-R1 flex", [0, 1, 2, 4, 5, 6, 7, 3])]
-    public GroupAssignmentUnique P1ExplosionsAssignment = GroupAssignmentUnique.DefaultRoles();
+    public GroupAssignmentUnique P1ExplosionsAssignment = new() { Assignments = [0, 1, 2, 4, 5, 6, 7, 3] };
 
     [PropertyDisplay("P2 Diamond Dust: cardinal assignments")]
     [GroupDetails(["Support N", "Support E", "Support S", "Support W", "DD N", "DD E", "DD S", "DD W"])]
-    public GroupAssignmentUnique P2DiamondDustCardinals = GroupAssignmentUnique.DefaultRoles();
+    [GroupPreset("Default", [0, 2, 3, 1, 7, 6, 4, 5])]
+    public GroupAssignmentUnique P2DiamondDustCardinals = new() { Assignments = [0, 2, 3, 1, 7, 6, 4, 5] };
 
     [PropertyDisplay("P2 Diamond Dust: supports go to CCW intercardinal")]
     public bool P2DiamondDustSupportsCCW;
 
     [PropertyDisplay("P2 Diamond Dust: DD go to CCW intercardinal")]
     public bool P2DiamondDustDDCCW;
+
+    [PropertyDisplay("P2 Diamond Dust: knockback groups")]
+    [GroupDetails(["G1 (CCW from N)", "G2 (CW from NE)"])]
+    public GroupAssignmentLightParties P2DiamondDustKnockbacks = GroupAssignmentLightParties.DefaultLightParties();
 
     [PropertyDisplay("P2 Light Rampant: conga spots (lower numbers to the west, assume CW rotation)")]
     [GroupDetails(["N1", "N2", "N3", "N4", "S1", "S2", "S3", "S4"])]
@@ -51,6 +56,11 @@ public class FRUConfig() : ConfigNode()
 
     [PropertyDisplay("P3 Apocalypse: uptime swaps (only consider swaps within prio 1/2 and 3/4, assuming these are melee and ranged)", separator: true)]
     public bool P3ApocalypseUptime;
+
+    [PropertyDisplay("P4 Darklit Dragonsong: assignments (lower prio stays more clockwise, lowest prio support takes N tower)")]
+    [GroupDetails(["Support prio1", "Support prio2", "Support prio3", "Support prio4", "DD prio1", "DD prio2", "DD prio3", "DD prio4"])]
+    [GroupPreset("Default (healer N)", [2, 3, 0, 1, 4, 5, 6, 7])]
+    public GroupAssignmentUnique P4DarklitDragonsongAssignments = new() { Assignments = [2, 3, 0, 1, 4, 5, 6, 7] };
 
     // ai-only settings
     [PropertyDisplay("P1 Cyclonic Break (proteans): bait clock spots (supports should be near dd to resolve pairs)", tooltip: "Only used by AI")]
@@ -75,7 +85,7 @@ public class FRUConfig() : ConfigNode()
     [GroupPreset("Default", [0, 1, 6, 2, 5, 3, 7, 4])]
     public GroupAssignmentUnique P1UtopianSkyInitialSpots = new() { Assignments = [0, 1, 6, 2, 5, 3, 7, 4] };
 
-    [PropertyDisplay("P1 Utopian Sky: spread spots (G1 CCW from N, G2 CW from NE")]
+    [PropertyDisplay("P1 Utopian Sky: spread spots (G1 CCW from N, G2 CW from NE", tooltip: "Only used by AI")]
     [GroupDetails(["G1 Close", "G1 Far Center", "G1 Far Left", "G1 Far Right", "G2 Close", "G2 Far Center", "G2 Far Left", "G2 Far Right"])]
     [GroupPreset("Default", [1, 5, 0, 4, 2, 6, 3, 7])]
     public GroupAssignmentUnique P1UtopianSkySpreadSpots = new() { Assignments = [1, 5, 0, 4, 2, 6, 3, 7] };

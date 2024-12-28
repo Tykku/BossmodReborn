@@ -58,28 +58,20 @@ class EndOfDays(BossModule module) : Components.LineStack(module, ActionID.MakeS
 
 class Stars(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donutSmall = new(5, 15);
-    private static readonly AOEShapeDonut donutBig = new(5, 40);
-    private static readonly AOEShapeCircle circleSmall = new(8);
-    private static readonly AOEShapeCircle circleBig = new(16);
-
+    private static readonly AOEShapeDonut donutSmall = new(5, 15), donutBig = new(5, 40);
+    private static readonly AOEShapeCircle circleSmall = new(8), circleBig = new(16);
     private readonly List<AOEInstance> _aoes = [];
     private readonly List<Actor> _stars = [];
 
-    private bool _tutorialFire;
-    private bool _tutorialIce;
-    private DateTime _activation;
-    private AOEShape? _shape;
-    private bool _active;
+    private bool _tutorialFire, _tutorialIce;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_shape != null && _active)
+        var count = _aoes.Count;
+        if (count != 0)
         {
-            foreach (var star in _stars)
-                yield return new(_shape, star.Position, default, _activation);
-            foreach (var aoe in _aoes)
-                yield return new(aoe.Shape, aoe.Origin, default, aoe.Activation);
+            for (var i = 0; i < count; ++i)
+                yield return _aoes[i];
         }
     }
 
@@ -104,41 +96,42 @@ class Stars(BossModule module) : Components.GenericAOEs(module)
 
     private void ActivateAOE(AOEShape smallShape, AOEShape bigShape, WPos midpoint, Actor source, Actor target)
     {
-        _shape = smallShape;
-        _active = true;
         _stars.Remove(source);
         _stars.Remove(target);
-        _activation = WorldState.FutureTime(10.6f);
-        _aoes.Add(new AOEInstance(bigShape, midpoint, default, _activation));
+        var activation = WorldState.FutureTime(10.6f);
+        _aoes.Add(new(bigShape, midpoint, default, activation));
+        if (_aoes.Any(x => x.Shape == donutBig) || _aoes.Count(x => x.Shape == circleBig) == 2)
+        {
+            for (var i = 0; i < _stars.Count; ++i)
+                _aoes.Add(new(smallShape, _stars[i].Position, default, activation));
+            _stars.Clear();
+        }
     }
 
     public override void OnActorCreated(Actor actor)
     {
         if ((OID)actor.OID is OID.FrozenStar or OID.BurningStar)
             _stars.Add(actor);
-        if ((OID)actor.OID == OID.FrozenStar && !_tutorialIce)
+        if (!_tutorialIce && _stars.Count(x => (OID)x.OID == OID.FrozenStar) == 4)
             Tutorial(donutSmall, ref _tutorialIce);
-        else if ((OID)actor.OID == OID.BurningStar && !_tutorialFire)
+        else if (!_tutorialFire && _stars.Count(x => (OID)x.OID == OID.BurningStar) == 5)
             Tutorial(circleSmall, ref _tutorialFire);
     }
 
     private void Tutorial(AOEShape shape, ref bool tutorialFlag)
     {
-        _activation = WorldState.FutureTime(7.8f);
         tutorialFlag = true;
-        _shape = shape;
-        _active = true;
+        for (var i = 0; i < _stars.Count; ++i)
+            _aoes.Add(new(shape, _stars[i].Position, default, WorldState.FutureTime(7.8f)));
+        _stars.Clear();
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if ((AID)spell.Action.ID is AID.CircleOfIceAOE or AID.CircleOfIcePrimeAOE or AID.FireSphereAOE or AID.FireSpherePrime1)
         {
-            _shape = null;
-            _stars.Clear();
             _aoes.Clear();
-            NumCasts++;
-            _active = false;
+            ++NumCasts;
         }
     }
 }
@@ -156,18 +149,10 @@ class D063LahabreaIgeyorhmStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 38, NameID = 2143)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 38, NameID = 2143, SortOrder = 10)]
 public class D063LahabreaIgeyorhm(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly WPos[] vertices = [new(230.1f, -201.34f), new(234.87f, -200.71f), new(235.38f, -200.61f), new(240.02f, -198.69f), new(240.45f, -198.41f),
-    new(244.38f, -195.4f), new(247.63f, -191.14f), new(249.61f, -186.38f), new(249.71f, -185.81f), new(250.29f, -181.43f),
-    new(250.33f, -180.92f), new(249.62f, -175.65f), new(247.73f, -171.08f), new(247.43f, -170.58f), new(244.36f, -166.6f),
-    new(240.13f, -163.36f), new(236.08f, -161.86f), new(223.25f, -161.84f), new(222.41f, -161.88f), new(221.95f, -162.24f),
-    new(220.03f, -163.28f), new(219.54f, -163.61f), new(215.6f, -166.65f), new(212.39f, -170.8f), new(210.35f, -175.71f),
-    new(209.66f, -180.9f), new(209.71f, -181.43f), new(210.29f, -185.84f), new(210.39f, -186.39f), new(212.37f, -191.13f),
-    new(212.72f, -191.62f), new(215.54f, -195.29f), new(215.93f, -195.64f), new(219.66f, -198.5f), new(220.15f, -198.76f),
-    new(224.76f, -200.66f), new(229.87f, -201.33f)];
-    public static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly ArenaBoundsComplex arena = new([new Polygon(new(230, -181), 20.26f, 24)], [new Rectangle(new(230, -160), 20, 1.94f)]);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);

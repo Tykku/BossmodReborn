@@ -37,10 +37,10 @@ class Geyser(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCircle circle = new(6);
 
-    private static readonly Dictionary<OID, Dictionary<Angle, List<WPos>>> GeyserPositions = new()
+    private static readonly Dictionary<OID, Dictionary<Angle, WPos[]>> GeyserPositions = new()
     {
         {
-            OID.GeyserHelper1, new Dictionary<Angle, List<WPos>>
+            OID.GeyserHelper1, new Dictionary<Angle, WPos[]>
             {
                 { 0.Degrees(), [new(0, 14.16f), new(-9, 45.16f)] },
                 { 180.Degrees(), [new(9, 15.16f), new(0, 46.16f)] },
@@ -49,7 +49,7 @@ class Geyser(BossModule module) : Components.GenericAOEs(module)
             }
         },
         {
-            OID.GeyserHelper2, new Dictionary<Angle, List<WPos>>
+            OID.GeyserHelper2, new Dictionary<Angle, WPos[]>
             {
                 { 0.Degrees(), [new(0, 35.16f), new(-9, 15.16f), new(7, 23.16f)] },
                 { 90.Degrees(),  [new(-15, 39.16f), new(-7, 23.16f), new(5, 30.16f)] },
@@ -63,8 +63,14 @@ class Geyser(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        foreach (var g in _geysers)
+        var count = _geysers.Count;
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < count; ++i)
+        {
+            var g = _geysers[i];
             yield return new(g.Shape, g.Origin, default, g.Activation, g.Activation == _geysers[0].Activation ? Colors.Danger : Colors.AOE, g.Activation == _geysers[0].Activation);
+        }
     }
 
     public override void OnActorEAnim(Actor actor, uint state)
@@ -77,8 +83,8 @@ class Geyser(BossModule module) : Components.GenericAOEs(module)
                 foreach (var (rotation, positions) in positionsByRotation)
                     if (actor.Rotation.AlmostEqual(rotation, Angle.DegToRad))
                     {
-                        foreach (var pos in positions)
-                            _geysers.Add(new(circle, pos, default, activation));
+                        for (var i = 0; i < positions.Length; ++i)
+                            _geysers.Add(new(circle, positions[i], default, activation));
                         break;
                     }
             }
@@ -87,7 +93,7 @@ class Geyser(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.Geyser && _geysers.Count > 0)
+        if (_geysers.Count != 0 && (AID)spell.Action.ID == AID.Geyser)
             _geysers.RemoveAt(0);
     }
 }

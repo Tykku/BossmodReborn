@@ -131,7 +131,7 @@ class Wavebreaker(BossModule module) : Components.GenericAOEs(module)
 class Drains(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<WPos> activeDrains = [], solvedDrains = [];
-    private const int X = 11;
+    private static readonly int[] xPositions = [-11, 11];
     private const float SideLength = 1.25f;
     private static readonly WPos[] drainPositions = new WPos[8];
     private const string Hint = "Block a drain!";
@@ -139,9 +139,8 @@ class Drains(BossModule module) : Components.GenericAOEs(module)
 
     static Drains()
     {
-        int[] xPositions = [-X, X];
-        var zStart = -465;
-        var zStep = 10;
+        const int zStart = -465;
+        const int zStep = 10;
         var index = 0;
 
         for (var i = 0; i < 2; ++i)

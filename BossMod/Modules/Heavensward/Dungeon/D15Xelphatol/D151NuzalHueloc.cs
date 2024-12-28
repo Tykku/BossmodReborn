@@ -90,10 +90,11 @@ public class D151NuzalHueloc(WorldState ws, Actor primary) : BossModule(ws, prim
     new(-96.01f, -71.49f), new(-94.72f, -77.66f), new(-91.42f, -83.42f), new(-86.42f, -88.01f), new(-80.32f, -90.77f),
     new(-73.80f, -91.52f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    private static readonly uint[] opponents = [(uint)OID.Boss, (uint)OID.IxaliStitcher, (uint)OID.FloatingTurret, (uint)OID.Airstone];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly && x.FindStatus(SID.Invincibility) == null));
+        Arena.Actors(Enemies(opponents).Where(x => x.FindStatus(SID.Invincibility) == null));
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -103,7 +104,7 @@ public class D151NuzalHueloc(WorldState ws, Actor primary) : BossModule(ws, prim
             var e = hints.PotentialTargets[i];
             if (e.Actor.FindStatus(SID.Invincibility) != null)
             {
-                e.Priority = -2;
+                e.Priority = AIHints.Enemy.PriorityForbidFully;
                 continue;
             }
             e.Priority = (OID)e.Actor.OID switch

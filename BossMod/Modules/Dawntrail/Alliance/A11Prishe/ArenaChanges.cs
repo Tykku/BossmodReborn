@@ -37,15 +37,10 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module, ActionID.
                 SetArena(ArenaENVC02000100);
                 break;
             case 0x00080004 or 0x00800004:
-                SetDefaultArena();
+                Arena.Bounds = A11Prishe.DefaultBounds;
+                Arena.Center = A11Prishe.ArenaCenter;
                 break;
         }
-    }
-
-    private void SetDefaultArena()
-    {
-        Arena.Bounds = A11Prishe.DefaultBounds;
-        Arena.Center = A11Prishe.ArenaCenter;
     }
 
     private void SetArena(ArenaBoundsComplex bounds)

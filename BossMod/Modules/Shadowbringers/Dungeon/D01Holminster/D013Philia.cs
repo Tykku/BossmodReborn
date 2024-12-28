@@ -91,13 +91,16 @@ class Fetters(BossModule module) : BossComponent(module)
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         if (chained && actor != chaintarget)
-            foreach (var e in hints.PotentialTargets)
+            for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+            {
+                var e = hints.PotentialTargets[i];
                 e.Priority = (OID)e.Actor.OID switch
                 {
                     OID.IronChain => 1,
                     OID.Boss => -1,
                     _ => 0
                 };
+            }
         var ironchain = Module.Enemies(OID.IronChain).FirstOrDefault();
         if (ironchain != null && !ironchain.IsDead)
             hints.AddForbiddenZone(ShapeDistance.InvertedCircle(ironchain.Position, ironchain.HitboxRadius + 3));
@@ -127,7 +130,7 @@ class Aethersup(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoe != default)
-            yield return _aoe with { Risky = Module.Enemies(OID.IronChain).All(x => x.IsDead) };
+            yield return _aoe with { Risky = Module.Enemies(OID.IronChain).Any(x => x.IsDead) };
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -191,7 +194,7 @@ class CatONineTails(BossModule module) : Components.GenericRotatingAOE(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.CatONineTails && Sequences.Count > 0)
+        if ((AID)spell.Action.ID == AID.CatONineTails)
             AdvanceSequence(0, WorldState.CurrentTime);
     }
 }

@@ -8,12 +8,18 @@ namespace BossMod.Dawntrail.Trial.T03QueenEternal;
 class WaltzOfTheRegaliaBait(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCircle circle = new(MathF.Sqrt(212) * 0.5f);
-    private readonly List<(Actor, DateTime)> _targets = [];
+    private readonly List<(Actor, DateTime)> _targets = new(3);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        foreach (var t in _targets)
+        var count = _targets.Count;
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < _targets.Count; ++i)
+        {
+            var t = _targets[i];
             yield return new(circle, t.Item1.Position, default, t.Item2);
+        }
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)

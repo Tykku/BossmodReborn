@@ -14,8 +14,7 @@ public class Ex3QueenEternal(WorldState ws, Actor primary) : BossModule(ws, prim
     public static readonly ArenaBoundsComplex EarthBounds = Trial.T03QueenEternal.T03QueenEternal.SplitArena;
     private static readonly Rectangle[] iceRects = [new(new(112, 95), 4, 15), new(new(88, 95), 4, 15), new(ArenaCenter, 2, 10)];
     public static readonly Rectangle[] IceRectsAll = [.. iceRects, new(new(100, 96), 8, 2), new(new(100, 104), 8, 2)];
-    public static readonly ArenaBoundsComplex IceBounds = new(iceRects, Offset: Trial.T03QueenEternal.T03QueenEternal.OffSet);
-    public static readonly ArenaBoundsComplex IceBridgeBounds = new(IceRectsAll, Offset: Trial.T03QueenEternal.T03QueenEternal.OffSet);
+    public static readonly ArenaBoundsComplex IceBounds = new(iceRects);
 
     private Actor? _bossP2;
     public Actor? BossP1() => PrimaryActor;

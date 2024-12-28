@@ -45,6 +45,14 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         if (!forbidActions && (AIPreset != null || autorot.Preset != null))
         {
             target = SelectPrimaryTarget(player, master);
+            if (_config.ManualTarget)
+            {
+                var t = autorot.WorldState.Actors.Find(player.TargetID);
+                if (t != null)
+                    target.Target = new AIHints.Enemy(t, false);
+                else
+                    target = new();
+            }
             if (target.Target != null || TargetIsForbidden(player.TargetID))
                 autorot.Hints.ForcedTarget ??= target.Target?.Actor;
             AdjustTargetPositional(player, ref target);
@@ -169,11 +177,10 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
                 return (decision, targeting);
             }
         }
-
         var adjRotation = targeting.PreferTanking ? targeting.Target.DesiredRotation : targeting.Target.Actor.Rotation;
-
+        var pos = autorot.Hints.RecommendedPositional.Target?.Position;
         var fdecision = await Task.Run(() =>
-            NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player, autorot.Hints.RecommendedPositional.Target?.Position, adjRange, adjRotation, autorot.Hints.RecommendedPositional.Pos)
+            NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player, pos == null ? autorot.WorldState.Actors.Find(player.TargetID)?.Position : pos, adjRange, adjRotation, autorot.Hints.RecommendedPositional.Pos)
         ).ConfigureAwait(true);
 
         return (fdecision, targeting);
@@ -265,14 +272,16 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         configModified |= ImGui.Checkbox("Forbid movement", ref _config.ForbidMovement);
         ImGui.SameLine();
         configModified |= ImGui.Checkbox("Follow during combat", ref _config.FollowDuringCombat);
-        ImGui.SameLine();
-        configModified |= ImGui.Checkbox("Override autorotation values", ref _config.OverrideAutorotation);
         ImGui.Spacing();
         configModified |= ImGui.Checkbox("Follow during active boss module", ref _config.FollowDuringActiveBossModule);
         ImGui.SameLine();
         configModified |= ImGui.Checkbox("Follow out of combat", ref _config.FollowOutOfCombat);
         ImGui.SameLine();
         configModified |= ImGui.Checkbox("Follow target", ref _config.FollowTarget);
+        ImGui.Spacing();
+        configModified |= ImGui.Checkbox("Manual targeting", ref _config.ManualTarget);
+        ImGui.SameLine();
+        configModified |= ImGui.Checkbox("Override autorotation values", ref _config.OverrideAutorotation);
         ImGui.SameLine();
         configModified |= ImGui.Checkbox("Allow outside bounds", ref _config.AllowAIToBeOutsideBounds);
 

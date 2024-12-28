@@ -20,6 +20,9 @@ public class BossModuleHintsWindow : UIWindow
         Flags = ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
         if (_mgr.Config.Lock)
             Flags |= ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoInputs;
+        if (_mgr.Config.HintsInSeparateWindowTransparent)
+            Flags |= ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoBackground;
+        ForceMainWindow = _mgr.Config.HintsInSeparateWindowTransparent; // NoBackground flag without ForceMainWindow works incorrectly for whatever reason
     }
 
     public override void Draw()

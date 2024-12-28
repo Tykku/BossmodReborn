@@ -41,8 +41,8 @@ class D150XelphatolSwiftbeakStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<Overpower>()
             .ActivateOnEnter<Gust>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => x.IsTargetable && !x.IsAlly && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
-            .All(x => x.IsDestroyed) || Module.Enemies(OID.Airstone1).Concat(Module.Enemies(OID.Airstone2)).Concat(Module.Enemies(OID.BoneKey)).Any(x => x.IsTargetable);
+            .Raw.Update = () => Module.Enemies(D150XelphatolSwiftbeak.Trash).Where(x => x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
+            .All(x => x.IsDestroyed) || Module.Enemies(D150XelphatolSwiftbeak.Keys).Any(x => x.IsTargetable);
     }
 }
 
@@ -191,11 +191,14 @@ IsArena1(primary) ? arena1 : IsArena2(primary) ? arena3 : arena2)
     private static readonly ArenaBoundsComplex arena1 = new([new PolygonCustom(vertices1)]);
     private static readonly ArenaBoundsComplex arena2 = new([new PolygonCustom(vertices2)]);
     private static readonly ArenaBoundsComplex arena3 = new([new PolygonCustom(vertices3)]);
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.XelphatolWindtalon, (uint)OID.XelphatolWhirltalon, (uint)OID.XelphatolWatchwolf, (uint)OID.XelphatolFogcaller,
+    (uint)OID.XelphatolBravewing, (uint)OID.XelphatolFatecaller, (uint)OID.XelphatolStrongbeak, (uint)OID.AbalathianHornbill];
+    public static readonly uint[] Keys = [(uint)OID.BoneKey, (uint)OID.Airstone1, (uint)OID.Airstone2];
 
-    protected override bool CheckPull() => WorldState.Actors.Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
+    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly && x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
+        Arena.Actors(Enemies(Trash).Where(x => x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
     }
 }

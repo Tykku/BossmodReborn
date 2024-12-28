@@ -84,7 +84,7 @@ class Infaturation(BossModule module) : Components.SelfTargetedAOEs(module, Acti
 class HallOfSorrow(BossModule module) : Components.PersistentVoidzone(module, 9, m => m.Enemies(OID.Voidzone).Where(z => z.EventState != 7));
 class Valfodr(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.Valfodr), 3);
 
-class ValfodrKB(BossModule module) : Components.Knockback(module)
+class ValfodrKB(BossModule module) : Components.Knockback(module, stopAtWall: true)
 {
     private DateTime _activation;
 
@@ -97,10 +97,7 @@ class ValfodrKB(BossModule module) : Components.Knockback(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.Valfodr)
-        {
             _activation = Module.CastFinishAt(spell);
-            StopAtWall = true;
-        }
     }
 
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<HallOfSorrow>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || (Module.FindComponent<Infaturation>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false);

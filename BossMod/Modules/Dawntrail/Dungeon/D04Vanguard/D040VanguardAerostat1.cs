@@ -21,13 +21,15 @@ class D040VanguardAerostat1States : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<IncendiaryRing>()
-            .Raw.Update = () => module.Enemies(OID.Aerostat2).Concat([module.PrimaryActor]).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(D040VanguardAerostat1.Trash).All(e => e.IsDeadOrDestroyed);
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 831, NameID = 12780, SortOrder = 3)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 831, NameID = 12780, SortOrder = 4)]
 public class D040VanguardAerostat1(WorldState ws, Actor primary) : BossModule(ws, primary, new(-50, -15), new ArenaBoundsRect(7.7f, 25))
 {
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.Aerostat2];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);

@@ -6,10 +6,7 @@ class Firebreathe(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 class HeadDown(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.HeadDown), 2);
 class HuntersClaw(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HuntersClaw), new AOEShapeCircle(8));
 
-class Burn : Components.BaitAwayIcon
-{
-    public Burn(BossModule module) : base(module, new AOEShapeCircle(30), (uint)IconID.Burn, ActionID.MakeSpell(AID.Burn), 8.2f) { CenterAtTarget = true; }
-}
+class Burn(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(30), (uint)IconID.Burn, ActionID.MakeSpell(AID.Burn), 8.2f, true);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 761, NameID = 9751, PlanLevel = 80)]
 public class DRS3(WorldState ws, Actor primary) : BossModule(ws, primary, new(82, 138), new ArenaBoundsCircle(29.5f))

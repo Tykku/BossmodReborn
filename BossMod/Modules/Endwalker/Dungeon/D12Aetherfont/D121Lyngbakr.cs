@@ -31,10 +31,14 @@ class ExplosiveResonantFrequency(BossModule module) : Components.GenericAOEs(mod
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            foreach (var a in _aoes)
-                if ((a.Activation - _aoes[0].Activation).TotalSeconds <= 1)
-                    yield return a;
+        var count = _aoes.Count;
+        if (count != 0)
+            for (var i = 0; i < count; ++i)
+            {
+                var aoe = _aoes[i];
+                if ((aoe.Activation - _aoes[0].Activation).TotalSeconds <= 1)
+                    yield return aoe;
+            }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -76,8 +80,9 @@ class D121LyngbakrStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 822, NameID = 12336)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 822, NameID = 12336, SortOrder = 3)]
 public class D121Lyngbakr(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Circle(new(-322, 120), 19.75f)], [new Rectangle(new(-322, 99), 20, 2.25f), new Rectangle(new(-322, 140), 20, 1.25f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-322, 120), 19.5f * CosPI.Pi40th, 48)], [new Rectangle(new(-322, 99), 20, 2.25f),
+    new Rectangle(new(-322, 140), 20, 1.25f)]);
 }

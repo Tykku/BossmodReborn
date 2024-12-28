@@ -35,7 +35,7 @@ class D150XelphatolSkycallerStates : StateMachineBuilder
             .ActivateOnEnter<IxaliAeroIIIHint>()
             .ActivateOnEnter<IxaliAeroII>()
             .ActivateOnEnter<Gust>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => x.IsTargetable && !x.IsAlly && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
+            .Raw.Update = () => Module.Enemies(D150XelphatolSkycaller.Trash).Where(x => x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
             .All(x => x.IsDeadOrDestroyed);
     }
 }
@@ -58,9 +58,10 @@ public class D150XelphatolSkycaller(WorldState ws, Actor primary) : BossModule(w
     new(352.69f, -408.28f), new(352.36f, -408.67f), new(351.78f, -408.87f), new(351.05f, -409.21f), new(351.78f, -410.13f),
     new(353.19f, -411.45f), new(356.06f, -413.34f), new(357.81f, -414.06f), new(359.74f, -414.53f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.AbalathianHornbill];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly && x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
+        Arena.Actors(Enemies(Trash).Where(x => x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
     }
 }

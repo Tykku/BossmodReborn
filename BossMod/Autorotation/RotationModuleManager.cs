@@ -95,7 +95,7 @@ public sealed class RotationModuleManager : IDisposable
         {
             Hints.ForcedTarget = forced.Value.Target != StrategyTarget.Automatic
                 ? ResolveTargetOverride(forced.Value.Target, forced.Value.TargetParam)
-                : (ResolveTargetOverride(StrategyTarget.EnemyWithHighestPriority, 0) ?? Bossmods.ActiveModule?.PrimaryActor);
+                : (ResolveTargetOverride(StrategyTarget.EnemyWithHighestPriority, 0) ?? (Bossmods.ActiveModule?.PrimaryActor is var primary && primary != null && !primary.IsDeadOrDestroyed && primary.IsTargetable ? primary : null));
         }
 
         // auto actions
@@ -117,6 +117,13 @@ public sealed class RotationModuleManager : IDisposable
         StrategyTarget.EnemyWithHighestPriority => Player != null ? Hints.PriorityTargets.MinBy(e => (e.Actor.Position - Player.Position).LengthSq())?.Actor : null,
         StrategyTarget.EnemyByOID => Player != null && (uint)param is var oid && oid != 0 ? Hints.PotentialTargets.Where(e => e.Actor.OID == oid).MinBy(e => (e.Actor.Position - Player.Position).LengthSq())?.Actor : null,
         _ => null
+    };
+
+    public WPos ResolveTargetLocation(StrategyTarget strategy, int param, float off1, float off2) => strategy switch
+    {
+        StrategyTarget.PointAbsolute => new(off1, off2),
+        StrategyTarget.PointCenter or StrategyTarget.Automatic => (Bossmods.ActiveModule?.Center + off1 * off2.Degrees().ToDirection()) ?? Player?.Position ?? default,
+        _ => (ResolveTargetOverride(strategy, param)?.Position + off1 * off2.Degrees().ToDirection()) ?? Player?.Position ?? default,
     };
 
     private Plan? CalculateExpectedPlan()

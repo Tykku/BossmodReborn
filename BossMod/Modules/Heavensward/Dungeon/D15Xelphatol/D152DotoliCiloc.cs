@@ -116,7 +116,7 @@ class OnHigh(BossModule module) : Components.Knockback(module)
 
 class OnHighHint(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<ConeHA> cones = [];
+    private readonly List<ConeHA> cones = new(4);
     private AOEInstance? _aoe;
     private const string RiskHint = "Use safewalls for knockback!";
     private static readonly Angle angle = 11.25f.Degrees();
@@ -146,7 +146,7 @@ class OnHighHint(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnActorCreated(Actor actor)
     {
-        if (cones.Count > 0 && (OID)actor.OID == OID.Whirlwind) // sometimes the creation of whirlwinds is delayed
+        if (cones.Count != 0 && (OID)actor.OID == OID.Whirlwind) // sometimes the creation of whirlwinds is delayed
         {
             cones.Clear();
             GenerateHints();
@@ -164,10 +164,11 @@ class OnHighHint(BossModule module) : Components.GenericAOEs(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        var activeAOEs = ActiveAOEs(slot, actor).ToList();
-        if (activeAOEs.Any(c => !c.Check(actor.Position)))
+        if (_aoe == null)
+            return;
+        if (ActiveAOEs(slot, actor).Any(c => !c.Check(actor.Position)))
             hints.Add(RiskHint);
-        else if (activeAOEs.Any(c => c.Check(actor.Position)))
+        else
             hints.Add(RiskHint, false);
     }
 }

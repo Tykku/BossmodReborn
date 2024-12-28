@@ -13,8 +13,8 @@ public class GenericWildCharge(BossModule module, float halfWidth, ActionID aid 
         Avoid, // player has to avoid aoe
     }
 
-    public float HalfWidth = halfWidth;
-    public float FixedLength = fixedLength; // if == 0, length is up to target
+    public readonly float HalfWidth = halfWidth;
+    public readonly float FixedLength = fixedLength; // if == 0, length is up to target
     public Actor? Source; // if null, mechanic is not active
     public DateTime Activation;
     public PlayerRole[] PlayerRoles = new PlayerRole[PartyState.MaxAllies];

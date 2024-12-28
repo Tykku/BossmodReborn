@@ -141,12 +141,13 @@ public class D033Nidhogg(WorldState ws, Actor primary) : BossModule(ws, primary,
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
                 OID.TheSablePrice => 2,
-                OID.Boss or OID.Ahleh or OID.Liegedrake => 1,
+                OID.Ahleh or OID.Liegedrake => 1,
                 _ => 0
             };
         }

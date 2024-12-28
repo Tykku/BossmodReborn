@@ -2,8 +2,8 @@
 
 class VirtualShiftIce(BossModule module) : Components.GenericAOEs(module, default, "GTFO from broken bridge!")
 {
-    private readonly List<AOEInstance> _unsafeBridges = [];
-    private readonly List<Rectangle> _destroyedBridges = [];
+    private readonly List<AOEInstance> _unsafeBridges = new(4);
+    private readonly List<Rectangle> _destroyedBridges = [new(new(95, 96), 3, 2), new(new(95, 104), 3, 2), new(new(105, 96), 3, 2), new(new(95, 104), 3, 2)];
 
     private static readonly AOEShapeRect _shape = new(2, 3, 2);
 
@@ -13,10 +13,10 @@ class VirtualShiftIce(BossModule module) : Components.GenericAOEs(module, defaul
     {
         WDir offset = index switch
         {
-            4 => new(-5, -4),
-            5 => new(-5, +4),
-            6 => new(+5, -4),
-            7 => new(+5, +4),
+            0x04 => new(-5, -4),
+            0x05 => new(-5, +4),
+            0x06 => new(+5, -4),
+            0x07 => new(+5, +4),
             _ => default
         };
         if (offset == default)
@@ -25,18 +25,26 @@ class VirtualShiftIce(BossModule module) : Components.GenericAOEs(module, defaul
         var center = Ex3QueenEternal.ArenaCenter + offset;
         switch (state)
         {
-            case 0x00200010:
+            case 0x00020001: // destroyed bridge respawns
+                _destroyedBridges.RemoveAll(s => s.Center == center);
+                UpdateArena();
+                break;
+            case 0x00200010: // bridge gets damaged
                 _unsafeBridges.Add(new(_shape, center));
                 break;
-            case 0x00400001:
-                _unsafeBridges.RemoveAll(s => s.Origin == center);
+            case 0x00400001: // damaged bridge gets repaired
+            case 0x00080004: // bridges despawn
+                RemoveUnsafeBridges();
                 break;
-            case 0x00800004:
-                _unsafeBridges.RemoveAll(s => s.Origin == center);
+            case 0x00800004: // bridge gets destroyed
+                RemoveUnsafeBridges();
                 _destroyedBridges.Add(new(center, 3, 2));
-                Arena.Bounds = new ArenaBoundsComplex(Ex3QueenEternal.IceRectsAll, [.. _destroyedBridges], Offset: Trial.T03QueenEternal.T03QueenEternal.OffSet);
+                UpdateArena();
                 break;
         }
+
+        void RemoveUnsafeBridges() => _unsafeBridges.RemoveAll(s => s.Origin == center);
+        void UpdateArena() => Arena.Bounds = new ArenaBoundsComplex(Ex3QueenEternal.IceRectsAll, [.. _destroyedBridges]);
     }
 }
 
@@ -67,6 +75,7 @@ class Rush(BossModule module) : Components.GenericBaitAway(module)
 {
     public DateTime Activation;
     private BitMask _unstretched;
+    private readonly Ex3QueenEternalConfig _config = Service.Config.Get<Ex3QueenEternalConfig>();
 
     private static readonly AOEShapeRect _shapeTether = new(80, 2);
     private static readonly AOEShapeCircle _shapeUntethered = new(8); // if there is no tether, pillar will just explode; this can happen if someone is dead
@@ -88,7 +97,7 @@ class Rush(BossModule module) : Components.GenericBaitAway(module)
             if (b.Target == pc)
             {
                 Arena.AddLine(b.Source.Position, b.Target.Position, _unstretched[pcSlot] ? Colors.Danger : Colors.Safe);
-                Arena.AddCircle(SafeSpot(b.Source), 1, Colors.Safe);
+                Arena.AddCircle(SafeSpot(b.Source, _config), 1, Colors.Safe);
             }
         }
     }
@@ -133,7 +142,7 @@ class Rush(BossModule module) : Components.GenericBaitAway(module)
         }
     }
 
-    private WPos SafeSpot(Actor source)
+    private static WPos SafeSpot(Actor source, Ex3QueenEternalConfig config)
     {
         var center = Ex3QueenEternal.ArenaCenter;
         var safeSide = source.Position.X > center.X ? -1 : +1;
@@ -148,7 +157,8 @@ class Rush(BossModule module) : Components.GenericBaitAway(module)
         {
             // second order
             var central = source.Position.Z < 96;
-            return center + new WDir(safeSide * 15, central ? -2 : 10);
+            var strat = !config.SideTethersCrossStrategy ? (central ? -2 : 9) : (central ? 9 : -9);
+            return center + new WDir(safeSide * 15, strat);
         }
     }
 }

@@ -20,8 +20,11 @@ public enum AID : uint
 
 class MagitekRay(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRay), new AOEShapeRect(45.9f, 1));
 class CermetPile(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.CermetPile), new AOEShapeRect(43.5f, 3), activeWhileCasting: false);
-class GarleanFire(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GarleanFire), new AOEShapeCircle(6));
-class SelfDetonate(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SelfDetonate), new AOEShapeCircle(6));
+
+abstract class Circle6(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
+class GarleanFire(BossModule module) : Circle6(module, AID.GarleanFire);
+class SelfDetonate(BossModule module) : Circle6(module, AID.SelfDetonate);
+
 class RearguardMine(BossModule module) : Components.PersistentVoidzone(module, 0.9f, m => m.Enemies(OID.RearguardMine).Where(x => !x.IsDead), 10);
 
 class D041MagitekRearguardStates : StateMachineBuilder

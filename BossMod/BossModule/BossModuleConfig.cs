@@ -80,6 +80,9 @@ public class BossModuleConfig : ConfigNode
     [PropertyDisplay("Show text hints in separate window", tooltip: "Separates the radar window from the hints window, allowing you to reposition the hints window")]
     public bool HintsInSeparateWindow = false;
 
+    [PropertyDisplay("Make separate hints window transparent")]
+    public bool HintsInSeparateWindowTransparent = false;
+
     [PropertyDisplay("Show mechanic sequence and timer hints")]
     public bool ShowMechanicTimers = true;
 

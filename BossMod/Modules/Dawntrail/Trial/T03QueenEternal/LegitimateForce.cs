@@ -2,7 +2,7 @@ namespace BossMod.Dawntrail.Trial.T03QueenEternal;
 
 class LegitimateForce(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(2);
     private static readonly AOEShapeRect rect = new(20, 40);
     private static readonly HashSet<AID> castEnds = [AID.LegitimateForceLL, AID.LegitimateForceLR, AID.LegitimateForceRR, AID.LegitimateForceRL,
     AID.LegitimateForceR, AID.LegitimateForceL];
@@ -14,18 +14,17 @@ class LegitimateForce(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoe.AOEs.Count == 0)
+        var count = _aoes.Count;
+        if (count == 0 || _aoe.AOEs.Count != 0)
+            yield break;
+        var compare = count > 1 && _aoes[0].Rotation != _aoes[1].Rotation;
+        for (var i = 0; i < count; ++i)
         {
-            var count = _aoes.Count;
-            var compare = count > 1 && _aoes[0].Rotation != _aoes[1].Rotation;
-            for (var i = 0; i < count; ++i)
-            {
-                var aoe = _aoes[i];
-                if (i == 0)
-                    yield return compare ? aoe with { Color = Colors.Danger } : aoe;
-                else if (i == 1 && compare)
-                    yield return aoe with { Risky = false };
-            }
+            var aoe = _aoes[i];
+            if (i == 0)
+                yield return compare ? aoe with { Color = Colors.Danger } : aoe;
+            else if (i == 1 && compare)
+                yield return aoe with { Risky = false };
         }
     }
 
@@ -46,12 +45,12 @@ class LegitimateForce(BossModule module) : Components.GenericAOEs(module)
                 AddAOEs(caster, spell, 90, -90);
                 break;
         }
-    }
 
-    private void AddAOEs(Actor caster, ActorCastInfo spell, float first, float second)
-    {
-        _aoes.Add(new(rect, caster.Position, spell.Rotation + first.Degrees(), Module.CastFinishAt(spell)));
-        _aoes.Add(new(rect, caster.Position, spell.Rotation + second.Degrees(), Module.CastFinishAt(spell, 3.1f)));
+        void AddAOEs(Actor caster, ActorCastInfo spell, float first, float second)
+        {
+            _aoes.Add(new(rect, caster.Position, spell.Rotation + first.Degrees(), Module.CastFinishAt(spell)));
+            _aoes.Add(new(rect, caster.Position, spell.Rotation + second.Degrees(), Module.CastFinishAt(spell, 3.1f)));
+        }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -67,9 +66,9 @@ class LegitimateForce(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         var besiegeCount = besiege.Count;
         var gravityBounds = Arena.Bounds == T03QueenEternal.SplitGravityBounds;
-        if (count > 0 && Arena.Center != T03QueenEternal.SplitArena.Center || besiegeCount == 0 && count == 2 && gravityBounds)
+        if (count != 0 && Arena.Center != T03QueenEternal.SplitArena.Center || besiegeCount == 0 && count == 2 && gravityBounds)
             hints.AddForbiddenZone(ShapeDistance.InvertedRect(Arena.Center + offset1, Arena.Center - offset1, 3), _aoes[0].Activation);
         else if (count != 2 && besiegeCount == 0 && gravityBounds)
-            hints.AddForbiddenZone(stayInBounds, count > 0 ? _aoes[0].Activation : besiegeCount > 0 ? besiege[0].Activation : default);
+            hints.AddForbiddenZone(stayInBounds, count != 0 ? _aoes[0].Activation : besiegeCount != 0 ? besiege[0].Activation : default);
     }
 }

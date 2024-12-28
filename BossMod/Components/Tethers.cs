@@ -3,8 +3,8 @@
 // generic component for tankbuster at tethered targets; tanks are supposed to intercept tethers and gtfo from the raid
 public class TankbusterTether(BossModule module, ActionID aid, uint tetherID, float radius) : CastCounter(module, aid)
 {
-    public uint TID { get; init; } = tetherID;
-    public float Radius { get; init; } = radius;
+    public readonly uint TID = tetherID;
+    public readonly float Radius = radius;
     private readonly List<(Actor Player, Actor Enemy)> _tethers = [];
     private BitMask _tetheredPlayers;
     private BitMask _inAnyAOE; // players hit by aoe, excluding selves
@@ -126,9 +126,9 @@ public class TankbusterTether(BossModule module, ActionID aid, uint tetherID, fl
 // generic component for tethers that need to be intercepted eg. to prevent a boss from gaining buffs
 public class InterceptTether(BossModule module, ActionID aid, uint tetherIDBad = 84, uint tetherIDGood = 17, uint[]? excludedAllies = null) : CastCounter(module, aid)
 {
-    public uint TIDGood = tetherIDGood;
-    public uint TIDBad = tetherIDBad;
-    public uint[]? ExcludedAllies = excludedAllies;
+    public readonly uint TIDGood = tetherIDGood;
+    public readonly uint TIDBad = tetherIDBad;
+    public readonly uint[]? ExcludedAllies = excludedAllies;
     private readonly List<(Actor Player, Actor Enemy)> _tethers = [];
     private BitMask _tetheredPlayers;
     private const string hint = "Grab the tether!";
@@ -198,15 +198,15 @@ public class InterceptTether(BossModule module, ActionID aid, uint tetherIDBad =
 // at the end of the mechanic various things are possible, eg. single target dmg, knockback/pull, AOE etc.
 public class StretchTetherDuo(BossModule module, float minimumDistance, float activationDelay, uint tetherIDBad = 57, uint tetherIDGood = 1, AOEShape? shape = null, ActionID aid = default, uint enemyOID = default, bool knockbackImmunity = false) : GenericBaitAway(module, aid)
 {
-    public AOEShape? Shape = shape;
-    public uint TIDGood = tetherIDGood;
-    public uint TIDBad = tetherIDBad;
-    public float MinimumDistance = minimumDistance;
-    public bool KnockbackImmunity { get; init; } = knockbackImmunity;
+    public readonly AOEShape? Shape = shape;
+    public readonly uint TIDGood = tetherIDGood;
+    public readonly uint TIDBad = tetherIDBad;
+    public readonly float MinimumDistance = minimumDistance;
+    public readonly bool KnockbackImmunity = knockbackImmunity;
     public readonly List<Actor> _enemies = module.Enemies(enemyOID);
     public readonly List<(Actor, uint)> TetherOnActor = [];
     public readonly List<(Actor, DateTime)> ActivationDelayOnActor = [];
-    public float ActivationDelay = activationDelay;
+    public readonly float ActivationDelay = activationDelay;
     public const string HintGood = "Tether is stretched!";
     public const string HintBad = "Stretch tether further!";
     public const string HintKnockbackImmmunityGood = "Immune against tether mechanic!";

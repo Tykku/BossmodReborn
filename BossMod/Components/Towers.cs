@@ -19,8 +19,8 @@ public class GenericTowers(BossModule module, ActionID aid = default, bool prior
         public readonly bool TooManyInside(BossModule module) => NumInside(module) is var count && count > MaxSoakers;
     }
 
-    public List<Tower> Towers = [];
-    public bool PrioritizeInsufficient = prioritizeInsufficient; // give priority to towers with more than 0 but less than min soakers
+    public readonly List<Tower> Towers = [];
+    public readonly bool PrioritizeInsufficient = prioritizeInsufficient; // give priority to towers with more than 0 but less than min soakers
 
     // default tower styling
     public static void DrawTower(MiniArena arena, WPos pos, float radius, bool safe)
@@ -102,9 +102,9 @@ public class GenericTowers(BossModule module, ActionID aid = default, bool prior
 
 public class CastTowers(BossModule module, ActionID aid, float radius, int minSoakers = 1, int maxSoakers = 1) : GenericTowers(module, aid)
 {
-    public float Radius = radius;
-    public int MinSoakers = minSoakers;
-    public int MaxSoakers = maxSoakers;
+    public readonly float Radius = radius;
+    public readonly int MinSoakers = minSoakers;
+    public readonly int MaxSoakers = maxSoakers;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

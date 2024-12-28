@@ -230,6 +230,7 @@ class AbilityInfo : CommonEnumInfo
                                     KnockbackDirection.SourceForward => Knockback.Kind.DirForward,
                                     KnockbackDirection.SourceRight => Knockback.Kind.DirRight,
                                     KnockbackDirection.SourceLeft => Knockback.Kind.DirLeft,
+                                    KnockbackDirection.AwayFromSource2 => Knockback.Kind.AwayFromOrigin,
                                     _ => Knockback.Kind.None
                                 } : Knockback.Kind.None;
                                 AddPoint(i, target, (kbData?.Distance ?? 0) + eff.Param0, kind);
@@ -237,6 +238,7 @@ class AbilityInfo : CommonEnumInfo
                                 break;
                             case ActionEffectType.Attract1:
                             case ActionEffectType.Attract2:
+
                                 var attrData = Service.LuminaRow<Lumina.Excel.Sheets.Attract>(eff.Value);
                                 AddPoint(i, target, attrData?.MaxDistance ?? 0, Knockback.Kind.TowardsOrigin);
                                 hasKnockbacks = true;

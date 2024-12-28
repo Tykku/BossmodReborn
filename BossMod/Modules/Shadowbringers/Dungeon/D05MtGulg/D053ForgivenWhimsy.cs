@@ -63,16 +63,8 @@ class JudgmentDay(BossModule module) : Components.GenericTowers(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (Towers.Count > 0 && (AID)spell.Action.ID is AID.Judged or AID.FoundWanting)
+        if (Towers.Count != 0 && (AID)spell.Action.ID is AID.Judged or AID.FoundWanting)
             Towers.RemoveAt(0);
-    }
-
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (Towers.Count > 0)
-            base.AddAIHints(slot, actor, assignment, hints);
-        if (Towers.Count > 1)
-            hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Sprint), actor, ActionQueue.Priority.High);
     }
 }
 
@@ -91,8 +83,8 @@ class Exegesis(BossModule module) : Components.GenericAOEs(module)
         switch ((AID)spell.Action.ID)
         {
             case AID.ExegesisA: //diagonal
-                foreach (var p in diagonalPositions)
-                    _aoes.Add(new(rect, p, default, _activation));
+                for (var i = 0; i < diagonalPositions.Length; ++i)
+                    _aoes.Add(new(rect, diagonalPositions[i], default, _activation));
                 break;
             case AID.ExegesisB: //east+west
                 _aoes.Add(new(rect, new(-250, -50), default, _activation));

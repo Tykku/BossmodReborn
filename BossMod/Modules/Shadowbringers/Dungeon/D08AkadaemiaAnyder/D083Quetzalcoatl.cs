@@ -2,7 +2,6 @@ namespace BossMod.Shadowbringers.Dungeon.D08AkadaemiaAnyder.D083Quetzalcoatl;
 
 public enum OID : uint
 {
-
     Boss = 0x28DA, // R5.4
     CollectableOrb = 0x28DB, // R0.7
     ExpandingOrb = 0x1EAB51, // R0.5
@@ -40,7 +39,7 @@ class ThunderstormSpread(BossModule module) : Components.SpreadFromCastTargets(m
 
 class OrbCollecting(BossModule module) : BossComponent(module)
 {
-    private readonly HashSet<Actor> _orbs = [];
+    private readonly List<Actor> _orbs = [];
     private readonly ShockingPlumage _aoe = module.FindComponent<ShockingPlumage>()!;
 
     public override void OnActorCreated(Actor actor)
@@ -57,21 +56,24 @@ class OrbCollecting(BossModule module) : BossComponent(module)
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var orbs = new List<Func<WPos, float>>();
-        if (_orbs.Count != 0)
-            foreach (var o in _orbs)
-                orbs.Add(ShapeDistance.InvertedCircle(o.Position, 0.7f));
-        if (orbs.Count > 0)
-        {
-            var activation = _aoe.ActiveAOEs(slot, actor).FirstOrDefault().Activation.AddSeconds(1.1f);
-            hints.AddForbiddenZone(p => orbs.Max(f => f(p)), activation == default ? WorldState.FutureTime(2) : activation);
-        }
+
+        var count = _orbs.Count;
+        if (count == 0)
+            return;
+        var orbs = new List<Func<WPos, float>>(count);
+        for (var i = 0; i < count; ++i)
+            orbs.Add(ShapeDistance.InvertedCircle(_orbs[i].Position, 0.7f));
+        var activation = _aoe.ActiveAOEs(slot, actor).FirstOrDefault().Activation.AddSeconds(1.1f);
+        hints.AddForbiddenZone(p => orbs.Max(f => f(p)), activation == default ? WorldState.FutureTime(2) : activation);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        foreach (var orb in _orbs)
-            Arena.AddCircle(orb.Position, 0.7f, Colors.Safe);
+        var count = _orbs.Count;
+        if (count == 0)
+            return;
+        for (var i = 0; i < count; ++i)
+            Arena.AddCircle(_orbs[i].Position, 0.7f, Colors.Safe);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

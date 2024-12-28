@@ -4,10 +4,10 @@
 // enemy OID == 0 means 'primary actor'
 public class Cleave(BossModule module, ActionID aid, AOEShape shape, uint enemyOID = 0, bool activeForUntargetable = false, bool originAtTarget = false, bool activeWhileCasting = true) : CastCounter(module, aid)
 {
-    public AOEShape Shape { get; init; } = shape;
-    public bool ActiveForUntargetable { get; init; } = activeForUntargetable;
-    public bool ActiveWhileCasting { get; init; } = activeWhileCasting;
-    public bool OriginAtTarget { get; init; } = originAtTarget;
+    public readonly AOEShape Shape = shape;
+    public readonly bool ActiveForUntargetable = activeForUntargetable;
+    public readonly bool ActiveWhileCasting = activeWhileCasting;
+    public readonly bool OriginAtTarget = originAtTarget;
     public DateTime NextExpected;
     private readonly List<Actor> _enemies = module.Enemies(enemyOID != 0 ? enemyOID : module.PrimaryActor.OID);
 

@@ -108,12 +108,6 @@ class BlossomArenaChanges(BossModule module) : BossComponent(module)
             };
         }
     }
-
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (!Arena.InBounds(actor.Position))
-            hints.AddForbiddenZone(ShapeDistance.InvertedDonut(Arena.Center, 11, 14));
-    }
 }
 
 class D082MorbolMarquisStates : StateMachineBuilder

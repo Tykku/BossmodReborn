@@ -3,7 +3,7 @@ namespace BossMod.Dawntrail.Trial.T03QueenEternal;
 class Besiegement(BossModule module) : Components.GenericAOEs(module)
 {
     private const int L = 60;
-    public readonly List<AOEInstance> AOEs = [];
+    public readonly List<AOEInstance> AOEs = new(4);
     private static readonly AOEShapeRect[] rects = [new(L, 2), new(L, 4), new(L, 5), new(L, 6), new(L, 9)];
     private static readonly HashSet<AID> casts = [AID.Besiegement1, AID.Besiegement2, AID.Besiegement3, AID.Besiegement4,
     AID.Besiegement5];

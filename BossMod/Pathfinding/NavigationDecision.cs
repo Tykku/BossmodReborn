@@ -30,6 +30,7 @@ public struct NavigationDecision
         UptimeToPositional,
         UptimeBlocked,
         BackIntoBounds,
+        Casting,
         Optimal
     }
 
@@ -149,7 +150,10 @@ public struct NavigationDecision
                 return FindPathFromImminent(ctx.ThetaStar, ctx.Map, player.Position, playerSpeed);
             }
         }
-
+        if (player.CastInfo != null)
+        {
+            return new() { Destination = null, LeewaySeconds = 0, TimeToGoal = 0, Map = ctx.Map, DecisionType = Decision.Casting };
+        }
         // we're safe, see if we can improve our position
         if (targetPos != null)
         {

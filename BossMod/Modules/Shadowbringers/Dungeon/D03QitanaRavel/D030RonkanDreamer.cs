@@ -12,15 +12,17 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    WrathOfTheRonka = 17223, // 2A40->self, 6.0s cast, single-target
-    WrathOfTheRonkaLong = 15918, // 28E8->self, no cast, range 35 width 8 rect
-    WrathOfTheRonkaShort = 15916, // 28E8->self, no cast, range 12 width 8 rect
-    WrathOfTheRonkaMedium = 15917, // 28E8->self, no cast, range 22 width 8 rect
-    RonkanFire = 17433, // 2A40->player, 1.0s cast, single-target
-    RonkanAbyss = 17387, // 2A40->location, 3.0s cast, range 6 circle
-    AutoAttack = 872, // 28DD/28DC->player, no cast, single-target
-    AutoAttack2 = 17949, // 28E3->player, no cast, single-target
-    BurningBeam = 15923 // 28E3->self, 3.0s cast, range 15 width 4 rect
+    AutoAttack1 = 872, // RonkanVessel/RonkanIdol->player, no cast, single-target
+    AutoAttack2 = 17949, // RonkanThorn->player, no cast, single-target
+
+    WrathOfTheRonka = 17223, // Boss->self, 6.0s cast, single-target
+    WrathOfTheRonkaLong = 15918, // Helper->self, no cast, range 35 width 8 rect
+    WrathOfTheRonkaShort = 15916, // Helper->self, no cast, range 12 width 8 rect
+    WrathOfTheRonkaMedium = 15917, // Helper->self, no cast, range 22 width 8 rect
+    RonkanFire = 17433, // Boss->player, 1.0s cast, single-target
+    RonkanAbyss = 17387, // Boss->location, 3.0s cast, range 6 circle
+
+    BurningBeam = 15923 // RonkanThorn->self, 3.0s cast, range 15 width 4 rect
 }
 
 public enum TetherID : uint
@@ -34,9 +36,8 @@ class RonkanAbyss(BossModule module) : Components.LocationTargetedAOEs(module, A
 class WrathOfTheRonka(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
-    private static readonly AOEShapeRect rectShort = new(12, 4);
-    private static readonly AOEShapeRect rectMedium = new(22, 4);
-    private static readonly AOEShapeRect rectLong = new(35, 4);
+    private static readonly AOEShapeRect rectShort = new(12, 4), rectMedium = new(22, 4), rectLong = new(35, 4);
+
     private static readonly (WPos Position, AOEShapeRect Shape)[] aoeMap =
         [(new(-17, 627), rectMedium), (new(17, 642), rectMedium),
         (new(-17, 436), rectMedium), (new(17, 421), rectMedium),

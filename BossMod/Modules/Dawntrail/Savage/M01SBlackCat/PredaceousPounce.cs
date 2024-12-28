@@ -2,7 +2,7 @@
 
 class PredaceousPounce(BossModule module) : Components.GenericAOEs(module)
 {
-    public readonly List<AOEInstance> AOEs = [];
+    public readonly List<AOEInstance> AOEs = new(12);
     private bool sorted;
     private static readonly AOEShapeCircle circle = new(11);
     private static readonly HashSet<AID> chargeTelegraphs = [AID.PredaceousPounceTelegraphCharge1, AID.PredaceousPounceTelegraphCharge2,
@@ -16,13 +16,12 @@ class PredaceousPounce(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = AOEs.Count;
-        if (count > 0)
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < count; ++i)
         {
-            var aoeCount = Math.Clamp(count, 0, 2);
-            for (var i = aoeCount; i < count; ++i)
-                yield return AOEs[i];
-            for (var i = 0; i < aoeCount; ++i)
-                yield return AOEs[i] with { Color = Colors.Danger };
+            var aoe = AOEs[i];
+            yield return i < 2 ? count > 2 ? aoe with { Color = Colors.Danger } : aoe : aoe;
         }
     }
 
@@ -54,7 +53,7 @@ class PredaceousPounce(BossModule module) : Components.GenericAOEs(module)
         if (castEnd.Contains((AID)spell.Action.ID))
         {
             ++NumCasts;
-            if (AOEs.Count > 0)
+            if (AOEs.Count != 0)
                 AOEs.RemoveAt(0);
         }
     }

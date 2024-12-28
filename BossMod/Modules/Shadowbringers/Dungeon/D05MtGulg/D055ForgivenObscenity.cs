@@ -62,15 +62,18 @@ class Orbs(BossModule module) : Components.GenericAOEs(module, default, "GTFO fr
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (_orbs.Count == 0)
+        var count = _orbs.Count;
+        if (count == 0)
             return;
-        var forbidden = new List<Func<WPos, float>>();
-        foreach (var o in _orbs)
+        var forbidden = new List<Func<WPos, float>>(count);
+        for (var i = 0; i < count; ++i)
         {
+            var o = _orbs[i];
             var position = o.Position;
-            var inRect = Module.Enemies(OID.Rings).FirstOrDefault(x => x.Position.InRect(position, 20 * o.Rotation.ToDirection(), Radius));
+            var dir = o.Rotation.ToDirection();
+            var inRect = Module.Enemies(OID.Rings).FirstOrDefault(x => x.Position.InRect(position, 20 * dir, Radius));
             if (inRect != null)
-                forbidden.Add(ShapeDistance.Capsule(o.Position, o.Rotation.ToDirection(), (position - inRect.Position).Length(), Radius));
+                forbidden.Add(ShapeDistance.Capsule(o.Position, dir, (position - inRect.Position).Length(), Radius));
             else
                 forbidden.Add(ShapeDistance.Circle(o.Position, Radius));
         }
@@ -109,33 +112,36 @@ class GoldChaser(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
+        var count = _casters.Count;
+        if (count == 0)
+            yield break;
         if (AreCastersInPositions(positionsSet1) || AreCastersInPositions(positionsSet2))
         {
-            if (_casters.Count > 2)
+            if (count > 2)
             {
                 if (NumCasts == 0)
                     yield return new(rect, _casters[0].Position, default, _activation.AddSeconds(7.1f), Colors.Danger);
                 if (NumCasts is 0 or 1)
                     yield return new(rect, _casters[1].Position, default, _activation.AddSeconds(7.6f), Colors.Danger);
             }
-            if (_casters.Count > 4 && NumCasts is 0 or 1)
+            if (count > 4 && NumCasts is 0 or 1)
             {
                 yield return new(rect, _casters[2].Position, default, _activation.AddSeconds(8.1f), Risky: false);
                 yield return new(rect, _casters[3].Position, default, _activation.AddSeconds(8.6f), Risky: false);
             }
-            if (_casters.Count > 4)
+            if (count > 4)
             {
                 if (NumCasts == 2)
                     yield return new(rect, _casters[2].Position, default, _activation.AddSeconds(8.1f), Colors.Danger);
                 if (NumCasts is 2 or 3)
                     yield return new(rect, _casters[3].Position, default, _activation.AddSeconds(8.6f), Colors.Danger);
             }
-            if (_casters.Count == 6 && NumCasts is 2 or 3)
+            if (count == 6 && NumCasts is 2 or 3)
             {
                 yield return new(rect, _casters[4].Position, default, _activation.AddSeconds(9.1f), Risky: false);
                 yield return new(rect, _casters[5].Position, default, _activation.AddSeconds(11.1f), Risky: false);
             }
-            if (_casters.Count == 6)
+            if (count == 6)
             {
                 if (NumCasts == 4)
                     yield return new(rect, _casters[4].Position, default, _activation.AddSeconds(9.1f), Colors.Danger);
@@ -145,31 +151,31 @@ class GoldChaser(BossModule module) : Components.GenericAOEs(module)
         }
         else if (AreCastersInPositions(positionsSet3) || AreCastersInPositions(positionsSet4))
         {
-            if (_casters.Count > 2)
+            if (count > 2)
             {
                 if (NumCasts == 0)
                     yield return new(rect, _casters[0].Position, default, _activation.AddSeconds(7.1f), Colors.Danger);
                 if (NumCasts is 0 or 1)
                     yield return new(rect, _casters[1].Position, default, _activation.AddSeconds(7.1f), Colors.Danger);
             }
-            if (_casters.Count > 4 && NumCasts is 0 or 1)
+            if (count > 4 && NumCasts is 0 or 1)
             {
                 yield return new(rect, _casters[2].Position, default, _activation.AddSeconds(8.1f), Risky: false);
                 yield return new(rect, _casters[3].Position, default, _activation.AddSeconds(8.1f), Risky: false);
             }
-            if (_casters.Count > 4)
+            if (count > 4)
             {
                 if (NumCasts == 2)
                     yield return new(rect, _casters[2].Position, default, _activation.AddSeconds(8.1f), Colors.Danger);
                 if (NumCasts is 2 or 3)
                     yield return new(rect, _casters[3].Position, default, _activation.AddSeconds(8.1f), Colors.Danger);
             }
-            if (_casters.Count == 6 && NumCasts is 2 or 3)
+            if (count == 6 && NumCasts is 2 or 3)
             {
                 yield return new(rect, _casters[4].Position, default, _activation.AddSeconds(11.1f), Risky: false);
                 yield return new(rect, _casters[5].Position, default, _activation.AddSeconds(11.1f), Risky: false);
             }
-            if (_casters.Count == 6)
+            if (count == 6)
             {
                 if (NumCasts == 4)
                     yield return new(rect, _casters[4].Position, default, _activation.AddSeconds(11.1f), Colors.Danger);
@@ -189,8 +195,7 @@ class GoldChaser(BossModule module) : Components.GenericAOEs(module)
     {
         if ((AID)spell.Action.ID == AID.Ringsmith)
             _activation = WorldState.CurrentTime;
-
-        if ((AID)spell.Action.ID == AID.VenaAmoris)
+        else if ((AID)spell.Action.ID == AID.VenaAmoris)
         {
             if (++NumCasts == 6)
             {

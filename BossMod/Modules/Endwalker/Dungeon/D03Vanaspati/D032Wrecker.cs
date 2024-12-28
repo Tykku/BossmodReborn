@@ -76,6 +76,8 @@ class AetherSprayWater(BossModule module) : Components.RaidwideCast(module, Acti
 class AetherSprayFire(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AetherSprayFire), "Go into a bubble! (Raidwide)");
 class AetherSprayWaterKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.AetherSprayWater), 13)
 {
+    private static readonly Angle a60 = 60.Degrees(), a10 = 10.Degrees();
+
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<QueerBubble>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || !Module.InBounds(pos);
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -83,15 +85,14 @@ class AetherSprayWaterKB(BossModule module) : Components.KnockbackFromCastTarget
         var source = Sources(slot, actor).FirstOrDefault();
         if (Module.FindComponent<QueerBubble>()!.ActiveAOEs(slot, actor).Any() && source != default)
         {
-            var forbidden = new List<Func<WPos, float>>
+            var forbidden = new List<Func<WPos, float>>(7)
             {
                 ShapeDistance.InvertedCircle(Arena.Center, 7)
             };
             for (var i = 0; i < 6; ++i)
                 if (Module.Enemies(OID.QueerBubble).Where(x => x.Position.AlmostEqual(WPos.RotateAroundOrigin(i * 60, Arena.Center, x.Position), 1) && Module.FindComponent<QueerBubble>()!._aoes.Contains(x)) != null)
-                    forbidden.Add(ShapeDistance.Cone(Arena.Center, 20, i * 60.Degrees(), 10.Degrees()));
-            if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), source.Activation);
+                    forbidden.Add(ShapeDistance.Cone(Arena.Center, 20, i * a60, a10));
+            hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), source.Activation);
         }
     }
 }

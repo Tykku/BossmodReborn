@@ -40,13 +40,13 @@ public enum AID : uint
     NeerDoneWell = 20045, // Helper->self, 8.0s cast, range 5-40 donut (on limit break fail)
 
     OpenFlameVisual = 22818, // Boss->self, 6.0s cast, single-target
-    OpenFlame = 22819, // Helper->player, no cast, range 5 circle, spread
+    OpenFlame = 22819 // Helper->player, no cast, range 5 circle, spread
 }
 
 public enum IconID : uint
 {
     Tankbuster = 198, // player
-    Spreadmarker = 169, // player
+    Spreadmarker = 169 // player
 }
 
 class TenderLoin(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.TenderLoinVisual), ActionID.MakeSpell(AID.TenderLoin), 0.8f);
@@ -191,6 +191,7 @@ public class D123MotherPorxie(WorldState ws, Actor primary) : BossModule(ws, pri
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.AeolianCaveSprite).Concat([PrimaryActor]));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.AeolianCaveSprite));
     }
 }

@@ -21,7 +21,7 @@ class CleaveAuto(BossModule module) : Components.Cleave(module, ActionID.MakeSpe
 class HallOfSorrow(BossModule module) : Components.PersistentVoidzone(module, 9, m => m.Enemies(OID.Voidzone).Where(z => z.EventState != 7));
 class Infatuation(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Infatuation), new AOEShapeCircle(7));
 class Valfodr(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.Valfodr), 3);
-class ValfodrKB(BossModule module) : Components.Knockback(module) // note actual knockback is delayed by upto 1.2s in replay
+class ValfodrKB(BossModule module) : Components.Knockback(module, stopAtWall: true) // note actual knockback is delayed by upto 1.2s in replay
 {
     private DateTime _activation;
 
@@ -34,10 +34,7 @@ class ValfodrKB(BossModule module) : Components.Knockback(module) // note actual
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.Valfodr)
-        {
             _activation = Module.CastFinishAt(spell);
-            StopAtWall = true;
-        }
     }
 
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<HallOfSorrow>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || (Module.FindComponent<Infatuation>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false);

@@ -14,7 +14,7 @@ class RadicalShift(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index == 12)
+        if (index == 0x0C)
         {
             var rot = state switch
             {
@@ -32,9 +32,9 @@ class RadicalShift(BossModule module) : Components.GenericAOEs(module)
         {
             var platform = index switch
             {
-                9 => Ex3QueenEternal.WindBounds,
-                10 => Ex3QueenEternal.EarthBounds,
-                11 => Ex3QueenEternal.IceBridgeBounds,
+                0x09 => Ex3QueenEternal.WindBounds,
+                0x0A => Ex3QueenEternal.EarthBounds,
+                0x0B => Ex3QueenEternal.IceBounds,
                 _ => null
             };
             if (platform != null)
@@ -45,19 +45,18 @@ class RadicalShift(BossModule module) : Components.GenericAOEs(module)
         }
     }
 
+    public override void OnEventDirectorUpdate(uint updateID, uint param1, uint param2, uint param3, uint param4)
+    {
+        if (_aoe != null && updateID == 0x8000000D && param1 is 0x02 or 0x04 or 0x08)
+            _aoe = null;
+    }
+
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.RadicalShift)
         {
-            var platform = NextPlatform;
-            if (platform != null)
-            {
-                Arena.Bounds = platform;
-                Arena.Center = platform.Center;
-            }
             _left = _right = null;
             _nextRotation = Rotation.None;
-            _aoe = null;
         }
     }
 
@@ -76,7 +75,7 @@ class RadicalShift(BossModule module) : Components.GenericAOEs(module)
             aoe = new(defaultSquare, Trial.T03QueenEternal.T03QueenEternal.XArenaRects, Origin: center);
         else if (platform == Ex3QueenEternal.EarthBounds)
             aoe = new(defaultSquare, Trial.T03QueenEternal.T03QueenEternal.SplitArenaRects, Origin: center);
-        else if (platform == Ex3QueenEternal.IceBridgeBounds)
+        else if (platform == Ex3QueenEternal.IceBounds)
             aoe = new(defaultSquare, Ex3QueenEternal.IceRectsAll, Origin: center);
         if (aoe != null)
             _aoe = new(aoe, center, default, WorldState.FutureTime(6));

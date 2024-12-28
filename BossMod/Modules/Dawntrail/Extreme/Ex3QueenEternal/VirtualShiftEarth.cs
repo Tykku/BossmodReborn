@@ -32,7 +32,7 @@ class VirtualShiftEarth(BossModule module) : BossComponent(module)
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
         if ((SID)status.ID == SID.GravitationalAnomaly)
-            Flying.Clear(Raid.FindSlot(actor.InstanceID));
+            Flying[Raid.FindSlot(actor.InstanceID)] = default;
     }
 }
 

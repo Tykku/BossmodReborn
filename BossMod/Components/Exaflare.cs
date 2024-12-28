@@ -14,10 +14,10 @@ public class Exaflare(BossModule module, AOEShape shape, ActionID aid = default)
         public int MaxShownExplosions;
     }
 
-    public AOEShape Shape { get; init; } = shape;
+    public readonly AOEShape Shape = shape;
     public uint ImminentColor = Colors.Danger;
     public uint FutureColor = Colors.AOE;
-    protected List<Line> Lines = [];
+    protected readonly List<Line> Lines = [];
 
     public bool Active => Lines.Count > 0;
 

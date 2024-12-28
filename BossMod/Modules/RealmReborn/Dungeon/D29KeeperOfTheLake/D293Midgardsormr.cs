@@ -49,7 +49,7 @@ class PhantomAdmonishment(BossModule module) : Components.SelfTargetedAOEs(modul
 
 class MirageAdmonishment(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(2);
     private static readonly AOEShapeRect rect = new(40, 6);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
@@ -90,22 +90,21 @@ class Antipathy(BossModule module) : Components.ConcentricAOEs(module, _shapes)
     }
 }
 
-class AhkMorn(BossModule module) : Components.UniformStackSpread(module, 6, 0, 4, 4)
+class AkhMorn(BossModule module) : Components.UniformStackSpread(module, 6, 0, 4, 4)
 {
     private int numCasts;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.AkhMornFirst)
-            AddStack(WorldState.Actors.Find(spell.TargetID)!);
+            AddStack(WorldState.Actors.Find(spell.TargetID)!, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if ((AID)spell.Action.ID is AID.AkhMornFirst or AID.AkhMornRest)
         {
-            ++numCasts;
-            if (numCasts == 4)
+            if (++numCasts == 4)
             {
                 Stacks.Clear();
                 numCasts = 0;
@@ -129,7 +128,7 @@ class D293MidgardsormrStates : StateMachineBuilder
             .ActivateOnEnter<MirageAdmonishment>()
             .ActivateOnEnter<PhantomAdmonishment>()
             .ActivateOnEnter<Antipathy>()
-            .ActivateOnEnter<AhkMorn>();
+            .ActivateOnEnter<AkhMorn>();
     }
 }
 
@@ -137,9 +136,11 @@ class D293MidgardsormrStates : StateMachineBuilder
 public class D293Midgardsormr(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Circle(new(-40.8f, -78.2f), 18.8f)], [new Rectangle(new(-40.787f, -59.416f), 20, 1.25f)]);
+    private static readonly uint[] dragons = [(uint)OID.MirageDragon3, (uint)OID.MirageDragon4];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.MirageDragon3).Concat(Enemies(OID.MirageDragon4)).Concat([PrimaryActor]));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(dragons));
     }
 }

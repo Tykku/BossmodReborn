@@ -60,9 +60,11 @@ class AuthoritysGaze(BossModule module) : Components.GenericGaze(module)
 
     public override IEnumerable<Eye> ActiveEyes(int slot, Actor actor)
     {
-        foreach (var a in _affected)
-            if (_affected.Count > 0 && WorldState.CurrentTime > _activation.AddSeconds(-10))
-                yield return new(a.Position, _activation);
+        var count = _affected.Count;
+        if (count == 0 || WorldState.CurrentTime < _activation.AddSeconds(-10))
+            yield break;
+        for (var i = 0; i < count; ++i)
+            yield return new(_affected[i].Position, _activation);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

@@ -27,11 +27,11 @@ public abstract class GenericStackSpread(BossModule module, bool alwaysShowSprea
         DateTime Activation = default
     );
 
-    public bool AlwaysShowSpreads = alwaysShowSpreads; // if false, we only shown own spread radius for spread targets - this reduces visual clutter
-    public bool RaidwideOnResolve = raidwideOnResolve; // if true, assume even if mechanic is correctly resolved everyone will still take damage
-    public bool IncludeDeadTargets = includeDeadTargets; // if false, stacks & spreads with dead targets are ignored
+    public readonly bool AlwaysShowSpreads = alwaysShowSpreads; // if false, we only shown own spread radius for spread targets - this reduces visual clutter
+    public readonly bool RaidwideOnResolve = raidwideOnResolve; // if true, assume even if mechanic is correctly resolved everyone will still take damage
+    public readonly bool IncludeDeadTargets = includeDeadTargets; // if false, stacks & spreads with dead targets are ignored
     public int ExtraAISpreadThreshold = 1;
-    public List<Stack> Stacks = [];
+    public readonly List<Stack> Stacks = [];
     public List<Spread> Spreads = [];
     public const string StackHint = "Stack!";
 
@@ -214,8 +214,8 @@ public abstract class UniformStackSpread(BossModule module, float stackRadius, f
 public class CastStackSpread(BossModule module, ActionID stackAID, ActionID spreadAID, float stackRadius, float spreadRadius, int minStackSize = 2, int maxStackSize = int.MaxValue, bool alwaysShowSpreads = false)
     : UniformStackSpread(module, stackRadius, spreadRadius, minStackSize, maxStackSize, alwaysShowSpreads)
 {
-    public ActionID StackAction { get; init; } = stackAID;
-    public ActionID SpreadAction { get; init; } = spreadAID;
+    public readonly ActionID StackAction = stackAID;
+    public readonly ActionID SpreadAction = spreadAID;
     public int NumFinishedStacks { get; protected set; }
     public int NumFinishedSpreads { get; protected set; }
 
@@ -256,14 +256,14 @@ public class StackWithCastTargets(BossModule module, ActionID aid, float radius,
 public class IconStackSpread(BossModule module, uint stackIcon, uint spreadIcon, ActionID stackAID, ActionID spreadAID, float stackRadius, float spreadRadius, float activationDelay, int minStackSize = 2, int maxStackSize = int.MaxValue, bool alwaysShowSpreads = false, int maxCasts = 1)
     : UniformStackSpread(module, stackRadius, spreadRadius, minStackSize, maxStackSize, alwaysShowSpreads)
 {
-    public uint StackIcon { get; init; } = stackIcon;
-    public uint SpreadIcon { get; init; } = spreadIcon;
-    public ActionID StackAction { get; init; } = stackAID;
-    public ActionID SpreadAction { get; init; } = spreadAID;
-    public float ActivationDelay { get; init; } = activationDelay;
-    public int NumFinishedStacks { get; protected set; }
-    public int NumFinishedSpreads { get; protected set; }
-    public int MaxCasts { get; init; } = maxCasts; // for stacks where the final AID hits multiple times
+    public readonly uint StackIcon = stackIcon;
+    public readonly uint SpreadIcon = spreadIcon;
+    public readonly ActionID StackAction = stackAID;
+    public readonly ActionID SpreadAction = spreadAID;
+    public readonly float ActivationDelay = activationDelay;
+    public int NumFinishedStacks;
+    public int NumFinishedSpreads;
+    public readonly int MaxCasts = maxCasts; // for stacks where the final AID hits multiple times
     private int castCounter;
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
@@ -313,18 +313,18 @@ public class LineStack(BossModule module, ActionID? aidMarker, ActionID aidResol
 
     // TODO: add forbidden slots logic?
     // TODO: add logic for min and max stack size
-    public ActionID? AidMarker = aidMarker;
-    public ActionID AidResolve = aidResolve;
-    public float ActionDelay = activationDelay;
-    public float Range = range;
-    public float HalfWidth = halfWidth;
-    public int MaxStackSize = maxStackSize;
-    public int MinStackSize = minStackSize;
-    public int MaxCasts = maxCasts; // for stacks where the final AID hits multiple times
-    public bool MarkerIsFinalTarget = markerIsFinalTarget; // rarely the marked player is not the target of the line stack
-    public HashSet<Actor> ForbiddenActors = [];
+    public readonly ActionID? AidMarker = aidMarker;
+    public readonly ActionID AidResolve = aidResolve;
+    public readonly float ActionDelay = activationDelay;
+    public readonly float Range = range;
+    public readonly float HalfWidth = halfWidth;
+    public readonly int MaxStackSize = maxStackSize;
+    public readonly int MinStackSize = minStackSize;
+    public readonly int MaxCasts = maxCasts; // for stacks where the final AID hits multiple times
+    public readonly bool MarkerIsFinalTarget = markerIsFinalTarget; // rarely the marked player is not the target of the line stack
+    public readonly HashSet<Actor> ForbiddenActors = [];
     private int castCounter;
-    public uint? Iconid = iconid;
+    public readonly uint? Iconid = iconid;
     public const string HintStack = "Stack!";
     public const string HintAvoidOther = "GTFO from other line stacks!";
     public const string HintAvoid = "GTFO from line stacks!";
@@ -480,10 +480,10 @@ public class DonutStack(BossModule module, ActionID aid, uint icon, float innerR
 {
     // this is a donut targeted on each player, it is best solved by stacking
     // regular stack component won't work because this is self targeted
-    public AOEShapeDonut Donut { get; init; } = new(innerRadius, outerRadius);
-    public float ActivationDelay { get; init; } = activationDelay;
-    public uint Icon { get; init; } = icon;
-    public ActionID Aid { get; init; } = aid;
+    public readonly AOEShapeDonut Donut = new(innerRadius, outerRadius);
+    public readonly float ActivationDelay = activationDelay;
+    public readonly uint Icon = icon;
+    public readonly ActionID Aid = aid;
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {

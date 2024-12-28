@@ -35,7 +35,7 @@ public abstract class GenericAOEs(BossModule module, ActionID aid = default, str
 // self-targeted aoe that happens at the end of the cast
 public class SelfTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, int maxCasts = int.MaxValue, uint color = 0) : GenericAOEs(module, aid)
 {
-    public AOEShape Shape { get; init; } = shape;
+    public readonly AOEShape Shape = shape;
     public int MaxCasts = maxCasts; // used for staggered aoes, when showing all active would be pointless
     public uint Color = color;
     public bool Risky = true; // can be customized if needed
@@ -43,7 +43,21 @@ public class SelfTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, i
 
     public IEnumerable<Actor> ActiveCasters => Casters.Take(MaxCasts);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => ActiveCasters.Select(c => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo)));
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = Casters.Count;
+        if (count == 0)
+            return [];
+        var min = count > MaxCasts ? MaxCasts : count;
+        var aoes = new List<AOEInstance>(min);
+        for (var i = 0; i < min; ++i)
+        {
+            var caster = Casters[i];
+            AOEInstance aoeInstance = new(Shape, caster.Position, caster.CastInfo!.Rotation, Module.CastFinishAt(caster.CastInfo));
+            aoes.Add(aoeInstance);
+        }
+        return aoes;
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -61,7 +75,7 @@ public class SelfTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, i
 // self-targeted aoe that uses current caster's rotation instead of rotation from cast-info - used by legacy modules written before i've reversed real cast rotation
 public class SelfTargetedLegacyRotationAOEs(BossModule module, ActionID aid, AOEShape shape, int maxCasts = int.MaxValue) : GenericAOEs(module, aid)
 {
-    public AOEShape Shape { get; init; } = shape;
+    public readonly AOEShape Shape = shape;
     public int MaxCasts = maxCasts; // used for staggered aoes, when showing all active would be pointless
     public readonly List<Actor> Casters = [];
 
@@ -86,16 +100,23 @@ public class SelfTargetedLegacyRotationAOEs(BossModule module, ActionID aid, AOE
 public class LocationTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, int maxCasts = int.MaxValue, bool targetIsLocation = false) : GenericAOEs(module, aid)
 {
     public LocationTargetedAOEs(BossModule module, ActionID aid, float radius, int maxCasts = int.MaxValue, bool targetIsLocation = false) : this(module, aid, new AOEShapeCircle(radius), maxCasts, targetIsLocation) { }
-    public AOEShape Shape { get; init; } = shape;
-    public int MaxCasts = maxCasts; // used for staggered aoes, when showing all active would be pointless
+    public readonly AOEShape Shape = shape;
+    public readonly int MaxCasts = maxCasts; // used for staggered aoes, when showing all active would be pointless
     public uint Color; // can be customized if needed
     public bool Risky = true; // can be customized if needed
-    public bool TargetIsLocation { get; init; } = targetIsLocation; // can be customized if needed
+    public readonly bool TargetIsLocation = targetIsLocation; // can be customized if needed
 
-    public List<AOEInstance> Casters { get; } = [];
+    public readonly List<AOEInstance> Casters = [];
     public IEnumerable<AOEInstance> ActiveCasters => Casters.Take(MaxCasts);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Casters.Take(MaxCasts);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = Casters.Count;
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < (count > MaxCasts ? MaxCasts : count); ++i)
+            yield return Casters[i];
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -116,10 +137,23 @@ public class LocationTargetedAOEs(BossModule module, ActionID aid, AOEShape shap
 // 'charge at location' aoes that happen at the end of the cast
 public class ChargeAOEs(BossModule module, ActionID aid, float halfWidth) : GenericAOEs(module, aid)
 {
-    public float HalfWidth { get; init; } = halfWidth;
+    public readonly float HalfWidth = halfWidth;
     public readonly List<(Actor caster, AOEShape shape, Angle direction)> Casters = [];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Casters.Select(csr => new AOEInstance(csr.shape, csr.caster.Position, csr.direction, Module.CastFinishAt(csr.caster.CastInfo)));
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = Casters.Count;
+        if (count == 0)
+            return [];
+        var aoes = new List<AOEInstance>(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var csr = Casters[i];
+            AOEInstance aoeInstance = new(csr.shape, csr.caster.Position, csr.direction, Module.CastFinishAt(csr.caster.CastInfo));
+            aoes.Add(aoeInstance);
+        }
+        return aoes;
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

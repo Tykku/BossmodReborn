@@ -94,12 +94,12 @@ public class D022Myath(WorldState ws, Actor primary) : BossModule(ws, primary, a
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.ChymeOfTheMountain => 2,
-                OID.Boss => 1,
+                OID.ChymeOfTheMountain => 1,
                 _ => 0
             };
         }

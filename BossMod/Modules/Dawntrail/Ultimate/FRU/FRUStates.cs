@@ -12,9 +12,9 @@ class FRUStates : StateMachineBuilder
         SimplePhase(1, Phase2, "P2: Usurper of Frost")
             .SetHint(StateMachine.PhaseHint.StartWithDowntime)
             .Raw.Update = () => !Module.PrimaryActor.IsDead || (_module.BossP2()?.IsDeadOrDestroyed ?? false) || (_module.IceVeil()?.IsDeadOrDestroyed ?? false);
-        SimplePhase(2, Phase3, "P3: Oracle of Darkness")
+        SimplePhase(2, Phase34, "P3/4: Oracle of Darkness & Both")
             .SetHint(StateMachine.PhaseHint.StartWithDowntime)
-            .Raw.Update = () => !Module.PrimaryActor.IsDead || (_module.BossP2()?.IsDeadOrDestroyed ?? false) && (_module.BossP3()?.IsDeadOrDestroyed ?? true);
+            .Raw.Update = () => !Module.PrimaryActor.IsDead || (_module.BossP2()?.IsDeadOrDestroyed ?? false) && (_module.BossP3()?.IsDeadOrDestroyed ?? true) && (_module.BossP4Oracle()?.IsDeadOrDestroyed ?? true);
     }
 
     private void Phase1(uint id)
@@ -42,13 +42,20 @@ class FRUStates : StateMachineBuilder
         P2AbsoluteZero(id + 0x60000, 8.4f);
     }
 
-    private void Phase3(uint id)
+    private void Phase34(uint id)
     {
         P3JunctionHellsJudgment(id, 13.3f);
         P3UltimateRelativity(id + 0x10000, 4.3f);
         P3BlackHalo(id + 0x20000, 3.2f);
         P3Apocalypse(id + 0x30000, 7.2f);
-        ActorCast(id + 0x40000, _module.BossP3, AID.MemorysEnd, 3.7f, 10, true, "Enrage");
+        P3Enrage(id + 0x40000, 3.7f);
+
+        P4AkhRhai(id + 0x100000, 5.5f);
+        P4DarklitDragonsong(id + 0x110000, 1.9f);
+        P4AkhMornMornAfah(id + 0x120000, 2.4f);
+        P4CrystallizeTime(id + 0x130000, 4.6f);
+
+        SimpleState(id + 0xFF0000, 100, "???");
     }
 
     private void P1CyclonicBreakPowderMarkTrail(uint id, float delay)
@@ -124,6 +131,7 @@ class FRUStates : StateMachineBuilder
             .ActivateOnEnter<P1BoundOfFaith>()
             .ActivateOnEnter<P1TurnOfHeavensBurntStrikeLightning>()
             .ActivateOnEnter<P1TurnOfHeavensBurnout>()
+            .ActivateOnEnter<P1BoundOfFaithAIKnockback>()
             .DeactivateOnExit<P1TurnOfHeavensBurntStrikeLightning>();
         ComponentCondition<P1TurnOfHeavensBurnout>(id + 0x10, 1.7f, comp => comp.NumCasts > 0, "Line 2")
             .DeactivateOnExit<P1TurnOfHeavensBurnout>();
@@ -131,15 +139,21 @@ class FRUStates : StateMachineBuilder
             .ActivateOnEnter<P1TurnOfHeavensBurntStrikeFire>()
             .ActivateOnEnter<P1Blastburn>()
             .ActivateOnEnter<P1BrightfireSmall>()
-            .ActivateOnEnter<P1BrightfireLarge>();
+            .ActivateOnEnter<P1BrightfireLarge>()
+            .ExecOnEnter<P1BrightfireLarge>(comp => comp.Risky = false); // it's fine to stay in aoes before kb
         ComponentCondition<P1TurnOfHeavensBurntStrikeFire>(id + 0x12, 3.9f, comp => comp.NumCasts > 0, "Line 3")
             .DeactivateOnExit<P1TurnOfHeavensBurntStrikeFire>();
         ComponentCondition<P1Blastburn>(id + 0x13, 2, comp => comp.NumCasts > 0, "Knockback")
+            .DeactivateOnExit<P1BoundOfFaithAIKnockback>()
             .DeactivateOnExit<P1Blastburn>();
         ComponentCondition<P1BrightfireSmall>(id + 0x20, 2.1f, comp => comp.NumCasts > 0, "Circles")
+            .ActivateOnEnter<P1BoundOfFaithAIStack>()
+            .ExecOnEnter<P1BrightfireLarge>(comp => comp.Risky = true)
+            .ExecOnEnter<P1BoundOfFaith>(comp => comp.EnableHints = true)
             .DeactivateOnExit<P1BrightfireSmall>()
             .DeactivateOnExit<P1BrightfireLarge>();
         ComponentCondition<P1BoundOfFaith>(id + 0x30, 4, comp => !comp.Active, "Stacks") // note: won't happen if both targets die, but that's a wipe anyway
+            .DeactivateOnExit<P1BoundOfFaithAIStack>()
             .DeactivateOnExit<P1BoundOfFaith>();
         ActorTargetable(id + 0x100, _module.BossP1, true, 1.4f, "Boss reappears")
             .SetHint(StateMachine.StateHint.DowntimeEnd);
@@ -169,17 +183,19 @@ class FRUStates : StateMachineBuilder
         ComponentCondition<P1Explosion>(id + 0x100, 5.1f, comp => comp.Towers.Count > 0)
             .ActivateOnEnter<P1Explosion>();
         Condition(id + 0x101, 6.5f, () => Module.FindComponent<P1ExplosionBurntStrikeFire>()?.NumCasts > 0 || Module.FindComponent<P1ExplosionBurntStrikeLightning>()?.NumCasts > 0, "Narrow line")
-            .ActivateOnEnter<P1PowderMarkTrail>()
             .ActivateOnEnter<P1ExplosionBurntStrikeFire>()
             .ActivateOnEnter<P1ExplosionBurntStrikeLightning>()
             .ActivateOnEnter<P1ExplosionBurnout>()
             .ActivateOnEnter<P1Blastburn>()
+            .ExecOnEnter<P1ExplosionBurnout>(comp => comp.Risky = false) // fine to greed
             .DeactivateOnExit<P1ExplosionBurntStrikeFire>()
             .DeactivateOnExit<P1ExplosionBurntStrikeLightning>();
         Condition(id + 0x102, 2, () => Module.FindComponent<P1ExplosionBurnout>()?.NumCasts > 0 || Module.FindComponent<P1Blastburn>()?.NumCasts > 0, "Line/Knockback", checkDelay: 2) // note: kb and wide line have slightly different cast time...
+            .ExecOnEnter<P1ExplosionBurnout>(comp => comp.Risky = true)
             .DeactivateOnExit<P1ExplosionBurnout>()
             .DeactivateOnExit<P1Blastburn>();
         ComponentCondition<P1Explosion>(id + 0x103, 2, comp => comp.NumCasts > 0, "Towers")
+            .ActivateOnEnter<P1PowderMarkTrail>()
             .DeactivateOnExit<P1Explosion>();
         ComponentCondition<P1PowderMarkTrail>(id + 0x104, 0.5f, comp => comp.NumCasts > 0, "Tankbusters")
             .DeactivateOnExit<P1PowderMarkTrail>()
@@ -213,19 +229,25 @@ class FRUStates : StateMachineBuilder
             .DeactivateOnExit<P2AxeKick>()
             .DeactivateOnExit<P2ScytheKick>();
         ComponentCondition<P2DiamondDustHouseOfLight>(id + 0x31, 0.8f, comp => comp.NumCasts > 0, "Proteans")
+            .ExecOnEnter<P2FrigidStone>(comp => comp.EnableHints = true)
             .DeactivateOnExit<P2DiamondDustHouseOfLight>();
         ComponentCondition<P2FrigidStone>(id + 0x32, 1.6f, comp => comp.NumCasts > 0, "Ice baits")
             .DeactivateOnExit<P2FrigidStone>()
             .DeactivateOnExit<P2DiamondDustSafespots>();
         ComponentCondition<P2IcicleImpact>(id + 0x33, 0.4f, comp => comp.NumCasts > 0, "Ice circle 1");
         ComponentCondition<P2HeavenlyStrike>(id + 0x40, 3.9f, comp => comp.NumCasts > 0, "Knockback")
+            .ActivateOnEnter<P2HeavenlyStrike>()
             .ActivateOnEnter<P2FrigidNeedleCircle>()
             .ActivateOnEnter<P2FrigidNeedleCross>()
-            .ActivateOnEnter<P2SinboundHoly>()
-            .ActivateOnEnter<P2HeavenlyStrike>()
+            .ActivateOnEnter<P2ThinIce>()
             .ActivateOnEnter<P2TwinStillnessSilence>() // show the cone caster early, to simplify finding movement direction...
+            .ExecOnEnter<P2FrigidNeedleCircle>(comp => comp.Risky = false)
+            .ExecOnEnter<P2FrigidNeedleCross>(comp => comp.Risky = false)
             .DeactivateOnExit<P2HeavenlyStrike>();
         ComponentCondition<P2FrigidNeedleCross>(id + 0x50, 2.8f, comp => comp.NumCasts > 0, "Stars")
+            .ActivateOnEnter<P2SinboundHoly>()
+            .ExecOnEnter<P2FrigidNeedleCircle>(comp => comp.Risky = true)
+            .ExecOnEnter<P2FrigidNeedleCross>(comp => comp.Risky = true)
             .DeactivateOnExit<P2FrigidNeedleCircle>()
             .DeactivateOnExit<P2FrigidNeedleCross>();
         ComponentCondition<P2SinboundHoly>(id + 0x60, 1.3f, comp => comp.NumCasts > 0);
@@ -235,6 +257,7 @@ class FRUStates : StateMachineBuilder
             .DeactivateOnExit<P2IcicleImpact>() // last icicle explodes together with first stack
             .DeactivateOnExit<P2SinboundHoly>();
         ComponentCondition<P2ShiningArmor>(id + 0x80, 3.7f, comp => comp.NumCasts > 0, "Gaze")
+            .ExecOnEnter<P2TwinStillnessSilence>(comp => comp.EnableAIHints())
             .DeactivateOnExit<P2ShiningArmor>();
         ComponentCondition<P2TwinStillnessSilence>(id + 0x90, 3.0f, comp => comp.AOEs.Count > 0);
         ComponentCondition<P2TwinStillnessSilence>(id + 0x91, 3.5f, comp => comp.NumCasts > 0, "Front/back");
@@ -251,6 +274,7 @@ class FRUStates : StateMachineBuilder
             .ActivateOnEnter<P2HallowedRay>();
         ActorCastEnd(id + 1, _module.BossP2, 5, true);
         ComponentCondition<P2HallowedRay>(id + 2, 0.6f, comp => comp.NumCasts > 0, "Line stack")
+            .DeactivateOnExit<P2ThinIce>()
             .DeactivateOnExit<P2HallowedRay>();
     }
 
@@ -453,5 +477,99 @@ class FRUStates : StateMachineBuilder
             .DeactivateOnExit<P3ApocalypseDarkWater>();
 
         P3ShockwavePulsar(id + 0x1000, 0.3f);
+    }
+
+    private void P3Enrage(uint id, float delay)
+    {
+        ActorCast(id, _module.BossP3, AID.MemorysEnd, delay, 10, true, "Enrage");
+        ActorTargetable(id + 0x10, _module.BossP3, false, 3.5f, "Boss disappears")
+            .SetHint(StateMachine.StateHint.DowntimeStart);
+    }
+
+    private void P4AkhRhai(uint id, float delay)
+    {
+        ActorTargetable(id, _module.BossP4Usurper, true, delay, "Usurper appears")
+            .SetHint(StateMachine.StateHint.DowntimeEnd);
+        ActorCast(id + 0x10, _module.BossP4Usurper, AID.Materialization, 5.1f, 3, true);
+        ComponentCondition<P4AkhRhai>(id + 0x20, 11.2f, comp => comp.AOEs.Count > 0, "Puddle baits")
+            .ActivateOnEnter<P4AkhRhai>();
+        ComponentCondition<P4AkhRhai>(id + 0x30, 2.6f, comp => comp.NumCasts > 0);
+        ComponentCondition<P4EdgeOfOblivion>(id + 0x40, 2.4f, comp => comp.NumCasts > 0, "Raidwide")
+            .ActivateOnEnter<P4EdgeOfOblivion>()
+            .DeactivateOnExit<P4EdgeOfOblivion>()
+            .SetHint(StateMachine.StateHint.Raidwide);
+        ActorTargetable(id + 0x50, _module.BossP4Oracle, true, 1.2f, "Oracle appears");
+        ComponentCondition<P4AkhRhai>(id + 0x60, 1.6f, comp => comp.NumCasts >= 10 * comp.AOEs.Count, "Puddle resolve")
+            .ActivateOnEnter<P4MornAfahHPCheck>()
+            .DeactivateOnExit<P4AkhRhai>();
+    }
+
+    private void P4DarklitDragonsong(uint id, float delay)
+    {
+        ActorCast(id, _module.BossP4Usurper, AID.DarklitDragonsongUsurper, delay, 5, true, "Raidwide (darklit)")
+            .ActivateOnEnter<P4DarklitDragonsong>()
+            .ActivateOnEnter<P4DarklitDragonsongBrightHunger>()
+            .ActivateOnEnter<P4DarklitDragonsongPathOfLight>()
+            .SetHint(StateMachine.StateHint.Raidwide);
+        ActorCast(id + 0x10, _module.BossP4Usurper, AID.PathOfLight, 3.2f, 8);
+        ActorCastStart(id + 0x20, _module.BossP4Oracle, AID.SpiritTaker, 0.1f, true, "Towers") // towers resolve right as cast starts
+            .DeactivateOnExit<P4DarklitDragonsongBrightHunger>();
+        ComponentCondition<P4DarklitDragonsongPathOfLight>(id + 0x21, 0.8f, comp => comp.NumCasts > 0, "Proteans")
+            .DeactivateOnExit<P4DarklitDragonsongPathOfLight>();
+        ActorCastEnd(id + 0x22, _module.BossP4Oracle, 2.2f, true)
+            .ActivateOnEnter<P3SpiritTaker>();
+        ActorCastStartMulti(id + 0x23, _module.BossP4Usurper, [AID.HallowedWingsL, AID.HallowedWingsR], 0.1f, true);
+        ComponentCondition<P3SpiritTaker>(id + 0x24, 0.3f, comp => comp.Spreads.Count == 0, "Jump")
+            .DeactivateOnExit<P3SpiritTaker>();
+        ActorCastStart(id + 0x25, _module.BossP4Oracle, AID.SomberDance, 2.8f)
+            .ActivateOnEnter<P4HallowedWingsL>()
+            .ActivateOnEnter<P4HallowedWingsR>()
+            .ActivateOnEnter<P4DarklitDragonsongDarkWater>();
+        ComponentCondition<P4DarklitDragonsongDarkWater>(id + 0x26, 1.7f, comp => comp.Stacks.Count == 0, "Stacks")
+            .DeactivateOnExit<P4DarklitDragonsongDarkWater>();
+        ActorCastEnd(id + 0x27, _module.BossP4Usurper, 0.2f, false, "Side cleave")
+            .ActivateOnEnter<P4SomberDance>()
+            .DeactivateOnExit<P4HallowedWingsL>()
+            .DeactivateOnExit<P4HallowedWingsR>()
+            .DeactivateOnExit<P4DarklitDragonsong>();
+        ActorCastEnd(id + 0x28, _module.BossP4Oracle, 3.1f, true);
+        ComponentCondition<P4SomberDance>(id + 0x29, 0.4f, comp => comp.NumCasts > 0, "Tankbuster 1")
+            .SetHint(StateMachine.StateHint.Tankbuster);
+        ComponentCondition<P4SomberDance>(id + 0x2A, 3.2f, comp => comp.NumCasts > 1, "Tankbuster 2")
+            .DeactivateOnExit<P4SomberDance>()
+            .SetHint(StateMachine.StateHint.Tankbuster);
+
+        ComponentCondition<P4EdgeOfOblivion>(id + 0x30, 3.4f, comp => comp.NumCasts > 0, "Raidwide")
+            .ActivateOnEnter<P4EdgeOfOblivion>()
+            .DeactivateOnExit<P4EdgeOfOblivion>()
+            .SetHint(StateMachine.StateHint.Raidwide);
+    }
+
+    private void P4AkhMornMornAfah(uint id, float delay)
+    {
+        ActorCast(id, _module.BossP4Usurper, AID.AkhMornUsurper, delay, 4, true)
+            .ActivateOnEnter<P4AkhMorn>();
+        ComponentCondition<P4AkhMorn>(id + 0x10, 0.9f, comp => comp.NumCasts >= 1, "Party stack 1");
+        ComponentCondition<P4AkhMorn>(id + 0x11, 1.1f, comp => comp.NumCasts >= 2, "Party stack 2");
+        ComponentCondition<P4AkhMorn>(id + 0x12, 1.1f, comp => comp.NumCasts >= 3, "Party stack 3");
+        ComponentCondition<P4AkhMorn>(id + 0x13, 1.1f, comp => comp.NumCasts >= 4, "Party stack 4")
+            .DeactivateOnExit<P4AkhMorn>();
+
+        ActorCast(id + 0x1000, _module.BossP4Usurper, AID.MornAfahUsurper, 0.1f, 6, true)
+            .ActivateOnEnter<P4MornAfah>();
+        ComponentCondition<P4MornAfah>(id + 0x1010, 0.9f, comp => comp.Stacks.Count == 0, "Raid stack + HP check")
+            .DeactivateOnExit<P4MornAfah>();
+    }
+
+    private void P4CrystallizeTime(uint id, float delay)
+    {
+        ActorCast(id, _module.BossP4Oracle, AID.CrystallizeTimeOracle, delay, 10, true, "Raidwide (crystallize)")
+            .SetHint(StateMachine.StateHint.Raidwide);
+        ActorTargetable(id + 0x10, _module.BossP4Usurper, false, 3.1f, "Usurper disappears")
+            .ActivateOnEnter<P4CrystallizeTime>();
+        ActorTargetable(id + 0x11, _module.BossP4Oracle, false, 1.1f, "Oracle disappears")
+            .SetHint(StateMachine.StateHint.DowntimeStart);
+        ActorCast(id + 0x20, _module.BossP4Oracle, AID.UltimateRelativitySpeed, 0.1f, 5.5f, true);
+        // TODO: ...
     }
 }

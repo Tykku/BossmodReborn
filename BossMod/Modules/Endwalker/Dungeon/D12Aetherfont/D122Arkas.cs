@@ -197,9 +197,9 @@ class D122ArkasStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 822, NameID = 12337)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 822, NameID = 12337, SortOrder = 6)]
 public class D122Arkas(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultBounds.Center, DefaultBounds)
 {
-    public static readonly ArenaBoundsComplex DefaultBounds = new([new Circle(new(425, -440), 14.55f)], [new Rectangle(new(425, -424), 20, 2.4f), new Rectangle(new(425, -455), 10, 1.25f)]);
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Polygon(new(425, -440), 14.5f, 48)], [new Rectangle(new(425, -424), 20, 2.4f), new Rectangle(new(425, -455), 10, 1.25f)]);
     public static readonly ArenaBoundsCircle SmallerBounds = new(10);
 }

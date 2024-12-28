@@ -119,4 +119,7 @@ public static class Colors
     public static uint Caster => _config.ArenaPlayerGenericCaster.ABGR;
     public static uint PhysRanged => _config.ArenaPlayerGenericPhysRanged.ABGR;
     public static uint Focus => _config.ArenaPlayerGenericFocus.ABGR;
+    public static uint CollisionColor1 => _config.CollisionColors[0].ABGR;
+    public static uint CollisionColor2 => _config.CollisionColors[1].ABGR;
+    public static uint CollisionColor3 => _config.CollisionColors[2].ABGR;
 }

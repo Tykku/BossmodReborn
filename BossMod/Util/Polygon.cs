@@ -118,6 +118,57 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
             var original = Interlocked.CompareExchange(ref _edgeBuckets, newEdgeBuckets, null);
 
             edgeBuckets = original ?? newEdgeBuckets;
+
+            static ContourEdgeBuckets BuildEdgeBucketsForContour(ReadOnlySpan<WDir> contour)
+            {
+                float minY = float.MaxValue, maxY = float.MinValue;
+                var count = contour.Length;
+
+                for (var i = 0; i < count; ++i)
+                {
+                    var y = contour[i].Z;
+                    if (y < minY)
+                        minY = y;
+                    if (y > maxY)
+                        maxY = y;
+                }
+
+                var invBucketHeight = BucketCount / (maxY - minY + Epsilon);
+
+                var edgeBucketsArray = new List<Edges>[BucketCount];
+                for (var b = 0; b < BucketCount; ++b)
+                {
+                    edgeBucketsArray[b] = [];
+                }
+
+                var prev = contour[^1];
+                for (var i = 0; i < count; ++i)
+                {
+                    var curr = contour[i];
+                    var edge = new Edges(prev.X, prev.Z, curr.X, curr.Z);
+
+                    var bucketStart = (int)((Math.Min(edge.y0, edge.y1) - minY) * invBucketHeight);
+                    var bucketEnd = (int)((Math.Max(edge.y0, edge.y1) - minY) * invBucketHeight);
+
+                    bucketStart = Math.Clamp(bucketStart, 0, BucketCount - 1);
+                    bucketEnd = Math.Clamp(bucketEnd, 0, BucketCount - 1);
+
+                    for (var b = bucketStart; b <= bucketEnd; ++b)
+                    {
+                        edgeBucketsArray[b].Add(edge);
+                    }
+
+                    prev = curr;
+                }
+
+                var edgeBuckets = new Edges[BucketCount][];
+                for (var b = 0; b < BucketCount; ++b)
+                {
+                    edgeBuckets[b] = [.. edgeBucketsArray[b]];
+                }
+
+                return new(edgeBuckets, minY, invBucketHeight);
+            }
         }
 
         if (!InSimplePolygon(p, edgeBuckets.ExteriorEdgeBuckets))
@@ -129,76 +180,25 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
                 return false;
         }
         return true;
-    }
 
-    private static bool InSimplePolygon(WDir p, ContourEdgeBuckets buckets)
-    {
-        float x = p.X, y = p.Z;
-        var bucketIndex = (int)((y - buckets.MinY) * buckets.InvBucketHeight);
-        if ((uint)bucketIndex >= BucketCount)
-            return false;
-        var edges = buckets.EdgeBuckets[bucketIndex];
-        var inside = false;
-        for (var i = 0; i < edges.Length; ++i)
+        static bool InSimplePolygon(WDir p, ContourEdgeBuckets buckets)
         {
-            var edge = edges[i];
-            if ((edge.y0 > y) != (edge.y1 > y) && x < edge.x0 + edge.slopeX * (y - edge.y0))
+            float x = p.X, y = p.Z;
+            var bucketIndex = (int)((y - buckets.MinY) * buckets.InvBucketHeight);
+            if ((uint)bucketIndex >= BucketCount)
+                return false;
+            var edges = buckets.EdgeBuckets[bucketIndex];
+            var inside = false;
+            for (var i = 0; i < edges.Length; ++i)
             {
-                inside = !inside;
+                var edge = edges[i];
+                if ((edge.y0 > y) != (edge.y1 > y) && x < edge.x0 + edge.slopeX * (y - edge.y0))
+                {
+                    inside = !inside;
+                }
             }
+            return inside;
         }
-        return inside;
-    }
-
-    private static ContourEdgeBuckets BuildEdgeBucketsForContour(ReadOnlySpan<WDir> contour)
-    {
-        float minY = float.MaxValue, maxY = float.MinValue;
-        var count = contour.Length;
-
-        for (var i = 0; i < count; ++i)
-        {
-            var y = contour[i].Z;
-            if (y < minY)
-                minY = y;
-            if (y > maxY)
-                maxY = y;
-        }
-
-        var invBucketHeight = BucketCount / (maxY - minY + Epsilon);
-
-        var edgeBucketsArray = new List<Edges>[BucketCount];
-        for (var b = 0; b < BucketCount; ++b)
-        {
-            edgeBucketsArray[b] = [];
-        }
-
-        var prev = contour[^1];
-        for (var i = 0; i < count; ++i)
-        {
-            var curr = contour[i];
-            var edge = new Edges(prev.X, prev.Z, curr.X, curr.Z);
-
-            var bucketStart = (int)((Math.Min(edge.y0, edge.y1) - minY) * invBucketHeight);
-            var bucketEnd = (int)((Math.Max(edge.y0, edge.y1) - minY) * invBucketHeight);
-
-            bucketStart = Math.Clamp(bucketStart, 0, BucketCount - 1);
-            bucketEnd = Math.Clamp(bucketEnd, 0, BucketCount - 1);
-
-            for (var b = bucketStart; b <= bucketEnd; ++b)
-            {
-                edgeBucketsArray[b].Add(edge);
-            }
-
-            prev = curr;
-        }
-
-        var edgeBuckets = new Edges[BucketCount][];
-        for (var b = 0; b < BucketCount; ++b)
-        {
-            edgeBuckets[b] = [.. edgeBucketsArray[b]];
-        }
-
-        return new(edgeBuckets, minY, invBucketHeight);
     }
 
     private readonly struct Edges
@@ -564,6 +564,26 @@ public readonly struct PolygonWithHolesDistanceFunction
             }
         }
         _spatialIndex = new(_edges);
+
+        static Edge[] GetEdges(ReadOnlySpan<WDir> vertices, WPos origin)
+        {
+            var count = vertices.Length;
+
+            if (count == 0)
+                return [];
+
+            var edges = new Edge[count];
+
+            var prev = vertices[count - 1];
+            for (var i = 0; i < count; ++i)
+            {
+                var curr = vertices[i];
+                edges[i] = new(origin.X + prev.X, origin.Z + prev.Z, curr.X - prev.X, curr.Z - prev.Z);
+                prev = curr;
+            }
+
+            return edges;
+        }
     }
 
     public readonly float Distance(WPos p)
@@ -585,25 +605,5 @@ public readonly struct PolygonWithHolesDistanceFunction
 
         var minDistance = MathF.Sqrt(minDistanceSq);
         return isInside ? -minDistance : minDistance;
-    }
-
-    private static Edge[] GetEdges(ReadOnlySpan<WDir> vertices, WPos origin)
-    {
-        var count = vertices.Length;
-
-        if (count == 0)
-            return [];
-
-        var edges = new Edge[count];
-
-        var prev = vertices[count - 1];
-        for (var i = 0; i < count; ++i)
-        {
-            var curr = vertices[i];
-            edges[i] = new(origin.X + prev.X, origin.Z + prev.Z, curr.X - prev.X, curr.Z - prev.Z);
-            prev = curr;
-        }
-
-        return edges;
     }
 }

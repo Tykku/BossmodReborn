@@ -48,15 +48,21 @@ class Border(BossModule module) : Components.GenericAOEs(module, warningText: "P
     new(positions[3], SquareHalfWidth), new(positions[4], SquareHalfWidth), new(positions[5], SquareHalfWidth), new(positions[6], SquareHalfWidth),
     new(positions[7], SquareHalfWidth), new(positions[8], RectangleHalfWidth), new(positions[9], RectangleHalfWidth)];
 
-    private static readonly Rectangle[] rect = [new(new WPos(0, -45), 10, 30)];
+    private static readonly Rectangle[] rect = [new(new(0, -45), 10, 30)];
     public readonly List<Shape> unionRefresh = [.. rect.Concat(shapes.Take(8))];
     private readonly List<Shape> difference = [];
     public static readonly ArenaBoundsComplex DefaultArena = new([.. rect, .. shapes.Take(8)], Offset: PathfindingOffset);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        foreach (var p in BreakingPlatforms)
+        var count = BreakingPlatforms.Count;
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < count; ++i)
+        {
+            var p = BreakingPlatforms[i];
             yield return new(_square, p.Origin, Color: Colors.FutureVulnerable, Risky: Module.FindComponent<Apokalypsis>()!.NumCasts == 0);
+        }
     }
 
     public override void OnActorEAnim(Actor actor, uint state)

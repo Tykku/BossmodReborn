@@ -7,7 +7,7 @@ namespace BossMod.Endwalker.Alliance.A23Halone;
 class Octagons(BossModule module) : Components.GenericAOEs(module)
 {
     private const float InnerRadius = 11.2f; // radii adjusted for hitbox radius
-    private const float OuterRadius = 13.5f;
+    private const float OuterRadius = 13.3f;
     private const int Vertices = 8;
     private static readonly WPos[] spears = [new(-686, 592), new(-700, 616.2f), new(-714, 592)];
     private static readonly Angle[] angle = [-37.5f.Degrees(), 22.5f.Degrees(), 37.5f.Degrees()];

@@ -8,6 +8,7 @@ class Ex3QueenEternalStates : StateMachineBuilder
     {
         _module = module;
         SimplePhase(0, Phase1, "P1")
+            .ActivateOnEnter<ArenaChanges>()
             .Raw.Update = () => Module.PrimaryActor.IsDeadOrDestroyed || Module.PrimaryActor.HPMP.CurHP == 1 && (Module.PrimaryActor.CastInfo?.IsSpell(AID.AuthorityEternal) ?? false);
         SimplePhase(1, Phase2, "P2")
             .Raw.Update = () => Module.PrimaryActor.IsDeadOrDestroyed && (_module.BossP2()?.IsDeadOrDestroyed ?? true);
@@ -116,10 +117,10 @@ class Ex3QueenEternalStates : StateMachineBuilder
             .ActivateOnEnter<AbsoluteAuthorityPuddles>();
         ComponentCondition<AbsoluteAuthorityExpansionBoot>(id + 0x20, 10, comp => comp.NumCasts > 0, "Spread/stack")
             .ActivateOnEnter<AbsoluteAuthorityExpansionBoot>()
+            .ActivateOnEnter<AbsoluteAuthorityHeel>()
             .DeactivateOnExit<AbsoluteAuthorityPuddles>() // last puddle resolves right before stack/spread
             .DeactivateOnExit<AbsoluteAuthorityExpansionBoot>();
         ComponentCondition<AbsoluteAuthorityHeel>(id + 0x30, 4, comp => comp.NumCasts > 0, "Stack")
-            .ActivateOnEnter<AbsoluteAuthorityHeel>()
             .DeactivateOnExit<AbsoluteAuthorityHeel>();
         ComponentCondition<AbsoluteAuthorityKnockback>(id + 0x40, 6.9f, comp => comp.NumCasts > 0, "Knockback")
             .ActivateOnEnter<AbsoluteAuthorityKnockback>()
@@ -129,8 +130,6 @@ class Ex3QueenEternalStates : StateMachineBuilder
     private void P1VirtualShiftWind(uint id, float delay)
     {
         Cast(id, AID.VirtualShiftWind, delay, 5, "Raidwide (wind platform)")
-            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.WindBounds)
-            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.WindBounds.Center)
             .SetHint(StateMachine.StateHint.Raidwide);
         Cast(id + 0x10, AID.LawsOfWind, 5.2f, 4);
         ComponentCondition<Aeroquell>(id + 0x20, 0.1f, comp => comp.Active)
@@ -153,8 +152,6 @@ class Ex3QueenEternalStates : StateMachineBuilder
             .DeactivateOnExit<MissingLink>();
 
         Cast(id + 0x300, AID.WorldShatterP1, 3, 5, "Raidwide + platform end")
-            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.NormalBounds)
-            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.ArenaCenter)
             .SetHint(StateMachine.StateHint.Raidwide);
         ComponentCondition<AeroquellTwister>(id + 0x310, 2.6f, comp => !comp.Sources(Module).Any())
             .DeactivateOnExit<AeroquellTwister>();
@@ -209,16 +206,11 @@ class Ex3QueenEternalStates : StateMachineBuilder
     {
         Cast(id, AID.VirtualShiftIce, delay, 5, "Raidwide (ice platform)")
             .ActivateOnEnter<VirtualShiftIce>()
-            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.IceBounds)
-            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.IceBounds.Center)
             .SetHint(StateMachine.StateHint.Raidwide);
         CastStart(id + 0x10, AID.LawsOfIce, 5.2f);
         CastEnd(id + 0x11, 4)
             .ActivateOnEnter<LawsOfIce>();
-        ComponentCondition<LawsOfIce>(id + 0x12, 1, comp => comp.NumCasts > 0, "Move")
-            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.IceBridgeBounds)
-            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.IceBridgeBounds.Center);
-
+        ComponentCondition<LawsOfIce>(id + 0x12, 1, comp => comp.NumCasts > 0, "Move");
         ComponentCondition<Rush>(id + 0x100, 4.3f, comp => comp.Activation != default)
             .ActivateOnEnter<Rush>()
             .DeactivateOnExit<LawsOfIce>();
@@ -245,8 +237,6 @@ class Ex3QueenEternalStates : StateMachineBuilder
 
         Cast(id + 0x300, AID.WorldShatterP1, 3.1f, 5, "Raidwide + platform end")
             .DeactivateOnExit<VirtualShiftIce>()
-            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.NormalBounds)
-            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.ArenaCenter)
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 
@@ -264,21 +254,17 @@ class Ex3QueenEternalStates : StateMachineBuilder
         ActorCast(id, _module.BossP2, AID.RadicalShift, delay, 11, true, "Raidwide (platform change)")
             .ActivateOnEnter<RadicalShift>()
             .ActivateOnEnter<VirtualShiftIce>()
+            .ActivateOnEnter<RadicalShiftAOE>()
             .SetHint(StateMachine.StateHint.Raidwide);
         ComponentCondition<RadicalShiftAOE>(id + 0x10, 5.2f, comp => comp.NumFinishedSpreads > 0, "Spread")
-            .ActivateOnEnter<RadicalShiftAOE>()
-            .DeactivateOnExit<RadicalShiftAOE>();
-
+            .ResetComp<RadicalShiftAOE>();
         ActorCast(id + 0x100, _module.BossP2, AID.RadicalShift, 3, 11, true, "Raidwide (platform change)")
             .SetHint(StateMachine.StateHint.Raidwide);
         ComponentCondition<RadicalShiftAOE>(id + 0x110, 5.2f, comp => comp.NumFinishedSpreads > 0, "Spread")
-            .ActivateOnEnter<RadicalShiftAOE>()
             .DeactivateOnExit<RadicalShiftAOE>();
         ActorCast(id + 0x200, _module.BossP2, AID.WorldShatterP2, 3, 5, true, "Raidwide + platform end")
             .DeactivateOnExit<RadicalShift>()
             .DeactivateOnExit<VirtualShiftIce>()
-            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.NormalBounds)
-            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.ArenaCenter)
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 
@@ -291,8 +277,6 @@ class Ex3QueenEternalStates : StateMachineBuilder
         ActorCast(id + 0x100, _module.BossP2, AID.TyrannysGrasp, 5.2f, 5, true, "Front half cleave")
             .ActivateOnEnter<TyrannysGraspAOE>()
             .ActivateOnEnter<TyrannysGraspTowers>()
-            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.HalfBounds)
-            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.HalfBoundsCenter)
             .DeactivateOnExit<DimensionalDistortion>()
             .DeactivateOnExit<TyrannysGraspAOE>();
         ComponentCondition<TyrannysGraspTowers>(id + 0x110, 1.2f, comp => comp.NumCasts >= 1, "Tankbuster tower 1")
@@ -320,8 +304,6 @@ class Ex3QueenEternalStates : StateMachineBuilder
         ComponentCondition<RoyalBanishment>(id + 0x120, 6, comp => comp.NumCasts >= 7);
         ComponentCondition<RoyalBanishment>(id + 0x130, 3, comp => comp.NumCasts >= 8, "Line stack 8")
             .DeactivateOnExit<RoyalBanishment>()
-            .OnExit(() => _module.Arena.Bounds = Ex3QueenEternal.NormalBounds)
-            .OnExit(() => _module.Arena.Center = Ex3QueenEternal.ArenaCenter)
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 }

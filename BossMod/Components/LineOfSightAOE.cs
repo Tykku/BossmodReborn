@@ -6,19 +6,19 @@
 public abstract class GenericLineOfSightAOE(BossModule module, ActionID aid, float maxRange, bool blockersImpassable = false, bool rect = false, bool safeInsideHitbox = true) : GenericAOEs(module, aid, "Hide behind obstacle!")
 {
     public DateTime NextExplosion;
-    public bool BlockersImpassable = blockersImpassable;
-    public bool SafeInsideHitbox = safeInsideHitbox;
-    public float MaxRange { get; private set; } = maxRange;
-    public bool Rect { get; private set; } = rect; // if the AOE is a rectangle instead of a circle
+    public readonly bool BlockersImpassable = blockersImpassable;
+    public readonly bool SafeInsideHitbox = safeInsideHitbox;
+    public readonly float MaxRange = maxRange;
+    public readonly bool Rect = rect; // if the AOE is a rectangle instead of a circle
     public BitMask IgnoredPlayers;
-    public WPos? Origin { get; private set; } // inactive if null
-    public List<(WPos Center, float Radius)> Blockers { get; private set; } = [];
-    public List<(float Distance, Angle Dir, Angle HalfWidth)> Visibility { get; private set; } = [];
-    public List<AOEInstance> Safezones = [];
-    public List<Shape> UnionShapes = [];
-    public List<Shape> DifferenceShapes = [];
+    public WPos? Origin; // inactive if null
+    public readonly List<(WPos Center, float Radius)> Blockers = [];
+    public readonly List<(float Distance, Angle Dir, Angle HalfWidth)> Visibility = [];
+    public readonly List<AOEInstance> Safezones = [];
+    public readonly List<Shape> UnionShapes = [];
+    public readonly List<Shape> DifferenceShapes = [];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => !IgnoredPlayers[slot] ? Safezones.Take(1) : [];
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Safezones.Count != 0 && !IgnoredPlayers[slot] ? [Safezones[0]] : [];
 
     public void Modify(WPos? origin, IEnumerable<(WPos Center, float Radius)> blockers, DateTime nextExplosion = default)
     {
@@ -57,36 +57,37 @@ public abstract class GenericLineOfSightAOE(BossModule module, ActionID aid, flo
         {
             if (!Rect)
             {
-                foreach (var v in Visibility)
+                for (var i = 0; i < Visibility.Count; ++i)
+                {
+                    var v = Visibility[i];
                     UnionShapes.Add(new DonutSegmentHA(Origin.Value, v.Distance + 0.2f, MaxRange, v.Dir, v.HalfWidth));
+                }
             }
             else if (Rect)
             {
-                foreach (var b in Blockers)
+                for (var i = 0; i < Blockers.Count; ++i)
                 {
+                    var b = Blockers[i];
                     var dir = rotation.ToDirection();
                     UnionShapes.Add(new RectangleSE(b.Center + 0.2f * dir, b.Center + MaxRange * dir, b.Radius));
                 }
             }
             if (BlockersImpassable || !SafeInsideHitbox)
-                foreach (var b in Blockers)
+                for (var i = 0; i < Blockers.Count; ++i)
+                {
+                    var b = Blockers[i];
                     DifferenceShapes.Add(new Circle(b.Center, !SafeInsideHitbox ? b.Radius : b.Radius + 0.5f));
-            Safezones.Add(new(new AOEShapeCustom(CopyShapes(UnionShapes), CopyShapes(DifferenceShapes), InvertForbiddenZone: true), Arena.Center, default, activation, Colors.SafeFromAOE));
+                }
+            Safezones.Add(new(new AOEShapeCustom([.. UnionShapes], [.. DifferenceShapes], InvertForbiddenZone: true), Arena.Center, default, activation, Colors.SafeFromAOE));
             UnionShapes.Clear();
+            DifferenceShapes.Clear();
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Safezones.Count > 0 && spell.Action == WatchedAction)
+        if (Safezones.Count != 0 && spell.Action == WatchedAction)
             Safezones.RemoveAt(0);
-    }
-
-    private static List<Shape> CopyShapes(List<Shape> shapes)
-    {
-        var copy = new List<Shape>();
-        copy.AddRange(shapes);
-        return copy;
     }
 }
 

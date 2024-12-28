@@ -8,7 +8,7 @@ public class StayMove(BossModule module, float maxTimeToShowHint = float.Positiv
     public record struct PlayerState(Requirement Requirement, DateTime Activation, int Priority = 0);
 
     public readonly PlayerState[] PlayerStates = new PlayerState[PartyState.MaxAllies];
-    public float MaxTimeToShowHint = maxTimeToShowHint;
+    public readonly float MaxTimeToShowHint = maxTimeToShowHint;
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {

@@ -21,11 +21,19 @@ public enum OID : uint
     Gaia = 0x45A6, // R1.000, x0 (spawn during fight)
     //_Gen_CrystalOfLight = 0x464F, // R1.000, x0 (spawn during fight)
     HiemalRayVoidzone = 0x1EA1CB, // R0.500, x0 (spawn during fight), EventObj type
-    //_Gen_EternalIceFragment = 0x1EBBF8, // R0.500, x0 (spawn during fight), EventObj type
+    EternalIceFragment = 0x1EBBF8, // R0.500, x0 (spawn during fight), EventObj type, spawns if dark crystals are killed
 
     BossP3 = 0x45A7, // R7.040, x0 (spawn during fight)
     DelightsHourglass = 0x45A8, // R1.000, x0 (spawn during fight)
     ApocalypseLight = 0x1EB0FF, // R0.500, x0 (spawn during fight), EventObj type
+
+    UsurperOfFrostP4 = 0x45A9, // R6.125, x0 (spawn during fight)
+    GreatWyrm = 0x45AA, // R3.500, x0 (spawn during fight), Part type
+    OracleOfDarknessP4 = 0x45AB, // R7.040, x0 (spawn during fight)
+    SorrowsHourglass = 0x45AD, // R1.000, x0 (spawn during fight)
+    FragmentOfFate = 0x45B1, // R3.500, x0 (spawn during fight)
+    VisionOfRyne = 0x45B4, // R0.750, x0 (spawn during fight)
+    VisionOfGaia = 0x45B5, // R1.500, x0 (spawn during fight)
 }
 
 public enum AID : uint
@@ -151,6 +159,7 @@ public enum AID : uint
     HiemalStorm = 40255, // CrystalOfLight->self, no cast, single-target, visual (baited puddle)
     HiemalStormAOE = 40256, // Helper->location, 3.3s cast, range 7 circle
     HiemalRay = 40257, // Helper->player, no cast, range 4 circle
+    Icecrusher = 40121, // Gaia->IceVeil, no cast, single-target, 50% hp hit on large crystal
 
     // P3
     Junction = 40226, // Helper->self, no cast, range 40 circle, raidwide
@@ -189,7 +198,37 @@ public enum AID : uint
     DarkestDanceKnockback = 40183, // BossP3->self, no cast, range 40 circle, knockback 21
 
     MemorysEnd = 40300, // BossP3->self, 10.0s cast, single-target, visual (enrage)
-    MemorysEndAOE = 40336, // Helper->self, no cast, range 100 circle, enrage
+    MemorysEndRaidwide = 40335, // Helper->self, no cast, range 100 circle, raidwide if boss is <20%
+    MemorysEndEnrage = 40336, // Helper->self, no cast, range 100 circle, enrage if boss is >20%
+
+    // P4
+    Materialization = 40246, // UsurperOfFrostP4->self, 3.0s cast, single-target, visual (create visions)
+    DrachenArmor = 40186, // Helper->self, no cast, single-target, visual (wings appear)
+    AutoAttackP4Wyrm = 40178, // GreatWyrm->player, no cast, single-target
+    AutoAttackP4Usurper = 40177, // UsurperOfFrostP4->player, no cast, single-target
+    EdgeOfOblivion = 40174, // FragmentOfFate->self, 5.0s cast, range 100 circle, raidwide
+    AkhRhai = 40237, // Helper->location, 2.5s cast, range 4 circle, visual (puddle)
+    AkhRhaiAOE = 40238, // Helper->location, no cast, range 4 circle, repeated puddle x10
+
+    DarklitDragonsongUsurper = 40239, // UsurperOfFrostP4->self, 5.0s cast, range 100 circle, raidwide
+    DarklitDragonsongOracle = 40301, // OracleOfDarknessP4->self, 5.0s cast, single-target, visual
+    PathOfLight = 40187, // UsurperOfFrostP4->self, 8.0s cast, single-target, visual (towers + proteans)
+    PathOfLightAOE = 40190, // Helper->self, no cast, range 60 60?-degree cone protean on 4 closest targets
+    HallowedWingsL = 40227, // UsurperOfFrostP4->self, 5.0s cast, range 80 width 40 rect, side cleave
+    HallowedWingsR = 40228, // UsurperOfFrostP4->self, 5.0s cast, range 80 width 40 rect, side cleave
+    SomberDance = 40283, // OracleOfDarknessP4->self, 5.0s cast, single-target, visual (baited tankbusters)
+    SomberDanceAOE1 = 40284, // OracleOfDarknessP4->player, no cast, range 8 circle, tankbuster on farthest
+    SomberDanceAOE2 = 40285, // OracleOfDarknessP4->players, no cast, range 8 circle, tankbuster on closest
+    AkhMornUsurper = 40247, // UsurperOfFrostP4->self, 4.0s cast, single-target, visual (4-hit party stacks)
+    AkhMornOracle = 40302, // OracleOfDarknessP4->self, 4.0s cast, single-target, visual (4-hit party stacks)
+    AkhMornAOEUsurper = 40248, // Helper->players, no cast, range 4 circle, 4-hit 4-man stack
+    AkhMornAOEOracle = 40303, // Helper->players, no cast, range 4 circle, 4-hit 4-man stack
+    MornAfahUsurper = 40249, // UsurperOfFrostP4->self, 6.0s cast, single-target, visual (full raid stack, lethal if hp difference is large)
+    MornAfahOracle = 40304, // OracleOfDarknessP4->self, 6.0s cast, single-target, visual (full raid stack, lethal if hp difference is large)
+    MornAfahAOE = 40250, // Helper->players, no cast, range 4 circle, wipe if hp difference check fails ?
+
+    CrystallizeTimeUsurper = 40240, // UsurperOfFrostP4->self, 10.0s cast, single-target, visual
+    CrystallizeTimeOracle = 40298, // OracleOfDarknessP4->self, 10.0s cast, range 100 circle, raidwide
 }
 
 public enum SID : uint
@@ -200,10 +239,12 @@ public enum SID : uint
     FatedBurnMark = 4165, // none->player, extra=0x0
     FloatingFetters = 2304, // FatebreakersImage/BossP1->player, extra=0xC8
     MarkOfMortality = 4372, // Helper->player, extra=0x1
+    ThinIce = 911, // none->player, extra=0x140
     ChainsOfEverlastingLight = 4157, // none->player, extra=0x0, light rampant first tether
     CurseOfEverlastingLight = 4158, // none->player, extra=0x0, light rampant second tether
     WeightOfLight = 4159, // none->player, extra=0x0, light rampant stack
     Lightsteeped = 2257, // Helper/HolyLight->player, extra=0x1/0x2/0x3/0x4/0x5
+    Invincibility = 775, // none->IceVeil, extra=0x0
     SpellInWaitingUnholyDarkness = 2454, // none->player, extra=0x0, stack
     SpellInWaitingDarkFire = 2455, // none->player, extra=0x0, large spread
     SpellInWaitingShadoweye = 2456, // none->player, extra=0x0, delayed gaze
@@ -214,8 +255,12 @@ public enum SID : uint
     DelightsHourglassRotation = 2970, // none->DelightsHourglass, extra=0x10D (ccw)/0x15C (cw)
     Return = 2452, // none->player, extra=0x0
     Stun = 4163, // none->player, extra=0x0
-    //SpellInWaitingRefrain = 4373, // BossP3->BossP3, extra=0x0
-    //_Gen_ = 2458, // none->player, extra=0x0
+    Wyrmclaw = 3263, // none->player, extra=0x0
+    Wyrmfang = 3264, // none->player, extra=0x0
+    SpellInWaitingQuietus = 4174, // none->player, extra=0x0
+    SpellInWaitingDarkAero = 2463, // none->player, extra=0x0
+    //SpellInWaitingReturn = 4208, // none->player, extra=0x0
+    //SpellInWaitingReturnII = 4171, // Helper->UsurperOfFrostP4, extra=0x0
 }
 
 public enum IconID : uint
@@ -238,7 +283,9 @@ public enum TetherID : uint
     LightRampantCurse = 111, // player->player
     IntermissionGaia = 112, // Gaia->IceVeil
     IntermissionCrystal = 8, // CrystalOfLight/CrystalOfDarkness->IceVeil
+    IntermissionCrystalGaia = 37, // CrystalOfDarkness->Gaia/CrystalOfDarkness
     HiemalRay = 84, // CrystalOfLight->player
     UltimateRelativitySlow = 133, // DelightsHourglass->BossP3
     UltimateRelativityQuicken = 134, // DelightsHourglass->BossP3
+    MornAfahHPCheck = 1, // UsurperOfFrostP4->OracleOfDarknessP4
 }

@@ -20,8 +20,8 @@ public enum AID : uint
     AutoAttack2 = 870, // GymnasiouPithekosMikros->player, no cast, single-target
 
     Thundercall = 32212, // Boss->location, 2.5s cast, range 3 circle
-    LightningBolt = 32214, // Boss->self, 3.0s cast, single-target
-    LightningBolt2 = 32215, // Helper->location, 3.0s cast, range 6 circle
+    LightningBoltVisual = 32214, // Boss->self, 3.0s cast, single-target
+    LightningBolt = 32215, // Helper->location, 3.0s cast, range 6 circle
     ThunderIV = 32213, // BallOfLevin->self, 7.0s cast, range 18 circle
     Spark = 32216, // Boss->self, 4.0s cast, range 14-30 donut
 
@@ -71,14 +71,15 @@ class Thundercall2(BossModule module) : Components.GenericBaitAway(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        base.AddHints(slot, actor, hints);
-        if (CurrentBaits.Any(x => x.Target == actor))
+        if (CurrentBaits.Any(x => x.Target != actor))
+            base.AddHints(slot, actor, hints);
+        else if (CurrentBaits.Any(x => x.Target == actor))
             hints.Add("Bait levinorb away!");
     }
 }
 
 class RockThrow(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RockThrow), 6);
-class LightningBolt2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LightningBolt2), 6);
+class LightningBolt(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 6);
 class ThunderIV(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderIV), new AOEShapeCircle(18));
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
@@ -99,7 +100,7 @@ class GymnasiouPithekosStates : StateMachineBuilder
             .ActivateOnEnter<Thundercall>()
             .ActivateOnEnter<Thundercall2>()
             .ActivateOnEnter<RockThrow>()
-            .ActivateOnEnter<LightningBolt2>()
+            .ActivateOnEnter<LightningBolt>()
             .ActivateOnEnter<SweepingGouge>()
             .ActivateOnEnter<ThunderIV>()
             .ActivateOnEnter<HeavySmash>()

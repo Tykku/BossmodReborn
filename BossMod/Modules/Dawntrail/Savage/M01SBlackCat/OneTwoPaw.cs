@@ -3,18 +3,25 @@
 class OneTwoPawBoss(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly PredaceousPounce? _pounce = module.FindComponent<PredaceousPounce>();
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(2);
     private static readonly HashSet<AID> casts = [AID.OneTwoPawBossAOERFirst, AID.OneTwoPawBossAOELSecond, AID.OneTwoPawBossAOELFirst, AID.OneTwoPawBossAOERSecond];
 
     private static readonly AOEShapeCone _shape = new(100, 90.Degrees());
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
+        var count = _aoes.Count;
+        if (count == 0)
+            yield break;
         var pounce = _pounce != null && _pounce.ActiveAOEs(slot, actor).Any();
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = pounce ? Colors.AOE : Colors.Danger };
-        if (_aoes.Count > 1 && !pounce)
-            yield return _aoes[1] with { Risky = false };
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i == 0)
+                yield return count > 1 && !pounce ? aoe with { Color = Colors.Danger } : aoe;
+            else if (i == 1 && !pounce)
+                yield return aoe with { Risky = false };
+        }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -40,11 +47,18 @@ class OneTwoPawBoss(BossModule module) : Components.GenericAOEs(module)
 class OneTwoPawShade(BossModule module) : Components.GenericAOEs(module)
 {
     private Angle _firstDirection;
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(4);
 
     private static readonly AOEShapeCone _shape = new(100, 90.Degrees());
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Skip(NumCasts).Take(2);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < (count > 2 ? 2 : count); ++i)
+            yield return _aoes[i];
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -60,7 +74,7 @@ class OneTwoPawShade(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
-        if (tether.ID == (uint)TetherID.Soulshade && _aoes.Count < 4)
+        if (_aoes.Count < 4 && tether.ID == (uint)TetherID.Soulshade)
         {
             _aoes.Add(new(_shape, source.Position, source.Rotation + _firstDirection, WorldState.FutureTime(20.3f)));
             _aoes.Add(new(_shape, source.Position, source.Rotation - _firstDirection, WorldState.FutureTime(23.3f)));
@@ -71,13 +85,17 @@ class OneTwoPawShade(BossModule module) : Components.GenericAOEs(module)
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if ((AID)spell.Action.ID is AID.OneTwoPawShadeAOERFirst or AID.OneTwoPawShadeAOELSecond or AID.OneTwoPawShadeAOELFirst or AID.OneTwoPawShadeAOERSecond)
+        {
             ++NumCasts;
+            if (_aoes.Count != 0)
+                _aoes.RemoveAt(0);
+        }
     }
 }
 
 class LeapingOneTwoPaw(BossModule module) : Components.GenericAOEs(module)
 {
-    public readonly List<AOEInstance> AOEs = [];
+    public readonly List<AOEInstance> AOEs = new(2);
     private Angle _leapDirection;
     private Angle _firstDirection;
     private Actor? _clone;
@@ -89,10 +107,17 @@ class LeapingOneTwoPaw(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (AOEs.Count > 0)
-            yield return AOEs[0] with { Color = Colors.Danger };
-        if (AOEs.Count > 1)
-            yield return AOEs[1] with { Risky = false };
+        var count = AOEs.Count;
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = AOEs[i];
+            if (i == 0)
+                yield return count != 1 ? aoe with { Color = Colors.Danger } : aoe;
+            else if (i == 1)
+                yield return aoe with { Risky = false };
+        }
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)

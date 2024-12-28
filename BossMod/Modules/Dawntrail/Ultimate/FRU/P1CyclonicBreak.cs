@@ -83,12 +83,15 @@ class P1CyclonicBreakAIBait(BossModule module) : BossComponent(module)
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
+        if (assignment == PartyRolesConfig.Assignment.Unassigned)
+            return;
+
         var clockspot = _config.P1CyclonicBreakSpots[assignment];
         if (clockspot < 0 || _spreadStack == null || !_spreadStack.Active)
             return; // no assignment
         var assignedDirection = (180 - 45 * clockspot).Degrees();
         // TODO: think about melee vs ranged distance...
-        hints.AddForbiddenZone(ShapeDistance.InvertedRect(Module.PrimaryActor.Position, assignedDirection, 10, -6, 1), _spreadStack.Activation);
+        hints.AddForbiddenZone(ShapeDistance.InvertedRect(Module.PrimaryActor.Position, assignedDirection, 15, -5, 1), _spreadStack.Activation);
     }
 }
 
@@ -101,6 +104,9 @@ class P1CyclonicBreakAIDodgeSpreadStack(BossModule module) : BossComponent(modul
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
+        if (assignment == PartyRolesConfig.Assignment.Unassigned)
+            return;
+
         var clockspot = _config.P1CyclonicBreakSpots[assignment];
         if (clockspot < 0 || _cones == null || _spreadStack == null || !_spreadStack.Active)
             return;

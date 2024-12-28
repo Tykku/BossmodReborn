@@ -32,29 +32,32 @@ class AbsoluteAuthorityExpansionBoot(BossModule module) : Components.UniformStac
     }
 }
 
-class AbsoluteAuthorityHeel(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.AbsoluteAuthorityHeel))
+class AbsoluteAuthorityHeel(BossModule module) : Components.GenericStackSpread(module)
 {
-    private BitMask _targets;
+    public int NumCasts;
 
-    private const float Radius = 3; // TODO: verify
-
-    public override void AddHints(int slot, Actor actor, TextHints hints)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
-        if (_targets[slot] && !Raid.WithoutSlot().InRadiusExcluding(actor, Radius).Any())
-            hints.Add("Stack with someone!");
+        if ((IconID)iconID == IconID.AuthoritysHeel && Stacks.Count == 0)
+            Stacks.Add(new(actor, 1.5f, 8, 8, activation: WorldState.FutureTime(5.1f)));
     }
 
-    public override void DrawArenaForeground(int pcSlot, Actor pc)
+    public override void Update()
     {
-        if (_targets[pcSlot])
-            Arena.AddCircle(pc.Position, Radius, Colors.Safe);
-    }
-
-    public override void OnStatusGain(Actor actor, ActorStatus status)
-    {
-        if ((SID)status.ID == SID.AuthoritysHeel)
+        if (Stacks.Count != 0)
         {
-            _targets.Set(Raid.FindSlot(actor.InstanceID));
+            var player = Raid.Player()!;
+            var actor = Raid.WithoutSlot().Exclude(player).OrderBy(a => (player.Position - a.Position).LengthSq()).First();
+            Stacks[0] = Stacks[0] with { Target = actor ?? player };
+        }
+    }
+
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    {
+        if ((AID)spell.Action.ID is AID.AbsoluteAuthorityHeel or AID.AbsoluteAuthorityHeelFail)
+        {
+            Stacks.Clear();
+            ++NumCasts;
         }
     }
 }

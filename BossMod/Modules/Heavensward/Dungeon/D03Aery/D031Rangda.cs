@@ -24,7 +24,7 @@ public enum AID : uint
 
 public enum TetherID : uint
 {
-    Lightning = 6, // Boss->player/BlackenedStatue
+    Lightning = 6 // Boss->player/BlackenedStatue
 }
 
 class ElectricPredation(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ElectricPredation), new AOEShapeCone(12.9f, 60.Degrees()));
@@ -45,12 +45,15 @@ class Electrocution(BossModule module) : Components.GenericBaitAway(module)
         {
             ++NumCasts;
             if (NumCasts == 3 || NumCasts == CurrentBaits.Count) // hits upto 3 random players
+            {
                 CurrentBaits.Clear();
+                NumCasts = 0;
+            }
         }
     }
 }
 
-class IonosphericCharge(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(0), (uint)TetherID.Lightning, activationDelay: 10.1f)
+class IonosphericCharge(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(default), (uint)TetherID.Lightning, activationDelay: 10.1f)
 {
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
@@ -124,12 +127,12 @@ public class D031Rangda(WorldState ws, Actor primary) : BossModule(ws, primary, 
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.Leyak => 2,
-                OID.Boss => 1,
+                OID.Leyak => 1,
                 _ => 0
             };
         }

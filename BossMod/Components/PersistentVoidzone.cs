@@ -6,8 +6,8 @@ namespace BossMod.Components;
 // TODO: typically sources are either eventobj's with eventstate != 7 or normal actors that are non dead; other conditions are much rarer
 public class PersistentVoidzone(BossModule module, float radius, Func<BossModule, IEnumerable<Actor>> sources, float moveHintLength = 0) : GenericAOEs(module, default, "GTFO from voidzone!")
 {
-    public AOEShape Shape { get; init; } = moveHintLength == 0 ? new AOEShapeCircle(radius) : new AOEShapeCapsule(radius, moveHintLength);
-    public Func<BossModule, IEnumerable<Actor>> Sources { get; init; } = sources;
+    public readonly AOEShape Shape = moveHintLength == 0 ? new AOEShapeCircle(radius) : new AOEShapeCapsule(radius, moveHintLength);
+    public readonly Func<BossModule, IEnumerable<Actor>> Sources = sources;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -31,9 +31,9 @@ public class PersistentVoidzone(BossModule module, float radius, Func<BossModule
 // TODO: this has problems if voidzone never actually spawns after castevent, eg because of phase changes
 public class PersistentVoidzoneAtCastTarget(BossModule module, float radius, ActionID aid, Func<BossModule, IEnumerable<Actor>> sources, float castEventToSpawn) : GenericAOEs(module, aid, "GTFO from voidzone!")
 {
-    public AOEShapeCircle Shape { get; init; } = new(radius);
-    public Func<BossModule, IEnumerable<Actor>> Sources { get; init; } = sources;
-    public float CastEventToSpawn { get; init; } = castEventToSpawn;
+    public readonly AOEShapeCircle Shape = new(radius);
+    public readonly Func<BossModule, IEnumerable<Actor>> Sources = sources;
+    public readonly float CastEventToSpawn = castEventToSpawn;
     private readonly List<(WPos pos, DateTime time)> _predictedByEvent = [];
     private readonly List<(Actor caster, DateTime time)> _predictedByCast = [];
 
@@ -81,8 +81,8 @@ public class PersistentVoidzoneAtCastTarget(BossModule module, float radius, Act
 // TODO: might want to have per-player invertability
 public class PersistentInvertibleVoidzone(BossModule module, float radius, Func<BossModule, IEnumerable<Actor>> sources, ActionID aid = default) : CastCounter(module, aid)
 {
-    public AOEShapeCircle Shape { get; init; } = new(radius);
-    public Func<BossModule, IEnumerable<Actor>> Sources { get; init; } = sources;
+    public readonly AOEShapeCircle Shape = new(radius);
+    public readonly Func<BossModule, IEnumerable<Actor>> Sources = sources;
     public DateTime InvertResolveAt;
 
     public bool Inverted => InvertResolveAt != default;

@@ -30,22 +30,24 @@ class D110AlbusGriffinStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<TransonicBlast>()
-            .Raw.Update = () => module.Enemies(OID.Caladrius).Concat([module.PrimaryActor]).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(D110AlbusGriffin.TrashP1).All(e => e.IsDeadOrDestroyed);
         TrivialPhase(1)
             .ActivateOnEnter<Freefall>()
             .ActivateOnEnter<WindsOfWinter>()
             .ActivateOnEnter<WindsOfWinterStunHint>()
             .ActivateOnEnter<GoldenTalons>()
-            .Raw.Update = () => module.Enemies(OID.Caladrius).Concat([module.PrimaryActor]).All(e => e.IsDestroyed) && module.Enemies(OID.AlbusGriffin).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () => module.Enemies(D110AlbusGriffin.TrashP1).All(e => e.IsDestroyed) && module.Enemies(OID.AlbusGriffin).All(e => e.IsDeadOrDestroyed);
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 896, NameID = 12245)]
 public class D110AlbusGriffin(WorldState ws, Actor primary) : BossModule(ws, primary, new(47, -570.5f), new ArenaBoundsRect(8.5f, 11.5f))
 {
+    public static readonly uint[] TrashP1 = [(uint)OID.Boss, (uint)OID.Caladrius];
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Caladrius).Concat(Enemies(OID.AlbusGriffin)));
+        Arena.Actors(Enemies(OID.Caladrius));
+        Arena.Actors(Enemies(OID.AlbusGriffin));
     }
 }

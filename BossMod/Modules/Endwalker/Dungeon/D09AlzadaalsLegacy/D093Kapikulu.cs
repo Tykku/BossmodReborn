@@ -78,7 +78,7 @@ class ManaExplosion(BossModule module) : Components.GenericAOEs(module)
             else if (_target.Position == new WPos(110, -90.5f)) // yellow cloth tethered
                 foreach (var c in currentPattern == Pattern.Pattern1 ? aoePositionsSet2 : aoePositionsSet1)
                     _aoes.Add(new(circle, c, default, _activation));
-            if (_aoes.Count > 0)
+            if (_aoes.Count != 0)
                 _target = default;
         }
     }
@@ -89,7 +89,7 @@ class ManaExplosion(BossModule module) : Components.GenericAOEs(module)
         {
             if (index == 0x0D) // 0x0D, 0x02, 0x0C, 0x04, 0x0E, 0x03 activate at the same time
                 currentPattern = Pattern.Pattern1;
-            if (index == 0x09) // 0x09, 0x06, 0x0B, 0x05, 0x0A, 0x07 activate at the same time
+            else if (index == 0x09) // 0x09, 0x06, 0x0B, 0x05, 0x0A, 0x07 activate at the same time
                 currentPattern = Pattern.Pattern2;
         }
     }

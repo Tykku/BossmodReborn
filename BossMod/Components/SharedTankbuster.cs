@@ -4,8 +4,8 @@
 // TODO: revise and improve (track invuln, ai hints, num stacked tanks?)
 public class GenericSharedTankbuster(BossModule module, ActionID aid, AOEShape shape, bool originAtTarget = false) : CastCounter(module, aid)
 {
-    public AOEShape Shape { get; init; } = shape;
-    public bool OriginAtTarget { get; init; } = originAtTarget;
+    public readonly AOEShape Shape = shape;
+    public readonly bool OriginAtTarget = originAtTarget;
     protected Actor? Source;
     protected Actor? Target;
     protected DateTime Activation;

@@ -32,9 +32,9 @@ public enum AID : uint
     TrueAeroII2 = 25897, // Helper->player, 5.0s cast, range 6 circle
     TrueAeroII3 = 25898, // Helper->location, 3.5s cast, range 6 circle
 
-    TrueAeroIV1 = 25889, // 348B->self, 4.0s cast, range 50 width 10 rect
-    TrueAeroIVLOS = 27836, // 348B->self, 4.0s cast, range 50 width 10 rect
-    TrueAeroIV3 = 27837, // 348B->self, 10.0s cast, range 50 width 10 rect
+    TrueAeroIV1 = 25889, // Karukeion->self, 4.0s cast, range 50 width 10 rect
+    TrueAeroIVLOS = 27836, // Karukeion->self, 4.0s cast, range 50 width 10 rect
+    TrueAeroIV3 = 27837, // Karukeion->self, 10.0s cast, range 50 width 10 rect
 
     TrueBravery = 25907, // Boss->self, 5.0s cast, single-target
 

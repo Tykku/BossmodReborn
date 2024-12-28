@@ -169,7 +169,7 @@ class D043ZanderStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 831, NameID = 12752, SortOrder = 6)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 831, NameID = 12752, SortOrder = 7)]
 public class D043Zander(WorldState ws, Actor primary) : BossModule(ws, primary, new(90, -430), StartingBounds)
 {
     public static readonly ArenaBoundsCircle StartingBounds = new(19.5f);

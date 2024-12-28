@@ -77,7 +77,7 @@ class ToxicCorrosiveFountain(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID is AID.ToxicFountain or AID.CorrosiveFountain)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.ToxicFountain or AID.CorrosiveFountain)
             _aoes.RemoveAt(0);
     }
 }

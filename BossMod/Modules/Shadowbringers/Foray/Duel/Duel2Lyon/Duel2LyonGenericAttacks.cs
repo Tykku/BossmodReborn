@@ -214,15 +214,10 @@ class SpitefulFlameCircleVoidzone(BossModule module) : Components.GenericAOEs(mo
 
 class SpitefulFlameRect(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpitefulFlame2), new AOEShapeRect(80, 2));
 
-class DynasticFlame : Components.BaitAwayTethers
+class DynasticFlame(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(10), (uint)TetherID.fireorbs, centerAtTarget: true)
 {
     private ulong target;
     private int orbcount;
-
-    public DynasticFlame(BossModule module) : base(module, new AOEShapeCircle(10), (uint)TetherID.fireorbs)
-    {
-        CenterAtTarget = true;
-    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -233,13 +228,13 @@ class DynasticFlame : Components.BaitAwayTethers
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (target == actor.InstanceID && CurrentBaits.Count > 0)
+        if (target == actor.InstanceID && CurrentBaits.Count != 0)
             hints.AddForbiddenZone(ShapeDistance.Circle(Module.Center, 18));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (target == actor.InstanceID && CurrentBaits.Count > 0)
+        if (target == actor.InstanceID && CurrentBaits.Count != 0)
             hints.Add("Go to the edge and run until 4 orbs are spawned");
     }
 

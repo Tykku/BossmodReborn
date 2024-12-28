@@ -3,8 +3,8 @@
 // generic component that counts specified casts
 public class CastCounter(BossModule module, ActionID aid) : BossComponent(module)
 {
-    public ActionID WatchedAction { get; private set; } = aid;
-    public int NumCasts { get; protected set; }
+    public readonly ActionID WatchedAction = aid;
+    public int NumCasts;
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
@@ -15,8 +15,8 @@ public class CastCounter(BossModule module, ActionID aid) : BossComponent(module
 
 public class CastCounterMulti(BossModule module, ActionID[] aids) : BossComponent(module)
 {
-    public ActionID[] WatchedActions = aids;
-    public int NumCasts { get; protected set; }
+    public readonly ActionID[] WatchedActions = aids;
+    public int NumCasts;
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {

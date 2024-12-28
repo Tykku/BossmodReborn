@@ -38,18 +38,17 @@ public enum AID : uint
 abstract class LineVoltage(BossModule module, AID narrow, float delay, AID? wide1 = null, AID? wide2 = null) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeRect rectNarrow = new(50, 2.5f), rectWide = new(50, 5);
-    public readonly List<AOEInstance> AOEs = [];
+    public readonly List<AOEInstance> AOEs = new(18);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = AOEs.Count;
-        if (count > 0)
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < count; ++i)
         {
-            for (var i = 0; i < count; ++i)
-            {
-                var aoe = AOEs[i];
-                yield return (aoe.Activation - AOEs[0].Activation).TotalSeconds <= delay ? aoe with { Color = Colors.Danger } : aoe with { Risky = false };
-            }
+            var aoe = AOEs[i];
+            yield return (aoe.Activation - AOEs[0].Activation).TotalSeconds <= delay ? aoe with { Color = Colors.Danger } : aoe with { Risky = false };
         }
     }
 

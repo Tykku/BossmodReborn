@@ -3,6 +3,7 @@ namespace BossMod.Dawntrail.Alliance.A11Prishe;
 class AuroralUppercut(BossModule module) : Components.Knockback(module, ignoreImmunes: true)
 {
     private Source? _source;
+
     public override IEnumerable<Source> Sources(int slot, Actor actor) => _source != null && actor.FindStatus(SID.Knockback) == null ? Utils.ZeroOrOne(_source) : [];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -14,7 +15,7 @@ class AuroralUppercut(BossModule module) : Components.Knockback(module, ignoreIm
             AID.AuroralUppercut3 => 38,
             _ => 0
         };
-        if (distance > 0)
+        if (distance != 0)
             _source = new(Arena.Center, distance, Module.CastFinishAt(spell, 1.6f));
     }
 

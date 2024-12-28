@@ -437,14 +437,15 @@ public sealed class ReplayBuilder : IDisposable
 
     private void ModuleLoaded(BossModule module)
     {
-        _modules.Add(module.PrimaryActor.InstanceID, new(module, new(module.PrimaryActor.InstanceID, module.PrimaryActor.OID, _ws.CurrentZone)));
+        _modules.TryAdd(module.PrimaryActor.InstanceID, new(module, new(module.PrimaryActor.InstanceID, module.PrimaryActor.OID, _ws.CurrentZone)));
     }
 
     private void ModuleUnloaded(BossModule module)
     {
         if (!_modules.Remove(module.PrimaryActor.InstanceID, out var data))
-            throw new InvalidOperationException($"Module unloaded without being loaded before");
-
+            Service.Log($"Module not found for {module.PrimaryActor.InstanceID}");
+        if (data == null)
+            return;
         if (data.ActiveState != null)
         {
             data.Encounter.Phases.Add(new(data.ActivePhaseIndex, data.ActiveState.ID, _ws.CurrentTime));

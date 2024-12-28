@@ -83,16 +83,16 @@ public class GenericChasingAOEs(BossModule module, float moveDistance, ActionID 
 // standard chasing aoe; first cast is long - assume it is baited on the nearest allowed target; successive casts are instant
 public class StandardChasingAOEs(BossModule module, AOEShape shape, ActionID actionFirst, ActionID actionRest, float moveDistance, float secondsBetweenActivations, int maxCasts, bool resetExcludedTargets = false, uint icon = default, float activationDelay = 5.1f) : GenericChasingAOEs(module, moveDistance)
 {
-    public AOEShape Shape = shape;
-    public ActionID ActionFirst = actionFirst;
-    public ActionID ActionRest = actionRest;
-    public float MoveDistance = moveDistance;
-    public float SecondsBetweenActivations = secondsBetweenActivations;
+    public readonly AOEShape Shape = shape;
+    public readonly ActionID ActionFirst = actionFirst;
+    public readonly ActionID ActionRest = actionRest;
+    public readonly float MoveDistance = moveDistance;
+    public readonly float SecondsBetweenActivations = secondsBetweenActivations;
     public int MaxCasts = maxCasts;
     public BitMask ExcludedTargets; // any targets in this mask aren't considered to be possible targets
-    public uint Icon = icon;
-    public float ActivationDelay = activationDelay;
-    public bool ResetExcludedTargets = resetExcludedTargets;
+    public readonly uint Icon = icon;
+    public readonly float ActivationDelay = activationDelay;
+    public readonly bool ResetExcludedTargets = resetExcludedTargets;
     public readonly List<Actor> Actors = []; // to keep track of the icon before mechanic starts for handling custom forbidden zones
     public DateTime Activation;
 

@@ -61,7 +61,7 @@ class SwiftSpillRotation(BossModule module) : Components.GenericRotatingAOE(modu
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (Sequences.Count > 0 && (AID)spell.Action.ID is AID.SwiftSpillFirst or AID.SwiftSpillRest)
+        if ((AID)spell.Action.ID is AID.SwiftSpillFirst or AID.SwiftSpillRest)
             AdvanceSequence(0, WorldState.CurrentTime);
     }
 

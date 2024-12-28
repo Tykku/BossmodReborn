@@ -23,17 +23,15 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
     private readonly DebugAddon _debugAddon = new();
     private readonly DebugTiming _debugTiming = new();
     private readonly DebugTeleport _debugTeleport = new();
-    // private readonly DebugCollision _debugCollision = new();
+    private readonly DebugCollision _debugCollision = new();
     private readonly DebugQuests _debugQuests = new();
-    //private readonly DebugVfx _debugVfx = new();
 
     protected override void Dispose(bool disposing)
     {
         _debugAction.Dispose();
         _debugInput.Dispose();
         _debugAddon.Dispose();
-        // _debugCollision.Dispose();
-        // _debugVfx.Dispose();
+        _debugCollision.Dispose();
         base.Dispose(disposing);
     }
 
@@ -160,14 +158,10 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
         {
             DrawWindowSystem();
         }
-        // if (ImGui.CollapsingHeader("Collision"))
-        // {
-        //     _debugCollision.Draw();
-        // }
-        //if (ImGui.CollapsingHeader("VFX"))
-        //{
-        //    _debugVfx.Draw();
-        //}
+        if (ImGui.CollapsingHeader("Collision"))
+        {
+            _debugCollision.Draw();
+        }
         if (ImGui.CollapsingHeader("Limit break"))
         {
             DrawLimitBreak();
@@ -190,6 +184,12 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
         {
             var player = (Character*)GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
             player->GetStatusManager()->SetStatus(20, 3909, 20.0f, 100, 0xE0000000, true);
+        }
+        ImGui.SameLine();
+        if (ImGui.Button("Add thin ice"))
+        {
+            var player = (Character*)GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
+            player->GetStatusManager()->SetStatus(20, 911, 20.0f, 320, 0xE0000000, true); // param = distance * 10
         }
 
         foreach (var elem in ws.Actors)

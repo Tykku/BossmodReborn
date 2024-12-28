@@ -4,12 +4,15 @@ abstract class Sweethearts(BossModule module, uint oid, uint aid) : Components.G
 {
     private const int Radius = 1, Length = 3;
     private static readonly AOEShapeCapsule capsule = new(Radius, Length);
-    private readonly HashSet<Actor> _hearts = [];
+    private readonly List<Actor> _hearts = [];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        foreach (var h in _hearts)
+        for (var i = 0; i < _hearts.Count; ++i)
+        {
+            var h = _hearts[i];
             yield return new(capsule, h.Position, h.Rotation);
+        }
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)

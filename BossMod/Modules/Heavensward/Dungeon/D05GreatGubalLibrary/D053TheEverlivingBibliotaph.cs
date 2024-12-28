@@ -147,21 +147,23 @@ class D053EverlivingBibliotaphStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 31, NameID = 3930)]
 public class D053EverlivingBibliotaph(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Circle(new(377.8f, -59.7f), 24.5f)], [new Rectangle(new(353.541f, -59.553f), 20, 1.25f, 89.977f.Degrees())]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(377.8f, -59.7f), 24.5f, 80)], [new Rectangle(new(353.541f, -59.553f), 20, 1.25f, 89.977f.Degrees())]);
+    private static readonly uint[] adds = [(uint)OID.Bibliophile, (uint)OID.Biblioklept, (uint)OID.Bibliomancer];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Bibliophile).Concat([PrimaryActor]).Concat(Enemies(OID.Biblioklept)).Concat(Enemies(OID.Bibliomancer)));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(adds));
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.Biblioklept or OID.Bibliophile or OID.Bibliomancer => 2,
-                OID.Boss => 1,
+                OID.Biblioklept or OID.Bibliophile or OID.Bibliomancer => 1,
                 _ => 0
             };
         }

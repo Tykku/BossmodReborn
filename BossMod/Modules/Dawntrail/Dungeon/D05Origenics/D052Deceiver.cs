@@ -71,7 +71,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
             { 0x2D, new(defaultSquare, [westRows[0], westRows[3]]) },
             { 0x1D, new(defaultSquare, [westRows[0], westRows[3], eastRows[1], eastRows[2]]) },
             { 0x2B, new(defaultSquare, [westRows[0], westRows[2]]) },
-            { 0x1C, new(defaultSquare, [westRows[0], westRows[2], eastRows[1], eastRows[3]]) },
+            { 0x1C, new(defaultSquare, [westRows[0], westRows[2], eastRows[1], eastRows[3]]) }
         };
     }
 

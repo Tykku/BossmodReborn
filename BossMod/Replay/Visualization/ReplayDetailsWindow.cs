@@ -424,6 +424,8 @@ class ReplayDetailsWindow : UIWindow
         ImGui.TableHeadersRow();
         foreach (var actor in _player.WorldState.Actors)
         {
+            if (OpList.BoringOIDs.Contains(actor.OID) && !_player.WorldState.Party.WithoutSlot().Contains(actor))  // TODO: reconsider?
+                continue;
             ImGui.PushID((int)actor.InstanceID);
             ImGui.TableNextRow();
             DrawCommonColumns(actor);

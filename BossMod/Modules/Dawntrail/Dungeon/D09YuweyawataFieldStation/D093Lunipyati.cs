@@ -2,7 +2,6 @@
 
 public enum OID : uint
 {
-
     Boss = 0x464C, // R5.98
     Boulder1 = 0x1EBCC0, // R0.5
     Boulder2 = 0x1EBCC1, // R0.5
@@ -35,7 +34,7 @@ public enum AID : uint
     RockBlast = 40611, // Helper->self, 1.0s cast, range 5 circle
     TuraliStoneIV = 40616, // Helper->players, 5.0s cast, range 6 circle, stack
     SonicHowl = 40618, // Boss->self, 5.0s cast, range 60 circle, raidwide
-    Slabber = 40619, // Boss->player, 5.0s cast, single-target, tankbuster
+    Slabber = 40619 // Boss->player, 5.0s cast, single-target, tankbuster
 }
 
 class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
@@ -101,7 +100,7 @@ class RagingClaw(BossModule module) : Components.GenericAOEs(module)
 
 class BoulderDance(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(4);
     private static readonly AOEShapeCircle circle = new(7);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
@@ -139,16 +138,24 @@ class Slabber(BossModule module) : Components.SingleTargetCast(module, ActionID.
 
 class LeapingEarth(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(16);
     private static readonly AOEShapeCircle circle = new(5);
-    private readonly List<float> angles = [];
+    private readonly List<float> angles = new(4);
     private static readonly WPos[] spiralSmallPoints = [D093Lunipyati.ArenaCenter, new(31.8f, -715.5f), new(35, -721.7f), new(41, -722.5f)];
     private static readonly WPos[] spiralBigPoints = [D093Lunipyati.ArenaCenter, new(28.7f, -708.2f), new(29.4f, -714), new(35.4f, -715.8f),
     new(40, -711), new(38.7f, -705), new(34, -701.5f), new(28, -701.4f), new(24, -704.399f), new(22, -709.7f), new(23.1f, -715.099f),
     new(26.5f, -719.499f), new(32, -721.699f), new(38, -721.5f), new(43, -717.999f), new(45.7f, -712.699f), new(45.9f, -706.699f),
     new(42.9f, -701.2f), new(38.5f, -697), new(32.5f, -695.199f)];
     private int maxCasts;
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(maxCasts);
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < (count > maxCasts ? maxCasts : count); ++i)
+            yield return _aoes[i];
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -161,7 +168,8 @@ class LeapingEarth(BossModule module) : Components.GenericAOEs(module)
             for (var i = 0; i < 4; ++i)
                 total += angles[i];
             if ((int)total is 4 or -1)
-                GenerateAOEsForOppositePairPattern();
+                for (var i = 0; i < 4; ++i)
+                    AddAOEs(WPos.GenerateRotatedVertices(D093Lunipyati.ArenaCenter, spiralSmallPoints, angles[i] * Angle.RadToDeg));
             else if ((int)(2 * total) == 3)
                 GenerateAOEsForMixedPattern(-45, -135);
             else
@@ -179,10 +187,10 @@ class LeapingEarth(BossModule module) : Components.GenericAOEs(module)
         }
     }
 
-    private void GenerateAOEsForOppositePairPattern()
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        for (var i = 0; i < 4; ++i)
-            AddAOEs(WPos.GenerateRotatedVertices(D093Lunipyati.ArenaCenter, spiralSmallPoints, angles[i] * Angle.RadToDeg));
+        if (_aoes.Count != 0 && (AID)spell.Action.ID == AID.LeapingEarth)
+            _aoes.RemoveAt(0);
     }
 
     private void GenerateAOEsForMixedPattern(int intercardinalOffset, int cardinalOffset)
@@ -203,17 +211,11 @@ class LeapingEarth(BossModule module) : Components.GenericAOEs(module)
         for (var i = 0; i < 4; ++i)
             _aoes.Add(new(circle, points[i], default, WorldState.FutureTime(6.5f + 0.2f * i)));
     }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if (_aoes.Count != 0 && (AID)spell.Action.ID == AID.LeapingEarth)
-            _aoes.RemoveAt(0);
-    }
 }
 
 class RockBlast(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(15);
     private static readonly AOEShapeCircle circle = new(5);
 
     private static readonly WPos[] clockPositions = [new(34, -697), new(48, -710), new(21, -710), new(34, -724)];
@@ -225,7 +227,9 @@ class RockBlast(BossModule module) : Components.GenericAOEs(module)
         if (_aoes.Count == 0 && (AID)spell.Action.ID == AID.RockBlast)
         {
             var isClockwise = DetermineClockwise(caster, spell.Rotation);
-            AddAOEs(caster, spell, isClockwise);
+            var dir = (isClockwise ? 1 : -1) * 22.5f;
+            for (var i = 0; i < 15; ++i)
+                _aoes.Add(new(circle, WPos.RotateAroundOrigin(dir * i, D093Lunipyati.ArenaCenter, caster.Position), default, Module.CastFinishAt(spell, 0.6f * i)));
         }
     }
 
@@ -243,13 +247,6 @@ class RockBlast(BossModule module) : Components.GenericAOEs(module)
                 return rotation.AlmostEqual(Angle.AnglesCardinals[i], Angle.DegToRad);
         }
         return false;
-    }
-
-    private void AddAOEs(Actor caster, ActorCastInfo spell, bool isClockwise)
-    {
-        var dir = (isClockwise ? 1 : -1) * 22.5f;
-        for (var i = 0; i < 15; ++i)
-            _aoes.Add(new(circle, WPos.RotateAroundOrigin(dir * i, D093Lunipyati.ArenaCenter, caster.Position), default, Module.CastFinishAt(spell, 0.6f * i)));
     }
 }
 

@@ -22,13 +22,13 @@ public enum AID : uint
     HeavensfallVisual = 3815, // Boss->self, no cast, single-target
     Heavensfall1 = 3817, // Helper->player, no cast, range 5 circle
     Heavensfall2 = 3818, // Helper->location, 3.0s cast, range 5 circle
-    DarkStar = 3812, // Boss->self, 5.0s cast, range 50+R circle
+    DarkStar = 3812 // Boss->self, 5.0s cast, range 50+R circle
 }
 
 public enum IconID : uint
 {
     Comet = 10, // player
-    Meteor = 7, // player
+    Meteor = 7 // player
 }
 
 class HeavensfallBait(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(5), (uint)IconID.Comet, ActionID.MakeSpell(AID.Heavensfall1), 3.1f, true)
@@ -132,12 +132,12 @@ public class D023Tioman(WorldState ws, Actor primary) : BossModule(ws, primary, 
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.RightWingOfInjury or OID.LeftWingOfTragedy => 2,
-                OID.Boss => 1,
+                OID.RightWingOfInjury or OID.LeftWingOfTragedy => 1,
                 _ => 0
             };
         }

@@ -117,13 +117,20 @@ class CosmicKissCircle(BossModule module) : Components.LocationTargetedAOEs(modu
 
 class CosmicKissRect(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(9);
     private static readonly AOEShapeRect rect = new(50, 5);
     private static readonly Angle rotation = -90.Degrees();
     private const int X = 320;
-    private static readonly List<WPos> coords = [new(X, -142), new(X, -152), new(X, -162), new(X, -172)];
+    private static readonly WPos[] coords = [new(X, -142), new(X, -152), new(X, -162), new(X, -172)];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(3);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < (count > 3 ? 3 : count); ++i)
+            yield return _aoes[i];
+    }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
@@ -138,7 +145,7 @@ class CosmicKissRect(BossModule module) : Components.GenericAOEs(module)
                 _ => new List<int[]>()
             };
 
-            if (aoeSets.Count > 0)
+            if (aoeSets.Count != 0)
             {
                 AddAOEs(aoeSets[0], 4.3f);
                 AddAOEs(aoeSets[1], 9.5f);
@@ -147,15 +154,15 @@ class CosmicKissRect(BossModule module) : Components.GenericAOEs(module)
         }
     }
 
-    private void AddAOEs(IEnumerable<int> indices, float delay)
+    private void AddAOEs(int[] indices, float delay)
     {
-        foreach (var index in indices)
-            _aoes.Add(new(rect, coords[index], rotation, WorldState.FutureTime(delay)));
+        for (var i = 0; i < 3; ++i)
+            _aoes.Add(new(rect, coords[indices[i]], rotation, WorldState.FutureTime(delay)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.CosmicKissRect)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID == AID.CosmicKissRect)
             _aoes.RemoveAt(0);
     }
 }
@@ -164,20 +171,17 @@ class CosmicKissRaidwide(BossModule module) : Components.RaidwideCast(module, Ac
 
 class CosmicKissKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.CosmicKiss), 13)
 {
-    private static readonly Angle a90 = 90.Degrees();
-    private static readonly Angle a45 = 45.Degrees();
-    private static readonly Angle a0 = 0.Degrees();
-    private static readonly Angle a180 = 180.Degrees();
+    private static readonly Angle a90 = 90.Degrees(), a45 = 45.Degrees(), a0 = 0.Degrees(), a180 = 180.Degrees();
 
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<ChaoticUndercurrent>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || !Module.InBounds(pos);
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var forbidden = new List<Func<WPos, float>>();
         var component = Module.FindComponent<ChaoticUndercurrent>()?.ActiveAOEs(slot, actor)?.ToList();
         var source = Sources(slot, actor).FirstOrDefault();
         if (component != null && component.Count != 0 && source != default)
         {
+            var forbidden = new List<Func<WPos, float>>(2);
             if (component!.Any(x => x.Origin.Z == -152) && component!.Any(x => x.Origin.Z == -162))
             {
                 forbidden.Add(ShapeDistance.InvertedCone(Arena.Center, 7, a0, a45));
@@ -192,7 +196,7 @@ class CosmicKissKnockback(BossModule module) : Components.KnockbackFromCastTarge
                 forbidden.Add(ShapeDistance.InvertedCone(Arena.Center, 7, a180, a90));
             else if (component!.Any(x => x.Origin.Z == -162) && component!.Any(x => x.Origin.Z == -172))
                 forbidden.Add(ShapeDistance.InvertedCone(Arena.Center, 7, a0, a90));
-            if (forbidden.Count > 0)
+            if (forbidden.Count != 0)
                 hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), source.Activation);
         }
     }

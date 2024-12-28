@@ -76,10 +76,7 @@ class BrightSphere(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Execution : Components.BaitAwayIcon
-{
-    public Execution(BossModule module) : base(module, new AOEShapeCircle(5), (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.Execution), 4.8f) { CenterAtTarget = true; }
-}
+class Execution(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(5), (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.Execution), 4.8f, true);
 
 class ShiningBlade(BossModule module) : Components.GenericAOEs(module)
 {

@@ -155,20 +155,20 @@ class Stars(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeDonut donut = new(5, 40);
     private static readonly AOEShapeCircle circle = new(16);
-
-    private readonly List<AOEInstance> _aoesLongTether = [];
-    private readonly List<AOEInstance> _aoesShortTether = [];
-    private static readonly WPos _frozenStarShortTether = new(230, 86);
-    private static readonly WPos _frozenStarLongTether = new(230, 92);
-    private static readonly WPos _donut = new(230, 79);
-    private static readonly WPos _circle1 = new(241, 79);
-    private static readonly WPos _circle2 = new(219, 79);
+    private readonly List<AOEInstance> _aoes = [];
+    private static readonly WPos _frozenStarShortTether = new(230, 86), _frozenStarLongTether = new(230, 92);
+    private static readonly WPos _donut = new(230, 79), _circle1 = new(241, 79), _circle2 = new(219, 79);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        var aoes = _aoesShortTether.Count > 0 ? _aoesShortTether : _aoesLongTether;
-        foreach (var aoe in aoes)
-            yield return new AOEInstance(aoe.Shape, aoe.Origin, default, aoe.Activation);
+        var count = _aoes.Count;
+        if (count != 0)
+            for (var i = 0; i < count; ++i)
+            {
+                var aoe = _aoes[i];
+                if ((aoe.Activation - _aoes[0].Activation).TotalSeconds <= 1)
+                    yield return aoe;
+            }
     }
 
     public override void OnActorCreated(Actor actor)
@@ -179,28 +179,25 @@ class Stars(BossModule module) : Components.GenericAOEs(module)
         {
             if (actor.Position == _frozenStarLongTether)
             {
-                _aoesShortTether.Add(new(circle, _circle1, default, activation1));
-                _aoesShortTether.Add(new(circle, _circle2, default, activation1));
-                _aoesLongTether.Add(new(donut, _donut, default, activation2));
+                _aoes.Add(new(circle, _circle1, default, activation1));
+                _aoes.Add(new(circle, _circle2, default, activation1));
+                _aoes.Add(new(donut, _donut, default, activation2));
             }
             else if (actor.Position == _frozenStarShortTether)
             {
-                _aoesShortTether.Add(new(donut, _donut, default, activation1));
-                _aoesLongTether.Add(new(circle, _circle1, default, activation2));
-                _aoesLongTether.Add(new(circle, _circle2, default, activation2));
+                _aoes.Add(new(donut, _donut, default, activation1));
+                _aoes.Add(new(circle, _circle1, default, activation2));
+                _aoes.Add(new(circle, _circle2, default, activation2));
             }
         }
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.CircleOfIcePrime or AID.FireSpherePrime)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.CircleOfIcePrime or AID.FireSpherePrime)
         {
-            NumCasts++;
-            if (_aoesShortTether.Count != 0)
-                _aoesShortTether.RemoveAt(0);
-            else
-                _aoesLongTether.Clear();
+            ++NumCasts;
+            _aoes.RemoveAt(0);
         }
     }
 }
@@ -233,19 +230,10 @@ class D064AscianPrimeStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 38, NameID = 3823)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 38, NameID = 3823, SortOrder = 11)]
 public class D064AscianPrime(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly WPos[] vertices = [new(230.1f, 58.66f), new(234.87f, 59.29f), new(235.46f, 59.42f), new(240.04f, 61.32f), new(240.54f, 61.66f),
-    new(244.09f, 64.38f), new(244.52f, 64.77f), new(247.63f, 68.83f), new(249.53f, 73.43f), new(249.69f, 74),
-    new(250.3f, 78.68f), new(250.33f, 79.19f), new(249.72f, 83.76f), new(249.62f, 84.35f), new(247.73f, 88.91f),
-    new(247.47f, 89.37f), new(244.53f, 93.2f), new(244.15f, 93.57f), new(240.69f, 96.23f), new(240.26f, 96.52f),
-    new(239.77f, 96.74f), new(235.7f, 98.28f), new(235.4f, 98.77f), new(222.57f, 98.77f), new(222.38f, 98.2f),
-    new(222.04f, 97.81f), new(219.9f, 96.66f), new(215.6f, 93.36f), new(212.6f, 89.45f), new(212.28f, 88.91f),
-    new(210.39f, 84.36f), new(210.29f, 83.78f), new(209.66f, 79.02f), new(210.34f, 73.83f), new(210.54f, 73.27f),
-    new(212.22f, 69.21f), new(212.47f, 68.7f), new(215.59f, 64.64f), new(219.87f, 61.36f), new(224.41f, 59.48f),
-    new(224.99f, 59.31f), new(229.86f, 58.67f)];
-    public static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    public static readonly ArenaBoundsComplex arena = new([new Polygon(new(230, 79), 20.26f, 24)], [new Rectangle(new(230, 98), 5, 1.5f)], [new Rectangle(new(228.95f, 97), 6.55f, 1.7f)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

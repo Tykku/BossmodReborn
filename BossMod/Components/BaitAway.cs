@@ -7,7 +7,7 @@ public class GenericBaitAway(BossModule module, ActionID aid = default, bool alw
 {
     public record struct Bait(Actor Source, Actor Target, AOEShape Shape, DateTime Activation = default)
     {
-        public Angle? CustomRotation { get; init; }
+        public Angle? CustomRotation;
 
         public readonly Angle Rotation => CustomRotation ?? (Source != Target ? Angle.FromDirection(Target.Position - Source.Position) : Source.Rotation);
 
@@ -18,8 +18,8 @@ public class GenericBaitAway(BossModule module, ActionID aid = default, bool alw
         }
     }
 
-    public bool AlwaysDrawOtherBaits = alwaysDrawOtherBaits; // if false, other baits are drawn only if they are clipping a player
-    public bool CenterAtTarget = centerAtTarget; // if true, aoe source is at target
+    public readonly bool AlwaysDrawOtherBaits = alwaysDrawOtherBaits; // if false, other baits are drawn only if they are clipping a player
+    public readonly bool CenterAtTarget = centerAtTarget; // if true, aoe source is at target
     public bool AllowDeadTargets = true; // if false, baits with dead targets are ignored
     public bool EnableHints = true;
     public bool IgnoreOtherBaits; // if true, don't show hints/aoes for baits by others
@@ -81,7 +81,6 @@ public class GenericBaitAway(BossModule module, ActionID aid = default, bool alw
                 case AOEShapeCone cone:
                     hints.AddForbiddenZone(ShapeDistance.Cone(bait.Source.Position, 100, bait.Source.AngleTo(a), cone.HalfAngle), bait.Activation);
                     break;
-
                 case AOEShapeRect rect:
                     hints.AddForbiddenZone(ShapeDistance.Cone(bait.Source.Position, 100, bait.Source.AngleTo(a), Angle.Asin(rect.HalfWidth / (a.Position - bait.Source.Position).Length())), bait.Activation);
                     break;
