@@ -84,18 +84,17 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 class Soulweave(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeDonut donut = new(28, 32);
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(10);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        if (count > 0)
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < count; ++i)
         {
-            for (var i = 0; i < count; ++i)
-            {
-                var aoe = _aoes[i];
-                yield return (aoe.Activation - _aoes[0].Activation).TotalSeconds <= 1.2 ? aoe with { Color = Colors.Danger } : aoe with { Risky = false };
-            }
+            var aoe = _aoes[i];
+            yield return (aoe.Activation - _aoes[0].Activation).TotalSeconds <= 1.2 ? aoe with { Color = Colors.Danger } : aoe with { Risky = false };
         }
     }
 
@@ -172,7 +171,7 @@ class D092OverseerKanilokkaStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1008, NameID = 13634, SortOrder = 6)]
 public class D092OverseerKanilokka(WorldState ws, Actor primary) : BossModule(ws, primary, StartingBounds.Center, StartingBounds)
 {
-    private const int Edges = 60;
+    private const int Edges = 64;
     public static readonly WPos ArenaCenter = new(116, -66);
     public static readonly Polygon[] StartingPolygon = [new Polygon(ArenaCenter, 19.5f * CosPI.Pi60th, Edges)];
     public static readonly Polygon[] TinyPolygon = [new Polygon(ArenaCenter, 5, Edges)];

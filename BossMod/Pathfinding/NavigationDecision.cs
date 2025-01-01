@@ -31,6 +31,7 @@ public struct NavigationDecision
         UptimeBlocked,
         BackIntoBounds,
         Casting,
+        Waiting,
         Optimal
     }
 

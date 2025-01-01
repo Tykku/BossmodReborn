@@ -127,7 +127,8 @@ public sealed class AIHints
     // fill list of potential targets from world state
     public void FillPotentialTargets(WorldState ws, bool playerIsDefaultTank)
     {
-        var playerInFate = ws.Client.ActiveFate.ID != 0 && ws.Party.Player()?.Level <= Service.LuminaRow<Lumina.Excel.Sheets.Fate>(ws.Client.ActiveFate.ID)?.ClassJobLevelMax;
+        var playerInFate = ws.Client.ActiveFate.ID != 0 && (ws.Party.Player()?.Level <= Service.LuminaRow<Lumina.Excel.Sheets.Fate>(ws.Client.ActiveFate.ID)?.ClassJobLevelMax
+        || Service.LuminaRow<Lumina.Excel.Sheets.Fate>(ws.Client.ActiveFate.ID)?.EurekaFate == 1); // TODO: find out how to get the current player elemental level
         var allowedFateID = playerInFate ? ws.Client.ActiveFate.ID : 0;
         foreach (var actor in ws.Actors.Where(a => a.IsTargetable && !a.IsAlly && !a.IsDead))
         {

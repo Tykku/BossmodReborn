@@ -90,13 +90,12 @@ public class StateMachineTree
         }
     }
 
-    private readonly Dictionary<uint, Node> _nodes = [];
-    public IReadOnlyDictionary<uint, Node> Nodes => _nodes;
+    public readonly Dictionary<uint, Node> Nodes = [];
 
-    public List<Phase> Phases { get; } = [];
+    public readonly List<Phase> Phases = [];
 
-    public int TotalBranches { get; private set; }
-    public float TotalMaxTime { get; private set; }
+    public int TotalBranches;
+    public float TotalMaxTime;
 
     public StateMachineTree(StateMachine sm)
     {
@@ -151,7 +150,7 @@ public class StateMachineTree
 
     private (Node, float) LayoutNodeAndSuccessors(float t, int phaseID, int branchID, StateMachine.State state, StateMachine.Phase phase, Node? pred)
     {
-        var node = _nodes[state.ID] = new Node(t + state.Duration, phaseID, branchID, state, phase, pred);
+        var node = Nodes[state.ID] = new Node(t + state.Duration, phaseID, branchID, state, phase, pred);
         float succDuration = 0;
 
         if (state.NextStates?.Length > 0)

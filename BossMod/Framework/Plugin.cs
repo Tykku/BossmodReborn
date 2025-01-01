@@ -199,16 +199,16 @@ public sealed class Plugin : IDalamudPlugin
     {
         var defaultConfig = ColorConfig.DefaultConfig;
         var currentConfig = Service.Config.Get<ColorConfig>();
-        var properties = typeof(ColorConfig).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        var fields = typeof(ColorConfig).GetFields(BindingFlags.Public | BindingFlags.Instance);
 
-        for (var i = 0; i < properties.Length; ++i)
+        for (var i = 0; i < fields.Length; ++i)
         {
-            var property = properties[i];
-            if (!property.CanWrite)
-                continue;
-            property.SetValue(currentConfig, property.GetValue(defaultConfig));
+            var field = fields[i];
+            var value = field.GetValue(defaultConfig);
+            if (value is Color or Color[])
+                field.SetValue(currentConfig, value);
         }
-        currentConfig.ArenaBackground = defaultConfig.ArenaBackground;
+
         currentConfig.Modified.Fire();
         Service.Log("Colors have been reset to default values.");
     }

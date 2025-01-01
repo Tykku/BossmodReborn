@@ -33,12 +33,13 @@ public abstract class GenericAOEs(BossModule module, ActionID aid = default, str
 }
 
 // self-targeted aoe that happens at the end of the cast
-public class SelfTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, int maxCasts = int.MaxValue, uint color = 0) : GenericAOEs(module, aid)
+public class SelfTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, int maxCasts = int.MaxValue, float riskyAfterSeconds = 0, uint color = 0) : GenericAOEs(module, aid)
 {
     public readonly AOEShape Shape = shape;
     public int MaxCasts = maxCasts; // used for staggered aoes, when showing all active would be pointless
     public uint Color = color;
     public bool Risky = true; // can be customized if needed
+    public float RiskyAfterSeconds = riskyAfterSeconds; // can be used to delay risky status of AOEs, so AI waits longer to dodge, if 0 it will just use the bool Risky
     public readonly List<Actor> Casters = [];
 
     public IEnumerable<Actor> ActiveCasters => Casters.Take(MaxCasts);
@@ -53,7 +54,7 @@ public class SelfTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, i
         for (var i = 0; i < min; ++i)
         {
             var caster = Casters[i];
-            AOEInstance aoeInstance = new(Shape, caster.Position, caster.CastInfo!.Rotation, Module.CastFinishAt(caster.CastInfo));
+            AOEInstance aoeInstance = new(Shape, caster.Position, caster.CastInfo!.Rotation, Module.CastFinishAt(caster.CastInfo), Color, RiskyAfterSeconds == 0 ? Risky : caster.CastInfo.ElapsedTime > RiskyAfterSeconds);
             aoes.Add(aoeInstance);
         }
         return aoes;
@@ -97,14 +98,15 @@ public class SelfTargetedLegacyRotationAOEs(BossModule module, ActionID aid, AOE
 }
 
 // location-targeted circle aoe that happens at the end of the cast
-public class LocationTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, int maxCasts = int.MaxValue, bool targetIsLocation = false) : GenericAOEs(module, aid)
+public class LocationTargetedAOEs(BossModule module, ActionID aid, AOEShape shape, int maxCasts = int.MaxValue, float riskyWithSecondsLeft = 0, bool targetIsLocation = false) : GenericAOEs(module, aid)
 {
-    public LocationTargetedAOEs(BossModule module, ActionID aid, float radius, int maxCasts = int.MaxValue, bool targetIsLocation = false) : this(module, aid, new AOEShapeCircle(radius), maxCasts, targetIsLocation) { }
+    public LocationTargetedAOEs(BossModule module, ActionID aid, float radius, float riskyWithSecondsLeft = 0, int maxCasts = int.MaxValue, bool targetIsLocation = false) : this(module, aid, new AOEShapeCircle(radius), maxCasts, riskyWithSecondsLeft, targetIsLocation) { }
     public readonly AOEShape Shape = shape;
     public readonly int MaxCasts = maxCasts; // used for staggered aoes, when showing all active would be pointless
     public uint Color; // can be customized if needed
     public bool Risky = true; // can be customized if needed
     public readonly bool TargetIsLocation = targetIsLocation; // can be customized if needed
+    public float RiskyWithSecondsLeft = riskyWithSecondsLeft; // can be used to delay risky status of AOEs, so AI waits longer to dodge, if 0 it will just use the bool Risky
 
     public readonly List<AOEInstance> Casters = [];
     public IEnumerable<AOEInstance> ActiveCasters => Casters.Take(MaxCasts);
@@ -114,17 +116,18 @@ public class LocationTargetedAOEs(BossModule module, ActionID aid, AOEShape shap
         var count = Casters.Count;
         if (count == 0)
             yield break;
+        var time = WorldState.CurrentTime;
         for (var i = 0; i < (count > MaxCasts ? MaxCasts : count); ++i)
-            yield return Casters[i];
+        {
+            var caster = Casters[i];
+            yield return RiskyWithSecondsLeft == 0 ? caster : caster with { Risky = caster.Activation.AddSeconds(-RiskyWithSecondsLeft) <= time };
+        }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action == WatchedAction)
-        {
-            var loc = TargetIsLocation ? WorldState.Actors.Find(caster.CastInfo!.TargetID)?.Position : spell.LocXZ;
-            Casters.Add(new(Shape, loc ?? default, spell.Rotation, Module.CastFinishAt(spell), Color, Risky));
-        }
+            Casters.Add(new(Shape, (TargetIsLocation ? WorldState.Actors.Find(caster.CastInfo!.TargetID)?.Position : spell.LocXZ) ?? default, spell.Rotation, Module.CastFinishAt(spell), Color, Risky));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
@@ -135,9 +138,10 @@ public class LocationTargetedAOEs(BossModule module, ActionID aid, AOEShape shap
 }
 
 // 'charge at location' aoes that happen at the end of the cast
-public class ChargeAOEs(BossModule module, ActionID aid, float halfWidth) : GenericAOEs(module, aid)
+public class ChargeAOEs(BossModule module, ActionID aid, float halfWidth, float riskyAfterSeconds = 0) : GenericAOEs(module, aid)
 {
     public readonly float HalfWidth = halfWidth;
+    public float RiskyAfterSeconds = riskyAfterSeconds; // can be used to delay risky status of AOEs, so AI waits longer to dodge, if 0 it will just use the bool Risky
     public readonly List<(Actor caster, AOEShape shape, Angle direction)> Casters = [];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
@@ -149,7 +153,7 @@ public class ChargeAOEs(BossModule module, ActionID aid, float halfWidth) : Gene
         for (var i = 0; i < count; ++i)
         {
             var csr = Casters[i];
-            AOEInstance aoeInstance = new(csr.shape, csr.caster.Position, csr.direction, Module.CastFinishAt(csr.caster.CastInfo));
+            AOEInstance aoeInstance = new(csr.shape, csr.caster.Position, csr.direction, Module.CastFinishAt(csr.caster.CastInfo), Risky: csr.caster.CastInfo?.ElapsedTime > RiskyAfterSeconds);
             aoes.Add(aoeInstance);
         }
         return aoes;

@@ -3,7 +3,7 @@
 class ShiningBladeKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.FaithUnmoving), 16)
 {
     private WDir _dirToAdelphel = (module.Enemies(OID.SerAdelphel).FirstOrDefault()?.Position ?? module.Center) - module.Center; // we don't want to be knocked near adelphel
-    private readonly IReadOnlyList<Actor> _tears = module.Enemies(OID.AetherialTear); // we don't want to be knocked into them
+    private readonly List<Actor> _tears = module.Enemies(OID.AetherialTear); // we don't want to be knocked into them
 
     private const float _tearRadius = 9; // TODO: verify
 

@@ -96,7 +96,7 @@ class PrimordialRoar2(BossModule module) : Components.RaidwideCast(module, Actio
 
 class OrbCollecting(BossModule module) : BossComponent(module)
 {
-    private readonly IReadOnlyList<Actor> _orbs = module.Enemies(OID.Orbs);
+    private readonly List<Actor> _orbs = module.Enemies(OID.Orbs);
 
     private IEnumerable<Actor> ActiveOrbs => _orbs.Where(x => x.Tether.ID != 0);
 

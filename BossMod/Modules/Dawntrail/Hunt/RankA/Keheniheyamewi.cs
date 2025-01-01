@@ -8,7 +8,6 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
-
     Scatterscourge1 = 39807, // Boss->self, 4.0s cast, range 10-40 donut
     BodyPress = 40063, // Boss->self, 4.0s cast, range 15 circle
     SlipperyScatterscourge = 38648, // Boss->self, 5.0s cast, range 20 width 10 rect
@@ -17,7 +16,7 @@ public enum AID : uint
     PoisonGas = 38652, // Boss->self, 5.0s cast, range 60 circle
     BodyPress2 = 38651, // Boss->self, 4.0s cast, range 15 circle
     MalignantMucus = 38653, // Boss->self, 5.0s cast, single-target
-    PoisonMucus = 38654 // Boss->location, 1.0s cast, range 6 circle
+    PoisonMucus = 38654, // Boss->location, 1.0s cast, range 6 circle
 }
 
 public enum SID : uint
@@ -43,20 +42,26 @@ class SlipperyScatterscourge(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_caster == null || _finishedCast)
+        if (_caster == null)
             yield break;
 
-        var rectEndPosition = GetRectEndPosition(_caster.Position, _caster.Rotation, _shapeRect.LengthFront);
+        var rectEndPos = default(WPos);
+        if (!_finishedCast)
+            rectEndPos = GetRectEndPosition(_caster.Position, _caster.Rotation, _shapeRect.LengthFront);
 
         foreach (var aoe in _activeAOEs)
         {
             if (aoe.Shape == _shapeRect)
             {
-                yield return new(_shapeRect, _caster.Position, _caster.Rotation, aoe.Activation, aoe.Color, aoe.Risky);
+                if (!_finishedCast)
+                    yield return new(_shapeRect, _caster.Position, _caster.Rotation, aoe.Activation, aoe.Color, aoe.Risky);
             }
             else if (aoe.Shape == _shapeDonut || aoe.Shape == _shapeCircle)
             {
-                yield return new(aoe.Shape, rectEndPosition, aoe.Rotation, aoe.Activation, aoe.Color, aoe.Risky);
+                if (!_finishedCast)
+                    yield return new(aoe.Shape, rectEndPos, aoe.Rotation, aoe.Activation, aoe.Color, aoe.Risky);
+                else
+                    yield return aoe;
             }
             else
             {
@@ -69,32 +74,36 @@ class SlipperyScatterscourge(BossModule module) : Components.GenericAOEs(module)
     {
         if (spell.Action.ID != (uint)AID.SlipperyScatterscourge)
             return;
+
         var activation = WorldState.FutureTime(10);
         _caster = caster;
         _finishedCast = false;
-        _activeAOEs.Add(new(_shapeRect, _caster.Position, _caster.Rotation, activation, Colors.Danger));
 
-        var rectEndPosition = GetRectEndPosition(_caster.Position, _caster.Rotation, _shapeRect.LengthFront);
-
-        _activeAOEs.Add(new(_shapeDonut, rectEndPosition, default, activation));
-        _activeAOEs.Add(new(_shapeCircle, rectEndPosition, default, activation, Colors.SafeFromAOE, false));
+        _activeAOEs.Add(new(_shapeRect, caster.Position, caster.Rotation, activation, Colors.Danger));
+        _activeAOEs.Add(new(_shapeDonut, caster.Position, default, activation));
+        _activeAOEs.Add(new(_shapeCircle, caster.Position, default, activation, Colors.SafeFromAOE, false));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action.ID == (uint)AID.SlipperyScatterscourge)
+        if (_caster != null && spell.Action.ID == (uint)AID.SlipperyScatterscourge)
         {
-            var activation = WorldState.FutureTime(10);
-            var index = _activeAOEs.FindIndex(aoe => aoe.Shape == _shapeDonut);
-            if (index != -1)
+            var finalPos = GetRectEndPosition(_caster.Position, _caster.Rotation, _shapeRect.LengthFront);
+            var futureActivation = WorldState.FutureTime(10);
+
+            for (int i = 0; i < _activeAOEs.Count; ++i)
             {
-                _activeAOEs[index] = new(_shapeDonut, _activeAOEs[index].Origin, _activeAOEs[index].Rotation, activation, Colors.Danger);
-                var circleIndex = _activeAOEs.FindIndex(aoe => aoe.Shape == _shapeCircle);
-                if (circleIndex != -1)
+                var aoe = _activeAOEs[i];
+                if (aoe.Shape == _shapeDonut)
                 {
-                    _activeAOEs[circleIndex] = new(_shapeCircle, _activeAOEs[circleIndex].Origin, _activeAOEs[circleIndex].Rotation, activation, Colors.SafeFromAOE, false);
+                    _activeAOEs[i] = new(_shapeDonut, finalPos, aoe.Rotation, futureActivation, Colors.Danger);
+                }
+                else if (aoe.Shape == _shapeCircle)
+                {
+                    _activeAOEs[i] = new(_shapeCircle, finalPos, aoe.Rotation, futureActivation, Colors.SafeFromAOE, false);
                 }
             }
+
             _finishedCast = true;
         }
         else if (spell.Action.ID == (uint)AID.Scatterscourge2)
@@ -107,9 +116,7 @@ class SlipperyScatterscourge(BossModule module) : Components.GenericAOEs(module)
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if (spell.Action.ID == (uint)AID.WildCharge && _caster != null)
-        {
             _activeAOEs.RemoveAll(aoe => aoe.Shape == _shapeRect);
-        }
     }
 
     private static WPos GetRectEndPosition(WPos origin, Angle rotation, float lengthFront)
@@ -121,7 +128,7 @@ class SlipperyScatterscourge(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class PoisonGas(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PoisonGas), "Applies Forced March!");
+class PoisonGas(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PoisonGas), "Raidwide & Forced March (13s)");
 
 class PoisonGasMarch(BossModule module) : Components.StatusDrivenForcedMarch(module, 3, (uint)SID.ForwardMarch, (uint)SID.AboutFace, (uint)SID.LeftFace, (uint)SID.RightFace, 5)
 {
@@ -159,4 +166,3 @@ class KeheniheyamewiStates : StateMachineBuilder
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Shinryin", GroupType = BossModuleInfo.GroupType.Hunt, GroupID = (uint)BossModuleInfo.HuntRank.A, NameID = 13401)]
 public class Keheniheyamewi(WorldState ws, Actor primary) : SimpleBossModule(ws, primary);
-

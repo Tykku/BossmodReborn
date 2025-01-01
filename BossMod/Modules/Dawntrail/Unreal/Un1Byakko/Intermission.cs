@@ -25,7 +25,7 @@ class Intermission(BossModule module) : BossComponent(module)
     }
 }
 
-class IntermissionOrbAratama(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.IntermissionOrbAratama), "GTFO from puddle!")
+class IntermissionOrbAratama(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.IntermissionOrbAratama))
 {
     public readonly List<AOEInstance> AOEs = [];
 

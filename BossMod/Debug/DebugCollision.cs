@@ -376,7 +376,7 @@ public sealed unsafe class DebugCollision() : IDisposable
 
         using var n = _tree.Node2(tag);
         if (n.SelectedOrHovered)
-            VisualizeColliderMeshPCBNode(node, ref world, new(1, 1, 0, 0.7f), objMatId, objMatId, _materialId, _materialMask);
+            VisualizeColliderMeshPCBNode(node, ref world, Colors.CollisionColor1, objMatId, objMatId, _materialId, _materialMask);
         if (!n.Opened)
             return;
 
@@ -434,13 +434,13 @@ public sealed unsafe class DebugCollision() : IDisposable
                         for (int i = 0; i < cast->Header->NumMeshes; ++i)
                         {
                             var elem = cast->Elements + i;
-                            VisualizeColliderMesh(elem->Mesh, new Vector4(0, 1, 0, 0.7f), _materialId, _materialMask);
+                            VisualizeColliderMesh(elem->Mesh, Colors.CollisionColor1, _materialId, _materialMask);
                         }
                     }
                 }
                 break;
             case ColliderType.Mesh:
-                VisualizeColliderMesh((ColliderMesh*)coll, new(_streamedMeshes.Contains((nint)coll) ? 0 : 1, 1, 0, 0.7f), _materialId, _materialMask);
+                VisualizeColliderMesh((ColliderMesh*)coll, _streamedMeshes.Contains((nint)coll) ? Colors.CollisionColor1 : Colors.CollisionColor2, _materialId, _materialMask);
                 break;
             case ColliderType.Box:
                 {
@@ -482,7 +482,7 @@ public sealed unsafe class DebugCollision() : IDisposable
         }
     }
 
-    private void VisualizeColliderMesh(ColliderMesh* coll, Vector4 color, BitMask filterId, BitMask filterMask)
+    private void VisualizeColliderMesh(ColliderMesh* coll, uint color, BitMask filterId, BitMask filterMask)
     {
         if (coll != null && !coll->MeshIsSimple && coll->Mesh != null)
         {
@@ -491,13 +491,12 @@ public sealed unsafe class DebugCollision() : IDisposable
         }
     }
 
-    private void VisualizeColliderMeshPCBNode(MeshPCB.FileNode* node, ref Matrix4x3 world, Vector4 color, ulong objMatId, ulong objMatInvMask, BitMask filterId, BitMask filterMask)
+    private void VisualizeColliderMeshPCBNode(MeshPCB.FileNode* node, ref Matrix4x3 world, uint color, ulong objMatId, ulong objMatInvMask, BitMask filterId, BitMask filterMask)
     {
         if (node == null)
             return;
 
-        var colorArgb = ToArgb(color);
-        if (node->NumVertsRaw + node->NumVertsCompressed > 0)
+        if (node->NumVertsRaw + node->NumVertsCompressed != 0)
         {
             for (var i = 0; i < node->NumPrims; ++i)
             {
@@ -507,24 +506,14 @@ public sealed unsafe class DebugCollision() : IDisposable
                 var v2 = world.TransformCoordinate(node->Vertex(prim.V2));
                 var v3 = world.TransformCoordinate(node->Vertex(prim.V3));
 
-                Camera.Instance?.DrawWorldLine(v1, v2, colorArgb);
-                Camera.Instance?.DrawWorldLine(v2, v3, colorArgb);
-                Camera.Instance?.DrawWorldLine(v3, v1, colorArgb);
+                Camera.Instance?.DrawWorldLine(v1, v2, color);
+                Camera.Instance?.DrawWorldLine(v2, v3, color);
+                Camera.Instance?.DrawWorldLine(v3, v1, color);
             }
         }
 
         VisualizeColliderMeshPCBNode(node->Child1, ref world, color, objMatId, objMatInvMask, filterId, filterMask);
         VisualizeColliderMeshPCBNode(node->Child2, ref world, color, objMatId, objMatInvMask, filterId, filterMask);
-    }
-
-    private static uint ToArgb(Vector4 color)
-    {
-        var r = (byte)(color.X * 255);
-        var g = (byte)(color.Y * 255);
-        var b = (byte)(color.Z * 255);
-        var a = (byte)(color.W * 255);
-
-        return (uint)((a << 24) | (b << 16) | (g << 8) | r);
     }
 
     private void VisualizeOBB(ref AABB localBB, ref Matrix4x3 world, uint color)

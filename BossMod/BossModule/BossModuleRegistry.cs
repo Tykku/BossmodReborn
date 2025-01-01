@@ -164,7 +164,7 @@ public static class BossModuleRegistry
         }
     }
 
-    private static readonly Dictionary<uint, Info> _modulesByOID = []; // [primary-actor-oid] = module info
+    public static readonly Dictionary<uint, Info> RegisteredModules = []; // [primary-actor-oid] = module info
     private static readonly Dictionary<Type, Info> _modulesByType = []; // [module-type] = module info
 
     static BossModuleRegistry()
@@ -175,14 +175,12 @@ public static class BossModuleRegistry
             if (info == null)
                 continue;
             _modulesByType[t] = info;
-            if (!_modulesByOID.TryAdd(info.PrimaryActorOID, info))
-                Service.Log($"Two boss modules have same primary actor OID: {t.Name} and {_modulesByOID[info.PrimaryActorOID].ModuleType.Name}");
+            if (!RegisteredModules.TryAdd(info.PrimaryActorOID, info))
+                Service.Log($"Two boss modules have same primary actor OID: {t.Name} and {RegisteredModules[info.PrimaryActorOID].ModuleType.Name}");
         }
     }
 
-    public static IReadOnlyDictionary<uint, Info> RegisteredModules => _modulesByOID;
-
-    public static Info? FindByOID(uint oid) => _modulesByOID.GetValueOrDefault(oid);
+    public static Info? FindByOID(uint oid) => RegisteredModules.GetValueOrDefault(oid);
     public static Info? FindByType(Type type) => _modulesByType.GetValueOrDefault(type);
 
     public static BossModule? CreateModule(Info? info, WorldState ws, Actor primary) => info?.ModuleFactory(ws, primary);

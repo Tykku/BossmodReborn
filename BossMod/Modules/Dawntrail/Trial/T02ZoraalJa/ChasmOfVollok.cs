@@ -2,7 +2,7 @@ namespace BossMod.Dawntrail.Trial.T02ZoraalJaP2;
 
 class ChasmOfVollok(BossModule module) : Components.GenericAOEs(module)
 {
-    public readonly List<AOEInstance> AOEs = [];
+    public readonly List<AOEInstance> AOEs = new(16);
     private static readonly float platformOffset = 30 / MathF.Sqrt(2);
     private static readonly AOEShapeRect rect = new(2.5f, 2.5f, 2.5f);
 

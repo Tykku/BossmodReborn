@@ -100,7 +100,7 @@ class RagingClaw(BossModule module) : Components.GenericAOEs(module)
 
 class BoulderDance(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = new(4);
+    private readonly List<AOEInstance> _aoes = new(6);
     private static readonly AOEShapeCircle circle = new(7);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
@@ -273,7 +273,7 @@ class D093LunipyatiStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1008, NameID = 13610, SortOrder = 9)]
 public class D093Lunipyati(WorldState ws, Actor primary) : BossModule(ws, primary, startingBounds.Center, startingBounds)
 {
-    private const int Edges = 60;
+    private const int Edges = 64;
     public static readonly WPos ArenaCenter = new(34, -710);
     private static readonly WPos[] vertices = [new(34.15f, -738.36f), new(36.85f, -737.85f), new(39.44f, -736.92f), new(40.84f, -736.68f), new(41.75f, -736.22f),
     new(42.39f, -735.99f), new(43.04f, -735.95f), new(43.74f, -735.84f), new(44.86f, -735.3f), new(46.17f, -735.07f),

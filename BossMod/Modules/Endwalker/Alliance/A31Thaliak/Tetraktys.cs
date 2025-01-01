@@ -166,7 +166,7 @@ class TetraktuosKosmos(BossModule module) : Components.GenericAOEs(module)
 
         if (state != 0x00020001)
             return;
-        var tutorialDone = Module.FindComponent<TetraktuosKosmosCounter>()?.NumCasts > 0;
+        var tutorialDone = Module.FindComponent<TetraktuosKosmosCounter>()?.NumCasts != 0;
         var activationTime = WorldState.FutureTime(7.9f);
 
         if (!tutorialDone)
@@ -179,13 +179,13 @@ class TetraktuosKosmos(BossModule module) : Components.GenericAOEs(module)
     {
         switch (index)
         {
-            case 0x14:
+            case 0x12:
                 AddAOEs([0, 1, 2, 3], activationTime);
                 break;
-            case 0x15:
+            case 0x14:
                 AddAOEs([4, 5, 6, 7], activationTime);
                 break;
-            case 0x12:
+            case 0x15:
                 AddAOEs([8, 9, 10, 11], activationTime);
                 break;
         }

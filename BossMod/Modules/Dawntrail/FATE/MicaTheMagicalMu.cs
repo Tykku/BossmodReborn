@@ -2,16 +2,17 @@
 
 public enum OID : uint
 {
-    Boss = 0x43EB, // R7.999, x1
-    Helper = 0x43EC, // R0.500, x0 (spawn during fight)
-    CardHelper = 0x43ED, // R0.500, x0 (spawn during fight)
-    MagicalHoop = 0x43F4, // R1.000, x0 (spawn during fight)
-    Card1 = 0x43EE, // R1.000, x0 (spawn during fight)
-    Card2 = 0x43EF, // R1.000, x0 (spawn during fight)
-    Card3 = 0x43F0, // R1.000, x0 (spawn during fight)
-    Card4 = 0x43F1, // R1.000, x0 (spawn during fight)
-    Card5 = 0x43F2, // R1.000, x0 (spawn during fight)
-    Card6 = 0x43F3, // R1.000, x0 (spawn during fight)
+    Boss = 0x43EB, // R7.999
+
+    CardHelper = 0x43ED, // R0.5
+    MagicalHoop = 0x43F4, // R1.0
+    Card1 = 0x43EE, // R1.0
+    Card2 = 0x43EF, // R1.0
+    Card3 = 0x43F0, // R1.0
+    Card4 = 0x43F1, // R1.0
+    Card5 = 0x43F2, // R1.0
+    Card6 = 0x43F3, // R1.0
+    Helper = 0x43EC
 }
 
 public enum AID : uint
@@ -263,4 +264,4 @@ class MicaTheMagicalMuStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.Fate, GroupID = 1922, NameID = 13049)]
-public class MicaTheMagicalMu(WorldState ws, Actor primary) : BossModule(ws, primary, new(791, 593), new ArenaBoundsRect(21, 20));
+public class MicaTheMagicalMu(WorldState ws, Actor primary) : BossModule(ws, primary, new(791, 593), new ArenaBoundsRect(20.5f, 19.5f));

@@ -4,7 +4,7 @@ class EntanglingWebAOE(BossModule module) : Components.LocationTargetedAOEs(modu
 
 class EntanglingWebHints(BossModule module) : BossComponent(module)
 {
-    private readonly IReadOnlyList<Actor> _pillars = module.Enemies(OID.Pillar);
+    private readonly List<Actor> _pillars = module.Enemies(OID.Pillar);
     private readonly List<Actor> _targets = [];
 
     private const float _radius = 5;
@@ -28,8 +28,8 @@ class EntanglingWebHints(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         Arena.Actors(_pillars, Colors.Object, true);
-        foreach (var t in _targets)
-            Arena.AddCircle(t.Position, _radius, Colors.Danger);
+        for (var i = 0; i < _targets.Count; ++i)
+            Arena.AddCircle(_targets[i].Position, _radius, Colors.Danger);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

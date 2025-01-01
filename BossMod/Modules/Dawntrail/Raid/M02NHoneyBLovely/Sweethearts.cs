@@ -35,11 +35,15 @@ abstract class Sweethearts(BossModule module, uint oid, uint aid) : Components.G
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (_hearts.Count == 0)
+        var count = _hearts.Count;
+        if (count == 0)
             return;
-        var forbidden = new List<Func<WPos, float>>();
-        foreach (var h in _hearts)
+        var forbidden = new List<Func<WPos, float>>(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var h = _hearts[i];
             forbidden.Add(ShapeDistance.Capsule(h.Position, h.Rotation, Length, Radius)); // merging all forbidden zones into one to make pathfinding less demanding
+        }
         forbidden.Add(ShapeDistance.Circle(Arena.Center, Module.PrimaryActor.HitboxRadius));
         hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
     }

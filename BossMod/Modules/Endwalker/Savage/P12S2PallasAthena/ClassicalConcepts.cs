@@ -151,7 +151,7 @@ class ClassicalConcepts(BossModule module, bool invert) : BossComponent(module)
     }
     private IEnumerable<Actor> Neighbours(IEnumerable<Actor> list, Actor shape) => list.Where(s => ShapesAreNeighbours(s, shape));
     private int NumNeighbouringHexagons(Actor shape) => _hexa.Count(h => ShapesAreNeighbours(h, shape));
-    private Actor? LinkedShape(IReadOnlyList<Actor> shapes, Actor hexa) => Neighbours(shapes, hexa).MinBy(NumNeighbouringHexagons);
+    private Actor? LinkedShape(List<Actor> shapes, Actor hexa) => Neighbours(shapes, hexa).MinBy(NumNeighbouringHexagons);
 
     private WPos InvertedPos(WPos p) => new(200 - p.X, 184 - p.Z);
 
@@ -175,7 +175,7 @@ class Implode(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.
 
 class PalladianRayBait(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.PalladianRayAOEFirst))
 {
-    private readonly Actor[] _dummies = [new(0, 0, -1, "L dummy", 0, ActorType.None, Class.None, 0, new(92, 0, 92, 0)), new(0, 0, -1, "R dummy", 0, ActorType.None, Class.None, 0, new(108, 0, 92, 0))];
+    private static readonly Actor[] _dummies = [new(0, 0, -1, "L dummy", 0, ActorType.None, Class.None, 0, new(92, 0, 92, 0)), new(0, 0, -1, "R dummy", 0, ActorType.None, Class.None, 0, new(108, 0, 92, 0))];
 
     private static readonly AOEShapeCone _shape = new(100, 15.Degrees());
 

@@ -14,18 +14,19 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 25952, // Boss->player, no cast, single-target
-    AssaultCarapace = 25954, // Boss->self, 5.0s cast, range 120 width 32 rect
+
+    AssaultCarapace1 = 25954, // Boss->self, 5.0s cast, range 120 width 32 rect
     AssaultCarapace2 = 25173, // Boss->self, 8.0s cast, range 120 width 32 rect
     CarapaceRearGuns2dot0A = 25958, // Boss->self, 8.0s cast, range 120 width 32 rect
     CarapaceForeArms2dot0A = 25957, // Boss->self, 8.0s cast, range 120 width 32 rect
     AssaultCarapace3 = 25953, // Boss->self, 5.0s cast, range 16-60 donut
     CarapaceForeArms2dot0B = 25955, // Boss->self, 8.0s cast, range 16-60 donut
     CarapaceRearGuns2dot0B = 25956, // Boss->self, 8.0s cast, range 16-60 donut
-    ForeArms = 25959, // Boss->self, 6.0s cast, range 45 180-degree cone
+    ForeArms1 = 25959, // Boss->self, 6.0s cast, range 45 180-degree cone
     ForeArms2 = 26523, // Boss->self, 6.0s cast, range 45 180-degree cone
     ForeArms2dot0 = 25961, // Boss->self, no cast, range 45 180-degree cone
     RearGuns2dot0 = 25964, // Boss->self, no cast, range 45 180-degree cone
-    RearGuns = 25962, // Boss->self, 6.0s cast, range 45 180-degree cone
+    RearGuns1 = 25962, // Boss->self, 6.0s cast, range 45 180-degree cone
     RearGuns2 = 26524, // Boss->self, 6.0s cast, range 45 180-degree cone
     RearGunsForeArms2dot0 = 25963, // Boss->self, 6.0s cast, range 45 180-degree cone
     ForeArmsRearGuns2dot0 = 25960, // Boss->self, 6.0s cast, range 45 180-degree cone
@@ -267,13 +268,19 @@ class Hellburner(BossModule module) : Components.BaitAwayCast(module, ActionID.M
 
 class MissileShower(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.MissileShower), "Raidwide x2");
 class ThermobaricExplosive(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ThermobaricExplosive2), 25);
-class AssaultCarapace(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AssaultCarapace), new AOEShapeRect(60, 16, 60));
-class AssaultCarapace2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AssaultCarapace2), new AOEShapeRect(60, 16, 60));
+
+abstract class AssaultCarapaceRect(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(60, 16, 60));
+class AssaultCarapace1(BossModule module) : AssaultCarapaceRect(module, AID.AssaultCarapace1);
+class AssaultCarapace2(BossModule module) : AssaultCarapaceRect(module, AID.AssaultCarapace2);
+
 class AssaultCarapace3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AssaultCarapace3), new AOEShapeDonut(16, 60));
-class ForeArms(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ForeArms), new AOEShapeCone(45, 90.Degrees()));
-class ForeArms2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ForeArms2), new AOEShapeCone(45, 90.Degrees()));
-class RearGuns(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RearGuns), new AOEShapeCone(45, 90.Degrees()));
-class RearGuns2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RearGuns2), new AOEShapeCone(45, 90.Degrees()));
+
+abstract class Cleave(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(45, 90.Degrees()));
+class ForeArms1(BossModule module) : Cleave(module, AID.ForeArms1);
+class ForeArms2(BossModule module) : Cleave(module, AID.ForeArms2);
+class RearGuns1(BossModule module) : Cleave(module, AID.RearGuns1);
+class RearGuns2(BossModule module) : Cleave(module, AID.RearGuns2);
+
 class FreeFallBombs(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FreeFallBombs2), 6);
 
 class ChiStates : StateMachineBuilder
@@ -281,13 +288,13 @@ class ChiStates : StateMachineBuilder
     public ChiStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<AssaultCarapace>()
+            .ActivateOnEnter<AssaultCarapace1>()
             .ActivateOnEnter<AssaultCarapace2>()
             .ActivateOnEnter<AssaultCarapace3>()
             .ActivateOnEnter<Combos>()
-            .ActivateOnEnter<ForeArms>()
+            .ActivateOnEnter<ForeArms1>()
             .ActivateOnEnter<ForeArms2>()
-            .ActivateOnEnter<RearGuns>()
+            .ActivateOnEnter<RearGuns1>()
             .ActivateOnEnter<RearGuns2>()
             .ActivateOnEnter<Hellburner>()
             .ActivateOnEnter<FreeFallBombs>()
@@ -299,4 +306,4 @@ class ChiStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.Fate, GroupID = 1855, NameID = 10400)]
-public class Chi(WorldState ws, Actor primary) : BossModule(ws, primary, new(650, 0), new ArenaBoundsSquare(30));
+public class Chi(WorldState ws, Actor primary) : BossModule(ws, primary, new(650, 0), new ArenaBoundsSquare(29.5f));

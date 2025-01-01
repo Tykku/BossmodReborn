@@ -19,17 +19,17 @@ class DarkNebula(BossModule module) : Components.Knockback(module)
     public override IEnumerable<Source> Sources(int slot, Actor actor)
     {
         var count = Casters.Count;
-        if (count != 0)
+        if (count == 0)
+            yield break;
+
+        for (var i = 0; i < count; ++i)
         {
-            for (var i = 0; i < count; ++i)
+            if (i < 2)
             {
-                if (i < 2)
-                {
-                    var caster = Casters[i];
-                    var dir = caster.CastInfo?.Rotation ?? caster.Rotation;
-                    var kind = dir.ToDirection().OrthoL().Dot(actor.Position - caster.Position) > 0 ? Kind.DirLeft : Kind.DirRight;
-                    yield return new(caster.Position, 20, Module.CastFinishAt(caster.CastInfo), null, dir, kind);
-                }
+                var caster = Casters[i];
+                var dir = caster.CastInfo?.Rotation ?? caster.Rotation;
+                var kind = dir.ToDirection().OrthoL().Dot(actor.Position - caster.Position) > 0 ? Kind.DirLeft : Kind.DirRight;
+                yield return new(caster.Position, 20, Module.CastFinishAt(caster.CastInfo), null, dir, kind);
             }
         }
     }

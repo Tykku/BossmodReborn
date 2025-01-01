@@ -23,9 +23,9 @@ class P5LiquidHell(BossModule module) : Components.PersistentVoidzoneAtCastTarge
 
 class P5Hatch(BossModule module) : BossComponent(module)
 {
-    public Actor? Target { get; private set; }
-    public IReadOnlyList<Actor> Orbs { get; private set; } = module.Enemies(OID.Oviform);
-    public IReadOnlyList<Actor> Neurolinks { get; private set; } = module.Enemies(OID.Neurolink);
+    public Actor? Target;
+    public readonly List<Actor> Orbs = module.Enemies(OID.Oviform);
+    public readonly List<Actor> Neurolinks = module.Enemies(OID.Neurolink);
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {

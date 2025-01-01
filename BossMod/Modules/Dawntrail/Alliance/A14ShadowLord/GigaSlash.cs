@@ -9,7 +9,7 @@ class GigaSlash(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (AOEs.Count > 0)
+        if (AOEs.Count != 0)
             yield return AOEs[0] with { Risky = Module.FindComponent<DarkNebula>()?.Casters.Count == 0 };
     }
 

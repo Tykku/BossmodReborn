@@ -60,7 +60,8 @@ public sealed class AIHintsBuilder : IDisposable
 
     private void CalculateAutoHints(AIHints hints, Actor player)
     {
-        var inFate = _ws.Client.ActiveFate.ID != 0 && player.Level <= Service.LuminaRow<Lumina.Excel.Sheets.Fate>(_ws.Client.ActiveFate.ID)?.ClassJobLevelMax;
+        var inFate = _ws.Client.ActiveFate.ID != 0 && (_ws.Party.Player()?.Level <= Service.LuminaRow<Lumina.Excel.Sheets.Fate>(_ws.Client.ActiveFate.ID)?.ClassJobLevelMax
+        || Service.LuminaRow<Lumina.Excel.Sheets.Fate>(_ws.Client.ActiveFate.ID)?.EurekaFate == 1); // TODO: find out how to get the current player elemental level
         var center = inFate ? _ws.Client.ActiveFate.Center : player.PosRot.XYZ();
         var (e, bitmap) = Obstacles.Find(center);
         var resolution = bitmap?.PixelSize ?? 0.5f;

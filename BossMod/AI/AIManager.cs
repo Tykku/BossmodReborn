@@ -1,5 +1,4 @@
 using BossMod.Autorotation;
-using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using FFXIVClientStructs.FFXIV.Client.Game.Group;
@@ -28,7 +27,6 @@ sealed class AIManager : IDisposable
         Autorot = autorot;
         Controller = new(autorot.WorldState, amex, movement);
         _config = Service.Config.Get<AIConfig>();
-        Service.ChatGui.ChatMessage += OnChatMessage;
         Service.CommandManager.AddHandler("/bmrai", new Dalamud.Game.Command.CommandInfo(OnCommand) { HelpMessage = "Toggle AI mode" });
         Service.CommandManager.AddHandler("/vbmai", new Dalamud.Game.Command.CommandInfo(OnCommand) { ShowInHelp = false });
     }
@@ -44,7 +42,6 @@ sealed class AIManager : IDisposable
     {
         SwitchToIdle();
         _wndAI.Dispose();
-        Service.ChatGui.ChatMessage -= OnChatMessage;
         Service.CommandManager.RemoveHandler("/bmrai");
         Service.CommandManager.RemoveHandler("/vbmai");
     }
@@ -98,39 +95,6 @@ sealed class AIManager : IDisposable
         return slot >= 0 ? Array.FindIndex(WorldState.Party.Members, m => m.ContentId == group->PartyMembers[slot].ContentId) : -1;
     }
 
-    private void OnChatMessage(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled)
-    {
-        if (Beh == null || type != XivChatType.Party)
-            return;
-
-        var messagePrefix = message.Payloads.FirstOrDefault() as TextPayload;
-        if (messagePrefix?.Text == null)
-            return;
-
-        var messageText = messagePrefix.Text;
-        if (!messageText.StartsWith("bmrai ", StringComparison.OrdinalIgnoreCase) && !messageText.StartsWith("vbmai ", StringComparison.OrdinalIgnoreCase))
-            return;
-
-        var messageData = messagePrefix.Text.Split(' ');
-        if (messageData.Length < 2)
-            return;
-
-        switch (messageData[1])
-        {
-            case "follow":
-                var master = FindPartyMemberSlotFromSender(sender);
-                if (master >= 0)
-                    SwitchToFollow(master);
-                break;
-            case "cancel":
-                SwitchToIdle();
-                break;
-            default:
-                Service.ChatGui.Print($"[AI] Unknown command: {messageData[1]}");
-                break;
-        }
-    }
-
     private void OnCommand(string cmd, string message)
     {
         var messageData = message.Split(' ');
@@ -142,19 +106,21 @@ sealed class AIManager : IDisposable
         switch (messageData[0].ToUpperInvariant())
         {
             case "ON":
-                configModified = EnableConfig(true);
+                EnableConfig(true);
                 break;
             case "OFF":
-                configModified = EnableConfig(false);
+                EnableConfig(false);
                 break;
             case "TOGGLE":
-                configModified = ToggleConfig();
+                ToggleConfig();
                 break;
             case "TARGETMASTER":
                 configModified = ToggleFocusTargetLeader();
                 break;
             case "FOLLOW":
-                configModified = HandleFollowCommand(messageData);
+                var cfg = _config.FollowSlot;
+                HandleFollowCommand(messageData);
+                configModified = cfg != _config.FollowSlot;
                 break;
             case "UI":
                 configModified = ToggleDebugMenu();
@@ -181,19 +147,29 @@ sealed class AIManager : IDisposable
                 configModified = ToggleAutorotationOverride();
                 break;
             case "POSITIONAL":
-                configModified = HandlePositionalCommand(messageData);
+                var cfg2 = _config.DesiredPositional;
+                HandlePositionalCommand(messageData);
+                configModified = cfg2 != _config.DesiredPositional;
                 break;
             case "MAXDISTANCETARGET":
-                configModified = HandleMaxDistanceTargetCommand(messageData);
+                var cfg3 = _config.MaxDistanceToTarget;
+                HandleMaxDistanceTargetCommand(messageData);
+                configModified = cfg3 != _config.MaxDistanceToTarget;
                 break;
             case "MAXDISTANCESLOT":
-                configModified = HandleMaxDistanceSlotCommand(messageData);
+                var cfg4 = _config.MaxDistanceToSlot;
+                HandleMaxDistanceSlotCommand(messageData);
+                configModified = cfg4 != _config.MaxDistanceToSlot;
                 break;
             case "SETPRESETNAME":
                 if (cmd.Length <= 2)
                     Service.Log("Specify an AI autorotation preset name.");
                 else
+                {
+                    var cfg5 = _config.AIAutorotPresetName;
                     ParseAIAutorotationSetCommand(messageData);
+                    configModified = cfg5 != _config.AIAutorotPresetName;
+                }
                 break;
             default:
                 Service.ChatGui.Print($"[AI] Unknown command: {messageData[0]}");
@@ -204,22 +180,20 @@ sealed class AIManager : IDisposable
             _config.Modified.Fire();
     }
 
-    private bool EnableConfig(bool enable)
+    private void EnableConfig(bool enable)
     {
         if (enable)
             SwitchToFollow(_config.FollowSlot);
         else
             SwitchToIdle();
-        return true;
     }
 
-    private bool ToggleConfig()
+    private void ToggleConfig()
     {
         if (Beh == null)
             SwitchToFollow(_config.FollowSlot);
         else
             SwitchToIdle();
-        return true;
     }
 
     private bool ToggleFocusTargetLeader()
@@ -234,13 +208,10 @@ sealed class AIManager : IDisposable
         return true;
     }
 
-    private bool HandleFollowCommand(string[] messageData)
+    private void HandleFollowCommand(string[] messageData)
     {
         if (messageData.Length < 2)
-        {
             Service.ChatGui.Print("[AI] Missing follow target.");
-            return false;
-        }
 
         if (messageData[1].StartsWith("Slot", StringComparison.OrdinalIgnoreCase) &&
             int.TryParse(messageData[1].AsSpan(4), out var slot) && slot >= 1 && slot <= 8)
@@ -257,12 +228,8 @@ sealed class AIManager : IDisposable
                 _config.FollowSlot = memberIndex;
             }
             else
-            {
                 Service.ChatGui.Print($"[AI] Unknown party member: {string.Join(" ", messageData.Skip(1))}");
-                return false;
-            }
         }
-        return true;
     }
 
     private bool ToggleDebugMenu()
@@ -426,20 +393,13 @@ sealed class AIManager : IDisposable
         return _config.FollowTarget;
     }
 
-    private bool HandlePositionalCommand(string[] messageData)
+    private void HandlePositionalCommand(string[] messageData)
     {
         if (messageData.Length < 2)
-        {
             Service.ChatGui.Print("[AI] Missing positional type.");
-            return false;
-        }
-        SetPositional(messageData[1]);
-        return true;
-    }
 
-    private void SetPositional(string positional)
-    {
-        switch (positional.ToUpperInvariant())
+        var msg = messageData[1];
+        switch (msg.ToUpperInvariant())
         {
             case "ANY":
                 _config.DesiredPositional = Positional.Any;
@@ -454,46 +414,48 @@ sealed class AIManager : IDisposable
                 _config.DesiredPositional = Positional.Front;
                 break;
             default:
-                Service.ChatGui.Print($"[AI] Unknown positional: {positional}");
+                Service.ChatGui.Print($"[AI] Unknown positional: {msg}");
                 return;
         }
         Service.Log($"[AI] Desired positional set to {_config.DesiredPositional}");
     }
 
-    private bool HandleMaxDistanceTargetCommand(string[] messageData)
+    private void HandleMaxDistanceTargetCommand(string[] messageData)
     {
         if (messageData.Length < 2)
         {
             Service.ChatGui.Print("[AI] Missing distance value.");
-            return false;
+            return;
         }
+
         var distanceStr = messageData[1].Replace(',', '.');
         if (!float.TryParse(distanceStr, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var distance))
         {
             Service.ChatGui.Print("[AI] Invalid distance value.");
-            return false;
+            return;
         }
+
         _config.MaxDistanceToTarget = distance;
         Service.Log($"[AI] Max distance to target set to {distance}");
-        return true;
     }
 
-    private bool HandleMaxDistanceSlotCommand(string[] messageData)
+    private void HandleMaxDistanceSlotCommand(string[] messageData)
     {
         if (messageData.Length < 2)
         {
             Service.ChatGui.Print("[AI] Missing distance value.");
-            return false;
+            return;
         }
+
         var distanceStr = messageData[1].Replace(',', '.');
         if (!float.TryParse(distanceStr, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var distance))
         {
             Service.ChatGui.Print("[AI] Invalid distance value.");
-            return false;
+            return;
         }
+
         _config.MaxDistanceToSlot = distance;
         Service.Log($"[AI] Max distance to slot set to {distance}");
-        return true;
     }
 
     private int FindPartyMemberByName(string name)

@@ -13,8 +13,8 @@ class CrimsonCyclone(BossModule module) : Components.SelfTargetedAOEs(module, Ac
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 63, NameID = 1185)]
 public class Ex4Ifrit : BossModule
 {
-    public IReadOnlyList<Actor> SmallNails;
-    public IReadOnlyList<Actor> LargeNails;
+    public readonly List<Actor> SmallNails;
+    public readonly List<Actor> LargeNails;
 
     public Ex4Ifrit(WorldState ws, Actor primary) : base(ws, primary, new(0, 0), new ArenaBoundsCircle(20))
     {

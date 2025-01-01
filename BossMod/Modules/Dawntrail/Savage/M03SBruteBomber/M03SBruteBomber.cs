@@ -7,5 +7,5 @@ public class M03SBruteBomber(WorldState ws, Actor primary) : BossModule(ws, prim
 {
     private static readonly WPos arenaCenter = new(100, 100);
     public static readonly ArenaBoundsSquare DefaultBounds = new(15);
-    public static readonly ArenaBoundsComplex FuseFieldBounds = new([new Square(arenaCenter, 15)], [new Polygon(arenaCenter, 5, 60)]);
+    public static readonly ArenaBoundsComplex FuseFieldBounds = new([new Square(arenaCenter, 15)], [new Polygon(arenaCenter, 5, 80)]);
 }

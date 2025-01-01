@@ -25,12 +25,12 @@ static class Portals
 
 class PortalsAOE(BossModule module, AID aid, OID movedOID, float activationDelay, AOEShape shape) : Components.GenericAOEs(module, ActionID.MakeSpell(aid))
 {
-    private readonly IReadOnlyList<Actor> _movedActors = module.Enemies(movedOID);
+    private readonly List<Actor> _movedActors = module.Enemies(movedOID);
     private readonly float _activationDelay = activationDelay;
     private readonly AOEShape _shape = shape;
-    private readonly List<(WPos pos, Angle rot, DateTime activation)> _origins = [];
+    private readonly List<AOEInstance> _aoes = [];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _origins.Select(o => new AOEInstance(_shape, o.pos, o.rot, o.activation));
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
@@ -40,7 +40,7 @@ class PortalsAOE(BossModule module, AID aid, OID movedOID, float activationDelay
 
         var movedActor = _movedActors.FirstOrDefault(a => a.Position.AlmostEqual(actor.Position, 1));
         if (movedActor != null)
-            _origins.Add((dest.Value, movedActor.Rotation, WorldState.FutureTime(_activationDelay)));
+            _aoes.Add(new(_shape, dest.Value, movedActor.Rotation, WorldState.FutureTime(_activationDelay)));
     }
 }
 
@@ -63,8 +63,9 @@ class PortalsWave(BossModule module) : BossComponent(module)
         var dir = _playerPortals[pcSlot];
         if (dir != 0)
         {
-            foreach (var p in _portals)
+            for (var i = 0; i < _portals.Count; ++i)
             {
+                var p = _portals[i];
                 Arena.AddCircle(dir > 0 ? p.s : p.n, 1, Colors.Safe, 2);
             }
         }

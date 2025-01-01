@@ -84,7 +84,7 @@ class T05IfritHStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 59, NameID = 1185)]
 public class T05IfritH : BossModule
 {
-    private readonly IReadOnlyList<Actor> _nails;
+    private readonly List<Actor> _nails;
     public IEnumerable<Actor> ActiveNails => _nails.Where(n => n.IsTargetable && !n.IsDead);
 
     public T05IfritH(WorldState ws, Actor primary) : base(ws, primary, new(0, 0), new ArenaBoundsCircle(20))

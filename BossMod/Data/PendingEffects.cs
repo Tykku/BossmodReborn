@@ -46,26 +46,25 @@ public sealed class PendingEffects
         }
     }
 
-    private readonly List<Entry> _entries = []; // implicitly sorted by timestamp/global sequence?
-    public IReadOnlyList<Entry> Entries => _entries;
+    public readonly List<Entry> Entries = []; // implicitly sorted by timestamp/global sequence?
 
     public void AddEntry(DateTime ts, ulong source, ActorCastEvent ev)
     {
         var entry = new Entry(ts, source, ev);
         if ((entry.UnconfirmedTargets | entry.UnconfirmedSource).Any())
-            _entries.Add(entry);
+            Entries.Add(entry);
     }
 
     public void Confirm(DateTime ts, uint seq, ulong target, int targetIndex)
     {
-        var entryIndex = _entries.FindIndex(e => e.Event.GlobalSequence == seq);
+        var entryIndex = Entries.FindIndex(e => e.Event.GlobalSequence == seq);
         if (entryIndex < 0)
         {
             // note: this can happen if we misjudge and assume event required no confirmations, but then got one
             //Service.Log($"[PendingEffects] Confirmation for missing event #{seq}/{targetIndex} @ {target:X}");
             return;
         }
-        var entry = _entries[entryIndex];
+        var entry = Entries[entryIndex];
         if (targetIndex >= entry.Event.Targets.Count)
         {
             Service.Log($"[PendingEffects] Confirmation for out-of-range target #{seq}/{targetIndex} @ {target:X}, event has {entry.Event.Targets.Count} targets");
@@ -95,14 +94,14 @@ public sealed class PendingEffects
 
         if ((entry.UnconfirmedTargets | entry.UnconfirmedSource).None())
         {
-            _entries.RemoveAt(entryIndex);
+            Entries.RemoveAt(entryIndex);
         }
     }
 
     public void RemoveExpired(DateTime ts)
     {
         var minRemaining = ts.AddSeconds(-3);
-        _entries.RemoveAll(e =>
+        Entries.RemoveAll(e =>
         {
             var expired = e.Timestamp < minRemaining;
             // note: this can happen if we misjudge and assume event required confirmation, but get none
@@ -115,7 +114,7 @@ public sealed class PendingEffects
     public int PendingHPDifference(ulong target)
     {
         var res = 0;
-        foreach (var eff in PendingEffectsAtTarget(_entries, target))
+        foreach (var eff in PendingEffectsAtTarget(Entries, target))
         {
             if (eff.Type is ActionEffectType.Damage or ActionEffectType.BlockedDamage or ActionEffectType.ParriedDamage)
             {
@@ -132,7 +131,7 @@ public sealed class PendingEffects
     public int PendingMPDifference(ulong target)
     {
         int res = 0;
-        foreach (var eff in PendingEffectsAtTarget(_entries, target))
+        foreach (var eff in PendingEffectsAtTarget(Entries, target))
         {
             if (eff.Type is ActionEffectType.MpLoss)
                 res -= eff.Value;
@@ -145,7 +144,7 @@ public sealed class PendingEffects
     // returns low byte of extra if pending (stack count), or null if not
     public byte? PendingStatus(ulong target, uint statusID, ulong source)
     {
-        foreach (var eff in PendingEffectsAtTarget(_entries.Where(e => e.Source == source), target))
+        foreach (var eff in PendingEffectsAtTarget(Entries.Where(e => e.Source == source), target))
         {
             if (eff.Type is ActionEffectType.ApplyStatusEffectTarget or ActionEffectType.ApplyStatusEffectSource && eff.Value == statusID)
             {
@@ -157,7 +156,7 @@ public sealed class PendingEffects
 
     public byte? PendingStatus(ulong target, uint statusID)
     {
-        foreach (var eff in PendingEffectsAtTarget(_entries, target))
+        foreach (var eff in PendingEffectsAtTarget(Entries, target))
         {
             if (eff.Type is ActionEffectType.ApplyStatusEffectTarget or ActionEffectType.ApplyStatusEffectSource && eff.Value == statusID)
             {
@@ -167,7 +166,7 @@ public sealed class PendingEffects
         return null;
     }
 
-    public bool PendingKnockbacks(ulong target) => PendingEffectsAtTarget(_entries, target).Any(eff => eff.Type is >= ActionEffectType.Knockback and <= ActionEffectType.AttractCustom3);
+    public bool PendingKnockbacks(ulong target) => PendingEffectsAtTarget(Entries, target).Any(eff => eff.Type is >= ActionEffectType.Knockback and <= ActionEffectType.AttractCustom3);
 
     private static IEnumerable<ActionEffect> PendingEffectsAtTarget(IEnumerable<Entry> entries, ulong target)
     {

@@ -21,12 +21,18 @@ class CthonicFury(BossModule module) : Components.GenericAOEs(module)
         {
             case AID.CthonicFuryStart:
                 _aoe = null;
-                Arena.Bounds = A14ShadowLord.ComplexBounds;
+                SetArena(A14ShadowLord.ComplexBounds, A14ShadowLord.ComplexBounds.Center);
                 break;
             case AID.CthonicFuryEnd:
-                Arena.Bounds = A14ShadowLord.DefaultBounds;
+                SetArena(A14ShadowLord.DefaultBounds, A14ShadowLord.ArenaCenter);
                 break;
         }
+    }
+
+    private void SetArena(ArenaBounds bounds, WPos center)
+    {
+        Arena.Bounds = bounds;
+        Arena.Center = center;
     }
 }
 
