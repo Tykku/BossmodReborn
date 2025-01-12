@@ -133,7 +133,7 @@ class RekindleSpread(BossModule module) : Components.SpreadFromIcon(module, (uin
         base.AddAIHints(slot, actor, assignment, hints);
         foreach (var scarletLady in Module.Enemies(OID.ScarletLady))
         {
-            if (_firstSpread && ActiveSpreads.Any() && scarletLady.IsDead)
+            if (_firstSpread && ActiveStacks.Count != 0 && scarletLady.IsDead)
                 hints.AddForbiddenZone(ShapeDistance.Circle(scarletLady.Position, 6));
         }
     }
@@ -143,7 +143,7 @@ class RekindleSpread(BossModule module) : Components.SpreadFromIcon(module, (uin
         base.DrawArenaBackground(pcSlot, pc);
         foreach (var scarletLady in Module.Enemies(OID.ScarletLady))
         {
-            if (_firstSpread && ActiveSpreads.Any() && scarletLady.IsDead)
+            if (_firstSpread && ActiveStacks.Count != 0 && scarletLady.IsDead)
                 Arena.AddCircle(scarletLady.Position, 6, Colors.Vulnerable);
         }
     }

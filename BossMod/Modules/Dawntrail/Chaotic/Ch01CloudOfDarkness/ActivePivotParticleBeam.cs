@@ -18,7 +18,7 @@ class ActivePivotParticleBeam(BossModule module) : Components.GenericRotatingAOE
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.ActivePivotParticleBeamAOE && Sequences.Count > 0)
+        if ((AID)spell.Action.ID == AID.ActivePivotParticleBeamAOE)
             AdvanceSequence(0, WorldState.CurrentTime);
     }
 }

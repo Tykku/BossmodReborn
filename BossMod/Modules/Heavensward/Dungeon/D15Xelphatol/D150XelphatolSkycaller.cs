@@ -22,7 +22,7 @@ class TornadoHint(BossModule module) : Components.CastInterruptHint(module, Acti
 class IxaliAeroIII(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.IxaliAeroIII));
 class IxaliAeroIIIHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.IxaliAeroIII), true, true, showNameInHint: true);
 class IxaliAeroII(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IxaliAeroII), new AOEShapeRect(41.8f, 4));
-class Gust(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Gust), 5);
+class Gust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Gust), 5);
 
 class D150XelphatolSkycallerStates : StateMachineBuilder
 {

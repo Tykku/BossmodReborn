@@ -27,11 +27,11 @@ public enum AID : uint
 }
 
 class Chirp(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Chirp), new AOEShapeCircle(12.48f));
-class Tornado(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Tornado), 6);
+class Tornado(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Tornado), 6);
 class VoidCall(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.VoidCall), "Calls adds");
 class RecklessAbandon(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.RecklessAbandon));
 
-class Hurl(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
+class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
 class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.AltarMatanga);
 class RaucousScritch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
 

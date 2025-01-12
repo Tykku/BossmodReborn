@@ -22,7 +22,7 @@ class TransonicBlast(BossModule module) : Components.SelfTargetedAOEs(module, Ac
 class WindsOfWinter(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WindsOfWinter));
 class WindsOfWinterStunHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.WindsOfWinter), false, true);
 class GoldenTalons(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GoldenTalons), new AOEShapeCone(8, 45.Degrees()));
-class Freefall(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Freefall), 8);
+class Freefall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Freefall), 8);
 
 class D110AlbusGriffinStates : StateMachineBuilder
 {

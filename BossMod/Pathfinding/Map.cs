@@ -19,19 +19,19 @@ public class Map
         public int Priority; // >0 if goal
     }
 
-    public float Resolution { get; private set; } // pixel size, in world units
-    public int Width { get; private set; } // always even
-    public int Height { get; private set; } // always even
+    public float Resolution; // pixel size, in world units
+    public int Width; // always even
+    public int Height; // always even
     public Pixel[] Pixels = [];
     private const float Epsilon = 1e-5f;
     private const float HalfPixel = 0.5f;
 
-    public WPos Center { get; private set; } // position of map center in world units
-    public Angle Rotation { get; private set; } // rotation relative to world space (=> ToDirection() is equal to direction of local 'height' axis in world space)
-    private WDir LocalZDivRes { get; set; }
+    public WPos Center; // position of map center in world units
+    public Angle Rotation; // rotation relative to world space (=> ToDirection() is equal to direction of local 'height' axis in world space)
+    private WDir LocalZDivRes;
 
-    public float MaxG { get; private set; } // maximal 'maxG' value of all blocked pixels
-    public int MaxPriority { get; private set; } // maximal 'priority' value of all goal pixels
+    public float MaxG; // maximal 'maxG' value of all blocked pixels
+    public int MaxPriority; // maximal 'priority' value of all goal pixels
 
     //public float Speed = 6; // used for converting activation time into max g-value: num world units that player can move per second
 
@@ -212,48 +212,55 @@ public class Map
         return maxAdjustedPriority;
     }
 
-    public IEnumerable<(int x, int y, int priority)> Goals()
+    public List<(int x, int y, int priority)> Goals()
     {
+        var result = new List<(int x, int y, int priority)>(Width * Height);
         var index = 0;
         for (var y = 0; y < Height; ++y)
         {
             for (var x = 0; x < Width; ++x)
             {
                 if (Pixels[index].MaxG == float.MaxValue)
-                    yield return (x, y, Pixels[index].Priority);
+                    result.Add((x, y, Pixels[index].Priority));
                 ++index;
             }
         }
+        return result;
     }
 
-    public IEnumerable<(int x, int y, WPos center)> EnumeratePixels()
+    public List<(int x, int y, WPos center)> EnumeratePixels()
     {
+        var result = new List<(int x, int y, WPos center)>(Width * Height);
         var rsq = Resolution * Resolution; // since we then multiply by _localZDivRes, end result is same as * res * rotation.ToDir()
         var dx = LocalZDivRes.OrthoL() * rsq;
         var dy = LocalZDivRes * rsq;
         var cy = Center + (-Width * HalfPixel + HalfPixel) * dx + (-Height * HalfPixel + HalfPixel) * dy;
-        for (var y = 0; y < Height; y++)
+
+        for (var y = 0; y < Height; ++y)
         {
             var cx = cy;
             for (var x = 0; x < Width; ++x)
             {
-                yield return (x, y, cx);
+                result.Add((x, y, cx));
                 cx += dx;
             }
             cy += dy;
         }
+        return result;
     }
 
     // enumerate pixels along line starting from (x1, y1) to (x2, y2); first is not returned, last is returned
-    public IEnumerable<(int x, int y)> EnumeratePixelsInLine(int x1, int y1, int x2, int y2)
+    public List<(int x, int y)> EnumeratePixelsInLine(int x1, int y1, int x2, int y2)
     {
+        var estimatedLength = Math.Max(Math.Abs(x2 - x1), Math.Abs(y2 - y1)) + 1;
+        var result = new List<(int x, int y)>(estimatedLength);
         int dx = Math.Abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
         int dy = -Math.Abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
         int err = dx + dy, e2;
 
         while (true)
         {
-            yield return (x1, y1);
+            result.Add((x1, y1));
             if (x1 == x2 && y1 == y2)
                 break;
             e2 = 2 * err;
@@ -268,5 +275,6 @@ public class Map
                 y1 += sy;
             }
         }
+        return result;
     }
 }

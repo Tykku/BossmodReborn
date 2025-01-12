@@ -4,7 +4,7 @@ abstract class GravityForce(BossModule module, AID aid) : Components.StackWithCa
 class NGravityForce(BossModule module) : GravityForce(module, AID.NGravityForce);
 class SGravityForce(BossModule module) : GravityForce(module, AID.SGravityForce);
 
-abstract class IsleDrop(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class IsleDrop(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class NIsleDrop(BossModule module) : IsleDrop(module, AID.NIsleDrop);
 class SIsleDrop(BossModule module) : IsleDrop(module, AID.SIsleDrop);
 

@@ -41,7 +41,7 @@ public enum AID : uint
     Hammerfall = 23825, // Helper->self, 8.0s cast, range 37 circle aoe
 }
 
-class TectonicEruption(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TectonicEruption), 6);
+class TectonicEruption(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TectonicEruption), 6);
 class RockCutter(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.RockCutter));
 class AncientQuake(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AncientQuake));
 class Roxxor(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Roxxor), 6);

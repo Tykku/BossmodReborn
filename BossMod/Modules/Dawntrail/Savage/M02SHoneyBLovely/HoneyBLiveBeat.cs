@@ -101,7 +101,7 @@ class Fracture3 : Fracture
 }
 
 class Loveseeker(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LoveseekerAOE), new AOEShapeCircle(10));
-class HeartStruck(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeartStruck), 6);
+class HeartStruck(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeartStruck), 6);
 class Heartsore(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Heartsore, ActionID.MakeSpell(AID.Heartsore), 6, 7.1f);
 class SweetheartsS(BossModule module) : Raid.M02NHoneyBLovely.Sweethearts(module, (uint)OID.Sweetheart, (uint)AID.SweetheartTouch);
 

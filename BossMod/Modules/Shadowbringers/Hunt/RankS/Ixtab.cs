@@ -85,7 +85,7 @@ class TartareanAbyss(BossModule module) : Components.BaitAwayCast(module, Action
     }
 }
 
-class TartareanFlare(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TartareanFlare), 18);
+class TartareanFlare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TartareanFlare), 18);
 class TartareanMeteor(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.TartareanMeteor), 10, 8);
 class ArchaicDualcast(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.ArchaicDualcast), "Preparing In/Out or Out/In AOE");
 

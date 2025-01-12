@@ -45,7 +45,7 @@ class Brainstorm(BossModule module) : Components.StatusDrivenForcedMarch(module,
 
 class FetchingFulgence(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.FetchingFulgence));
 class Lash(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Lash));
-class PotentPerfume(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PotentPerfume), 8);
+class PotentPerfume(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PotentPerfume), 8);
 
 class SapShowerTendrilsHint(BossModule module) : BossComponent(module)
 {
@@ -79,7 +79,7 @@ class SapShowerTendrilsHint(BossModule module) : BossComponent(module)
     }
 }
 
-class SapShower : Components.LocationTargetedAOEs
+class SapShower : Components.SimpleAOEs
 {
     public SapShower(BossModule module) : base(module, ActionID.MakeSpell(AID.SapShower), 8)
     {
@@ -93,7 +93,7 @@ class RockHard(BossModule module) : Components.SpreadFromCastTargets(module, Act
 class BeguilingGasTM(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.BeguilingGas));
 class BeguilingGas(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BeguilingGas));
 
-class HeavySmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
 
 class NarkissosStates : StateMachineBuilder
 {

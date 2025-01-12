@@ -187,8 +187,9 @@ class D031FeatherRayStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 829, NameID = 12755)]
-public class D031FeatherRay(WorldState ws, Actor primary) : BossModule(ws, primary, new(-105, -160), NormalBounds)
+public class D031FeatherRay(WorldState ws, Actor primary) : BossModule(ws, primary, arenaCenter, NormalBounds)
 {
+    private static readonly WPos arenaCenter = new(-105, -160);
     public static readonly ArenaBoundsSquare NormalBounds = new(15.5f);
-    public static readonly ArenaBoundsCircle CircleBounds = new(12);
+    public static readonly ArenaBoundsComplex CircleBounds = new([new Polygon(arenaCenter, 12, 48)]);
 }

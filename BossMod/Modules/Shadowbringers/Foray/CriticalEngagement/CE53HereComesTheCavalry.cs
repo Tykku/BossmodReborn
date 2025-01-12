@@ -45,14 +45,14 @@ public enum TetherID : uint
 }
 
 class StormSlash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.StormSlash), new AOEShapeCone(8, 60.Degrees()));
-class MagitekBurst(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekBurst), 8);
+class MagitekBurst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekBurst), 8);
 class BurnishedJoust(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.BurnishedJoust), 3);
 
 // note: there are two casters, probably to avoid 32-target limit - we only want to show one
 class GustSlash(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.GustSlashAOE), 35, true, 1, null, Kind.DirForward);
 
 class FireShot(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.FireShot), m => m.Enemies(OID.FireShot).Where(e => e.EventState != 7), 0);
-class AirborneExplosion(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AirborneExplosion), 10);
+class AirborneExplosion(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AirborneExplosion), 10);
 class RideDownAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RideDown), new AOEShapeRect(60, 5));
 
 // note: there are two casters, probably to avoid 32-target limit - we only want to show one

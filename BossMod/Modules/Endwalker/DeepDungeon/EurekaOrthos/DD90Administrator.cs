@@ -137,7 +137,7 @@ class AetherLaserLine(BossModule module) : Components.SelfTargetedAOEs(module, A
 
 class AetherLaserLine2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AetherochemicalLaserLine2), new AOEShapeRect(40, 2.5f));
 class AetherLaserCone(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AetherochemicalLaserCone2), new AOEShapeCone(50, 60.Degrees()));
-class HomingLasers(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HomingLaser), 6);
+class HomingLasers(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HomingLaser), 6);
 class Laserstream(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Laserstream));
 
 class DD90AdministratorStates : StateMachineBuilder

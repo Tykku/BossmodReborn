@@ -32,8 +32,8 @@ public enum AID : uint
     Telega = 9630 // GymnasiouLyssa/Lampas->self, no cast, single-target, bonus add disappear
 }
 
-class HeavySmash2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash2), 6);
-class FrigidStone(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FrigidStone), 5);
+class HeavySmash2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash2), 6);
+class FrigidStone(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrigidStone), 5);
 
 class FrigidNeedle(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 {

@@ -40,7 +40,7 @@ public enum AID : uint
     ChimneySmack = 38468, // Helper->player, 5.0s cast, single-target, tankbuster
 }
 
-class Anthrabomb(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 10);
+class Anthrabomb(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10);
 class Anthrabomb1(BossModule module) : Anthrabomb(module, AID.Anthrabomb1);
 class Anthrabomb2(BossModule module) : Anthrabomb(module, AID.Anthrabomb2);
 

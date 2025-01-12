@@ -44,7 +44,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         var hadNavi = _naviDecision.Destination != null;
 
         Targeting target = new();
-        if (!forbidActions && (AIPreset != null || autorot.Preset != null))
+        if (!forbidActions && AIPreset != null && (!_config.ForbidAIMovementMounted || _config.ForbidAIMovementMounted && player.MountId == 0))
         {
             target = SelectPrimaryTarget(player, master);
             if (_config.ManualTarget)
@@ -143,7 +143,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
 
     private async Task<(NavigationDecision decision, Targeting updatedTargeting)> BuildNavigationDecision(Actor player, Actor master, Targeting targeting)
     {
-        if (_config.ForbidMovement || _config.ForbidAIMovementMounted && player.MountId != 0)
+        if (_config.ForbidMovement || _config.ForbidAIMovementMounted && player.MountId != 0 || autorot.Hints.ImminentSpecialMode.mode == AIHints.SpecialMode.NoMovement && autorot.Hints.ImminentSpecialMode.activation <= WorldState.FutureTime(1))
             return (new NavigationDecision { LeewaySeconds = float.MaxValue }, targeting);
 
         if (_followMaster && (AIPreset == null || _config.OverrideAutorotation))

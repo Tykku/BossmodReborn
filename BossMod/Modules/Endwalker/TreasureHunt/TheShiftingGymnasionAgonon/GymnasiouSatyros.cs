@@ -31,12 +31,12 @@ public enum AID : uint
 }
 
 class StormWing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.StormWing), new AOEShapeCone(40, 45.Degrees()));
-class FlashGale(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FlashGale), 6);
+class FlashGale(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlashGale), 6);
 class WindCutter(BossModule module) : Components.PersistentVoidzone(module, 4, m => m.Enemies(OID.StormsGrip));
 class Wingblow(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wingblow), new AOEShapeCircle(15));
 class DreadDive(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DreadDive));
 
-class HeavySmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
 
 class GymnasiouSatyrosStates : StateMachineBuilder
 {

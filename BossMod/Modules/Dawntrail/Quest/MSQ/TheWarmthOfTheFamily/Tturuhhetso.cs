@@ -81,7 +81,7 @@ class CandescentRayTB(BossModule module) : Components.CastSharedTankbuster(modul
 }
 
 class SearingSwell(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SearingSwell), new AOEShapeCone(40, 22.5f.Degrees()));
-class Ensnare(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Ensnare), 6);
+class Ensnare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Ensnare), 6);
 class TriceraSnare(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.TriceraSnare), 6, 4.7f)
 {
     public override void OnEventDirectorUpdate(uint updateID, uint param1, uint param2, uint param3, uint param4)

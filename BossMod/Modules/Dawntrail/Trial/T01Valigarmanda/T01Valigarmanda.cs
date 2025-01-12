@@ -48,12 +48,12 @@ class Tulidisaster1(BossModule module) : Tulidisaster(module, AID.Tulidisaster1,
 class Tulidisaster2(BossModule module) : Tulidisaster(module, AID.Tulidisaster2, 11.6f);
 class Tulidisaster3(BossModule module) : Tulidisaster(module, AID.Tulidisaster3, 19.6f);
 
-class Eruption(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Eruption), 6);
+class Eruption(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Eruption), 6);
 class IceTalon(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(6), (uint)IconID.Tankbuster, ActionID.MakeSpell(AID.IceTalon), 5, true)
 {
     public override void AddGlobalHints(GlobalHints hints)
     {
-        if (CurrentBaits.Count > 0)
+        if (CurrentBaits.Count != 0)
             hints.Add("Tankbuster cleave");
     }
 }
@@ -95,8 +95,10 @@ class T01ValigarmandaStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 832, NameID = 12854)]
 public class T01Valigarmanda(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsRect(20, 15))
 {
+    private static readonly uint[] objects = [(uint)OID.IceBoulder, (uint)OID.FlameKissedBeacon, (uint)OID.GlacialBeacon, (uint)OID.ThunderousBeacon];
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.IceBoulder).Concat(Enemies(OID.FlameKissedBeacon)).Concat(Enemies(OID.GlacialBeacon)).Concat(Enemies(OID.ThunderousBeacon)).Concat([PrimaryActor]));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(objects), Colors.Object);
     }
 }

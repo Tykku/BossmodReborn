@@ -2,7 +2,7 @@
 
 class Blackbolt(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Blackbolt), 6, 8);
 
-class Blackfire2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Blackfire2), 7); // expanding aoe circle
+class Blackfire2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Blackfire2), 7); // expanding aoe circle
 
 class JestersJig1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.JestersJig1), new AOEShapeCircle(9));
 

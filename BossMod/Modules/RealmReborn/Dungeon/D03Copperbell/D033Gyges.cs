@@ -17,7 +17,7 @@ public enum AID : uint
 }
 
 class GiganticSwing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GiganticSwing), new AOEShapeDonut(4, 40));
-class GiganticSmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GiganticSmash), 10);
+class GiganticSmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GiganticSmash), 10);
 class GiganticBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GiganticBlast), new AOEShapeCircle(8));
 class GrandSlam(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.GrandSlam));
 class ColossalSlam(BossModule module) : Components.SelfTargetedLegacyRotationAOEs(module, ActionID.MakeSpell(AID.ColossalSlam), new AOEShapeCone(40, 30.Degrees()));

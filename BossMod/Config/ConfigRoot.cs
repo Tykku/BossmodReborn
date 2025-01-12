@@ -10,10 +10,9 @@ public class ConfigRoot
     private const int _version = 10;
 
     public Event Modified = new();
-    public Version AssemblyVersion = new(); // we use this to show newly added config options
-    private readonly Dictionary<Type, ConfigNode> _nodes = [];
 
-    public IEnumerable<ConfigNode> Nodes => _nodes.Values;
+    public readonly Dictionary<Type, ConfigNode> _nodes = [];
+    public List<ConfigNode> Nodes => [.. _nodes.Values];
 
     public void Initialize()
     {
@@ -46,7 +45,6 @@ public class ConfigRoot
                 var node = type != null ? _nodes.GetValueOrDefault(type) : null;
                 node?.Deserialize(jconfig.Value, ser);
             }
-            AssemblyVersion = json.RootElement.TryGetProperty(nameof(AssemblyVersion), out var jver) ? new(jver.GetString() ?? "") : new();
         }
         catch (Exception e)
         {
@@ -58,18 +56,34 @@ public class ConfigRoot
     {
         try
         {
-            WriteFile(file, jwriter =>
+            var ser = Serialization.BuildSerializationOptions();
+            var serializedNodes = new ConcurrentDictionary<Type, string>();
+
+            Parallel.ForEach(_nodes, entry =>
             {
-                jwriter.WriteStartObject();
-                var ser = Serialization.BuildSerializationOptions();
-                foreach (var (t, n) in _nodes)
-                {
-                    jwriter.WritePropertyName(t.FullName!);
-                    n.Serialize(jwriter, ser);
-                }
-                jwriter.WriteEndObject();
-                jwriter.WriteString(nameof(AssemblyVersion), AssemblyVersion.ToString());
+                using var ms = new MemoryStream();
+                using var tempWriter = new Utf8JsonWriter(ms);
+                entry.Value.Serialize(tempWriter, ser);
+                tempWriter.Flush();
+                serializedNodes[entry.Key] = Encoding.UTF8.GetString(ms.ToArray());
             });
+
+            using var stream = new FileStream(file.FullName, FileMode.Create, FileAccess.Write, FileShare.None);
+            using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
+
+            writer.WriteStartObject();
+            writer.WriteNumber("Version", _version);
+            writer.WritePropertyName("Payload");
+            writer.WriteStartObject();
+
+            foreach (var (t, jsonStr) in serializedNodes)
+            {
+                writer.WritePropertyName(t.FullName!);
+                writer.WriteRawValue(jsonStr);
+            }
+
+            writer.WriteEndObject();
+            writer.WriteEndObject();
         }
         catch (Exception e)
         {

@@ -24,4 +24,4 @@ class P2ArrowTrail(BossModule module) : Components.Exaflare(module, new AOEShape
     }
 }
 
-class P2DownhillArrowTrailDownhill(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ArrowTrailDownhill), 6);
+class P2DownhillArrowTrailDownhill(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ArrowTrailDownhill), 6);

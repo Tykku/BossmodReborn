@@ -22,7 +22,7 @@ class ElectricWhorl(BossModule module) : Components.SelfTargetedAOEs(module, Act
 class Expulsion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Expulsion), new AOEShapeCircle(14));
 class ExpulsionKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Expulsion), 30, shape: new AOEShapeCircle(14));
 class ElectricSwipe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectricSwipe), new AOEShapeCone(25, 30.Degrees()));
-class BodySlam(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BodySlam), 10);
+class BodySlam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BodySlam), 10);
 class BodySlamKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.BodySlam), 20, shape: new AOEShapeCircle(10));
 class Immersion(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Immersion));
 class RubyTide(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.RubyTide), "Applies damage buff to self");

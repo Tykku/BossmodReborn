@@ -27,19 +27,19 @@ class ThirdLegForward(BossModule module) : Components.Cleave(module, ActionID.Ma
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (!_stack.ActiveStacks.Any())
+        if (_stack.ActiveStacks.Count == 0)
             base.AddHints(slot, actor, hints);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!_stack.ActiveStacks.Any())
+        if (_stack.ActiveStacks.Count == 0)
             base.AddAIHints(slot, actor, assignment, hints);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        if (!_stack.ActiveStacks.Any())
+        if (_stack.ActiveStacks.Count == 0)
             base.DrawArenaForeground(pcSlot, pc);
     }
 }

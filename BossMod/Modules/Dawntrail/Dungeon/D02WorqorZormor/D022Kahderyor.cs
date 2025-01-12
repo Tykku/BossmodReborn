@@ -134,7 +134,7 @@ class WindShotStack(BossModule module) : Components.DonutStack(module, ActionID.
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!ActiveStacks.Any())
+        if (ActiveStacks.Count == 0)
             return;
         var comp = Module.FindComponent<WindEarthShot>()!.ActiveAOEs(slot, actor).ToList();
         var forbidden = new List<Func<WPos, float>>();

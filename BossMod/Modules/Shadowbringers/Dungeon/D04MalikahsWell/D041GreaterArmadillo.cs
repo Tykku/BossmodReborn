@@ -23,8 +23,8 @@ public enum AID : uint
 }
 
 class StoneFlail(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.StoneFlail));
-class FallingRock(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FallingRock), 4);
-class FlailSmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FlailSmash), 10);
+class FallingRock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FallingRock), 4);
+class FlailSmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlailSmash), 10);
 class HeadToss(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HeadToss), 6, 4, 4);
 class Earthshake(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Earthshake), new AOEShapeDonut(10, 20));
 class Rehydration(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Rehydration), showNameInHint: true);

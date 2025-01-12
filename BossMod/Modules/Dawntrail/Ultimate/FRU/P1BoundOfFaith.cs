@@ -1,8 +1,12 @@
 ﻿namespace BossMod.Dawntrail.Ultimate.FRU;
 
-class P1TurnOfHeavensBurntStrikeFire(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TurnOfHeavensBurntStrikeFire), new AOEShapeRect(40, 5, 40));
-class P1TurnOfHeavensBurntStrikeLightning(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TurnOfHeavensBurntStrikeLightning), new AOEShapeRect(40, 5, 40));
-class P1TurnOfHeavensBurnout(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TurnOfHeavensBurnout), new AOEShapeRect(40, 10, 40));
+abstract class BurntStrike(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 5, 40));
+class P1TurnOfHeavensBurntStrikeFire(BossModule module) : BurntStrike(module, AID.TurnOfHeavensBurntStrikeFire);
+class P1TurnOfHeavensBurntStrikeLightning(BossModule module) : BurntStrike(module, AID.TurnOfHeavensBurntStrikeLightning);
+
+abstract class BurntOut(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 10, 40));
+class P1TurnOfHeavensBurnout(BossModule module) : BurntOut(module, AID.TurnOfHeavensBurnout);
+
 class P1BrightfireSmall(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BrightfireSmall), new AOEShapeCircle(5));
 class P1BrightfireLarge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BrightfireLarge), new AOEShapeCircle(10));
 

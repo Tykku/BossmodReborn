@@ -38,7 +38,7 @@ class ImminentCatastrophe(BossModule module) : Components.CastLineOfSightAOE(mod
     public override IEnumerable<Actor> BlockerActors() => ((D163Anantaboga)Module).ActivePillars();
 }
 
-class TerrorEye(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TerrorEye), 6);
+class TerrorEye(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TerrorEye), 6);
 
 class PlagueDance(BossModule module) : BossComponent(module)
 {

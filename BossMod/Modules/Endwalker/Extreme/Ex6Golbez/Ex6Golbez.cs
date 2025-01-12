@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Endwalker.Extreme.Ex6Golbez;
 
 class Terrastorm(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TerrastormAOE), new AOEShapeCircle(16));
-class LingeringSpark(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LingeringSparkAOE), 5);
+class LingeringSpark(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LingeringSparkAOE), 5);
 class PhasesOfTheBladeFront(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PhasesOfTheBlade), new AOEShapeCone(22, 90.Degrees()));
 class PhasesOfTheBladeBack(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PhasesOfTheBladeBack), new AOEShapeCone(22, 90.Degrees()));
 class PhasesOfTheShadowFront(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PhasesOfTheShadow), new AOEShapeCone(22, 90.Degrees()));

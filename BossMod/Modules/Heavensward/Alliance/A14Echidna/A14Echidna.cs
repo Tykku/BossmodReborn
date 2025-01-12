@@ -8,9 +8,9 @@ class AbyssalReaperKnockback(BossModule module) : Components.KnockbackFromCastTa
 class Petrifaction1(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.Petrifaction1));
 class Petrifaction2(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.Petrifaction2));
 class Gehenna(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Gehenna));
-class BloodyHarvest(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BloodyHarvest), 12);
+class BloodyHarvest(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BloodyHarvest), 12);
 class Deathstrike(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Deathstrike), new AOEShapeRect(62, 3));
-class FlameWreath(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FlameWreath), 18);
+class FlameWreath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlameWreath), 18);
 class SerpentineStrike(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SerpentineStrike), new AOEShapeCircle(20));
 
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 120, NameID = 4631)]

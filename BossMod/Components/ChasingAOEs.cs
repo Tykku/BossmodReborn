@@ -145,3 +145,52 @@ public class StandardChasingAOEs(BossModule module, AOEShape shape, ActionID act
         }
     }
 }
+
+// since open world players don't count towards party, we need to make a new component
+public abstract class OpenWorldChasingAOEs(BossModule module, AOEShape shape, ActionID actionFirst, ActionID actionRest, float moveDistance, float secondsBetweenActivations, int maxCasts, bool resetExcludedTargets = false, uint icon = default, float activationDelay = 5.1f) : StandardChasingAOEs(module, shape, actionFirst, actionRest, moveDistance, secondsBetweenActivations, maxCasts, resetExcludedTargets, icon, activationDelay)
+{
+    public new HashSet<Actor> ExcludedTargets = []; // any targets in this hashset aren't considered to be possible targets
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if (spell.Action == ActionFirst)
+        {
+            var pos = spell.TargetID == caster.InstanceID ? caster.Position : WorldState.Actors.Find(spell.TargetID)?.Position ?? spell.LocXZ;
+            Actor? target = null;
+            var minDistanceSq = float.MaxValue;
+
+            foreach (var actor in WorldState.Actors)
+            {
+                if (actor.OID == 0 && !ExcludedTargets.Contains(actor))
+                {
+                    var distanceSq = (actor.Position - pos).LengthSq();
+                    if (distanceSq < minDistanceSq)
+                    {
+                        minDistanceSq = distanceSq;
+                        target = actor;
+                    }
+                }
+            }
+            if (target != null)
+            {
+                Actors.Remove(target);
+                Chasers.Add(new(Shape, target, pos, 0, MaxCasts, Module.CastFinishAt(spell), SecondsBetweenActivations)); // initial cast does not move anywhere
+                ExcludedTargets.Add(target);
+            }
+        }
+    }
+
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    {
+        if (spell.Action == ActionFirst || spell.Action == ActionRest)
+        {
+            var pos = spell.MainTargetID == caster.InstanceID ? caster.Position : WorldState.Actors.Find(spell.MainTargetID)?.Position ?? spell.TargetXZ;
+            Advance(pos, MoveDistance, WorldState.CurrentTime);
+            if (Chasers.Count == 0 && ResetExcludedTargets)
+            {
+                ExcludedTargets.Clear();
+                NumCasts = 0;
+            }
+        }
+    }
+}

@@ -42,7 +42,7 @@ public enum AID : uint
 }
 
 class Windrune(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WindRune), new AOEShapeRect(40, 4));
-class SongRune(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SongRune), 6);
+class SongRune(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SongRune), 6);
 class StormRune(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.StormRune));
 
 abstract class BushBash(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(12));

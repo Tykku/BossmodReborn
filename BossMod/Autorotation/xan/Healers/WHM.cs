@@ -91,7 +91,7 @@ public sealed class WHM(RotationModuleManager manager, Actor player) : Castxan<A
         // TODO make a track for this
         if (Lily == 3 || !CanFitGCD(NextLily, 2) && Lily == 2)
         {
-            if (World.Party.WithoutSlot(excludeAlliance: true).Average(PredictedHPRatio) < 0.8 && NumSolaceTargets == World.Party.WithoutSlot(excludeAlliance: true).Count())
+            if (World.Party.WithoutSlot(excludeAlliance: true).Average(PredictedHPRatio) < 0.8 && NumSolaceTargets == World.Party.WithoutSlot(excludeAlliance: true).Length)
                 PushGCD(AID.AfflatusRapture, Player, 1);
 
             PushGCD(AID.AfflatusSolace, World.Party.WithoutSlot(excludeAlliance: true).MinBy(PredictedHPRatio), 1);

@@ -24,7 +24,7 @@ class Burst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSp
 // future thing to do: maybe add a tether between bomb/boss to show it needs to show the aoe needs to explode on them. . . 
 class HypothermalCombustion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HypothermalCombustion), new AOEShapeCircle(7.2f));
 class MassiveBurst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MassiveBurst), "Knock the Giddy bomb into the boss and let it explode on the boss. \n or else take 99% damage!");
-class Sap(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Sap), 8);
+class Sap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Sap), 8);
 class ScaldingScolding(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ScaldingScolding), new AOEShapeCone(11.75f, 45.Degrees()))
 {
     private readonly MassiveBurst _raidwide1 = module.FindComponent<MassiveBurst>()!;
@@ -32,19 +32,19 @@ class ScaldingScolding(BossModule module) : Components.Cleave(module, ActionID.M
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (!_raidwide1.Active && !_locationaoe1.ActiveCasters.Any())
+        if (!_raidwide1.Active && _locationaoe1.ActiveCasters.Count == 0)
             base.AddHints(slot, actor, hints);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!_raidwide1.Active && !_locationaoe1.ActiveCasters.Any())
+        if (!_raidwide1.Active && _locationaoe1.ActiveCasters.Count == 0)
             base.AddAIHints(slot, actor, assignment, hints);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        if (!_raidwide1.Active && !_locationaoe1.ActiveCasters.Any())
+        if (!_raidwide1.Active && _locationaoe1.ActiveCasters.Count == 0)
             base.DrawArenaForeground(pcSlot, pc);
     }
 }

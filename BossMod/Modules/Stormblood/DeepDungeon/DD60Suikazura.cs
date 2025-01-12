@@ -19,7 +19,7 @@ public enum AID : uint
 
 class Firewalker(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Firewalker), new AOEShapeCone(10, 45.Degrees()));
 class InfiniteAnguish(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.InfiniteAnguish), new AOEShapeDonut(6.5f, 12));
-class FireII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FireII), 5);
+class FireII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireII), 5);
 class Topple(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Topple), new AOEShapeCircle(5.5f));
 class SearingChain(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SearingChain), new AOEShapeRect(61, 2));
 class AncientFlare(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AncientFlare), "Raidwide, watch your feet after it goes off");

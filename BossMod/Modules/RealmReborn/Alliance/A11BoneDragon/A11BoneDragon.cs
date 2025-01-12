@@ -1,6 +1,6 @@
 ﻿namespace BossMod.RealmReborn.Alliance.A11BoneDragon;
 
-class Apocalypse(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Apocalypse), 6);
+class Apocalypse(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Apocalypse), 6);
 class EvilEye(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.EvilEye), new AOEShapeCone(105, 60.Degrees()));
 class Stone(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Stone));
 class Level5Petrify(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Level5Petrify), new AOEShapeCone(7.8f, 45.Degrees()));

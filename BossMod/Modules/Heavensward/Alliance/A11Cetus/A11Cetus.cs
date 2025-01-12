@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Heavensward.Alliance.A11Cetus;
 
 class ElectricSwipe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectricSwipe), new AOEShapeCone(25, 30.Degrees()));
-class BodySlam(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BodySlam), 10);
+class BodySlam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BodySlam), 10);
 class Immersion(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Immersion));
 class ElectricWhorl(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectricWhorl), new AOEShapeDonut(7, 60));
 class ExpulsionAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Expulsion), new AOEShapeCircle(14));

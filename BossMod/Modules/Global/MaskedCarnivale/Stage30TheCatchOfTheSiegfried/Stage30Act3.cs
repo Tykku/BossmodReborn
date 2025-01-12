@@ -44,8 +44,8 @@ public enum SID : uint
 }
 
 class MagicDrain(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.MagicDrain), "Reflect magic damage for 30s");
-class HyperdriveFirst(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HyperdriveFirst), 5);
-class HyperdriveRest(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HyperdriveRest), 5);
+class HyperdriveFirst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HyperdriveFirst), 5);
+class HyperdriveRest(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HyperdriveRest), 5);
 class AnkleGraze(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.AnkleGraze), "Applies bind, prepare to use Excuviation!");
 class LawOfTheTorch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LawOfTheTorch), new AOEShapeCone(34, 10.Degrees()));
 class LawOfTheTorch2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LawOfTheTorch2), new AOEShapeCone(34, 10.Degrees()));
@@ -54,11 +54,11 @@ class Swiftsteel(BossModule module) : Components.KnockbackFromCastTarget(module,
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<Swiftsteel2>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || (Module.FindComponent<Swiftsteel3>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || !Module.InBounds(pos);
 }
 
-class Swiftsteel2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Swiftsteel2), 4);
+class Swiftsteel2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Swiftsteel2), 4);
 class Swiftsteel3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Swiftsteel3), new AOEShapeDonut(8, 20));
 class Sparksteel1(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.Sparksteel1), m => m.Enemies(OID.FireVoidzone).Where(e => e.EventState != 7), 0.8f);
 
-public class Sparksteel2 : Components.LocationTargetedAOEs
+public class Sparksteel2 : Components.SimpleAOEs
 {
     public Sparksteel2(BossModule module) : base(module, ActionID.MakeSpell(AID.Sparksteel2), 8)
     {
@@ -66,7 +66,7 @@ public class Sparksteel2 : Components.LocationTargetedAOEs
     }
 }
 
-class Sparksteel3(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Sparksteel3), 8)
+class Sparksteel3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Sparksteel3), 8)
 {
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {

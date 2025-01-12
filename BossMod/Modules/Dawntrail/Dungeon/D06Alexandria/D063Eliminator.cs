@@ -114,7 +114,7 @@ class Electray(BossModule module) : Components.SpreadFromCastTargets(module, Act
         else
         {
             base.AddAIHints(slot, actor, assignment, hints);
-            if (ActiveSpreads.Any())
+            if (ActiveSpreads.Count != 0)
                 hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center - new WDir(0, 15), 15), ActiveSpreads.FirstOrDefault().Activation);
         }
     }
@@ -124,10 +124,14 @@ class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionI
 {
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        var aoes = ActiveCasters.Select((c, index) =>
-            new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo),
-            index < 2 ? Colors.Danger : Colors.AOE, index < 4));
-
+        var count = Casters.Count;
+        var aoes = new List<AOEInstance>(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var caster = Casters[i];
+            var instance = new AOEInstance(Shape, caster.Position, caster.CastInfo!.Rotation, Module.CastFinishAt(caster.CastInfo), i < 2 ? Colors.Danger : Colors.AOE, i < 4);
+            aoes.Add(instance);
+        }
         return aoes;
     }
 }

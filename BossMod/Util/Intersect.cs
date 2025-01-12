@@ -138,7 +138,7 @@ public static class Intersect
         var normal = coneDir.OrthoL();
         var sin = halfAngle.Sin();
         var distFromAxis = circleOffset.Dot(normal);
-        var originInCone = (halfAngle.Rad - MathF.PI * 0.5f) switch
+        var originInCone = (halfAngle.Rad - Angle.HalfPi) switch
         {
             < 0 => correctSide && distFromAxis * distFromAxis <= lsq * sin * sin,
             > 0 => correctSide || distFromAxis * distFromAxis >= lsq * sin * sin,

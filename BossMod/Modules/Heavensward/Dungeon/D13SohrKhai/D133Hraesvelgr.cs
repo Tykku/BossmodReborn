@@ -31,7 +31,7 @@ public enum IconID : uint
     Spreadmarker = 311 // player->self
 }
 
-abstract class HallowedWings(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(50, 11));
+abstract class HallowedWings(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(50, 11));
 class HallowedWings1(BossModule module) : HallowedWings(module, AID.HallowedWings1);
 class HallowedWings2(BossModule module) : HallowedWings(module, AID.HallowedWings2);
 

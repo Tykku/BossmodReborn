@@ -41,7 +41,7 @@ public enum AID : uint
     Telega = 9630 // Mandragoras/Lyssa/Lampas->self, no cast, single-target, bonus add disappear
 }
 
-class SludgeBomb(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SludgeBomb2), 8);
+class SludgeBomb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SludgeBomb2), 8);
 class RustlingWind(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RustlingWind), new AOEShapeRect(15, 2));
 class AcidMist(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AcidMist), new AOEShapeCircle(6));
 class OdiousAir(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.OdiousAir), new AOEShapeCone(12, 60.Degrees()));
@@ -84,7 +84,7 @@ class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
 
 class GymnasiouMegakanthaStates : StateMachineBuilder
 {

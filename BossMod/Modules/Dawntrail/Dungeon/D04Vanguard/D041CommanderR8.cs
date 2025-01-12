@@ -162,7 +162,7 @@ class EnhancedMobility3(BossModule module) : EnhancedMobility(module, AID.Enhanc
 class EnhancedMobility4(BossModule module) : EnhancedMobility(module, AID.EnhancedMobility4);
 
 class Rush(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.Rush), 2.5f);
-class AerialOffensive(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AerialOffensive), 14, maxCasts: 4);
+class AerialOffensive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AerialOffensive), 14, maxCasts: 4);
 class Electrosurge(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Electrosurge), 5);
 
 class D041CommanderR8States : StateMachineBuilder

@@ -42,7 +42,7 @@ public enum AID : uint
 class Hydrofan(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrofan), new AOEShapeCone(44, 15.Degrees()));
 class Hypnowave(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hypnowave), new AOEShapeCone(30, 60.Degrees()));
 class Hydropins(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hydropins), new AOEShapeRect(12, 2));
-class AquaGlobe(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AquaGlobe), 8);
+class AquaGlobe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AquaGlobe), 8);
 class Hydrowhirl(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrowhirl), new AOEShapeCircle(8));
 class Hydrotaph(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Hydrotaph));
 

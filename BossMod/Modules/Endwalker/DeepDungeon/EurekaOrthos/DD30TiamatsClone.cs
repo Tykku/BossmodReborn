@@ -28,7 +28,7 @@ public enum IconID : uint
 }
 
 class WheiMorn(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(6), ActionID.MakeSpell(AID.WheiMornFirst), ActionID.MakeSpell(AID.WheiMornRest), 6, 2, 5, true, (uint)IconID.ChasingAOE);
-class DarkMegaflare(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DarkMegaflare), 6);
+class DarkMegaflare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkMegaflare), 6);
 
 class DarkWyrm(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 8));
 class DarkWyrmwing(BossModule module) : DarkWyrm(module, AID.DarkWyrmwing);

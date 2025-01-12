@@ -39,7 +39,7 @@ public enum AID : uint
     ElectrolanceAssimilationVisual = 36430, // Boss->self, 0.5s cast, single-target
     ElectrolanceAssimilation = 36431, // Helper->self, 1.0s cast, range 33 width 10 rect
 
-    WhorlOfTheMind = 36438, // Helper->player, 5.0s cast, range 5 circle
+    WhorlOfTheMind = 36438 // Helper->player, 5.0s cast, range 5 circle
 }
 
 class PsychicWaveArenaChange(BossModule module) : Components.GenericAOEs(module)
@@ -48,17 +48,18 @@ class PsychicWaveArenaChange(BossModule module) : Components.GenericAOEs(module)
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.PsychicWave && Module.Arena.Bounds == D053Ambrose.StartingBounds)
-            _aoe = new(rect, Module.Center, default, Module.CastFinishAt(spell, 0.7f));
+        if ((AID)spell.Action.ID == AID.PsychicWave && Arena.Bounds == D053Ambrose.StartingBounds)
+            _aoe = new(rect, Arena.Center, default, Module.CastFinishAt(spell, 0.7f));
     }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state == 0x00020001 && index == 0x28)
         {
-            Module.Arena.Bounds = D053Ambrose.DefaultBounds;
+            Arena.Bounds = D053Ambrose.DefaultBounds;
             _aoe = null;
         }
     }
@@ -72,12 +73,13 @@ class ExtrasensoryExpulsion(BossModule module) : Components.Knockback(module, ma
     private const float QuarterWidth = 7.5f;
     private const float QuarterHeight = 9.75f;
     private const float HalfHeight = 19.5f;
-    public readonly List<(WPos, Angle)> Data = [];
+    public readonly List<(WPos, Angle)> Data = new(2);
     public DateTime Activation;
-    private readonly List<Source> _sources = [];
+    private readonly List<Source> _sources = new(4);
     private static readonly AOEShapeRect rectNS = new(HalfHeight, QuarterWidth);
     private static readonly AOEShapeRect rectEW = new(15, QuarterHeight);
     private static readonly Angle[] angles = [-0.003f.Degrees(), -180.Degrees(), -89.982f.Degrees(), 89.977f.Degrees()];
+    private Func<WPos, float>? distance;
 
     public override IEnumerable<Source> Sources(int slot, Actor actor) => _sources;
 
@@ -123,20 +125,43 @@ class ExtrasensoryExpulsion(BossModule module) : Components.Knockback(module, ma
 
     public override void Update()
     {
-        if (Data.Count > 0 && WorldState.CurrentTime > Activation)
+        if (Data.Count != 0 && WorldState.CurrentTime > Activation)
         {
             _sources.Clear();
             Data.Clear();
             ++NumCasts;
+            distance = null;
         }
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (Sources(slot, actor).Any() || Activation > WorldState.CurrentTime) // 0.8s delay to wait for action effect
+        if (_sources.Count != 0)
         {
-            var forbiddenZones = Data.Select(w => ShapeDistance.InvertedRect(w.Item1, w.Item2, HalfHeight - 0.5f, 0, QuarterWidth)).ToList();
-            hints.AddForbiddenZone(p => forbiddenZones.Max(f => f(p)), Activation.AddSeconds(-0.8f));
+            if (distance == null)
+            {
+                var forbidden = new List<Func<WPos, float>>(2);
+
+                for (var i = 0; i < 2; ++i)
+                {
+                    var w = Data[i];
+                    forbidden.Add(ShapeDistance.InvertedRect(w.Item1, w.Item2, HalfHeight - 0.5f, 0, QuarterWidth));
+                }
+                distance = p =>
+                {
+                    var maxDistance = float.MinValue;
+                    for (var i = 0; i < 2; ++i)
+                    {
+                        var distance = forbidden[i](p);
+                        if (distance > maxDistance)
+                        {
+                            maxDistance = distance;
+                        }
+                    }
+                    return maxDistance;
+                };
+            }
+            hints.AddForbiddenZone(distance, _sources[0].Activation);
         }
     }
 }
@@ -150,6 +175,7 @@ class OverwhelmingCharge(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCone cone = new(26, 90.Degrees());
     private static readonly AOEShapeRect rect = new(19, 7.5f);
     private AOEInstance _aoe;
+    private static readonly Angle a180 = 180.Degrees();
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -160,7 +186,7 @@ class OverwhelmingCharge(BossModule module) : Components.GenericAOEs(module)
             yield return _aoe with { Risky = !componentActive };
             if (componentActive)
             {
-                var safezone = component.Data.FirstOrDefault(x => _aoe.Rotation.AlmostEqual(x.Item2 + 180.Degrees(), Angle.DegToRad));
+                var safezone = component.Data.FirstOrDefault(x => _aoe.Rotation.AlmostEqual(x.Item2 + a180, Angle.DegToRad));
                 yield return new(rect, safezone.Item1, safezone.Item2, component.Activation, Colors.SafeFromAOE, false);
             }
         }
@@ -186,7 +212,7 @@ class OverwhelmingCharge(BossModule module) : Components.GenericAOEs(module)
         var component = Module.FindComponent<ExtrasensoryExpulsion>()!.Sources(slot, actor).Any() || Module.FindComponent<ExtrasensoryExpulsion>()!.Activation > WorldState.CurrentTime;
         var aoe = ActiveAOEs(slot, actor).FirstOrDefault();
         if (component && ActiveAOEs(slot, actor).Any())
-            hints.AddForbiddenZone(aoe.Shape, aoe.Origin, aoe.Rotation + 180.Degrees(), aoe.Activation);
+            hints.AddForbiddenZone(aoe.Shape, aoe.Origin, aoe.Rotation + a180, aoe.Activation);
         else
             base.AddAIHints(slot, actor, assignment, hints);
     }
@@ -205,20 +231,24 @@ class OverwhelmingCharge(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Electrolance(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Electrolance), 22);
+class Electrolance(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Electrolance), 22);
 class WhorlOfTheMind(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.WhorlOfTheMind), 5);
 
 class Rush(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeRect rect = new(33, 5);
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(7);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        for (var i = 1; i < _aoes.Count; ++i)
-            yield return _aoes[i];
+        var count = _aoes.Count;
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoes[i];
+            yield return i == 0 ? count > 1 ? aoe with { Color = Colors.Danger } : aoe : aoe;
+        }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -227,16 +257,17 @@ class Rush(BossModule module) : Components.GenericAOEs(module)
         {
             var activation = Module.CastFinishAt(spell, 6.8f);
             var dir = spell.LocXZ - caster.Position;
+
             if (_aoes.Count < 7)
                 _aoes.Add(new(new AOEShapeRect(dir.Length(), 5), caster.Position, Angle.FromDirection(dir), activation));
-            else if (_aoes.Count == 7)
+            else
                 _aoes.Add(new(rect, new(190, 19.5f), -180.Degrees(), activation));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID is AID.Rush or AID.ElectrolanceAssimilation)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.Rush or AID.ElectrolanceAssimilation)
             _aoes.RemoveAt(0);
     }
 }
@@ -268,6 +299,7 @@ public class D053Ambrose(WorldState ws, Actor primary) : BossModule(ws, primary,
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Superfluity).Concat(Enemies(OID.OrigenicsEyeborg)));
+        Arena.Actors(Enemies(OID.Superfluity));
+        Arena.Actors(Enemies(OID.OrigenicsEyeborg));
     }
 }

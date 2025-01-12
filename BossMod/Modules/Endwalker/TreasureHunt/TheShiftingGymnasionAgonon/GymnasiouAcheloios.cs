@@ -128,7 +128,7 @@ class QuadrupleHammer(BossModule module) : Components.GenericRotatingAOE(module)
 }
 
 class VolcanicHowl(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.VolcanicHowl));
-class Earthbreak(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Earthbreak), 5);
+class Earthbreak(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Earthbreak), 5);
 class DeadlyHold(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DeadlyHold));
 class TailSwing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TailSwing), new AOEShapeCircle(13));
 class CriticalBite(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CriticalBite), new AOEShapeCone(10, 60.Degrees()));
@@ -140,7 +140,7 @@ class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
 
 class GymnasiouAcheloiosStates : StateMachineBuilder
 {

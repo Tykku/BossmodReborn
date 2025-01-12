@@ -53,8 +53,8 @@ class Touchdown(BossModule module) : Components.GenericAOEs(module)
 }
 
 class Cauterize(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Cauterize), new AOEShapeRect(53, 10));
-class Fireball(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Fireball), 4);
-class SheetOfIce(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SheetOfIce), 5);
+class Fireball(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fireball), 4);
+class SheetOfIce(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SheetOfIce), 5);
 
 class D130BlizzardDragonStates : StateMachineBuilder
 {

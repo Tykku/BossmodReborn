@@ -172,7 +172,7 @@ class PendulumFlare(BossModule module) : Components.BaitAwayIcon(module, new AOE
     }
 }
 
-class PendulumAOE(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PendulumAOE3), 15);
+class PendulumAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PendulumAOE3), 15);
 
 class Knout(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(24, 105.Degrees()));
 class LeftKnout(BossModule module) : Knout(module, AID.LeftKnout);

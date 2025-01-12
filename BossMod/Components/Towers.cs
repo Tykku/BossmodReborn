@@ -13,7 +13,19 @@ public class GenericTowers(BossModule module, ActionID aid = default, bool prior
 
         public readonly bool IsInside(WPos pos) => pos.InCircle(Position, Radius);
         public readonly bool IsInside(Actor actor) => IsInside(actor.Position);
-        public readonly int NumInside(BossModule module) => module.Raid.WithSlot().ExcludedFromMask(ForbiddenSoakers).InRadius(Position, Radius).Count();
+
+        public readonly int NumInside(BossModule module)
+        {
+            var count = 0;
+            var party = module.Raid.WithSlot();
+            for (var i = 0; i < party.Length; ++i)
+            {
+                var indexActor = party[i];
+                if (!ForbiddenSoakers[indexActor.Item1] && indexActor.Item2.Position.InCircle(Position, Radius))
+                    ++count;
+            }
+            return count;
+        }
         public readonly bool CorrectAmountInside(BossModule module) => NumInside(module) is var count && count >= MinSoakers && count <= MaxSoakers;
         public readonly bool InsufficientAmountInside(BossModule module) => NumInside(module) is var count && count < MaxSoakers;
         public readonly bool TooManyInside(BossModule module) => NumInside(module) is var count && count > MaxSoakers;
@@ -30,30 +42,75 @@ public class GenericTowers(BossModule module, ActionID aid = default, bool prior
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (Towers.Any(t => t.ForbiddenSoakers[slot] && t.IsInside(actor)))
+        var count = Towers.Count;
+        if (count == 0)
+            return;
+        var gtfoFromTower = false;
+        for (var i = 0; i < count; ++i)
+        {
+            var t = Towers[i];
+            if (t.ForbiddenSoakers[slot] && t.IsInside(actor))
+            {
+                gtfoFromTower = true;
+                break;
+            }
+        }
+
+        if (gtfoFromTower)
         {
             hints.Add("GTFO from tower!");
         }
-        else if (Towers.FindIndex(t => !t.ForbiddenSoakers[slot] && t.IsInside(actor)) is var soakedIndex && soakedIndex >= 0) // note: this assumes towers don't overlap
+        else // Find index of a tower that is not forbidden and the actor is inside
         {
-            var count = Towers[soakedIndex].NumInside(Module);
-            if (count < Towers[soakedIndex].MinSoakers)
-                hints.Add("Too few soakers in the tower!");
-            else if (count > Towers[soakedIndex].MaxSoakers)
-                hints.Add("Too many soakers in the tower!");
-            else
-                hints.Add("Soak the tower!", false);
-        }
-        else if (Towers.Any(t => !t.ForbiddenSoakers[slot] && t.InsufficientAmountInside(Module)))
-        {
-            hints.Add("Soak the tower!");
+            var soakedIndex = -1;
+            for (var i = 0; i < count; ++i)
+            {
+                var t = Towers[i];
+                if (!t.ForbiddenSoakers[slot] && t.IsInside(actor))
+                {
+                    soakedIndex = i;
+                    break;
+                }
+            }
+
+            if (soakedIndex >= 0) // If a suitable tower is found
+            {
+                var count2 = Towers[soakedIndex].NumInside(Module);
+                if (count2 < Towers[soakedIndex].MinSoakers)
+                    hints.Add("Too few soakers in the tower!");
+                else if (count2 > Towers[soakedIndex].MaxSoakers)
+                    hints.Add("Too many soakers in the tower!");
+                else
+                    hints.Add("Soak the tower!", false);
+            }
+            else // Check if any tower has insufficient soakers
+            {
+                var insufficientSoakers = false;
+                for (var i = 0; i < count; ++i)
+                {
+                    var t = Towers[i];
+                    if (!t.ForbiddenSoakers[slot] && t.InsufficientAmountInside(Module))
+                    {
+                        insufficientSoakers = true;
+                        break;
+                    }
+                }
+                if (insufficientSoakers)
+                    hints.Add("Soak the tower!");
+            }
         }
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        foreach (var t in Towers)
+        var count = Towers.Count;
+        if (count == 0)
+            return;
+        for (var i = 0; i < count; ++i)
+        {
+            var t = Towers[i];
             DrawTower(Arena, t.Position, t.Radius, !t.ForbiddenSoakers[pcSlot] && !t.IsInside(pc) && t.NumInside(Module) < t.MaxSoakers || t.IsInside(pc) && !t.ForbiddenSoakers[pcSlot] && t.NumInside(Module) <= t.MaxSoakers);
+        }
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -61,42 +118,162 @@ public class GenericTowers(BossModule module, ActionID aid = default, bool prior
         var count = Towers.Count;
         if (count == 0)
             return;
-        var forbiddenInverted = new List<Func<WPos, float>>();
-        var forbidden = new List<Func<WPos, float>>();
-        if (!Towers.Any(x => x.ForbiddenSoakers[slot]))
+        var forbiddenInverted = new List<Func<WPos, float>>(count);
+        var forbidden = new List<Func<WPos, float>>(count);
+
+        var hasForbiddenSoakers = false;
+        for (var i = 0; i < count; ++i)
+        {
+            if (Towers[i].ForbiddenSoakers[slot])
+            {
+                hasForbiddenSoakers = true;
+                break;
+            }
+        }
+        if (!hasForbiddenSoakers)
         {
             if (PrioritizeInsufficient)
             {
-                List<Tower> insufficientTowers = [];
-                foreach (var t in Towers.Where(x => x.InsufficientAmountInside(Module) && x.NumInside(Module) > 0))
-                    insufficientTowers.Add(t);
-                var mostRelevantTower = insufficientTowers.OrderByDescending(x => x.NumInside(Module)).ThenBy(x => (x.Position - actor.Position).LengthSq()).FirstOrDefault();
-                if (insufficientTowers.Count > 0)
-                    forbiddenInverted.Add(ShapeDistance.InvertedCircle(mostRelevantTower.Position, mostRelevantTower.Radius));
+                List<Tower> insufficientTowers = new(count);
+                for (var i = 0; i < count; ++i)
+                {
+                    var t = Towers[i];
+                    if (t.InsufficientAmountInside(Module) && t.NumInside(Module) != 0)
+                        insufficientTowers.Add(t);
+                }
+                Tower? mostRelevantTower = null;
+
+                for (var i = 0; i < insufficientTowers.Count; ++i)
+                {
+                    var t = insufficientTowers[i];
+                    if (mostRelevantTower == null || t.NumInside(Module) > mostRelevantTower.Value.NumInside(Module) || t.NumInside(Module) == mostRelevantTower.Value.NumInside(Module) &&
+                        (t.Position - actor.Position).LengthSq() < (mostRelevantTower.Value.Position - actor.Position).LengthSq())
+                        mostRelevantTower = t;
+                }
+                if (mostRelevantTower.HasValue)
+                    forbiddenInverted.Add(ShapeDistance.InvertedCircle(mostRelevantTower.Value.Position, mostRelevantTower.Value.Radius));
             }
-            var inTower = Towers.Any(x => x.IsInside(actor) && x.CorrectAmountInside(Module));
-            var missingSoakers = !inTower && Towers.Any(x => x.InsufficientAmountInside(Module));
+            var inTower = false;
+            for (var i = 0; i < count; ++i)
+            {
+                var t = Towers[i];
+                if (t.IsInside(actor) && t.CorrectAmountInside(Module))
+                {
+                    inTower = true;
+                    break;
+                }
+            }
+
+            var missingSoakers = !inTower;
+            if (missingSoakers)
+            {
+                for (var i = 0; i < count; ++i)
+                {
+                    var t = Towers[i];
+                    if (t.InsufficientAmountInside(Module))
+                    {
+                        missingSoakers = true;
+                        break;
+                    }
+                }
+            }
             if (forbiddenInverted.Count == 0)
             {
-                foreach (var t in Towers.Where(x => x.InsufficientAmountInside(Module) || x.IsInside(actor) && x.CorrectAmountInside(Module)))
-                    forbiddenInverted.Add(ShapeDistance.InvertedCircle(t.Position, t.Radius));
-                foreach (var t in Towers.Where(x => x.TooManyInside(Module) || !x.IsInside(actor) && x.CorrectAmountInside(Module)))
-                    forbidden.Add(ShapeDistance.Circle(t.Position, t.Radius));
+                for (var i = 0; i < count; ++i)
+                {
+                    var t = Towers[i];
+                    if (t.InsufficientAmountInside(Module) || t.IsInside(actor) && t.CorrectAmountInside(Module))
+                        forbiddenInverted.Add(ShapeDistance.InvertedCircle(t.Position, t.Radius));
+                }
+
+                for (var i = 0; i < count; ++i)
+                {
+                    var t = Towers[i];
+                    if (t.TooManyInside(Module) || !t.IsInside(actor) && t.CorrectAmountInside(Module))
+                    {
+                        forbidden.Add(ShapeDistance.Circle(t.Position, t.Radius));
+                    }
+                }
             }
-            if (forbidden.Count == 0 || inTower || missingSoakers && forbiddenInverted.Count > 0)
-                hints.AddForbiddenZone(p => forbiddenInverted.Max(f => f(p)), Towers[0].Activation);
-            else if (forbidden.Count > 0 && !inTower)
-                hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), Towers[0].Activation);
+            var ficount = forbiddenInverted.Count;
+            var fcount = forbidden.Count;
+            if (forbidden.Count == 0 || inTower || missingSoakers && ficount != 0)
+            {
+                float distance(WPos p)
+                {
+                    var maxDist = float.MinValue;
+                    for (var i = 0; i < ficount; ++i)
+                    {
+                        var distance = forbiddenInverted[i](p);
+                        if (distance > maxDist)
+                            maxDist = distance;
+                    }
+                    return maxDist;
+                }
+                hints.AddForbiddenZone(distance, Towers[0].Activation);
+            }
+            else if (fcount != 0 && !inTower)
+            {
+                float distance(WPos p)
+                {
+                    var minDist = float.MaxValue;
+                    for (var i = 0; i < fcount; ++i)
+                    {
+                        var distance = forbidden[i](p);
+                        if (distance < minDist)
+                            minDist = distance;
+                    }
+                    return minDist;
+                }
+                hints.AddForbiddenZone(distance, Towers[0].Activation);
+            }
         }
-        else if (Towers.Any(x => x.ForbiddenSoakers[slot]))
+        else
         {
-            foreach (var t in Towers)
+            for (var i = 0; i < count; ++i)
+            {
+                var t = Towers[i];
                 forbidden.Add(ShapeDistance.Circle(t.Position, t.Radius));
-            if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), Towers[0].Activation);
+            }
+            var fcount = forbidden.Count;
+            if (fcount != 0)
+            {
+                float distance(WPos p)
+                {
+                    var minDist = float.MaxValue;
+                    for (var i = 0; i < fcount; ++i)
+                    {
+                        var distance = forbidden[i](p);
+                        if (distance < minDist)
+                            minDist = distance;
+                    }
+                    return minDist;
+                }
+                hints.AddForbiddenZone(distance, Towers[0].Activation);
+            }
         }
-        foreach (var t in Towers)
-            hints.PredictedDamage.Add((Module.Raid.WithSlot().ExcludedFromMask(t.ForbiddenSoakers).InRadius(t.Position, t.Radius).Mask(), t.Activation));
+        for (var i = 0; i < count; ++i)
+        {
+            var t = Towers[i];
+            var actors = Module.Raid.WithSlot();
+            var acount = actors.Length;
+            var filteredActors = new List<(int, Actor)>(acount);
+
+            for (var j = 0; j < acount; ++j)
+            {
+                var indexActor = actors[j];
+                if (!t.ForbiddenSoakers[indexActor.Item1] && indexActor.Item2.Position.InCircle(t.Position, t.Radius))
+                {
+                    filteredActors.Add(indexActor);
+                }
+            }
+
+            var mask = new BitMask();
+            for (var j = 0; j < filteredActors.Count; ++j)
+                mask[filteredActors[j].Item1] = true;
+
+            hints.PredictedDamage.Add((mask, t.Activation));
+        }
     }
 }
 

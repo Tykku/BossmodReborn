@@ -67,7 +67,7 @@ class MiniLight(BossModule module) : Components.GenericAOEs(module)
 }
 
 class Devour(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Devour), "Harmless unless you got minimized by the previous mechanic");
-class BogBomb(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BogBomb), 6);
+class BogBomb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BogBomb), 6);
 class BrackishRain(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BrackishRain), new AOEShapeCone(10, 45.Degrees()));
 
 class YilanStates : StateMachineBuilder

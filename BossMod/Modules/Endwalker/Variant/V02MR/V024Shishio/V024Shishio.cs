@@ -18,7 +18,7 @@ class CloudToCloud1(BossModule module) : CloudToCloud(module, AID.CloudToCloud1,
 class CloudToCloud2(BossModule module) : CloudToCloud(module, AID.CloudToCloud2, 3, 4);
 class CloudToCloud3(BossModule module) : CloudToCloud(module, AID.CloudToCloud3, 6, 2);
 
-class Thunder(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+class Thunder(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class ThunderOnefold(BossModule module) : Thunder(module, AID.ThunderOnefold);
 class ThunderTwofold(BossModule module) : Thunder(module, AID.ThunderTwofold);
 class ThunderThreefold(BossModule module) : Thunder(module, AID.ThunderThreefold);
@@ -39,7 +39,7 @@ class UnsagelySpin(BossModule module) : Circles(module, AID.UnsagelySpin);
 class Yoki(BossModule module) : Circles(module, AID.Yoki);
 
 class Rush(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.Rush), 4);
-class Vasoconstrictor(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Vasoconstrictor), 5);
+class Vasoconstrictor(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Vasoconstrictor), 5);
 
 class Swipe(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
 class RightSwipe(BossModule module) : Swipe(module, AID.RightSwipe);

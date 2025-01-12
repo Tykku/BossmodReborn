@@ -13,7 +13,7 @@ class ColossalSlam(BossModule module) : Components.SelfTargetedAOEs(module, Acti
 class ColossalSwing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ColossalSwing), new AOEShapeCone(60, 180.Degrees()));
 
 class SubterraneanShudder(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SubterraneanShudder));
-class RunawaySludge(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RunawaySludge), 9);
+class RunawaySludge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RunawaySludge), 9);
 
 class Shockwave(BossModule module) : Components.Knockback(module)
 {

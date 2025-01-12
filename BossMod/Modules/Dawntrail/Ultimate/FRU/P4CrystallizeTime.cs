@@ -169,7 +169,10 @@ class P4CrystallizeTimeMaelstrom(BossModule module) : Components.GenericAOEs(mod
     public override void OnActorCreated(Actor actor)
     {
         if ((OID)actor.OID == OID.SorrowsHourglass)
+        {
             _aoes.Add(new(_shape, actor.Position, actor.Rotation, WorldState.FutureTime(13.2f)));
+            _aoes.SortBy(aoe => aoe.Activation);
+        }
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
@@ -210,7 +213,7 @@ class P4CrystallizeTimeDarkWater(BossModule module) : Components.UniformStackSpr
             BitMask forbidden = default;
             if (Module.FindComponent<P4CrystallizeTime>() is var ct && ct != null)
             {
-                for (int i = 0; i < ct.PlayerMechanics.Length; ++i)
+                for (var i = 0; i < ct.PlayerMechanics.Length; ++i)
                 {
                     // should not be shared by eruption and all claws except air on slow side
                     forbidden[i] = ct.PlayerMechanics[i] switch
@@ -274,7 +277,7 @@ class P4CrystallizeTimeUnholyDarkness(BossModule module) : Components.UniformSta
             BitMask forbidden = default;
             if (Module.FindComponent<P4CrystallizeTime>() is var ct && ct != null)
             {
-                for (int i = 0; i < ct.PlayerMechanics.Length; ++i)
+                for (var i = 0; i < ct.PlayerMechanics.Length; ++i)
                 {
                     // should not be shared by all claws except blizzard on slow side
                     forbidden[i] = ct.PlayerMechanics[i] switch
@@ -417,25 +420,83 @@ class P4CrystallizeTimeHints(BossModule module) : BossComponent(module)
         return SafeOffsetFangEruption(northSlowX);
     }
 
-    private WDir SafeOffsetDarknessStack(float northSlowX) => 19 * (northSlowX > 0 ? 140 : -140).Degrees().ToDirection();
-    private WDir SafeOffsetFinalNonAir(float northSlowX) => 6 * (northSlowX > 0 ? -150 : 150).Degrees().ToDirection();
+    private static WDir SafeOffsetDarknessStack(float northSlowX) => 19 * (northSlowX > 0 ? 140 : -140).Degrees().ToDirection();
+    private static WDir SafeOffsetFinalNonAir(float northSlowX) => 6 * (northSlowX > 0 ? -150 : 150).Degrees().ToDirection();
 }
 
+// TODO: better positioning hints
 class P4CrystallizeTimeRewind(BossModule module) : BossComponent(module)
 {
-    public bool Done;
+    public bool RewindDone;
+    public bool ReturnDone;
     private readonly P4CrystallizeTime? _ct = module.FindComponent<P4CrystallizeTime>();
     private readonly P4CrystallizeTimeTidalLight? _exalines = module.FindComponent<P4CrystallizeTimeTidalLight>();
 
+    public override void AddHints(int slot, Actor actor, TextHints hints)
+    {
+        if (!RewindDone && _ct != null && _exalines != null && _ct.Cleansed[slot])
+        {
+            var players = Raid.WithoutSlot(excludeNPCs: true).ToList();
+            players.SortBy(p => p.Position.X);
+            var xOrder = players.IndexOf(actor);
+            players.SortBy(p => p.Position.Z);
+            var zOrder = players.IndexOf(actor);
+            if (xOrder >= 0 && zOrder >= 0)
+            {
+                if (_exalines.StartingOffset.X > 0)
+                    xOrder = players.Count - 1 - xOrder;
+                if (_exalines.StartingOffset.Z > 0)
+                    zOrder = players.Count - 1 - zOrder;
+
+                var isFirst = xOrder == 0 || zOrder == 0;
+                var isTank = actor.Role == Role.Tank;
+                if (isFirst != isTank)
+                    hints.Add(isTank ? "Stay in front of the group!" : "Hide behind tank!");
+                var isFirstX = xOrder < 4;
+                var isFirstZ = zOrder < 4;
+                if (isFirstX == isFirstZ)
+                    hints.Add("Position in group properly!");
+            }
+
+            if (KnockbackSpots(actor.Position).Any(p => !Module.Bounds.Contains(p - Module.Center)))
+                hints.Add("About to be knocked into wall!");
+        }
+    }
+
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        if (_ct != null && _exalines != null && _ct.Cleansed[pcSlot])
-            Arena.AddCircle(Arena.Center + 0.5f * _exalines.StartingOffset, 1, Colors.Safe); // TODO: better hints...
+        if (!RewindDone && _ct != null && _exalines != null && _ct.Cleansed[pcSlot])
+        {
+            var vertices = KnockbackSpots(pc.Position);
+            Arena.AddQuad(pc.Position, vertices[0], vertices[2], vertices[1], Colors.Danger);
+            Arena.AddCircle(Arena.Center + 0.5f * _exalines.StartingOffset, 1, Colors.Safe);
+        }
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.Return)
-            Done = true;
+        switch ((SID)status.ID)
+        {
+            case SID.Return:
+                RewindDone = true;
+                break;
+            case SID.Stun:
+                ReturnDone = true;
+                break;
+        }
+    }
+
+    private List<WPos> KnockbackSpots(WPos starting)
+    {
+        List<WPos> list = new(3);
+        if (_exalines != null)
+        {
+            var dx = _exalines.StartingOffset.X > 0 ? -20 : +20;
+            var dz = _exalines.StartingOffset.Z > 0 ? -20 : +20;
+            list.Add(starting + new WDir(dx, 0));
+            list.Add(starting + new WDir(0, dz));
+            list.Add(starting + new WDir(dx, dz));
+        }
+        return list;
     }
 }

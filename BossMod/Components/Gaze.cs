@@ -70,17 +70,13 @@ public abstract class GenericGaze(BossModule module, ActionID aid = new(), bool 
         dl.AddCircleFilled(eyeCenter, _eyeInnerR, Colors.Border);
     }
 
-    private static bool HitByEye(Actor actor, Eye eye) => (actor.Rotation + eye.Forward).ToDirection().Dot((eye.Position - actor.Position).Normalized()) >= 0.707107f; // 45-degree
+    public static bool HitByEye(Actor actor, Eye eye) => (actor.Rotation + eye.Forward).ToDirection().Dot((eye.Position - actor.Position).Normalized()) >= 0.707107f; // 45-degree
 
     private Vector2 IndicatorScreenPos(WPos eye)
     {
-        if (Arena.InBounds(eye) || Arena.Bounds is not ArenaBoundsCircle and not ArenaBoundsSquare)
+        if (Arena.InBounds(eye) || Arena.Bounds is not ArenaBoundsCircle && Arena.Bounds is ArenaBoundsComplex circle && !circle.IsCircle)
         {
             return Arena.WorldPositionToScreenPosition(eye);
-        }
-        else if (Arena.Bounds is ArenaBoundsRect)
-        {
-            return Arena.WorldPositionToScreenPosition(Arena.ClampToBounds(eye) + 2 * (eye - Arena.Center).Normalized());
         }
         else
         {

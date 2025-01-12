@@ -47,8 +47,8 @@ class AquaBreath(BossModule module) : Components.SelfTargetedAOEs(module, Action
 class Tentacle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Tentacle), new AOEShapeCircle(8));
 class Wallop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wallop), new AOEShapeRect(20, 5));
 class Megavolt(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Megavolt), new AOEShapeCircle(11));
-class Waterspout(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Waterspout), 4);
-class SoakingSplatter(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SoakingSplatter), 10);
+class Waterspout(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Waterspout), 4);
+class SoakingSplatter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SoakingSplatter), 10);
 class FallingWater(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FallingWater), 8);
 class ThunderIII(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ThunderIII));
 

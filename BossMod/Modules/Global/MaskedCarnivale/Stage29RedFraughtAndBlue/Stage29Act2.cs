@@ -78,7 +78,7 @@ class KnockbackPull(BossModule module) : Components.Knockback(module)
 }
 
 class Unwind(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Unwind), new AOEShapeCircle(10));
-class FluidBall(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FluidBall), 5);
+class FluidBall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FluidBall), 5);
 
 class FluidConvectionDynamic(BossModule module) : Components.GenericAOEs(module)
 {

@@ -28,8 +28,8 @@ public enum AID : uint
 
 class FlashFlood(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FlashFlood), new AOEShapeCone(8.16f, 60.Degrees()));
 class LaboredLeap(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LaboredLeap), new AOEShapeCircle(10.32f));
-class FallenRock(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FallingRock), 4);
-class WingsOfWoe(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.WingsOfWoe), 6);
+class FallenRock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FallingRock), 4);
+class WingsOfWoe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingsOfWoe), 6);
 
 class D150ChasmHarpeiaStates : StateMachineBuilder
 {

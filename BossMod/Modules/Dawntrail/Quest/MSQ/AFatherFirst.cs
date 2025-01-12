@@ -163,7 +163,7 @@ class CoiledStrike(BossModule module) : Components.SelfTargetedAOEs(module, Acti
 class GloryBlaze(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GloryBlaze), new AOEShapeRect(40, 3));
 class BattleBreaker(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BattleBreaker));
 
-abstract class MorningStars(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 4);
+abstract class MorningStars(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 4);
 class MorningStars1(BossModule module) : MorningStars(module, AID.MorningStars1);
 class MorningStars2(BossModule module) : MorningStars(module, AID.MorningStars2);
 

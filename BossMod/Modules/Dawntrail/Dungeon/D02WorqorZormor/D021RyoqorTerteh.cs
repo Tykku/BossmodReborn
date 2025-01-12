@@ -62,12 +62,22 @@ class IceScreamFrozenSwirl(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeRect rect = new(20, 10);
     private static readonly AOEShapeCircle circle = new(15);
-    private readonly List<AOEInstance> _aoesCircle = [];
-    private readonly List<AOEInstance> _aoesRect = [];
-    private readonly HashSet<Actor> circleAOE = [];
-    private readonly HashSet<Actor> rectAOE = [];
+    private readonly List<AOEInstance> _aoesCircle = new(4), _aoesRect = new(4);
+    private readonly List<Actor> circleAOE = new(4), rectAOE = new(4);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoesCircle.Take(2).Concat(_aoesRect.Take(2));
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var countCircle = _aoesCircle.Count;
+        var countRect = _aoesRect.Count;
+        if (countCircle == 0 && countRect == 0)
+            return [];
+        var result = new List<AOEInstance>(4);
+        for (var i = 0; i < 2 && i < countCircle; ++i)
+            result.Add(_aoesCircle[i]);
+        for (var i = 0; i < 2 && i < countRect; ++i)
+            result.Add(_aoesRect[i]);
+        return result;
+    }
 
     public override void OnActorCreated(Actor actor)
     {
@@ -89,10 +99,10 @@ class IceScreamFrozenSwirl(BossModule module) : Components.GenericAOEs(module)
                 circleAOE.Remove(source);
                 if (_aoesCircle.Count == 2)
                 {
-                    foreach (var e in circleAOE)
-                        _aoesCircle.Add(new(circle, e.Position, default, activation1));
+                    for (var i = 0; i < circleAOE.Count; ++i)
+                        _aoesCircle.Add(new(circle, circleAOE[i].Position, default, activation1));
                     circleAOE.Clear();
-                    _aoesCircle.SortBy(x => x.Activation);
+                    _aoesCircle.Sort((x, y) => x.Activation.CompareTo(y.Activation));
                 }
             }
             else if (rectAOE.Contains(source))
@@ -101,10 +111,13 @@ class IceScreamFrozenSwirl(BossModule module) : Components.GenericAOEs(module)
                 rectAOE.Remove(source);
                 if (_aoesRect.Count == 2)
                 {
-                    foreach (var e in rectAOE)
+                    for (var i = 0; i < rectAOE.Count; ++i)
+                    {
+                        var e = rectAOE[i];
                         _aoesRect.Add(new(rect, e.Position, e.Rotation, activation1));
+                    }
                     rectAOE.Clear();
-                    _aoesRect.SortBy(x => x.Activation);
+                    _aoesRect.Sort((x, y) => x.Activation.CompareTo(y.Activation));
                 }
             }
         }
@@ -112,9 +125,9 @@ class IceScreamFrozenSwirl(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoesRect.Count > 0 && (AID)spell.Action.ID == AID.IceScream)
+        if (_aoesRect.Count != 0 && (AID)spell.Action.ID == AID.IceScream)
             _aoesRect.RemoveAt(0);
-        else if (_aoesCircle.Count > 0 && (AID)spell.Action.ID == AID.FrozenSwirl)
+        else if (_aoesCircle.Count != 0 && (AID)spell.Action.ID == AID.FrozenSwirl)
             _aoesCircle.RemoveAt(0);
     }
 }

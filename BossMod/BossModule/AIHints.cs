@@ -28,6 +28,7 @@ public sealed class AIHints
     {
         Normal,
         Pyretic, // pyretic/acceleration bomb type of effects - no movement, no actions, no casting allowed at activation time
+        NoMovement, // no movement allowed
         Freezing, // should be moving at activation time
         Misdirection, // temporary misdirection - if current time is greater than activation, use special pathfinding codepath
     }
@@ -40,7 +41,7 @@ public sealed class AIHints
     public Bitmap.Region PathfindMapObstacles;
 
     // list of potential targets
-    public List<Enemy> PotentialTargets = [];
+    public readonly List<Enemy> PotentialTargets = [];
     private int potentialTargetsCount;
     public int HighestPotentialTargetPriority;
 
@@ -56,13 +57,13 @@ public sealed class AIHints
 
     // positioning: list of shapes that are either forbidden to stand in now or will be in near future
     // AI will try to move in such a way to avoid standing in any forbidden zone after its activation or outside of some restricted zone after its activation, even at the cost of uptime
-    public List<(Func<WPos, float> shapeDistance, DateTime activation)> ForbiddenZones = [];
+    public readonly List<(Func<WPos, float> shapeDistance, DateTime activation)> ForbiddenZones = [];
 
     // positioning: list of goal functions
     // AI will try to move to reach non-forbidden point with highest goal value (sum of values returned by all functions)
     // guideline: rotation modules should return 1 if it would use single-target action from that spot, 2 if it is also a positional, 3 if it would use aoe that would hit minimal viable number of targets, +1 for each extra target
     // other parts of the code can return small (e.g. 0.01) values to slightly (de)prioritize some positions, or large (e.g. 1000) values to effectively soft-override target position (but still utilize pathfinding)
-    public List<Func<WPos, float>> GoalZones = [];
+    public readonly List<Func<WPos, float>> GoalZones = [];
 
     // positioning: next positional hint (TODO: reconsider, maybe it should be a list prioritized by in-gcds, and imminent should be in-gcds instead? or maybe it should be property of an enemy? do we need correct?)
     public (Actor? Target, Positional Pos, bool Imminent, bool Correct) RecommendedPositional;
@@ -73,7 +74,7 @@ public sealed class AIHints
 
     // orientation restrictions (e.g. for gaze attacks): a list of forbidden orientation ranges, now or in near future
     // AI will rotate to face allowed orientation at last possible moment, potentially losing uptime
-    public List<(Angle center, Angle halfWidth, DateTime activation)> ForbiddenDirections = [];
+    public readonly List<(Angle center, Angle halfWidth, DateTime activation)> ForbiddenDirections = [];
 
     // closest special movement/targeting/action mode, if any
     public (SpecialMode mode, DateTime activation) ImminentSpecialMode;
@@ -83,17 +84,17 @@ public sealed class AIHints
 
     // predicted incoming damage (raidwides, tankbusters, etc.)
     // AI will attempt to shield & mitigate
-    public List<(BitMask players, DateTime activation)> PredictedDamage = [];
+    public readonly List<(BitMask players, DateTime activation)> PredictedDamage = [];
 
     // estimate of the maximal time we can spend casting before we need to move
     // TODO: reconsider...
     public float MaxCastTimeEstimate = float.MaxValue;
 
     // actions that we want to be executed, gathered from various sources (manual input, autorotation, planner, ai, modules, etc.)
-    public ActionQueue ActionsToExecute = new();
+    public readonly ActionQueue ActionsToExecute = new();
 
     // buffs to be canceled asap
-    public List<(uint statusId, ulong sourceId)> StatusesToCancel = [];
+    public readonly List<(uint statusId, ulong sourceId)> StatusesToCancel = [];
 
     // misc stuff to execute
     public bool WantJump;

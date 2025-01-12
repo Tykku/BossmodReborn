@@ -11,7 +11,7 @@ class FlareStar(BossModule module) : Components.SelfTargetedAOEs(module, ActionI
 
 class Rotoswipe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Rotoswipe), new AOEShapeCone(11, 60.Degrees()));
 
-class WreckingBall(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.WreckingBall), 8);
+class WreckingBall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WreckingBall), 8);
 
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 220, NameID = 3780)]
 public class A33ProtoUltima(WorldState ws, Actor primary) : BossModule(ws, primary, new(-350, -50), new ArenaBoundsCircle(30))

@@ -93,7 +93,7 @@ class DownpourMagitekChakram(BossModule module) : Components.GenericAOEs(module)
 class ThermalSuppression(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ThermalSuppression));
 class MightyRay(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRay), new AOEShapeRect(50, 3));
 class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeCross(40, 4));
-class SurfaceMissile(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SurfaceMissile), 6);
+class SurfaceMissile(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SurfaceMissile), 6);
 
 class D022LugaeStates : StateMachineBuilder
 {

@@ -143,7 +143,7 @@ class ParticleConcentration(BossModule module) : Components.GenericTowers(module
         if ((AID)spell.Action.ID is AID.ParticleBeam1 or AID.ParticleBeam2 or AID.ParticleBeam3)
         {
             ++NumCasts;
-            if (Towers.RemoveAll(t => t.Position.AlmostEqual(caster.Position, 1)) != 1)
+            if (Towers.RemoveAll(t => t.Position == caster.Position) != 1)
                 ReportError($"Unexpected tower position @ {caster.Position}");
         }
     }

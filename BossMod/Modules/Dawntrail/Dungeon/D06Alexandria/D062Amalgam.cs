@@ -69,7 +69,7 @@ class SupercellMatrix1(BossModule module) : Components.SelfTargetedAOEs(module, 
 class SupercellMatrix2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SupercellMatrix2), new AOEShapeRect(55, 4));
 class StaticSpark(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.StaticSpark), 6);
 class Amalgamight(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Amalgamight));
-class Voltburst(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Voltburst), 6);
+class Voltburst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Voltburst), 6);
 class Superbolt(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Superbolt), 6, 4, 4);
 
 class TernaryCharge(BossModule module) : Components.ConcentricAOEs(module, _shapes)

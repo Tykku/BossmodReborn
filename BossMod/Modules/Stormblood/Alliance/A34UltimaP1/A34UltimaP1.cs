@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Stormblood.Alliance.A34UltimaP1;
 
-class HolyIVBait(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HolyIVBait), 6);
+class HolyIVBait(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HolyIVBait), 6);
 class HolyIVSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HolyIVSpread), 6);
 class AuralightAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AuralightAOE), new AOEShapeCircle(20));
 class AuralightRect(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AuralightRect), new AOEShapeRect(70, 5));
@@ -39,14 +39,14 @@ class TimeEruption(BossModule module) : Components.GenericAOEs(module, ActionID.
         _ => null
     };
 }
-class Eruption2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Eruption2), 8);
+class Eruption2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Eruption2), 8);
 class ControlTower2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ControlTower2), new AOEShapeCircle(6));
 class ExtremeEdge1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ExtremeEdge1), new AOEShapeRect(60, 18));
 class ExtremeEdge2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ExtremeEdge2), new AOEShapeRect(60, 18));
 
-class CrushWeapon(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.CrushWeapon), 6);
-class Searchlight(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Searchlight), 6);
-class HallowedBolt(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HallowedBolt), 6);
+class CrushWeapon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CrushWeapon), 6);
+class Searchlight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Searchlight), 6);
+class HallowedBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HallowedBolt), 6);
 
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 636, NameID = 7909)]
 public class A34UltimaP1(WorldState ws, Actor primary) : BossModule(ws, primary, new(600, -600), new ArenaBoundsSquare(30));

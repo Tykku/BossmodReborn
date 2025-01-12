@@ -53,7 +53,7 @@ public enum AID : uint
 class Razorwind(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Razorwind), 7, 2, 2);
 class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeCircle(15));
 
-class SwoopingFrenzy1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SwoopingFrenzy1), 15);
+class SwoopingFrenzy1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SwoopingFrenzy1), 15);
 class SwoopingFrenzy2(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
@@ -74,7 +74,7 @@ class SwoopingFrenzy2(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class BrutalStroke(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BrutalStroke), 25);
+class BrutalStroke(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BrutalStroke), 25);
 class CatchingChaos(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CatchingChaos));
 class Galeripper(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Galeripper), new AOEShapeCone(60, 45.Degrees()));
 

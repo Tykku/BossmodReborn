@@ -4,8 +4,8 @@ class HighPoweredMagitekRay(BossModule module) : Components.SingleTargetCast(mod
 class ToothAndTalon(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ToothAndTalon));
 class PentagustAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PentagustAOE), new AOEShapeCone(50, 10.Degrees()));
 class RawHeat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RawHeat), new AOEShapeCircle(10));
-class SurfaceMissile(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SurfaceMissile), 6);
-class SwoopingFrenzyAOE(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SwoopingFrenzyAOE), 12);
+class SurfaceMissile(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SurfaceMissile), 6);
+class SwoopingFrenzyAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SwoopingFrenzyAOE), 12);
 class Touchdown3(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Touchdown3));
 class MissileSalvo(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.MissileSalvo), 6);
 class MagitekCrossray(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekCrossray), new AOEShapeCross(60, 8));

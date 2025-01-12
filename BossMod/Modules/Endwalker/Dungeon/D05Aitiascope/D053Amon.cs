@@ -55,10 +55,10 @@ class CurtainCallArenaChange(BossModule module) : BossComponent(module)
 }
 
 class Epode(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Epode), new AOEShapeRect(35, 6, 35));
-class EruptionForte(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.EruptionForte), 8);
+class EruptionForte(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EruptionForte), 8);
 class LeftFiragaForte(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeftFiragaForte), new AOEShapeRect(40, 40, DirectionOffset: 90.Degrees()));
 class RightFiragaForte(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RightFiragaForte), new AOEShapeRect(40, 40, DirectionOffset: -90.Degrees()));
-class ThundagaForte1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ThundagaForte1), 15);
+class ThundagaForte1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThundagaForte1), 15);
 class DarkForte(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DarkForte));
 class Entracte(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Entracte));
 class DreamsOfIce(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DreamsOfIce), new AOEShapeCircle(6));

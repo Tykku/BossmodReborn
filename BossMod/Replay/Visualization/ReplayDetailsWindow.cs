@@ -1,5 +1,6 @@
 ﻿using BossMod.Autorotation;
 using ImGuiNET;
+using System.IO;
 
 namespace BossMod.ReplayVisualization;
 
@@ -211,6 +212,9 @@ class ReplayDetailsWindow : UIWindow
         ImGui.Checkbox("Show config", ref _showConfig);
         ImGui.SameLine();
         ImGui.Checkbox("Show debug", ref _showDebug);
+        ImGui.SameLine();
+        if (ImGui.Button("Split"))
+            SplitLog();
 
         if (_showConfig)
             _config.Draw();
@@ -322,11 +326,11 @@ class ReplayDetailsWindow : UIWindow
         ImGui.TableSetupColumn("Z", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize, 90);
         ImGui.TableSetupColumn("Rot", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize, 90);
         ImGui.TableSetupColumn("HP", ImGuiTableColumnFlags.WidthFixed, 200);
-        ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.None, 100);
-        ImGui.TableSetupColumn("Target", ImGuiTableColumnFlags.None, 100);
-        ImGui.TableSetupColumn("Cast", ImGuiTableColumnFlags.None, 100);
-        ImGui.TableSetupColumn("Statuses", ImGuiTableColumnFlags.None, 100);
-        ImGui.TableSetupColumn("Hints", ImGuiTableColumnFlags.None, 250);
+        ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch, 100);
+        ImGui.TableSetupColumn("Target", ImGuiTableColumnFlags.WidthStretch, 100);
+        ImGui.TableSetupColumn("Cast", ImGuiTableColumnFlags.WidthStretch, 100);
+        ImGui.TableSetupColumn("Statuses", ImGuiTableColumnFlags.WidthStretch, 100);
+        ImGui.TableSetupColumn("Hints", ImGuiTableColumnFlags.WidthStretch, 250);
         ImGui.TableHeadersRow();
         foreach ((var slot, var player) in _player.WorldState.Party.WithSlot(true))
         {
@@ -392,10 +396,10 @@ class ReplayDetailsWindow : UIWindow
         ImGui.TableSetupColumn("Z", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize, 90);
         ImGui.TableSetupColumn("Rot", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize, 90);
         ImGui.TableSetupColumn("HP", ImGuiTableColumnFlags.WidthFixed, 200);
-        ImGui.TableSetupColumn("Name");
-        ImGui.TableSetupColumn("Target");
-        ImGui.TableSetupColumn("Cast");
-        ImGui.TableSetupColumn("Statuses");
+        ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch, 200);
+        ImGui.TableSetupColumn("Target", ImGuiTableColumnFlags.WidthStretch, 200);
+        ImGui.TableSetupColumn("Cast", ImGuiTableColumnFlags.WidthStretch, 200);
+        ImGui.TableSetupColumn("Statuses", ImGuiTableColumnFlags.WidthStretch, 200);
         ImGui.TableHeadersRow();
         foreach (var enemy in actors)
         {
@@ -417,10 +421,10 @@ class ReplayDetailsWindow : UIWindow
         ImGui.TableSetupColumn("Z", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize, 90);
         ImGui.TableSetupColumn("Rot", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize, 90);
         ImGui.TableSetupColumn("HP", ImGuiTableColumnFlags.WidthFixed, 200);
-        ImGui.TableSetupColumn("Name");
-        ImGui.TableSetupColumn("Target");
-        ImGui.TableSetupColumn("Cast");
-        ImGui.TableSetupColumn("Statuses");
+        ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch, 200);
+        ImGui.TableSetupColumn("Target", ImGuiTableColumnFlags.WidthStretch, 200);
+        ImGui.TableSetupColumn("Cast", ImGuiTableColumnFlags.WidthStretch, 200);
+        ImGui.TableSetupColumn("Statuses", ImGuiTableColumnFlags.WidthStretch, 200);
         ImGui.TableHeadersRow();
         foreach (var actor in _player.WorldState.Actors)
         {
@@ -502,5 +506,18 @@ class ReplayDetailsWindow : UIWindow
     private void ResetPF()
     {
         _pfVisu = null;
+    }
+
+    private void SplitLog()
+    {
+        if (_player.Replay.Ops.Count == 0)
+            return;
+
+        var player = new ReplayPlayer(_player.Replay);
+        player.WorldState.Frame.Timestamp = _player.Replay.Ops[0].Timestamp; // so that we get correct name etc.
+        using (var relogger = new ReplayRecorder(player.WorldState, ReplayLogFormat.BinaryCompressed, false, new FileInfo(_player.Replay.Path).Directory!, "Before"))
+            player.AdvanceTo(_curTime, () => { });
+        using (var relogger = new ReplayRecorder(player.WorldState, ReplayLogFormat.BinaryCompressed, true, new FileInfo(_player.Replay.Path).Directory!, "After"))
+            player.AdvanceTo(DateTime.MaxValue, () => { });
     }
 }

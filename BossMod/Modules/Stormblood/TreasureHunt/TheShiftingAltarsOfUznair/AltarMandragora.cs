@@ -33,7 +33,7 @@ public enum AID : uint
 class OpticalIntrusion(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.OpticalIntrusion));
 class Hypnotize(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hypnotize), new AOEShapeCone(22.85f, 45.Degrees()));
 class SaibaiMandragora(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.SaibaiMandragora), "Calls adds");
-class LeafDagger(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LeafDagger), 3);
+class LeafDagger(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LeafDagger), 3);
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);

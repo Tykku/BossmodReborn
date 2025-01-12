@@ -21,7 +21,7 @@ class Lanterns(BossModule module) : Components.GenericAOEs(module)
     private readonly List<Circle> lanterns = [lantern1, lantern2, lantern3];
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        yield return new(new AOEShapeCustom(lanterns, InvertForbiddenZone: true), Arena.Center, Color: Colors.SafeFromAOE);
+        yield return new(new AOEShapeCustom([.. lanterns], InvertForbiddenZone: true), Arena.Center, Color: Colors.SafeFromAOE);
     }
 
     public override void OnEventEnvControl(byte index, uint state)

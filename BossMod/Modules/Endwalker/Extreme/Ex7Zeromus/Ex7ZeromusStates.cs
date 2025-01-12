@@ -5,9 +5,9 @@ class Ex7ZeromusStates : StateMachineBuilder
     public Ex7ZeromusStates(BossModule module) : base(module)
     {
         SimplePhase(0, Phase1, "P1")
-            .Raw.Update = () => Module.PrimaryActor.IsDestroyed || Module.PrimaryActor.IsDead || Module.PrimaryActor.HPMP.CurHP <= 1 || (Module.PrimaryActor.CastInfo?.IsSpell(AID.RendTheRift) ?? false);
+            .Raw.Update = () => Module.PrimaryActor.IsDeadOrDestroyed || Module.PrimaryActor.HPMP.CurHP <= 1 || (Module.PrimaryActor.CastInfo?.IsSpell(AID.RendTheRift) ?? false);
         DeathPhase(1, Phase2) // starts at around 25%, after current mechanic is resolved
-            .Raw.Update = () => Module.PrimaryActor.IsDestroyed || Module.PrimaryActor.IsDead || Module.PrimaryActor.HPMP.CurHP <= 1 || (Module.PrimaryActor.CastInfo?.IsSpell(AID.Enrage) ?? false);
+            .Raw.Update = () => Module.PrimaryActor.IsDeadOrDestroyed || Module.PrimaryActor.HPMP.CurHP <= 1 || (Module.PrimaryActor.CastInfo?.IsSpell(AID.Enrage) ?? false);
         DeathPhase(2, EnrageP2); // starts at around 660s after current mechanic is resolved
     }
 
@@ -47,7 +47,6 @@ class Ex7ZeromusStates : StateMachineBuilder
         FlowOfTheAbyss(id + 0x50000, 7.4f, true);
         FlowOfTheAbyss(id + 0x60000, 10.7f, true);
         DimensionalSurgeNostalgia(id + 0x70000, 7.7f);
-        // TODO: never seen stuff below...
         FlowOfTheAbyss(id + 0x80000, 7.4f, true);
         FlowOfTheAbyss(id + 0x90000, 10.7f, true);
         DimensionalSurgeNostalgia(id + 0xA0000, 7.7f);

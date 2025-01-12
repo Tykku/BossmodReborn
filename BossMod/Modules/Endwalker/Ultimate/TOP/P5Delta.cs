@@ -375,7 +375,7 @@ class P5DeltaOpticalLaser(BossModule module) : Components.GenericAOEs(module, Ac
     }
 }
 
-class P5DeltaExplosion(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DeltaExplosion), 3)
+class P5DeltaExplosion(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaExplosion), 3)
 {
     private readonly P5Delta? _delta = module.FindComponent<P5Delta>();
 

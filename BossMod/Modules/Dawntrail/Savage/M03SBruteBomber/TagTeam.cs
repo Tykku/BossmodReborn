@@ -14,10 +14,10 @@ class TagTeamLariatCombo(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_tetherSource[slot] != null && AOEs.Count > 0)
+        if (_tetherSource[slot] != null && AOEs.Count != 0)
         {
             var (safeShapes, dangerShapes) = GetShapesForAOEs(slot);
-            var coneShapes = cone != null ? [cone] : new List<Shape>();
+            Shape[] coneShapes = cone != null ? [cone] : [];
 
             yield return new(new AOEShapeCustom(safeShapes, dangerShapes, coneShapes, true, cone != null ? OperandType.Intersection : OperandType.Union),
                 Arena.Center, default, AOEs.FirstOrDefault().Activation, Colors.SafeFromAOE);
@@ -27,7 +27,7 @@ class TagTeamLariatCombo(BossModule module) : Components.GenericAOEs(module)
                 yield return aoe;
     }
 
-    private (List<Shape> safeShapes, List<Shape> dangerShapes) GetShapesForAOEs(int slot)
+    private (Shape[] safeShapes, Shape[] dangerShapes) GetShapesForAOEs(int slot)
     {
         List<Shape> safeShapes = [];
         List<Shape> dangerShapes = [];
@@ -41,7 +41,7 @@ class TagTeamLariatCombo(BossModule module) : Components.GenericAOEs(module)
             else
                 dangerShapes.Add(shape);
         }
-        return (safeShapes, dangerShapes);
+        return ([.. safeShapes], [.. dangerShapes]);
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)

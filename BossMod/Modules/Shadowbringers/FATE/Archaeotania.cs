@@ -78,7 +78,7 @@ class Megaflare(BossModule module) : Components.UniformStackSpread(module, 6, 0)
 }
 
 class TidalWave(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.TidalWaveVisual), 48, kind: Kind.DirForward);
-class WindSlash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.WindSlashAOE), 8);
+class WindSlash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindSlashAOE), 8);
 class Windwinder(BossModule module) : Components.PersistentVoidzone(module, 5, m => m.Enemies(OID.Twister).Where(a => !a.IsDead));
 class CivilizationBuster1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CivilizationBuster1), new AOEShapeRect(62, 7.5f));
 class CivilizationBuster2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CivilizationBuster2), new AOEShapeRect(62, 7.5f));

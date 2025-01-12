@@ -33,7 +33,7 @@ public enum IconID : uint
     Wingbeat = 16 // player
 }
 
-class Flutterfall(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Flutterfall), 6);
+class Flutterfall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Flutterfall), 6);
 class Pinion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Pinion), new AOEShapeRect(40.5f, 1));
 class EyeOfTheFierce(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EyeOfTheFierce));
 class WindUnbound(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WindUnbound));

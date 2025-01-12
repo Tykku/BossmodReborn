@@ -57,14 +57,14 @@ public enum AID : uint
 class NepenthicPlunge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.NepenthicPlunge), new AOEShapeCone(10, 45.Degrees()));
 class CreepingHush(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CreepingHush), new AOEShapeCone(12, 60.Degrees()));
 class Ovation(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Ovation), new AOEShapeRect(14, 2));
-class BestialFire(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BestialFire), 5);
-class HeadButt(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CreepingHush), new AOEShapeCone(6, 60.Degrees()));
+class BestialFire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BestialFire), 5);
+class HeadButt(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeadButt), new AOEShapeCone(6, 60.Degrees()));
 class AetherialBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AetherialBlast), new AOEShapeRect(20, 2));
 class Envenomate(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.Envenomate), 1.5f);
 class SyrupSpout(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SyrupSpout), new AOEShapeCone(10, 60.Degrees()));
 class SpinningAttack(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpinningAttack), new AOEShapeRect(10, 2));
 
-abstract class CircleLoc6(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class CircleLoc6(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class IsleDrop(BossModule module) : CircleLoc6(module, AID.IsleDrop);
 class RottenSpores(BossModule module) : CircleLoc6(module, AID.RottenSpores);
 

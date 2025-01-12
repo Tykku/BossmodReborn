@@ -10,6 +10,7 @@ public enum OID : uint
     SecretTomato = 0x3020, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
     SecretOnion = 0x301D, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
     SecretEgg = 0x301E, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    FuathTrickster = 0x3033, // R0.75
     Helper = 0x233C
 }
 
@@ -77,7 +78,7 @@ class SecretPegasusStates : StateMachineBuilder
 public class SecretPegasus(WorldState ws, Actor primary) : THTemplate(ws, primary)
 {
     private static readonly uint[] bonusAdds = [(uint)OID.SecretEgg, (uint)OID.SecretGarlic, (uint)OID.SecretOnion, (uint)OID.SecretTomato,
-    (uint)OID.SecretQueen, (uint)OID.KeeperOfKeys];
+    (uint)OID.SecretQueen, (uint)OID.KeeperOfKeys, (uint)OID.FuathTrickster];
     public static readonly uint[] All = [(uint)OID.Boss, .. bonusAdds];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
@@ -96,7 +97,7 @@ public class SecretPegasus(WorldState ws, Actor primary) : THTemplate(ws, primar
                 OID.SecretOnion => 5,
                 OID.SecretEgg => 4,
                 OID.SecretGarlic => 3,
-                OID.SecretTomato => 2,
+                OID.SecretTomato or OID.FuathTrickster => 2,
                 OID.SecretQueen or OID.KeeperOfKeys => 1,
                 _ => 0
             };

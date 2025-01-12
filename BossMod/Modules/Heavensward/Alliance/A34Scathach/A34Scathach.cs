@@ -4,7 +4,7 @@ class ThirtyCries(BossModule module) : Components.Cleave(module, ActionID.MakeSp
 class ThirtyThorns4(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThirtyThorns4), new AOEShapeCircle(8));
 class ThirtySouls(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ThirtySouls));
 class ThirtyArrows2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThirtyArrows2), new AOEShapeRect(35, 4));
-class ThirtyArrows1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ThirtyArrows1), 8);
+class ThirtyArrows1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThirtyArrows1), 8);
 class TheDragonsVoice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheDragonsVoice), new AOEShapeCircle(30));
 
 class Shadespin2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Shadespin2), new AOEShapeCone(30, 45.Degrees()));

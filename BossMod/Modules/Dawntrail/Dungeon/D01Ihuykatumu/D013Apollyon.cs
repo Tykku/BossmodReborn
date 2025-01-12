@@ -56,7 +56,7 @@ class RazorZephyr(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 class Blade(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Blade));
 class HighWind(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HighWind));
 class BladesOfFamine(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BladesOfFamine), new AOEShapeRect(50, 6));
-class Levinsickle(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Levinsickle), 4);
+class Levinsickle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Levinsickle), 4);
 class LevinsickleSpark(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 4, ActionID.MakeSpell(AID.LevinsickleSpark), m => m.Enemies(OID.LightningVoidzone).Where(z => z.EventState != 7), 0.7f);
 class WingOfLightning(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WingOfLightning), new AOEShapeCone(40, 22.5f.Degrees()), 8);
 

@@ -50,7 +50,7 @@ class AChoo(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.Ma
 class FellSwipe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FellSwipe), new AOEShapeCone(8, 60.Degrees()));
 class WindShot(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WindShot), new AOEShapeRect(40, 3));
 class LingeringSnort(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LingeringSnort), new AOEShapeCircle(20));
-class UnpleasantBreeze(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.UnpleasantBreeze), 6);
+class UnpleasantBreeze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.UnpleasantBreeze), 6);
 class Fireball(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Fireball), 6, 8, 8);
 
 class SnortsaultKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.SnortsaultKB), 20, stopAtWall: true);
@@ -62,7 +62,7 @@ class SnortsaultCircle(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (!_aoes.ActiveCasters.Any() && _aoe.HasValue)
+        if (_aoes.ActiveCasters.Count == 0 && _aoe.HasValue)
             yield return _aoe.Value;
     }
 
@@ -114,19 +114,19 @@ class Snortsault(BossModule module) : Components.GenericRotatingAOE(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (!_aoe.ActiveCasters.Any())
+        if (_aoe.ActiveCasters.Count == 0)
             base.AddHints(slot, actor, hints);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!_aoe.ActiveCasters.Any())
+        if (_aoe.ActiveCasters.Count == 0)
             base.AddAIHints(slot, actor, assignment, hints);
     }
 
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
-        if (!_aoe.ActiveCasters.Any())
+        if (_aoe.ActiveCasters.Count == 0)
             base.DrawArenaBackground(pcSlot, pc);
     }
 }

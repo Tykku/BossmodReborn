@@ -62,7 +62,7 @@ class MagitekCompressor(BossModule module) : Components.GenericRotatingAOE(modul
     }
 }
 
-class AcceleratedLanding(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AcceleratedLanding), 6);
+class AcceleratedLanding(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AcceleratedLanding), 6);
 class CalculatedCombustion(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CalculatedCombustion));
 class Pummel(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Pummel));
 class SoporificGas(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SoporificGas), new AOEShapeCircle(12));

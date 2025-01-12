@@ -19,7 +19,7 @@ public enum AID : uint
 }
 
 class Levinfang(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Levinfang));
-class Electrify(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Electrify), 6);
+class Electrify(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Electrify), 6);
 class HydroelectricShock(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;

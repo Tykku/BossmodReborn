@@ -26,7 +26,7 @@ class Megavolt(BossModule module) : Components.SelfTargetedAOEs(module, ActionID
 class Tentacle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Tentacle), new AOEShapeCircle(8));
 class Wallop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wallop), new AOEShapeRect(57.2f, 5));
 class WallopKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Wallop), 20, kind: Kind.AwayFromOrigin); //knockback actually delayed by 0.8s
-class Fireball(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Fireball), 8);
+class Fireball(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fireball), 8);
 class ImpSong(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.ImpSong), showNameInHint: true);
 class Snort(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Snort), "Use Diamondback!");
 class SnortKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Snort), 30, kind: Kind.AwayFromOrigin);  //knockback actually delayed by 0.7s

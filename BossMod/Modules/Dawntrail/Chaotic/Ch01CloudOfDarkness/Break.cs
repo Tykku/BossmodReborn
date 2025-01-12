@@ -2,7 +2,7 @@
 
 class Break(BossModule module) : Components.GenericGaze(module)
 {
-    public readonly List<Eye> Eyes = [];
+    public readonly List<Eye> Eyes = new(3);
 
     public override IEnumerable<Eye> ActiveEyes(int slot, Actor actor) => Eyes;
 

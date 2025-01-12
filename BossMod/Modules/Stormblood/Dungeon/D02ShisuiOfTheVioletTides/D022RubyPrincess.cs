@@ -45,7 +45,7 @@ class SeduceOld(BossModule module) : Components.GenericAOEs(module)
     {
         foreach (var c in openChests)
             yield return new(circle, c.Center);
-        yield return new(new AOEShapeCustom(closedChests) with { InvertForbiddenZone = !IsOld(actor) && active }, Arena.Center, Color: IsOld(actor) || !active ? Colors.AOE : Colors.SafeFromAOE);
+        yield return new(new AOEShapeCustom([.. closedChests]) with { InvertForbiddenZone = !IsOld(actor) && active }, Arena.Center, Color: IsOld(actor) || !active ? Colors.AOE : Colors.SafeFromAOE);
     }
 
     public override void Update()

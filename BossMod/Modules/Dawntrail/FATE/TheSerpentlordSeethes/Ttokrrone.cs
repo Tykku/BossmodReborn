@@ -76,7 +76,7 @@ public enum AID : uint
     RightwardSandspoutDDVisual = 37325 // Boss->self, no cast, single-target
 }
 
-class Devour(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Devour), 8);
+class Devour(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Devour), 8);
 class Touchdown(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Touchdown));
 
 class TtokrroneStates : StateMachineBuilder

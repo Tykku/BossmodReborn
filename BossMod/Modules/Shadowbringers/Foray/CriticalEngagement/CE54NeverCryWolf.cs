@@ -173,7 +173,7 @@ class AgeOfEndlessFrost(BossModule module) : Components.GenericAOEs(module)
 
 class StormWithout(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.StormWithout), new AOEShapeDonut(10, 40));
 class StormWithin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.StormWithin), new AOEShapeCircle(10));
-class AncientGlacier(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AncientGlacierAOE), 6);
+class AncientGlacier(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AncientGlacierAOE), 6);
 class Glaciation(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Glaciation));
 
 class CE54NeverCryWolfStates : StateMachineBuilder

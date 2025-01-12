@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Endwalker.Alliance.A12Rhalgr;
 
 class DestructiveBolt(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.DestructiveBoltAOE), 3);
-class StrikingMeteor(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.StrikingMeteor), 6);
+class StrikingMeteor(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StrikingMeteor), 6);
 class BronzeLightning(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BronzeLightning), new AOEShapeCone(50, 22.5f.Degrees()), 4);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 866, NameID = 11273, SortOrder = 3)]

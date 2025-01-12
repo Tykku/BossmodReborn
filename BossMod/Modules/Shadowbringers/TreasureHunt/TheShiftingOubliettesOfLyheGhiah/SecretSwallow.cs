@@ -32,9 +32,9 @@ public enum AID : uint
 class ElectricWhorl(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SeventhWave), new AOEShapeCircle(11));
 class PrevailingCurrent(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PrevailingCurrent), new AOEShapeRect(24, 3));
 class SeventhWave(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectricWhorl), new AOEShapeDonut(8, 60));
-class Hydrocannon(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrocannon2), 8);
+class Hydrocannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrocannon2), 8);
 class Ceras(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Ceras));
-class BodySlam(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BodySlam), 10);
+class BodySlam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BodySlam), 10);
 
 class BodySlamKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.BodySlam), 20, shape: new AOEShapeCircle(10), stopAtWall: true)
 {

@@ -37,8 +37,8 @@ public enum AID : uint
     Visual = 37473 // Boss->self, no cast, single-target
 }
 
-class FledglingFury(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FledglingFury), 4);
-class PromisedFall(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PromisedFall), 13);
+class FledglingFury(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FledglingFury), 4);
+class PromisedFall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PromisedFall), 13);
 class GoldDust(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.GoldDust), 8, 2, 2);
 class AcidRain(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.AcidRain), 8);
 class UnboundArrow(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.UnboundArrow), new AOEShapeCircle(5), true)

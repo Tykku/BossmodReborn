@@ -98,7 +98,7 @@ class Crypsis(BossModule module) : BossComponent(module)
 }
 
 class GoldenGall(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GoldenGall), new AOEShapeCone(40, 90.Degrees()));
-class GoldenRadiance(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GoldenRadiance), 5);
+class GoldenRadiance(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldenRadiance), 5);
 class BlindingLight(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BlindingLight), 6);
 
 class AetherialLight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AetherialLight), new AOEShapeCone(40, 30.Degrees()), 4)
@@ -132,7 +132,7 @@ class VasoconstrictorPool(BossModule module) : Components.GenericAOEs(module)
 }
 
 class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
-class RottenSpores(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RottenSpores), 6);
+class RottenSpores(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RottenSpores), 6);
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);

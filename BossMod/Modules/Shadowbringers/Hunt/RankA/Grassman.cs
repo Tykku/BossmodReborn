@@ -68,7 +68,7 @@ class ChestThump(BossModule module) : BossComponent(module)
     }
 }
 
-class StoolPelt(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.StoolPelt), 5);
+class StoolPelt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StoolPelt), 5);
 class Browbeat(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Browbeat));
 class Streak(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.Streak), 3);
 

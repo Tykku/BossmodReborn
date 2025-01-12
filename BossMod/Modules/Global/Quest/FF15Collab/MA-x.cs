@@ -22,7 +22,7 @@ public enum AID : uint
 
 class Chainsaw(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Chainsaw), new AOEShapeCone(10, 45.Degrees()));
 class Shock(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Shock), new AOEShapeCircle(10));
-class MagitekMissile(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekMissile2), 5);
+class MagitekMissile(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekMissile2), 5);
 
 class MAxStates : StateMachineBuilder
 {

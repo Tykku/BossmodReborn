@@ -13,7 +13,18 @@ public abstract class GenericStackSpread(BossModule module, bool alwaysShowSprea
         public DateTime Activation = activation;
         public BitMask ForbiddenPlayers = forbiddenPlayers; // raid members that aren't allowed to participate in the stack
 
-        public readonly int NumInside(BossModule module) => module.Raid.WithSlot().ExcludedFromMask(ForbiddenPlayers).InRadius(Target.Position, Radius).Count();
+        public readonly int NumInside(BossModule module)
+        {
+            var count = 0;
+            var party = module.Raid.WithSlot();
+            for (var i = 0; i < party.Length; ++i)
+            {
+                var indexActor = party[i];
+                if (!ForbiddenPlayers[indexActor.Item1] && indexActor.Item2.Position.InCircle(Target.Position, Radius))
+                    ++count;
+            }
+            return count;
+        }
         public readonly bool CorrectAmountInside(BossModule module) => NumInside(module) is var count && count >= MinSize && count <= MaxSize;
         public readonly bool InsufficientAmountInside(BossModule module) => NumInside(module) is var count && count < MaxSize;
         public readonly bool TooManyInside(BossModule module) => NumInside(module) is var count && count > MaxSize;
@@ -36,11 +47,67 @@ public abstract class GenericStackSpread(BossModule module, bool alwaysShowSprea
     public const string StackHint = "Stack!";
 
     public bool Active => Stacks.Count + Spreads.Count > 0;
-    public IEnumerable<Stack> ActiveStacks => IncludeDeadTargets ? Stacks : Stacks.Where(s => !s.Target.IsDead);
-    public IEnumerable<Spread> ActiveSpreads => IncludeDeadTargets ? Spreads : Spreads.Where(s => !s.Target.IsDead);
+    public List<Stack> ActiveStacks
+    {
+        get
+        {
+            if (IncludeDeadTargets)
+                return Stacks;
+            else
+            {
+                var count = Stacks.Count;
+                var activeStacks = new List<Stack>(count);
+                for (var i = 0; i < count; ++i)
+                {
+                    var stack = Stacks[i];
+                    if (!stack.Target.IsDead)
+                        activeStacks.Add(stack);
+                }
+                return activeStacks;
+            }
+        }
+    }
 
-    public bool IsStackTarget(Actor? actor) => Stacks.Any(s => s.Target == actor);
-    public bool IsSpreadTarget(Actor? actor) => Spreads.Any(s => s.Target == actor);
+    public List<Spread> ActiveSpreads
+    {
+        get
+        {
+            if (IncludeDeadTargets)
+                return Spreads;
+            else
+            {
+                var count = Spreads.Count;
+                var activeSpreads = new List<Spread>(count);
+                for (var i = 0; i < count; ++i)
+                {
+                    var spread = Spreads[i];
+                    if (!spread.Target.IsDead)
+                        activeSpreads.Add(spread);
+                }
+                return activeSpreads;
+            }
+        }
+    }
+
+    public bool IsStackTarget(Actor? actor)
+    {
+        for (var i = 0; i < Stacks.Count; ++i)
+        {
+            if (Stacks[i].Target == actor)
+                return true;
+        }
+        return false;
+    }
+
+    public bool IsSpreadTarget(Actor? actor)
+    {
+        for (var i = 0; i < Spreads.Count; ++i)
+        {
+            if (Spreads[i].Target == actor)
+                return true;
+        }
+        return false;
+    }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
@@ -499,7 +566,7 @@ public class DonutStack(BossModule module, ActionID aid, uint icon, float innerR
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!ActiveStacks.Any())
+        if (ActiveStacks.Count == 0)
             return;
         var forbidden = new List<Func<WPos, float>>();
         foreach (var c in Raid.WithoutSlot().Where(x => ActiveStacks.Any(y => y.Target == x)).Exclude(actor))

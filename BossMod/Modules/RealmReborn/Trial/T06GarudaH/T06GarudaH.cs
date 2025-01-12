@@ -63,7 +63,7 @@ class MistralSong(BossModule module) : Components.CastLineOfSightAOE(module, Act
 }
 
 class AerialBlast(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AerialBlast));
-class GreatWhirlwind(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwind), 8);
+class GreatWhirlwind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwind), 8);
 class EyeOfTheStorm(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.EyeOfTheStorm), new AOEShapeDonut(12, 25));
 
 class T06GarudaHStates : StateMachineBuilder

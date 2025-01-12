@@ -185,16 +185,16 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
         var sDirP = sDir + halfAngle.Rad;
         var sDirN = sDir - halfAngle.Rad;
         drawlist.PathArcTo(sCenter, innerRadius / Bounds.Radius * ScreenHalfSize, sDirP, sDirN);
-        drawlist.PathArcTo(sCenter, innerRadius / Bounds.Radius * ScreenHalfSize, sDirN, sDirP);
+        drawlist.PathArcTo(sCenter, outerRadius / Bounds.Radius * ScreenHalfSize, sDirN, sDirP);
         drawlist.PathStroke(color != 0 ? color : Colors.Danger, ImDrawFlags.Closed, thickness);
     }
 
     public void AddCapsule(WPos start, WDir direction, float radius, float length, uint color = 0, float thickness = 1)
     {
         var dirNorm = direction.Normalized();
-        var halfLength = length * 0.5f;
-        var capsuleStart = start - dirNorm * halfLength;
-        var capsuleEnd = start + dirNorm * halfLength;
+        var halfLengthdirNorm = dirNorm * length * 0.5f;
+        var capsuleStart = start - halfLengthdirNorm;
+        var capsuleEnd = start + halfLengthdirNorm;
         var orthoDir = dirNorm.OrthoR();
 
         var drawList = ImGui.GetWindowDrawList();
@@ -315,9 +315,23 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
         => Zone(_triCache[TriangulationCache.GetKeyHash(9, start, end, halfWidth)] ??= _bounds.ClipAndTriangulateRect(start - Center, end - Center, halfWidth), color);
     public void ZoneComplex(WPos origin, Angle direction, RelSimplifiedComplexPolygon poly, uint color)
         => Zone(_triCache[TriangulationCache.GetKeyHash(10, origin, direction, poly)] ?? Bounds.ClipAndTriangulate(poly.Transform(origin - Center, direction.ToDirection())), color);
-    public void ZonePoly(object key, IEnumerable<WPos> contour, uint color)
-        => Zone(_triCache[TriangulationCache.GetKeyHash(11, key)] ??= _bounds.ClipAndTriangulate(contour.Select(p => p - Center)), color);
-    public void ZoneRelPoly(object key, IEnumerable<WDir> relContour, uint color)
+    public void ZonePoly(object key, WPos[] contour, uint color)
+    {
+        var hash = TriangulationCache.GetKeyHash(11, key);
+        var triangulation = _triCache[hash];
+        if (triangulation == null)
+        {
+            var adjustedContour = new WDir[contour.Length];
+            for (var i = 0; i < contour.Length; ++i)
+            {
+                adjustedContour[i] = contour[i] - Center;
+            }
+            triangulation = _bounds.ClipAndTriangulate(adjustedContour);
+            _triCache[hash] = triangulation;
+        }
+        Zone(triangulation, color);
+    }
+    public void ZoneRelPoly(object key, WDir[] relContour, uint color)
         => Zone(_triCache[TriangulationCache.GetKeyHash(12, key)] ??= _bounds.ClipAndTriangulate(relContour), color);
     public void ZoneRelPoly(int key, RelSimplifiedComplexPolygon poly, uint color)
         => Zone(_triCache[key] ??= _bounds.ClipAndTriangulate(poly), color);

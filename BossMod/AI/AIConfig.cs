@@ -64,7 +64,7 @@ sealed class AIConfig : ConfigNode
     [PropertyDisplay("Movement decision delay", tooltip: "Only change this at your own risk and keep this value low! Too high and it won't move in time for some mechanics. Make sure to readjust the value for different content.")]
     public float MoveDelay = 0;
 
-    [PropertyDisplay("Forbid AI movement while mounted")]
+    [PropertyDisplay("Idle while mounted")]
     public bool ForbidAIMovementMounted = false;
 
     public string? AIAutorotPresetName;

@@ -71,12 +71,15 @@ class Conviction(BossModule module) : Components.CastTowers(module, ActionID.Mak
 
     public override void Update()
     {
-        if (Towers.Count == 0)
+        var count = Towers.Count;
+        if (count == 0)
             return;
 
-        var stack = _stack.ActiveStacks.Any();
-        for (var i = 0; i < Towers.Count; ++i)
-            Towers[i] = new(Towers[i].Position, Towers[i].Radius, stack ? 0 : 1, stack ? 0 : 1, default, Towers[i].Activation);
+        var stack = _stack.ActiveStacks.Count != 0;
+        for (var i = 0; i < count; ++i)
+        {
+            Towers[i] = Towers[i] with { MinSoakers = stack ? 0 : 1, MaxSoakers = stack ? 0 : 1 };
+        }
     }
 }
 

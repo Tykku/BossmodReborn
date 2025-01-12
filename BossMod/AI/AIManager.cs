@@ -118,62 +118,94 @@ sealed class AIManager : IDisposable
                 configModified = ToggleFocusTargetLeader();
                 break;
             case "FOLLOW":
-                var cfg = _config.FollowSlot;
+                var cfgFollowSlot = _config.FollowSlot;
                 HandleFollowCommand(messageData);
-                configModified = cfg != _config.FollowSlot;
+                configModified = cfgFollowSlot != _config.FollowSlot;
                 break;
             case "UI":
                 configModified = ToggleDebugMenu();
                 break;
             case "FORBIDACTIONS":
-                configModified = ToggleForbidActions(messageData);
+                var cfgForbidActions = _config.ForbidActions;
+                ToggleForbidActions(messageData);
+                configModified = cfgForbidActions != _config.ForbidActions;
                 break;
-            case "FORDBIDMOVEMENT":
-                configModified = ToggleForbidMovement(messageData);
+            case "FORBIDMOVEMENT":
+                var cfgForbidMovement = _config.ForbidMovement;
+                ToggleForbidMovement(messageData);
+                configModified = cfgForbidMovement != _config.ForbidMovement;
+                break;
+            case "IDLEWHILEMOUNTED":
+                var cfgMountedIdle = _config.ForbidAIMovementMounted;
+                ToggleIdleWhileMounted(messageData);
+                configModified = cfgMountedIdle != _config.ForbidAIMovementMounted;
                 break;
             case "FOLLOWOUTOFCOMBAT":
-                configModified = ToggleFollowOutOfCombat(messageData);
+                var cfgFollowOOC = _config.FollowOutOfCombat;
+                ToggleFollowOutOfCombat(messageData);
+                configModified = cfgFollowOOC != _config.FollowOutOfCombat;
                 break;
             case "FOLLOWCOMBAT":
-                configModified = ToggleFollowCombat(messageData);
+                var cfgFollowIC = _config.FollowDuringCombat;
+                ToggleFollowCombat(messageData);
+                configModified = cfgFollowIC != _config.FollowDuringCombat;
                 break;
             case "FOLLOWMODULE":
-                configModified = ToggleFollowModule(messageData);
+                var cfgFollowM = _config.FollowDuringActiveBossModule;
+                ToggleFollowModule(messageData);
+                configModified = cfgFollowM != _config.FollowDuringActiveBossModule;
                 break;
             case "FOLLOWTARGET":
-                configModified = ToggleFollowTarget(messageData);
+                var cfgFollowT = _config.FollowTarget;
+                ToggleFollowTarget(messageData);
+                configModified = cfgFollowT != _config.FollowTarget;
+                break;
+            case "OUTOFBOUNDS":
+                var cfgOOB = _config.AllowAIToBeOutsideBounds;
+                ToggleOutOfBounds(messageData);
+                configModified = cfgOOB != _config.AllowAIToBeOutsideBounds;
                 break;
             case "OVERRIDEAUTOROTATION":
-                configModified = ToggleAutorotationOverride();
+                var cfgARO = _config.OverrideAutorotation;
+                ToggleAutorotationOverride(messageData);
+                configModified = cfgARO != _config.OverrideAutorotation;
                 break;
             case "POSITIONAL":
-                var cfg2 = _config.DesiredPositional;
+                var cfgPositional = _config.DesiredPositional;
                 HandlePositionalCommand(messageData);
-                configModified = cfg2 != _config.DesiredPositional;
+                configModified = cfgPositional != _config.DesiredPositional;
                 break;
             case "MAXDISTANCETARGET":
-                var cfg3 = _config.MaxDistanceToTarget;
+                var cfgMDT = _config.MaxDistanceToTarget;
                 HandleMaxDistanceTargetCommand(messageData);
-                configModified = cfg3 != _config.MaxDistanceToTarget;
+                configModified = cfgMDT != _config.MaxDistanceToTarget;
                 break;
             case "MAXDISTANCESLOT":
-                var cfg4 = _config.MaxDistanceToSlot;
+                var cfgMDS = _config.MaxDistanceToSlot;
                 HandleMaxDistanceSlotCommand(messageData);
-                configModified = cfg4 != _config.MaxDistanceToSlot;
+                configModified = cfgMDS != _config.MaxDistanceToSlot;
+                break;
+            case "MOVEDELAY":
+                var cfgMD = _config.MoveDelay;
+                HandleMoveDelayCommand(messageData);
+                configModified = cfgMD != _config.MoveDelay;
                 break;
             case "SETPRESETNAME":
                 if (cmd.Length <= 2)
+                {
                     Service.Log("Specify an AI autorotation preset name.");
+                    return;
+                }
                 else
                 {
-                    var cfg5 = _config.AIAutorotPresetName;
+                    var cfgARPreset = _config.AIAutorotPresetName;
                     ParseAIAutorotationSetCommand(messageData);
-                    configModified = cfg5 != _config.AIAutorotPresetName;
+                    configModified = cfgARPreset != _config.AIAutorotPresetName;
                 }
                 break;
             default:
                 Service.ChatGui.Print($"[AI] Unknown command: {messageData[0]}");
-                break;
+                return;
         }
 
         if (configModified)
@@ -202,10 +234,70 @@ sealed class AIManager : IDisposable
         return true;
     }
 
-    private bool ToggleAutorotationOverride()
+    private void ToggleAutorotationOverride(string[] messageData)
     {
-        _config.OverrideAutorotation = !_config.OverrideAutorotation;
-        return true;
+        if (messageData.Length == 1)
+            _config.OverrideAutorotation = !_config.OverrideAutorotation;
+        else
+        {
+            switch (messageData[1].ToUpperInvariant())
+            {
+                case "ON":
+                    _config.OverrideAutorotation = true;
+                    break;
+                case "OFF":
+                    _config.OverrideAutorotation = false;
+                    break;
+                default:
+                    Service.ChatGui.Print($"[AI] Unknown follow target command: {messageData[1]}");
+                    return;
+            }
+        }
+        Service.Log($"[AI] Following targets is now {(_config.OverrideAutorotation ? "enabled" : "disabled")}");
+    }
+
+    private void ToggleOutOfBounds(string[] messageData)
+    {
+        if (messageData.Length == 1)
+            _config.AllowAIToBeOutsideBounds = !_config.AllowAIToBeOutsideBounds;
+        else
+        {
+            switch (messageData[1].ToUpperInvariant())
+            {
+                case "ON":
+                    _config.AllowAIToBeOutsideBounds = true;
+                    break;
+                case "OFF":
+                    _config.AllowAIToBeOutsideBounds = false;
+                    break;
+                default:
+                    Service.ChatGui.Print($"[AI] Unknown follow target command: {messageData[1]}");
+                    return;
+            }
+        }
+        Service.Log($"[AI] Following targets is now {(_config.AllowAIToBeOutsideBounds ? "enabled" : "disabled")}");
+    }
+
+    private void ToggleIdleWhileMounted(string[] messageData)
+    {
+        if (messageData.Length == 1)
+            _config.ForbidAIMovementMounted = !_config.ForbidAIMovementMounted;
+        else
+        {
+            switch (messageData[1].ToUpperInvariant())
+            {
+                case "ON":
+                    _config.ForbidAIMovementMounted = true;
+                    break;
+                case "OFF":
+                    _config.ForbidAIMovementMounted = false;
+                    break;
+                default:
+                    Service.ChatGui.Print($"[AI] Unknown idle while mounted command: {messageData[1]}");
+                    return;
+            }
+        }
+        Service.Log($"[AI] Idle while mounted is now {(_config.ForbidAIMovementMounted ? "enabled" : "disabled")}");
     }
 
     private void HandleFollowCommand(string[] messageData)
@@ -239,7 +331,7 @@ sealed class AIManager : IDisposable
         return true;
     }
 
-    private bool ToggleForbidActions(string[] messageData)
+    private void ToggleForbidActions(string[] messageData)
     {
         if (messageData.Length == 1)
             _config.ForbidActions = !_config.ForbidActions;
@@ -255,14 +347,13 @@ sealed class AIManager : IDisposable
                     break;
                 default:
                     Service.ChatGui.Print($"[AI] Unknown forbid actions command: {messageData[1]}");
-                    return _config.ForbidActions;
+                    return;
             }
         }
         Service.Log($"[AI] Forbid actions is now {(_config.ForbidActions ? "enabled" : "disabled")}");
-        return _config.ForbidActions;
     }
 
-    private bool ToggleForbidMovement(string[] messageData)
+    private void ToggleForbidMovement(string[] messageData)
     {
         if (messageData.Length == 1)
             _config.ForbidMovement = !_config.ForbidMovement;
@@ -278,14 +369,13 @@ sealed class AIManager : IDisposable
                     break;
                 default:
                     Service.ChatGui.Print($"[AI] Unknown forbid movement command: {messageData[1]}");
-                    return _config.ForbidMovement;
+                    return;
             }
         }
         Service.Log($"[AI] Forbid movement is now {(_config.ForbidMovement ? "enabled" : "disabled")}");
-        return _config.ForbidMovement;
     }
 
-    private bool ToggleFollowOutOfCombat(string[] messageData)
+    private void ToggleFollowOutOfCombat(string[] messageData)
     {
         if (messageData.Length == 1)
             _config.FollowOutOfCombat = !_config.FollowOutOfCombat;
@@ -301,14 +391,13 @@ sealed class AIManager : IDisposable
                     break;
                 default:
                     Service.ChatGui.Print($"[AI] Unknown follow out of combat command: {messageData[1]}");
-                    return _config.FollowOutOfCombat;
+                    return;
             }
         }
         Service.Log($"[AI] Follow out of combat is now {(_config.FollowOutOfCombat ? "enabled" : "disabled")}");
-        return _config.FollowOutOfCombat;
     }
 
-    private bool ToggleFollowCombat(string[] messageData)
+    private void ToggleFollowCombat(string[] messageData)
     {
         if (messageData.Length == 1)
         {
@@ -333,15 +422,14 @@ sealed class AIManager : IDisposable
                     break;
                 default:
                     Service.ChatGui.Print($"[AI] Unknown follow during combat command: {messageData[1]}");
-                    return _config.FollowDuringCombat;
+                    return;
             }
         }
         Service.Log($"[AI] Follow during combat is now {(_config.FollowDuringCombat ? "enabled" : "disabled")}");
         Service.Log($"[AI] Follow during active boss module is now {(_config.FollowDuringActiveBossModule ? "enabled" : "disabled")}");
-        return _config.FollowDuringCombat;
     }
 
-    private bool ToggleFollowModule(string[] messageData)
+    private void ToggleFollowModule(string[] messageData)
     {
         if (messageData.Length == 1)
         {
@@ -362,15 +450,14 @@ sealed class AIManager : IDisposable
                     break;
                 default:
                     Service.ChatGui.Print($"[AI] Unknown follow during active boss module command: {messageData[1]}");
-                    return _config.FollowDuringActiveBossModule;
+                    return;
             }
         }
         Service.Log($"[AI] Follow during active boss module is now {(_config.FollowDuringActiveBossModule ? "enabled" : "disabled")}");
         Service.Log($"[AI] Follow during combat is now {(_config.FollowDuringCombat ? "enabled" : "disabled")}");
-        return _config.FollowDuringActiveBossModule;
     }
 
-    private bool ToggleFollowTarget(string[] messageData)
+    private void ToggleFollowTarget(string[] messageData)
     {
         if (messageData.Length == 1)
             _config.FollowTarget = !_config.FollowTarget;
@@ -386,11 +473,10 @@ sealed class AIManager : IDisposable
                     break;
                 default:
                     Service.ChatGui.Print($"[AI] Unknown follow target command: {messageData[1]}");
-                    return _config.FollowTarget;
+                    return;
             }
         }
         Service.Log($"[AI] Following targets is now {(_config.FollowTarget ? "enabled" : "disabled")}");
-        return _config.FollowTarget;
     }
 
     private void HandlePositionalCommand(string[] messageData)
@@ -456,6 +542,25 @@ sealed class AIManager : IDisposable
 
         _config.MaxDistanceToSlot = distance;
         Service.Log($"[AI] Max distance to slot set to {distance}");
+    }
+
+    private void HandleMoveDelayCommand(string[] messageData)
+    {
+        if (messageData.Length < 2)
+        {
+            Service.ChatGui.Print("[AI] Missing delay value.");
+            return;
+        }
+
+        var moveStr = messageData[1].Replace(',', '.');
+        if (!float.TryParse(moveStr, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var delay))
+        {
+            Service.ChatGui.Print("[AI] Invalid delay value.");
+            return;
+        }
+
+        _config.MoveDelay = delay;
+        Service.Log($"[AI] Max distance to target set to {delay}");
     }
 
     private int FindPartyMemberByName(string name)

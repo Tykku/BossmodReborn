@@ -25,11 +25,11 @@ abstract class ArborealStorm(BossModule module, AID aid) : Components.SelfTarget
 class NArborealStorm(BossModule module) : ArborealStorm(module, AID.NArborealStorm);
 class SArborealStorm(BossModule module) : ArborealStorm(module, AID.SArborealStorm);
 
-abstract class AcornBomb(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class AcornBomb(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class NAcornBomb(BossModule module) : AcornBomb(module, AID.NAcornBomb);
 class SAcornBomb(BossModule module) : AcornBomb(module, AID.SAcornBomb);
 
-abstract class GelidGale(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class GelidGale(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class NGelidGale(BossModule module) : GelidGale(module, AID.NGelidGale);
 class SGelidGale(BossModule module) : GelidGale(module, AID.SGelidGale);
 

@@ -142,7 +142,7 @@ class ChainCannonBoss(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class SurfaceMissile(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SurfaceMissileAOE), 6);
+class SurfaceMissile(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SurfaceMissileAOE), 6);
 class SuppressiveMagitekRays(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SuppressiveMagitekRays));
 class Analysis(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Analysis), "Face open weakpoint to charging adds");
 class PreciseStrike(BossModule module) : Components.CastWeakpoint(module, ActionID.MakeSpell(AID.PreciseStrike), new AOEShapeRect(60, 3), (uint)SID.FrontUnseen, (uint)SID.BackUnseen, 0, 0);

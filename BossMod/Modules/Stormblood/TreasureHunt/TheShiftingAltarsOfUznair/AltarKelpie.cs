@@ -38,7 +38,7 @@ public enum AID : uint
     Telega = 9630 // AltarMatanga/Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
-class Innocence(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Innocence), 5);
+class Innocence(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Innocence), 5);
 class HydroPush(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HydroPush), new AOEShapeRect(49.4f, 22, 5));
 
 class BloodyPuddle(BossModule module) : Components.GenericAOEs(module)
@@ -79,7 +79,7 @@ class RisingSeasKB(BossModule module) : Components.KnockbackFromCastTarget(modul
 }
 
 class RaucousScritch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
-class Hurl(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
+class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
 class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.AltarMatanga);
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));

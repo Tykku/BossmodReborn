@@ -9,7 +9,7 @@ class RackAndRuin(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 
 class MightySmite(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.MightySmite));
 
-class BitingWindBad(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BitingWindBad), 4);
+class BitingWindBad(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BitingWindBad), 4);
 
 class ShatteringSteel(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ShatteringSteel), "Get in bigger Whirlwind to dodge");
 class ViperPoisonPatterns(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.BitingWindBad), m => m.Enemies(OID.WhirlwindBad).Where(z => z.EventState != 7), 0);

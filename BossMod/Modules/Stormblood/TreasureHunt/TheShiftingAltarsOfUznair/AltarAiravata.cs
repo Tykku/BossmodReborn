@@ -31,7 +31,7 @@ public enum IconID : uint
     BuffetTarget = 23 // player
 }
 
-class HurlBoss(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HurlBoss), 6);
+class HurlBoss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HurlBoss), 6);
 class SpinBoss(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpinBoss), new AOEShapeCone(30, 60.Degrees()));
 class BarbarousScream(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BarbarousScream), new AOEShapeCircle(13));
 class Huff(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.Huff));
@@ -96,7 +96,7 @@ class Buffet2(BossModule module) : Components.BaitAwayCast(module, ActionID.Make
 }
 
 class RaucousScritch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
-class Hurl(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
+class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
 class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.AltarMatanga);
 
 class AltarAiravataStates : StateMachineBuilder

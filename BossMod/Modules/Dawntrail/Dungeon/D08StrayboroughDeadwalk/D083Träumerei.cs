@@ -93,7 +93,7 @@ class GhostlyGuise(BossModule module) : Components.GenericAOEs(module)
         var shape = circlesAvoid;
         DateTime activation = default;
 
-        if (_avoid.ActiveSpreads.Any())
+        if (_avoid.ActiveSpreads.Count != 0)
         {
             shape = IsGhostly(actor) ? circlesInverted : circlesAvoid;
             activation = _avoid.ActiveSpreads.First().Activation;
@@ -132,7 +132,7 @@ class GhostlyGuise(BossModule module) : Components.GenericAOEs(module)
         var isGhostly = IsGhostly(actor);
         if (fleshbuster.isActive || _seek.ActiveBaits.Any())
             hints.Add(GhostHint, !isGhostly);
-        else if (_avoid.ActiveSpreads.Any())
+        else if (_avoid.ActiveSpreads.Count != 0)
             hints.Add(FleshHint, isGhostly);
     }
 }

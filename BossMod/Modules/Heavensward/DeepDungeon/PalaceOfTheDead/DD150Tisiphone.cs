@@ -31,10 +31,10 @@ class DarkMist(BossModule module) : Components.SelfTargetedAOEs(module, ActionID
 class Desolation(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Desolation), new AOEShapeRect(57.3f, 3));
 class FatalAllure(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.FatalAllure), "Boss is life stealing from the succubus");
 class SweetSteel(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SweetSteel), new AOEShapeCone(7, 45.Degrees()));
-class TerrorEye(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TerrorEye), 6);
+class TerrorEye(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TerrorEye), 6);
 class VoidAero(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.VoidAero), new AOEShapeRect(42.3f, 4));
-class VoidFireII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.VoidFireII), 5);
-class VoidFireIV(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.VoidFireIV), 10);
+class VoidFireII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VoidFireII), 5);
+class VoidFireIV(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VoidFireIV), 10);
 class ZombieGrab(BossModule module) : Components.PersistentVoidzone(module, 2, m => m.Enemies(OID.FanaticZombie)); // Future note to Ice(self): Not entirely sure if I'm happy with this per se? It shows to essentially stay away from the zombies but, maybe a better hint when I can think of one
 
 // TODO: Add a switch to target the zombie that is currently attached to you. Missing the status effect that it gives when caught.

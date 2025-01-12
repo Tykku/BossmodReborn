@@ -72,7 +72,7 @@ abstract class LineVoltage(BossModule module, AID narrow, float delay, AID? wide
 class LineVoltage1(BossModule module) : LineVoltage(module, AID.LineVoltageNarrow1, 1);
 class LineVoltage2(BossModule module) : LineVoltage(module, AID.LineVoltageNarrow2, 2, AID.LineVoltageWide1, AID.LineVoltageWide2);
 
-class LightningBolt(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 6);
+class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 6);
 class LightningStorm(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.LightningStorm), 5);
 class ElectricalOverload(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ElectricalOverload));
 class SparkingFissure(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SparkingFissure));

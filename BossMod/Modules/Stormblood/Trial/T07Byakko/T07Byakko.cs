@@ -9,7 +9,7 @@ class TheRoarOfThunder(BossModule module) : Components.RaidwideCast(module, Acti
 class ImperialGuard(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ImperialGuard), new AOEShapeRect(44.75f, 2.5f));
 class FireAndLightning1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FireAndLightning1), new AOEShapeRect(50, 10));
 class FireAndLightning2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FireAndLightning2), new AOEShapeRect(50, 10));
-//class Aratama1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Aratama1), 4);
+//class Aratama1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Aratama1), 4);
 class DistantClap(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DistantClap), new AOEShapeDonut(5, 30));
 
 class HighestStakes(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.HighestStakes2), 6, 5, 7, 7);

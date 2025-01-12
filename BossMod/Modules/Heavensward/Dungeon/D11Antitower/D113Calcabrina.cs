@@ -124,19 +124,31 @@ class D113CalcabrinaStates : StateMachineBuilder
             .ActivateOnEnter<HeatGazeCalca>()
             .ActivateOnEnter<Slapstick>()
             .ActivateOnEnter<Knockout>()
-            .Raw.Update = () => module.Enemies(OID.Calcabrina).Concat(module.Enemies(OID.Boss)).Concat(module.Enemies(OID.Brina)).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D113Calcabrina.NpcDolls);
+                for (var i = 0; i < enemies.Count; ++i)
+                {
+                    var e = enemies[i];
+                    if (!e.IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 141, NameID = 4813)]
 public class D113Calcabrina(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(232, -182), 19.5f * CosPI.Pi36th, 36)], [new Rectangle(new(252, -182), 20, 1.15f, 90.Degrees())]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(232, -182), 19.5f * CosPI.Pi36th, 36)], [new Rectangle(new(252, -182), 1.15f, 20)]);
+    private static readonly uint[] playerDolls = [(uint)OID.CalcaPlayer1, (uint)OID.CalcaPlayer2, (uint)OID.BrinaPlayer1, (uint)OID.BrinaPlayer2];
+    public static readonly uint[] NpcDolls = [(uint)OID.Boss, (uint)OID.Brina, (uint)OID.Calcabrina];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Brina).Concat(Enemies(OID.Boss)).Concat(Enemies(OID.Calcabrina)));
-        Arena.Actors(Enemies(OID.CalcaPlayer1).Concat(Enemies(OID.CalcaPlayer2)).Concat(Enemies(OID.BrinaPlayer1)).Concat(Enemies(OID.BrinaPlayer2)), Colors.Vulnerable);
+        Arena.Actors(Enemies(NpcDolls));
+        Arena.Actors(Enemies(playerDolls), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

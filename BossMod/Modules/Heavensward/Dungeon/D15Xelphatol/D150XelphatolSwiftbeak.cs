@@ -32,7 +32,7 @@ public enum AID : uint
 }
 
 class Overpower(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Overpower), new AOEShapeCone(7.08f, 45.Degrees()));
-class Gust(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Gust), 5);
+class Gust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Gust), 5);
 
 class D150XelphatolSwiftbeakStates : StateMachineBuilder
 {

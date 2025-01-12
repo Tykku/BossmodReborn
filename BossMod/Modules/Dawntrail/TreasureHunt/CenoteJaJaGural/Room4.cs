@@ -48,7 +48,7 @@ public enum AID : uint
     Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
-abstract class CircleLoc6(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class CircleLoc6(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class Lumisphere(BossModule module) : CircleLoc6(module, AID.Lumisphere);
 class Tornado(BossModule module) : CircleLoc6(module, AID.Tornado);
 class RootsOfAtopy(BossModule module) : CircleLoc6(module, AID.RootsOfAtopy);

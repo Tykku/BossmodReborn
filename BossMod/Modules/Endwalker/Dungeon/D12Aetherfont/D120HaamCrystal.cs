@@ -17,7 +17,7 @@ public enum AID : uint
 }
 
 class HardHead(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HardHead), new AOEShapeCone(12, 60.Degrees()));
-class EarthenHeart(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.EarthenHeart), 6);
+class EarthenHeart(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EarthenHeart), 6);
 
 class D120HaamCrystalStates : StateMachineBuilder
 {

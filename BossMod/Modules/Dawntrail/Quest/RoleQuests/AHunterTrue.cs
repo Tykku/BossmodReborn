@@ -86,7 +86,7 @@ class RushBait(BossModule module) : Components.BaitAwayChargeTether(module, 4, 8
 class RushLineStack(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.RushLineStackMarker), ActionID.MakeSpell(AID.RushLineStack), 4.9f, markerIsFinalTarget: false);
 class Trample(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Trample), new AOEShapeCircle(15));
 
-class FallingDusk(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FallingDusk), 15)
+class FallingDusk(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FallingDusk), 15)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

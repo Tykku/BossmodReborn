@@ -39,7 +39,7 @@ public enum TetherID : uint
     Unfreezable = 17, // GraspingRancor->player (appears if hand wasn't hit by aoe)
 }
 
-class GraspingRancor : Components.LocationTargetedAOEs
+class GraspingRancor : Components.SimpleAOEs
 {
     private readonly List<Actor> _hands;
 
@@ -78,13 +78,13 @@ class GraspingRancor : Components.LocationTargetedAOEs
 }
 
 class HatefulMiasma(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HatefulMiasma), 6);
-class PoisonedWords(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PoisonedWords), 6);
+class PoisonedWords(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PoisonedWords), 6);
 class TalonedGaze(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.TalonedGaze), "AOE front/back --> sides");
 class TalonedWings(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.TalonedWings), "AOE sides --> front/back");
 class CoffinNails(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CoffinNails), new AOEShapeCone(60, 45.Degrees()), 2);
 class Stab(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Stab));
 class GripOfPoison(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GripOfPoison));
-class StepsOfDestruction(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.StepsOfDestructionAOE), 6);
+class StepsOfDestruction(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StepsOfDestructionAOE), 6);
 
 class CE21FinalFurlongStates : StateMachineBuilder
 {

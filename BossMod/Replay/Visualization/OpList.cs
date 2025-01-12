@@ -15,7 +15,8 @@ class OpList(Replay replay, Replay.Encounter? enc, BossModuleRegistry.Info? modu
     0x2E7F, 0x2F33, 0x2F32, 0x2F38, 0x2E80, 0x2E82, 0x2E81, 0x2F36, 0x2E7D, 0x2F35, 0x2EB0, 0x2F31, 0x2F37, 0x2E7C, 0x2E7B, 0x2EAE, 0x2F3A, 0x2F30, 0x2E7E, 0x2EAF,
     0x428B, 0x44B8, 0x43D2, 0x43D1, 0x41FD, 0x42A4, 0x41C5, 0x30B7, 0x4021, 0x4019, 0x401C, 0x401B, 0x401F, 0x40FB, 0x4105, 0x401D, 0x4102, 0x4629, 0x4628, 0x4631,
     0x4630, 0x46D6, 0xF5B, 0xF5C, 0x2E20, 0x2E21, 0x318A, 0x2E1E, 0x3346, 0x3353, 0x31D4, 0x3345, 0x3355, 0x3326, 0x3344, 0x31B1, 0x3343, 0x1EB165, 0x1EB166,
-    0x1EB167, 0x1EB168];
+    0x1EB167, 0x1EB168, 0x4339, 0x4144, 0x4146, 0x4348, 0x4339, 0x4337];
+    public static readonly HashSet<uint> BoringSIDs = [43, 44, 418, 364, 902, 1050, 368, 362, 1086, 1461, 1463, 365, 1778, 1755, 360, 1411];
     private readonly HashSet<ActionID> _filteredActions = [];
     private readonly HashSet<uint> _filteredStatuses = [];
     private readonly HashSet<uint> _filteredDirectorUpdateTypes = [];
@@ -89,8 +90,8 @@ class OpList(Replay replay, Replay.Encounter? enc, BossModuleRegistry.Info? modu
             return false; // don't care about statuses applied by players
         if (s.Target.Type is ActorType.Pet)
             return false; // don't care about statuses applied to pets
-        if (s.ID is 43 or 44 or 418)
-            return false; // don't care about resurrect-related statuses
+        if (BoringSIDs.Contains(s.ID))
+            return false; // don't care about resurrect-related and other trivial statuses
         if (_filteredOIDs.Contains(s.Target.OID))
             return false; // don't care about filtered out targets
         if (_filteredStatuses.Contains(s.ID))

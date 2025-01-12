@@ -19,7 +19,7 @@ public enum AID : uint
 }
 
 class BreathWing(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BreathWing));
-class WingsOfWoe(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.WingsOfWoe), 6);
+class WingsOfWoe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingsOfWoe), 6);
 
 class D130KargasStates : StateMachineBuilder
 {

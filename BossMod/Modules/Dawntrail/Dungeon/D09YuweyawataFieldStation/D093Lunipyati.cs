@@ -132,7 +132,7 @@ class JaggedEdge(BossModule module) : Components.SpreadFromCastTargets(module, A
 class TuraliStoneIV(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.TuraliStoneIV), 6, 4, 4);
 class LeporineLoaf(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.LeporineLoaf));
 class BeastlyRoarRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BeastlyRoar));
-class BeastlyRoar(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BeastlyRoar), 25);
+class BeastlyRoar(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BeastlyRoar), 25);
 class SonicHowl(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SonicHowl));
 class Slabber(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Slabber));
 

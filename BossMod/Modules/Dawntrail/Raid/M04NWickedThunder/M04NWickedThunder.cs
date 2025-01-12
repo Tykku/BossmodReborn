@@ -13,7 +13,7 @@ class WickedBolt(BossModule module) : Components.StackWithIcon(module, (uint)Ico
 class SoaringSoulpress(BossModule module) : Components.StackWithIcon(module, (uint)IconID.SoaringSoulpress, ActionID.MakeSpell(AID.SoaringSoulpress), 6, 5.4f, 8, 8);
 class WrathOfZeus(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WrathOfZeus));
 class BewitchingFlight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BewitchingFlight), new AOEShapeRect(40, 2.5f));
-class Thunderslam(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Thunderslam), 5);
+class Thunderslam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Thunderslam), 5);
 class Thunderstorm(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Thunderstorm), 6);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 991, NameID = 13057)]

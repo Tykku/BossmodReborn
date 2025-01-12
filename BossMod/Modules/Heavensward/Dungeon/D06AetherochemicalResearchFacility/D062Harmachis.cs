@@ -45,7 +45,7 @@ public enum IconID : uint
     Stack = 93 // player
 }
 
-class Paradox(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Paradox), 5);
+class Paradox(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Paradox), 5);
 class Petrifaction(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.Petrifaction));
 class Ka(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Ka), new AOEShapeCone(45, 30.Degrees()));
 class GaseousBomb(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stack, ActionID.MakeSpell(AID.GaseousBomb), 5, 4.1f, 4, 4);
@@ -71,19 +71,19 @@ class ChthonicHush(BossModule module) : Components.Cleave(module, ActionID.MakeS
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (!_stack1.ActiveStacks.Any() && !_stack2.ActiveStacks.Any())
+        if (_stack1.ActiveStacks.Count == 0 && _stack2.ActiveStacks.Count == 0)
             base.AddHints(slot, actor, hints);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!_stack1.ActiveStacks.Any() && !_stack2.ActiveStacks.Any())
+        if (_stack1.ActiveStacks.Count == 0 && _stack2.ActiveStacks.Count == 0)
             base.AddAIHints(slot, actor, assignment, hints);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        if (!_stack1.ActiveStacks.Any() && !_stack2.ActiveStacks.Any())
+        if (_stack1.ActiveStacks.Count == 0 && _stack2.ActiveStacks.Count == 0)
             base.DrawArenaForeground(pcSlot, pc);
     }
 }

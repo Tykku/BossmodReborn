@@ -51,7 +51,7 @@ public enum SID : uint
 }
 
 class Spincrush(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spincrush), new AOEShapeCone(15, 60.Degrees()));
-class FireShot(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FireShot), 7);
+class FireShot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireShot), 7);
 
 class FiresOfMtGulg(BossModule module) : Components.GenericAOEs(module)
 {

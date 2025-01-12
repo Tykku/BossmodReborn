@@ -47,7 +47,7 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 }
 
 class ProximityPyre(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ProximityPyre), new AOEShapeCircle(12));
-class Burst(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Burst), 10);
+class Burst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Burst), 10);
 class CripplingBlow(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CripplingBlow));
 class DeafeningBellow(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DeafeningBellow));
 class AshenOuroboros(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AshenOuroboros), new AOEShapeDonut(11, 20));

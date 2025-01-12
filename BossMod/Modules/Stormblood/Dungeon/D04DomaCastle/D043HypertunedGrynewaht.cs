@@ -48,7 +48,7 @@ public enum SID : uint
 
 class CleanCut(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.CleanCut), 4);
 class DelayActionCharge(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.DelayActionCharge), 6, 4);
-class ThermobaricCharge(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ThermobaricCharge), 30);
+class ThermobaricCharge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThermobaricCharge), 30);
 
 class Chainsaw(BossModule module) : Components.GenericAOEs(module)
 {

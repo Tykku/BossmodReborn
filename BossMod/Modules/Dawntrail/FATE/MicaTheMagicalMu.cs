@@ -243,7 +243,7 @@ class RollingStarlight(BossModule module) : Components.GenericAOEs(module)
 }
 
 class MagicalHat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TwinkleToss), new AOEShapeRect(21, 2.5f, 21), 4);
-class Shimmerstorm(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ShimmerstormAOE), 6);
+class Shimmerstorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ShimmerstormAOE), 6);
 class Shimmerstrike(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.ShimmerstrikeAOE), new AOEShapeCircle(6), true);
 class SparkOfImagination(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SparkOfImaginationAOE));
 

@@ -11,7 +11,7 @@ class ColossalImpactMiddle(BossModule module) : Components.SelfTargetedAOEs(modu
 
 class MagicArtilleryBeta2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.MagicArtilleryBeta2), 3);
 class MagicArtilleryAlpha2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.MagicArtilleryAlpha2), 5);
-class LightLeap2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LightLeap2), 25);
+class LightLeap2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightLeap2), 25);
 class BoxSpawn(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BoxSpawn), new AOEShapeRect(8, 4));
 class MagicBarrage(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagicBarrage), new AOEShapeRect(61, 2.5f));
 class Lunge(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Lunge), 60, stopAtWall: true, kind: Kind.DirForward);

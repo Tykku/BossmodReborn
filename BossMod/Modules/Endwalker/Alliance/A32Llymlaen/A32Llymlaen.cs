@@ -3,9 +3,9 @@
 class WindRose(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WindRose), new AOEShapeCircle(12));
 class SeafoamSpiral(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SeafoamSpiral), new AOEShapeDonut(6, 70));
 class DeepDiveNormal(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.DeepDiveNormal), 6, 8);
-class Stormwhorl(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Stormwhorl), 6);
+class Stormwhorl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Stormwhorl), 6);
 class Stormwinds(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Stormwinds), 6);
-class Maelstrom(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Maelstrom), 6);
+class Maelstrom(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Maelstrom), 6);
 class Godsbane(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.GodsbaneAOE));
 class DeepDiveHardWater(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.DeepDiveHardWater), 6);
 

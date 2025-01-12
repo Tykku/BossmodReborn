@@ -41,7 +41,7 @@ class DouseHaste(BossModule module) : BossComponent(module)
 
 class Drench(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Drench), new AOEShapeCone(15.75f, 45.Degrees()), activeWhileCasting: false);
 
-class Electrogenesis(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Electrogenesis), 8);
+class Electrogenesis(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Electrogenesis), 8);
 
 class DD170YulungguStates : StateMachineBuilder
 {

@@ -23,7 +23,7 @@ public enum AID : uint
 }
 
 class Abyss(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.Abyss), new AOEShapeCircle(6), true);
-class Catapult(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Catapult), 6);
+class Catapult(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Catapult), 6);
 class CorseAdds(BossModule module) : Components.AddsMulti(module, [(uint)OID.BicephalicCorse, (uint)OID.GiantCorse, (uint)OID.IronCorse]);
 class Doom(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Doom), new AOEShapeCone(47.4f, 60.Degrees()));
 class Shackle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Shackle), new AOEShapeRect(52.4f, 4, 0));

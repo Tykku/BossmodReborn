@@ -22,7 +22,7 @@ public enum AID : uint
     PanzerfaustRepeats = 41353 // Boss->player, no cast, single-target, knockback 10, apply concussion
 }
 
-class IsleDrop(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.IsleDrop), 6);
+class IsleDrop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IsleDrop), 6);
 class WingCutter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WingCutter), new AOEShapeCone(6, 60.Degrees()));
 class PanzerfaustHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Panzerfaust), showNameInHint: true);
 class Panzerfaust(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Panzerfaust));

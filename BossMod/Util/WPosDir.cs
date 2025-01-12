@@ -54,6 +54,15 @@ public record struct WDir(float X, float Z)
         var dotNormal = Dot(direction.OrthoL());
         return dotDir >= -lenBack && dotDir <= lenFront && Math.Abs(dotNormal) <= halfWidth;
     }
+
+    public readonly bool InCross(WDir direction, float length, float halfWidth)
+    {
+        var dotDir = Dot(direction);
+        var absDotNormal = Math.Abs(Dot(direction.OrthoL()));
+        var inVerticalArm = dotDir >= -length && dotDir <= length && absDotNormal <= halfWidth;
+        var inHorizontalArm = dotDir >= -halfWidth && dotDir <= halfWidth && absDotNormal <= length;
+        return inVerticalArm || inHorizontalArm;
+    }
 }
 
 // 2d vector that represents world-space position on XZ plane
@@ -129,6 +138,9 @@ public record struct WPos(float X, float Z)
         var len = startToEnd.Length();
         return InRect(origin, startToEnd / len, len, 0, halfWidth);
     }
+
+    public readonly bool InCross(WPos origin, Angle direction, float length, float halfWidth) => (this - origin).InCross(direction.ToDirection(), length, halfWidth);
+    public readonly bool InCross(WPos origin, WDir direction, float length, float halfWidth) => (this - origin).InCross(direction, length, halfWidth);
 
     public readonly bool InCircle(WPos origin, float radius) => (this - origin).LengthSq() <= radius * radius;
     public readonly bool InDonut(WPos origin, float innerRadius, float outerRadius) => InCircle(origin, outerRadius) && !InCircle(origin, innerRadius);

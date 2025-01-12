@@ -86,7 +86,7 @@ class IonosphericCharge(BossModule module) : Components.BaitAwayTethers(module, 
 }
 
 class ElectricCachexia(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectricCachexia), new AOEShapeDonut(8, 60));
-class LightningBolt(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 3);
+class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 3);
 
 class D031RangdaStates : StateMachineBuilder
 {

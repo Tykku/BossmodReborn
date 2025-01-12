@@ -66,7 +66,7 @@ class ApocalypticRoar(BossModule module) : Components.SelfTargetedAOEs(module, A
 class TheRamsVoice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheRamsVoice), new AOEShapeCircle(8));
 class TheDragonsVoice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheDragonsVoice), new AOEShapeDonut(6, 30));
 class Maelstrom(BossModule module) : Components.PersistentVoidzone(module, 8, m => m.Enemies(OID.Maelstrom));
-class Meteor(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Meteor), 15);
+class Meteor(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Meteor), 15);
 class MeteorVoidzone(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 10, ActionID.MakeSpell(AID.Meteor), m => m.Enemies(OID.LavaVoidzone).Where(z => z.EventState != 7), 1.2f);
 
 class Hints(BossModule module) : BossComponent(module)

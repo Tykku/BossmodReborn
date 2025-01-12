@@ -20,7 +20,7 @@ public enum AID : uint
 }
 
 class GlassPunch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GlassPunch), new AOEShapeCone(7, 60.Degrees()));
-class Catapult(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Catapult), 6);
+class Catapult(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Catapult), 6);
 
 class D90StationSpecterStates : StateMachineBuilder
 {

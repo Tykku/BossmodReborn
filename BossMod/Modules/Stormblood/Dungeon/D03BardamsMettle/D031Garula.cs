@@ -25,7 +25,7 @@ public enum AID : uint
     WideBlaster = 9395, // SteppeCoeurl->self, 5.5s cast, range 26+R 120-degree cone
 }
 
-class CrumblingCrust(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.CrumblingCrust), 3);
+class CrumblingCrust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CrumblingCrust), 3);
 class Heave(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Heave), new AOEShapeCone(13, 60.Degrees()));
 class WideBlaster(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WideBlaster), new AOEShapeCone(29.15f, 60.Degrees()));
 class Rush(BossModule module) : Components.BaitAwayChargeTether(module, 4, 10.1f, ActionID.MakeSpell(AID.Rush), minimumDistance: 23)

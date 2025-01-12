@@ -38,8 +38,8 @@ public enum AID : uint
 }
 
 class IronJustice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IronJustice), new AOEShapeCone(11.8f, 60.Degrees()));
-class Cloudcover(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Cloudcover), 6);
-class TerrorEye(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TerrorEye), 6);
+class Cloudcover(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Cloudcover), 6);
+class TerrorEye(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TerrorEye), 6);
 class VillainousRebuke(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VillainousRebuke), 6, 8, 8);
 class StygianRelease(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.StygianRelease));
 class StygianReleaseKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.StygianRelease), 20, stopAtWall: true)
@@ -48,7 +48,7 @@ class StygianReleaseKB(BossModule module) : Components.KnockbackFromCastTarget(m
 }
 
 class RaucousScritch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
-class Hurl(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
+class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
 class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.AltarMatanga);
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));

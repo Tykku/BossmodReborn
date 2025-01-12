@@ -16,7 +16,7 @@ public class StateMachineTree
         public bool IsVulnerable;
         public StateMachine.State State;
         public Node? Predecessor;
-        public List<Node> Successors = [];
+        public readonly List<Node> Successors = [];
 
         internal Node(float t, int phaseID, int branchID, StateMachine.State state, StateMachine.Phase phase, Node? pred)
         {

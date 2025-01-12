@@ -31,7 +31,7 @@ public enum TetherID : uint
 }
 
 class RonkanFire(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.RonkanFire));
-class RonkanAbyss(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RonkanAbyss), 6);
+class RonkanAbyss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RonkanAbyss), 6);
 
 class WrathOfTheRonka(BossModule module) : Components.GenericAOEs(module)
 {

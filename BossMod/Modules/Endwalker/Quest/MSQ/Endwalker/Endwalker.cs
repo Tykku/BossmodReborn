@@ -38,7 +38,7 @@ class EndwalkerStates : StateMachineBuilder
     }
 }
 
-class Megaflare(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Megaflare), 6);
+class Megaflare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Megaflare), 6);
 class Puddles(BossModule module) : Components.PersistentInvertibleVoidzoneByCast(module, 5, m => m.Enemies(OID.Puddles).Where(e => e.EventState != 7), ActionID.MakeSpell(AID.Hellfire));
 class JudgementBolt(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.JudgementBoltVisual));
 class Hellfire(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HellfireVisual));
@@ -56,7 +56,7 @@ class NineNightsHelpers(BossModule module) : Components.SelfTargetedAOEs(module,
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => ActiveCasters.Select((c, i) => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), i < 2 ? Colors.Danger : Colors.AOE));
 }
 
-class VeilAsunder(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.VeilAsunderHelper), 6);
+class VeilAsunder(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VeilAsunderHelper), 6);
 class MortalCoil(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MortalCoilVisual), new AOEShapeDonut(8, 20));
 class DiamondDust(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DiamondDustVisual), "Raidwide. Turns floor to ice.");
 class DeadGaze(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.DeadGazeVisual));

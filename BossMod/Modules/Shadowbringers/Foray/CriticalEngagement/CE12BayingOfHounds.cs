@@ -34,7 +34,7 @@ public enum AID : uint
 
 class Hellclaw(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Hellclaw));
 class TailBlow(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TailBlow), new AOEShapeCone(19, 45.Degrees()));
-class LavaSpit(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LavaSpitAOE), 5);
+class LavaSpit(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LavaSpitAOE), 5);
 class ScorchingLash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ScorchingLash), new AOEShapeRect(50, 5));
 
 class Hellpounce(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.Hellpounce), "GTFO from charge!")
@@ -54,8 +54,8 @@ class Hellpounce(BossModule module) : Components.GenericAOEs(module, ActionID.Ma
         switch ((AID)spell.Action.ID)
         {
             case AID.Hellpounce:
-                var offset = spell.LocXZ - Module.Center;
-                Activate(spell.LocXZ, Module.Center - offset, WorldState.FutureTime(3.7f));
+                var offset = spell.LocXZ - Arena.Center;
+                Activate(spell.LocXZ, Arena.Center - offset, WorldState.FutureTime(3.7f));
                 break;
             case AID.HellpounceSecond:
                 _charge = null;

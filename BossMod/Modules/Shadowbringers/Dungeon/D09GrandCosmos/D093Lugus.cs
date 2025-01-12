@@ -162,7 +162,7 @@ class ScorchingRight(BossModule module) : Scorching(module, AID.ScorchingRight);
 class CullingBlade(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CullingBlade));
 class CaptiveBolt(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.CaptiveBolt));
 class FiresIre(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FiresIre), new AOEShapeCone(20, 45.Degrees()));
-class Plummet(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Plummet), 3);
+class Plummet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Plummet), 3);
 class FiresDomainTether(BossModule module) : Components.StretchTetherDuo(module, default, default)
 {
     private static readonly WDir offset = new(0, 24);

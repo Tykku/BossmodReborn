@@ -45,7 +45,7 @@ class LeafstormRimestorm(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Snowball(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Snowball), 8);
+class Snowball(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Snowball), 8);
 class Canopy(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Canopy), new AOEShapeCone(12, 60.Degrees()), activeWhileCasting: false);
 class BackhandBlow(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BackhandBlow), new AOEShapeCone(12, 60.Degrees()));
 

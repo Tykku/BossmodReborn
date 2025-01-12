@@ -34,7 +34,7 @@ public enum AID : uint
 
 class AbsoluteZero(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AbsoluteZero), new AOEShapeCone(45, 45.Degrees()));
 class FrumiousJaws(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.FrumiousJaws));
-class BlizzardIII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BlizzardIII), 6);
+class BlizzardIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlizzardIII), 6);
 class Eyeshine(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.Eyeshine));
 class CatchingClaws(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CatchingClaws), new AOEShapeCone(12, 45.Degrees()));
 
@@ -45,7 +45,7 @@ class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
 
 class GymnasiouTigrisStates : StateMachineBuilder
 {

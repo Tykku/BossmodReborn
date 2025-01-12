@@ -68,7 +68,7 @@ class MarrowDrain3(BossModule module) : MarrowDrain(module, AID.MarrowDrain3);
 
 class TheRamsVoice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheRamsVoice), new AOEShapeCircle(9.7f));
 class Sideswipe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Sideswipe), new AOEShapeCone(9, 45.Degrees()));
-class Gust(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Gust), 3);
+class Gust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Gust), 3);
 
 class D060BiocultureNodeStates : StateMachineBuilder
 {

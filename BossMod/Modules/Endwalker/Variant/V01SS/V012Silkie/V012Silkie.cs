@@ -13,10 +13,10 @@ class ChillingDuster2(BossModule module) : Components.SelfTargetedAOEs(module, A
 class ChillingDuster3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ChillingDuster3), new AOEShapeCross(60, 5));
 
 class SlipperySoap(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.SlipperySoap), 5);
-class SpotRemover2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SpotRemover2), 5);
+class SpotRemover2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpotRemover2), 5);
 
-class PuffAndTumble1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PuffAndTumble1), 4);
-class PuffAndTumble2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PuffAndTumble2), 4);
+class PuffAndTumble1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PuffAndTumble1), 4);
+class PuffAndTumble2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PuffAndTumble2), 4);
 
 class SqueakyCleanAOE1E(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SqueakyCleanAOE1E), new AOEShapeCone(60, 45.Degrees()));
 class SqueakyCleanAOE2E(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SqueakyCleanAOE2E), new AOEShapeCone(60, 45.Degrees()));

@@ -29,7 +29,7 @@ public enum AID : uint
 }
 
 class ShadowWreck(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ShadowWreck));
-class Misfortune(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Misfortune), 6);
+class Misfortune(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Misfortune), 6);
 
 class Border(BossModule module) : Components.GenericAOEs(module, warningText: "Platform will be removed during next Apokalypsis!")
 {

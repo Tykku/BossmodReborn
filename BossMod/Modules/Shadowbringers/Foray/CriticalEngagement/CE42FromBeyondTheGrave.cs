@@ -128,10 +128,10 @@ class Aethertide(BossModule module) : Components.SpreadFromCastTargets(module, A
 class MarchingBreath(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.MarchingBreath), showNameInHint: true); // heals all allies by 20% of max health (raidwide)
 class TacticalAero(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TacticalAero), new AOEShapeRect(40, 4));
 class EntropicFlame(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.EntropicFlame), new AOEShapeRect(60, 4));
-class DarkFlare(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DarkFlare), 8);
+class DarkFlare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkFlare), 8);
 class SoulSacrifice(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.SoulSacrifice), showNameInHint: true); // WarWraith sacrifices itself to give boss a damage buff
 
-class PurifyingLight : Components.LocationTargetedAOEs
+class PurifyingLight : Components.SimpleAOEs
 {
     public PurifyingLight(BossModule module) : base(module, ActionID.MakeSpell(AID.PurifyingLight), 12)
     {

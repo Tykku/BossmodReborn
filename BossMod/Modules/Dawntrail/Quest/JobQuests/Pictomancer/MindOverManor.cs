@@ -20,7 +20,7 @@ public enum AID : uint
 class JitteringGlare(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.JitteringGlare), new AOEShapeCone(40, 15.Degrees()));
 class GyratingGlare(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GyratingGlare));
 
-abstract class Rubble(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 10);
+abstract class Rubble(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10);
 class RubbleRouse(BossModule module) : Rubble(module, AID.RubbleRouse);
 class RockAndRefrain1(BossModule module) : Rubble(module, AID.RockAndRefrain1);
 class RockAndRefrain2(BossModule module) : Rubble(module, AID.RockAndRefrain2);

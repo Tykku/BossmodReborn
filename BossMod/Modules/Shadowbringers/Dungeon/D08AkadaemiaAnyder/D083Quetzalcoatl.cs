@@ -34,7 +34,7 @@ class Thunderbolt(BossModule module) : Components.RaidwideCast(module, ActionID.
 class Shockbolt(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Shockbolt));
 class ShockingPlumage(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ShockingPlumage), new AOEShapeCone(40, 30.Degrees()));
 class WindingCurrent(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WindingCurrent), new AOEShapeDonut(5, 40));
-class ThunderstormAOE(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderstormAOE), 5);
+class ThunderstormAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThunderstormAOE), 5);
 class ThunderstormSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.ThunderstormSpread), 5);
 
 class OrbCollecting(BossModule module) : BossComponent(module)

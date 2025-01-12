@@ -34,7 +34,7 @@ class DarkHarvest(BossModule module) : Components.SingleTargetCast(module, Actio
 class Desolation(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Desolation), new AOEShapeRect(57.3f, 3));
 class InHeathCircle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.InHealthCircle), new AOEShapeCircle(16));
 class InHeathDonut(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.InHealthDonut), new AOEShapeDonut(2.5f, 50));
-class TerrorEye(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TerrorEye), 6);
+class TerrorEye(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TerrorEye), 6);
 
 class DD50EddaBlackbosomStates : StateMachineBuilder
 {

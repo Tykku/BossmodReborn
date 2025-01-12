@@ -25,40 +25,39 @@ public sealed record class Circle(WPos Center, float Radius) : Shape
             result.Add(Points[i] + offset);
         return result;
     }
+
     public override string ToString() => $"Circle:{Center.X},{Center.Z},{Radius}";
 }
 
-// for custom polygons defined by an IEnumerable of vertices
-public sealed record class PolygonCustom(IEnumerable<WPos> Vertices) : Shape
+// for custom polygons defined by an IReadOnlyList of vertices
+public sealed record class PolygonCustom(IReadOnlyList<WPos> Vertices) : Shape
 {
-    private readonly WPos[] points = [.. Vertices];
     public override List<WDir> Contour(WPos center)
     {
-        var len = points.Length;
-        var result = new List<WDir>(len);
-        for (var i = 0; i < len; ++i)
-            result.Add(points[i] - center);
+        var count = Vertices.Count;
+        var result = new List<WDir>(count);
+        for (var i = 0; i < count; ++i)
+            result.Add(Vertices[i] - center);
         return result;
     }
 
     public override string ToString()
     {
-        var len = points.Length;
-        var sb = new StringBuilder($"PolygonCustom:");
-        for (var i = 0; i < len; ++i)
+        var count = Vertices.Count;
+        var sb = new StringBuilder("PolygonCustom:", 14 + count * 15);
+        for (var i = 0; i < count; ++i)
         {
-            sb.Append(points[i].X).Append(',').Append(points[i].Z);
-            if (i < len - 1)
-                sb.Append(',');
+            var vertex = Vertices[i];
+            sb.Append(vertex.X).Append(',').Append(vertex.Z).Append(';');
         }
+        --sb.Length;
         return sb.ToString();
     }
 }
 
-// for custom polygons defined by an IEnumerable of vertices with an offset, eg to account for hitbox radius
-public sealed record class PolygonCustomO(IEnumerable<WPos> Vertices, float Offset) : Shape
+// for custom polygons defined by an IReadOnlyList of vertices with an offset, eg to account for hitbox radius
+public sealed record class PolygonCustomO(IReadOnlyList<WPos> Vertices, float Offset) : Shape
 {
-    private readonly WPos[] points = [.. Vertices];
     private Path64? path;
 
     public override List<WDir> Contour(WPos center)
@@ -66,9 +65,9 @@ public sealed record class PolygonCustomO(IEnumerable<WPos> Vertices, float Offs
         if (path == null)
         {
             var originalPath = new Path64();
-            for (var i = 0; i < points.Length; ++i)
+            for (var i = 0; i < Vertices.Count; ++i)
             {
-                var v = points[i];
+                var v = Vertices[i];
                 originalPath.Add(new Point64((long)(v.X * PolygonClipper.Scale), (long)(v.Z * PolygonClipper.Scale)));
             }
 
@@ -93,15 +92,14 @@ public sealed record class PolygonCustomO(IEnumerable<WPos> Vertices, float Offs
 
     public override string ToString()
     {
-        var len = points.Length;
-        var sb = new StringBuilder($"PolygonCustomO:");
-        for (var i = 0; i < len; ++i)
+        var count = Vertices.Count;
+        var sb = new StringBuilder("PolygonCustomO:", 15 + count * 15);
+        for (var i = 0; i < count; ++i)
         {
-            sb.Append(points[i].X).Append(',').Append(points[i].Z);
-            if (i < len - 1)
-                sb.Append(',');
+            var vertex = Vertices[i];
+            sb.Append(vertex.X).Append(',').Append(vertex.Z).Append(';');
         }
-        sb.Append(',').Append(Offset);
+        sb.Append("Offset:").Append(Offset);
         return sb.ToString();
     }
 }

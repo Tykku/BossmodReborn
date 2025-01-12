@@ -17,7 +17,7 @@ public enum AID : uint
 }
 
 class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeCircle(10));
-class Fireball(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Fireball), 6);
+class Fireball(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fireball), 6);
 class RipperClaw(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RipperClaw), new AOEShapeCone(8, 45.Degrees()));
 class TailSmash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TailSmash), new AOEShapeCone(15, 45.Degrees()));
 

@@ -267,7 +267,7 @@ class Hellburner(BossModule module) : Components.BaitAwayCast(module, ActionID.M
 }
 
 class MissileShower(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.MissileShower), "Raidwide x2");
-class ThermobaricExplosive(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ThermobaricExplosive2), 25);
+class ThermobaricExplosive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThermobaricExplosive2), 25);
 
 abstract class AssaultCarapaceRect(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(60, 16, 60));
 class AssaultCarapace1(BossModule module) : AssaultCarapaceRect(module, AID.AssaultCarapace1);
@@ -281,7 +281,7 @@ class ForeArms2(BossModule module) : Cleave(module, AID.ForeArms2);
 class RearGuns1(BossModule module) : Cleave(module, AID.RearGuns1);
 class RearGuns2(BossModule module) : Cleave(module, AID.RearGuns2);
 
-class FreeFallBombs(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FreeFallBombs2), 6);
+class FreeFallBombs(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FreeFallBombs2), 6);
 
 class ChiStates : StateMachineBuilder
 {

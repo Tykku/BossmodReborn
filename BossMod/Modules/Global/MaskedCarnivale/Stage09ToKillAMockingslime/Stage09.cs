@@ -27,7 +27,7 @@ public enum AID : uint
 
 class GoldenTongue(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.GoldenTongue));
 class DarkVoidzone(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 4, ActionID.MakeSpell(AID.Dark), m => m.Enemies(OID.DarkVoidzone).Where(e => e.EventState != 7), 1);
-class Dark(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Dark), 5);
+class Dark(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Dark), 5);
 
 class Hints(BossModule module) : BossComponent(module)
 {

@@ -48,7 +48,8 @@ public enum AID : uint
     DeepThunderVisual1 = 36687, // Boss->self, 6.0s cast, single-target
     DeepThunderVisual2 = 36691, // Boss->self, no cast, single-target
     DeepThunderVisual3 = 36692, // Boss->self, no cast, single-target
-    DeepThunder2 = 36690, // Helper->self, no cast, range 6 circle
+    DeepThunderRepeat = 36690, // Helper->self, no cast, range 6 circle
+    BigBurst = 36693, // Helper->self, no cast, range 60 circle, tower fail
 
     RingingBlows1 = 36694, // Boss->self, 7.0+2.0s cast, single-target
     RingingBlows2 = 36695, // Boss->self, 7.0+2.0s cast, single-target
@@ -210,14 +211,14 @@ class DestructiveHeat(BossModule module) : Components.SpreadFromCastTargets(modu
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (ActiveSpreads.Any())
+        if (Spreads.Count != 0)
         {
             var source1 = _kb1.Sources(slot, actor).FirstOrDefault();
             var source2 = _kb2.Sources(slot, actor).FirstOrDefault();
             var source3 = _kb3.Sources(slot, actor).FirstOrDefault();
             var knockback = source1 != default || source2 != default || source3 != default;
             if (source1 != default)
-                origin = actor.Role is Role.Melee or Role.Ranged ? new(100, -400) : source1.Origin;
+                origin = new(100, -400);
             else if (source2 != default)
                 origin = source2.Origin;
             else if (source3 != default)
@@ -225,7 +226,7 @@ class DestructiveHeat(BossModule module) : Components.SpreadFromCastTargets(modu
             if (!knockback)
             {
                 base.AddAIHints(slot, actor, assignment, hints);
-                hints.AddForbiddenZone(ShapeDistance.InvertedCircle(origin, 15), ActiveSpreads.FirstOrDefault().Activation);
+                hints.AddForbiddenZone(ShapeDistance.InvertedCircle(origin, 15), Spreads[0].Activation);
             }
             else
             { }
@@ -233,7 +234,7 @@ class DestructiveHeat(BossModule module) : Components.SpreadFromCastTargets(modu
     }
 }
 
-class Landing(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Landing), 8);
+class Landing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Landing), 8);
 
 abstract class DeepThunder(BossModule module, AID aid) : Components.CastTowers(module, ActionID.MakeSpell(aid), 6, 4, 4);
 class DeepThunder1(BossModule module) : DeepThunder(module, AID.DeepThunderTower1);

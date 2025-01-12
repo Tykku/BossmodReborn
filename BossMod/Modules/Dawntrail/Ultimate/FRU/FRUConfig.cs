@@ -10,7 +10,7 @@ public class FRUConfig() : ConfigNode()
     [GroupPreset("G1 N, G2 S, TMRH", [0, 4, 3, 7, 1, 5, 2, 6])]
     public GroupAssignmentUnique P1BoundOfFaithAssignment = GroupAssignmentUnique.DefaultRoles();
 
-    [PropertyDisplay("P1 Fall of Faith (cone tethers) : conga priority (two people without tethers with lower priorities join odd group)")]
+    [PropertyDisplay("P1 Fall of Faith (cone tethers): conga priority (two people without tethers with lower priorities join odd group)")]
     [GroupDetails(["1", "2", "3", "4", "5", "6", "7", "8"])]
     [GroupPreset("TTHHMMRR", [0, 1, 2, 3, 4, 5, 6, 7])]
     [GroupPreset("RHMTTMHR", [3, 4, 1, 6, 2, 5, 0, 7])]
@@ -23,6 +23,9 @@ public class FRUConfig() : ConfigNode()
     [GroupDetails(["Tank N", "Tank S", "Fixed N", "Fixed Center", "Fixed S", "Flex 1", "Flex 2", "Flex 3"])]
     [GroupPreset("H1-R2-H2 fixed, M1-M2-R1 flex", [0, 1, 2, 4, 5, 6, 7, 3])]
     public GroupAssignmentUnique P1ExplosionsAssignment = new() { Assignments = [0, 1, 2, 4, 5, 6, 7, 3] };
+
+    [PropertyDisplay("P1 Explosions: flex roles only fill 3/4 if their natural tower is 1 (instead of doing conga)")]
+    public bool P1ExplosionsPriorityFill;
 
     [PropertyDisplay("P1 Explosions: have tanks stack on tankbuster (survivable with saves, simplifies uptime)")]
     public bool P1ExplosionsTankbusterCheese;
@@ -61,12 +64,12 @@ public class FRUConfig() : ConfigNode()
     [PropertyDisplay("P3 Apocalypse: uptime swaps (only consider swaps within prio 1/2 and 3/4, assuming these are melee and ranged)")]
     public bool P3ApocalypseUptime;
 
-    [PropertyDisplay("P4 Darklit Dragonsong: assignments (lower prio stays more clockwise, lowest prio support takes N tower)", separator: true)]
+    [PropertyDisplay("P4 Darklit Dragonsong: assignments (lower prio stays more clockwise, lowest prio support takes N tower)")]
     [GroupDetails(["Support prio1", "Support prio2", "Support prio3", "Support prio4", "DD prio1", "DD prio2", "DD prio3", "DD prio4"])]
     [GroupPreset("Default (healer N)", [2, 3, 0, 1, 4, 5, 6, 7])]
     public GroupAssignmentUnique P4DarklitDragonsongAssignments = new() { Assignments = [2, 3, 0, 1, 4, 5, 6, 7] };
 
-    [PropertyDisplay("P4 Crystallize Time: assignments for claws (lower prio goes west)")]
+    [PropertyDisplay("P4 Crystallize Time: assignments for claws (lower prio goes west)", separator: true)]
     [GroupDetails(["Prio 1", "Prio 2", "Prio 3", "Prio 4", "Prio 5", "Prio 6", "Prio 7", "Prio 8"])]
     [GroupPreset("Default HTMR", [3, 2, 1, 0, 4, 5, 6, 7])]
     public GroupAssignmentUnique P4CrystallizeTimeAssignments = new() { Assignments = [3, 2, 1, 0, 4, 5, 6, 7] };
@@ -94,8 +97,31 @@ public class FRUConfig() : ConfigNode()
     [GroupPreset("Default", [0, 1, 6, 2, 5, 3, 7, 4])]
     public GroupAssignmentUnique P1UtopianSkyInitialSpots = new() { Assignments = [0, 1, 6, 2, 5, 3, 7, 4] };
 
-    [PropertyDisplay("P1 Utopian Sky: spread spots (G1 CCW from N, G2 CW from NE", tooltip: "Only used by AI")]
+    [PropertyDisplay("P1 Utopian Sky: spread spots (G1 CCW from N, G2 CW from NE)", tooltip: "Only used by AI")]
     [GroupDetails(["G1 Close", "G1 Far Center", "G1 Far Left", "G1 Far Right", "G2 Close", "G2 Far Center", "G2 Far Left", "G2 Far Right"])]
     [GroupPreset("Default", [1, 5, 0, 4, 2, 6, 3, 7])]
     public GroupAssignmentUnique P1UtopianSkySpreadSpots = new() { Assignments = [1, 5, 0, 4, 2, 6, 3, 7] };
+
+    [PropertyDisplay("P2 Mirror Mirror: spread spots for first proteans (looking from boss toward blue mirror)", tooltip: "Only used by AI")]
+    [GroupDetails(["Boss opposite right", "Boss opposite left", "Boss side right", "Boss side left", "Mirror diagonal right", "Mirror diagonal left", "Mirror wall right", "Mirror wall left"])]
+    [GroupPreset("Default", [0, 1, 4, 5, 2, 3, 6, 7])]
+    public GroupAssignmentUnique P2MirrorMirror1SpreadSpots = new() { Assignments = [0, 1, 4, 5, 2, 3, 6, 7] };
+
+    [PropertyDisplay("P2 Mirror Mirror: spread spots for second proteans (looking toward red mirror, if both red mirrors are symmetrical assume CW rotation)", tooltip: "Only used by AI")]
+    [GroupDetails(["Boss wall right", "Boss wall left", "Boss center", "Boss diagonal", "Mirror wall right", "Mirror wall left", "Mirror center", "Mirror diagonal"])]
+    [GroupPreset("Default", [1, 0, 6, 7, 2, 3, 4, 5])]
+    public GroupAssignmentUnique P2MirrorMirror2SpreadSpots = new() { Assignments = [1, 0, 6, 7, 2, 3, 4, 5] };
+
+    [PropertyDisplay("P2 Banish after Light Rampant: spread clock spots (supports should be near dd to resolve pairs)", tooltip: "Only used by AI")]
+    [GroupDetails(["N", "NE", "E", "SE", "S", "SW", "W", "NW"])]
+    [GroupPreset("Default", [0, 4, 6, 2, 5, 3, 7, 1])]
+    public GroupAssignmentUnique P2Banish2SpreadSpots = new() { Assignments = [0, 4, 6, 2, 5, 3, 7, 1] };
+
+    [PropertyDisplay("P2 Banish after Light Rampant: role that moves from their default spread spot to resolve pairs", tooltip: "Only used by AI")]
+    [PropertyCombo("DD", "Supports")]
+    public bool P2Banish2SupportsMoveToStack = true;
+
+    [PropertyDisplay("P2 Banish after Light Rampant: direction to move to resolve pairs", tooltip: "Only used by AI")]
+    [PropertyCombo("CW", "CCW")]
+    public bool P2Banish2MoveCCWToStack = true;
 }

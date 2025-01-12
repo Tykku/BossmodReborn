@@ -17,7 +17,7 @@ public enum AID : uint
 }
 
 class GrandStrike(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GrandStrike), new AOEShapeRect(77.5f, 2));
-class MagitekRay(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRay), 6);
+class MagitekRay(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekRay), 6);
 class MagitekField(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.MagitekField));
 
 class Hints(BossModule module) : BossComponent(module)

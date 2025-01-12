@@ -135,7 +135,7 @@ class P1FallOfFaith(BossModule module) : Components.CastCounter(module, default)
         _minHelpMove = WorldState.FutureTime(1);
     }
 
-    private bool IsGroupEven(int order) => order is 2 or 4 or 7 or 8;
+    private static bool IsGroupEven(int order) => order is 2 or 4 or 7 or 8;
 
     private int NextAssignedBaitOrder(int slot)
     {

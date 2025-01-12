@@ -40,8 +40,8 @@ public enum SID : uint
 }
 
 class SlimySummon(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.SlimySummon), "Prepare to kill add ASAP");
-class GoldorFireIII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GoldorFireIII2), 8);
-class GoldorFireIII2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GoldorFireIII3), 8);
+class GoldorFireIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldorFireIII2), 8);
+class GoldorFireIII2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldorFireIII3), 8);
 class GoldorBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GoldorBlast), new AOEShapeRect(60, 5));
 class Rupture(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Rupture), "Kill slime ASAP! (The Ram's Voice + Ultravibration)", true);
 
@@ -80,7 +80,7 @@ class GoldorAeroIIIRaidwide(BossModule module) : Components.RaidwideCast(module,
 class Burn(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Burn), new AOEShapeCircle(10));
 class GoldorGravity(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.GoldorGravity), ActionID.MakeSpell(AID.GoldorGravity2), 0.8f, "Dmg + Heavy debuff");
 class GoldorThunderIII(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.GoldorThunderIIIVisual), ActionID.MakeSpell(AID.GoldorThunderIII1), 0.8f, "Prepare to cleanse Electrocution");
-class GoldorThunderIII2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GoldorThunderIII2), 6);
+class GoldorThunderIII2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldorThunderIII2), 6);
 class GoldorBlizzardIII(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.GoldorBlizzardIIIVisual));
 
 class Hints2(BossModule module) : BossComponent(module)

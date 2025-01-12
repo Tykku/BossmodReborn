@@ -2,8 +2,8 @@
 
 class AuraBurst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AuraBurst));
 class DepthCharge(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.DepthCharge), 5);
-class Extension2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Extension2), 6);
-class FeintParticleBeam1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FeintParticleBeam1), 3);
+class Extension2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Extension2), 6);
+class FeintParticleBeam1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FeintParticleBeam1), 3);
 class Penetration(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Penetration), 50, kind: Kind.TowardsOrigin);
 class Graft(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Graft), new AOEShapeCircle(5));
 class Haircut1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Haircut1), new AOEShapeCone(25.5f, 90.Degrees()));

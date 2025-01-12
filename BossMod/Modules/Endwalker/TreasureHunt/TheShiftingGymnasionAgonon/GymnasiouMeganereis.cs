@@ -65,8 +65,8 @@ class WaveOfTurmoil(BossModule module) : Components.KnockbackFromCastTarget(modu
     }
 }
 
-class Hydrobomb(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrobomb), 10);
-class Waterspout(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Waterspout), 8);
+class Hydrobomb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrobomb), 10);
+class Waterspout(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Waterspout), 8);
 class Hydrocannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrocannon), new AOEShapeRect(17, 1.5f));
 class Hydrocannon2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrocannon2), new AOEShapeRect(27, 3));
 class FallingWater(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FallingWater), 8);
@@ -79,7 +79,7 @@ class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
 
 class GymnasiouMeganereisStates : StateMachineBuilder
 {

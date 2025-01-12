@@ -27,8 +27,8 @@ public enum AID : uint
     Exhaust = 23705 // MarkIITelotekColossus->self, 4.0s cast, range 40 width 7 rect
 }
 
-class TwoTonzeMagitekMissile(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TwoTonzeMagitekMissile), 12);
-class Aethershot(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Aethershot), 6);
+class TwoTonzeMagitekMissile(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TwoTonzeMagitekMissile), 12);
+class Aethershot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Aethershot), 6);
 class DefensiveReaction(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DefensiveReaction));
 class Exhaust(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Exhaust), new AOEShapeRect(40, 3.5f));
 class GroundToGroundBallistic(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.GroundToGroundBallistic), 10)

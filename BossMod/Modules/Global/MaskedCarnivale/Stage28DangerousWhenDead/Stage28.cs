@@ -55,12 +55,12 @@ public enum SID : uint
 class DoomImpending(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.DoomImpending), "Heal to full before cast ends!");
 class MarchOfTheDraugar(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.MarchOfTheDraugar), "Summons adds! (Kill with fire!)");
 class NecrobaneVoidzone(BossModule module) : Components.PersistentInvertibleVoidzoneByCast(module, 6, m => m.Enemies(OID.NecrobaneVoidzone).Where(z => z.EventState != 7), ActionID.MakeSpell(AID.MegaDeath));
-class Necrobane(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Necrobane), 6);
+class Necrobane(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Necrobane), 6);
 class HelblarShriek(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HelblarShriek));
 class FuneralPyre(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FuneralPyre));
-class Catapult(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Catapult), 6);
-class VengefulSoul(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.VengefulSoul), 6);
-class BilrostSquall(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BilrostSquall), 10);
+class Catapult(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Catapult), 6);
+class VengefulSoul(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VengefulSoul), 6);
+class BilrostSquall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BilrostSquall), 10);
 class Cackle(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Cackle));
 
 class Brainstorm(BossModule module) : Components.StatusDrivenForcedMarch(module, 2, (uint)SID.ForwardMarch, (uint)SID.AboutFace, (uint)SID.LeftFace, (uint)SID.RightFace)

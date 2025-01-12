@@ -76,7 +76,7 @@ class Stormcall(BossModule module) : Components.GenericAOEs(module, ActionID.Mak
 
 class BladedBeak(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BladedBeak));
 class NihilitysSong(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.NihilitysSong));
-class Fantod(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FantodAOE), 3);
+class Fantod(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FantodAOE), 3);
 
 class Foreshadowing(BossModule module) : Components.GenericAOEs(module)
 {

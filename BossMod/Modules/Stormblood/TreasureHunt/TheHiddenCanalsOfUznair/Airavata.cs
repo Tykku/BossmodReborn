@@ -59,7 +59,7 @@ public enum AID : uint
     Telega = 9630 // Mandragoras/Abharamu/NamazuStickywhisker->self, no cast, single-target, bonus adds disappear
 }
 
-abstract class Hurl(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class Hurl(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class HurlBoss(BossModule module) : Hurl(module, AID.HurlBoss);
 class HurlBonusAdd(BossModule module) : Hurl(module, AID.Hurl);
 
@@ -69,7 +69,7 @@ class Buffet(BossModule module) : Components.SingleTargetCast(module, ActionID.M
 
 class DoubleSmash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DoubleSmash), new AOEShapeCone(7.95f, 60.Degrees()));
 class AncientAero(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AncientAero), new AOEShapeRect(13.6f, 2));
-class RingOfFire(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RingOfFire), 5);
+class RingOfFire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RingOfFire), 5);
 class StoneII(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.StoneII));
 
 class RaucousScritch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));

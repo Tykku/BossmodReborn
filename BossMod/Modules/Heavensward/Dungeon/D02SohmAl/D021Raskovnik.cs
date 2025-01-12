@@ -29,7 +29,7 @@ public enum IconID : uint
 
 class Leafstorm(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Leafstorm));
 class Phytobeam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Phytobeam), new AOEShapeRect(48.68f, 6));
-class AcidRain(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AcidRain), 6);
+class AcidRain(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AcidRain), 6);
 class FloralTap(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(48.68f, 22.5f.Degrees()), (uint)IconID.FloralTap, ActionID.MakeSpell(AID.FloralTrap), 8.5f);
 class FlowerDevour(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FlowerDevour), new AOEShapeCircle(8));
 class BloodyCaress(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.BloodyCaress), new AOEShapeCone(11.68f, 60.Degrees()));

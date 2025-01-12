@@ -12,7 +12,7 @@ public enum AID : uint
     Icefall = 15064, // Boss->location, 2.5s cast, range 5 circle
 }
 
-class Icefall(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Icefall), 5);
+class Icefall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Icefall), 5);
 class VoidBlizzard(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.VoidBlizzard));
 
 class Hints(BossModule module) : BossComponent(module)

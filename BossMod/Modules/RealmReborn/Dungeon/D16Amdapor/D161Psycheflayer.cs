@@ -28,7 +28,7 @@ public enum AID : uint
 }
 
 class VoidFireCleave(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.VoidFireCleave), new AOEShapeCircle(5), originAtTarget: true);
-class VoidFireAOE(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.VoidFireAOE), 5);
+class VoidFireAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VoidFireAOE), 5);
 class VoidThunder(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.VoidThunder), "Interruptible tankbuster");
 class MindMelt(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MindMelt), "Interruptible raidwide");
 class Canker(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Canker), "Interruptible debuff");

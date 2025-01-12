@@ -47,7 +47,7 @@ public enum AID : uint
 
 class BrewingStorm(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BrewingStorm), new AOEShapeCone(5, 30.Degrees()));
 class HarrowingDream(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HarrowingDream), new AOEShapeCircle(6));
-class BecloudingDust(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BecloudingDust2), 6);
+class BecloudingDust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BecloudingDust2), 6);
 
 class Sweep(BossModule module) : Components.Exaflare(module, 6)
 {

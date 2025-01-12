@@ -92,7 +92,7 @@ class MagitekBitLasers(BossModule module) : Components.GenericAOEs(module)
 }
 
 class Rush(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.Rush), 7);
-class LaserShower(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LaserShower2), 10);
+class LaserShower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LaserShower2), 10);
 class DiffractiveLaser(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DiffractiveLaser), new AOEShapeCone(60, 75.Degrees()));
 class SatelliteLaser(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SatelliteLaser), "Raidwide + all lasers fire at the same time");
 

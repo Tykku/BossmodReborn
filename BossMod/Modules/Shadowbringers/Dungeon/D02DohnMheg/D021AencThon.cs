@@ -29,8 +29,8 @@ public enum IconID : uint
 
 class Landsblood(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Landsblood1), "Raidwides + Geysers");
 class CandyCane(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CandyCane));
-class Hydrofall(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrofall2), 6);
-class LaughingLeap(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LaughingLeap1), 4);
+class Hydrofall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrofall2), 6);
+class LaughingLeap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LaughingLeap1), 4);
 class LaughingLeapStack(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.LaughingLeap2), 4, 5.15f, 4, 4);
 
 class Geyser(BossModule module) : Components.GenericAOEs(module)

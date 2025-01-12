@@ -185,4 +185,49 @@ public static class ActorEnumeration
             sum /= count;
         return sum.ToWPos();
     }
+
+    public static (int, Actor)[] ExcludedFromMask(this List<(int, Actor)> range, BitMask mask)
+    {
+        var count = range.Count;
+        var result = new List<(int, Actor)>(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var indexActor = range[i];
+            if (!mask[indexActor.Item1])
+            {
+                result.Add(indexActor);
+            }
+        }
+        return [.. result];
+    }
+
+    public static (int, Actor)[] WhereSlot(this List<(int, Actor)> range, Func<int, bool> predicate)
+    {
+        var count = range.Count;
+        var result = new List<(int, Actor)>(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var indexActor = range[i];
+            if (predicate(indexActor.Item1))
+            {
+                result.Add(indexActor);
+            }
+        }
+        return [.. result];
+    }
+
+    public static (int, Actor)[] InRadius(this List<(int, Actor)> range, WPos origin, float radius)
+    {
+        var count = range.Count;
+        var result = new List<(int, Actor)>(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var indexActor = range[i];
+            if (indexActor.Item2.Position.InCircle(origin, radius))
+            {
+                result.Add(indexActor);
+            }
+        }
+        return [.. result];
+    }
 }

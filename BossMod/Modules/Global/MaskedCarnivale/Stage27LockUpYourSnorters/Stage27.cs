@@ -19,7 +19,7 @@ public enum AID : uint
     MassiveExplosion = 19261, // 2CEC->self, no cast, range 60 circle, wipe, failed to destroy Magitek Explosive in time
 }
 
-class Fireball(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Fireball), 8);
+class Fireball(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fireball), 8);
 class Snort(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Snort), 15, stopAtWall: true);
 
 class Fungah(BossModule module) : Components.Knockback(module, stopAtWall: true)

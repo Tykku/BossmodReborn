@@ -133,8 +133,8 @@ class Poison(BossModule module) : BossComponent(module)
 
 class IsitvaSiddhi(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.IsitvaSiddhi));
 class Samsara(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Samsara));
-class DeltaThunderIII1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DeltaThunderIII1), 3);
-class DeltaThunderIII2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DeltaThunderIII2), 5);
+class DeltaThunderIII1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaThunderIII1), 3);
+class DeltaThunderIII2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaThunderIII2), 5);
 class DeltaThunderIII3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DeltaThunderIII3), new AOEShapeRect(40, 5));
 class DeltaThunderIII4(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.DeltaThunderIII4), 5, 4, 4);
 class DeltaBlizzardIII1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DeltaBlizzardIII1), new AOEShapeCone(40.5f, 10.Degrees()));

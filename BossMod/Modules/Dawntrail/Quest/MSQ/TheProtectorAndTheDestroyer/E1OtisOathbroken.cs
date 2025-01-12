@@ -13,10 +13,12 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 870, // Boss->tank, no cast, single-target
+    AutoAttack1 = 870, // Boss->tank, no cast, single-target
     AutoAttack2 = 872, // EverkeepAerostat2->tank, no cast, single-target
     AutoAttack3 = 28538, // EverkeepTurret->tank, no cast, single-target
     AutoAttack4 = 36403, // EverkeepSentryR10->tank, no cast, single-target
+    AutoAttack5 = 873, // EverkeepSentryG10->tank, no cast, single-target
+
     Teleport = 38193, // Boss->location, no cast, single-target
     FormationAlpha = 38194, // Boss->self, 5.0s cast, single-target
     ThrownFlames = 38205, // EverkeepAerostat2->self, 6.0s cast, range 8 circle
@@ -40,25 +42,33 @@ public enum AID : uint
 class StormlitShockwave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.StormlitShockwave));
 class ValorousAscension(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ValorousAscension));
 class RendPower(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RendPower), new AOEShapeCone(40, 15.Degrees()), 6);
-class ThrownFlames(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThrownFlames), new AOEShapeCircle(8));
+
 class BastionBreaker(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BastionBreaker), 6);
 class HolyBlade(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HolyBlade), 6);
-class SearingSlash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SearingSlash), new AOEShapeCircle(8));
+
+abstract class Circle8(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(8));
+class SearingSlash(BossModule module) : Circle8(module, AID.SearingSlash);
+class ThrownFlames(BossModule module) : Circle8(module, AID.ThrownFlames);
+
 class Electrobeam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Electrobeam), new AOEShapeRect(40, 2));
 
 class Rush(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(8);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        if (count > 0)
-            for (var i = 0; i < Math.Clamp(count, 0, 2); ++i)
-                yield return _aoes[i] with { Color = Colors.Danger };
-        if (count > 2)
-            for (var i = 2; i < 4; ++i)
-                yield return _aoes[i];
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < (count > 4 ? 4 : count); ++i)
+        {
+            var aoe = _aoes[i];
+            if (i <= 1)
+                yield return count > 2 ? aoe with { Color = Colors.Danger } : aoe;
+            else
+                yield return aoe with { Risky = false };
+        }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -99,7 +109,7 @@ class OtisOathbrokenStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.Quest, GroupID = 70478, NameID = 13168)]
 public class OtisOathbroken(WorldState ws, Actor primary) : BossModule(ws, primary, new(349, -14), new ArenaBoundsCircle(19.5f))
 {
-    protected override bool CheckPull() => Raid.WithoutSlot().Any(x => x.InCombat);
+    protected override bool CheckPull() => Raid.Player()!.InCombat;
 
     private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.EverkeepTurret, (uint)OID.EverkeepAerostat, (uint)OID.EverkeepAerostat2, (uint)OID.EverkeepSentryG10,
     (uint)OID.EverkeepSentryR10];

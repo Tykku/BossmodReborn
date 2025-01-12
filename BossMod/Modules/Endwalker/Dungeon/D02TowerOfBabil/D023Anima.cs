@@ -145,7 +145,7 @@ class CoffinScratch(BossModule module) : Components.StandardChasingAOEs(module, 
         if (Actors.Contains(actor))
             hints.AddForbiddenZone(ShapeDistance.Rect(Arena.Center + new WDir(19, 0), Arena.Center + new WDir(-19, 0), 20), Activation);
         else if (Chasers.Any(x => x.Target == actor))
-            hints.AddForbiddenZone(ShapeDistance.InvertedRect(actor.Position, 90.Degrees(), 40, 40, 3));
+            hints.AddForbiddenZone(ShapeDistance.InvertedRect(actor.Position, new WDir(1, 0), 40, 40, 3));
     }
 
     public override void Update()

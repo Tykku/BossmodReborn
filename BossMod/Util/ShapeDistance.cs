@@ -5,24 +5,78 @@
 
 public static class ShapeDistance
 {
-    public static Func<WPos, float> HalfPlane(WPos point, WDir normal) => p => normal.Dot(p - point);
+    private static readonly Angle a90 = 90.Degrees();
 
-    public static Func<WPos, float> Circle(WPos origin, float radius) => radius <= 0 ? (_ => float.MaxValue) : (p => (p - origin).Length() - radius);
-    public static Func<WPos, float> InvertedCircle(WPos origin, float radius) => radius <= 0 ? (_ => float.MinValue) : (p => radius - (p - origin).Length());
-
-    public static Func<WPos, float> Donut(WPos origin, float innerRadius, float outerRadius)
+    public static Func<WPos, float> HalfPlane(WPos point, WDir normal)
     {
-        return outerRadius <= 0 || innerRadius >= outerRadius ? (_ => float.MaxValue) : innerRadius <= 0 ? Circle(origin, outerRadius) : (p =>
+        var normalX = normal.X;
+        var normalZ = normal.Z;
+        var pointX = point.X;
+        var pointZ = point.Z;
+        return p => normalX * (p.X - pointX) + normalZ * (p.Z - pointZ);
+    }
+
+    public static Func<WPos, float> Circle(WPos origin, float radius)
+    {
+        var radiusSq = radius * radius;
+        var originX = origin.X;
+        var originZ = origin.Z;
+        return radius <= 0 ? (_ => float.MaxValue) : (p =>
         {
-            // intersection of outer circle and inverted inner circle
-            var distOrigin = (p - origin).Length();
-            var distOuter = distOrigin - outerRadius;
-            var distInner = innerRadius - distOrigin;
-            return Math.Max(distOuter, distInner);
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            return pXoriginX * pXoriginX + pZoriginZ * pZoriginZ - radiusSq;
         });
     }
 
-    public static Func<WPos, float> InvertedDonut(WPos origin, float innerRadius, float outerRadius) => p => -Donut(origin, innerRadius, outerRadius)(p);
+    public static Func<WPos, float> InvertedCircle(WPos origin, float radius)
+    {
+        var radiusSq = radius * radius;
+        var originX = origin.X;
+        var originZ = origin.Z;
+        return radius <= 0 ? (_ => float.MinValue) : (p =>
+        {
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            return radiusSq - (pXoriginX * pXoriginX + pZoriginZ * pZoriginZ);
+        });
+    }
+
+    public static Func<WPos, float> Donut(WPos origin, float innerRadius, float outerRadius)
+    {
+        var innerSq = innerRadius * innerRadius;
+        var outerSq = outerRadius * outerRadius;
+        var originX = origin.X;
+        var originZ = origin.Z;
+        return outerRadius <= 0 || innerRadius >= outerRadius ? (_ => float.MaxValue) : innerRadius <= 0 ? Circle(origin, outerRadius) : (p =>
+        {
+            // intersection of outer circle and inverted inner circle
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var distSqOrigin = pXoriginX * pXoriginX + pZoriginZ * pZoriginZ;
+            var distSqOuter = distSqOrigin - outerSq;
+            var distSqInner = innerSq - distSqOrigin;
+            return distSqOuter > distSqInner ? distSqOuter : distSqInner;
+        });
+    }
+
+    public static Func<WPos, float> InvertedDonut(WPos origin, float innerRadius, float outerRadius)
+    {
+        var innerSq = innerRadius * innerRadius;
+        var outerSq = outerRadius * outerRadius;
+        var originX = origin.X;
+        var originZ = origin.Z;
+        return outerRadius <= 0 || innerRadius >= outerRadius ? (_ => float.MaxValue) : innerRadius <= 0 ? Circle(origin, outerRadius) : (p =>
+        {
+            // intersection of outer circle and inverted inner circle
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var distSqOrigin = pXoriginX * pXoriginX + pZoriginZ * pZoriginZ;
+            var distSqOuter = distSqOrigin - outerSq;
+            var distSqInner = innerSq - distSqOrigin;
+            return distSqOuter > distSqInner ? -distSqOuter : -distSqInner;
+        });
+    }
 
     public static Func<WPos, float> Cone(WPos origin, float radius, Angle centerDir, Angle halfAngle)
     {
@@ -36,44 +90,141 @@ public static class ShapeDistance
         float coneFactor = halfAngle.Rad > Angle.HalfPi ? -1 : 1;
         var nl = coneFactor * (centerDir + halfAngle).ToDirection().OrthoL();
         var nr = coneFactor * (centerDir - halfAngle).ToDirection().OrthoR();
+        var radiusSq = radius * radius;
+        var originX = origin.X;
+        var originZ = origin.Z;
+        var nlX = nl.X;
+        var nlZ = nl.Z;
+        var nrX = nr.X;
+        var nrZ = nr.Z;
         return p =>
         {
-            var off = p - origin;
-            var distOrigin = off.Length();
-            var distOuter = distOrigin - radius;
-            var distLeft = off.Dot(nl);
-            var distRight = off.Dot(nr);
-            return Math.Max(distOuter, coneFactor * Math.Max(distLeft, distRight));
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var distSqOrigin = pXoriginX * pXoriginX + pZoriginZ * pZoriginZ;
+            var distSqOuter = distSqOrigin - radiusSq;
+            var distLeft = pXoriginX * nlX + pZoriginZ * nlZ;
+            var distRight = pXoriginX * nrX + pZoriginZ * nrZ;
+
+            var maxSideDist = distLeft > distRight ? distLeft : distRight;
+            var conef = coneFactor * maxSideDist;
+            return distSqOuter > conef ? distSqOuter : conef;
         };
     }
 
-    public static Func<WPos, float> InvertedCone(WPos origin, float radius, Angle centerDir, Angle halfAngle) => p => -Cone(origin, radius, centerDir, halfAngle)(p);
+    public static Func<WPos, float> InvertedCone(WPos origin, float radius, Angle centerDir, Angle halfAngle)
+    {
+        if (halfAngle.Rad <= 0 || radius <= 0)
+            return _ => float.MaxValue;
+        if (halfAngle.Rad >= MathF.PI)
+            return Circle(origin, radius);
+        // for <= 180-degree cone: result = intersection of circle and two half-planes with normals pointing outside cone sides
+        // for > 180-degree cone: result = intersection of circle and negated intersection of two half-planes with inverted normals
+        // both normals point outside
+        float coneFactor = halfAngle.Rad > Angle.HalfPi ? -1 : 1;
+        var nl = coneFactor * (centerDir + halfAngle).ToDirection().OrthoL();
+        var nr = coneFactor * (centerDir - halfAngle).ToDirection().OrthoR();
+        var radiusSq = radius * radius;
+        var originX = origin.X;
+        var originZ = origin.Z;
+        var nlX = nl.X;
+        var nlZ = nl.Z;
+        var nrX = nr.X;
+        var nrZ = nr.Z;
+        return p =>
+        {
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var distSqOrigin = pXoriginX * pXoriginX + pZoriginZ * pZoriginZ;
+            var distSqOuter = distSqOrigin - radiusSq;
+            var distLeft = pXoriginX * nlX + pZoriginZ * nlZ;
+            var distRight = pXoriginX * nrX + pZoriginZ * nrZ;
+
+            var maxSideDist = distLeft > distRight ? distLeft : distRight;
+            var conef = coneFactor * maxSideDist;
+            return distSqOuter > conef ? -distSqOuter : -conef;
+        };
+    }
 
     public static Func<WPos, float> DonutSector(WPos origin, float innerRadius, float outerRadius, Angle centerDir, Angle halfAngle)
     {
         if (halfAngle.Rad <= 0 || outerRadius <= 0 || innerRadius >= outerRadius)
             return _ => float.MaxValue;
+
         if (halfAngle.Rad >= MathF.PI)
             return Donut(origin, innerRadius, outerRadius);
+
         if (innerRadius <= 0)
             return Cone(origin, outerRadius, centerDir, halfAngle);
+
         float coneFactor = halfAngle.Rad > Angle.HalfPi ? -1 : 1;
-        var nl = coneFactor * (centerDir + halfAngle + 90.Degrees()).ToDirection();
-        var nr = coneFactor * (centerDir - halfAngle - 90.Degrees()).ToDirection();
+        var nl = coneFactor * (centerDir + halfAngle + a90).ToDirection();
+        var nr = coneFactor * (centerDir - halfAngle - a90).ToDirection();
+        var innerSq = innerRadius * innerRadius;
+        var outerSq = outerRadius * outerRadius;
+        var originX = origin.X;
+        var originZ = origin.Z;
+        var nlX = nl.X;
+        var nlZ = nl.Z;
+        var nrX = nr.X;
+        var nrZ = nr.Z;
+
         return p =>
         {
-            var off = p - origin;
-            var distOrigin = off.Length();
-            var distOuter = distOrigin - outerRadius;
-            var distInner = innerRadius - distOrigin;
-            var distLeft = off.Dot(nl);
-            var distRight = off.Dot(nr);
-            return Math.Max(Math.Max(distOuter, distInner), coneFactor * Math.Max(distLeft, distRight));
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var distSqOrigin = pXoriginX * pXoriginX + pZoriginZ * pZoriginZ;
+            var distOuter = distSqOrigin - outerSq;
+            var distInner = innerSq - distSqOrigin;
+            var distLeft = pXoriginX * nlX + pZoriginZ * nlZ;
+            var distRight = pXoriginX * nrX + pZoriginZ * nrZ;
+
+            var maxRadial = distOuter > distInner ? distOuter : distInner;
+            var maxCone = distLeft > distRight ? distLeft : distRight;
+            var conef = coneFactor * maxCone;
+            return maxRadial > conef ? maxRadial : conef;
         };
     }
 
     public static Func<WPos, float> InvertedDonutSector(WPos origin, float innerRadius, float outerRadius, Angle centerDir, Angle halfAngle)
-        => p => -DonutSector(origin, innerRadius, outerRadius, centerDir, halfAngle)(p);
+    {
+        if (halfAngle.Rad <= 0 || outerRadius <= 0 || innerRadius >= outerRadius)
+            return _ => float.MaxValue;
+
+        if (halfAngle.Rad >= MathF.PI)
+            return Donut(origin, innerRadius, outerRadius);
+
+        if (innerRadius <= 0)
+            return Cone(origin, outerRadius, centerDir, halfAngle);
+
+        float coneFactor = halfAngle.Rad > Angle.HalfPi ? -1 : 1;
+        var nl = coneFactor * (centerDir + halfAngle + a90).ToDirection();
+        var nr = coneFactor * (centerDir - halfAngle - a90).ToDirection();
+        var innerSq = innerRadius * innerRadius;
+        var outerSq = outerRadius * outerRadius;
+        var originX = origin.X;
+        var originZ = origin.Z;
+        var nlX = nl.X;
+        var nlZ = nl.Z;
+        var nrX = nr.X;
+        var nrZ = nr.Z;
+
+        return p =>
+        {
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var distSqOrigin = pXoriginX * pXoriginX + pZoriginZ * pZoriginZ;
+            var distOuter = distSqOrigin - outerSq;
+            var distInner = innerSq - distSqOrigin;
+            var distLeft = pXoriginX * nlX + pZoriginZ * nlZ;
+            var distRight = pXoriginX * nrX + pZoriginZ * nrZ;
+
+            var maxRadial = distOuter > distInner ? distOuter : distInner;
+            var maxCone = distLeft > distRight ? distLeft : distRight;
+            var conef = coneFactor * maxCone;
+            return maxRadial > conef ? -maxRadial : -conef;
+        };
+    }
 
     public static Func<WPos, float> Tri(WPos origin, RelTriangle tri)
     {
@@ -92,57 +243,340 @@ public static class ShapeDistance
         var a = origin + tri.A;
         var b = origin + tri.B;
         var c = origin + tri.C;
+
+        var n1X = n1.X;
+        var n1Z = n1.Z;
+        var n2X = n2.X;
+        var n2Z = n2.Z;
+        var n3X = n3.X;
+        var n3Z = n3.Z;
+        var aX = a.X;
+        var aZ = a.Z;
+        var bX = b.X;
+        var bZ = b.Z;
+        var cX = c.X;
+        var cZ = c.Z;
+
         return p =>
         {
-            var d1 = n1.Dot(p - a);
-            var d2 = n2.Dot(p - b);
-            var d3 = n3.Dot(p - c);
-            return Math.Max(Math.Max(d1, d2), d3);
+            var d1 = n1X * (p.X - aX) + n1Z * (p.Z - aZ);
+            var d2 = n2X * (p.X - bX) + n2Z * (p.Z - bZ);
+            var d3 = n3X * (p.X - cX) + n3Z * (p.Z - cZ);
+            var max1 = d1 > d2 ? d1 : d2;
+            return max1 > d3 ? max1 : d3;
         };
     }
 
-    public static Func<WPos, float> InvertedTri(WPos origin, RelTriangle tri) => p => -Tri(origin, tri)(p);
+    public static Func<WPos, float> InvertedTri(WPos origin, RelTriangle tri)
+    {
+        var ab = tri.B - tri.A;
+        var bc = tri.C - tri.B;
+        var ca = tri.A - tri.C;
+        var n1 = ab.OrthoL().Normalized();
+        var n2 = bc.OrthoL().Normalized();
+        var n3 = ca.OrthoL().Normalized();
+        if (ab.Cross(bc) < 0)
+        {
+            n1 = -n1;
+            n2 = -n2;
+            n3 = -n3;
+        }
+        var a = origin + tri.A;
+        var b = origin + tri.B;
+        var c = origin + tri.C;
 
-    public static Func<WPos, float> TriList(WPos origin, List<RelTriangle> tris) => Union([.. tris.Select(tri => Tri(origin, tri))]);
+        var n1X = n1.X;
+        var n1Z = n1.Z;
+        var n2X = n2.X;
+        var n2Z = n2.Z;
+        var n3X = n3.X;
+        var n3Z = n3.Z;
+        var aX = a.X;
+        var aZ = a.Z;
+        var bX = b.X;
+        var bZ = b.Z;
+        var cX = c.X;
+        var cZ = c.Z;
+
+        return p =>
+        {
+            var d1 = n1X * (p.X - aX) + n1Z * (p.Z - aZ);
+            var d2 = n2X * (p.X - bX) + n2Z * (p.Z - bZ);
+            var d3 = n3X * (p.X - cX) + n3Z * (p.Z - cZ);
+            var max1 = d1 > d2 ? d1 : d2;
+            return max1 > d3 ? -max1 : -d3;
+        };
+    }
 
     public static Func<WPos, float> Rect(WPos origin, WDir dir, float lenFront, float lenBack, float halfWidth)
     {
         // dir points outside far side
         var normal = dir.OrthoL(); // points outside left side
+        var originX = origin.X;
+        var originZ = origin.Z;
+        var dirX = dir.X;
+        var dirZ = dir.Z;
+        var normalX = normal.X;
+        var normalZ = normal.Z;
+
         return p =>
         {
-            var offset = p - origin;
-            var distParr = offset.Dot(dir);
-            var distOrtho = offset.Dot(normal);
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var distParr = pXoriginX * dirX + pZoriginZ * dirZ;
+            var distOrtho = pXoriginX * normalX + pZoriginZ * normalZ;
             var distFront = distParr - lenFront;
             var distBack = -distParr - lenBack;
             var distLeft = distOrtho - halfWidth;
             var distRight = -distOrtho - halfWidth;
-            return Math.Max(Math.Max(distFront, distBack), Math.Max(distLeft, distRight));
+
+            var maxParr = distFront > distBack ? distFront : distBack;
+            var maxOrtho = distLeft > distRight ? distLeft : distRight;
+
+            return maxParr > maxOrtho ? maxParr : maxOrtho;
         };
     }
-    public static Func<WPos, float> Rect(WPos origin, Angle direction, float lenFront, float lenBack, float halfWidth) => Rect(origin, direction.ToDirection(), lenFront, lenBack, halfWidth);
+
+    public static Func<WPos, float> Rect(WPos origin, Angle direction, float lenFront, float lenBack, float halfWidth)
+    {
+        // dir points outside far side
+        var dir = direction.ToDirection();
+        var normal = dir.OrthoL(); // points outside left side
+        var originX = origin.X;
+        var originZ = origin.Z;
+        var dirX = dir.X;
+        var dirZ = dir.Z;
+        var normalX = normal.X;
+        var normalZ = normal.Z;
+
+        return p =>
+        {
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var distParr = pXoriginX * dirX + pZoriginZ * dirZ;
+            var distOrtho = pXoriginX * normalX + pZoriginZ * normalZ;
+            var distFront = distParr - lenFront;
+            var distBack = -distParr - lenBack;
+            var distLeft = distOrtho - halfWidth;
+            var distRight = -distOrtho - halfWidth;
+
+            var maxParr = distFront > distBack ? distFront : distBack;
+            var maxOrtho = distLeft > distRight ? distLeft : distRight;
+
+            return maxParr > maxOrtho ? maxParr : maxOrtho;
+        };
+    }
+
     public static Func<WPos, float> Rect(WPos from, WPos to, float halfWidth)
     {
         var dir = to - from;
         var l = dir.Length();
-        return Rect(from, dir / l, l, 0, halfWidth);
+        var normalizedDir = dir / l;
+        var normal = normalizedDir.OrthoL();
+
+        var originX = from.X;
+        var originZ = from.Z;
+        var dirX = normalizedDir.X;
+        var dirZ = normalizedDir.Z;
+        var normalX = normal.X;
+        var normalZ = normal.Z;
+
+        return p =>
+        {
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var distParr = pXoriginX * dirX + pZoriginZ * dirZ;
+            var distOrtho = pXoriginX * normalX + pZoriginZ * normalZ;
+            var distFront = distParr - l;
+            var distBack = -distParr;
+            var distLeft = distOrtho - halfWidth;
+            var distRight = -distOrtho - halfWidth;
+
+            var maxParr = distFront > distBack ? distFront : distBack;
+            var maxOrtho = distLeft > distRight ? distLeft : distRight;
+
+            return maxParr > maxOrtho ? maxParr : maxOrtho;
+        };
     }
 
-    public static Func<WPos, float> InvertedRect(WPos origin, WDir dir, float lenFront, float lenBack, float halfWidth) => p => -Rect(origin, dir, lenFront, lenBack, halfWidth)(p);
-
-    public static Func<WPos, float> InvertedRect(WPos origin, Angle direction, float lenFront, float lenBack, float halfWidth) => p => -Rect(origin, direction.ToDirection(), lenFront, lenBack, halfWidth)(p);
-    public static Func<WPos, float> InvertedRect(WPos from, WPos to, float halfWidth) => p => -Rect(from, to, halfWidth)(p);
-
-    public static Func<WPos, float> Capsule(WPos origin, WDir dir, float length, float radius) => p =>
+    public static Func<WPos, float> InvertedRect(WPos origin, WDir dir, float lenFront, float lenBack, float halfWidth)
     {
-        var offset = p - origin;
-        var t = Math.Clamp(offset.Dot(dir), 0, length);
-        var proj = origin + t * dir;
-        return (p - proj).Length() - radius;
-    };
-    public static Func<WPos, float> Capsule(WPos origin, Angle direction, float length, float radius) => Capsule(origin, direction.ToDirection(), length, radius);
-    public static Func<WPos, float> InvertedCapsule(WPos origin, Angle direction, float length, float radius) => p => -Capsule(origin, direction.ToDirection(), length, radius)(p);
+        // dir points outside far side
+        var normal = dir.OrthoL(); // points outside left side
+
+        var originX = origin.X;
+        var originZ = origin.Z;
+        var dirX = dir.X;
+        var dirZ = dir.Z;
+        var normalX = normal.X;
+        var normalZ = normal.Z;
+
+        return p =>
+        {
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var distParr = pXoriginX * dirX + pZoriginZ * dirZ;
+            var distOrtho = pXoriginX * normalX + pZoriginZ * normalZ;
+            var distFront = distParr - lenFront;
+            var distBack = -distParr - lenBack;
+            var distLeft = distOrtho - halfWidth;
+            var distRight = -distOrtho - halfWidth;
+
+            var maxParr = distFront > distBack ? distFront : distBack;
+            var maxOrtho = distLeft > distRight ? distLeft : distRight;
+
+            return maxParr > maxOrtho ? -maxParr : -maxOrtho;
+        };
+    }
+
+    public static Func<WPos, float> InvertedRect(WPos origin, Angle direction, float lenFront, float lenBack, float halfWidth)
+    {
+        // dir points outside far side
+        var dir = direction.ToDirection();
+        var normal = dir.OrthoL(); // points outside left side
+
+        var originX = origin.X;
+        var originZ = origin.Z;
+        var dirX = dir.X;
+        var dirZ = dir.Z;
+        var normalX = normal.X;
+        var normalZ = normal.Z;
+
+        return p =>
+        {
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var distParr = pXoriginX * dirX + pZoriginZ * dirZ;
+            var distOrtho = pXoriginX * normalX + pZoriginZ * normalZ;
+            var distFront = distParr - lenFront;
+            var distBack = -distParr - lenBack;
+            var distLeft = distOrtho - halfWidth;
+            var distRight = -distOrtho - halfWidth;
+
+            var maxParr = distFront > distBack ? distFront : distBack;
+            var maxOrtho = distLeft > distRight ? distLeft : distRight;
+
+            return maxParr > maxOrtho ? -maxParr : -maxOrtho;
+        };
+    }
+
+    public static Func<WPos, float> InvertedRect(WPos from, WPos to, float halfWidth)
+    {
+        var dir = to - from;
+        var l = dir.Length();
+        var normalizedDir = dir / l;
+        var normal = normalizedDir.OrthoL();
+
+        var originX = from.X;
+        var originZ = from.Z;
+        var dirX = normalizedDir.X;
+        var dirZ = normalizedDir.Z;
+        var normalX = normal.X;
+        var normalZ = normal.Z;
+
+        return p =>
+        {
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var distParr = pXoriginX * dirX + pZoriginZ * dirZ;
+            var distOrtho = pXoriginX * normalX + pZoriginZ * normalZ;
+            var distFront = distParr - l;
+            var distBack = -distParr;
+            var distLeft = distOrtho - halfWidth;
+            var distRight = -distOrtho - halfWidth;
+
+            var maxParr = distFront > distBack ? distFront : distBack;
+            var maxOrtho = distLeft > distRight ? distLeft : distRight;
+
+            return maxParr > maxOrtho ? -maxParr : -maxOrtho;
+        };
+    }
+
+    public static Func<WPos, float> Capsule(WPos origin, WDir dir, float length, float radius)
+    {
+        var radiusSq = radius * radius;
+        var originX = origin.X;
+        var originZ = origin.Z;
+        var dirX = dir.X;
+        var dirZ = dir.Z;
+
+        return p =>
+        {
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var t = pXoriginX * dirX + pZoriginZ * dirZ;
+            t = (t < 0) ? 0 : (t > length ? length : t);
+            var proj = origin + t * dir;
+            var pXprojX = p.X - proj.X;
+            var pZprojZ = p.Z - proj.Z;
+            return pXprojX * pXprojX + pZprojZ * pZprojZ - radiusSq;
+        };
+    }
+
+    public static Func<WPos, float> Capsule(WPos origin, Angle direction, float length, float radius)
+    {
+        var radiusSq = radius * radius;
+        var dir = direction.ToDirection();
+        var originX = origin.X;
+        var originZ = origin.Z;
+        var dirX = dir.X;
+        var dirZ = dir.Z;
+
+        return p =>
+        {
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var t = pXoriginX * dirX + pZoriginZ * dirZ;
+            t = (t < 0) ? 0 : (t > length ? length : t);
+            var proj = origin + t * dir;
+            var pXprojX = p.X - proj.X;
+            var pZprojZ = p.Z - proj.Z;
+            return pXprojX * pXprojX + pZprojZ * pZprojZ - radiusSq;
+        };
+    }
+
+    public static Func<WPos, float> InvertedCapsule(WPos origin, WDir dir, float length, float radius)
+    {
+        var radiusSq = radius * radius;
+        var originX = origin.X;
+        var originZ = origin.Z;
+        var dirX = dir.X;
+        var dirZ = dir.Z;
+
+        return p =>
+        {
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var t = pXoriginX * dirX + pZoriginZ * dirZ;
+            t = (t < 0) ? 0 : (t > length ? length : t);
+            var proj = origin + t * dir;
+            var pXprojX = p.X - proj.X;
+            var pZprojZ = p.Z - proj.Z;
+            return radiusSq - (pXprojX * pXprojX + pZprojZ * pZprojZ);
+        };
+    }
+
+    public static Func<WPos, float> InvertedCapsule(WPos origin, Angle direction, float length, float radius)
+    {
+        var radiusSq = radius * radius;
+        var dir = direction.ToDirection();
+        var originX = origin.X;
+        var originZ = origin.Z;
+        var dirX = dir.X;
+        var dirZ = dir.Z;
+
+        return p =>
+        {
+            var pXoriginX = p.X - originX;
+            var pZoriginZ = p.Z - originZ;
+            var t = pXoriginX * dirX + pZoriginZ * dirZ;
+            t = (t < 0) ? 0 : (t > length ? length : t);
+            var proj = origin + t * dir;
+            var pXprojX = p.X - proj.X;
+            var pZprojZ = p.Z - proj.Z;
+            return radiusSq - (pXprojX * pXprojX + pZprojZ * pZprojZ);
+        };
+    }
 
     public static Func<WPos, float> Cross(WPos origin, Angle direction, float length, float halfWidth)
     {
@@ -161,13 +595,48 @@ public static class ShapeDistance
             var distOBack = -distOrtho - length;
             var distOLeft = distParr - halfWidth;
             var distORight = -distParr - halfWidth;
-            var distP = Math.Max(Math.Max(distPFront, distPBack), Math.Max(distPLeft, distPRight));
-            var distO = Math.Max(Math.Max(distOFront, distOBack), Math.Max(distOLeft, distORight));
-            return Math.Min(distP, distO);
+
+            var distPMax1 = distPFront > distPBack ? distPFront : distPBack;
+            var distPMax2 = distPLeft > distPRight ? distPLeft : distPRight;
+            var distP = distPMax1 > distPMax2 ? distPMax1 : distPMax2;
+
+            var distOMax1 = distOFront > distOBack ? distOFront : distOBack;
+            var distOMax2 = distOLeft > distORight ? distOLeft : distORight;
+            var distO = distOMax1 > distOMax2 ? distOMax1 : distOMax2;
+
+            return distP < distO ? distP : distO;
         };
     }
 
-    public static Func<WPos, float> InvertedCross(WPos origin, Angle direction, float length, float halfWidth) => p => -Cross(origin, direction, length, halfWidth)(p);
+    public static Func<WPos, float> InvertedCross(WPos origin, Angle direction, float length, float halfWidth)
+    {
+        var dir = direction.ToDirection();
+        var normal = dir.OrthoL();
+        return p =>
+        {
+            var offset = p - origin;
+            var distParr = offset.Dot(dir);
+            var distOrtho = offset.Dot(normal);
+            var distPFront = distParr - length;
+            var distPBack = -distParr - length;
+            var distPLeft = distOrtho - halfWidth;
+            var distPRight = -distOrtho - halfWidth;
+            var distOFront = distOrtho - length;
+            var distOBack = -distOrtho - length;
+            var distOLeft = distParr - halfWidth;
+            var distORight = -distParr - halfWidth;
+
+            var distPMax1 = distPFront > distPBack ? distPFront : distPBack;
+            var distPMax2 = distPLeft > distPRight ? distPLeft : distPRight;
+            var distP = distPMax1 > distPMax2 ? distPMax1 : distPMax2;
+
+            var distOMax1 = distOFront > distOBack ? distOFront : distOBack;
+            var distOMax2 = distOLeft > distORight ? distOLeft : distORight;
+            var distO = distOMax1 > distOMax2 ? distOMax1 : distOMax2;
+
+            return distP < distO ? -distP : -distO;
+        };
+    }
 
     // positive offset increases area
     public static Func<WPos, float> ConvexPolygon(List<(WPos, WPos)> edges, bool cw, float offset = 0)

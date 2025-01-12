@@ -44,7 +44,7 @@ public enum IconID : uint
 
 class Spark(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spark), new AOEShapeDonut(14, 30));
 class SweepingGouge(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SweepingGouge));
-class Thundercall(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Thundercall), 3);
+class Thundercall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Thundercall), 3);
 
 class Thundercall2(BossModule module) : Components.GenericBaitAway(module)
 {
@@ -78,8 +78,8 @@ class Thundercall2(BossModule module) : Components.GenericBaitAway(module)
     }
 }
 
-class RockThrow(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RockThrow), 6);
-class LightningBolt(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 6);
+class RockThrow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RockThrow), 6);
+class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 6);
 class ThunderIV(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThunderIV), new AOEShapeCircle(18));
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
@@ -89,7 +89,7 @@ class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
 
 class GymnasiouPithekosStates : StateMachineBuilder
 {

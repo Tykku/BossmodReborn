@@ -146,7 +146,7 @@ class PoisonGasMarch(BossModule module) : Components.StatusDrivenForcedMarch(mod
 }
 
 class MalignantMucus(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.MalignantMucus));
-class PoisonMucus(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PoisonMucus), 6);
+class PoisonMucus(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PoisonMucus), 6);
 
 class KeheniheyamewiStates : StateMachineBuilder
 {

@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Ultimate.DSW2;
 
-class P2SanctityOfTheWard2HeavensStakeCircles(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavensStakeAOE), 7);
+class P2SanctityOfTheWard2HeavensStakeCircles(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavensStakeAOE), 7);
 class P2SanctityOfTheWard2HeavensStakeDonut(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeavensStakeDonut), new AOEShapeDonut(15, 30));
 class P2SanctityOfTheWard2VoidzoneFire(BossModule module) : Components.PersistentVoidzone(module, 7, m => m.Enemies(OID.VoidzoneFire).Where(z => z.EventState != 7));
 class P2SanctityOfTheWard2VoidzoneIce(BossModule module) : Components.PersistentVoidzone(module, 7, m => m.Enemies(OID.VoidzoneIce).Where(z => z.EventState != 7));

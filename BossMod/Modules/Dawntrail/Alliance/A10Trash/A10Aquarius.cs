@@ -29,8 +29,8 @@ public enum AID : uint
     Agaricus = 41661 // DeathCap->self, 3.0s cast, range 5 circle
 }
 
-class CursedSphere(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.CursedSphere), 3);
-class WaterIII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.WaterIII), 7);
+class CursedSphere(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CursedSphere), 3);
+class WaterIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaterIII), 7);
 class BubbleShower(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BubbleShower), new AOEShapeCone(6, 30.Degrees()));
 class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
 class Agaricus(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Agaricus), new AOEShapeCircle(5));

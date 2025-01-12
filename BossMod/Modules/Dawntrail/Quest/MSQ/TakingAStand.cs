@@ -190,9 +190,9 @@ abstract class RunThrough(BossModule module, AID aid) : Components.SelfTargetedA
 class RunThrough1(BossModule module) : RunThrough(module, AID.RunThrough1);
 class RunThrough2(BossModule module) : RunThrough(module, AID.RunThrough2);
 
-class Fireflood(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Fireflood), 18);
-class TuraliStoneIII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TuraliStoneIII), 4);
-class TuraliQuake(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TuraliQuake), 9, maxCasts: 5);
+class Fireflood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fireflood), 18);
+class TuraliStoneIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TuraliStoneIII), 4);
+class TuraliQuake(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TuraliQuake), 9, maxCasts: 5);
 
 class TakingAStandStates : StateMachineBuilder
 {

@@ -62,7 +62,7 @@ class HandOfTheEmpire(BossModule module) : Components.SpreadFromCastTargets(modu
 class FestinaLente(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.FestinaLente), 6, 4, 4);
 class Innocence(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Innocence));
 class HorridaBella(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HorridaBella));
-class Ductus(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DuctusAOE), 8);
+class Ductus(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DuctusAOE), 8);
 
 class AddEnrage(BossModule module) : BossComponent(module)
 {

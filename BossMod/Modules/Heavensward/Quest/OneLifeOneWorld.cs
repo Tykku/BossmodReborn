@@ -25,7 +25,7 @@ public enum SID : uint
 
 class Overpower(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Overpower), new AOEShapeCone(7, 45.Degrees()));
 class UnlitCyclone(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.UnlitCyclone), new AOEShapeCircle(6));
-class UnlitCycloneAdds(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.UnlitCycloneAdds), 9);
+class UnlitCycloneAdds(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.UnlitCycloneAdds), 9);
 
 class Skydrive(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(5), 23, ActionID.MakeSpell(AID.Skydrive), centerAtTarget: true);
 class SkydrivePuddle(BossModule module) : Components.PersistentVoidzone(module, 5, m => m.Enemies(0x1EA19C).Where(x => x.EventState != 7));

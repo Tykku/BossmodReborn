@@ -208,7 +208,7 @@ class BlastCannon(BossModule module) : Components.SelfTargetedAOEs(module, Actio
     }
 }
 
-class Shock(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Shock), 3);
+class Shock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shock), 3);
 
 class HomingCannon(BossModule module) : Components.GenericAOEs(module)
 {
@@ -241,7 +241,7 @@ class HomingCannon(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Bombardment(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Bombardment), 5);
+class Bombardment(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Bombardment), 5);
 
 abstract class Electrowhirl(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
 class Electrowhirl1(BossModule module) : Electrowhirl(module, AID.Electrowhirl1);

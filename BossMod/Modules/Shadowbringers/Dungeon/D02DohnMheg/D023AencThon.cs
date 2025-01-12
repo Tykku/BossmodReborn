@@ -52,7 +52,7 @@ class VirtuosicCapriccio(BossModule module) : Components.RaidwideCast(module, Ac
 class CripplingBlow(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CripplingBlow));
 class ImpChoir(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.ImpChoir));
 class ToadChoir(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ToadChoir), new AOEShapeCone(19.5f, 75.Degrees()));
-class BileBombardment(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BileBombardment), 8);
+class BileBombardment(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BileBombardment), 8);
 
 class FunambulistsFantasia(BossModule module) : BossComponent(module)
 {

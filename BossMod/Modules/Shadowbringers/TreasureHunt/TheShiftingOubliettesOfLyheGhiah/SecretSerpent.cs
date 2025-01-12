@@ -38,7 +38,7 @@ public enum AID : uint
 }
 
 class DouseVoidzone(BossModule module) : Components.PersistentVoidzone(module, 7.5f, m => m.Enemies(OID.WaterVoidzone).Where(z => z.EventState != 7), 0);
-class Douse(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Douse), 8);
+class Douse(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Douse), 8);
 class FangsEnd(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.FangsEnd));
 class Drench1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Drench1), new AOEShapeCone(15.29f, 45.Degrees()));
 class Drench2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Drench2), new AOEShapeCone(13.45f, 45.Degrees()));

@@ -188,7 +188,7 @@ class Hydrobomb(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Hydrovent(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrovent), 6);
+class Hydrovent(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrovent), 6);
 class NeapTide(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.NeapTide), 6, 5);
 
 class SpringTideHydroFall(BossModule module) : Components.UniformStackSpread(module, 6, 0, 4) // both use the same icon

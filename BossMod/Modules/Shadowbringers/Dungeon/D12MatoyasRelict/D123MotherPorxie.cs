@@ -52,8 +52,8 @@ public enum IconID : uint
 class TenderLoin(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.TenderLoinVisual), ActionID.MakeSpell(AID.TenderLoin), 0.8f);
 class MincedMeat(BossModule module) : Components.SingleTargetCastDelay(module, ActionID.MakeSpell(AID.MincedMeatVisual), ActionID.MakeSpell(AID.MincedMeat), 0.9f);
 class OpenFlame(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.OpenFlame), 5, 6.7f);
-class MeatMallet(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MeatMallet), 30);
-class BarbequeCircle(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BarbequeCircle), 5);
+class MeatMallet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MeatMallet), 30);
+class BarbequeCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BarbequeCircle), 5);
 class BarbequeRect(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BarbequeRect), new AOEShapeRect(50, 2.5f));
 class Buffet(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Buffet), new AOEShapeRect(40, 3));
 

@@ -13,7 +13,7 @@ public sealed class ThetaStar
     }
 
     private Map _map = new();
-    private readonly List<(int x, int y)> _goals = [];
+    private (int x, int y)[] _goals = [];
     private Node[] _nodes = [];
     private float[] _distances = [];
     private readonly List<int> _openList = [];
@@ -29,13 +29,13 @@ public sealed class ThetaStar
     private float _mapHalfResolution;
 
     // gMultiplier is typically inverse speed, which turns g-values into time
-    public void Start(Map map, IEnumerable<(int x, int y)> goals, (int x, int y) start, float gMultiplier)
+    public void Start(Map map, List<(int x, int y)> goals, (int x, int y) start, float gMultiplier)
     {
         lock (_lock)
         {
             _map = map;
-            _goals.Clear();
-            _goals.AddRange(goals);
+            _goals = [.. goals];
+
             var numPixels = map.Width * map.Height;
             if (_nodes == null || _nodes.Length < numPixels)
                 _nodes = new Node[numPixels];
@@ -71,14 +71,27 @@ public sealed class ThetaStar
         }
     }
 
-    public void Start(Map map, int goalPriority, WPos startPos, float gMultiplier) => Start(map, map.Goals().Where(g => g.priority >= goalPriority).Select(g => (g.x, g.y)), map.WorldToGrid(startPos), gMultiplier);
+    public void Start(Map map, int goalPriority, WPos startPos, float gMultiplier)
+    {
+        var goals = map.Goals();
+        var count = goals.Count;
+        var filteredGoals = new List<(int x, int y)>(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var g = goals[i];
+            if (g.priority >= goalPriority)
+                filteredGoals.Add((g.x, g.y));
+        }
+
+        Start(map, filteredGoals, map.WorldToGrid(startPos), gMultiplier);
+    }
 
     // returns whether search is to be terminated; on success, first node of the open list would contain found goal
     public bool ExecuteStep()
     {
         lock (_lock)
         {
-            if (_goals.Count == 0 || _openList.Count == 0 || _nodes[_openList[0]].HScore <= 0)
+            if (_goals.Length == 0 || _openList.Count == 0 || _nodes[_openList[0]].HScore <= 0)
                 return false;
 
             var nextNodeIndex = PopMinOpen();
@@ -252,12 +265,12 @@ public sealed class ThetaStar
     {
         var numPixels = _map.Width * _map.Height;
         Array.Fill(_distances, float.MaxValue, 0, numPixels);
-
-        var openList = new List<int>();
+        var count = _goals.Length;
+        var openList = new List<int>(count);
         var inOpenHeapIndex = new int[numPixels];
         Array.Fill(inOpenHeapIndex, 0, 0, numPixels);
 
-        for (var i = 0; i < _goals.Count; ++i)
+        for (var i = 0; i < count; ++i)
         {
             var goal = _goals[i];
             var goalIndex = CellIndex(goal.x, goal.y);

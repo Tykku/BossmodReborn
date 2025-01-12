@@ -9,7 +9,7 @@ public class Cleave(BossModule module, ActionID aid, AOEShape shape, uint enemyO
     public readonly bool ActiveWhileCasting = activeWhileCasting;
     public readonly bool OriginAtTarget = originAtTarget;
     public DateTime NextExpected;
-    private readonly List<Actor> _enemies = module.Enemies(enemyOID != 0 ? enemyOID : module.PrimaryActor.OID);
+    public readonly List<Actor> Enemies = module.Enemies(enemyOID != 0 ? enemyOID : module.PrimaryActor.OID);
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
@@ -21,7 +21,7 @@ public class Cleave(BossModule module, ActionID aid, AOEShape shape, uint enemyO
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!OriginsAndTargets().Any())
+        if (OriginsAndTargets().Count == 0)
             return;
 
         foreach (var (origin, target, angle) in OriginsAndTargets())
@@ -56,10 +56,13 @@ public class Cleave(BossModule module, ActionID aid, AOEShape shape, uint enemyO
         }
     }
 
-    private IEnumerable<(Actor origin, Actor target, Angle angle)> OriginsAndTargets()
+    public virtual List<(Actor origin, Actor target, Angle angle)> OriginsAndTargets()
     {
-        foreach (var enemy in _enemies)
+        var count = Enemies.Count;
+        List<(Actor, Actor, Angle)> origins = new(count);
+        for (var i = 0; i < count; ++i)
         {
+            var enemy = Enemies[i];
             if (enemy.IsDead)
                 continue;
 
@@ -72,8 +75,9 @@ public class Cleave(BossModule module, ActionID aid, AOEShape shape, uint enemyO
             var target = WorldState.Actors.Find(enemy.TargetID);
             if (target != null)
             {
-                yield return (OriginAtTarget ? target : enemy, target, Angle.FromDirection(target.Position - enemy.Position));
+                origins.Add(new(OriginAtTarget ? target : enemy, target, Angle.FromDirection(target.Position - enemy.Position)));
             }
         }
+        return origins;
     }
 }

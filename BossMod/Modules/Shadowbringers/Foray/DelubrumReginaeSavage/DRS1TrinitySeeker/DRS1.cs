@@ -21,17 +21,4 @@ class DeadIron : Components.BaitAwayTethers
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 761, NameID = 9834, PlanLevel = 80)]
-public class DRS1(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, 278), new ArenaBoundsCircle(25))
-{
-    public const float BarricadeRadius = 20;
-
-    protected override void DrawArenaForeground(int pcSlot, Actor pc)
-    {
-        for (var i = 0; i < 4; ++i)
-        {
-            var center = (45 + i * 90).Degrees();
-            Arena.PathArcTo(Center, BarricadeRadius, (center - 22.5f.Degrees()).Rad, (center + 22.5f.Degrees()).Rad);
-            MiniArena.PathStroke(false, Colors.Border, 2);
-        }
-    }
-}
+public class DRS1(WorldState ws, Actor primary) : TrinitySeeker(ws, primary);

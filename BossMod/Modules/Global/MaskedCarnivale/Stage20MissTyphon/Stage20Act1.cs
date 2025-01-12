@@ -13,7 +13,7 @@ public enum AID : uint
     Fireball2 = 14707, // 272A->player, no cast, range 8 circle, 3 casts after snort
 }
 
-class Fireball(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Fireball), 8);
+class Fireball(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fireball), 8);
 class Snort(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Snort), "Use Diamondback!");
 class SnortKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Snort), 30, kind: Kind.AwayFromOrigin, stopAtWall: true); // knockback actually delayed by 0.7s
 

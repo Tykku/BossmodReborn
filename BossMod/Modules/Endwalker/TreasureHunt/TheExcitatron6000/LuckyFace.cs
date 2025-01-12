@@ -72,7 +72,7 @@ abstract class QuakeDonut(BossModule module, AID aid) : Components.SelfTargetedA
 class QuakeInYourBootsDonut(BossModule module) : QuakeDonut(module, AID.QuakeInYourBootsDonut);
 class QuakeMeAwayDonut(BossModule module) : QuakeDonut(module, AID.QuakeMeAwayDonut);
 
-class HeartOnFireII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeartOnFireII), 6);
+class HeartOnFireII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeartOnFireII), 6);
 class HeartOnFireIV(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.HeartOnFireIV));
 class HeartOnFireIII(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HeartOnFireIII), 6);
 class TempersFlare(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.TempersFlare));

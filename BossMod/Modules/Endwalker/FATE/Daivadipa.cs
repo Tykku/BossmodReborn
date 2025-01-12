@@ -147,7 +147,7 @@ class RightwardParasu(BossModule module) : Cleave(module, AID.RightwardParasu);
 class ErrantAkasa(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ErrantAkasa), new AOEShapeCone(60, 45.Degrees()));
 class CosmicWeave(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CosmicWeave), new AOEShapeCircle(18));
 class KarmicFlames(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.KarmicFlames), new AOEShapeCircle(20));
-class YawningHells(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.YawningHells), 8);
+class YawningHells(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.YawningHells), 8);
 class InfernalRedemption(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.InfernalRedemptionVisual), ActionID.MakeSpell(AID.InfernalRedemption), 1);
 
 class DivineCall(BossModule module) : Components.StatusDrivenForcedMarch(module, 2, (uint)SID.ForwardMarch, (uint)SID.AboutFace, (uint)SID.LeftFace, (uint)SID.RightFace)

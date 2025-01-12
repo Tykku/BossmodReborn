@@ -22,4 +22,4 @@ class VolcanicDrop(BossModule module) : Components.GenericAOEs(module, ActionID.
     }
 }
 
-class VolcanicDropPuddle(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.VolcanicDropPuddle), 2);
+class VolcanicDropPuddle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VolcanicDropPuddle), 2);

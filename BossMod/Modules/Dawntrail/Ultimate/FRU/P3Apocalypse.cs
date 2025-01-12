@@ -13,8 +13,8 @@ class P3Apocalypse(BossModule module) : Components.GenericAOEs(module)
         void addAOE(WPos pos, DateTime activation) => _aoes.Add(new(_shape, pos, default, activation));
         void addPair(WDir offset, DateTime activation)
         {
-            addAOE(Module.Center + offset, activation);
-            addAOE(Module.Center - offset, activation);
+            addAOE(Arena.Center + offset, activation);
+            addAOE(Arena.Center - offset, activation);
         }
         void addAt(int position, DateTime activation)
         {
@@ -42,8 +42,8 @@ class P3Apocalypse(BossModule module) : Components.GenericAOEs(module)
         if (_aoes.Count > 0 && NumCasts < 16 && _starting != null)
         {
             var safeOff = 10 * (_starting.Value - _rotation).ToDirection();
-            Arena.AddCircle(Module.Center + safeOff, 1, Colors.Safe);
-            Arena.AddCircle(Module.Center - safeOff, 1, Colors.Safe);
+            Arena.AddCircle(Arena.Center + safeOff, 1, Colors.Safe);
+            Arena.AddCircle(Arena.Center - safeOff, 1, Colors.Safe);
         }
     }
 
@@ -206,7 +206,7 @@ class P3ApocalypseDarkWater(BossModule module) : Components.UniformStackSpread(m
     {
         BitMask swap = default;
         Span<int> assignmentPerOrder = [-1, -1, -1, -1];
-        for (int role = 0; role < slotPerAssignment.Length; ++role)
+        for (var role = 0; role < slotPerAssignment.Length; ++role)
         {
             var slot = slotPerAssignment[role];
             var order = States[slot].Order;

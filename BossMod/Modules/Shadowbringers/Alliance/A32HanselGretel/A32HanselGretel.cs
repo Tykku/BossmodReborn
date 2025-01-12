@@ -22,7 +22,7 @@ class HungryLance1(BossModule module) : Components.SelfTargetedAOEs(module, Acti
 class HungryLance2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HungryLance2), new AOEShapeCone(40, 60.Degrees()));
 
 class Breakthrough1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Breakthrough1), new AOEShapeRect(50, 50, +10, 90.Degrees()));
-class SeedOfMagicBeta3(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SeedOfMagicBeta3), 5);
+class SeedOfMagicBeta3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SeedOfMagicBeta3), 5);
 class Lamentation(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Lamentation));
 
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", PrimaryActorOID = (uint)OID.Gretel, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 779, NameID = 9990)]

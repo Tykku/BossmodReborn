@@ -5,7 +5,7 @@ class Incinerate(BossModule module) : Components.Cleave(module, ActionID.MakeSpe
     public static readonly AOEShapeCone CleaveShape = new(21, 60.Degrees());
 }
 
-class RadiantPlume(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RadiantPlumeAOE), 8);
+class RadiantPlume(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RadiantPlumeAOE), 8);
 
 // TODO: consider showing next charge before its cast starts...
 class CrimsonCyclone(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CrimsonCyclone), new AOEShapeRect(49, 9));

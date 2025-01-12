@@ -61,7 +61,7 @@ class SeductiveSonata(BossModule module) : Components.GenericAOEs(module)
 }
 
 class DeathlyVerse(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DeathlyVerse), new AOEShapeCircle(6));
-class Tornado(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Tornado), 6);
+class Tornado(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Tornado), 6);
 class FourfoldSuffering(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FourfoldSuffering), new AOEShapeDonut(5, 50));
 class AncientAero(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AncientAero), new AOEShapeRect(42.4f, 3));
 class AncientAeroIII(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AncientAeroIII));

@@ -165,7 +165,7 @@ class P3UltimateRelativity(BossModule module) : Components.CastCounter(module, d
 
         // calculate positions
         var northDir = Angle.FromDirection(_relNorth);
-        for (int i = 0; i < States.Length; ++i)
+        for (var i = 0; i < States.Length; ++i)
         {
             var player = Raid[i];
             if (player == null)
@@ -181,21 +181,21 @@ class P3UltimateRelativity(BossModule module) : Components.CastCounter(module, d
         }
     }
 
-    private Angle? SupportDir(int fireOrder, bool? preferEast) => fireOrder switch
+    private static Angle? SupportDir(int fireOrder, bool? preferEast) => fireOrder switch
     {
         2 => 90.Degrees(),
         3 => preferEast == null ? null : preferEast.Value ? -45.Degrees() : 45.Degrees(),
         _ => 0.Degrees()
     };
 
-    private Angle? DDDir(int fireOrder, bool? preferEast) => fireOrder switch
+    private static Angle? DDDir(int fireOrder, bool? preferEast) => fireOrder switch
     {
         1 => preferEast == null ? null : preferEast.Value ? -135.Degrees() : 135.Degrees(),
         2 => -90.Degrees(),
         _ => 180.Degrees()
     };
 
-    private bool IsBaitingLaser(in PlayerState state, int order) => order switch
+    private static bool IsBaitingLaser(in PlayerState state, int order) => order switch
     {
         1 => state.LaserOrder == 1,
         3 => state.LaserOrder == 2,
@@ -203,7 +203,7 @@ class P3UltimateRelativity(BossModule module) : Components.CastCounter(module, d
         _ => false
     };
 
-    private float RangeHint(in PlayerState state, bool isSupport, int order) => order switch
+    private static float RangeHint(in PlayerState state, bool isSupport, int order) => order switch
     {
         0 => state.FireOrder == 1 ? RangeHintOut : RangeHintStack,
         1 => state.LaserOrder == 1 ? RangeHintLaser : state.HaveDarkEruption ? RangeHintDarkEruption : RangeHintDarkWater,
@@ -215,7 +215,7 @@ class P3UltimateRelativity(BossModule module) : Components.CastCounter(module, d
     };
 
     // TODO: rethink this...
-    private string Hint(in PlayerState state, bool isSupport, int order) => order switch
+    private static string Hint(in PlayerState state, bool isSupport, int order) => order switch
     {
         0 => state.FireOrder == 1 ? "Out" : "Stack", // 10s
         1 => state.LaserOrder == 1 ? "Laser" : state.HaveDarkEruption ? "Hourglass" : "Mid", // 15s - at this point everyone either baits laser or does rewind (eruption or water)
@@ -309,7 +309,7 @@ class P3UltimateRelativitySinboundMeltdownBait(BossModule module) : Components.G
         _ => 0
     };
 
-    private WPos AssignedHourglass(int slot) => Module.Center + 9.5f * (_rel?.States[slot].AssignedDir ?? default);
+    private WPos AssignedHourglass(int slot) => Arena.Center + 9.5f * (_rel?.States[slot].AssignedDir ?? default);
 }
 
 class P3UltimateRelativitySinboundMeltdownAOE(BossModule module) : Components.GenericAOEs(module)
@@ -345,7 +345,7 @@ class P3UltimateRelativityDarkBlizzard(BossModule module) : Components.GenericAO
     private readonly List<Actor> _sources = [];
     private DateTime _activation;
 
-    private static readonly AOEShapeDonut _shape = new(2, 12); // TODO: verify inner radius
+    private static readonly AOEShapeDonut _shape = new(4, 12); // TODO: verify inner radius
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _sources.Select(s => new AOEInstance(_shape, s.Position, default, _activation));
 
@@ -390,7 +390,7 @@ class P3UltimateRelativityShadoweye(BossModule module) : BossComponent(module)
             if (eye == pos)
                 continue;
 
-            bool danger = HitByEye(pos, pc.Rotation, eye);
+            var danger = HitByEye(pos, pc.Rotation, eye);
             var eyeCenter = Arena.WorldPositionToScreenPosition(eye);
             Components.GenericGaze.DrawEye(eyeCenter, danger);
 

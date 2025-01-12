@@ -7,7 +7,6 @@ public sealed class ClassSMNUtility(RotationModuleManager manager, Actor player)
     public float GetStatusDetail(Actor target, SMN.SID sid) => StatusDetails(target, sid, Player.InstanceID).Left; //Checks if Status effect is on target
     public bool HasEffect(Actor target, SMN.SID sid, float duration) => GetStatusDetail(target, sid) < duration; //Checks if anyone has a status effect
 
-
     public static readonly ActionID IDLimitBreak3 = ActionID.MakeSpell(SMN.AID.Teraflare);
 
     public static RotationModuleDefinition Definition()

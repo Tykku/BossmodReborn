@@ -65,10 +65,10 @@ class CrossfireBlade1(BossModule module) : Crosses(module, AID.CrossfireBlade1);
 class CrossfireBlade2(BossModule module) : Crosses(module, AID.CrossfireBlade2);
 
 class BlazingBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlazingBreath), new AOEShapeRect(44, 5));
-class BlazingBlast(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BlazingBlast), 6);
+class BlazingBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlazingBlast), 6);
 
 class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
-class RottenSpores(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RottenSpores), 6);
+class RottenSpores(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RottenSpores), 6);
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);

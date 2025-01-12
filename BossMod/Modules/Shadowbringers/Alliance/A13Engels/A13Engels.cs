@@ -35,11 +35,11 @@ class MarxCrush2(BossModule module) : Components.SelfTargetedAOEs(module, Action
 
 class PrecisionGuidedMissile2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PrecisionGuidedMissile2), 6);
 class LaserSight1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LaserSight1), new AOEShapeRect(100, 10));
-class GuidedMissile2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GuidedMissile2), 6);
-class IncendiaryBombing2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.IncendiaryBombing2), 8);
+class GuidedMissile2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GuidedMissile2), 6);
+class IncendiaryBombing2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IncendiaryBombing2), 8);
 class IncendiaryBombing1(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.IncendiaryBombing1), 8, 5);
 class DiffuseLaser(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DiffuseLaser));
-class SurfaceMissile2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SurfaceMissile2), 6);
+class SurfaceMissile2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SurfaceMissile2), 6);
 
 class GuidedMissile : Components.StandardChasingAOEs
 {

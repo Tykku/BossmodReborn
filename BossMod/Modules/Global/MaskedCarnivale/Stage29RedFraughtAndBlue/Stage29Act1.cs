@@ -33,12 +33,12 @@ public enum SID : uint
 
 class FluidSwing(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.FluidSwing));
 class FluidSwingKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.FluidSwing), 50, kind: Kind.DirForward);
-class SeaOfFlames(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SeaOfFlames), 6);
-class FireII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FireII), 5);
-class PillarOfFlame(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PillarOfFlame), 8);
-class PillarOfFlame2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PillarOfFlame2), 8);
+class SeaOfFlames(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SeaOfFlames), 6);
+class FireII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireII), 5);
+class PillarOfFlame(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PillarOfFlame), 8);
+class PillarOfFlame2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PillarOfFlame2), 8);
 class Rush(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Rush), "GTFO from boss! (Distance based charge)");
-class FlareStar(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FlareStar), 10);
+class FlareStar(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlareStar), 10);
 class FireBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FireBlast), new AOEShapeRect(74, 2));
 class PyreticHint(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Pyretic), "Pyretic, stop everything! Dodge the AOE after it runs out.");
 

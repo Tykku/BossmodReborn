@@ -94,11 +94,11 @@ class MeteorImpact(BossModule module) : Components.GenericAOEs(module)
 }
 
 class DarkStar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DarkStar));
-class ChaosBlastCircle(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ChaosBlastCircle), 2);
+class ChaosBlastCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ChaosBlastCircle), 2);
 class ChaosBlastRect(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ChaosBlastRect), new AOEShapeRect(50.5f, 2));
 class AbyssicBuster(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.AbyssicBuster), new AOEShapeCone(31.84f, 45.Degrees()));
-class Comet(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Comet), 4);
-class Heavensfall(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Heavensfall2), 5);
+class Comet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Comet), 4);
+class Heavensfall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Heavensfall2), 5);
 
 class D023TiomanStates : StateMachineBuilder
 {

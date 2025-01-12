@@ -43,7 +43,7 @@ class FlareStar(BossModule module) : Circles(module, AID.FlareStar);
 
 class MarkOfTheBeast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MarkOfTheBeast), new AOEShapeCone(8, 60.Degrees()));
 class Pounce(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Pounce));
-class MagmaChamber(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MagmaChamber), 8);
+class MagmaChamber(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagmaChamber), 8);
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
@@ -52,7 +52,7 @@ class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
 
 class GymnasiouLeonStates : StateMachineBuilder
 {

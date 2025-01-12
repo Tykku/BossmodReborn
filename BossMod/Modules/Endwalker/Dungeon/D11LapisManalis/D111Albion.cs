@@ -144,7 +144,7 @@ class WildlifeCrossing(BossModule module) : Components.GenericAOEs(module)
             if (b.Position.InRect(stampede.Position, stampede.Rotation, 0, 10, 5) && stampede.Active)
                 updatedBeasts.Add(b);
         }
-        stampede = stampede with { Beasts = [.. updatedBeasts] };
+        stampede.Beasts = [.. updatedBeasts];
     }
 
     private void ResetStampede(ref Stampede stampede)
@@ -185,7 +185,7 @@ public record struct Stampede(bool Active, WPos Position, Angle Rotation, List<A
     public List<Actor> Beasts = Beasts;
 }
 
-class Icebreaker(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Icebreaker), 17, targetIsLocation: true);
+class Icebreaker(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Icebreaker), 17, targetIsLocation: true);
 
 class IcyThroes(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
 class IcyThroes1(BossModule module) : IcyThroes(module, AID.IcyThroes1);
@@ -194,7 +194,7 @@ class IcyThroes2(BossModule module) : IcyThroes(module, AID.IcyThroes2);
 class IcyThroesSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.IcyThroesSpread), 6);
 class KnockOnIce(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.KnockOnIce), new AOEShapeCircle(5));
 
-abstract class Slam(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(80, 10));
+abstract class Slam(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(80, 10));
 class RightSlam(BossModule module) : Slam(module, AID.RightSlam);
 class LeftSlam(BossModule module) : Slam(module, AID.LeftSlam);
 

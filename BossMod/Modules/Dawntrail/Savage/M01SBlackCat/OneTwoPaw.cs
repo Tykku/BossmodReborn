@@ -13,7 +13,7 @@ class OneTwoPawBoss(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         if (count == 0)
             yield break;
-        var pounce = _pounce != null && _pounce.ActiveAOEs(slot, actor).Any();
+        var pounce = _pounce != null && _pounce.AOEs.Count != 0;
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
@@ -38,7 +38,7 @@ class OneTwoPawBoss(BossModule module) : Components.GenericAOEs(module)
         if (casts.Contains((AID)spell.Action.ID))
         {
             ++NumCasts;
-            if (_aoes.Count > 0)
+            if (_aoes.Count != 0)
                 _aoes.RemoveAt(0);
         }
     }

@@ -134,7 +134,7 @@ class HeightOfChaos(BossModule module) : Components.BaitAwayCast(module, ActionI
     }
 }
 
-class AncientEruption(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AncientEruption), 5);
+class AncientEruption(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AncientEruption), 5);
 
 abstract class ChillingCross(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCross(40, 2.5f));
 class ChillingCross1(BossModule module) : ChillingCross(module, AID.ChillingCross1);

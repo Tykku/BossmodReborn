@@ -211,7 +211,7 @@ class RoaringStar(BossModule module) : Components.RaidwideCast(module, ActionID.
 class CoiledStrike(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CoiledStrike), new AOEShapeCone(30, 75.Degrees()));
 class Burn(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Burn), new AOEShapeRect(46, 2.5f), 8);
 class FallenStar(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FallenStar), 6);
-class FirstLight(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FirstLight), 6);
+class FirstLight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FirstLight), 6);
 class InnerWake(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.InnerWake), new AOEShapeCircle(10));
 class OuterWake(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.OuterWake), new AOEShapeDonut(6, 40));
 class BattleBreaker(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BattleBreaker));

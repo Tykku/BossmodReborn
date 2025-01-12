@@ -67,7 +67,7 @@ class JitteringJounceLOS(BossModule module) : Components.GenericAOEs(module)
             {
                 cones.Add(new(D112Ziggy.ArenaCenter, 11.1f, 20, Angle.FromDirection(Module.PrimaryActor.DirectionTo(c)), halfAngle));
             }
-            yield return new(new AOEShapeCustom(cones, InvertForbiddenZone: true), Arena.Center, Color: Colors.SafeFromAOE);
+            yield return new(new AOEShapeCustom([.. cones], InvertForbiddenZone: true), Arena.Center, Color: Colors.SafeFromAOE);
         }
     }
 

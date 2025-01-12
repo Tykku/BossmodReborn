@@ -40,7 +40,7 @@ class P2IcicleImpact(BossModule module) : Components.GenericAOEs(module, ActionI
 
     private void MarkAsRisky(int start, int end)
     {
-        for (int i = start; i < end; ++i)
+        for (var i = start; i < end; ++i)
             AOEs.Ref(i).Risky = true;
     }
 }
@@ -126,13 +126,13 @@ class P2DiamondDustSafespots(BossModule module) : BossComponent(module)
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         if (_safeOffs[slot] != default)
-            hints.AddForbiddenZone(ShapeDistance.PrecisePosition(Module.Center + _safeOffs[slot], new WDir(0, 1), Module.Bounds.MapResolution, actor.Position, 0.1f));
+            hints.AddForbiddenZone(ShapeDistance.PrecisePosition(Arena.Center + _safeOffs[slot], new WDir(0, 1), Arena.Bounds.MapResolution, actor.Position, 0.1f));
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (_safeOffs[pcSlot] != default)
-            Arena.AddCircle(Module.Center + _safeOffs[pcSlot], 1, Colors.Safe);
+            Arena.AddCircle(Arena.Center + _safeOffs[pcSlot], 1, Colors.Safe);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -142,7 +142,7 @@ class P2DiamondDustSafespots(BossModule module) : BossComponent(module)
             case AID.IcicleImpact:
                 if (_conesAtCardinals == null)
                 {
-                    _conesAtCardinals = IsCardinal(caster.Position - Module.Center);
+                    _conesAtCardinals = IsCardinal(caster.Position - Arena.Center);
                     InitIfReady();
                 }
                 break;
@@ -203,7 +203,7 @@ class P2DiamondDustSafespots(BossModule module) : BossComponent(module)
         }
     }
 
-    private bool IsCardinal(WDir off) => Math.Abs(off.X) < 1 || Math.Abs(off.Z) < 1;
+    private static bool IsCardinal(WDir off) => Math.Abs(off.X) < 1 || Math.Abs(off.Z) < 1;
 }
 
 class P2HeavenlyStrike(BossModule module) : Components.Knockback(module, ActionID.MakeSpell(AID.HeavenlyStrike))
@@ -213,7 +213,7 @@ class P2HeavenlyStrike(BossModule module) : Components.Knockback(module, ActionI
 
     public override IEnumerable<Source> Sources(int slot, Actor actor)
     {
-        yield return new(Module.Center, 12, _activation);
+        yield return new(Arena.Center, 12, _activation);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

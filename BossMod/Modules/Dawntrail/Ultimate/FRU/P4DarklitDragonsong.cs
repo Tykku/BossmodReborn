@@ -112,8 +112,8 @@ class P4DarklitDragonsongBrightHunger(BossModule module) : Components.GenericTow
                     allowedN = allowedS = assignments.TowerSoakers; // no assignments, just mark both towers as good
 
                 var towerOffset = new WDir(0, 8);
-                Towers.Add(new(Module.Center - towerOffset, 4, 4, 4, new BitMask(0xFF) ^ allowedN, WorldState.FutureTime(10.4f)));
-                Towers.Add(new(Module.Center + towerOffset, 4, 4, 4, new BitMask(0xFF) ^ allowedS, WorldState.FutureTime(10.4f)));
+                Towers.Add(new(Arena.Center - towerOffset, 4, 4, 4, new BitMask(0xFF) ^ allowedN, WorldState.FutureTime(10.4f)));
+                Towers.Add(new(Arena.Center + towerOffset, 4, 4, 4, new BitMask(0xFF) ^ allowedS, WorldState.FutureTime(10.4f)));
             }
         }
     }

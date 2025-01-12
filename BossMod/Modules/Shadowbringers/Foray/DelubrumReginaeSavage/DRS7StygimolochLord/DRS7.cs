@@ -6,7 +6,7 @@ class ThousandTonzeSwing(BossModule module) : Components.SelfTargetedAOEs(module
 class Whack(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WhackAOE), new AOEShapeCone(40, 30.Degrees()));
 class DevastatingBoltOuter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DevastatingBoltOuter), new AOEShapeDonut(25, 30));
 class DevastatingBoltInner(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DevastatingBoltInner), new AOEShapeDonut(12, 17));
-class Electrocution(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Electrocution), 3);
+class Electrocution(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Electrocution), 3);
 
 // TODO: ManaFlame component - show reflect hints
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 761, NameID = 9759, PlanLevel = 80)]
@@ -16,7 +16,7 @@ public class DRS7 : BossModule
     private readonly List<Actor> _ballsEarth;
     private readonly List<Actor> _ballsFire;
 
-    public DRS7(WorldState ws, Actor primary) : base(ws, primary, Border.BoundsCenter, Border.DefaultBounds)
+    public DRS7(WorldState ws, Actor primary) : base(ws, primary, Border.DefaultBounds.Center, Border.DefaultBounds)
     {
         _monks = Enemies(OID.StygimolochMonk);
         _ballsEarth = Enemies(OID.BallOfEarth);

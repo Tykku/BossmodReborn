@@ -8,9 +8,9 @@ public class MapVisualizer
     public int GoalPriority;
     public WPos StartPos;
     public float ScreenPixelSize = 10;
-    public List<(WPos center, float ir, float or, Angle dir, Angle halfWidth)> Sectors = [];
-    public List<(WPos origin, float lenF, float lenB, float halfWidth, Angle dir)> Rects = [];
-    public List<(WPos origin, WPos dest)> Lines = [];
+    public readonly List<(WPos center, float ir, float or, Angle dir, Angle halfWidth)> Sectors = [];
+    public readonly List<(WPos origin, float lenF, float lenB, float halfWidth, Angle dir)> Rects = [];
+    public readonly List<(WPos origin, WPos dest)> Lines = [];
 
     private ThetaStar _pathfind;
 

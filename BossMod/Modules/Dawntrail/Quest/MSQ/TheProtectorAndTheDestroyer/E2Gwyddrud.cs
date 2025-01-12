@@ -40,29 +40,35 @@ public enum AID : uint
     UntamedCurrentAOE5 = 38234, // Helper2->location, 3.1s cast, range 5 circle
     UntamedCurrentAOE6 = 19720, // Helper2->location, 3.2s cast, range 5 circle
     UntamedCurrentAOE7 = 19721, // Helper2->location, 3.3s cast, range 5 circle
-    UntamedCurrentAOE8 = 19728, // Helper2->location, 3.3s cast, range 5 circle
-    UntamedCurrentAOE9 = 19727, // Helper2->location, 3.2s cast, range 5 circle
-    UntamedCurrentAOE10 = 19179, // Helper2->location, 3.1s cast, range 5 circle
+    UntamedCurrentAOE8 = 19728, // Helper2->location, 3.3s cast, range 5 circle (outside arena)
+    UntamedCurrentAOE9 = 19727, // Helper2->location, 3.2s cast, range 5 circle (outside arena)
+    UntamedCurrentAOE10 = 19179, // Helper2->location, 3.1s cast, range 5 circle (outside arena)
     UntamedCurrentSpread = 19181, // Helper->all, 5.0s cast, range 5 circle
     UntamedCurrentStack = 19276, // Helper->Alisaie, 5.0s cast, range 6 circle
 }
 
 class Gnaw(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Gnaw));
 class CracklingHowl(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CracklingHowl));
-class UntamedCurrent(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.UntamedCurrent));
+class UntamedCurrentRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.UntamedCurrent));
 
 class VioletVoltage(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(4);
     private static readonly AOEShapeCone cone = new(20, 90.Degrees());
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        if (count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (count > 1)
-            yield return _aoes[1] with { Risky = _aoes[1].Rotation.AlmostEqual(_aoes[0].Rotation + 180.Degrees(), Angle.DegToRad) };
+        if (count == 0)
+            yield break;
+        for (var i = 0; i < (count > 2 ? 2 : count); ++i)
+        {
+            var aoe = _aoes[i];
+            if (i == 0)
+                yield return count != 1 ? aoe with { Color = Colors.Danger } : aoe;
+            else
+                yield return aoe with { Risky = !aoe.Rotation.AlmostEqual(_aoes[0].Rotation + 180.Degrees(), Angle.DegToRad) };
+        }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -73,50 +79,112 @@ class VioletVoltage(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.VioletVoltage)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID == AID.VioletVoltage)
             _aoes.RemoveAt(0);
     }
 }
 
 class RoaringBoltKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.RoaringBoltKB), 12, stopAtWall: true)
 {
-    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => Module.FindComponent<RoaringBolt>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false;
+    private readonly RoaringBolt _aoe = module.FindComponent<RoaringBolt>()!;
+    private static readonly Angle a25 = 25.Degrees();
+
+    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos)
+    {
+        foreach (var z in _aoe.ActiveAOEs(slot, actor))
+            if (z.Shape.Check(pos, z.Origin, z.Rotation))
+                return true;
+        return false;
+    }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var forbidden = new List<Func<WPos, float>>();
-        var component = Module.FindComponent<RoaringBolt>()?.ActiveAOEs(slot, actor)?.ToList();
-        var source = Sources(slot, actor).FirstOrDefault();
-        if (source != default && component != null)
+        if (Casters.Count == 0)
+            return;
+
+        var forbidden = new List<Func<WPos, float>>(6);
+        var aoes = _aoe.Casters;
+
+        Source source = default;
+        foreach (var s in Sources(slot, actor))
         {
-            foreach (var c in component)
-                forbidden.Add(ShapeDistance.Cone(Arena.Center, 19.5f, Angle.FromDirection(c.Origin - Arena.Center), 25.Degrees()));
-            if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), source.Activation);
+            source = s;
+            break;
+        }
+        var count = aoes.Count;
+        if (source != default && count != 0)
+        {
+            for (var i = 0; i < count; ++i)
+                forbidden.Add(ShapeDistance.Cone(Arena.Center, 20, Angle.FromDirection(aoes[i].Origin - Arena.Center), a25));
+            float minDistanceFunc(WPos pos)
+            {
+                var minDistance = float.MaxValue;
+                for (var i = 0; i < forbidden.Count; ++i)
+                {
+                    var distance = forbidden[i](pos);
+                    if (distance < minDistance)
+                        minDistance = distance;
+                }
+                return minDistance;
+            }
+
+            hints.AddForbiddenZone(minDistanceFunc, source.Activation);
         }
     }
 }
 
 class RollingThunder(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RollingThunder2), new AOEShapeCone(20, 22.5f.Degrees()), 6)
 {
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => ActiveCasters.Select((c, i) => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), i < 2 ? Colors.Danger : Colors.AOE));
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = Casters.Count;
+        var max = count > 6 ? 6 : count;
+        var aoes = new List<AOEInstance>(max);
+        for (var i = 0; i < max; ++i)
+        {
+            var caster = Casters[i];
+            var instance = new AOEInstance(Shape, caster.Position, caster.CastInfo!.Rotation, Module.CastFinishAt(caster.CastInfo), i < 2 ? Colors.Danger : Colors.AOE);
+            aoes.Add(instance);
+        }
+        return aoes;
+    }
 }
 
-class RoaringBolt(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RoaringBolt), 6);
+class RoaringBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RoaringBolt), 6);
 class UntamedCurrentSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.UntamedCurrentSpread), 5);
 class UntamedCurrentStack(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.UntamedCurrentStack), 6);
 
-class UntamedCurrents(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 5);
-class UntamedCurrentAOE1(BossModule module) : UntamedCurrents(module, AID.UntamedCurrentAOE1);
-class UntamedCurrentAOE2(BossModule module) : UntamedCurrents(module, AID.UntamedCurrentAOE2);
-class UntamedCurrentAOE3(BossModule module) : UntamedCurrents(module, AID.UntamedCurrentAOE3);
-class UntamedCurrentAOE4(BossModule module) : UntamedCurrents(module, AID.UntamedCurrentAOE4);
-class UntamedCurrentAOE5(BossModule module) : UntamedCurrents(module, AID.UntamedCurrentAOE5);
-class UntamedCurrentAOE6(BossModule module) : UntamedCurrents(module, AID.UntamedCurrentAOE6);
-class UntamedCurrentAOE7(BossModule module) : UntamedCurrents(module, AID.UntamedCurrentAOE7);
-class UntamedCurrentAOE8(BossModule module) : UntamedCurrents(module, AID.UntamedCurrentAOE8);
-class UntamedCurrentAOE9(BossModule module) : UntamedCurrents(module, AID.UntamedCurrentAOE9);
-class UntamedCurrentAOE10(BossModule module) : UntamedCurrents(module, AID.UntamedCurrentAOE10);
+class UntamedCurrentAOEs(BossModule module) : Components.GenericAOEs(module)
+{
+    private readonly List<AOEInstance> _aoes = new(11);
+    private static readonly AOEShapeCircle circle = new(5);
+    private static readonly HashSet<AID> casts = [AID.UntamedCurrentAOE1, AID.UntamedCurrentAOE2, AID.UntamedCurrentAOE3, AID.UntamedCurrentAOE4,
+    AID.UntamedCurrentAOE5, AID.UntamedCurrentAOE6, AID.UntamedCurrentAOE7, AID.UntamedCurrentAOE8, AID.UntamedCurrentAOE9, AID.UntamedCurrentAOE10];
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if (casts.Contains((AID)spell.Action.ID))
+            _aoes.Add(new(circle, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
+    }
+
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    {
+        if (casts.Contains((AID)spell.Action.ID))
+        {
+            for (var i = 0; i < _aoes.Count; ++i)
+            {
+                var aoe = _aoes[i];
+                if (aoe.ActorID == caster.InstanceID)
+                {
+                    _aoes.Remove(aoe);
+                    break;
+                }
+            }
+        }
+    }
+}
 
 class GwyddrudStates : StateMachineBuilder
 {
@@ -124,17 +192,8 @@ class GwyddrudStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<CracklingHowl>()
-            .ActivateOnEnter<UntamedCurrent>()
-            .ActivateOnEnter<UntamedCurrentAOE1>()
-            .ActivateOnEnter<UntamedCurrentAOE2>()
-            .ActivateOnEnter<UntamedCurrentAOE3>()
-            .ActivateOnEnter<UntamedCurrentAOE4>()
-            .ActivateOnEnter<UntamedCurrentAOE5>()
-            .ActivateOnEnter<UntamedCurrentAOE6>()
-            .ActivateOnEnter<UntamedCurrentAOE7>()
-            .ActivateOnEnter<UntamedCurrentAOE8>()
-            .ActivateOnEnter<UntamedCurrentAOE9>()
-            .ActivateOnEnter<UntamedCurrentAOE10>()
+            .ActivateOnEnter<UntamedCurrentRaidwide>()
+            .ActivateOnEnter<UntamedCurrentAOEs>()
             .ActivateOnEnter<UntamedCurrentSpread>()
             .ActivateOnEnter<UntamedCurrentStack>()
             .ActivateOnEnter<RoaringBolt>()

@@ -6,7 +6,7 @@ class Accelerate(BossModule module) : Components.SpreadFromCastTargets(module, A
 class Compress1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Compress1), new AOEShapeRect(104.5f, 3.5f));
 class Compress2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Compress2), new AOEShapeCross(100, 3.5f));
 
-class Pulverize2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Pulverize2), 12);
+class Pulverize2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Pulverize2), 12);
 class Dispose1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Dispose1), new AOEShapeCone(100, 45.Degrees()));
 class Dispose3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Dispose3), new AOEShapeCone(100, 45.Degrees()));
 

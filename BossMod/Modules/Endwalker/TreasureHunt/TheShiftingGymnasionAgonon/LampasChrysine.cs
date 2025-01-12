@@ -22,7 +22,7 @@ public enum AID : uint
     Telega = 9630 // GymnasiouLampas->self, no cast, single-target, bonus loot add despawn
 }
 
-class Shine(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Shine2), 5);
+class Shine(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shine2), 5);
 
 class AetherialLight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AetherialLight2), new AOEShapeCone(40, 30.Degrees()), 4)
 {

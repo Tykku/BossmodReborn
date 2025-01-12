@@ -82,7 +82,7 @@ class AglaeaClimbAOE(BossModule module) : Components.SelfTargetedAOEs(module, Ac
 class Disparagement(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Disparagement), new AOEShapeCone(40, 60.Degrees()));
 
 class IgnisOdi(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.IgnisOdi), 6, 4, 4);
-class IgnisAmoris(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.IgnisAmoris), 6);
+class IgnisAmoris(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IgnisAmoris), 6);
 class Frustration(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Frustration));
 
 class D051LiviaStates : StateMachineBuilder

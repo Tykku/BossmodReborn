@@ -35,8 +35,8 @@ public enum TetherID : uint
 
 class OmnidimensionalOnslaughtAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.OmnidimensionalOnslaughtAOE), new AOEShapeCone(40, 22.5f.Degrees()));
 
-class LeapForward1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LeapForward1), 15);
-class LeapForward2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LeapForward2), 15);
+class LeapForward1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LeapForward1), 15);
+class LeapForward2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LeapForward2), 15);
 
 //class SteelBeam(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SteelBeam));
 class CircularSaw(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CircularSaw));

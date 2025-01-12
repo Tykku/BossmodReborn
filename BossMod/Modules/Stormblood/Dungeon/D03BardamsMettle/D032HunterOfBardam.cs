@@ -51,8 +51,8 @@ public enum IconID : uint
 }
 
 class Comet(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(4), ActionID.MakeSpell(AID.CometFirst), ActionID.MakeSpell(AID.CometRest), 10, 1.5f, 9, true, (uint)IconID.ChasingAOE);
-class CometFirst(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.CometFirst), 4);
-class CometRest(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.CometRest), 4);
+class CometFirst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CometFirst), 4);
+class CometRest(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CometRest), 4);
 
 class MeteorImpact(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.MeteorImpact), 50, safeInsideHitbox: false)
 {
@@ -86,7 +86,7 @@ class MeteorImpact(BossModule module) : Components.CastLineOfSightAOE(module, Ac
 class Charge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Charge), new AOEShapeRect(41.25f, 2.5f, 5));
 class EmptyGaze(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EmptyGaze));
 class Sacrifice(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.Sacrifice), 3);
-class Reconstruct(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Reconstruct), 5);
+class Reconstruct(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Reconstruct), 5);
 class CometImpact(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CometImpact), new AOEShapeCircle(9));
 class BardamsRing(BossModule module) : Components.DonutStack(module, ActionID.MakeSpell(AID.BardamsRing), (uint)IconID.BardamsRing, 10, 20, 3.5f, 4, 4);
 

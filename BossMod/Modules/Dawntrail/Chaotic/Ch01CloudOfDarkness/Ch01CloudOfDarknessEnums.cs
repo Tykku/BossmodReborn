@@ -3,19 +3,17 @@
 public enum OID : uint
 {
     Boss = 0x461E, // R23.000, x1
-    Helper = 0x233C, // R0.500, x24, Helper type
     StygianShadow = 0x461F, // R4.000, x0 (spawn during fight), big add
     Atomos = 0x4620, // R2.800, x0 (spawn during fight), small add
     DeathsHand = 0x4621, // R2.000, x6, grim embrace hand
     StygianTendrils = 0x4622, // R1.200, x0 (spawn during fight), evil seed
     CloudletOfDarkness = 0x4623, // R3.000, x0 (spawn during fight), criss-cross source
     BallOfNaught = 0x4624, // R1.500, x1, (en)death sphere
-    //_Gen_DreadGale = 0x4625, // R1.200, x1
+    //DreadGale = 0x4625, // R1.200, x1, ???
     SinisterEye = 0x4626, // R2.800, x2, break gaze source
     AtomosSpawnPoint = 0x1EBD7B, // R0.500, x0 (spawn during fight), EventObj type
     EvilSeed = 0x1E9B3B, // R0.500, x0 (spawn during fight), EventObj type
-    //_Gen_Actor1e8536 = 0x1E8536, // R2.000, x1, EventObj type
-    //_Gen_Exit = 0x1E850B, // R0.500, x1, EventObj type
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -134,7 +132,7 @@ public enum AID : uint
     Evaporation = 40454, // StygianShadow->Boss, 2.0s cast, single-target, destroy add and transfer damage done to boss
     FloodOfDarkness2 = 40455, // Boss->location, 7.0s cast, range 60 circle, raidwide + arena transition to normal
 
-    Enrage = 40533, // Boss->location, 12.0s cast, range 100 circle, enrage
+    Enrage = 40533 // Boss->location, 12.0s cast, range 100 circle, enrage
 }
 
 public enum SID : uint
@@ -156,11 +154,11 @@ public enum SID : uint
     //_Gen_StabWound = 3062, // none->player, extra=0x0
     //_Gen_ThornyVine = 445, // none->player, extra=0x0
     //_Gen_ForwardWithThee = 2240, // none->player, extra=0x33F
-    //_Gen_Stun = 149, // none->player, extra=0x0
     //_Gen_BackWithThee = 2241, // none->player, extra=0x340
     //_Gen_LeftWithThee = 2242, // none->player, extra=0x341
-    //_Gen_Stun = 2656, // none->player, extra=0x0
     //_Gen_RightWithThee = 2243, // none->player, extra=0x342
+    //_Gen_Stun = 149, // none->player, extra=0x0
+    //_Gen_Stun = 2656, // none->player, extra=0x0
 }
 
 public enum IconID : uint

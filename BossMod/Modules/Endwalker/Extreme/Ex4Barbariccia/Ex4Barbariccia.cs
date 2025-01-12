@@ -10,7 +10,7 @@ class SecretBreezeProteans(BossModule module) : Components.SimpleProtean(module,
 class WarningGale(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WarningGale), new AOEShapeCircle(6));
 class WindingGaleCharge(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.WindingGaleCharge), 2);
 class BoulderBreak(BossModule module) : Components.CastSharedTankbuster(module, ActionID.MakeSpell(AID.BoulderBreak), 5);
-class Boulder(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Boulder), 10);
+class Boulder(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Boulder), 10);
 class BrittleBoulder(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BrittleBoulder), 5);
 class TornadoChainInner(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TornadoChainInner), new AOEShapeCircle(11));
 class TornadoChainOuter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TornadoChainOuter), new AOEShapeDonut(11, 20));
@@ -22,7 +22,7 @@ class ImpactAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionI
 class ImpactKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ImpactKnockback), 6);
 class BlusteryRuler(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlusteryRuler), new AOEShapeCircle(6));
 class DryBlowsRaidwide(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.DryBlowsRaidwide));
-class DryBlowsPuddle(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DryBlowsPuddle), 3);
+class DryBlowsPuddle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DryBlowsPuddle), 3);
 class IronOut(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.IronOutAOE));
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 871, NameID = 11398)]

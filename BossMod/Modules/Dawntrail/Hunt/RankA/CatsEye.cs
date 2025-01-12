@@ -17,9 +17,9 @@ public enum AID : uint
     BloodshotGaze2 = 39668, // Boss->players, 5.0s cast, range 8 circle, inverted.
 }
 
-class CatsEye1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.CatsEye1), 40);
+class CatsEye1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CatsEye1), 40);
 
-class CatsEye2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.CatsEye2), 40);
+class CatsEye2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CatsEye2), 40);
 
 class CatsEye1Gaze(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.CatsEye1))
 {

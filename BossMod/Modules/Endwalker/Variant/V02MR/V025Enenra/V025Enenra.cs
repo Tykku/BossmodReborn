@@ -1,7 +1,7 @@
 namespace BossMod.Endwalker.VariantCriterion.V02MR.V025Enenra;
 
 class PipeCleaner(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(60, 5), (uint)TetherID.PipeCleaner);
-class Uplift(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Uplift), 6);
+class Uplift(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Uplift), 6);
 class Snuff(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.Snuff), new AOEShapeCircle(6), true)
 {
     public override void AddGlobalHints(GlobalHints hints)

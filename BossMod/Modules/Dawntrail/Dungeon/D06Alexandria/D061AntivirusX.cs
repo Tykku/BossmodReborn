@@ -120,7 +120,7 @@ class Quarantine(BossModule module) : Components.StackWithIcon(module, (uint)Ico
 
     public override void Update()
     {
-        if (!ActiveStacks.Any())
+        if (ActiveStacks.Count == 0)
             return;
         var forbidden = Raid.WithSlot().WhereActor(p => _tb.ActiveBaits.Any(x => x.Target == p)).Mask();
         foreach (ref var t in Stacks.AsSpan())

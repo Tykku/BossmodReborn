@@ -38,9 +38,9 @@ class BlindingLove1(BossModule module) : Components.SelfTargetedAOEs(module, Act
 }
 
 class BlindingLove2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlindingLove2), new AOEShapeRect(50, 4));
-class HeartStruck1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeartStruck1), 4);
-class HeartStruck2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeartStruck2), 6);
-class HeartStruck3(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeartStruck3), 10, maxCasts: 8);
+class HeartStruck1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeartStruck1), 4);
+class HeartStruck2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeartStruck2), 6);
+class HeartStruck3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeartStruck3), 10, maxCasts: 8);
 
 class Fracture(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.Fracture), 4)
 {

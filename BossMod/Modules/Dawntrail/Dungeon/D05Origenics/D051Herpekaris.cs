@@ -45,7 +45,7 @@ class ConvulsiveCrush(BossModule module) : Components.SingleTargetDelayableCast(
 class PoisonHeartSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PoisonHeartSpread), 5);
 class PoisonHeartVoidzone(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 2, ActionID.MakeSpell(AID.PoisonHeartVoidzone), m => m.Enemies(OID.PoisonVoidzone).Where(z => z.EventState != 7), 0.9f);
 
-class PodBurst(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+class PodBurst(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class PodBurst1(BossModule module) : PodBurst(module, AID.PodBurst1);
 class PodBurst2(BossModule module) : PodBurst(module, AID.PodBurst2);
 

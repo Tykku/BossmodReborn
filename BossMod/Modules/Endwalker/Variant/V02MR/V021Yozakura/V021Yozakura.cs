@@ -5,7 +5,7 @@ class ArtOfTheFireblossom(BossModule module) : Components.SelfTargetedAOEs(modul
 class ArtOfTheWindblossom(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ArtOfTheWindblossom), new AOEShapeDonut(5, 60));
 class KugeRantsui(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.KugeRantsui));
 class OkaRanman(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.OkaRanman));
-class LevinblossomStrike(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LevinblossomStrike), 3);
+class LevinblossomStrike(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LevinblossomStrike), 3);
 class DriftingPetals(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.DriftingPetals), 15, ignoreImmunes: true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -29,10 +29,10 @@ class DriftingPetals(BossModule module) : Components.KnockbackFromCastTarget(mod
 }
 
 class Mudrain(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.Mudrain), module => module.Enemies(OID.MudVoidzone).Where(z => z.EventState != 7), 0.7f);
-class Icebloom(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Icebloom), 6);
+class Icebloom(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Icebloom), 6);
 class Shadowflight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Shadowflight), new AOEShapeRect(10, 3));
 class MudPie(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MudPie), new AOEShapeRect(60, 3));
-class FireblossomFlare(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FireblossomFlare), 6);
+class FireblossomFlare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireblossomFlare), 6);
 class ArtOfTheFluff1(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.ArtOfTheFluff1));
 class ArtOfTheFluff2(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.ArtOfTheFluff2));
 class TatamiGaeshi(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TatamiGaeshi), new AOEShapeRect(40, 5));

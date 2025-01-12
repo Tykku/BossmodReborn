@@ -37,7 +37,7 @@ public enum AID : uint
     ClimateChangeStatusEffect = 39133 // Boss->self, no cast, single-target
 }
 
-class FloodConditions(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FloodConditions), 6);
+class FloodConditions(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FloodConditions), 6);
 class GaleForceWinds(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GaleForceWinds), new AOEShapeRect(40, 20));
 class Hyperelectricity(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hyperelectricity), new AOEShapeCircle(10));
 class WildfireConditions(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WildfireConditions), new AOEShapeDonut(5, 40));

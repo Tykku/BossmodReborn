@@ -24,7 +24,7 @@ public enum AID : uint
     MagitekRay = 21268, // MagitekBit->self, 2.5s cast, range 50 width 4 rect
 }
 
-class LightLeap(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LightLeap), 10);
+class LightLeap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightLeap), 10);
 class ChemicalMissile(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ChemicalMissile), new AOEShapeCircle(12));
 class TailMissile(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TailMissileAOE), new AOEShapeCircle(30));
 class Shockwave(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Shockwave), new AOEShapeCircle(16));

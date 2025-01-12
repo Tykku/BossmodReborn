@@ -1,8 +1,8 @@
 ﻿namespace BossMod.RealmReborn.Extreme.Ex1Ultima;
 
-class RadiantPlume(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RadiantPlume), 8);
-class WeightOfTheLand(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.WeightOfTheLand), 6);
-class Eruption(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Eruption), 8);
+class RadiantPlume(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RadiantPlume), 8);
+class WeightOfTheLand(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WeightOfTheLand), 6);
+class Eruption(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Eruption), 8);
 class MagitekRayCenter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRayCenter), new AOEShapeRect(40, 3));
 class MagitekRayLeft(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRayLeft), new AOEShapeRect(40, 3));
 class MagitekRayRight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRayRight), new AOEShapeRect(40, 3));

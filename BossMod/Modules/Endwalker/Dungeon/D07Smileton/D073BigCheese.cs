@@ -53,7 +53,7 @@ class ElectricArc(BossModule module) : Components.StackWithCastTargets(module, A
 
 class Excavated(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Excavated), new AOEShapeCircle(8));
 
-class IronKiss(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.IronKiss), 16);
+class IronKiss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IronKiss), 16);
 
 class PiercingMissile(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.PiercingMissile));
 

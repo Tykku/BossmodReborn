@@ -18,8 +18,8 @@ public enum AID : uint
     GoblinRush = 41654 // Boss->players, no cast, single-target
 }
 
-class BombToss(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BombToss), 3);
-class Seismostomp(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Seismostomp), 5);
+class BombToss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BombToss), 3);
+class Seismostomp(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Seismostomp), 5);
 
 public class A10VanguardPathfinderStates : StateMachineBuilder
 {

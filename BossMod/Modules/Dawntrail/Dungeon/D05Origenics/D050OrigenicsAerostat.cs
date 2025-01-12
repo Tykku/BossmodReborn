@@ -21,7 +21,7 @@ public enum AID : uint
 }
 
 class IncendiaryCircle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IncendiaryCircle), new AOEShapeDonut(3, 12));
-class GrenadoShot(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GrenadoShot), 5);
+class GrenadoShot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrenadoShot), 5);
 
 class D050OrigenicsAerostatStates : StateMachineBuilder
 {
@@ -30,8 +30,17 @@ class D050OrigenicsAerostatStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<IncendiaryCircle>()
             .ActivateOnEnter<GrenadoShot>()
-            .Raw.Update = () => module.Enemies(OID.Aerostat2).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.OrigenicsSentryS9))
-            .Concat(module.Enemies(OID.OrigenicsSentryS92)).Concat(module.Enemies(OID.OrigenicsSentryG10)).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D050OrigenicsAerostat.Trash);
+                for (var i = 0; i < enemies.Count; ++i)
+                {
+                    var e = enemies[i];
+                    if (!e.IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -40,10 +49,10 @@ public class D050OrigenicsAerostat(WorldState ws, Actor primary) : BossModule(ws
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-116, -80), 14.5f, 6, 30.Degrees()), new Rectangle(new(-88, -80), 20, 5.5f),
     new Polygon(new(-60, -80), 14.5f, 6, 30.Degrees()), new Rectangle(new(-144, -80), 20, 5.5f)]);
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.Aerostat2, (uint)OID.OrigenicsSentryS9, (uint)OID.OrigenicsSentryS92, (uint)OID.OrigenicsSentryG10];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Aerostat2).Concat(Enemies(OID.OrigenicsSentryS9)).Concat(Enemies(OID.OrigenicsSentryS92)).Concat(Enemies(OID.OrigenicsSentryG10)));
+        Arena.Actors(Enemies(Trash));
     }
 }

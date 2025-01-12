@@ -36,7 +36,7 @@ public enum IconID : uint
     Baitaway = 23 // player
 }
 
-class Hydrocannon(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrocannon), 8);
+class Hydrocannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrocannon), 8);
 class FreshwaterCannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FreshwaterCannon), new AOEShapeRect(46, 2));
 class AquaBurst(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AquaBurst), new AOEShapeCircle(10));
 class BrineBreath(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BrineBreath));

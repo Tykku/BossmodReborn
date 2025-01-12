@@ -49,7 +49,7 @@ class Hints(BossModule module) : BossComponent(module)
 // also handles rockbuster, which is just a smaller cleave...
 class MountainBuster(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.MountainBuster), new AOEShapeCone(21.25f, 60.Degrees())); // TODO: verify angle
 
-class WeightOfTheLand(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.WeightOfTheLandAOE), 6);
+class WeightOfTheLand(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WeightOfTheLandAOE), 6);
 class Landslide(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Landslide), new AOEShapeRect(40.25f, 3));
 
 class Geocrush(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.Geocrush))

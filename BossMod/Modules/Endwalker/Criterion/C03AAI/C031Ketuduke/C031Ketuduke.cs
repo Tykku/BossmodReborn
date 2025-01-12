@@ -10,7 +10,7 @@ class SBubbleNet1(BossModule module) : BubbleNet(module, AID.SBubbleNet1AOE);
 class NBubbleNet2(BossModule module) : BubbleNet(module, AID.NBubbleNet2AOE);
 class SBubbleNet2(BossModule module) : BubbleNet(module, AID.SBubbleNet2AOE);
 
-abstract class Hydrobomb(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 5);
+abstract class Hydrobomb(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 5);
 class NHydrobomb(BossModule module) : Hydrobomb(module, AID.NHydrobombAOE);
 class SHydrobomb(BossModule module) : Hydrobomb(module, AID.SHydrobombAOE);
 

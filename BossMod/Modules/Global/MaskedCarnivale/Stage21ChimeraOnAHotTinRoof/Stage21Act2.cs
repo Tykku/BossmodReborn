@@ -23,7 +23,7 @@ class TheRamsKeeper(BossModule module) : Components.PersistentVoidzoneAtCastTarg
 class TheRamsKeeperHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.TheRamsKeeper));
 class TheRamsVoice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheRamsVoice), new AOEShapeCircle(9));
 class TheDragonsVoice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheDragonsVoice), new AOEShapeDonut(8, 30));
-class Icefall(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Icefall), 5);
+class Icefall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Icefall), 5);
 class VoidBlizzard(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.VoidBlizzard));
 
 class Hints(BossModule module) : BossComponent(module)

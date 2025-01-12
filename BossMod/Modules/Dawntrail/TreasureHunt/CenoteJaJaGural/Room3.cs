@@ -56,17 +56,17 @@ public enum AID : uint
 
 class Wingbeat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wingbeat), new AOEShapeCone(18, 30.Degrees()));
 class Feathercut(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Feathercut), new AOEShapeRect(40, 4));
-class GoldDust(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GoldDust), 8);
+class GoldDust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldDust), 8);
 class BloodyCaress(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BloodyCaress), new AOEShapeCone(12, 60.Degrees()));
 class SwiftSough(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SwiftSough), new AOEShapeCone(13, 30.Degrees()));
 class FireBreak(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FireBreak), new AOEShapeCone(8, 45.Degrees()));
 
-abstract class CircleLoc6(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class CircleLoc6(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class Tornado(BossModule module) : CircleLoc6(module, AID.Tornado);
 class Incubus(BossModule module) : CircleLoc6(module, AID.Incubus);
 class RottenSpores(BossModule module) : CircleLoc6(module, AID.RottenSpores);
 
-abstract class CircleLoc5(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 5);
+abstract class CircleLoc5(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 5);
 class FireII(BossModule module) : CircleLoc5(module, AID.FireII);
 class BitterNectar(BossModule module) : CircleLoc5(module, AID.BitterNectar);
 

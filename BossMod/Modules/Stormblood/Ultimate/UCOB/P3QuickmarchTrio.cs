@@ -70,5 +70,5 @@ class P3MegaflareSpreadStack : Components.UniformStackSpread
     }
 }
 
-class P3MegaflarePuddle(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MegaflarePuddle), 6);
+class P3MegaflarePuddle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MegaflarePuddle), 6);
 class P3TempestWing(BossModule module) : Components.TankbusterTether(module, ActionID.MakeSpell(AID.TempestWing), (uint)TetherID.TempestWing, 5);

@@ -55,6 +55,6 @@ abstract class ExplosiveTheorem(BossModule module, AID aid) : Components.SpreadF
 class NExplosiveTheorem(BossModule module) : ExplosiveTheorem(module, AID.NExplosiveTheoremAOE);
 class SExplosiveTheorem(BossModule module) : ExplosiveTheorem(module, AID.SExplosiveTheoremAOE);
 
-abstract class TelluricTheorem(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 8);
+abstract class TelluricTheorem(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 8);
 class NTelluricTheorem(BossModule module) : TelluricTheorem(module, AID.NTelluricTheorem);
 class STelluricTheorem(BossModule module) : TelluricTheorem(module, AID.STelluricTheorem);

@@ -106,9 +106,6 @@ class P1UtopianSkyAIInitial(BossModule module) : BossComponent(module)
     {
         hints.AddForbiddenZone(ShapeDistance.Circle(Module.Center, 18)); // stay on edge
 
-        if (assignment == PartyRolesConfig.Assignment.Unassigned)
-            return;
-
         var clockspot = _config.P1UtopianSkyInitialSpots[assignment];
         if (clockspot >= 0)
         {
@@ -147,16 +144,13 @@ class P1UtopianSkyAIResolve(BossModule module) : BossComponent(module)
         foreach (var (slot, group) in _config.P1UtopianSkyInitialSpots.Resolve(Raid))
         {
             var spot = group & 3;
-            if (folded[spot] && !_seenDangerSpot[spot] && Raid[slot] is var p && p != null && !p.Position.InDonutCone(Module.Center, 12, 20, (180 - 45 * group).Degrees(), 30.Degrees()))
+            if (folded[spot] && !_seenDangerSpot[spot] && Raid[slot] is var p && p != null && !p.Position.InDonutCone(Arena.Center, 12, 20, (180 - 45 * group).Degrees(), 30.Degrees()))
                 _seenDangerSpot.Set(spot);
         }
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (assignment == PartyRolesConfig.Assignment.Unassigned)
-            return;
-
         var clockSpot = _config.P1UtopianSkyInitialSpots[assignment];
         if (_aoes == null)
             return;
@@ -167,7 +161,7 @@ class P1UtopianSkyAIResolve(BossModule module) : BossComponent(module)
             if (clockSpot >= 0 && (_aoes.DangerousSpots[clockSpot] || _seenDangerSpot[clockSpot & 3]))
             {
                 // our spot is dangerous, or our partner's is and he has moved - move to center
-                hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 5), _aoes.Activation);
+                hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 5), _aoes.Activation);
             }
             // else: we don't have a reason to move, stay where we are...
         }
@@ -187,7 +181,7 @@ class P1UtopianSkyAIResolve(BossModule module) : BossComponent(module)
                 _ => default
             };
             var range = spreadSpot == 0 ? 13 : 19;
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center + range * direction.ToDirection(), 1), _aoes.Activation);
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center + range * direction.ToDirection(), 1), _aoes.Activation);
         }
     }
 }

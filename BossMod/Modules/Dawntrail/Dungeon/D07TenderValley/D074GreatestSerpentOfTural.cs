@@ -112,7 +112,7 @@ class GreatestLabyrinth(BossModule module) : Components.GenericAOEs(module)
         (new(new(-132, -548), Radius), new(new(-120, -564), Radius)),
         (new(new(-136, -556), Radius), new(new(-140, -544), Radius))];
 
-    private static readonly List<Shape> wholeArena = [new Square(center, 12)];
+    private static readonly Shape[] wholeArena = [new Square(center, 12)];
     private static readonly AOEShapeCustom[] forbiddenShapes = [.. tilePairs.Select(tp => new AOEShapeCustom(wholeArena, [middle, tp.correctTile, tp.goalTile]))];
     private static readonly AOEShapeCustom[] safeShapes = [.. tilePairs.Select(tp => new AOEShapeCustom([tp.correctTile, tp.goalTile], InvertForbiddenZone: true))];
 
@@ -177,7 +177,7 @@ class GreatestLabyrinthRaidwide(BossModule module) : Components.RaidwideCast(mod
 class GreatestFloodRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GreatestFlood));
 class ExaltedWobble(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ExaltedWobble), new AOEShapeCircle(9));
 class MisplacedMystery(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MisplacedMystery), new AOEShapeRect(25.5f, 2.5f, 25.5f));
-class GreatTorrent(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GreatTorrentAOE), 6, maxCasts: 10);
+class GreatTorrent(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GreatTorrentAOE), 6, maxCasts: 10);
 class GreatTorrentSpread(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.GreatTorrentSpread), 6, 5.1f);
 
 class D074GreatestSerpentOfTuralStates : StateMachineBuilder

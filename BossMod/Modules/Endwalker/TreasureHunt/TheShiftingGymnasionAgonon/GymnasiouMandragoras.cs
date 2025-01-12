@@ -30,7 +30,7 @@ public enum AID : uint
 
 class Ram(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Ram));
 class SaibaiMandragora(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.SaibaiMandragora), "Calls adds");
-class LeafDagger(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LeafDagger), 3);
+class LeafDagger(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LeafDagger), 3);
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);

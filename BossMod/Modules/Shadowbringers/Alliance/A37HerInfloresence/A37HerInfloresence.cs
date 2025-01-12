@@ -6,7 +6,7 @@ class ScreamingScore(BossModule module) : Components.RaidwideCast(module, Action
 class DarkerNote1(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.DarkerNote1), 6);
 class HeavyArms1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeavyArms1), new AOEShapeRect(44, 50, -5));
 class HeavyArms3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeavyArms3), new AOEShapeRect(100, 6, 100));
-class PlaceOfPower(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.PlaceOfPower), 6);
+class PlaceOfPower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PlaceOfPower), 6);
 class Shockwave1(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Shockwave1), 35);
 class Shockwave2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Shockwave2), new AOEShapeCircle(7));
 class Towerfall2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Towerfall2), new AOEShapeRect(70, 7));

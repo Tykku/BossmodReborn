@@ -17,8 +17,10 @@ class ElectropeEdgeWitchgleam(BossModule module) : Components.GenericAOEs(module
 
 class ElectropeEdgeSpark1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectropeEdgeSpark1), new AOEShapeRect(5, 5, 5));
 class ElectropeEdgeSpark2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectropeEdgeSpark2), new AOEShapeRect(15, 15, 15));
-class ElectropeEdgeSidewiseSparkR(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectropeEdgeSidewiseSparkR), new AOEShapeCone(60, 90.Degrees()));
-class ElectropeEdgeSidewiseSparkL(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectropeEdgeSidewiseSparkL), new AOEShapeCone(60, 90.Degrees()));
+
+abstract class ElectropeEdgeSidewise(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 90.Degrees()));
+class ElectropeEdgeSidewiseSparkR(BossModule module) : ElectropeEdgeSidewise(module, AID.ElectropeEdgeSidewiseSparkR);
+class ElectropeEdgeSidewiseSparkL(BossModule module) : ElectropeEdgeSidewise(module, AID.ElectropeEdgeSidewiseSparkL);
 
 class ElectropeEdgeStar(BossModule module) : Components.UniformStackSpread(module, 6, 6, alwaysShowSpreads: true)
 {
@@ -31,12 +33,12 @@ class ElectropeEdgeStar(BossModule module) : Components.UniformStackSpread(modul
                 case 0x2F0:
                     // TODO: can target any role, if not during cage?..
                     var cage = Module.FindComponent<LightningCage>();
-                    var targets = Raid.WithSlot(true);
-                    targets = cage != null ? targets.WhereSlot(i => cage.Order[i] == 2) : targets.WhereActor(p => p.Class.IsSupport());
+                    var targets = Raid.WithSlot(true, true, true);
+                    targets = cage != null ? [.. targets.WhereSlot(i => cage.Order[i] == 2)] : [.. targets.WhereActor(p => p.Class.IsSupport())];
                     AddStacks(targets.Actors(), status.ExpireAt.AddSeconds(1));
                     break;
                 case 0x2F1:
-                    AddSpreads(Raid.WithoutSlot(true), status.ExpireAt.AddSeconds(1));
+                    AddSpreads(Raid.WithoutSlot(true, true, true), status.ExpireAt.AddSeconds(1));
                     break;
             }
         }

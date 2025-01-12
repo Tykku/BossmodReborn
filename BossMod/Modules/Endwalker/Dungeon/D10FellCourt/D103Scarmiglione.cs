@@ -76,7 +76,7 @@ class VacuumWave(BossModule module) : Components.KnockbackFromCastTarget(module,
 class BlightedBedevilment(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlightedBedevilment), new AOEShapeCircle(9));
 class BlightedBladework2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlightedBladework2), new AOEShapeCircle(25));
 class Nox(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Nox), new AOEShapeCircle(10));
-class RottenRampage2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RottenRampage2), 6);
+class RottenRampage2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RottenRampage2), 6);
 class BlightedSweep(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlightedSweep), new AOEShapeCone(40, 90.Degrees()));
 class CursedEcho(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CursedEcho));
 class VoidGravity(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VoidGravity), 6, 4, 4);

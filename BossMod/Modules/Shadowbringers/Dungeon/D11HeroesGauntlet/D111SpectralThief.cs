@@ -2,7 +2,6 @@ namespace BossMod.Shadowbringers.Dungeon.D11HeroesGauntlet.D111SpectralThief;
 
 public enum OID : uint
 {
-
     Boss = 0x2DEC, // R0.875
     SpectralThief = 0x2DED, // R0.875
     Marker = 0x1EAED9,
@@ -87,7 +86,7 @@ class VacuumBladePapercutter(BossModule module) : Components.GenericAOEs(module)
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (_aoe.ActiveCasters.Any())
+        if (_aoe.ActiveCasters.Count != 0)
         { }
         else
             base.AddAIHints(slot, actor, assignment, hints);

@@ -25,7 +25,7 @@ class IronJustice2(BossModule module) : Components.SelfTargetedAOEs(module, Acti
 class IronJustice3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IronJustice3), new AOEShapeCone(10, 60.Degrees()));
 class IronJustice4(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IronJustice4), new AOEShapeCone(10.5f, 60.Degrees()));
 class BlackNebula(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.BlackNebula));
-class Cloudcover1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Cloudcover1), 6);
+class Cloudcover1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Cloudcover1), 6);
 class KingsWill1(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.KingsWill));
 class KingsWill2(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.KingsWill2));
 class KingsWill3(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.KingsWill3));

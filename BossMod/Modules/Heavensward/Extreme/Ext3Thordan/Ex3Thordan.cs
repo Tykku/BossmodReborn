@@ -6,12 +6,12 @@ abstract class HeavenlySlash(BossModule module, OID oid) : Components.Cleave(mod
 class HeavenlySlashAdelphel(BossModule module) : HeavenlySlash(module, OID.SerAdelphel);
 class HeavenlySlashJanlenoux(BossModule module) : HeavenlySlash(module, OID.SerJanlenoux);
 
-class Meteorain(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MeteorainAOE), 6);
+class Meteorain(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MeteorainAOE), 6);
 class AscalonsMercy(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AscalonsMercy), new AOEShapeCone(34.8f, 10.Degrees()));
 class AscalonsMercyHelper(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AscalonsMercyAOE), new AOEShapeCone(34.5f, 10.Degrees()));
 class DragonsRage(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.DragonsRage), 6, 8, 8);
 class LightningStorm(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.LightningStormAOE), 5);
-class Heavensflame(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavensflameAOE), 6);
+class Heavensflame(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavensflameAOE), 6);
 class Conviction(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.ConvictionAOE), 3);
 class BurningChains(BossModule module) : Components.Chains(module, (uint)TetherID.BurningChains, ActionID.MakeSpell(AID.HolyChain));
 class SerZephirin(BossModule module) : Components.Adds(module, (uint)OID.SerZephirin);

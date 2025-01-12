@@ -56,7 +56,7 @@ class Ovation(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.
 class GravelShower(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GravelShower), new AOEShapeRect(10, 2));
 class Flatten(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Flatten), new AOEShapeCone(8, 45.Degrees()));
 class PollenCorona(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PollenCorona), new AOEShapeCircle(8));
-class WaterIII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.WaterIII), 8);
+class WaterIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaterIII), 8);
 
 abstract class Cone1045(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(10, 45.Degrees()));
 class Dissever(BossModule module) : Cone1045(module, AID.Dissever);
@@ -66,7 +66,7 @@ abstract class Cone1060(BossModule module, AID aid) : Components.SelfTargetedAOE
 class DoubleSmash(BossModule module) : Cone1060(module, AID.DoubleSmash);
 class CriticalBite(BossModule module) : Cone1060(module, AID.CriticalBite);
 
-abstract class CircleLoc6(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class CircleLoc6(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class Tornado(BossModule module) : CircleLoc6(module, AID.Tornado);
 class TornadicSerenade(BossModule module) : CircleLoc6(module, AID.TornadicSerenade);
 class RottenSpores(BossModule module) : CircleLoc6(module, AID.RottenSpores);

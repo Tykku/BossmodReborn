@@ -41,7 +41,7 @@ public enum AID : uint
 
 class Rake(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Rake));
 class Tiiimbeeer(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Tiiimbeeer));
-class StoneIII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.StoneIII2), 6);
+class StoneIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StoneIII2), 6);
 class EarthShaker(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.EarthShaker2), new AOEShapeCone(60, 15.Degrees()), endsOnCastEvent: true);
 
 class EarthQuaker(BossModule module) : Components.ConcentricAOEs(module, _shapes)
@@ -76,7 +76,7 @@ class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
 
 class GymnasiouStyphnolobionStates : StateMachineBuilder
 {

@@ -65,8 +65,8 @@ class TerminusEstRects(BossModule module) : Components.GenericAOEs(module)
     }
 }
 class TerminusEstCircle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TerminusEstLocationHelper), new AOEShapeCircle(3));
-class FireII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FireII), 5);
-class GarleanFire(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GarleanFire), 5);
+class FireII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireII), 5);
+class GarleanFire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GarleanFire), 5);
 class MetalCutter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MetalCutter), new AOEShapeCone(30, 10.Degrees()));
 class MagitekRayBits(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRayBit), new AOEShapeRect(50, 1));
 class AtomicRay(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AtomicRay), new AOEShapeCircle(10));

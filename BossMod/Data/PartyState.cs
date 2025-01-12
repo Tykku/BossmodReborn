@@ -49,36 +49,39 @@ public sealed class PartyState
     }
 
     // select non-null and optionally alive raid members
-    public IEnumerable<Actor> WithoutSlot(bool includeDead = false, bool excludeAlliance = false, bool excludeNPCs = false)
+    public Actor[] WithoutSlot(bool includeDead = false, bool excludeAlliance = false, bool excludeNPCs = false)
     {
-        for (var i = 0; i < MaxAllies; ++i)
+        var limit = excludeNPCs ? MaxAllianceSize : MaxAllies;
+        var result = new List<Actor>(limit);
+        for (var i = 0; i < limit; ++i)
         {
-            if (excludeNPCs && i >= MaxAllianceSize)
-                break;
-            if (excludeAlliance && i is >= MaxPartySize and < MaxAllianceSize)
+            if (excludeAlliance && i >= MaxPartySize && i < MaxAllianceSize)
                 continue;
+
             var player = _actors[i];
-            if (player == null)
+            if (player == null || !includeDead && player.IsDead)
                 continue;
-            if (player.IsDead && !includeDead)
-                continue;
-            yield return player;
+            result.Add(player);
         }
+        return [.. result];
     }
 
-    public IEnumerable<(int, Actor)> WithSlot(bool includeDead = false, bool excludeAlliance = false)
+    public (int, Actor)[] WithSlot(bool includeDead = false, bool excludeAlliance = false, bool excludeNPCs = false)
     {
-        for (var i = 0; i < MaxAllies; ++i)
+        var limit = excludeNPCs ? MaxAllianceSize : MaxAllies;
+        var result = new List<(int, Actor)>(limit);
+        for (var i = 0; i < limit; ++i)
         {
             if (excludeAlliance && i is >= MaxPartySize and < MaxAllianceSize)
                 continue;
             var player = _actors[i];
             if (player == null)
                 continue;
-            if (player.IsDead && !includeDead)
+            if (!includeDead && player.IsDead)
                 continue;
-            yield return (i, player);
+            result.Add((i, player));
         }
+        return [.. result];
     }
 
     // find a slot index containing specified player (by instance ID); returns -1 if not found

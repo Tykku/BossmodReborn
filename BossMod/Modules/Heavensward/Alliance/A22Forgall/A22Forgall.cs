@@ -2,7 +2,7 @@
 
 class BrandOfTheFallen(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BrandOfTheFallen), 6, 8);
 class MegiddoFlame2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MegiddoFlame2), new AOEShapeRect(50, 4));
-class DarkEruption2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DarkEruption2), 6);
+class DarkEruption2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkEruption2), 6);
 
 class MortalRay(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MortalRay), new AOEShapeCone(20, 22.5f.Degrees()));
 class Mow(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mow), new AOEShapeCone(13.8f, 60.Degrees()));

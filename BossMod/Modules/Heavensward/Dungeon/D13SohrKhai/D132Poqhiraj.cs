@@ -138,7 +138,7 @@ class GallopKBHint(BossModule module) : Components.GenericAOEs(module)
             var count = _kb.safeWalls.Count;
             if (count is 0 or 8)
                 return;
-            List<RectangleSE> rects = [];
+            List<RectangleSE> rects = new(count);
             for (var i = 0; i < count; ++i)
             {
                 var safeWall = _kb.safeWalls[i].Vertex1;
@@ -146,7 +146,7 @@ class GallopKBHint(BossModule module) : Components.GenericAOEs(module)
                 var pos = new WPos(safeWall.X, safeWall.Z + 5);
                 rects.Add(new(pos + dir, pos - 3.5f * dir, 5));
             }
-            AOEShapeCustom aoe = new(rects, InvertForbiddenZone: true);
+            AOEShapeCustom aoe = new([.. rects], InvertForbiddenZone: true);
             _aoe = new(aoe, Arena.Center, default, Module.CastFinishAt(spell), Colors.SafeFromAOE, true);
         }
     }

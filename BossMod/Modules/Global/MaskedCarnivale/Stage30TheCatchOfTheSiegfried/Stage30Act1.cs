@@ -28,8 +28,8 @@ public enum SID : uint
 }
 
 class MagicDrain(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.MagicDrain), "Reflect magic damage for 30s");
-class HyperdriveFirst(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HyperdriveFirst), 5);
-class HyperdriveRest(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HyperdriveRest), 5);
+class HyperdriveFirst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HyperdriveFirst), 5);
+class HyperdriveRest(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HyperdriveRest), 5);
 class AnkleGraze(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.AnkleGraze), "Applies bind, prepare to use Excuviation!");
 
 class RubberBullet(BossModule module) : Components.Knockback(module)

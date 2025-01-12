@@ -24,7 +24,7 @@ public enum AID : uint
 //spawn locations for stun bomb are as follows: 1:(-288.626, -300.256) 2:(-297.465, -297.525) 3:(-288.837, -305.537) 4:(-309.132, -303.739) 5:(-298.355, -293.630) 6:(-301.954, -314.289) 7:(-299.119, -297.563)
 class BossAdds(BossModule module) : Components.AddsMulti(module, [(uint)OID.LavaBomb, (uint)OID.RemedyBomb]);
 class Flashthoom(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Flashthoom), new AOEShapeCircle(7.2f));
-class Sap(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Sap), 8);
+class Sap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Sap), 8);
 class ScaldingScoldingCleave(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ScaldingScolding), new AOEShapeCone(11.75f, 45.Degrees()), activeWhileCasting: false);
 
 class RemedyBombEnrage(BossModule module) : BossComponent(module)

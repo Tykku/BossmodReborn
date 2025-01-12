@@ -41,8 +41,8 @@ public enum SID : uint
 }
 
 class Mimic(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Mimic), "Stop attacking when cast ends");
-class MimickedSap1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MimickedSap1), 8);
-class MimickedSap2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MimickedSap3), 8);
+class MimickedSap1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MimickedSap1), 8);
+class MimickedSap2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MimickedSap3), 8);
 class MimickedDoomImpending(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.MimickedDoomImpending), "Heal to full before cast ends!");
 class MimickedProteanWave(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MimickedProteanWave2), new AOEShapeCone(50, 15.Degrees()));
 class MimickedFireBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MimickedFireBlast2), new AOEShapeRect(70.5f, 2));

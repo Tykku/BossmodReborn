@@ -135,8 +135,8 @@ public class StateMachineBuilder(BossModule module)
     // create a simple state without any actions
     public State SimpleState(uint id, float duration, string name)
     {
-        if (_states.ContainsKey(id))
-            throw new InvalidOperationException($"Duplicate state id {id:X}");
+        // if (_states.ContainsKey(id))
+        //     throw new InvalidOperationException($"Duplicate state id {id:X}");
 
         var state = _states[id] = new() { ID = id, Duration = duration, Name = name };
         if (_lastState != null)
@@ -297,7 +297,7 @@ public class StateMachineBuilder(BossModule module)
         => ActorCastStart(id, () => Module.PrimaryActor, aid, delay, true, name);
 
     // create a state triggered by one of a set of expected casts by arbitrary actor; unexpected casts still trigger a transition, but log error
-    public State ActorCastStartMulti<AID>(uint id, Func<Actor?> actorAcc, IEnumerable<AID> aids, float delay, bool isBoss = false, string name = "")
+    public State ActorCastStartMulti<AID>(uint id, Func<Actor?> actorAcc, AID[] aids, float delay, bool isBoss = false, string name = "")
         where AID : Enum
     {
         var state = SimpleState(id, delay, name).SetHint(StateMachine.StateHint.BossCastStart, isBoss);
@@ -315,7 +315,7 @@ public class StateMachineBuilder(BossModule module)
     }
 
     // create a state triggered by one of a set of expected casts by a primary actor; unexpected casts still trigger a transition, but log error
-    public State CastStartMulti<AID>(uint id, IEnumerable<AID> aids, float delay, string name = "") where AID : Enum
+    public State CastStartMulti<AID>(uint id, AID[] aids, float delay, string name = "") where AID : Enum
         => ActorCastStartMulti(id, () => Module.PrimaryActor, aids, delay, true, name);
 
     // create a state triggered by one of a set of expected casts by arbitrary actor, each of which forking to a separate subsequence
@@ -360,7 +360,7 @@ public class StateMachineBuilder(BossModule module)
     }
 
     // create a chain of states: ActorCastStartMulti -> ActorCastEnd; second state uses id+1
-    public State ActorCastMulti<AID>(uint id, Func<Actor?> actorAcc, IEnumerable<AID> aids, float delay, float castTime, bool isBoss = false, string name = "", bool interruptible = false)
+    public State ActorCastMulti<AID>(uint id, Func<Actor?> actorAcc, AID[] aids, float delay, float castTime, bool isBoss = false, string name = "", bool interruptible = false)
         where AID : Enum
     {
         ActorCastStartMulti(id, actorAcc, aids, delay, isBoss, "");
@@ -368,7 +368,7 @@ public class StateMachineBuilder(BossModule module)
     }
 
     // create a chain of states: CastStartMulti -> CastEnd; second state uses id+1
-    public State CastMulti<AID>(uint id, IEnumerable<AID> aids, float delay, float castTime, string name = "", bool interruptible = false)
+    public State CastMulti<AID>(uint id, AID[] aids, float delay, float castTime, string name = "", bool interruptible = false)
         where AID : Enum
     {
         CastStartMulti(id, aids, delay, "");

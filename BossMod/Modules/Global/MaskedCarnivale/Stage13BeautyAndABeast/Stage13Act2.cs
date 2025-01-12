@@ -25,9 +25,9 @@ public enum AID : uint
     BloodRain = 14882, // 26F8->location, 3.0s cast, range 50 circle
 }
 
-class VoidFireII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.VoidFireII), 5);
-class VoidFireIV(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.VoidFireIV), 10);
-class VoidFireIV3(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.VoidFireIV3), 6);
+class VoidFireII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VoidFireII), 5);
+class VoidFireIV(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VoidFireIV), 10);
+class VoidFireIV3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VoidFireIV3), 6);
 class VoidAero(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.VoidAero), new AOEShapeRect(42, 4));
 class DarkSabbath(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.DarkSabbath));
 class DarkMist(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DarkMist), new AOEShapeCircle(10));

@@ -30,7 +30,7 @@ public enum TetherID : uint
 
 class TectonicShift(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TectonicShift), new AOEShapeCircle(8));
 class BoulderToss(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BoulderToss));
-class SunToss(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SunToss), 6);
+class SunToss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SunToss), 6);
 
 class AncientWrath(BossModule module) : Components.GenericAOEs(module)
 {

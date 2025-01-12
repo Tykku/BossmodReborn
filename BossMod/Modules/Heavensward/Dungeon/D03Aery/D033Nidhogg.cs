@@ -101,7 +101,7 @@ class HotTail(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.
 class HotWing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HotWing), new AOEShapeRect(34, 34, -4));
 class Cauterize(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Cauterize), new AOEShapeRect(80, 11));
 class HorridRoarSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HorridRoarSpread), 6);
-class HorridRoar(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HorridRoar), 6);
+class HorridRoar(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HorridRoar), 6);
 class HorridBlaze(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HorridBlaze), 6, 4, 4);
 class Massacre(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Massacre));
 class TheScarletPrice(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.TheScarletPrice));

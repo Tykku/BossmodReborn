@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Reflection;
 
 namespace BossMod;
 
@@ -54,15 +55,42 @@ public abstract class ConfigNode
     // draw custom contents; override this for complex config nodes
     public virtual void DrawCustom(UITree tree, WorldState ws) { }
 
+    private static readonly ConcurrentDictionary<Type, FieldInfo[]> _fieldsCache = [];
+
+    private static FieldInfo[] GetSerializableFields(Type t)
+    {
+        if (_fieldsCache.TryGetValue(t, out var cachedFields))
+            return cachedFields;
+
+        var fields = t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        var len = fields.Length;
+        var discoveredFields = new List<FieldInfo>(len);
+        for (var i = 0; i < len; ++i)
+        {
+            var field = fields[i];
+            if (!field.IsStatic && !field.IsDefined(typeof(JsonIgnoreAttribute), false))
+            {
+                discoveredFields.Add(field);
+            }
+        }
+
+        return _fieldsCache[t] = [.. discoveredFields];
+    }
+
     // deserialize fields from json; default implementation should work fine for most cases
     public virtual void Deserialize(JsonElement j, JsonSerializerOptions ser)
     {
         var type = GetType();
         foreach (var jfield in j.EnumerateObject())
         {
-            var field = type.GetField(jfield.Name);
+            var field = type.GetField(jfield.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (field != null)
             {
+                if (field.IsStatic)
+                    continue;
+                if (field.GetCustomAttribute<JsonIgnoreAttribute>() != null)
+                    continue;
+
                 var value = jfield.Value.Deserialize(field.FieldType, ser);
                 if (value != null)
                 {
@@ -72,10 +100,29 @@ public abstract class ConfigNode
         }
     }
 
-    // serialize node to json; default implementation should work fine for most cases
-    public virtual void Serialize(Utf8JsonWriter jwriter, JsonSerializerOptions ser)
+    // serialize node to json;
+    public virtual void Serialize(Utf8JsonWriter writer, JsonSerializerOptions options)
     {
-        JsonSerializer.Serialize(jwriter, this, GetType(), ser);
+        writer.WriteStartObject();
+
+        var fields = GetSerializableFields(GetType());
+        for (var i = 0; i < fields.Length; ++i)
+        {
+            var field = fields[i];
+            var fieldValue = field.GetValue(this);
+
+            writer.WritePropertyName(field.Name);
+            if (fieldValue is ConfigNode subNode)
+            {
+                subNode.Serialize(writer, options);
+            }
+            else
+            {
+                JsonSerializer.Serialize(writer, fieldValue, field.FieldType, options);
+            }
+        }
+
+        writer.WriteEndObject();
     }
 }
 

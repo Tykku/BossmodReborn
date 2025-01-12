@@ -20,8 +20,8 @@ public enum AID : uint
     Silence = 15321, // 2736->player, 5.0s cast, single-target
 }
 
-class Starstorm(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Starstorm), 5);
-class Mechanogravity(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Mechanogravity), 6);
+class Starstorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Starstorm), 5);
+class Mechanogravity(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mechanogravity), 6);
 class RagingAxe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RagingAxe), new AOEShapeCone(5, 45.Degrees()));
 class CondensedLibra(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CondensedLibra), "Use Diamondback!");
 class TripleHit(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.TripleHit), "Use Diamondback!");

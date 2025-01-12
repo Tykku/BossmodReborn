@@ -41,7 +41,7 @@ class Rip(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class RockThrow(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RockThrow), 6);
+class RockThrow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RockThrow), 6);
 
 class AngadaStates : StateMachineBuilder
 {

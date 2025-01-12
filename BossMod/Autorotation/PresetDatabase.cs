@@ -14,7 +14,19 @@ public sealed class PresetDatabase
 
     private readonly FileInfo _dbPath;
 
-    public IEnumerable<Preset> VisiblePresets => _cfg.HideDefaultPreset ? UserPresets : DefaultPresets.Concat(UserPresets);
+    public List<Preset> VisiblePresets
+    {
+        get
+        {
+            if (_cfg.HideDefaultPreset)
+            {
+                return UserPresets;
+            }
+
+            List<Preset> combinedPresets = [.. DefaultPresets, .. UserPresets];
+            return combinedPresets;
+        }
+    }
 
     public PresetDatabase(string rootPath, FileInfo defaultPresets)
     {

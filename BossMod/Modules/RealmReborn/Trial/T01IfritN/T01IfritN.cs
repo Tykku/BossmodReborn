@@ -38,8 +38,8 @@ class Hints(BossModule module) : BossComponent(module)
 }
 
 class Incinerate(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Incinerate), new AOEShapeCone(16, 60.Degrees())); // TODO: verify angle
-class Eruption(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.EruptionAOE), 8);
-class RadiantPlume(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.RadiantPlumeAOE), 8);
+class Eruption(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EruptionAOE), 8);
+class RadiantPlume(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RadiantPlumeAOE), 8);
 
 class T01IfritNStates : StateMachineBuilder
 {

@@ -85,7 +85,7 @@ class TrueTornadoTankbuster(BossModule module) : Components.BaitAwayIcon(module,
     }
 }
 
-class TrueTornadoAOE(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TrueTornadoAOE), 4);
+class TrueTornadoAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TrueTornadoAOE), 4);
 
 class TrueAeroFirst(BossModule module) : Components.GenericBaitAway(module)
 {
@@ -102,7 +102,7 @@ class TrueAeroFirst(BossModule module) : Components.GenericBaitAway(module)
 class TrueAeroRepeat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TrueAeroRepeat), new AOEShapeRect(40, 3));
 
 class TrueAeroII2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.TrueAeroII2), 6);
-class TrueAeroII3(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TrueAeroII3), 6);
+class TrueAeroII3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TrueAeroII3), 6);
 
 class TrueAeroIV1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TrueAeroIV1), new AOEShapeRect(50, 5));
 class TrueAeroIV3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TrueAeroIV3), new AOEShapeRect(50, 5), 4);

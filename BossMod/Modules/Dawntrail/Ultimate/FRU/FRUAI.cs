@@ -7,7 +7,7 @@ namespace BossMod.Dawntrail.Ultimate.FRU;
 sealed class FRUAI(RotationModuleManager manager, Actor player) : AIRotationModule(manager, player)
 {
     public enum Track { Movement }
-    public enum MovementStrategy { None, Explicit, Prepull, DragToCenter }
+    public enum MovementStrategy { None, Explicit, ExplicitMelee, Prepull, DragToCenter }
 
     public static RotationModuleDefinition Definition()
     {
@@ -15,6 +15,7 @@ sealed class FRUAI(RotationModuleManager manager, Actor player) : AIRotationModu
         res.Define(Track.Movement).As<MovementStrategy>("Movement", "Movement")
             .AddOption(MovementStrategy.None, "None", "No automatic movement")
             .AddOption(MovementStrategy.Explicit, "Explicit", "Move to specific point", supportedTargets: ActionTargets.Area)
+            .AddOption(MovementStrategy.ExplicitMelee, "ExplicitMelee", "Move to the point in maxmelee that is closest to specific point", supportedTargets: ActionTargets.Area)
             .AddOption(MovementStrategy.Prepull, "Prepull", "Pre-pull position: as close to the clock-spot as possible")
             .AddOption(MovementStrategy.DragToCenter, "DragToCenter", "Drag boss to the arena center");
         return res;
@@ -32,17 +33,17 @@ sealed class FRUAI(RotationModuleManager manager, Actor player) : AIRotationModu
 
     private WPos? CalculateDestination(FRU module, Actor? primaryTarget, StrategyValues.OptionRef strategy, PartyRolesConfig.Assignment assignment) => strategy.As<MovementStrategy>() switch
     {
+        MovementStrategy.ExplicitMelee => ExplicitMeleePosition(ResolveTargetLocation(strategy.Value), ResolveTargetOverride(strategy.Value) ?? primaryTarget),
         MovementStrategy.Prepull => PrepullPosition(module, assignment),
         MovementStrategy.DragToCenter => DragToCenterPosition(module),
         _ => null
     };
 
+    private WPos ExplicitMeleePosition(WPos ideal, Actor? target) => target != null ? ClosestInMelee(ideal, target) : ideal;
+
     // assumption: pull range is 12; hitbox is 5, so maxmelee is 8, meaning we have approx 4m to move during pull - with sprint, speed is 7.8, accel is 30 => over 0.26s accel period we move 1.014m, then need another 0.38s to reach boss (but it also moves)
     private WPos PrepullPosition(FRU module, PartyRolesConfig.Assignment assignment)
     {
-        if (assignment == PartyRolesConfig.Assignment.Unassigned)
-            return default;
-
         var safeRange = 12.5f;
         var desiredRange = assignment is PartyRolesConfig.Assignment.MT or PartyRolesConfig.Assignment.MT or PartyRolesConfig.Assignment.M1 or PartyRolesConfig.Assignment.M2 ? 5 : 10;
         var dir = _config.P1CyclonicBreakSpots[assignment];

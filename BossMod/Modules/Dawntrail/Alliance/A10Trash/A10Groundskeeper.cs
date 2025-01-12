@@ -16,7 +16,7 @@ public enum AID : uint
     DoubleRay = 41668 // Sprinkler->player, no cast, single-target
 }
 
-class IsleDrop(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.IsleDrop), 6);
+class IsleDrop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IsleDrop), 6);
 class MysteriousLight(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.MysteriousLight));
 
 public class A10GroundskeeperStates : StateMachineBuilder

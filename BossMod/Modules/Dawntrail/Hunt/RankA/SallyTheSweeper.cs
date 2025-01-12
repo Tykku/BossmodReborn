@@ -22,7 +22,7 @@ public enum AID : uint
     ReverseCode2 = 38459, // Boss->self, 5.0s cast
 }
 
-class TargetedAdvance(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TargetedAdvance), 18);
+class TargetedAdvance(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TargetedAdvance), 18);
 
 class CodeExecution(BossModule module) : Components.GenericAOEs(module)
 {

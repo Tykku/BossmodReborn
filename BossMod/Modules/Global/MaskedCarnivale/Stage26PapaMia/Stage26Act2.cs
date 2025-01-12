@@ -56,7 +56,7 @@ class DadJoke(BossModule module) : Components.Knockback(module)
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<Thunderhead>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || !Module.InBounds(pos);
 }
 
-class VoidThunderII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.VoidThunderII), 4);
+class VoidThunderII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VoidThunderII), 4);
 class RawInstinct(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.RawInstinct), "Prepare to dispel buff");
 class VoidThunderIII(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.VoidThunderIII), "Raidwide + Electrocution");
 class BodyBlow(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BodyBlow), "Soft Tankbuster");

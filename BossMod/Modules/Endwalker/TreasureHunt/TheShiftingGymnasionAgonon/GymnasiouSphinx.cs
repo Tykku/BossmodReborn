@@ -48,7 +48,7 @@ class FervidPulse(BossModule module) : Components.SelfTargetedAOEs(module, Actio
 class MoltingPlumage(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MoltingPlumage));
 class AlpineDraft(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AlpineDraft), new AOEShapeRect(45, 2.5f));
 class FeatherRain(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FeatherRain), 6);
-class AeroII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AeroII), 4);
+class AeroII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AeroII), 4);
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
@@ -57,7 +57,7 @@ class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
 
 class GymnasiouSphinxStates : StateMachineBuilder
 {

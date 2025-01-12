@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C020Trash1;
 
-abstract class Tornado(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class Tornado(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class NTornado(BossModule module) : Tornado(module, AID.NTornado);
 class STornado(BossModule module) : Tornado(module, AID.STornado);
 
