@@ -4,8 +4,8 @@ class Hatch(BossModule module) : Components.CastCounter(module, ActionID.MakeSpe
 {
     public bool Active = true;
     public override bool KeepOnPhaseChange => true;
-    public int NumNeurolinkSpawns { get; private set; }
-    public int NumTargetsAssigned { get; private set; }
+    public int NumNeurolinkSpawns;
+    public int NumTargetsAssigned;
     private readonly List<Actor> _orbs = module.Enemies(OID.Oviform);
     private readonly List<Actor> _neurolinks = module.Enemies(OID.Neurolink);
     private BitMask _targets;

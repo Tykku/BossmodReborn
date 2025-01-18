@@ -109,25 +109,29 @@ class Poison(BossModule module) : BossComponent(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (_poisoned.Contains(actor) && !(actor.Role == Role.Healer || actor.Class == Class.BRD)) //theoretically only the tank can ge poisoned, this is just in here incase of bad tanks
-            hints.Add("You were poisoned! Get cleansed fast.");
-        if (_poisoned.Contains(actor) && (actor.Role == Role.Healer || actor.Class == Class.BRD))
-            hints.Add("Cleanse yourself! (Poison).");
-        foreach (var c in _poisoned)
-            if (!_poisoned.Contains(actor) && (actor.Role == Role.Healer || actor.Class == Class.BRD))
-                hints.Add($"Cleanse {c.Name} (Poison)");
+        if (_poisoned.Count != 0)
+            if (_poisoned.Contains(actor))
+            {
+                if (!(actor.Role == Role.Healer || actor.Class == Class.BRD)) // theoretically only the tank can ge poisoned, this is just in here incase of bad tanks
+                    hints.Add("You were poisoned! Get cleansed fast.");
+                else if (actor.Role == Role.Healer || actor.Class == Class.BRD)
+                    hints.Add("Cleanse yourself! (Poison).");
+            }
+            else if (actor.Role == Role.Healer || actor.Class == Class.BRD)
+                foreach (var c in _poisoned)
+                    hints.Add($"Cleanse {c.Name} (Poison)");
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        base.AddAIHints(slot, actor, assignment, hints);
-        foreach (var c in _poisoned)
-        {
-            if (_poisoned.Count > 0 && actor.Role == Role.Healer)
-                hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Esuna), c, ActionQueue.Priority.High);
-            if (_poisoned.Count > 0 && actor.Class == Class.BRD)
-                hints.ActionsToExecute.Push(ActionID.MakeSpell(BRD.AID.WardensPaean), c, ActionQueue.Priority.High);
-        }
+        if (_poisoned.Count != 0)
+            foreach (var c in _poisoned)
+            {
+                if (actor.Role == Role.Healer)
+                    hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Esuna), c, ActionQueue.Priority.High);
+                else if (actor.Class == Class.BRD)
+                    hints.ActionsToExecute.Push(ActionID.MakeSpell(BRD.AID.WardensPaean), c, ActionQueue.Priority.High);
+            }
     }
 }
 
@@ -135,15 +139,15 @@ class IsitvaSiddhi(BossModule module) : Components.SingleTargetCast(module, Acti
 class Samsara(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Samsara));
 class DeltaThunderIII1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaThunderIII1), 3);
 class DeltaThunderIII2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaThunderIII2), 5);
-class DeltaThunderIII3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DeltaThunderIII3), new AOEShapeRect(40, 5));
+class DeltaThunderIII3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaThunderIII3), new AOEShapeRect(40, 5));
 class DeltaThunderIII4(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.DeltaThunderIII4), 5, 4, 4);
-class DeltaBlizzardIII1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DeltaBlizzardIII1), new AOEShapeCone(40.5f, 10.Degrees()));
-class DeltaBlizzardIII2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DeltaBlizzardIII2), new AOEShapeRect(44, 2));
-class DeltaBlizzardIII3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DeltaBlizzardIII3), new AOEShapeCircle(15));
-class DeltaFireIII1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DeltaFireIII1), new AOEShapeDonut(5, 40));
-class DeltaFireIII2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DeltaFireIII2), new AOEShapeRect(44, 5));
+class DeltaBlizzardIII1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaBlizzardIII1), new AOEShapeCone(40.5f, 10.Degrees()));
+class DeltaBlizzardIII2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaBlizzardIII2), new AOEShapeRect(44, 2));
+class DeltaBlizzardIII3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaBlizzardIII3), 15);
+class DeltaFireIII1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaFireIII1), new AOEShapeDonut(5, 40));
+class DeltaFireIII2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaFireIII2), new AOEShapeRect(44, 5));
 class DeltaFireIII3(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.DeltaFireIII3), 6);
-class PraptiSiddhi(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PraptiSiddhi), new AOEShapeRect(40, 2));
+class PraptiSiddhi(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PraptiSiddhi), new AOEShapeRect(40, 2));
 
 class SphereShatter(BossModule module) : Components.GenericAOEs(module)
 {
@@ -177,8 +181,8 @@ class SphereShatter(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class PrakamyaSiddhi(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PrakamyaSiddhi), new AOEShapeCircle(5));
-class ManusyaBlizzardIII(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ManusyaBlizzardIII2), new AOEShapeCone(40.5f, 10.Degrees()));
+class PrakamyaSiddhi(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PrakamyaSiddhi), 5);
+class ManusyaBlizzardIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ManusyaBlizzardIII2), new AOEShapeCone(40.5f, 10.Degrees()));
 
 class D013MagusSistersStates : StateMachineBuilder
 {

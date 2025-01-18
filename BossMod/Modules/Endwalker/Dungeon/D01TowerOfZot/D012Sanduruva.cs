@@ -68,8 +68,8 @@ class SphereShatter(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class PraptiSiddhi(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PraptiSiddhi), new AOEShapeRect(40, 2));
-class PrakamyaSiddhi(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PrakamyaSiddhi), new AOEShapeCircle(5));
+class PraptiSiddhi(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PraptiSiddhi), new AOEShapeRect(40, 2));
+class PrakamyaSiddhi(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PrakamyaSiddhi), 5);
 class ManusyaConfuse(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.ManusyaConfuse), "Applies Manyusa Confusion");
 class ManusyaStop(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.ManusyaStop), "Applies Manyusa Stop");
 

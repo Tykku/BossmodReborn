@@ -33,13 +33,13 @@ class ForbiddenFruitCommon(BossModule module, ActionID watchedAction) : Componen
     public override void Update()
     {
         _tetherClips.Reset();
-        foreach (var (slot, player) in Raid.WithSlot())
+        foreach (var (slot, player) in Raid.WithSlot(false, true, true))
         {
             var tetherSource = TetherSources[slot];
             if (tetherSource != null)
             {
                 AOEShape tetherShape = (OID)tetherSource.OID == OID.ImmatureMinotaur ? ShapeMinotaurTethered : ShapeBullBirdTethered;
-                _tetherClips[slot] = Raid.WithSlot().Exclude(player).InShape(tetherShape, tetherSource.Position, Angle.FromDirection(player.Position - tetherSource.Position)).Mask();
+                _tetherClips[slot] = Raid.WithSlot(false, true, true).Exclude(player).InShape(tetherShape, tetherSource.Position, Angle.FromDirection(player.Position - tetherSource.Position)).Mask();
             }
         }
     }

@@ -58,7 +58,7 @@ class BrittleBreccia(BossModule module) : Components.ConcentricAOEs(module, _sha
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.BrittleBreccia1)
-            AddSequence(caster.Position, Module.CastFinishAt(spell), spell.Rotation);
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell), spell.Rotation);
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
@@ -72,7 +72,7 @@ class BrittleBreccia(BossModule module) : Components.ConcentricAOEs(module, _sha
                 AID.BrittleBreccia3 => 2,
                 _ => -1
             };
-            AdvanceSequence(order, caster.Position, WorldState.FutureTime(1.5f), spell.Rotation);
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(1.5f), spell.Rotation);
         }
     }
 }

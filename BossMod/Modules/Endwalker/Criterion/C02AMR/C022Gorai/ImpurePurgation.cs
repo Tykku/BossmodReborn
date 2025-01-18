@@ -12,6 +12,6 @@ class ImpurePurgationBait(BossModule module) : Components.BaitAwayEveryone(modul
     }
 }
 
-abstract class ImpurePurgationAOE(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 22.5f.Degrees()));
+abstract class ImpurePurgationAOE(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 22.5f.Degrees()));
 class NImpurePurgationAOE(BossModule module) : ImpurePurgationAOE(module, AID.NImpurePurgationAOE);
 class SImpurePurgationAOE(BossModule module) : ImpurePurgationAOE(module, AID.SImpurePurgationAOE);

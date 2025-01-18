@@ -37,11 +37,11 @@ public enum IconID : uint
 }
 
 class DeadlyHold(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.DeadlyHold));
-class HeatBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeatBreath), new AOEShapeCone(14.6f, 45.Degrees()));
-class TailSmash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TailSmash), new AOEShapeCone(26.6f, 45.Degrees()));
+class HeatBreath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeatBreath), new AOEShapeCone(14.6f, 45.Degrees()));
+class TailSmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TailSmash), new AOEShapeCone(26.6f, 45.Degrees()));
 class RagingInferno(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RagingInferno));
 class Comet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Comet), 4);
-class HardStomp(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HardStomp), new AOEShapeCircle(10));
+class HardStomp(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HardStomp), 10);
 class Fireball(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.Fireball), m => m.Enemies(OID.FireVoidzone).Where(z => z.EventState != 7), 0.7f);
 
 class FireballBait(BossModule module) : Components.GenericBaitAway(module)
@@ -80,7 +80,7 @@ class FireballBait(BossModule module) : Components.GenericBaitAway(module)
     }
 }
 
-class RaucousScritch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
+class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
 class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
 class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.AltarMatanga);
 

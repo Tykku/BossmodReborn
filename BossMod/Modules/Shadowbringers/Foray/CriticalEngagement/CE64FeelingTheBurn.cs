@@ -1,19 +1,18 @@
-﻿using Dalamud.Logging.Internal;
-
-namespace BossMod.Shadowbringers.Foray.CriticalEngagement.CE64FeelingTheBurn;
+﻿namespace BossMod.Shadowbringers.Foray.CriticalEngagement.CE64FeelingTheBurn;
 
 public enum OID : uint
 {
     Boss = 0x31A0, // R3.640, x1
     Escort1 = 0x31A1, // R2.800, x24
     Escort2 = 0x32FD, // R2.800, spawn during fight
-    Helper = 0x233C, // R0.500, x26
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttackBoss = 24281, // Boss->player, no cast, single-target
     AutoAttackEscort = 24319, // Escort2->player, no cast, single-target
+
     ReadOrdersCoordinatedAssault = 23604, // Boss->self, 19.0s cast, single-target, visual
     DiveFormation = 23606, // Escort1->self, 5.0s cast, range 60 width 6 rect aoe
     AntiPersonnelMissile1 = 23609, // Boss->self, 10.0s cast, single-target, visual (3 impact pairs)
@@ -29,7 +28,7 @@ public enum AID : uint
     SuppressiveMagitekRays = 23616, // Boss->self, 5.0s cast, single-target, visual
     SuppressiveMagitekRaysAOE = 23617, // Helper->self, 5.5s cast, ???, raidwide
     Analysis = 23607, // Boss->self, 3.0s cast, single-target, visual
-    PreciseStrike = 23619, // Escort1->self, 5.0s cast, range 60 width 6 rect aoe (should orient correctly to avoid vuln)
+    PreciseStrike = 23619 // Escort1->self, 5.0s cast, range 60 width 6 rect aoe (should orient correctly to avoid vuln)
 }
 
 public enum SID : uint
@@ -42,10 +41,9 @@ public enum SID : uint
 public enum IconID : uint
 {
     BallisticImpact = 261, // Helper
-    ChainCannon = 164, // player
 }
 
-class DiveFormation(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DiveFormation), new AOEShapeRect(60, 3));
+class DiveFormation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DiveFormation), new AOEShapeRect(60, 3));
 
 class AntiPersonnelMissile(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.BallisticImpact))
 {
@@ -66,7 +64,7 @@ class AntiPersonnelMissile(BossModule module) : Components.GenericAOEs(module, A
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction && _positions.Count > 0)
+        if (_positions.Count != 0 && spell.Action == WatchedAction)
             _positions.RemoveAt(0);
     }
 }

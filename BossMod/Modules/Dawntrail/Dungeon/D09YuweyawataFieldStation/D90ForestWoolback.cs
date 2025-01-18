@@ -16,7 +16,7 @@ public enum AID : uint
     Thunderball = 40666 // ForestAxeBeak->location, 4.0s cast, range 8 circle
 }
 
-class SweepingGouge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SweepingGouge), new AOEShapeCone(9, 45.Degrees()));
+class SweepingGouge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SweepingGouge), new AOEShapeCone(9, 45.Degrees()));
 class Thunderball(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Thunderball), 8);
 
 class D90ForestWoolbackStates : StateMachineBuilder

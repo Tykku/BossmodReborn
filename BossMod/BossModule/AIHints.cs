@@ -330,5 +330,17 @@ public sealed class AIHints
         };
     }
 
+    // goal zone that returns a value between 0 and weight depending on distance to point; useful for downtime movement targets
+    public Func<WPos, float> GoalProximity(WPos destination, float maxDistance, float maxWeight)
+    {
+        var invDist = 1.0f / maxDistance;
+        return p =>
+        {
+            var dist = (p - destination).Length();
+            var weight = 1 - Math.Clamp(invDist * dist, 0, 1);
+            return maxWeight * weight;
+        };
+    }
+
     public WPos ClampToBounds(WPos position) => PathfindMapCenter + PathfindMapBounds.ClampToBounds(position - PathfindMapCenter);
 }

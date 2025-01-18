@@ -6,7 +6,7 @@ class DamningStrikes(BossModule module) : Components.GenericTowers(module)
     {
         if ((AID)spell.Action.ID is AID.DamningStrikesImpact1 or AID.DamningStrikesImpact2 or AID.DamningStrikesImpact3)
         {
-            Towers.Add(new(caster.Position, 3, 8, 8, default, Module.CastFinishAt(spell)));
+            Towers.Add(new(spell.LocXZ, 3, 8, 8, default, Module.CastFinishAt(spell)));
         }
     }
 
@@ -16,7 +16,7 @@ class DamningStrikes(BossModule module) : Components.GenericTowers(module)
         {
             ++NumCasts;
             Towers.RemoveAll(t => t.Position == caster.Position);
-            var forbidden = Raid.WithSlot().WhereActor(a => spell.Targets.Any(t => t.ID == a.InstanceID)).Mask();
+            var forbidden = Raid.WithSlot(false, false, true).WhereActor(a => spell.Targets.Any(t => t.ID == a.InstanceID)).Mask();
             for (var i = 0; i < Towers.Count; ++i)
             {
                 var tower = Towers[i];

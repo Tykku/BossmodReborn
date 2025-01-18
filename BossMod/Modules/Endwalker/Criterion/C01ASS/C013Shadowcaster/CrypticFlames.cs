@@ -2,7 +2,7 @@
 
 class CrypticFlames(BossModule module) : BossComponent(module)
 {
-    public bool ReadyToBreak { get; private set; }
+    public bool ReadyToBreak;
     private readonly int[] _playerOrder = new int[4];
     private readonly List<(Actor laser, int order)> _lasers = [];
     private int _numBrokenLasers;

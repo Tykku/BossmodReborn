@@ -66,7 +66,7 @@ public enum SID : uint
     TemporaryMisdirectionNPC = 2936 // Helper->LoashkanaTheLeal, extra=0x168
 }
 
-class StingingMalady(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.StingingMalady), new AOEShapeCone(50, 30.Degrees()));
+class StingingMalady(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StingingMalady), new AOEShapeCone(50, 30.Degrees()));
 class StingingMaladyBait(BossModule module) : Components.GenericBaitAway(module)
 {
     private static readonly AOEShapeCone cone = new(50, 30.Degrees());
@@ -83,16 +83,16 @@ class StingingMaladyBait(BossModule module) : Components.GenericBaitAway(module)
 class BewilderingBlight(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BewilderingBlight), 6);
 class BewilderingBlightTM(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.BewilderingBlight));
 
-abstract class SkineaterSurge(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
+abstract class SkineaterSurge(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
 class SkineaterSurge1(BossModule module) : SkineaterSurge(module, AID.SkineaterSurge1);
 class SkineaterSurge2(BossModule module) : SkineaterSurge(module, AID.SkineaterSurge2);
 
-abstract class PoisonCloud(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(10));
+abstract class PoisonCloud(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10);
 class Burst(BossModule module) : PoisonCloud(module, AID.Burst1);
 class SkineaterSurgePoisonCloud(BossModule module) : PoisonCloud(module, AID.SkineaterSurgePoisonCloud);
 
-class SelfDestruct(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SelfDestruct), new AOEShapeCircle(5));
-class SelfDestructKBMammet(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SelfDestructKBMammet), new AOEShapeCircle(7), 8);
+class SelfDestruct(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SelfDestruct), 5);
+class SelfDestructKBMammet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SelfDestructKBMammet), 7, 8);
 class Fester(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Fester));
 
 class TriDisaster(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.TriDisasterFirst), 5, 2, 2)

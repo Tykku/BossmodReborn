@@ -16,14 +16,14 @@ class RadiantRhythm(BossModule module) : Components.GenericAOEs(module)
         // assumption: we always have 4 moves
         if (NumCasts < 8)
         {
-            yield return new(_shape, Module.Center, _nextAngle, _activation, Colors.Danger);
-            yield return new(_shape, Module.Center, _nextAngle + 180.Degrees(), _activation, Colors.Danger);
+            yield return new(_shape, Arena.Center, _nextAngle, _activation, Colors.Danger);
+            yield return new(_shape, Arena.Center, _nextAngle + 180.Degrees(), _activation, Colors.Danger);
         }
         if (NumCasts < 6)
         {
             var future = _activation.AddSeconds(2.1f);
-            yield return new(_shape, Module.Center, _nextAngle + 90.Degrees(), future);
-            yield return new(_shape, Module.Center, _nextAngle - 90.Degrees(), future);
+            yield return new(_shape, Arena.Center, _nextAngle + 90.Degrees(), future);
+            yield return new(_shape, Arena.Center, _nextAngle - 90.Degrees(), future);
         }
     }
 
@@ -33,7 +33,7 @@ class RadiantRhythm(BossModule module) : Components.GenericAOEs(module)
         {
             case AID.SolarFansAOE:
                 // assumption: flames always move CCW
-                var startingAngle = Angle.FromDirection(spell.LocXZ - Module.Center);
+                var startingAngle = Angle.FromDirection(spell.LocXZ - Arena.Center);
                 if (_nextAngle != default && !_nextAngle.AlmostEqual(startingAngle + 45.Degrees(), 0.1f) && !_nextAngle.AlmostEqual(startingAngle - 135.Degrees(), 0.1f))
                     ReportError($"Inconsistent starting angle: {_nextAngle} -> {startingAngle}");
                 NumCasts = 0;
@@ -69,7 +69,7 @@ class RadiantRhythm(BossModule module) : Components.GenericAOEs(module)
 
 class RadiantFlourish(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(2);
     private static readonly AOEShapeCircle _shape = new(25);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;

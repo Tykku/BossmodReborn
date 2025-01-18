@@ -93,13 +93,13 @@ class VoidTorrent(BossModule module) : Components.BaitAwayCast(module, ActionID.
 class Voidcleaver(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Voidcleaver));
 class VoidMiasmaBait(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(50, 15.Degrees()), (uint)TetherID.BaitAway);
 
-class Cleaver(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(50, 15.Degrees()));
+class Cleaver(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(50, 15.Degrees()));
 class VoidMiasma(BossModule module) : Cleaver(module, AID.VoidMiasma);
 class Lifescleaver(BossModule module) : Cleaver(module, AID.Lifescleaver);
 
 class Tsunami(BossModule module) : Components.RaidwideAfterNPCYell(module, ActionID.MakeSpell(AID.Tsunami), (uint)NPCYell.LimitBreakStart, 4.5f);
 class StygianDeluge(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.StygianDeluge));
-class Antediluvian(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Antediluvian), new AOEShapeCircle(15))
+class Antediluvian(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Antediluvian), 15)
 {
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
@@ -109,7 +109,7 @@ class Antediluvian(BossModule module) : Components.SelfTargetedAOEs(module, Acti
     }
 }
 
-class BodySlam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BodySlam), new AOEShapeCircle(8));
+class BodySlam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BodySlam), 8);
 class BodySlamKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.BodySlamKB), 10, true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -128,15 +128,17 @@ class HydraulicRam(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _aoes.Count;
         if (count == 0)
-            yield break;
+            return [];
+        List<AOEInstance> aoes = new(count);
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
             if (i == 0)
-                yield return count > 1 ? aoe with { Color = Colors.Danger } : aoe;
-            else if (i != 0)
-                yield return aoe;
+                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe);
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -164,15 +166,17 @@ class Hydrobomb(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _aoes.Count;
         if (count == 0)
-            yield break;
+            return [];
+        List<AOEInstance> aoes = new(count);
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
             if (i < 2)
-                yield return count > 1 ? aoe with { Color = Colors.Danger } : aoe;
-            else if (i > 1)
-                yield return aoe;
+                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe);
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

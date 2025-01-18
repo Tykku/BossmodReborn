@@ -63,19 +63,19 @@ abstract class Hurl(BossModule module, AID aid) : Components.SimpleAOEs(module, 
 class HurlBoss(BossModule module) : Hurl(module, AID.HurlBoss);
 class HurlBonusAdd(BossModule module) : Hurl(module, AID.Hurl);
 
-class SpinBoss(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpinBoss), new AOEShapeCone(20, 60.Degrees()));
-class BarbarousScream(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BarbarousScream), new AOEShapeCircle(14));
+class SpinBoss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinBoss), new AOEShapeCone(20, 60.Degrees()));
+class BarbarousScream(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BarbarousScream), 14);
 class Buffet(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Buffet));
 
-class DoubleSmash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DoubleSmash), new AOEShapeCone(7.95f, 60.Degrees()));
-class AncientAero(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AncientAero), new AOEShapeRect(13.6f, 2));
+class DoubleSmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DoubleSmash), new AOEShapeCone(7.95f, 60.Degrees()));
+class AncientAero(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AncientAero), new AOEShapeRect(13.6f, 2));
 class RingOfFire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RingOfFire), 5);
 class StoneII(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.StoneII));
 
-class RaucousScritch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
+class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
 class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.Abharamu);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

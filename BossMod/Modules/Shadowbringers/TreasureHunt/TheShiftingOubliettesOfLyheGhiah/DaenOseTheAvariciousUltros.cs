@@ -43,10 +43,10 @@ public enum AID : uint
     Telega = 9630 // Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
-class AquaBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AquaBreath), new AOEShapeCone(13, 45.Degrees()));
-class Tentacle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Tentacle), new AOEShapeCircle(8));
-class Wallop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wallop), new AOEShapeRect(20, 5));
-class Megavolt(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Megavolt), new AOEShapeCircle(11));
+class AquaBreath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AquaBreath), new AOEShapeCone(13, 45.Degrees()));
+class Tentacle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Tentacle), 8);
+class Wallop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wallop), new AOEShapeRect(20, 5));
+class Megavolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Megavolt), 11);
 class Waterspout(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Waterspout), 4);
 class SoakingSplatter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SoakingSplatter), 10);
 class FallingWater(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FallingWater), 8);
@@ -74,7 +74,7 @@ class WaveOfTurmoil(BossModule module) : Components.KnockbackFromCastTarget(modu
     }
 }
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

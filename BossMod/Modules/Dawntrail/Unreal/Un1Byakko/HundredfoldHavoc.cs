@@ -6,7 +6,7 @@ class HundredfoldHavoc(BossModule module) : Components.Exaflare(module, 5)
     {
         if ((AID)spell.Action.ID is AID.HundredfoldHavocFirst)
         {
-            Lines.Add(new() { Next = caster.Position, Advance = 5 * spell.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1.1f, ExplosionsLeft = 4, MaxShownExplosions = 2 });
+            Lines.Add(new() { Next = spell.LocXZ, Advance = 5 * spell.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1.1f, ExplosionsLeft = 4, MaxShownExplosions = 2 });
         }
     }
 
@@ -15,7 +15,7 @@ class HundredfoldHavoc(BossModule module) : Components.Exaflare(module, 5)
         if ((AID)spell.Action.ID is AID.HundredfoldHavocFirst or AID.HundredfoldHavocRest)
         {
             ++NumCasts;
-            int index = Lines.FindIndex(item => item.Next.AlmostEqual(caster.Position, 1));
+            var index = Lines.FindIndex(item => item.Next.AlmostEqual(caster.Position, 1));
             if (index == -1)
             {
                 ReportError($"Failed to find entry for {caster.InstanceID:X}");

@@ -17,7 +17,7 @@ class GrimEmbraceBait(BossModule module) : Components.GenericBaitAway(module)
     {
         CurrentBaits.Clear();
         var deadline = WorldState.FutureTime(7);
-        foreach (var (i, p) in Raid.WithSlot())
+        foreach (var (i, p) in Raid.WithSlot(false, false, true))
         {
             ref var s = ref _states[i];
             if (s.Shape != null && s.Activation != default && s.Activation < deadline)
@@ -65,4 +65,4 @@ class GrimEmbraceBait(BossModule module) : Components.GenericBaitAway(module)
     }
 }
 
-class GrimEmbraceAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GrimEmbraceAOE), new AOEShapeRect(8, 4));
+class GrimEmbraceAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrimEmbraceAOE), new AOEShapeRect(8, 4));

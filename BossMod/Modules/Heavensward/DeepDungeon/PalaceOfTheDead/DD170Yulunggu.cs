@@ -3,17 +3,17 @@
 public enum OID : uint
 {
     Boss = 0x181E, // R5.750, x1
-    Voidzone = 0x1E9998, // R0.500, x0 (spawn during fight), EventObj type
-    Actor1E86E0 = 0x1E86E0, // R2.000, x1, EventObj type
+    Voidzone = 0x1E9998 // R0.500, x0 (spawn during fight), EventObj type
 }
 
 public enum AID : uint
 {
     AutoAttack = 6497, // Boss->player, no cast, single-target
+
     Douse = 7158, // Boss->self, 2.0s cast, range 8 circle
     Drench = 7160, // Boss->self, no cast, range 10+R ?-degree cone
     Electrogenesis = 7161, // Boss->location, 3.0s cast, range 8 circle
-    FangsEnd = 7159, // Boss->player, no cast, single-target
+    FangsEnd = 7159 // Boss->player, no cast, single-target
 }
 
 class Douse(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 8, ActionID.MakeSpell(AID.Douse), m => m.Enemies(OID.Voidzone).Where(z => z.EventState != 7), 0.8f);

@@ -13,8 +13,8 @@ public enum AID : uint
     DeathsDoor = 1260 // Boss->self, 2.0s cast, range 20+R width 2 rect
 }
 
-class Spellsword(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spellsword), new AOEShapeCone(8.2f, 60.Degrees()));
-class DeathsDoor(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DeathsDoor), new AOEShapeRect(22.2f, 1));
+class Spellsword(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spellsword), new AOEShapeCone(8.2f, 60.Degrees()));
+class DeathsDoor(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeathsDoor), new AOEShapeRect(22.2f, 1));
 
 class D060CulturedShabtiStates : StateMachineBuilder
 {

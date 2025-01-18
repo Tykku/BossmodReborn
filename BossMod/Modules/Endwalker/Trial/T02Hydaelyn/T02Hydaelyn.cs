@@ -17,8 +17,8 @@ class RadiantHalo(BossModule module) : Components.RaidwideCast(module, ActionID.
 class CrystallineStoneIII(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.CrystallineStoneIII2), 6, 8, 8);
 class CrystallineBlizzardIII(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.CrystallineBlizzardIII2), 5);
 class Beacon(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.Beacon), 3);
-class Beacon2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Beacon2), new AOEShapeRect(45, 3), 10);
-class HydaelynsRay(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HydaelynsRay), new AOEShapeRect(45, 15));
+class Beacon2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Beacon2), new AOEShapeRect(45, 3), 10);
+class HydaelynsRay(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HydaelynsRay), new AOEShapeRect(45, 15));
 
 class T02HydaelynStates : StateMachineBuilder
 {

@@ -28,8 +28,8 @@ public enum AID : uint
     FightOrFlight = 20 // SixthLegionOptio->self, no cast, single-target
 }
 
-class CermetDrill(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CermetDrill), new AOEShapeRect(8.8f, 2.5f));
-class Heartstopper(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Heartstopper), new AOEShapeRect(3.5f, 1.5f));
+class CermetDrill(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CermetDrill), new AOEShapeRect(8.8f, 2.5f));
+class Heartstopper(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Heartstopper), new AOEShapeRect(3.5f, 1.5f));
 class Stoneskin(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Stoneskin), canBeStunned: true, showNameInHint: true);
 
 class D060SixthLegionMagitekVanguardH1States : StateMachineBuilder

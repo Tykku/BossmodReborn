@@ -3,9 +3,9 @@
 public enum OID : uint
 {
     Boss = 0x3900, // R=6.0
-    Helper = 0x233C,
     Aetheroplasm = 0x3902, // R=1.0
     MagitekBit = 0x3901, // R=0.6
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -43,9 +43,12 @@ public enum AID : uint
 
 class TankPurge(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.TankPurge));
 class HomingLasers(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.HomingLasers));
-class MagitekRayF(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRayAOEForward), new AOEShapeRect(40, 3));
-class MagitekRayR(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRayAOERight), new AOEShapeRect(40, 3));
-class MagitekRayL(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRayAOELeft), new AOEShapeRect(40, 3));
+
+abstract class MagitekRay(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 3));
+class MagitekRayF(BossModule module) : MagitekRay(module, AID.MagitekRayAOEForward);
+class MagitekRayR(BossModule module) : MagitekRay(module, AID.MagitekRayAOERight);
+class MagitekRayL(BossModule module) : MagitekRay(module, AID.MagitekRayAOELeft);
+
 class HomingRay(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HomingRayAOE), 6);
 class LaserFocus(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.LaserFocusAOE), 6, 4, 4);
 
@@ -89,7 +92,7 @@ class Aetheroplasm(BossModule module) : BossComponent(module)
         {
             hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Sprint), actor, ActionQueue.Priority.High);
             foreach (var o in ActiveOrbs)
-                orbs.Add(ShapeDistance.InvertedCircle(o.Position + 0.55f * o.Rotation.ToDirection(), 0.5f));
+                orbs.Add(ShapeDistance.InvertedCircle(o.Position + 0.5f * o.Rotation.ToDirection(), 0.56f));
         }
         if (orbs.Count > 0)
             hints.AddForbiddenZone(p => orbs.Max(f => f(p)));
@@ -102,10 +105,10 @@ class Aetheroplasm(BossModule module) : BossComponent(module)
     }
 }
 
-class AssaultCannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AssaultCannon), new AOEShapeRect(40, 2));
-class CitadelBuster(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CitadelBuster), new AOEShapeRect(40, 6));
+class AssaultCannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AssaultCannon), new AOEShapeRect(40, 2));
+class CitadelBuster(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CitadelBuster), new AOEShapeRect(40, 6));
 
-class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeCircle(16)) // TODO: verify falloff
+class Explosion(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Explosion), 16) // TODO: verify falloff
 {
     // there is an overlap with another mechanic which has to be resolved first
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

@@ -147,6 +147,6 @@ class SoapsudStatic(BossModule module) : Components.UniformStackSpread(module, 0
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
         if (actor == Module.PrimaryActor && SlipperySoap.ColorForStatus(status.ID) == SlipperySoap.Color.Yellow)
-            AddSpreads(Raid.WithoutSlot(true));
+            AddSpreads(Raid.WithoutSlot(true, true, true));
     }
 }

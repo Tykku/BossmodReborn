@@ -8,10 +8,10 @@ abstract class P2Banish(BossModule module) : Components.UniformStackSpread(modul
         {
             case AID.BanishStack:
                 // TODO: this can target either supports or dd
-                AddStacks(Module.Raid.WithoutSlot(true).Where(p => p.Class.IsSupport()), Module.CastFinishAt(spell, 0.1f));
+                AddStacks(Raid.WithoutSlot(true, true, true).Where(p => p.Class.IsSupport()), Module.CastFinishAt(spell, 0.1f));
                 break;
             case AID.BanishSpread:
-                AddSpreads(Module.Raid.WithoutSlot(true), Module.CastFinishAt(spell, 0.1f));
+                AddSpreads(Raid.WithoutSlot(true, true, true), Module.CastFinishAt(spell, 0.1f));
                 break;
         }
     }
@@ -113,6 +113,7 @@ class P2Banish2(BossModule module) : P2Banish(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
+        base.OnEventCast(caster, spell);
         if ((AID)spell.Action.ID == AID.BrightHunger)
             _allowHints = true;
     }

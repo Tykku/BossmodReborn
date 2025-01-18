@@ -43,7 +43,7 @@ class ConfessionOfFaithSpread(BossModule module) : Components.SpreadFromCastTarg
 class ConfessionOfFaithBreath(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCone cone = new(60, 30.Degrees());
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(2);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
 
@@ -107,7 +107,7 @@ class HeavingBreath(BossModule module) : Components.KnockbackFromCastTarget(modu
             var len = component.Length;
             var forbidden = new List<Func<WPos, float>>(len);
             for (var i = 0; i < len; ++i)
-                forbidden.Add(ShapeDistance.Rect(component[i].Origin, new Angle(), 40, 40, 6));
+                forbidden.Add(ShapeDistance.Rect(component[i].Origin, new WDir(0, 1), 40, 40, 6));
             if (forbidden.Count != 0)
                 hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), source.Activation);
         }

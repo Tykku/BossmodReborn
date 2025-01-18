@@ -9,8 +9,8 @@ public sealed class WorldState
     public ulong QPF;
     public string GameVersion;
     public FrameState Frame;
-    public ushort CurrentZone { get; private set; }
-    public ushort CurrentCFCID { get; private set; }
+    public ushort CurrentZone;
+    public ushort CurrentCFCID;
     public readonly Dictionary<string, string> RSVEntries = [];
     public readonly WaymarkState Waymarks = new();
     public readonly ActorState Actors = new();
@@ -52,26 +52,29 @@ public sealed class WorldState
     }
 
     // generate a set of operations that would turn default-constructed state into current state
-    public IEnumerable<Operation> CompareToInitial()
+    public List<Operation> CompareToInitial()
     {
-        if (CurrentTime != default)
-            yield return new OpFrameStart(Frame, default, Client.GaugePayload, Client.CameraAzimuth);
-        if (CurrentZone != 0 || CurrentCFCID != 0)
-            yield return new OpZoneChange(CurrentZone, CurrentCFCID);
-        foreach (var (k, v) in RSVEntries)
-            yield return new OpRSVData(k, v);
-        foreach (var o in Waymarks.CompareToInitial())
-            yield return o;
-        foreach (var o in Actors.CompareToInitial())
-            yield return o;
-        foreach (var o in Party.CompareToInitial())
-            yield return o;
-        foreach (var o in Client.CompareToInitial())
-            yield return o;
-        foreach (var o in Network.CompareToInitial())
-            yield return o;
-    }
+        var waymarks = Waymarks.CompareToInitial();
+        var actors = Actors.CompareToInitial();
+        var party = Party.CompareToInitial();
+        var client = Client.CompareToInitial();
+        var network = Network.CompareToInitial();
 
+        List<Operation> ops = new(RSVEntries.Count + waymarks.Count + actors.Count + party.Count + client.Count + network.Count + 2);
+
+        if (CurrentTime != default)
+            ops.Add(new OpFrameStart(Frame, default, Client.GaugePayload, Client.CameraAzimuth));
+        if (CurrentZone != 0 || CurrentCFCID != 0)
+            ops.Add(new OpZoneChange(CurrentZone, CurrentCFCID));
+        foreach (var (k, v) in RSVEntries)
+            ops.Add(new OpRSVData(k, v));
+        ops.AddRange(waymarks);
+        ops.AddRange(actors);
+        ops.AddRange(party);
+        ops.AddRange(client);
+        ops.AddRange(network);
+        return ops;
+    }
     // implementation of operations
     public Event<OpFrameStart> FrameStarted = new();
     public sealed record class OpFrameStart(FrameState Frame, TimeSpan PrevUpdateTime, ClientState.Gauge GaugePayload, Angle CameraAzimuth) : Operation

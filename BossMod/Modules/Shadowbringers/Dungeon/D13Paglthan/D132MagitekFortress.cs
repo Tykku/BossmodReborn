@@ -30,7 +30,7 @@ public enum AID : uint
 class TwoTonzeMagitekMissile(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TwoTonzeMagitekMissile), 12);
 class Aethershot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Aethershot), 6);
 class DefensiveReaction(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DefensiveReaction));
-class Exhaust(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Exhaust), new AOEShapeRect(40, 3.5f));
+class Exhaust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Exhaust), new AOEShapeRect(40, 3.5f));
 class GroundToGroundBallistic(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.GroundToGroundBallistic), 10)
 {
     private static readonly Func<WPos, float> distance = p => Math.Max(ShapeDistance.InvertedCone(D132MagitekFortress.DefaultCenter, 20, default, 18.Degrees())(p),

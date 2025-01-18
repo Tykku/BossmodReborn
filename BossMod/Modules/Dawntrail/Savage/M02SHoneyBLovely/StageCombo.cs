@@ -2,7 +2,7 @@
 
 class StageCombo(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(11);
 
     private static readonly AOEShapeCircle _shapeOut = new(7);
     private static readonly AOEShapeDonut _shapeIn = new(7, 30);
@@ -37,8 +37,8 @@ class StageCombo(BossModule module) : Components.GenericAOEs(module)
 
     private void AddAOEs(Angle firstRot, Angle[] angles, DateTime activation)
     {
-        foreach (var angle in angles)
-            _aoes.Add(new(_shapeCone, Module.Center, firstRot + angle, activation));
+        for (var i = 0; i < 4; ++i)
+            _aoes.Add(new(_shapeCone, Arena.Center, firstRot + angles[i], activation));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

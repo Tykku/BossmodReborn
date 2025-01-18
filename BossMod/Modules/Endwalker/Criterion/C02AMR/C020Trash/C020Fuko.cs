@@ -4,7 +4,7 @@ abstract class Tornado(BossModule module, AID aid) : Components.SimpleAOEs(modul
 class NTornado(BossModule module) : Tornado(module, AID.NTornado);
 class STornado(BossModule module) : Tornado(module, AID.STornado);
 
-abstract class ScytheTail(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(10));
+abstract class ScytheTail(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10);
 class NScytheTail(BossModule module) : ScytheTail(module, AID.NScytheTail);
 class SScytheTail(BossModule module) : ScytheTail(module, AID.SScytheTail);
 

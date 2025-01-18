@@ -17,12 +17,17 @@ class PredaceousPounce(BossModule module) : Components.GenericAOEs(module)
     {
         var count = AOEs.Count;
         if (count == 0)
-            yield break;
+            return [];
+        List<AOEInstance> aoes = new(count);
         for (var i = 0; i < count; ++i)
         {
             var aoe = AOEs[i];
-            yield return i < 2 ? count > 2 ? aoe with { Color = Colors.Danger } : aoe : aoe;
+            if (i < 2)
+                aoes.Add(count > 2 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe);
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

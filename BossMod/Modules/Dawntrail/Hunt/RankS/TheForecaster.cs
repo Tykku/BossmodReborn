@@ -38,10 +38,10 @@ public enum AID : uint
 }
 
 class FloodConditions(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FloodConditions), 6);
-class GaleForceWinds(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GaleForceWinds), new AOEShapeRect(40, 20));
-class Hyperelectricity(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hyperelectricity), new AOEShapeCircle(10));
-class WildfireConditions(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WildfireConditions), new AOEShapeDonut(5, 40));
-class BlizzardConditions(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlizzardConditions), new AOEShapeCross(40, 2.5f));
+class GaleForceWinds(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GaleForceWinds), new AOEShapeRect(40, 20));
+class Hyperelectricity(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hyperelectricity), 10);
+class WildfireConditions(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WildfireConditions), new AOEShapeDonut(5, 40));
+class BlizzardConditions(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlizzardConditions), new AOEShapeCross(40, 2.5f));
 
 class ForecastClimateChange(BossModule module) : Components.GenericAOEs(module)
 {

@@ -270,34 +270,46 @@ class IceBloomCross(BossModule module) : Components.GenericAOEs(module)
     private readonly List<AOEInstance> _aoes = [];
     private static readonly AOEShapeCross cross = new(40, 2.5f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(6);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 6 ? 6 : count;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
+            aoes.Add(_aoes[i]);
+        return aoes;
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.IceShoot)
         {
-            _aoes.Add(new(cross, caster.Position, spell.Rotation, Module.CastFinishAt(spell, 6)));
-            _aoes.Add(new(cross, caster.Position, spell.Rotation + 45.Degrees(), Module.CastFinishAt(spell, 6)));
+            var pos = spell.LocXZ;
+            var activation = Module.CastFinishAt(spell, 6);
+            _aoes.Add(new(cross, pos, spell.Rotation, activation));
+            _aoes.Add(new(cross, pos, spell.Rotation + 45.Degrees(), activation));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.IceBloomCross)
-            _aoes.RemoveRange(0, 2);
+        if (_aoes.Count != 0 && (AID)spell.Action.ID == AID.IceBloomCross)
+            _aoes.RemoveAt(0);
     }
 }
 
-class AbyssalSlash1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AbyssalSlash1), new AOEShapeDonutSector(2, 7, 90.Degrees()));
-class AbyssalSlash2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AbyssalSlash2), new AOEShapeDonutSector(7, 12, 90.Degrees()));
-class AbyssalSlash3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AbyssalSlash3), new AOEShapeDonutSector(17, 22, 90.Degrees()));
-class VacuumSlash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.VacuumSlash), new AOEShapeCone(80, 22.5f.Degrees()));
-class ThermalDivide(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThermalDivide1), new AOEShapeRect(40, 4));
-class Exflammeus(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Exflammeus), new AOEShapeCircle(8));
-class IceShoot(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IceShoot), new AOEShapeCircle(6));
-class IceBloomCircle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IceBloomCircle), new AOEShapeCircle(6));
-class EmptySoulsCaliber(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.EmptySoulsCaliber), new AOEShapeDonut(5, 40));
-class SolidSoulsCaliber(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SolidSoulsCaliber), new AOEShapeCircle(10));
+class AbyssalSlash1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbyssalSlash1), new AOEShapeDonutSector(2, 7, 90.Degrees()));
+class AbyssalSlash2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbyssalSlash2), new AOEShapeDonutSector(7, 12, 90.Degrees()));
+class AbyssalSlash3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbyssalSlash3), new AOEShapeDonutSector(17, 22, 90.Degrees()));
+class VacuumSlash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VacuumSlash), new AOEShapeCone(80, 22.5f.Degrees()));
+class ThermalDivide(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThermalDivide1), new AOEShapeRect(40, 4));
+class Exflammeus(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Exflammeus), 8);
+class IceShoot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IceShoot), 6);
+class IceBloomCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IceBloomCircle), 6);
+class EmptySoulsCaliber(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EmptySoulsCaliber), new AOEShapeDonut(5, 40));
+class SolidSoulsCaliber(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SolidSoulsCaliber), 10);
 
 class DD99ExcaliburStates : StateMachineBuilder
 {

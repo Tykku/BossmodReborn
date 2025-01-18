@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Endwalker.Ultimate.DSW2;
 
 class P2SanctityOfTheWard2HeavensStakeCircles(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavensStakeAOE), 7);
-class P2SanctityOfTheWard2HeavensStakeDonut(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeavensStakeDonut), new AOEShapeDonut(15, 30));
+class P2SanctityOfTheWard2HeavensStakeDonut(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavensStakeDonut), new AOEShapeDonut(15, 30));
 class P2SanctityOfTheWard2VoidzoneFire(BossModule module) : Components.PersistentVoidzone(module, 7, m => m.Enemies(OID.VoidzoneFire).Where(z => z.EventState != 7));
 class P2SanctityOfTheWard2VoidzoneIce(BossModule module) : Components.PersistentVoidzone(module, 7, m => m.Enemies(OID.VoidzoneIce).Where(z => z.EventState != 7));
 
@@ -132,9 +132,9 @@ class P2SanctityOfTheWard2Towers1(BossModule module) : Components.CastTowers(mod
 
         if (Active)
         {
-            var diag = Module.Bounds.Radius / 1.414214f;
-            Arena.AddLine(Module.Center + new WDir(diag, diag), Module.Center - new WDir(diag, diag), Colors.Border);
-            Arena.AddLine(Module.Center + new WDir(diag, -diag), Module.Center - new WDir(diag, -diag), Colors.Border);
+            var diag = Arena.Bounds.Radius / 1.414214f;
+            Arena.AddLine(Arena.Center + new WDir(diag, diag), Arena.Center - new WDir(diag, diag), Colors.Border);
+            Arena.AddLine(Arena.Center + new WDir(diag, -diag), Arena.Center - new WDir(diag, -diag), Colors.Border);
         }
 
         // TODO: move to separate comet component...
@@ -522,7 +522,7 @@ class P2SanctityOfTheWard2Towers1(BossModule module) : Components.CastTowers(mod
     private WPos StormPlacementPosition(int quadrant)
     {
         var dir = (180 - quadrant * 90).Degrees();
-        return Module.Center + _stormPlacementOffset * dir.ToDirection();
+        return Arena.Center + _stormPlacementOffset * dir.ToDirection();
     }
 
     private string QuadrantSwapHint(int quadrant)
@@ -588,7 +588,7 @@ class P2SanctityOfTheWard2Towers2(BossModule module) : Components.CastTowers(mod
         if (spell.Action == WatchedAction)
         {
             var index = ClassifyTower(spell.LocXZ);
-            var forbidden = Raid.WithSlot(true).WhereSlot(s => _playerTowers[s] >= 0 && _playerTowers[s] != index).Mask();
+            var forbidden = Raid.WithSlot(true, true, true).WhereSlot(s => _playerTowers[s] >= 0 && _playerTowers[s] != index).Mask();
             Towers.Add(new(spell.LocXZ, Radius, forbiddenSoakers: forbidden));
         }
     }

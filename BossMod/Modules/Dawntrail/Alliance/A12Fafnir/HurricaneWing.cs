@@ -20,7 +20,7 @@ class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
         if (shape != null)
         {
             NumCasts = 0;
-            AOEs.Add(new(shape, caster.Position, default, Module.CastFinishAt(spell)));
+            AOEs.Add(new(shape, spell.LocXZ, default, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
             AOEs.SortBy(aoe => aoe.Activation);
         }
     }
@@ -30,7 +30,15 @@ class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
         var shape = ShapeForAction(spell.Action);
         if (shape != null)
         {
-            AOEs.RemoveAll(aoe => aoe.Shape == shape);
+            for (var i = 0; i < AOEs.Count; ++i)
+            {
+                var aoe = AOEs[i];
+                if (aoe.ActorID == caster.InstanceID)
+                {
+                    AOEs.Remove(aoe);
+                    break;
+                }
+            }
             ++NumCasts;
         }
     }
@@ -45,12 +53,12 @@ class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
     };
 }
 
-class GreatWhirlwindLarge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindLarge), new AOEShapeCircle(10))
+class GreatWhirlwindLarge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindLarge), 10)
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class GreatWhirlwindSmall(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindSmall), new AOEShapeCircle(3))
+class GreatWhirlwindSmall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindSmall), 3)
 {
     public override bool KeepOnPhaseChange => true;
 }
@@ -71,18 +79,21 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
     {
         var countSmall = _smallWhirldwinds.Count;
         var countBig = _bigWhirldwinds.Count;
-        if (countSmall == 0 && countBig == 0)
-            yield break;
+        var total = countSmall + countBig;
+        if (total == 0)
+            return [];
+        List<AOEInstance> aoes = new(total);
         for (var i = 0; i < countSmall; ++i)
         {
             var w = _smallWhirldwinds[i];
-            yield return new(moving ? capsuleSmall : circleSmall, w.Position, w.Rotation);
+            aoes.Add(new(moving ? capsuleSmall : circleSmall, w.Position, w.Rotation));
         }
         for (var i = 0; i < countBig; ++i)
         {
             var w = _bigWhirldwinds[i];
-            yield return new(moving ? capsuleBig : circleBig, w.Position, w.Rotation);
+            aoes.Add(new(moving ? capsuleBig : circleBig, w.Position, w.Rotation));
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -114,9 +125,10 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
     {
         var countSmall = _smallWhirldwinds.Count;
         var countBig = _bigWhirldwinds.Count;
+        var total = countSmall + countBig;
         if (countSmall == 0 && countBig == 0)
             return;
-        var forbidden = new List<Func<WPos, float>>(); // merging all forbidden zones into one to make pathfinding less demanding
+        var forbidden = new List<Func<WPos, float>>(total); // merging all forbidden zones into one to make pathfinding less demanding
 
         const int length = Length + 5;
         for (var i = 0; i < countBig; ++i)
@@ -129,7 +141,18 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
             var w = _smallWhirldwinds[i];
             forbidden.Add(ShapeDistance.Capsule(w.Position, !moving ? w.Rotation + a180 : w.Rotation, length, 5));
         }
-        hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), WorldState.FutureTime(1.1f));
+        float minDistanceFunc(WPos pos)
+        {
+            var minDistance = float.MaxValue;
+            for (var i = 0; i < forbidden.Count; ++i)
+            {
+                var distance = forbidden[i](pos);
+                if (distance < minDistance)
+                    minDistance = distance;
+            }
+            return minDistance;
+        }
+        hints.AddForbiddenZone(minDistanceFunc, WorldState.FutureTime(1.1f));
     }
 }
 

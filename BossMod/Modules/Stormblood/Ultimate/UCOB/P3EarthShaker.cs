@@ -57,7 +57,7 @@ class P3EarthShakerVoidzone(BossModule module) : Components.GenericAOEs(module, 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if ((AID)spell.Action.ID == AID.EarthShaker)
-            foreach (var (_, p) in Raid.WithSlot().IncludedInMask(_targets))
+            foreach (var (_, p) in Raid.WithSlot(false, true, true).IncludedInMask(_targets))
                 _predicted.Add(new(_shape, p.Position, default, WorldState.FutureTime(1.4f)));
     }
 }

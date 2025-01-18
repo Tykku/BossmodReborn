@@ -37,8 +37,8 @@ public enum IconID : uint
 }
 
 class Hydrocannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrocannon), 8);
-class FreshwaterCannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FreshwaterCannon), new AOEShapeRect(46, 2));
-class AquaBurst(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AquaBurst), new AOEShapeCircle(10));
+class FreshwaterCannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FreshwaterCannon), new AOEShapeRect(46, 2));
+class AquaBurst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AquaBurst), 10);
 class BrineBreath(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BrineBreath));
 class Hydroburst(BossModule module) : Components.PersistentVoidzone(module, 10, m => m.Enemies(OID.Bubble).Where(x => !x.IsDead && !(x.CastInfo != null && x.CastInfo.IsSpell(AID.AquaBurst))));
 
@@ -73,7 +73,7 @@ class Bubble(BossModule module) : Components.GenericBaitAway(module)
     }
 }
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

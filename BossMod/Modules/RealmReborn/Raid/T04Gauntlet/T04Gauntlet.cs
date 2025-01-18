@@ -10,12 +10,13 @@ public enum OID : uint
     ClockworkDreadnaught = 0x7E4, // R3.000, spawn during fight
     DriveCylinder = 0x1B2, // R0.500, x1
     TerminalEnd = 0x1E86FA,
-    TerminalStart = 0x1E86F9,
+    TerminalStart = 0x1E86F9
 }
 
 public enum AID : uint
 {
     AutoAttack = 872, // ClockworkBugP1/ClockworkBug/ClockworkSoldier/ClockworkKnight/SpinnerRook/ClockworkDreadnaught->player, no cast, single-target
+
     Leech = 1230, // ClockworkBugP1/ClockworkBug->player, no cast, single-target
     HeadspinSoldier = 1231, // ClockworkSoldier->self, 0.5s cast, range 4+R circle cleave
     HeadspinKnight = 1233, // ClockworkKnight->self, 0.5s cast, range 4+R circle cleave
@@ -24,7 +25,7 @@ public enum AID : uint
     Rotoswipe = 1238, // ClockworkDreadnaught->self, no cast, range 8+R ?-degree cone cleave
     GravityThrust = 1236, // SpinnerRook->player, 1.5s cast, single-target damage (avoidable by moving to the back)
     Pox = 1237, // SpinnerRook->player, 3.0s cast, single-target debuff (avoidable by moving to the back)
-    EmergencyOverride = 1258, // DriveCylinder->self, no cast, soft enrage raidwide
+    EmergencyOverride = 1258 // DriveCylinder->self, no cast, soft enrage raidwide
 }
 
 class Rotoswipe(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Rotoswipe), new AOEShapeCone(11, 60.Degrees()), (uint)OID.ClockworkDreadnaught); // TODO: verify angle

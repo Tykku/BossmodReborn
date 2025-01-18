@@ -133,7 +133,7 @@ class IceScreamFrozenSwirl(BossModule module) : Components.GenericAOEs(module)
 }
 
 class FrostingFracas(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FrostingFracas));
-class SnowBoulder(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SnowBoulder), new AOEShapeRect(50, 3), 6);
+class SnowBoulder(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SnowBoulder), new AOEShapeRect(50, 3), 6);
 class SparklingSprinkling(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SparklingSprinkling), 5);
 
 class D021RyoqorTertehStates : StateMachineBuilder

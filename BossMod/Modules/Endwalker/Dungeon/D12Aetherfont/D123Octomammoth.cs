@@ -27,15 +27,18 @@ public enum AID : uint
     Wallop = 33346 // MammothTentacle->self, 3.0s cast, range 22 width 8 rect
 }
 
-class Wallop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wallop), new AOEShapeRect(22, 4));
-class VividEyes(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.VividEyes), new AOEShapeDonut(20, 26));
-class Clearout(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Clearout), new AOEShapeCone(16, 60.Degrees()));
-class TidalBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TidalBreath), new AOEShapeCone(35, 90.Degrees()));
-class Breathstroke(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Breathstroke), new AOEShapeCone(35, 90.Degrees()));
+class Wallop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wallop), new AOEShapeRect(22, 4));
+class VividEyes(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VividEyes), new AOEShapeDonut(20, 26));
+class Clearout(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Clearout), new AOEShapeCone(16, 60.Degrees()));
+
+abstract class Breath(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(35, 90.Degrees()));
+class TidalBreath(BossModule module) : Breath(module, AID.TidalBreath);
+class Breathstroke(BossModule module) : Breath(module, AID.Breathstroke);
+
 class TidalRoar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.TidalRoar));
 class WaterDrop(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.WaterDrop), 6);
-class SalineSpit(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SalineSpit2), new AOEShapeCircle(8));
-class Telekinesis(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Telekinesis2), new AOEShapeCircle(12));
+class SalineSpit(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SalineSpit2), 8);
+class Telekinesis(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Telekinesis2), 12);
 
 class D123OctomammothStates : StateMachineBuilder
 {

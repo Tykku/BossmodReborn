@@ -4,22 +4,22 @@ public enum OID : uint
 {
     Boss = 0x181D, // R3.920, x1
     VoidsentDiscarnate = 0x18EF, // R1.000, x0 (spawn during fight)
-    Actor1e86e0 = 0x1E86E0, // R2.000, x1, EventObj type
-    Voidzone = 0x1E858E, // R0.500, x0 (spawn during fight), EventObj type
+    Voidzone = 0x1E858E // R0.500, x0 (spawn during fight), EventObj type
 }
 
 public enum AID : uint
 {
-    AutoAttack = 7179, // Boss->players, no cast, range 8+R(11.92) 90?-degree cone
-    Geirrothr = 7154, // Boss->self, no cast, range 6+R(9.92) 90?-degree cone
+    AutoAttack = 7179, // Boss->players, no cast, range 8+R 90?-degree cone
+
+    Geirrothr = 7154, // Boss->self, no cast, range 6+R 90?-degree cone
     HallOfSorrow = 7155, // Boss->location, no cast, range 9 circle
-    Infatuation = 7090, // VoidsentDiscarnate->self, 6.5s cast, range 6+R(7) circle
+    Infatuation = 7090, // VoidsentDiscarnate->self, 6.5s cast, range 6+R circle
     Valfodr = 7156, // Boss->player, 4.0s cast, width 6 rect charge + kb
 }
 
 class CleaveAuto(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.AutoAttack), new AOEShapeCone(11.92f, 45.Degrees()), activeWhileCasting: false);
 class HallOfSorrow(BossModule module) : Components.PersistentVoidzone(module, 9, m => m.Enemies(OID.Voidzone).Where(z => z.EventState != 7));
-class Infatuation(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Infatuation), new AOEShapeCircle(7));
+class Infatuation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Infatuation), 7);
 class Valfodr(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.Valfodr), 3);
 class ValfodrKB(BossModule module) : Components.Knockback(module, stopAtWall: true) // note actual knockback is delayed by upto 1.2s in replay
 {

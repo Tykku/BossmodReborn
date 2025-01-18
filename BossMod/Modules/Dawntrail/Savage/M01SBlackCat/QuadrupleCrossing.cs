@@ -14,7 +14,7 @@ class QuadrupleCrossingProtean(BossModule module) : Components.GenericBaitAway(m
     {
         CurrentBaits.Clear();
         if (Origin != null && _activation != default)
-            foreach (var p in Raid.WithoutSlot().SortedByRange(Origin.Position).Take(4))
+            foreach (var p in Raid.WithoutSlot(false, true, true).SortedByRange(Origin.Position).Take(4))
                 CurrentBaits.Add(new(Origin, p, _shape, _activation));
     }
 

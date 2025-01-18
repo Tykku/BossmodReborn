@@ -59,13 +59,17 @@ class LitPath(BossModule module) : Components.GenericAOEs(module)
     {
         var count = AOEs.Count;
         if (count == 0)
-            yield break;
-        for (var i = 0; i < (count > 3 ? 3 : count); ++i) // either 2 or 3 AOEs in a wave, no need to iterate on all 5
+            return [];
+        var max = count > 3 ? 3 : count;
+        var firstact = AOEs[0].Activation;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i) // either 2 or 3 AOEs in a wave, no need to iterate on all 5
         {
             var aoe = AOEs[i];
-            if ((aoe.Activation - AOEs[0].Activation).TotalSeconds <= 1)
-                yield return aoe;
+            if ((aoe.Activation - firstact).TotalSeconds < 1)
+                aoes.Add(aoe);
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -105,9 +109,12 @@ class Burn(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _aoes.Count;
         if (count == 0)
-            yield break;
-        for (var i = 0; i < (count > 8 ? 8 : count); ++i) // 8 AOEs in a wave, no need to iterate on all 16
-            yield return _aoes[i];
+            return [];
+        var max = count > 8 ? 8 : count;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i) // 8 AOEs in a wave, no need to iterate on all 16
+            aoes.Add(_aoes[i]);
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -140,13 +147,13 @@ class Burn(BossModule module) : Components.GenericAOEs(module)
 
 class Drumbeat(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Drumbeat));
 
-abstract class Cleave(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(65, 90.Degrees()));
+abstract class Cleave(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(65, 90.Degrees()));
 class LeftwardTrisula(BossModule module) : Cleave(module, AID.LeftwardTrisula);
 class RightwardParasu(BossModule module) : Cleave(module, AID.RightwardParasu);
 
-class ErrantAkasa(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ErrantAkasa), new AOEShapeCone(60, 45.Degrees()));
-class CosmicWeave(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CosmicWeave), new AOEShapeCircle(18));
-class KarmicFlames(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.KarmicFlames), new AOEShapeCircle(20));
+class ErrantAkasa(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ErrantAkasa), new AOEShapeCone(60, 45.Degrees()));
+class CosmicWeave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CosmicWeave), 18);
+class KarmicFlames(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.KarmicFlames), 20);
 class YawningHells(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.YawningHells), 8);
 class InfernalRedemption(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.InfernalRedemptionVisual), ActionID.MakeSpell(AID.InfernalRedemption), 1);
 

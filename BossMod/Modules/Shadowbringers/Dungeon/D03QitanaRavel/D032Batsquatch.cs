@@ -55,9 +55,9 @@ class Towerfall(BossModule module) : Components.GenericAOEs(module)
 class Soundwave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Soundwave), "Raidwide + towers fall");
 class Subsonics(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Subsonics), "Raidwide x11");
 class RipperFang(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.RipperFang));
-class FallingBoulder(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FallingBoulder), new AOEShapeCircle(4));
-class FallingRock(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FallingRock), new AOEShapeCircle(3));
-class FallingRock2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FallingRock2), new AOEShapeCircle(2));
+class FallingBoulder(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FallingBoulder), 4);
+class FallingRock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FallingRock), 3);
+class FallingRock2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FallingRock2), 2);
 
 class D032BatsquatchStates : StateMachineBuilder
 {

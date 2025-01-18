@@ -41,12 +41,12 @@ class PlainPound(BossModule module) : Components.ConcentricAOEs(module, _shapes)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.PlainPound)
-            AddSequence(caster.Position, Module.CastFinishAt(spell));
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0)
+        if (Sequences.Count != 0)
         {
             var order = (AID)spell.Action.ID switch
             {
@@ -55,7 +55,7 @@ class PlainPound(BossModule module) : Components.ConcentricAOEs(module, _shapes)
                 AID.Earthquake => 2,
                 _ => -1
             };
-            AdvanceSequence(order, caster.Position, WorldState.FutureTime(3));
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(3));
         }
     }
 }

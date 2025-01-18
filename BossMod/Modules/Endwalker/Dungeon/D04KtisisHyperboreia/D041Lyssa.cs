@@ -23,7 +23,7 @@ public enum AID : uint
     SkullDasher = 25182, // Boss->player, 5.0s cast, single-target, tankbuster
 }
 
-class PillarPierceAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PillarPierceAOE), new AOEShapeRect(40, 2));
+class PillarPierceAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PillarPierceAOE), new AOEShapeRect(40, 2));
 
 class PunishingSlice(BossModule module) : Components.GenericAOEs(module)
 {
@@ -61,7 +61,7 @@ class PunishingSlice(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class IcePillar(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IcePillar), new AOEShapeCircle(4));
+class IcePillar(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IcePillar), 4);
 class HeavySmash(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HeavySmash), 6, 4, 4);
 class SkullDasher(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SkullDasher));
 class FrigidStomp(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FrigidStomp));

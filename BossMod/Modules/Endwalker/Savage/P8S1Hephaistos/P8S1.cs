@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Savage.P8S1Hephaistos;
 
-class VolcanicTorches(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TorchFlame), new AOEShapeRect(5, 5, 5));
+class VolcanicTorches(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TorchFlame), new AOEShapeRect(10, 5));
 class AbyssalFires(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbyssalFires), 15); // TODO: verify falloff
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 884, NameID = 11399, SortOrder = 1, PlanLevel = 90)]

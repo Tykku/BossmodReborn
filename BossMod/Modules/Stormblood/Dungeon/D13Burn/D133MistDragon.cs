@@ -66,7 +66,7 @@ class FogPlumeCross(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class FogPlumeCircle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FogPlumeCircle), new AOEShapeCircle(6));
+class FogPlumeCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FogPlumeCircle), 6);
 
 class ColdFog(BossModule module) : Components.GenericAOEs(module)
 {
@@ -239,7 +239,7 @@ class FrostBreath(BossModule module) : BaitAway(module)
 }
 
 class RimeWreath(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RimeWreath));
-class TouchDown(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Touchdown), new AOEShapeCircle(15));
+class TouchDown(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Touchdown), 15);
 class IceVoidzone(BossModule module) : Components.PersistentVoidzone(module, 6, m => m.Enemies(OID.IceVoidzone).Where(z => z.EventState != 7));
 
 class Cauterize(BossModule module) : Components.GenericAOEs(module)
@@ -289,13 +289,13 @@ public class D133MistDragon(WorldState ws, Actor primary) : BossModule(ws, prima
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
+            var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.Mist => 3,
-                OID.DraconicRegard => 2,
-                OID.Boss => 1,
+                OID.Mist => 2,
+                OID.DraconicRegard => 1,
                 _ => 0
             };
         }

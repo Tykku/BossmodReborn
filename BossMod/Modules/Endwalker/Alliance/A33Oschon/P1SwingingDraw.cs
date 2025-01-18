@@ -17,8 +17,8 @@ class P1SwingingDraw(BossModule module) : Components.GenericAOEs(module, ActionI
         };
         if (dir != default)
         {
-            dir += Angle.FromDirection(caster.Position - Module.Center);
-            AOEs.Add(new(_shape, Module.Center + 25 * dir.ToDirection(), dir + 180.Degrees(), Module.CastFinishAt(spell, 6.2f)));
+            dir += Angle.FromDirection(caster.Position - Arena.Center);
+            AOEs.Add(new(_shape, Arena.Center + 25 * dir.ToDirection(), dir + 180.Degrees(), Module.CastFinishAt(spell, 6.2f)));
         }
     }
 }

@@ -39,7 +39,7 @@ class ResonantBuzzMarch(BossModule module) : Components.StatusDrivenForcedMarch(
     }
 }
 
-class StraightSpindle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.StraightSpindle), new AOEShapeRect(50, 2.5f));
+class StraightSpindle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StraightSpindle), new AOEShapeRect(50, 2.5f));
 class FrenziedSting(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.FrenziedSting));
 
 class BeeBeAOE(BossModule module) : Components.GenericAOEs(module)

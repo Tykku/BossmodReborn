@@ -208,22 +208,27 @@ class LayOfTheSun(BossModule module) : Components.UniformStackSpread(module, 6, 
 }
 
 class RoaringStar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RoaringStarRaidwide));
-class CoiledStrike(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CoiledStrike), new AOEShapeCone(30, 75.Degrees()));
-class Burn(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Burn), new AOEShapeRect(46, 2.5f), 8);
+class CoiledStrike(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CoiledStrike), new AOEShapeCone(30, 75.Degrees()));
+class Burn(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Burn), new AOEShapeRect(46, 2.5f), 8);
 class FallenStar(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FallenStar), 6);
 class FirstLight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FirstLight), 6);
-class InnerWake(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.InnerWake), new AOEShapeCircle(10));
-class OuterWake(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.OuterWake), new AOEShapeDonut(6, 40));
+class InnerWake(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.InnerWake), 10);
+class OuterWake(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OuterWake), new AOEShapeDonut(6, 40));
 class BattleBreaker(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BattleBreaker));
 class HeartOfTuralRaidwides(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HeartOfTural), "Raidwides x7");
-class HeartOfTural(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeartOfTural), new AOEShapeRect(20, 20, InvertForbiddenZone: true), color: Colors.SafeFromAOE)
+
+class HeartOfTural : Components.SimpleAOEs
 {
+    public HeartOfTural(BossModule module) : base(module, ActionID.MakeSpell(AID.HeartOfTural), new AOEShapeRect(20, 20, InvertForbiddenZone: true)) { Color = Colors.SafeFromAOE; }
+
     private const string hint = "Wait in safe area!";
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (ActiveAOEs(slot, actor).Any(c => c.Risky && !c.Check(actor.Position)))
+        if (Casters.Count == 0)
+            return;
+        if (ActiveAOEs(slot, actor).Any(c => !c.Check(actor.Position)))
             hints.Add(hint);
-        else if (ActiveAOEs(slot, actor).Any(c => c.Risky && c.Check(actor.Position)))
+        else
             hints.Add(hint, false);
     }
 }

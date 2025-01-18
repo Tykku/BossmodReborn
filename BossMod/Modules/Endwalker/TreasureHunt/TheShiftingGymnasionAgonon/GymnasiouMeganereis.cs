@@ -67,12 +67,12 @@ class WaveOfTurmoil(BossModule module) : Components.KnockbackFromCastTarget(modu
 
 class Hydrobomb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrobomb), 10);
 class Waterspout(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Waterspout), 8);
-class Hydrocannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrocannon), new AOEShapeRect(17, 1.5f));
-class Hydrocannon2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrocannon2), new AOEShapeRect(27, 3));
+class Hydrocannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrocannon), new AOEShapeRect(17, 1.5f));
+class Hydrocannon2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrocannon2), new AOEShapeRect(27, 3));
 class FallingWater(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FallingWater), 8);
 class Immersion(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Immersion));
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

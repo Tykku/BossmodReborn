@@ -35,23 +35,10 @@ public enum AID : uint
     FinaleEnrage = 13520 // Boss->self, 60.0s cast, range 80+R circle
 }
 
-public enum SID : uint
-{
-    Bleeding = 273, // Boss->player, extra=0x0
-    Imp = 1134, // Boss->player, extra=0x30
-    Toad = 439, // Boss->player, extra=0x1
-    Stun = 149, // Helper->player, extra=0x0
-    Staggered = 715, // Helper->player, extra=0xECA
-    FoolsTightrope = 385, // Boss->Boss/LiarsLyre, extra=0x0
-    FoolsTumble = 387, // none->player, extra=0x1823
-    Unfooled = 386, // none->player, extra=0x0
-    FoolsFigure = 388 // none->Boss, extra=0x123
-}
-
 class VirtuosicCapriccio(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.VirtuosicCapriccio), "Raidwide + Bleed");
 class CripplingBlow(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CripplingBlow));
 class ImpChoir(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.ImpChoir));
-class ToadChoir(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ToadChoir), new AOEShapeCone(19.5f, 75.Degrees()));
+class ToadChoir(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ToadChoir), new AOEShapeCone(19.5f, 75.Degrees()));
 class BileBombardment(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BileBombardment), 8);
 
 class FunambulistsFantasia(BossModule module) : BossComponent(module)
@@ -87,7 +74,7 @@ class CorrosiveBile(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.CorrosiveBileFirst)
-            _aoe = new(cone, caster.Position, spell.Rotation, Module.CastFinishAt(spell));
+            _aoe = new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -116,7 +103,7 @@ class FlailingTentacles(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.FlailingTentaclesVisual)
-            _aoe = new(cross, caster.Position, Module.PrimaryActor.Rotation + 45.Degrees(), Module.CastFinishAt(spell, 1));
+            _aoe = new(cross, spell.LocXZ, Module.PrimaryActor.Rotation + 45.Degrees(), Module.CastFinishAt(spell, 1));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

@@ -36,16 +36,16 @@ public enum AID : uint
     Telega = 9630 // KeeperOfKeys->self, no cast, single-target, bonus adds disappear
 }
 
-class BurningBright(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BurningBright), new AOEShapeRect(47, 3));
-class Nicker(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Nicker), new AOEShapeCircle(12));
+class BurningBright(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BurningBright), new AOEShapeRect(47, 3));
+class Nicker(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Nicker), 12);
 class CloudCall(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.CloudCall), "Calls thunderclouds");
-class LightningBolt(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LightningBolt), new AOEShapeCircle(8));
+class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 8);
 
-class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
-class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
-class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

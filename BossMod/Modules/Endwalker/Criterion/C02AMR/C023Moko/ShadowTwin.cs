@@ -42,7 +42,7 @@ class AccursedEdge : Components.GenericBaitAway
         CurrentBaits.Clear();
         if (_curMechanic != Mechanic.None)
         {
-            var players = Raid.WithoutSlot().SortedByRange(Module.PrimaryActor.Position).ToList();
+            var players = Raid.WithoutSlot(false, true, true).SortedByRange(Module.PrimaryActor.Position).ToList();
             foreach (var p in _curMechanic == Mechanic.Far ? players.TakeLast(2) : players.Take(2))
                 CurrentBaits.Add(new(Module.PrimaryActor, p, _shape));
         }

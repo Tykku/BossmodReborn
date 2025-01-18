@@ -48,7 +48,7 @@ public abstract class GenericLineOfSightAOE(BossModule module, ActionID aid, flo
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action == WatchedAction)
-            AddSafezone(Module.CastFinishAt(spell), caster.Rotation);
+            AddSafezone(Module.CastFinishAt(spell), spell.Rotation);
     }
 
     public void AddSafezone(DateTime activation, Angle rotation = default)

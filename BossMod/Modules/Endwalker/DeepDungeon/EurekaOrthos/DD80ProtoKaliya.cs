@@ -163,16 +163,16 @@ class NerveGasRingAndAutoCannons(BossModule module) : Components.GenericAOEs(mod
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID is AID.NerveGasRing or AID.AutoCannons)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.NerveGasRing or AID.AutoCannons)
             _aoes.RemoveAt(0);
     }
 }
 
-class NerveGas(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 90.Degrees()));
+class NerveGas(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 90.Degrees()));
 class LeftNerveGas(BossModule module) : NerveGas(module, AID.LeftwardNerveGas);
 class RightNerveGas(BossModule module) : NerveGas(module, AID.RightwardNerveGas);
 
-class CentralizedNerveGas(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CentralizedNerveGas), new AOEShapeCone(30, 60.Degrees()));
+class CentralizedNerveGas(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CentralizedNerveGas), new AOEShapeCone(30, 60.Degrees()));
 
 class AutoAttack(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.AutoAttack), new AOEShapeCone(11, 45.Degrees()))
 {

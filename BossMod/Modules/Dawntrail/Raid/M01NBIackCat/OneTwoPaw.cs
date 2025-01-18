@@ -17,10 +17,18 @@ class OneTwoPaw(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        if (count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (count > 1)
-            yield return _aoes[1] with { Risky = false };
+        if (count == 0)
+            return [];
+        List<AOEInstance> aoes = new(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i == 0)
+                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe with { Risky = false });
+        }
+        return aoes;
     }
 
     public override void OnActorCreated(Actor actor)

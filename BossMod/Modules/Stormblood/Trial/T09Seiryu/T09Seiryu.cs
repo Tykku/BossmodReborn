@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Stormblood.Trial.T09Seiryu;
 
-class HundredTonzeSwing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HundredTonzeSwing), new AOEShapeCircle(16));
+class HundredTonzeSwing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HundredTonzeSwing), 16);
 class CoursingRiver(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.CoursingRiverAOE), 25, true, kind: Kind.DirForward)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -13,7 +13,7 @@ class CoursingRiver(BossModule module) : Components.KnockbackFromCastTarget(modu
 
 class DragonsWake(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DragonsWake2));
 class FifthElement(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FifthElement));
-class FortuneBladeSigil(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FortuneBladeSigil), new AOEShapeRect(50, 2, 50));
+class FortuneBladeSigil(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FortuneBladeSigil), new AOEShapeRect(100, 2));
 
 class InfirmSoul(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.InfirmSoul), new AOEShapeCircle(4), true)
 {
@@ -25,8 +25,8 @@ class InfirmSoul(BossModule module) : Components.BaitAwayCast(module, ActionID.M
 }
 
 class SerpentDescending(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.SerpentDescending), 5, 6);
-class YamaKagura(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.YamaKagura), new AOEShapeRect(60, 3));
-class Handprint(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Handprint4), new AOEShapeCone(40, 90.Degrees()));
+class YamaKagura(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.YamaKagura), new AOEShapeRect(60, 3));
+class Handprint(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Handprint2), new AOEShapeCone(40, 90.Degrees()));
 
 class ForceOfNature1(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ForceOfNature1), 10)
 {
@@ -36,7 +36,7 @@ class ForceOfNature1(BossModule module) : Components.KnockbackFromCastTarget(mod
             hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 10), Sources(slot, actor).FirstOrDefault().Activation);
     }
 }
-class ForceOfNature2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ForceOfNature2), new AOEShapeCircle(5));
+class ForceOfNature2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ForceOfNature2), 5);
 class KanaboBait(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(45, 30.Degrees()), (uint)TetherID.BaitAway, ActionID.MakeSpell(AID.KanaboVisual2), (uint)OID.IwaNoShiki, 5.9f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -47,7 +47,7 @@ class KanaboBait(BossModule module) : Components.BaitAwayTethers(module, new AOE
     }
 }
 
-class KanaboAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Kanabo2), new AOEShapeCone(45, 30.Degrees()));
+class KanaboAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Kanabo), new AOEShapeCone(45, 30.Degrees()));
 class BlueBolt(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.BlueBoltMarker), ActionID.MakeSpell(AID.BlueBolt), 5.9f, 83, 2.5f);
 class ForbiddenArts(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.ForbiddenArtsMarker), ActionID.MakeSpell(AID.ForbiddenArtsSecond), 5.2f, 84.4f, 4); // this hits twice
 class RedRush(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(82.6f, 2.5f), (uint)TetherID.BaitAway, ActionID.MakeSpell(AID.RedRush), (uint)OID.AkaNoShiki, 6)

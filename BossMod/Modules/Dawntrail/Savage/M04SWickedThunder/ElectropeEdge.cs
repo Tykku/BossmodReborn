@@ -15,10 +15,10 @@ class ElectropeEdgeWitchgleam(BossModule module) : Components.GenericAOEs(module
     }
 }
 
-class ElectropeEdgeSpark1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectropeEdgeSpark1), new AOEShapeRect(5, 5, 5));
-class ElectropeEdgeSpark2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectropeEdgeSpark2), new AOEShapeRect(15, 15, 15));
+class ElectropeEdgeSpark1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ElectropeEdgeSpark1), new AOEShapeRect(10, 5));
+class ElectropeEdgeSpark2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ElectropeEdgeSpark2), new AOEShapeRect(30, 15));
 
-abstract class ElectropeEdgeSidewise(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 90.Degrees()));
+abstract class ElectropeEdgeSidewise(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 90.Degrees()));
 class ElectropeEdgeSidewiseSparkR(BossModule module) : ElectropeEdgeSidewise(module, AID.ElectropeEdgeSidewiseSparkR);
 class ElectropeEdgeSidewiseSparkL(BossModule module) : ElectropeEdgeSidewise(module, AID.ElectropeEdgeSidewiseSparkL);
 
@@ -178,7 +178,7 @@ class LightningCageWitchgleam(BossModule module) : Components.GenericBaitAway(mo
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.LightningCageWitchgleam)
-            foreach (var p in Raid.WithoutSlot(true))
+            foreach (var p in Raid.WithoutSlot(true, true, true))
                 CurrentBaits.Add(new(caster, p, _shape, Module.CastFinishAt(spell, 1.2f)));
     }
 }

@@ -18,10 +18,10 @@ public enum AID : uint
     SelfDetonate = 8352 // RearguardMine->self, 3.0s cast, range 6 circle
 }
 
-class MagitekRay(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRay), new AOEShapeRect(45.9f, 1));
+class MagitekRay(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekRay), new AOEShapeRect(45.9f, 1));
 class CermetPile(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.CermetPile), new AOEShapeRect(43.5f, 3), activeWhileCasting: false);
 
-abstract class Circle6(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
+abstract class Circle6(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class GarleanFire(BossModule module) : Circle6(module, AID.GarleanFire);
 class SelfDetonate(BossModule module) : Circle6(module, AID.SelfDetonate);
 

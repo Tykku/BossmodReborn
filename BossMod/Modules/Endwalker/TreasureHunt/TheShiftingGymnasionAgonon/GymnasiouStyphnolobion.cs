@@ -54,9 +54,9 @@ class EarthQuaker(BossModule module) : Components.ConcentricAOEs(module, _shapes
             AddSequence(Module.Center, Module.CastFinishAt(spell, 0.5f));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0)
+        if (Sequences.Count != 0)
         {
             var order = (AID)spell.Action.ID switch
             {
@@ -64,12 +64,12 @@ class EarthQuaker(BossModule module) : Components.ConcentricAOEs(module, _shapes
                 AID.EarthQuaker2 => 1,
                 _ => -1
             };
-            AdvanceSequence(order, Arena.Center, WorldState.FutureTime(2));
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(2));
         }
     }
 }
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

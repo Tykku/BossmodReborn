@@ -40,6 +40,6 @@ class P5FlamingCrush : FlamingCrush
 {
     public P5FlamingCrush(BossModule module) : base(module)
     {
-        Avoid = Raid.WithSlot(true).WhereActor(p => p.FindStatus(SID.ThermalLow) != null && p.Role != Role.Healer).Mask();
+        Avoid = Raid.WithSlot(true, true, true).WhereActor(p => p.FindStatus(SID.ThermalLow) != null && p.Role != Role.Healer).Mask();
     }
 }

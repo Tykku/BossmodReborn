@@ -86,19 +86,14 @@ public enum SID : uint
 
 public enum IconID : uint
 {
-    Tankbuster = 343, // player
     AncientCircle = 384, // player
     DarkWhispers = 139, // player
-    AncientFrost = 161, // player
-    BurningChains = 97, // player
-    DarkFire = 311 // player
+    AncientFrost = 161 // player
 }
 
 public enum TetherID : uint
 {
-    StarTether = 110, // FrozenStar/BurningStar->FrozenStar/BurningStar
-    BurningChains = 9, // player->player
-    ArcaneSphere = 197 // ArcaneSphere->Boss
+    BurningChains = 9 // player->player
 }
 
 class AncientCircle(BossModule module) : Components.DonutStack(module, ActionID.MakeSpell(AID.AncientCircle), (uint)IconID.AncientCircle, 10, 20, 8, 4, 4);
@@ -136,11 +131,11 @@ class HeightOfChaos(BossModule module) : Components.BaitAwayCast(module, ActionI
 
 class AncientEruption(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AncientEruption), 5);
 
-abstract class ChillingCross(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCross(40, 2.5f));
+abstract class ChillingCross(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCross(40, 2.5f));
 class ChillingCross1(BossModule module) : ChillingCross(module, AID.ChillingCross1);
 class ChillingCross2(BossModule module) : ChillingCross(module, AID.ChillingCross2);
 
-abstract class DarkBlizzard(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(41, 10.Degrees()));
+abstract class DarkBlizzard(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(41, 10.Degrees()));
 class DarkBlizzardIIIAOE1(BossModule module) : DarkBlizzard(module, AID.DarkBlizzardIII1);
 class DarkBlizzardIIIAOE2(BossModule module) : DarkBlizzard(module, AID.DarkBlizzardIII2);
 class DarkBlizzardIIIAOE3(BossModule module) : DarkBlizzard(module, AID.DarkBlizzardIII3);
@@ -162,13 +157,16 @@ class Stars(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        if (count != 0)
-            for (var i = 0; i < count; ++i)
-            {
-                var aoe = _aoes[i];
-                if ((aoe.Activation - _aoes[0].Activation).TotalSeconds <= 1)
-                    yield return aoe;
-            }
+        if (count == 0)
+            return [];
+        List<AOEInstance> aoes = new(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoes[i];
+            if ((aoe.Activation - _aoes[0].Activation).TotalSeconds <= 1)
+                aoes.Add(aoe);
+        }
+        return aoes;
     }
 
     public override void OnActorCreated(Actor actor)

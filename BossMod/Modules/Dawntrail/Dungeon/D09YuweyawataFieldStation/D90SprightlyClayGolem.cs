@@ -17,8 +17,8 @@ public enum AID : uint
     Plummet = 40676 // SprightlyStone2->self, 4.0s cast, range 10 circle
 }
 
-class WildHorn(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WildHorn), new AOEShapeCone(15, 60.Degrees()));
-class Plummet(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Plummet), new AOEShapeCircle(10));
+class WildHorn(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WildHorn), new AOEShapeCone(15, 60.Degrees()));
+class Plummet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Plummet), 10);
 
 class D90SprightlyClayGolemStates : StateMachineBuilder
 {

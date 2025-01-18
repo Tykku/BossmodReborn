@@ -76,7 +76,7 @@ class P5AI(BossModule module) : BossComponent(module)
             var neurolinkUnderBoss = _hatch.Neurolinks.FirstOrDefault(n => n.Position.InCircle(Module.PrimaryActor.Position, 1));
             // note: i've used to have extra logic if orb is being intercepted: in such case neither target would move anywhere nor others would give space
             // however, it's a bit finicky - instead, it's safer to just let everyone move, and if orb ends up being intercepted - oh well...
-            //var orbIntercepted = neurolinkUnderBoss != null && Raid.WithoutSlot().InRadius(neurolinkUnderBoss.Position, T05Twintania.NeurolinkRadius).Any();
+            //var orbIntercepted = neurolinkUnderBoss != null && Raid.WithoutSlot(false, true, true).InRadius(neurolinkUnderBoss.Position, T05Twintania.NeurolinkRadius).Any();
             if (actor == _hatch.Target)
             {
                 // hatch target should run to safe neurolink (except for neurolink under boss, this is unsafe) if orb is not being intercepted
@@ -116,7 +116,7 @@ class P5AI(BossModule module) : BossComponent(module)
         if (actor == _liquidHell?.Target)
         {
             // liquid hell target should gtfo from raid
-            foreach (var p in Raid.WithoutSlot().Exclude(actor))
+            foreach (var p in Raid.WithoutSlot(false, true, true).Exclude(actor))
                 hints.AddForbiddenZone(ShapeDistance.Circle(p.Position, _liquidHell.Shape.Radius));
         }
     }

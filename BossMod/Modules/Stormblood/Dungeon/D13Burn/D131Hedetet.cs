@@ -105,9 +105,9 @@ class Shardfall(BossModule module) : Components.CastLineOfSightAOE(module, Actio
 {
     public override IEnumerable<Actor> BlockerActors() => Module.Enemies(OID.DimCrystal).Where(e => !e.IsDead);
 }
-class CrystallineFracture(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CrystallineFracture), new AOEShapeCircle(3));
-class ResonantFrequency(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ResonantFrequency), new AOEShapeCircle(6));
-class Dissonance(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Dissonance), new AOEShapeDonut(5, 40));
+class CrystallineFracture(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CrystallineFracture), 3);
+class ResonantFrequency(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ResonantFrequency), 6);
+class Dissonance(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Dissonance), new AOEShapeDonut(5, 40));
 
 class D131HedetetStates : StateMachineBuilder
 {

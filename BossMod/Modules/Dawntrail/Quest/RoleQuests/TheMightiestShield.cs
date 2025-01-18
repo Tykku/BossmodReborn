@@ -116,10 +116,10 @@ class Fractures(BossModule module) : Components.DirectionalParry(module, [(uint)
     }
 }
 
-class SteelhogsRevenge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SteelhogsRevenge), new AOEShapeCircle(12));
-class RuthlessBombardment1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RuthlessBombardment1), new AOEShapeCircle(8));
+class SteelhogsRevenge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SteelhogsRevenge), 12);
+class RuthlessBombardment1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RuthlessBombardment1), 8);
 
-abstract class Bombardment(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(4));
+abstract class Bombardment(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 4);
 class RuthlessBombardment2(BossModule module) : Bombardment(module, AID.RuthlessBombardment2);
 class AreaBombardment(BossModule module) : Bombardment(module, AID.AreaBombardment);
 
@@ -233,5 +233,5 @@ public class TheMightiestShield(WorldState ws, Actor primary) : BossModule(ws, p
         Arena.Actors(Enemies(all));
     }
 
-    protected override bool CheckPull() => Raid.WithoutSlot().Any(x => x.InCombat);
+    protected override bool CheckPull() => Raid.Player()!.InCombat;
 }

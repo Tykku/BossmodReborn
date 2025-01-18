@@ -4,9 +4,9 @@ class ProsecutionOfWar(BossModule module) : Components.SingleTargetCast(module, 
 class VirtualShift1(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.VirtualShift1));
 class VirtualShift2(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.VirtualShift2));
 class VirtualShift3(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.VirtualShift3));
-class BrutalCrown(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BrutalCrown), new AOEShapeDonut(5, 60));
+class BrutalCrown(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BrutalCrown), new AOEShapeDonut(5, 60));
 class RoyalDomain(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RoyalDomain));
-class DynasticDiadem(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DynasticDiadem), new AOEShapeDonut(6, 70));
+class DynasticDiadem(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DynasticDiadem), new AOEShapeDonut(6, 70));
 
 abstract class RaidwideMulti(BossModule module, AID aid) : Components.RaidwideCast(module, ActionID.MakeSpell(aid), "multiple Raidwides");
 class RoyalBanishmentRaidwide(BossModule module) : RaidwideMulti(module, AID.RoyalBanishmentVisual);

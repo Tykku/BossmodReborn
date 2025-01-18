@@ -49,12 +49,12 @@ public enum AID : uint
 }
 
 class Uppercut(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Uppercut));
-class Arise(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Arise), new AOEShapeCircle(8));
-class Wallop1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wallop1), new AOEShapeRect(40, 5));
-class Wallop2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wallop2), new AOEShapeRect(40, 8));
-class SelfTargetSneezeedAOEs(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Sneeze), new AOEShapeCone(60, 75.Degrees()));
+class Arise(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Arise), 8);
+class Wallop1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wallop1), new AOEShapeRect(40, 5));
+class Wallop2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wallop2), new AOEShapeRect(40, 8));
+class SelfTargetSneezeedAOEs(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Sneeze), new AOEShapeCone(60, 75.Degrees()));
 class FlagrantSpread1(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FlagrantSpread1), 6);
-class FlagrantSpread2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FlagrantSpread2), new AOEShapeCircle(6));
+class FlagrantSpread2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlagrantSpread2), 6);
 
 class D012DrowsieStates : StateMachineBuilder
 {

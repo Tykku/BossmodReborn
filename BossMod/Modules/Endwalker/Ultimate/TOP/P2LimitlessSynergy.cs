@@ -1,12 +1,12 @@
 ﻿namespace BossMod.Endwalker.Ultimate.TOP;
 
-class P2OptimizedSagittariusArrow(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.OptimizedSagittariusArrow), new AOEShapeRect(100, 5));
+class P2OptimizedSagittariusArrow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OptimizedSagittariusArrow), new AOEShapeRect(100, 5));
 
 class P2OptimizedBladedance : Components.BaitAwayTethers
 {
     public P2OptimizedBladedance(BossModule module) : base(module, new AOEShapeCone(100, 45.Degrees()), (uint)TetherID.OptimizedBladedance, ActionID.MakeSpell(AID.OptimizedBladedanceAOE))
     {
-        ForbiddenPlayers = Raid.WithSlot(true).WhereActor(p => p.Role != Role.Tank).Mask();
+        ForbiddenPlayers = Raid.WithSlot(true, true, true).WhereActor(p => p.Role != Role.Tank).Mask();
     }
 }
 
@@ -28,10 +28,10 @@ class P2BeyondDefense(BossModule module) : Components.UniformStackSpread(module,
             switch (CurMechanic)
             {
                 case Mechanic.Spread:
-                    AddSpreads(Raid.WithoutSlot().SortedByRange(_source.Position).Take(2), _activation);
+                    AddSpreads(Raid.WithoutSlot(false, true, true).SortedByRange(_source.Position).Take(2), _activation);
                     break;
                 case Mechanic.Stack:
-                    if (Raid.WithoutSlot().Closest(_source.Position) is var target && target != null)
+                    if (Raid.WithoutSlot(false, true, true).Closest(_source.Position) is var target && target != null)
                         AddStack(target, _activation, _forbiddenStack);
                     break;
             }

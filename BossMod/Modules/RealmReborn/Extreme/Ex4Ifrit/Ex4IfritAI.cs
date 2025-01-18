@@ -36,7 +36,7 @@ class Ex4IfritAICommon(BossModule module) : BossComponent(module)
             {
                 // taunt if safe
                 var dirIfTaunted = Angle.FromDirection(player.Position - Module.PrimaryActor.Position);
-                boss.PreferProvoking = boss.ShouldBeTanked = !Raid.WithoutSlot().Any(a => a.Role != Role.Tank && Incinerate.CleaveShape.Check(a.Position, Module.PrimaryActor.Position, dirIfTaunted));
+                boss.PreferProvoking = boss.ShouldBeTanked = !Raid.WithoutSlot(false, true, true).Any(a => a.Role != Role.Tank && Incinerate.CleaveShape.Check(a.Position, Module.PrimaryActor.Position, dirIfTaunted));
             }
         }
     }
@@ -50,7 +50,7 @@ class Ex4IfritAICommon(BossModule module) : BossComponent(module)
     {
         // avoid non-baiters (TODO: should this be done by eruption component itself?)
         if (_eruption != null)
-            foreach (var (i, p) in Raid.WithSlot().ExcludedFromMask(_eruption.Baiters))
+            foreach (var (i, p) in Raid.WithSlot(false, true, true).ExcludedFromMask(_eruption.Baiters))
                 hints.AddForbiddenZone(ShapeDistance.Circle(p.Position, Eruption.Radius));
     }
 

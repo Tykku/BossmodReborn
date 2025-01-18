@@ -17,10 +17,10 @@ public enum AID : uint
     Supercell = 11293 // Boss->self, 7.0s cast, range 50+R width 100 rect
 }
 
-class LightningStrike(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LightningStrike), new AOEShapeRect(55.25f, 3));
-class Shiko(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Shiko), new AOEShapeCircle(6));
-class LightningBolt(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LightningBolt), new AOEShapeDonut(1, 8));
-class Supercell(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Supercell), new AOEShapeRect(55.25f, 50));
+class LightningStrike(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningStrike), new AOEShapeRect(55.25f, 3));
+class Shiko(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shiko), 6);
+class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), new AOEShapeDonut(1, 8));
+class Supercell(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Supercell), new AOEShapeRect(55.25f, 50));
 
 class DD30HirukoStates : StateMachineBuilder
 {

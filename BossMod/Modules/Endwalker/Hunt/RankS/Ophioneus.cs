@@ -19,7 +19,7 @@ public enum AID : uint
     Scratch = 27348, // Boss->player, 5.0s cast, single-target
 }
 
-abstract class Maw(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 90.Degrees()));
+abstract class Maw(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 90.Degrees()));
 class RightMaw(BossModule module) : Maw(module, AID.RightMaw);
 class LeftMaw(BossModule module) : Maw(module, AID.LeftMaw);
 

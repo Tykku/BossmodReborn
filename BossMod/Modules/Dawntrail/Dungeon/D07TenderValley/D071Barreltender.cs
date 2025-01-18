@@ -120,7 +120,7 @@ class NeedleStormSuperstormHeavyWeightNeedles(BossModule module) : Components.Ge
     }
 }
 
-abstract class Prickly(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(36, 165.Degrees()));
+abstract class Prickly(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(36, 165.Degrees()));
 class PricklyRight(BossModule module) : Prickly(module, AID.PricklyRight);
 class PricklyLeft(BossModule module) : Prickly(module, AID.PricklyLeft);
 

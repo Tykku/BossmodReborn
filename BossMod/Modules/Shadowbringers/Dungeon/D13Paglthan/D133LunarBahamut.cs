@@ -36,18 +36,18 @@ public enum IconID : uint
     KanRhai = 260 // player->self
 }
 
-class Upburst(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Upburst), new AOEShapeCircle(2));
-class BigBurst(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BigBurst), new AOEShapeCircle(9));
-class PerigeanBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PerigeanBreath), new AOEShapeCone(30, 45.Degrees()));
+class Upburst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Upburst), 2);
+class BigBurst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BigBurst), 9);
+class PerigeanBreath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PerigeanBreath), new AOEShapeCone(30, 45.Degrees()));
 class MegaflareAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MegaflareAOE), 6);
 class MegaflareSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.MegaflareSpread), 5);
-class MegaflareDive(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MegaflareDive), new AOEShapeRect(41, 6));
+class MegaflareDive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MegaflareDive), new AOEShapeRect(41, 6));
 class LunarFlareBig(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LunarFlareBig), 11);
 class LunarFlareSmall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LunarFlareSmall), 6);
 class Gigaflare(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Gigaflare));
 class Flatten(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.Flatten));
 
-class AkhMorn(BossModule module) : Components.UniformStackSpread(module, 6, 0, 4, 4)
+class AkhMorn(BossModule module) : Components.UniformStackSpread(module, 4, 0, 4, 4)
 {
     private int numCasts;
 

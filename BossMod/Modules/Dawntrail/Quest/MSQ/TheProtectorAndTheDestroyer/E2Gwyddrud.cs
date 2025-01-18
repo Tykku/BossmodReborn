@@ -25,8 +25,8 @@ public enum AID : uint
     VioletVoltageVisual5 = 38218, // Boss->self, no cast, single-target
     VioletVoltageVisual6 = 38219, // Boss->self, no cast, single-target
     Gnaw = 38222, // Boss->tank, 5.0s cast, single-target
-    RollingThunder = 38223, // Boss->self, 4.3+0,7s cast, single-target
-    RollingThunder2 = 38224, // Helper->self, 5.0s cast, range 20 45-degree cone
+    RollingThunderVisual = 38223, // Boss->self, 4.3+0,7s cast, single-target
+    RollingThunder = 38224, // Helper->self, 5.0s cast, range 20 45-degree cone
     RoaringBoltKB = 38230, // Boss->self, 4.3+0,7s cast, range 20 circle, knockback 12, away from source
     RoaringBolt = 38231, // Helper->location, 7.0s cast, range 6 circle
     GatheringStorm = 38225, // Boss->self, no cast, single-target, limit break phase
@@ -133,21 +133,9 @@ class RoaringBoltKB(BossModule module) : Components.KnockbackFromCastTarget(modu
     }
 }
 
-class RollingThunder(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RollingThunder2), new AOEShapeCone(20, 22.5f.Degrees()), 6)
+class RollingThunder : Components.SimpleAOEs
 {
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        var count = Casters.Count;
-        var max = count > 6 ? 6 : count;
-        var aoes = new List<AOEInstance>(max);
-        for (var i = 0; i < max; ++i)
-        {
-            var caster = Casters[i];
-            var instance = new AOEInstance(Shape, caster.Position, caster.CastInfo!.Rotation, Module.CastFinishAt(caster.CastInfo), i < 2 ? Colors.Danger : Colors.AOE);
-            aoes.Add(instance);
-        }
-        return aoes;
-    }
+    public RollingThunder(BossModule module) : base(module, ActionID.MakeSpell(AID.RollingThunder), new AOEShapeCone(20, 22.5f.Degrees()), 6) { MaxDangerColor = 2; }
 }
 
 class RoaringBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RoaringBolt), 6);

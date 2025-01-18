@@ -34,12 +34,12 @@ public enum AID : uint
     Telega = 9630 // GymnasiouLyssa/Mandragoras->self, no cast, single-target, bonus add disappear
 }
 
-class PelagicCleaver(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PelagicCleaver), new AOEShapeCone(40, 30.Degrees()));
+class PelagicCleaver(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PelagicCleaver), new AOEShapeCone(40, 30.Degrees()));
 class FoulWaters(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.FoulWaters), m => m.Enemies(OID.Bubble), 0);
-class AquaticLance(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AquaticLance), new AOEShapeCircle(13));
+class AquaticLance(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AquaticLance), 13);
 class ProtolithicPuncture(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ProtolithicPuncture));
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

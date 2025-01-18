@@ -33,7 +33,7 @@ public enum AID : uint
 
 class Level5DeathSentence(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Level5DeathSentence), true, false, "Applies Doom!");
 class SentinelRoar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SentinelRoar));
-class WordOfTheWood(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CastWordOfTheWood), new AOEShapeCone(30, 90.Degrees()));
+class WordOfTheWood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CastWordOfTheWood), new AOEShapeCone(30, 90.Degrees()));
 
 class WhispersOfTheWood(BossModule module) : Components.GenericAOEs(module)
 {
@@ -46,17 +46,19 @@ class WhispersOfTheWood(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        if (count != 0)
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
         {
-            for (var i = 0; i < count; ++i)
-            {
-                var aoe = _aoes[i];
-                if (i == 0)
-                    yield return count > 1 ? aoe with { Color = Colors.Danger } : aoe;
-                else if (i == 1)
-                    yield return _aoes[0].Rotation.AlmostEqual(_aoes[1].Rotation + a180, Angle.DegToRad) ? aoe with { Risky = false } : aoe;
-            }
+            var aoe = _aoes[i];
+            if (i == 0)
+                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+            else if (i == 1)
+                aoes.Add(_aoes[0].Rotation.AlmostEqual(_aoes[1].Rotation + a180, Angle.DegToRad) ? aoe with { Risky = false } : aoe);
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

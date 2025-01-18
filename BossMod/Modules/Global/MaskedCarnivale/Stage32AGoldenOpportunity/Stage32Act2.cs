@@ -47,8 +47,8 @@ public enum SID : uint
 }
 
 class GoldorFireIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldorFireIII), 8);
-class GoldorBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GoldorBlast), new AOEShapeRect(60, 5));
-class GoldenCross(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GoldenCross), new AOEShapeCross(100, 3.5f));
+class GoldorBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldorBlast), new AOEShapeRect(60, 5));
+class GoldenCross(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldenCross), new AOEShapeCross(100, 3.5f));
 
 class GoldenBeam(BossModule module) : Components.GenericAOEs(module)
 {
@@ -103,7 +103,7 @@ class GoldenBeam(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class TwentyFourCaratSwing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TwentyFourCaratSwing), new AOEShapeCircle(12));
+class TwentyFourCaratSwing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TwentyFourCaratSwing), 12);
 
 class GoldorQuake(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 {
@@ -112,12 +112,12 @@ class GoldorQuake(BossModule module) : Components.ConcentricAOEs(module, _shapes
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.GoldorQuake1)
-            AddSequence(Arena.Center, Module.CastFinishAt(spell));
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0)
+        if (Sequences.Count != 0)
         {
             var order = (AID)spell.Action.ID switch
             {
@@ -126,7 +126,7 @@ class GoldorQuake(BossModule module) : Components.ConcentricAOEs(module, _shapes
                 AID.GoldorQuake3 => 2,
                 _ => -1
             };
-            AdvanceSequence(order, Arena.Center, WorldState.FutureTime(1.5f));
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(1.5f));
         }
     }
 }
@@ -190,4 +190,4 @@ class Stage31Act2States : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.MaskedCarnivale, GroupID = 948, NameID = 12471, SortOrder = 2)]
-public class Stage31Act2(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(16));
+public class Stage31Act2(WorldState ws, Actor primary) : BossModule(ws, primary, Layouts.ArenaCenter, Layouts.CircleSmall);

@@ -90,15 +90,23 @@ class Mouser(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        var aoeCount = Math.Clamp(count, 0, enrage ? 4 : NumCasts > 23 ? 2 : 3);
-        var aoeCount2 = Math.Clamp(count, 0, enrage ? 4 : NumCasts > 20 ? 4 : 6);
-        var totalAoeCount = Math.Min(count, aoeCount + aoeCount2);
-        if (count >= totalAoeCount)
-            for (var i = aoeCount; i < totalAoeCount; ++i)
-                yield return _aoes[i];
-        if (count > 0)
-            for (var i = 0; i < aoeCount; ++i)
-                yield return _aoes[i] with { Color = Colors.Danger };
+        if (count == 0)
+            return [];
+        var countDanger = enrage ? 4 : NumCasts > 23 ? 2 : 3;
+        var countsAOE = enrage ? 4 : NumCasts > 20 ? 4 : 6;
+        var total = countDanger + countsAOE;
+        var max = total > count ? count : total;
+
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i < countDanger)
+                aoes.Add(count > countDanger ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe);
+        }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -138,7 +146,7 @@ class SplinteringNails(BossModule module) : Components.CastCounter(module, Actio
         {
             var pcRole = EffectiveRole(actor);
             var pcDir = Angle.FromDirection(actor.Position - _source.Position);
-            if (Raid.WithoutSlot().Exclude(_jumps?.CurrentTarget).Any(a => EffectiveRole(a) != pcRole && _shape.Check(a.Position, _source.Position, pcDir)))
+            if (Raid.WithoutSlot(false, true, true).Exclude(_jumps?.CurrentTarget).Any(a => EffectiveRole(a) != pcRole && _shape.Check(a.Position, _source.Position, pcDir)))
                 hints.Add("Spread by roles!");
         }
     }

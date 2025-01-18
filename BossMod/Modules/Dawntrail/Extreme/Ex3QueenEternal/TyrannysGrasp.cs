@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
-class TyrannysGraspAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TyrannysGraspAOE), new AOEShapeRect(20, 20));
+class TyrannysGraspAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TyrannysGraspAOE), new AOEShapeRect(20, 20));
 
 class TyrannysGraspTowers(BossModule module) : Components.GenericTowers(module)
 {
@@ -8,7 +8,7 @@ class TyrannysGraspTowers(BossModule module) : Components.GenericTowers(module)
     {
         if ((AID)spell.Action.ID is AID.TyrannysGraspTower1 or AID.TyrannysGraspTower2)
         {
-            Towers.Add(new(caster.Position, 4, 1, 1, Raid.WithSlot(true).WhereActor(p => p.Role != Role.Tank).Mask(), Module.CastFinishAt(spell)));
+            Towers.Add(new(caster.Position, 4, 1, 1, Raid.WithSlot(true, true, true).WhereActor(p => p.Role != Role.Tank).Mask(), Module.CastFinishAt(spell)));
         }
     }
 

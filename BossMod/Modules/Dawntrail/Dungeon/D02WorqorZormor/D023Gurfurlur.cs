@@ -86,7 +86,7 @@ class AuraSphere(BossModule module) : BossComponent(module)
             for (var i = 0; i < len; ++i)
             {
                 var o = sph[i];
-                orbs.Add(ShapeDistance.InvertedCircle(o.Position + 0.5f * o.Rotation.ToDirection(), 0.55f));
+                orbs.Add(ShapeDistance.InvertedCircle(o.Position + 0.5f * o.Rotation.ToDirection(), 0.56f));
             }
         }
         if (orbs.Count != 0)
@@ -102,7 +102,7 @@ class AuraSphere(BossModule module) : BossComponent(module)
 
 class SledgeHammer(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.SledgeHammerMarker), ActionID.MakeSpell(AID.Sledgehammer3), 4.9f);
 class HeavingHaymaker(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HeavingHaymaker));
-class LithicImpact(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LithicImpact), new AOEShapeRect(4, 2));
+class LithicImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LithicImpact), new AOEShapeRect(4, 2));
 class Whirlwind(BossModule module) : Components.PersistentVoidzone(module, 5, m => m.Enemies(OID.BitingWind), 7);
 
 class GreatFlood(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.GreatFlood), 25, kind: Kind.DirForward)
@@ -120,7 +120,7 @@ class Allfire(BossModule module) : Components.GenericAOEs(module)
 {
     private const string Risk2Hint = "Walk into safespot for knockback!", StayHint = "Wait inside safespot for knockback!";
     private bool tutorial;
-    private static readonly AOEShapeRect rect = new(5, 5, 5);
+    private static readonly AOEShapeRect rect = new(10, 5);
     private readonly List<AOEInstance> _aoesWave1 = [], _aoesWave2 = [], _aoesWave3 = [];
     private static readonly AOEShapeRect safespot = new(15, 10, InvertForbiddenZone: true);
 
@@ -147,7 +147,7 @@ class Allfire(BossModule module) : Components.GenericAOEs(module)
     }
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        var newAOE = new AOEInstance(rect, caster.Position, spell.Rotation, Module.CastFinishAt(spell));
+        var newAOE = new AOEInstance(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell));
         switch ((AID)spell.Action.ID)
         {
             case AID.Allfire1:

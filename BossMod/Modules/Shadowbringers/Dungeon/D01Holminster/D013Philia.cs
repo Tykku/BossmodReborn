@@ -40,18 +40,13 @@ public enum AID : uint
 
 public enum IconID : uint
 {
-    Tankbuster = 198, // player 
     SpreadFlare = 87, // player
-    ChainTarget = 92, // player
-    Spread = 139, // player
-    RotateCW = 167 // Boss
+    ChainTarget = 92 // player
 }
 
 public enum SID : uint
 {
-    Fetters = 1849, // none->player, extra=0xEC4
-    DownForTheCount = 783, // none->player, extra=0xEC7
-    Sludge = 287 // none->player, extra=0x0
+    Fetters = 1849 // none->player, extra=0xEC4
 }
 
 class SludgeVoidzone(BossModule module) : Components.PersistentVoidzone(module, 9.8f, m => m.Enemies(OID.SludgeVoidzone).Where(z => z.EventState != 7));
@@ -136,7 +131,7 @@ class Aethersup(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.AethersupFirst)
-            _aoe = new(cone, Module.PrimaryActor.Position, spell.Rotation, Module.CastFinishAt(spell));
+            _aoe = new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -174,7 +169,7 @@ class PendulumFlare(BossModule module) : Components.BaitAwayIcon(module, new AOE
 
 class PendulumAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PendulumAOE3), 15);
 
-class Knout(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(24, 105.Degrees()));
+class Knout(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(24, 105.Degrees()));
 class LeftKnout(BossModule module) : Knout(module, AID.LeftKnout);
 class RightKnout(BossModule module) : Knout(module, AID.RightKnout);
 
@@ -210,14 +205,31 @@ class FierceBeating(BossModule module) : Components.Exaflare(module, 4)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        foreach (var (c, t, r) in FutureAOEs())
-            yield return new(Shape, c, r, t, FutureColor);
-        foreach (var (c, t, r) in ImminentAOEs())
-            yield return new(Shape, c, r, t, ImminentColor);
-        if (Lines.Count > 0 && linesstartedcount1 < 8)
-            yield return new(circle, WPos.RotateAroundOrigin(linesstartedcount1 * 45, D013Philia.ArenaCenter, _casters[0]), default, _activation.AddSeconds(linesstartedcount1 * 3.7f));
-        if (Lines.Count > 1 && linesstartedcount2 < 8)
-            yield return new(circle, WPos.RotateAroundOrigin(linesstartedcount2 * 45, D013Philia.ArenaCenter, _casters[1]), default, _activation.AddSeconds(linesstartedcount2 * 3.7f));
+        var linesCount = Lines.Count;
+        if (linesCount == 0)
+            return [];
+        var futureAOEs = FutureAOEs(linesCount);
+        var imminentAOEs = ImminentAOEs(linesCount);
+        var futureCount = futureAOEs.Count;
+        var imminentCount = imminentAOEs.Count;
+
+        List<AOEInstance> aoes = new(futureCount + imminentCount + 2);
+        for (var i = 0; i < futureCount; ++i)
+        {
+            var aoe = futureAOEs[i];
+            aoes.Add(new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, FutureColor));
+        }
+
+        for (var i = 0; i < imminentCount; ++i)
+        {
+            var aoe = imminentAOEs[i];
+            aoes.Add(new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, ImminentColor));
+        }
+        if (linesstartedcount1 < 8)
+            aoes.Add(new(circle, WPos.RotateAroundOrigin(linesstartedcount1 * 45, D013Philia.ArenaCenter, _casters[0]), default, _activation.AddSeconds(linesstartedcount1 * 3.7f)));
+        if (linesCount > 1 && linesstartedcount2 < 8)
+            aoes.Add(new(circle, WPos.RotateAroundOrigin(linesstartedcount2 * 45, D013Philia.ArenaCenter, _casters[1]), default, _activation.AddSeconds(linesstartedcount2 * 3.7f)));
+        return aoes;
     }
 
     public override void Update()

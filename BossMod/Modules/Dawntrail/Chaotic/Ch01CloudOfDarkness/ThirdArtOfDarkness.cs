@@ -28,11 +28,35 @@ class ThirdArtOfDarknessCleave(BossModule module) : Components.GenericAOEs(modul
     {
         if (PlatformPlayers[slot])
         {
-            var playerSide = actor.Position.X - Module.Center.X;
-            var (a, m) = Mechanics.FirstOrDefault(kv => (kv.Key.Position.X - Module.Center.X) * playerSide > 0);
-            if (a != null && m.Count > 0)
-                hints.Add($"Order: {string.Join(" > ", m.Select(m => m.mechanic))}", false);
+            var playerSide = actor.Position.X - Arena.Center.X;
+
+            Actor? matchingActor = null;
+            List<(Mechanic mechanic, DateTime activation)>? matchingMechanics = null;
+
+            foreach (var kv in Mechanics)
+            {
+                var actorSide = kv.Key.Position.X - Arena.Center.X;
+                if (actorSide * playerSide > 0)
+                {
+                    matchingActor = kv.Key;
+                    matchingMechanics = kv.Value;
+                    break;
+                }
+            }
+
+            if (matchingActor != null && matchingMechanics != null && matchingMechanics.Count > 0)
+            {
+                var order = "";
+                for (var i = 0; i < matchingMechanics.Count; ++i)
+                {
+                    if (i > 0)
+                        order += " > ";
+                    order += matchingMechanics[i].mechanic.ToString();
+                }
+                hints.Add($"Order: {order}", false);
+            }
         }
+
         base.AddHints(slot, actor, hints);
     }
 
@@ -101,7 +125,7 @@ class ThirdArtOfDarknessHyperFocusedParticleBeam(BossModule module) : Components
         if (_main != null)
             foreach (var (a, m) in _main.Mechanics)
                 if (m.Count > 0 && m[0].mechanic == ThirdArtOfDarknessCleave.Mechanic.Spread)
-                    foreach (var p in Raid.WithoutSlot().SortedByRange(a.Position).Take(6))
+                    foreach (var p in Raid.WithoutSlot(false, false, true).SortedByRange(a.Position).Take(6))
                         CurrentBaits.Add(new(a, p, _shape, m[0].activation));
     }
 }
@@ -116,7 +140,7 @@ class ThirdArtOfDarknessMultiProngedParticleBeam(BossModule module) : Components
         if (_main != null)
             foreach (var (a, m) in _main.Mechanics)
                 if (m.Count > 0 && m[0].mechanic == ThirdArtOfDarknessCleave.Mechanic.Stack)
-                    foreach (var p in Raid.WithoutSlot().SortedByRange(a.Position).Take(3))
+                    foreach (var p in Raid.WithoutSlot(false, false, true).SortedByRange(a.Position).Take(3))
                         AddStack(p, m[0].activation, ~_main.PlatformPlayers);
         base.Update();
     }

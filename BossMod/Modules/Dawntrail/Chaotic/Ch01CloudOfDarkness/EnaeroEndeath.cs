@@ -136,7 +136,7 @@ class EndeathAOE(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCircle _shapeOut = new(6);
     private static readonly AOEShapeDonut _shapeIn = new(6, 40);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(1);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Count != 0 ? [_aoes[0]] : [];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

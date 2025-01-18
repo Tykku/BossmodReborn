@@ -65,7 +65,7 @@ public enum TetherID : uint
     CrawlingNecrobombs = 79 // Necrobomb7/Necrobomb8/Necrobomb5/Necrobomb6->player/2753/2757/2752
 }
 
-class AbsoluteDarkII(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AbsoluteDarkII), new AOEShapeCone(40, 60.Degrees()));
+class AbsoluteDarkII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbsoluteDarkII), new AOEShapeCone(40, 60.Degrees()));
 class PainMire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PainMire), 9)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

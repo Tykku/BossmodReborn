@@ -41,16 +41,16 @@ public enum AID : uint
 
 class StormlitShockwave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.StormlitShockwave));
 class ValorousAscension(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ValorousAscension));
-class RendPower(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RendPower), new AOEShapeCone(40, 15.Degrees()), 6);
+class RendPower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RendPower), new AOEShapeCone(40, 15.Degrees()), 6);
 
 class BastionBreaker(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BastionBreaker), 6);
 class HolyBlade(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HolyBlade), 6);
 
-abstract class Circle8(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(8));
+abstract class Circle8(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 8);
 class SearingSlash(BossModule module) : Circle8(module, AID.SearingSlash);
 class ThrownFlames(BossModule module) : Circle8(module, AID.ThrownFlames);
 
-class Electrobeam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Electrobeam), new AOEShapeRect(40, 2));
+class Electrobeam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Electrobeam), new AOEShapeRect(40, 2));
 
 class Rush(BossModule module) : Components.GenericAOEs(module)
 {

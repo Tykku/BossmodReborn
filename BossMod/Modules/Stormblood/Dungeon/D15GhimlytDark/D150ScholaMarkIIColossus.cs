@@ -22,8 +22,8 @@ public enum AID : uint
 }
 
 class MagitekMissile(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekMissile), 15);
-class Exhaust(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Exhaust), new AOEShapeRect(43.2f, 5));
-class GrandSword(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GrandSword), new AOEShapeCone(18.4f, 60.Degrees()));
+class Exhaust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Exhaust), new AOEShapeRect(43.2f, 5));
+class GrandSword(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrandSword), new AOEShapeCone(18.4f, 60.Degrees()));
 class SelfDetonate(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.SelfDetonate), "Enrage!", true);
 
 class UnbreakableCermetBlade(BossModule module) : Components.GenericAOEs(module)

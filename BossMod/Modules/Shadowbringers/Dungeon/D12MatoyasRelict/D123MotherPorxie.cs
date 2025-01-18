@@ -54,10 +54,10 @@ class MincedMeat(BossModule module) : Components.SingleTargetCastDelay(module, A
 class OpenFlame(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.OpenFlame), 5, 6.7f);
 class MeatMallet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MeatMallet), 30);
 class BarbequeCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BarbequeCircle), 5);
-class BarbequeRect(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BarbequeRect), new AOEShapeRect(50, 2.5f));
-class Buffet(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Buffet), new AOEShapeRect(40, 3));
+class BarbequeRect(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BarbequeRect), new AOEShapeRect(50, 2.5f));
+class Buffet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Buffet), new AOEShapeRect(40, 3));
 
-abstract class MediumRear(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(5, 40))
+abstract class MediumRear(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(5, 40))
 {
     private readonly HuffAndPuff1 _kb1 = module.FindComponent<HuffAndPuff1>()!;
     private readonly HuffAndPuff2 _kb2 = module.FindComponent<HuffAndPuff2>()!;
@@ -92,7 +92,7 @@ class HuffAndPuff2(BossModule module) : Components.Knockback(module, ignoreImmun
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.HuffAndPuffVisual)
-            _sourceCache = new(caster.Position, 15, default, null, spell.Rotation, Kind.DirForward);
+            _sourceCache = new(spell.LocXZ, 15, default, null, spell.Rotation, Kind.DirForward);
         else if (_sourceCache != null && (AID)spell.Action.ID == AID.NeerDoneWell)
             _source = _sourceCache.Value with { Activation = WorldState.FutureTime(5.4f), Distance = 50 };
     }

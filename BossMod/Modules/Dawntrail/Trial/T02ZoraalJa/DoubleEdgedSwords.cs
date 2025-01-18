@@ -9,21 +9,23 @@ class DoubleEdgedSwords(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _aoes.Count;
         if (count == 0)
-            yield break;
+            return [];
+        List<AOEInstance> aoes = new(count);
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
             if (i == 0)
-                yield return count != 1 ? aoe with { Color = Colors.Danger } : aoe;
-            else if (i == 1)
-                yield return aoe with { Risky = false };
+                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe with { Risky = false });
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.DoubleEdgedSwords)
-            _aoes.Add(new(cone, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)

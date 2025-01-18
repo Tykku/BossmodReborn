@@ -10,8 +10,9 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 872, // Boss->player, no cast, single-target
+    AutoAttack1 = 872, // Boss->player, no cast, single-target
     AutoAttack2 = 870, // Leyak->player, no cast, single-target
+
     ElectricPredation = 3887, // Boss->self, no cast, range 8+R 90-degree cone
     ElectricCachexia = 3889, // Boss->self, 7.0s cast, range 8-60 donut
     IonosphericCharge = 3888, // Boss->self, 3.0s cast, single-target
@@ -28,6 +29,7 @@ public enum TetherID : uint
 }
 
 class ElectricPredation(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ElectricPredation), new AOEShapeCone(12.9f, 60.Degrees()));
+
 class Electrocution(BossModule module) : Components.GenericBaitAway(module)
 {
     private static readonly AOEShapeRect rect = new(64.9f, 2.5f);
@@ -35,7 +37,7 @@ class Electrocution(BossModule module) : Components.GenericBaitAway(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.ElectrocutionVisual)
-            foreach (var p in Module.Raid.WithoutSlot())
+            foreach (var p in Module.Raid.WithoutSlot(false, true, true))
                 CurrentBaits.Add(new(caster, p, rect, Module.CastFinishAt(spell, 0.9f)));
     }
 
@@ -85,7 +87,7 @@ class IonosphericCharge(BossModule module) : Components.BaitAwayTethers(module, 
     }
 }
 
-class ElectricCachexia(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectricCachexia), new AOEShapeDonut(8, 60));
+class ElectricCachexia(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ElectricCachexia), new AOEShapeDonut(8, 60));
 class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 3);
 
 class D031RangdaStates : StateMachineBuilder

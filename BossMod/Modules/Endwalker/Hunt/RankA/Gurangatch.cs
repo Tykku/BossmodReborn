@@ -2,12 +2,13 @@
 
 public enum OID : uint
 {
-    Boss = 0x361B, // R6.000, x1
+    Boss = 0x361B // R6.000, x1
 }
 
 public enum AID : uint
 {
     AutoAttack = 870, // Boss->player, no cast, single-target
+
     LeftHammerSlammer = 27493, // Boss->self, 5.0s cast, range 30 180-degree cone
     RightHammerSlammer = 27494, // Boss->self, 5.0s cast, range 30 180-degree cone
     LeftHammerSecond = 27495, // Boss->self, 1.0s cast, range 30 180-degree cone
@@ -19,7 +20,7 @@ public enum AID : uint
     OctupleSlammerRestL = 27499, // Boss->self, 1.0s cast, range 30 180-degree cone
     OctupleSlammerRestR = 27500, // Boss->self, 1.0s cast, range 30 180-degree cone
     WildCharge = 27511, // Boss->players, no cast, width 8 rect charge
-    BoneShaker = 27512, // Boss->self, 4.0s cast, range 30 circle
+    BoneShaker = 27512 // Boss->self, 4.0s cast, range 30 circle
 }
 
 class Slammer(BossModule module) : Components.GenericRotatingAOE(module)
@@ -52,7 +53,7 @@ class Slammer(BossModule module) : Components.GenericRotatingAOE(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (caster == Module.PrimaryActor && castEnds.Contains((AID)spell.Action.ID))
+        if (castEnds.Contains((AID)spell.Action.ID))
             AdvanceSequence(0, WorldState.CurrentTime);
     }
 }

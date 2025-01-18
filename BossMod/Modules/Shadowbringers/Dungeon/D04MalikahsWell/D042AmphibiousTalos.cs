@@ -20,7 +20,6 @@ public enum AID : uint
 
 public enum IconID : uint
 {
-    Tankbuster = 198, // player
     RotateCCW = 157, // Boss
     RotateCW = 156 // Boss
 }
@@ -79,9 +78,9 @@ class SwiftSpillRotation(BossModule module) : Components.GenericRotatingAOE(modu
 class Efface(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Efface));
 class HighPressureRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HighPressure));
 class HighPressureKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.HighPressure), 20, stopAtWall: true);
-class GeyserEruption(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GeyserEruption), new AOEShapeCircle(8));
+class GeyserEruption(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GeyserEruption), 8);
 class Geysers(BossModule module) : Components.PersistentVoidzone(module, 4, m => m.Enemies(OID.Geyser).Where(v => v.EventState != 7));
-class Wellbore(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wellbore), new AOEShapeCircle(15));
+class Wellbore(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wellbore), 15);
 
 class D042AmphibiousTalosStates : StateMachineBuilder
 {

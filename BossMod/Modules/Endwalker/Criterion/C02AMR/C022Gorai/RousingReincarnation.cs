@@ -88,7 +88,7 @@ class PointedPurgation : Components.BaitAwayTethers
     public PointedPurgation(BossModule module) : base(module, new AOEShapeCone(60, 22.5f.Degrees()), (uint)TetherID.PointedPurgation)
     {
         var malformedPlayer = module.FindComponent<MalformedPrayer1>();
-        foreach (var (index, _) in Raid.WithSlot(true))
+        foreach (var (index, _) in Raid.WithSlot(true, true, true))
         {
             var soakOrder = malformedPlayer?.OrangeSoakOrder[index] ?? -1;
             if (soakOrder is 0 or 2)

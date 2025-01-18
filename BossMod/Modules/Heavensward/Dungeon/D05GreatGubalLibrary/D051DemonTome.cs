@@ -24,8 +24,8 @@ public enum AID : uint
 }
 
 class Repel(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Repel), 20, true, kind: Kind.DirForward, stopAtWall: true);
-class LiquefyCenter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LiquefyCenter), new AOEShapeRect(57.84f, 4));
-class LiquefySides(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LiquefySides), new AOEShapeRect(57.84f, 3.5f));
+class LiquefyCenter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LiquefyCenter), new AOEShapeRect(57.84f, 4));
+class LiquefySides(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LiquefySides), new AOEShapeRect(57.84f, 3.5f));
 
 class Disclosure(BossModule module) : Components.GenericAOEs(module)
 {

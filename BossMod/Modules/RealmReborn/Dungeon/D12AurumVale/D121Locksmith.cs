@@ -2,7 +2,7 @@
 
 public enum OID : uint
 {
-    Boss = 0x5BF, // x1
+    Boss = 0x5BF // x1
 }
 
 public enum AID : uint
@@ -10,7 +10,7 @@ public enum AID : uint
     AutoAttack = 1350, // Boss->player, no cast, single-target
     HundredLashings = 1031, // Boss->self, no cast, range 8+R ?-degree cone
     GoldRush = 1032, // Boss->self, no cast, raidwide
-    GoldDust = 1033, // Boss->location, 3.5s cast, range 8 circle
+    GoldDust = 1033 // Boss->location, 3.5s cast, range 8 circle
 }
 
 class HundredLashings(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.HundredLashings), new AOEShapeCone(12, 45.Degrees())); // TODO: verify angle

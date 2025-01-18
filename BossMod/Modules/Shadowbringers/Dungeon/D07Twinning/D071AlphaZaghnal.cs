@@ -40,7 +40,7 @@ public enum IconID : uint
 }
 
 class BeastlyRoar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BeastlyRoar));
-class Augurium(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Augurium), new AOEShapeCone(12, 60.Degrees()));
+class Augurium(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Augurium), new AOEShapeCone(12, 60.Degrees()));
 
 class PounceErrant(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.PounceErrant), 10, 4.6f)
 {

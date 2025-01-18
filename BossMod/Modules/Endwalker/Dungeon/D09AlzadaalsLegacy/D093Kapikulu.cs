@@ -104,7 +104,7 @@ class ManaExplosion(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class BastingBlade(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BastingBlade), new AOEShapeRect(60, 7.5f));
+class BastingBlade(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BastingBlade), new AOEShapeRect(60, 7.5f));
 
 class SpikeTraps(BossModule module) : Components.GenericAOEs(module)
 {
@@ -126,7 +126,7 @@ class SpikeTraps(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class BorderChange(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BorderChange), new AOEShapeRect(5, 20));
+class BorderChange(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BorderChange), new AOEShapeRect(5, 20));
 class MagnitudeOpus(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.MagnitudeOpus), 6, 4, 4);
 class RotaryGale(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.RotaryGale), 5);
 class CrewelSlice(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.CrewelSlice));

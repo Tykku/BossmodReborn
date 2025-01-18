@@ -46,7 +46,7 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
     public float ScreenMarginSize => 20 * Config.ArenaScale;
 
     // these are set at the beginning of each draw
-    public Vector2 ScreenCenter { get; private set; }
+    public Vector2 ScreenCenter;
     private Angle _cameraAzimuth;
     private float _cameraSinAzimuth;
     private float _cameraCosAzimuth = 1;

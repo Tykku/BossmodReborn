@@ -11,7 +11,12 @@ public class PersistentVoidzone(BossModule module, float radius, Func<BossModule
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        return Sources(Module).Select(s => new AOEInstance(Shape, s.Position, s.Rotation));
+        var aoes = new List<AOEInstance>();
+        foreach (var source in Sources(Module))
+        {
+            aoes.Add(new(Shape, source.Position, source.Rotation));
+        }
+        return aoes;
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -21,7 +26,19 @@ public class PersistentVoidzone(BossModule module, float radius, Func<BossModule
         var forbidden = new List<Func<WPos, float>>();
         foreach (var s in Sources(Module))
             forbidden.Add(Shape.Distance(s.Position, s.Rotation));
-        hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
+        hints.AddForbiddenZone(minDistanceFunc);
+
+        float minDistanceFunc(WPos pos)
+        {
+            var minDistance = float.MaxValue;
+            for (var i = 0; i < forbidden.Count; ++i)
+            {
+                var distance = forbidden[i](pos);
+                if (distance < minDistance)
+                    minDistance = distance;
+            }
+            return minDistance;
+        }
     }
 }
 
@@ -98,14 +115,26 @@ public class PersistentInvertibleVoidzone(BossModule module, float radius, Func<
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var shapes = Sources(Module).Select(s => Shape.Distance(s.Position, s.Rotation)).ToList();
+        var shapes = new List<Func<WPos, float>>();
+
+        foreach (var source in Sources(Module))
+        {
+            var shape = Shape.Distance(source.Position, source.Rotation);
+            shapes.Add(shape);
+        }
         if (shapes.Count == 0)
             return;
 
         float distance(WPos p)
         {
-            var dist = shapes.Select(s => s(p)).Min();
-            return Inverted ? -dist : dist;
+            var minDistance = float.MaxValue;
+            for (var i = 0; i < shapes.Count; ++i)
+            {
+                var distance = shapes[i](p);
+                if (distance < minDistance)
+                    minDistance = distance;
+            }
+            return Inverted ? -minDistance : minDistance;
         }
         hints.AddForbiddenZone(distance, InvertResolveAt);
     }

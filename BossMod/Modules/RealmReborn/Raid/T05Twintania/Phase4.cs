@@ -14,7 +14,7 @@ class P4Twisters(BossModule module) : BossComponent(module)
     public override void Update()
     {
         if (_predictedPositions.Count == 0 && (Module.PrimaryActor.CastInfo?.IsSpell(AID.Twister) ?? false) && Module.PrimaryActor.CastInfo.NPCRemainingTime <= PredictBeforeCastFinish)
-            _predictedPositions.AddRange(Raid.WithoutSlot().Select(a => a.Position));
+            _predictedPositions.AddRange(Raid.WithoutSlot(false, true, true).Select(a => a.Position));
         if (_twisters.Count > 0)
             _predictedPositions.Clear();
     }

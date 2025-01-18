@@ -57,9 +57,9 @@ class PageTear(BossModule module) : Components.Cleave(module, ActionID.MakeSpell
 }
 
 class HeadDown(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.HeadDown), 4);
-class DeathRay(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DeathRay), new AOEShapeRect(24.2f, 1.5f));
+class DeathRay(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeathRay), new AOEShapeRect(24.2f, 1.5f));
 class Tomewind(BossModule module) : Components.PersistentVoidzone(module, 3, m => m.Enemies(OID.Tomewind).Where(x => !x.IsDead));
-class TailSmash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TailSmash), new AOEShapeCone(12, 45.Degrees()));
+class TailSmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TailSmash), new AOEShapeCone(12, 45.Degrees()));
 
 class Bibliocide(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(0), (uint)TetherID.WhaleOil, activationDelay: 5)
 {

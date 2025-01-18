@@ -14,13 +14,14 @@ public enum OID : uint
     HelperTwister = 0x8EB, // R0.500, x8
     HelperMarker = 0x8EE, // R0.500, x2
     LiquidHell = 0x1E88FE, // R0.500, EventObj type, spawn during fight
-    Twister = 0x1E8910, // R0.500, EventObj type, spawn during fight
+    Twister = 0x1E8910 // R0.500, EventObj type, spawn during fight
 }
 
 public enum AID : uint
 {
     AutoAttackBoss = 1461, // Boss->player, no cast, single-target
     AutoAttackAdds = 870, // ScourgeOfMeracydia/Hygieia/Asclepius->player, no cast, single-target
+
     Plummet = 1240, // Boss->self, no cast, ??? cleave
     DeathSentence = 1458, // Boss->player, 2.0s cast, single-target, visual (2.4s cast until last phase)
     DeathSentenceP1 = 1241, // Boss->player, no cast, single-target, tankbuster (only during p1)
@@ -48,7 +49,7 @@ public enum AID : uint
     HatchMarker = 1453, // HelperMarker->player, no cast, single-target, visual icon for hatch
     Hatch = 1256, // Oviform->self, no cast, ???
     LiquidHellMarker = 1457, // Boss->player, no cast, single-target, visual icon for liquid hell
-    LiquidHellBoss = 670, // Boss->location, no cast, range 6 circle voidzone
+    LiquidHellBoss = 670 // Boss->location, no cast, range 6 circle voidzone
 }
 
 public enum SID : uint

@@ -108,7 +108,7 @@ class P2BrightHunger1(BossModule module) : Components.GenericTowers(module, Acti
 }
 
 // note: we can start showing aoes ~3s earlier if we check spawns, but it's not really needed
-class P2HolyLightBurst(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HolyLightBurst), new AOEShapeCircle(11), 3)
+class P2HolyLightBurst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HolyLightBurst), 11, 3)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints) { } // there are dedicated components for hints
 }
@@ -157,7 +157,7 @@ class P2HouseOfLightBoss(BossModule module) : Components.GenericBaitAway(module,
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.HouseOfLightBoss)
-            foreach (var p in Raid.WithoutSlot(true))
+            foreach (var p in Raid.WithoutSlot(true, true, true))
                 CurrentBaits.Add(new(caster, p, _shape, Module.CastFinishAt(spell, 0.9f)));
     }
 }
@@ -259,7 +259,7 @@ class P2LightRampantAIStackResolve(BossModule module) : BossComponent(module)
             return;
 
         var northCamp = IsNorthCamp(actor);
-        var centerDangerous = _orbs.ActiveCasters.Any(c => c.Position.Z - Module.Center.Z is var off && (northCamp ? off < -15 : off > 15));
+        var centerDangerous = _orbs.ActiveCasters.Any(c => c.Origin.Z - Arena.Center.Z is var off && (northCamp ? off < -15 : off > 15));
         var destDir = (northCamp ? 180 : 0).Degrees() - (centerDangerous ? 40 : 20).Degrees();
         var destPos = Module.Center + Radius * destDir.ToDirection();
         if (_stack.IsStackTarget(actor))
@@ -275,7 +275,7 @@ class P2LightRampantAIStackResolve(BossModule module) : BossComponent(module)
                 var distSq = toPartner.LengthSq();
                 return distSq > 9 && toDest.Dot(toPartner) < 0; // partner is far enough away, and moving towards destination will not bring us closer
             }
-            if (!Raid.WithoutSlot().Any(needToWaitFor))
+            if (!Raid.WithoutSlot(false, true, true).Any(needToWaitFor))
                 hints.AddForbiddenZone(ShapeDistance.InvertedCircle(destPos, 1), DateTime.MaxValue);
             // else: we still have someone we need to wait for, just stay where we are...
         }
@@ -302,30 +302,29 @@ class P2LightRampantAIOrbs(BossModule module) : BossComponent(module)
             return;
 
         // actual orb aoes
-        //var resolve = Module.CastFinishAt(_orbs.Casters[0].CastInfo, _orbs.NumCasts == 0 ? 0 : -1); // for second set, we want to dodge out asap without weird movement to the center
         foreach (var c in _orbs.ActiveCasters)
-            hints.AddForbiddenZone(_orbs.Shape.Distance(c.Position, default), Module.CastFinishAt(c.CastInfo));
+            hints.AddForbiddenZone(_orbs.Shape.Distance(c.Origin, default), c.Activation);
 
         if (_orbs.NumCasts == 0)
         {
             // dodge first orbs, while staying near edge
-            hints.AddForbiddenZone(ShapeDistance.Circle(Module.Center, 16));
+            hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 16));
             // ... and close to the aoes
-            var cushioned = ShapeDistance.Union([.. _orbs.ActiveCasters.Select(c => ShapeDistance.Circle(c.Position, 13))]);
+            var cushioned = ShapeDistance.Union([.. _orbs.ActiveCasters.Select(c => ShapeDistance.Circle(c.Origin, 13))]);
             hints.AddForbiddenZone(p => -cushioned(p), DateTime.MaxValue);
         }
-        else if (_orbs.Casters.Any(c => _orbs.Shape.Check(actor.Position, c)))
+        else if (_orbs.Casters.Any(c => _orbs.Shape.Check(actor.Position, c.Origin, default)))
         {
             // dodge second orbs while staying near edge (tethers are still up for a bit after first dodge)
-            hints.AddForbiddenZone(ShapeDistance.Circle(Module.Center, 16));
+            hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 16));
         }
         else
         {
             // now that we're safe, move closer to the center (this is a bit sus, but whatever...)
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 16), WorldState.FutureTime(30));
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 13), WorldState.FutureTime(40));
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 10), WorldState.FutureTime(50));
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, 7), DateTime.MaxValue);
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 16), WorldState.FutureTime(30));
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 13), WorldState.FutureTime(40));
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 10), WorldState.FutureTime(50));
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 7), DateTime.MaxValue);
         }
     }
 }

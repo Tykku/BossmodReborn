@@ -65,29 +65,14 @@ class ElectrowaveArenaChange(BossModule module) : Components.GenericAOEs(module)
 class EnhancedMobilitySword(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
-    private static readonly Angle a90 = 90.Degrees();
     private static readonly AOEShapeRect rect = new(14, 5);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
-        {
-            case AID.EnhancedMobility5:
-            case AID.EnhancedMobility7:
-                AddAOE(spell, -a90);
-                break;
-            case AID.EnhancedMobility6:
-            case AID.EnhancedMobility8:
-                AddAOE(spell, a90);
-                break;
-        }
-    }
-
-    private void AddAOE(ActorCastInfo spell, Angle offset)
-    {
-        _aoe = new(rect, Module.Center + 5 * spell.Rotation.ToDirection(), spell.Rotation + offset, Module.CastFinishAt(spell));
+        if ((AID)spell.Action.ID is AID.EnhancedMobility5 or AID.EnhancedMobility6 or AID.EnhancedMobility7 or AID.EnhancedMobility8)
+            _aoe = new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -101,20 +86,26 @@ class RapidRotary(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly Angle a60 = 60.Degrees();
     private static readonly Angle a120 = 120.Degrees();
-    private const float ActivationDelay = 1.8f;
-    private const float ActivationDelayIncrement = 0.3f;
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(6);
     private static readonly AOEShapeDonutSector donutSectorSmall = new(11, 17, a60);
     private static readonly AOEShapeDonutSector donutSectorBig = new(17, 28, a60);
     private static readonly AOEShapeCone cone = new(14, a60);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        for (var i = 0; i < Math.Clamp(_aoes.Count, 0, 7); ++i)
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        List<AOEInstance> aoes = new(count);
+        for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
-            yield return new(aoe.Shape, aoe.Origin, aoe.Rotation, aoe.Activation, i < 2 ? Colors.Danger : Colors.AOE);
+            if (i < 2)
+                aoes.Add(count > 2 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe);
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -122,40 +113,41 @@ class RapidRotary(BossModule module) : Components.GenericAOEs(module)
         switch ((AID)spell.Action.ID)
         {
             case AID.EnhancedMobility1:
-                AddAOEs(donutSectorSmall, donutSectorBig, -a60, Module.CastFinishAt(spell));
+                AddAOEs(donutSectorBig, -a60, spell);
                 break;
             case AID.EnhancedMobility2:
-                AddAOEs(donutSectorSmall, cone, a60, Module.CastFinishAt(spell));
+                AddAOEs(cone, a60, spell);
                 break;
             case AID.EnhancedMobility3:
-                AddAOEs(donutSectorSmall, cone, -a60, Module.CastFinishAt(spell));
+                AddAOEs(cone, -a60, spell);
                 break;
             case AID.EnhancedMobility4:
-                AddAOEs(donutSectorSmall, donutSectorBig, a60, Module.CastFinishAt(spell));
+                AddAOEs(donutSectorBig, a60, spell);
                 break;
         }
     }
 
-    private void AddAOEs(AOEShape shape1, AOEShape shape2, Angle initialAngle, DateTime finishAt)
+    private void AddAOEs(AOEShape shape2, Angle initialAngle, ActorCastInfo spell)
     {
         for (var i = 0; i < 3; ++i)
         {
+            var activation = Module.CastFinishAt(spell, 1.8f + i * 0.3f);
             var angle = initialAngle - i * a120;
-            _aoes.Add(new(shape1, Module.Center, angle, finishAt.AddSeconds(ActivationDelay + i * ActivationDelayIncrement)));
-            _aoes.Add(new(shape2, Module.Center, angle, finishAt.AddSeconds(ActivationDelay + i * ActivationDelayIncrement)));
+            _aoes.Add(new(donutSectorSmall, Arena.Center, angle, activation));
+            _aoes.Add(new(shape2, Arena.Center, angle, activation));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID is AID.RapidRotaryCone or AID.RapidRotaryDonutSegmentBig or AID.RapidRotaryDonutSegmentSmall)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.RapidRotaryCone or AID.RapidRotaryDonutSegmentBig or AID.RapidRotaryDonutSegmentSmall)
             _aoes.RemoveAt(0);
     }
 }
 
 class Electrowave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Electrowave));
 
-class EnhancedMobility(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(14, 3));
+class EnhancedMobility(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(14, 3));
 class EnhancedMobility1(BossModule module) : EnhancedMobility(module, AID.EnhancedMobility1);
 class EnhancedMobility2(BossModule module) : EnhancedMobility(module, AID.EnhancedMobility2);
 class EnhancedMobility3(BossModule module) : EnhancedMobility(module, AID.EnhancedMobility3);

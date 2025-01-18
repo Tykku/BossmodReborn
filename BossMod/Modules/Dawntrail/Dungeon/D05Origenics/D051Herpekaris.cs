@@ -45,7 +45,7 @@ class ConvulsiveCrush(BossModule module) : Components.SingleTargetDelayableCast(
 class PoisonHeartSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PoisonHeartSpread), 5);
 class PoisonHeartVoidzone(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 2, ActionID.MakeSpell(AID.PoisonHeartVoidzone), m => m.Enemies(OID.PoisonVoidzone).Where(z => z.EventState != 7), 0.9f);
 
-class PodBurst(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class PodBurst(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class PodBurst1(BossModule module) : PodBurst(module, AID.PodBurst1);
 class PodBurst2(BossModule module) : PodBurst(module, AID.PodBurst2);
 
@@ -57,10 +57,21 @@ class WrithingRiot(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (_aoes.Count > 1)
-            yield return _aoes[1] with { Risky = _aoes[0].Shape != _aoes[1].Shape };
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        List<AOEInstance> aoes = new(count);
+        {
+            for (var i = 0; i < count; ++i)
+            {
+                var aoe = _aoes[i];
+                if (i == 0)
+                    aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+                else if (i == 1)
+                    aoes.Add(aoe with { Risky = _aoes[0].Shape != _aoes[1].Shape });
+            }
+        }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

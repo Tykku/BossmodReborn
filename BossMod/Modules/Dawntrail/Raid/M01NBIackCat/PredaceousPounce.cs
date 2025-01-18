@@ -16,14 +16,18 @@ class PredaceousPounce(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        if (count > 0)
+        if (count == 0)
+            return [];
+        List<AOEInstance> aoes = new(count);
+        for (var i = 0; i < count; ++i)
         {
-            var aoeCount = Math.Clamp(count, 0, 2);
-            for (var i = aoeCount; i < count; ++i)
-                yield return _aoes[i];
-            for (var i = 0; i < aoeCount; ++i)
-                yield return _aoes[i] with { Color = Colors.Danger };
+            var aoe = _aoes[i];
+            if (i < 2)
+                aoes.Add(count > 2 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe);
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -53,7 +57,7 @@ class PredaceousPounce(BossModule module) : Components.GenericAOEs(module)
     {
         if (castEnd.Contains((AID)spell.Action.ID))
         {
-            if (_aoes.Count > 0)
+            if (_aoes.Count != 0)
                 _aoes.RemoveAt(0);
             if (_aoes.Count == 0)
                 sorted = false;

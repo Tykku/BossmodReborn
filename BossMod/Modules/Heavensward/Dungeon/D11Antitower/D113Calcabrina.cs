@@ -97,8 +97,8 @@ class Brace(BossModule module) : Components.DirectionalParry(module, [(uint)OID.
     }
 }
 
-class HeatGazeBrina(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeatGazeBrina), new AOEShapeDonut(5, 10));
-class HeatGazeCalca(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeatGazeCalca), new AOEShapeCone(19.9f, 30.Degrees()));
+class HeatGazeBrina(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeatGazeBrina), new AOEShapeDonut(5, 10));
+class HeatGazeCalca(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeatGazeCalca), new AOEShapeCone(19.9f, 30.Degrees()));
 class Knockout(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Knockout));
 
 class Slapstick(BossModule module) : BossComponent(module)
@@ -107,7 +107,7 @@ class Slapstick(BossModule module) : BossComponent(module)
     {
         if (actor.FindStatus(SID.Fetters) != null)
             return;
-        if (Raid.WithoutSlot().Any(x => x.FindStatus(SID.Fetters) != null))
+        if (Raid.WithoutSlot(false, true, true).Any(x => x.FindStatus(SID.Fetters) != null))
             hints.Add("Kill the small dolls to free the players!");
     }
 }

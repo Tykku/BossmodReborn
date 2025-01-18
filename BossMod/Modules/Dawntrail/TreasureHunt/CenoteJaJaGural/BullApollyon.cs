@@ -52,25 +52,25 @@ public enum AID : uint
 class Blade(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Blade));
 class Pyreburst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Pyreburst));
 
-abstract class RectWide(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 5, 40));
+abstract class RectWide(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 5));
 class FlameBlade1(BossModule module) : RectWide(module, AID.FlameBlade1);
 class FlameBlade2(BossModule module) : RectWide(module, AID.FlameBlade2);
 
-abstract class RectNarrow(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 2.5f, 40));
+abstract class RectNarrow(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 2.5f));
 class CrossfireBlade3(BossModule module) : RectNarrow(module, AID.CrossfireBlade3);
 class FlameBlade3(BossModule module) : RectNarrow(module, AID.FlameBlade3);
 
-abstract class Crosses(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCross(20, 5));
+abstract class Crosses(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCross(20, 5));
 class CrossfireBlade1(BossModule module) : Crosses(module, AID.CrossfireBlade1);
 class CrossfireBlade2(BossModule module) : Crosses(module, AID.CrossfireBlade2);
 
-class BlazingBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlazingBreath), new AOEShapeRect(44, 5));
+class BlazingBreath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlazingBreath), new AOEShapeRect(44, 5));
 class BlazingBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlazingBlast), 6);
 
-class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
 class RottenSpores(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RottenSpores), 6);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

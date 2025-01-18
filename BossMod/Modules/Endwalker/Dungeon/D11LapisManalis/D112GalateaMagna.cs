@@ -36,7 +36,7 @@ public enum IconID : uint
     Icon1 = 336, // Helper2
     Icon2 = 337, // Helper2
     Icon3 = 338, // Helper2
-    Icon4 = 339, // Helper2
+    Icon4 = 339 // Helper2
 }
 
 public enum SID : uint
@@ -55,15 +55,18 @@ class ScarecrowChase(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _aoes.Count;
         if (count == 0)
-            yield break;
-        for (var i = 0; i < (count > 2 ? 2 : count); ++i)
+            return [];
+        var max = count > 2 ? 2 : count;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
         {
             var aoe = _aoes[i];
             if (i == 0)
-                yield return count > 1 ? aoe with { Color = Colors.Danger } : aoe;
-            else if (i == 1)
-                yield return aoe with { Risky = false };
+                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe with { Risky = false });
         }
+        return aoes;
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
@@ -91,10 +94,10 @@ class WaxingCycle(BossModule module) : Components.ConcentricAOEs(module, [new AO
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.WaxingCycle1)
-            AddSequence(Arena.Center, Module.CastFinishAt(spell));
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if (Sequences.Count != 0)
         {
@@ -104,7 +107,7 @@ class WaxingCycle(BossModule module) : Components.ConcentricAOEs(module, [new AO
                 AID.WaxingCycle2 => 1,
                 _ => -1
             };
-            AdvanceSequence(order, caster.Position, WorldState.FutureTime(2.7f));
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(2.7f));
         }
     }
 }
@@ -114,10 +117,10 @@ class WaningCycle(BossModule module) : Components.ConcentricAOEs(module, [new AO
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.WaningCycle1)
-            AddSequence(Arena.Center, Module.CastFinishAt(spell));
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if (Sequences.Count != 0)
         {
@@ -127,7 +130,7 @@ class WaningCycle(BossModule module) : Components.ConcentricAOEs(module, [new AO
                 AID.WaningCycle2 => 1,
                 _ => -1
             };
-            AdvanceSequence(order, caster.Position, WorldState.FutureTime(2));
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(2));
         }
     }
 }
@@ -141,9 +144,11 @@ class GlassyEyed(BossModule module) : Components.GenericGaze(module)
     {
         var count = _affected.Count;
         if (count == 0 || WorldState.CurrentTime < _activation.AddSeconds(-10))
-            yield break;
+            return [];
+        List<Eye> eyes = new(count);
         for (var i = 0; i < count; ++i)
-            yield return new(_affected[i].Position, _activation);
+            eyes.Add(new(_affected[i].Position, _activation));
+        return eyes;
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -184,7 +189,15 @@ public class TenebrismTowers(BossModule module) : Components.GenericTowers(modul
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if ((AID)spell.Action.ID == AID.Burst)
-            Towers.RemoveAll(t => t.Position.AlmostEqual(caster.Position, 1));
+            for (var i = 0; i < Towers.Count; ++i)
+            {
+                var tower = Towers[i];
+                if (tower.Position == caster.Position)
+                {
+                    Towers.Remove(tower);
+                    break;
+                }
+            }
     }
 }
 

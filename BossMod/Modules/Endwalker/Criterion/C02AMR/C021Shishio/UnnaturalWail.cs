@@ -2,7 +2,7 @@
 
 class UnnaturalWail(BossModule module) : Components.UniformStackSpread(module, 6, 6, 2, 2, alwaysShowSpreads: true)
 {
-    public int NumMechanics { get; private set; }
+    public int NumMechanics;
     private readonly List<Actor> _spreadTargets = [];
     private readonly List<Actor> _stackTargets = [];
     private DateTime _spreadResolve;

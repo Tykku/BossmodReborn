@@ -9,19 +9,16 @@ class Rampage(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = AOEs.Count;
-        if (count > 0)
+        if (count == 0)
+            return [];
+        List<AOEInstance> aoes = new(count);
+        for (var i = 0; i < count; ++i)
         {
-            for (var i = 0; i < count; ++i)
-            {
-                var aoe = AOEs[i];
-                if (i == 0)
-                    yield return count > 1 ? aoe with { Color = Colors.Danger } : aoe;
-                else if (i > 0)
-                    yield return aoe;
-            }
+            var aoe = AOEs[i];
+            aoes.Add(i == 0 ? count > 1 ? aoe with { Color = Colors.Danger } : aoe : aoe);
         }
+        return aoes;
     }
-
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         switch ((AID)spell.Action.ID)

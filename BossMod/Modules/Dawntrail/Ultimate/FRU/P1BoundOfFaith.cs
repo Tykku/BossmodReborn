@@ -1,14 +1,14 @@
 ﻿namespace BossMod.Dawntrail.Ultimate.FRU;
 
-abstract class BurntStrike(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 5, 40));
+abstract class BurntStrike(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(80, 5));
 class P1TurnOfHeavensBurntStrikeFire(BossModule module) : BurntStrike(module, AID.TurnOfHeavensBurntStrikeFire);
 class P1TurnOfHeavensBurntStrikeLightning(BossModule module) : BurntStrike(module, AID.TurnOfHeavensBurntStrikeLightning);
 
-abstract class BurntOut(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 10, 40));
+abstract class BurntOut(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(80, 10));
 class P1TurnOfHeavensBurnout(BossModule module) : BurntOut(module, AID.TurnOfHeavensBurnout);
 
-class P1BrightfireSmall(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BrightfireSmall), new AOEShapeCircle(5));
-class P1BrightfireLarge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BrightfireLarge), new AOEShapeCircle(10));
+class P1BrightfireSmall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BrightfireSmall), 5);
+class P1BrightfireLarge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BrightfireLarge), 10);
 
 // TODO: fixed tethers strat variant (tether target with clone on safe side goes S, other goes N, if any group has 5 players prio1 adjusts)
 class P1BoundOfFaith(BossModule module) : Components.UniformStackSpread(module, 6, 0, 4, 4)
@@ -72,7 +72,7 @@ class P1BoundOfFaith(BossModule module) : Components.UniformStackSpread(module, 
         {
             WDir averageOffset = default;
             foreach (var aoe in Module.Enemies(_safeHalo))
-                averageOffset += aoe.Position - Module.Center;
+                averageOffset += aoe.Position - Arena.Center;
             SafeSide.X = averageOffset.X > 0 ? 1 : -1;
         }
 

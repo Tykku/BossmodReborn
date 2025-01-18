@@ -70,7 +70,7 @@ class BattleCryArenaChange(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class SpunLightning(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpunLightning), new AOEShapeRect(30, 4));
+class SpunLightning(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpunLightning), new AOEShapeRect(30, 4));
 class LightningClaw(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.LightningClaw2), 6, 5.2f, 4, 4);
 
 class ForkedFissures(BossModule module) : Components.GenericAOEs(module)
@@ -131,30 +131,40 @@ class ForkedFissures(BossModule module) : Components.GenericAOEs(module)
         })
     };
 
-    private readonly List<WPos> _patternStart = [];
-    private readonly List<WPos> _patternEnd = [];
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(32);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(16);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 16 ? 16 : count;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
+        {
+            aoes.Add(_aoes[i]);
+        }
+        return aoes;
+    }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state is 0x00200010 or 0x00020001 && Patterns.TryGetValue(index, out var pattern))
         {
-            _patternStart.AddRange(pattern.Start);
-            _patternEnd.AddRange(pattern.End);
-            for (var i = _patternStart.Count - 1; i >= 0; --i)
+            var starts = pattern.Start;
+            var ends = pattern.End;
+            for (var i = starts.Length - 1; i >= 0; --i)
             {
-                _aoes.Add(new(new AOEShapeRect((_patternEnd[i] - _patternStart[i]).Length(), 2), _patternStart[i], Angle.FromDirection(_patternEnd[i] - _patternStart[i]), WorldState.FutureTime(6)));
-                _patternStart.RemoveAt(i);
-                _patternEnd.RemoveAt(i);
+                var start = starts[i];
+                var end = ends[i];
+                _aoes.Add(new(new AOEShapeRect((start - end).Length(), 2), start, Angle.FromDirection(end - start), WorldState.FutureTime(6)));
             }
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.ForkedFissures)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID == AID.ForkedFissures)
             _aoes.RemoveAt(0);
     }
 }
@@ -170,7 +180,7 @@ class LightningRampage2(BossModule module) : Leaps(module, AID.LightningRampage2
 
 class RipperClaw(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.RipperClaw));
 class Shock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shock), 6);
-class SpinningClaw(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpinningClaw), new AOEShapeCircle(10));
+class SpinningClaw(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinningClaw), 10);
 class BattleCry1(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BattleCry1));
 class BattleCry2(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BattleCry2));
 

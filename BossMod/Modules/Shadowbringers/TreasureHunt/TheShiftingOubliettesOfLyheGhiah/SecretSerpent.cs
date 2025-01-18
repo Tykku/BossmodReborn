@@ -40,20 +40,20 @@ public enum AID : uint
 class DouseVoidzone(BossModule module) : Components.PersistentVoidzone(module, 7.5f, m => m.Enemies(OID.WaterVoidzone).Where(z => z.EventState != 7), 0);
 class Douse(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Douse), 8);
 class FangsEnd(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.FangsEnd));
-class Drench1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Drench1), new AOEShapeCone(15.29f, 45.Degrees()));
-class Drench2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Drench2), new AOEShapeCone(13.45f, 45.Degrees()));
-class ScaleRipple(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ScaleRipple), new AOEShapeCircle(8));
+class Drench1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Drench1), new AOEShapeCone(15.29f, 45.Degrees()));
+class Drench2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Drench2), new AOEShapeCone(13.45f, 45.Degrees()));
+class ScaleRipple(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ScaleRipple), 8);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
-class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
-class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
 
 class SecretSerpentStates : StateMachineBuilder
 {

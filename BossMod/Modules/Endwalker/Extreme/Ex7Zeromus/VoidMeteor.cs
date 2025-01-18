@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Extreme.Ex7Zeromus;
 
-class MeteorImpactProximity(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MeteorImpactProximity), new AOEShapeCircle(10)); // TODO: verify falloff
+class MeteorImpactProximity(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MeteorImpactProximity), 10); // TODO: verify falloff
 
 class MeteorImpactCharge(BossModule module) : Components.GenericAOEs(module)
 {
@@ -62,7 +62,7 @@ class MeteorImpactCharge(BossModule module) : Components.GenericAOEs(module)
         for (var i = 0; i < _meteors.Count; ++i)
             Arena.AddCircle(_meteors[i], _radius, Colors.Object);
 
-        foreach (var (slot, target) in Raid.WithSlot(true))
+        foreach (var (slot, target) in Raid.WithSlot(true, true, true))
         {
             if (SourceIfActive(slot) is var source && source != null)
             {
@@ -96,7 +96,7 @@ class MeteorImpactCharge(BossModule module) : Components.GenericAOEs(module)
             case AID.MeteorImpactChargeClipping:
                 _meteors.Add(spell.TargetXZ);
                 ++NumCasts;
-                var (closestSlot, closestPlayer) = Raid.WithSlot(true).Closest(spell.TargetXZ);
+                var (closestSlot, closestPlayer) = Raid.WithSlot(true, true, true).Closest(spell.TargetXZ);
                 if (closestPlayer != null)
                     _playerStates[closestSlot].TetherSource = null;
                 break;
@@ -145,11 +145,11 @@ class MeteorImpactCharge(BossModule module) : Components.GenericAOEs(module)
 
     private bool IsClippedByOthers(Actor player)
     {
-        foreach (var (i, p) in Raid.WithSlot(true).Exclude(player))
+        foreach (var (i, p) in Raid.WithSlot(true, true, true).Exclude(player))
             if (SourceIfActive(i) is var src && src != null && IsClipped(src.Position, p.Position, player.Position))
                 return true;
         return false;
     }
 }
 
-class MeteorImpactExplosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MeteorImpactExplosion), new AOEShapeCircle(10));
+class MeteorImpactExplosion(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MeteorImpactExplosion), 10);

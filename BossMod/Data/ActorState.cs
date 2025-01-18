@@ -23,36 +23,43 @@ public sealed class ActorState : IEnumerable<Actor>
         }
     }
 
-    public IEnumerable<Operation> CompareToInitial()
+    public List<Operation> CompareToInitial()
     {
-        foreach (var act in this)
+        List<Operation> ops = new(_actors.Count * 2);
+
+        foreach (var act in _actors.Values)
         {
-            yield return new OpCreate(act.InstanceID, act.OID, act.SpawnIndex, act.Name, act.NameID, act.Type, act.Class, act.Level, act.PosRot, act.HitboxRadius, act.HPMP, act.IsTargetable, act.IsAlly, act.OwnerID, act.FateID);
+            var instanceID = act.InstanceID;
+            ops.Add(new OpCreate(instanceID, act.OID, act.SpawnIndex, act.Name, act.NameID, act.Type, act.Class, act.Level, act.PosRot, act.HitboxRadius, act.HPMP, act.IsTargetable, act.IsAlly, act.OwnerID, act.FateID));
             if (act.IsDead)
-                yield return new OpDead(act.InstanceID, true);
+                ops.Add(new OpDead(instanceID, true));
             if (act.InCombat)
-                yield return new OpCombat(act.InstanceID, true);
+                ops.Add(new OpCombat(instanceID, true));
             if (act.ModelState != default)
-                yield return new OpModelState(act.InstanceID, act.ModelState);
+                ops.Add(new OpModelState(instanceID, act.ModelState));
             if (act.EventState != 0)
-                yield return new OpEventState(act.InstanceID, act.EventState);
+                ops.Add(new OpEventState(instanceID, act.EventState));
             if (act.TargetID != 0)
-                yield return new OpTarget(act.InstanceID, act.TargetID);
+                ops.Add(new OpTarget(instanceID, act.TargetID));
             if (act.MountId != 0)
-                yield return new OpMount(act.InstanceID, act.MountId);
+                ops.Add(new OpMount(instanceID, act.MountId));
             if (act.Tether.ID != 0)
-                yield return new OpTether(act.InstanceID, act.Tether);
+                ops.Add(new OpTether(instanceID, act.Tether));
             if (act.CastInfo != null)
-                yield return new OpCastInfo(act.InstanceID, act.CastInfo);
-            for (var i = 0; i < act.Statuses.Length; ++i)
-                if (act.Statuses[i].ID != 0)
-                    yield return new OpStatus(act.InstanceID, i, act.Statuses[i]);
+                ops.Add(new OpCastInfo(instanceID, act.CastInfo));
+            for (var j = 0; j < act.Statuses.Length; ++j)
+            {
+                var status = act.Statuses[j];
+                if (status.ID != 0)
+                    ops.Add(new OpStatus(instanceID, j, status));
+            }
         }
+        return ops;
     }
 
     public void Tick(float dt)
     {
-        foreach (var act in this)
+        foreach (var act in _actors.Values)
         {
             act.PrevPosRot = act.PosRot;
             if (act.CastInfo != null)

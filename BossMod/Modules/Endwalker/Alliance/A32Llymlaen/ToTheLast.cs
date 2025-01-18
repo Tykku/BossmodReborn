@@ -3,16 +3,25 @@ namespace BossMod.Endwalker.Alliance.A32Llymlaen;
 class ToTheLast(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeRect rect = new(80, 5);
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(3);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (_aoes.Count > 1)
-            yield return _aoes[1] with { Risky = false };
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i == 0)
+                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe with { Risky = false });
+        }
+        return aoes;
     }
-
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.ToTheLastVisual)
@@ -21,10 +30,10 @@ class ToTheLast(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.ToTheLastAOE)
+        if ((AID)spell.Action.ID == AID.ToTheLastAOE)
         {
             ++NumCasts;
-            if (_aoes.Count > 0)
+            if (_aoes.Count != 0)
                 _aoes.RemoveAt(0);
         }
     }

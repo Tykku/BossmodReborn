@@ -58,15 +58,15 @@ class ElectromagneticRepellant(BossModule module) : Components.PersistentVoidzon
 class InfantryDeterrent(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.InfantryDeterrent), 6);
 class NoFutureSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.NoFutureSpread), 6);
 
-class NoFutureAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.NoFutureAOE), new AOEShapeCircle(6));
-class Peacefire(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Peacefire), new AOEShapeCircle(10));
-class SmallBoreLaser(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SmallBoreLaser), new AOEShapeRect(20, 2));
+class NoFutureAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.NoFutureAOE), 6);
+class Peacefire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Peacefire), 10);
+class SmallBoreLaser(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SmallBoreLaser), new AOEShapeRect(20, 2));
 
 class Elimination(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.Elimination), new AOEShapeRect(46, 5), endsOnCastEvent: true)
 {
     public override void AddGlobalHints(GlobalHints hints)
     {
-        if (CurrentBaits.Count > 0)
+        if (CurrentBaits.Count != 0)
             hints.Add("Tankbuster cleave");
     }
 }
@@ -88,7 +88,7 @@ class EclipsingExhaustKnockback(BossModule module) : Components.KnockbackFromCas
             foreach (var c in component)
             {
                 forbidden.Add(ShapeDistance.InvertedCircle(Arena.Center, 5));
-                forbidden.Add(ShapeDistance.Cone(Arena.Center, 16, Angle.FromDirection(c.Origin - Module.Center), 36.Degrees()));
+                forbidden.Add(ShapeDistance.Cone(Arena.Center, 16, Angle.FromDirection(c.Origin - Arena.Center), 36.Degrees()));
             }
             if (forbidden.Count > 0)
                 hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), source.Activation);

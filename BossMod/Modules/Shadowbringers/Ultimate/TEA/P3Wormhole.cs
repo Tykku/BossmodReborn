@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Shadowbringers.Ultimate.TEA;
 
 class P3WormholeLimitCut(BossModule module) : LimitCut(module, 2.7f);
-class P3WormholeSacrament(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SacramentWormhole), new AOEShapeCross(100, 8));
+class P3WormholeSacrament(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SacramentWormhole), new AOEShapeCross(100, 8));
 
 class P3WormholeRepentance(BossModule module) : BossComponent(module)
 {
@@ -158,7 +158,7 @@ class P3WormholeEnumeration(BossModule module) : Components.UniformStackSpread(m
                 Stacks.Clear();
                 break;
             case AID.IncineratingHeat:
-                AddStacks(Raid.WithSlot(true).IncludedInMask(_targets).Actors(), _activation);
+                AddStacks(Raid.WithSlot(true, true, true).IncludedInMask(_targets).Actors(), _activation);
                 break;
         }
     }

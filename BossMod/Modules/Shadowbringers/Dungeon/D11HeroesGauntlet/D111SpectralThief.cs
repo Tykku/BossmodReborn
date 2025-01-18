@@ -43,7 +43,7 @@ public enum SID : uint
 class SpectralWhirlwind(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SpectralWhirlwind));
 class SpectralDream(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.SpectralDream));
 class SpectralGust(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SpectralGust), 5);
-class CowardsCunning(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CowardsCunning), new AOEShapeRect(55, 1, 5));
+class CowardsCunning(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CowardsCunning), new AOEShapeRect(60, 1));
 
 class VacuumBladePapercutter(BossModule module) : Components.GenericAOEs(module)
 {
@@ -60,8 +60,10 @@ class VacuumBladePapercutter(BossModule module) : Components.GenericAOEs(module)
         if ((OID)actor.OID == OID.Boss && (SID)status.ID == SID.Dash)
         {
             var activation = WorldState.FutureTime(8.1f);
-            foreach (var e in Module.Enemies(OID.Marker))
+            var marker = Module.Enemies(OID.Marker);
+            for (var i = 0; i < marker.Count; ++i)
             {
+                var e = marker[i];
                 switch (status.Extra)
                 {
                     case 0xB0:

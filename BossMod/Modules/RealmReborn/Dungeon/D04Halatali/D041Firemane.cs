@@ -16,7 +16,7 @@ public enum AID : uint
     Fireflow2 = 40589, // Helper->self, 9.0s cast, range 60 45-degree cone
 
     BurningBoltVisual = 40590, // Boss->self, 5.0s cast, single-target
-    BurningBolt = 40591, // Helper->player, 5.0s cast, single-target
+    BurningBolt = 40591 // Helper->player, 5.0s cast, single-target
 }
 
 class Fireflow(BossModule module) : Components.GenericAOEs(module)

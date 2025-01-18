@@ -1,6 +1,6 @@
 namespace BossMod.Endwalker.VariantCriterion.V02MR.V024Shishio;
 
-class YokiUzu(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.YokiUzu), new AOEShapeCircle(23));
+class YokiUzu(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.YokiUzu), 23);
 
 class FocusedTremor(BossModule module) : Components.GenericAOEs(module)
 {

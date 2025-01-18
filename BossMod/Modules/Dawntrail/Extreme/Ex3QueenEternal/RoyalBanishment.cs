@@ -8,7 +8,7 @@ class RoyalBanishment(BossModule module) : Components.GenericWildCharge(module, 
         if (iconID == (uint)IconID.RoyalBanishmentFirst)
         {
             Source = Module.Enemies(OID.BossP2).FirstOrDefault();
-            foreach (var (i, p) in Raid.WithSlot(true))
+            foreach (var (i, p) in Raid.WithSlot(true, true, true))
                 PlayerRoles[i] = p.InstanceID == targetID ? PlayerRole.Target : PlayerRole.Share;
         }
     }

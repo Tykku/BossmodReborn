@@ -2,11 +2,11 @@
 
 class P1SuddenDownpour(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.SuddenDownpourAOE));
 
-class TrekShot(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(65, 60.Degrees()));
+class TrekShot(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(65, 60.Degrees()));
 class P1TrekShotN(BossModule module) : TrekShot(module, AID.TrekShotNAOE);
 class P1TrekShotS(BossModule module) : TrekShot(module, AID.TrekShotSAOE);
 
-class SoaringMinuet(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(65, 135.Degrees()));
+class SoaringMinuet(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(65, 135.Degrees()));
 class P1SoaringMinuet1(BossModule module) : SoaringMinuet(module, AID.SoaringMinuet1);
 class P1SoaringMinuet2(BossModule module) : SoaringMinuet(module, AID.SoaringMinuet2);
 

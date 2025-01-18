@@ -28,7 +28,7 @@ public enum TetherID : uint
     StatueActivate = 37 // 28E8->Boss
 }
 
-class TectonicShift(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TectonicShift), new AOEShapeCircle(8));
+class TectonicShift(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TectonicShift), 8);
 class BoulderToss(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BoulderToss));
 class SunToss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SunToss), 6);
 
@@ -85,9 +85,10 @@ class D073YokHuyAttestantStates : StateMachineBuilder
 public class D073YokHuyAttestant(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Rectangle(new(-130, -475), 17.5f, 22)], [new Rectangle(new(-135.05f, -486.25f), 1.35f, 3.5f), new Rectangle(new(-124.4f, -471.4f), 1.3f, 3.75f)]);
+    private static readonly uint[] Trash = [(uint)OID.YokHuyAltar, (uint)OID.YokHuyAltar2, (uint)OID.YokHuyOrb];
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.YokHuyAltar).Concat(Enemies(OID.YokHuyAltar2)).Concat(Enemies(OID.YokHuyOrb)));
+        Arena.Actors(Enemies(Trash));
     }
 }

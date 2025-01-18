@@ -1,20 +1,20 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C023Moko;
 
-abstract class ScarletAuspice(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
+abstract class ScarletAuspice(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class NScarletAuspice(BossModule module) : ScarletAuspice(module, AID.NScarletAuspice);
 class SScarletAuspice(BossModule module) : ScarletAuspice(module, AID.SScarletAuspice);
 
-abstract class BoundlessScarletFirst(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(30, 5, 30));
+abstract class BoundlessScarletFirst(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(60, 5));
 class NBoundlessScarletFirst(BossModule module) : BoundlessScarletFirst(module, AID.NBoundlessScarletAOE);
 class SBoundlessScarletFirst(BossModule module) : BoundlessScarletFirst(module, AID.SBoundlessScarletAOE);
 
-abstract class BoundlessScarletRest(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(30, 15, 30), 2);
+abstract class BoundlessScarletRest(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(60, 15), 2);
 class NBoundlessScarletRest(BossModule module) : BoundlessScarletRest(module, AID.NBoundlessScarletExplosion);
 class SBoundlessScarletRest(BossModule module) : BoundlessScarletRest(module, AID.SBoundlessScarletExplosion);
 
 class InvocationOfVengeance(BossModule module) : Components.UniformStackSpread(module, 3, 3, alwaysShowSpreads: true)
 {
-    public int NumMechanics { get; private set; }
+    public int NumMechanics;
     private readonly List<Actor> _spreadTargets = [];
     private readonly List<Actor> _stackTargets = [];
     private DateTime _spreadResolve;

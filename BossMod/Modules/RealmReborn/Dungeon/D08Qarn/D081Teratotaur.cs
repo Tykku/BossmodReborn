@@ -6,7 +6,7 @@ public enum OID : uint
     DungWespe = 0x6DA, // spawn during fight
     Platform1 = 0x1E87E2, // x1, EventObj type; eventstate 0 if active, 7 if inactive
     Platform2 = 0x1E87E3, // x1, EventObj type; eventstate 0 if active, 7 if inactive
-    Platform3 = 0x1E87E4, // x1, EventObj type; eventstate 0 if active, 7 if inactive
+    Platform3 = 0x1E87E, // x1, EventObj type; eventstate 0 if active, 7 if inactive
 }
 
 public enum AID : uint
@@ -18,17 +18,17 @@ public enum AID : uint
     MortalRay = 934, // Boss->self, 1.5s cast, raidwide doom debuff
 
     AutoAttackWespe = 871, // DungWespe->player, no cast
-    FinalSting = 919, // DungWespe->player, 3.0s cast
+    FinalSting = 919 // DungWespe->player, 3.0s cast
 }
 
 public enum SID : uint
 {
-    Doom = 210, // Boss->player, extra=0x0
+    Doom = 21, // Boss->player, extra=0x0
 }
 
 class Triclip(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Triclip), new AOEShapeRect(5.25f, 2));
-class Mow(BossModule module) : Components.SelfTargetedLegacyRotationAOEs(module, ActionID.MakeSpell(AID.Mow), new AOEShapeCone(8.25f, 60.Degrees()));
-class FrightfulRoar(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FrightfulRoar), new AOEShapeCircle(8.25f));
+class Mow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mow), new AOEShapeCone(8.25f, 60.Degrees()));
+class FrightfulRoar(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrightfulRoar), 8.25f);
 
 class MortalRay(BossModule module) : BossComponent(module)
 {

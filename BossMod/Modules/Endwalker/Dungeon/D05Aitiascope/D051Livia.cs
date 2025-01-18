@@ -78,8 +78,8 @@ class AglaeaShot(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class AglaeaClimbAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AglaeaClimbAOE), new AOEShapeCone(20, 45.Degrees()));
-class Disparagement(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Disparagement), new AOEShapeCone(40, 60.Degrees()));
+class AglaeaClimbAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AglaeaClimbAOE), new AOEShapeCone(20, 45.Degrees()));
+class Disparagement(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Disparagement), new AOEShapeCone(40, 60.Degrees()));
 
 class IgnisOdi(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.IgnisOdi), 6, 4, 4);
 class IgnisAmoris(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IgnisAmoris), 6);

@@ -9,9 +9,12 @@ class ForgedTrack(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _aoes.Count;
         if (count == 0)
-            yield break;
-        for (var i = 0; i < (count > 4 ? 4 : count); ++i)
-            yield return _aoes[i];
+            return [];
+        var max = count > 4 ? 4 : count;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
+            aoes.Add(_aoes[i]);
+        return aoes;
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)

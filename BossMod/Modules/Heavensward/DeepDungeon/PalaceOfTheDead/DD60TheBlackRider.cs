@@ -5,16 +5,17 @@ public enum OID : uint
     Boss = 0x1814, // R3.920, x1
     Voidzone = 0x1E858E, // R0.500, EventObj type, spawn during fight
     VoidsentDiscarnate = 0x18E6, // R1.000, spawn during fight
-    Helper = 0x233C, // R0.500, x12, 523 type
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttack = 7179, // Boss->player, no cast, range 8+R 90-degree cone
+
     Geirrothr = 7087, // Boss->self, no cast, range 6+R 90-degree cone, 5.1s after pull, 7.1s after Valfodr + 8.1s after every 2nd HallofSorrow
     HallOfSorrow = 7088, // Boss->location, no cast, range 9 circle
     Infaturation = 7157, // VoidsentDiscarnate->self, 6.5s cast, range 6+R circle
-    Valfodr = 7089, // Boss->player, 4.0s cast, width 6 rect charge, knockback 25, dir forward
+    Valfodr = 7089 // Boss->player, 4.0s cast, width 6 rect charge, knockback 25, dir forward
 }
 
 class CleaveAuto(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.AutoAttack), new AOEShapeCone(11.92f, 45.Degrees()))
@@ -80,7 +81,7 @@ class Geirrothr(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Infaturation(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Infaturation), new AOEShapeCircle(7));
+class Infaturation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Infaturation), 7);
 class HallOfSorrow(BossModule module) : Components.PersistentVoidzone(module, 9, m => m.Enemies(OID.Voidzone).Where(z => z.EventState != 7));
 class Valfodr(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.Valfodr), 3);
 

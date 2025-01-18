@@ -25,7 +25,7 @@ class BubbleShowerCrabDribble(BossModule module) : Components.GenericAOEs(module
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.NBubbleShower or AID.SBubbleShower or AID.NCrabDribble or AID.SCrabDribble && _aoes.Count > 0)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.NBubbleShower or AID.SBubbleShower or AID.NCrabDribble or AID.SCrabDribble)
         {
             _aoes.RemoveAt(0);
         }

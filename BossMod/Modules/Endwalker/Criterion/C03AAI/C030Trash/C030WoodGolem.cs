@@ -4,7 +4,7 @@ abstract class Tornado(BossModule module, AID aid) : Components.SpreadFromCastTa
 class NTornado(BossModule module) : Tornado(module, AID.NTornado);
 class STornado(BossModule module) : Tornado(module, AID.STornado);
 
-abstract class Ovation(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(12, 2));
+abstract class Ovation(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(12, 2));
 class NOvation(BossModule module) : Ovation(module, AID.NOvation);
 class SOvation(BossModule module) : Ovation(module, AID.SOvation);
 

@@ -2,8 +2,8 @@
 
 class FiresteelStrike : Components.UniformStackSpread
 {
-    public int NumJumps { get; private set; }
-    public int NumCleaves { get; private set; }
+    public int NumJumps;
+    public int NumCleaves;
     private readonly List<Actor> _jumpTargets = [];
     private readonly List<Actor> _interceptors = [];
 
@@ -11,7 +11,7 @@ class FiresteelStrike : Components.UniformStackSpread
 
     public FiresteelStrike(BossModule module) : base(module, 0, 10, alwaysShowSpreads: true)
     {
-        AddSpreads(Raid.WithoutSlot(true));
+        AddSpreads(Raid.WithoutSlot(true, true, true));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)

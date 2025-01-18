@@ -2,19 +2,13 @@
 
 class StingingSlash(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(50, 45.Degrees()), (uint)IconID.StingingSlash, ActionID.MakeSpell(AID.StingingSlashAOE));
 class KillerSting(BossModule module) : Components.IconSharedTankbuster(module, (uint)IconID.KillerSting, ActionID.MakeSpell(AID.KillerStingAOE), 6);
-class BlindingLoveBait(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlindingLoveBaitAOE), new AOEShapeRect(50, 4))
-{
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        var aoes = ActiveCasters.Select((c, index) =>
-            new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo),
-            index < 2 ? Colors.Danger : Colors.AOE));
 
-        return aoes;
-    }
+class BlindingLoveBait : Components.SimpleAOEs
+{
+    public BlindingLoveBait(BossModule module) : base(module, ActionID.MakeSpell(AID.BlindingLoveBaitAOE), new AOEShapeRect(50, 4)) { MaxDangerColor = 2; }
 }
 
-class BlindingLoveCharge(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(45, 5));
+class BlindingLoveCharge(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(45, 5));
 class BlindingLoveCharge1(BossModule module) : BlindingLoveCharge(module, AID.BlindingLoveCharge1AOE);
 class BlindingLoveCharge2(BossModule module) : BlindingLoveCharge(module, AID.BlindingLoveCharge2AOE);
 

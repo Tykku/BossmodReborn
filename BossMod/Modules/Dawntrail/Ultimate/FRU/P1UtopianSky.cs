@@ -52,10 +52,10 @@ class P1UtopianSkySpreadStack(BossModule module) : Components.UniformStackSpread
         {
             case Mechanic.Stack:
                 // TODO: this can target either tanks or healers
-                AddStacks(Module.Raid.WithoutSlot(true).Where(p => p.Role == Role.Healer), activation);
+                AddStacks(Raid.WithoutSlot(true, true, true).Where(p => p.Role == Role.Healer), activation);
                 break;
             case Mechanic.Spread:
-                AddSpreads(Module.Raid.WithoutSlot(true), activation);
+                AddSpreads(Raid.WithoutSlot(true, true, true), activation);
                 break;
         }
     }
@@ -181,7 +181,7 @@ class P1UtopianSkyAIResolve(BossModule module) : BossComponent(module)
                 _ => default
             };
             var range = spreadSpot == 0 ? 13 : 19;
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center + range * direction.ToDirection(), 1), _aoes.Activation);
+            hints.AddForbiddenZone(ShapeDistance.PrecisePosition(Arena.Center + range * direction.ToDirection(), new(0, 1), Arena.Bounds.MapResolution, actor.Position, 0.1f), _aoes.Activation);
         }
     }
 }

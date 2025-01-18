@@ -1,14 +1,14 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C012Gladiator;
 
-abstract class SunderedRemains(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(10)); // TODO: max-casts...
+abstract class SunderedRemains(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10, 8);
 class NSunderedRemains(BossModule module) : SunderedRemains(module, AID.NSunderedRemains);
 class SSunderedRemains(BossModule module) : SunderedRemains(module, AID.SSunderedRemains);
 
 class ScreamOfTheFallen(BossModule module) : Components.UniformStackSpread(module, 0, 15, alwaysShowSpreads: true)
 {
-    public int NumCasts { get; private set; }
+    public int NumCasts;
     private BitMask _second;
-    private readonly List<Actor> _towers = [];
+    private readonly List<Actor> _towers = new(4);
 
     private const float _towerRadius = 3;
 
@@ -54,7 +54,7 @@ class ScreamOfTheFallen(BossModule module) : Components.UniformStackSpread(modul
             {
                 case 2:
                     Spreads.Clear();
-                    AddSpreads(Raid.WithSlot().IncludedInMask(_second).Actors());
+                    AddSpreads(Raid.WithSlot(false, true, true).IncludedInMask(_second).Actors());
                     break;
                 case 4:
                     Spreads.Clear();
@@ -63,5 +63,19 @@ class ScreamOfTheFallen(BossModule module) : Components.UniformStackSpread(modul
         }
     }
 
-    private IEnumerable<Actor> ActiveTowers(bool second) => second ? _towers.Take(2) : _towers.Skip(2);
+    private List<Actor> ActiveTowers(bool second)
+    {
+        List<Actor> result = new(2);
+        if (second)
+        {
+            for (var i = 0; i < 2 && i < _towers.Count; ++i)
+                result.Add(_towers[i]);
+        }
+        else
+        {
+            for (var i = 2; i < _towers.Count; ++i)
+                result.Add(_towers[i]);
+        }
+        return result;
+    }
 }

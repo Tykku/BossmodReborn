@@ -15,7 +15,7 @@ class MalformedPrayer2(BossModule module) : Components.GenericTowers(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (!_baitsDone && (Towers.Any(t => t.Position.InCircle(actor.Position, TowerRadius * 2)) || Raid.WithoutSlot().InRadiusExcluding(actor, TowerRadius * 2).Any()))
+        if (!_baitsDone && (Towers.Any(t => t.Position.InCircle(actor.Position, TowerRadius * 2)) || Raid.WithoutSlot(false, true, true).InRadiusExcluding(actor, TowerRadius * 2).Any()))
             hints.Add("Bait away from other towers!");
         base.AddHints(slot, actor, hints);
     }
@@ -24,7 +24,7 @@ class MalformedPrayer2(BossModule module) : Components.GenericTowers(module)
     {
         base.DrawArenaForeground(pcSlot, pc);
         if (!_baitsDone)
-            foreach (var p in Raid.WithoutSlot())
+            foreach (var p in Raid.WithoutSlot(false, true, true))
                 Arena.AddCircle(p.Position, TowerRadius, Colors.Danger);
     }
 
@@ -122,7 +122,7 @@ class MalformedPrayer2(BossModule module) : Components.GenericTowers(module)
     {
         var blueSlot = NumCasts / 4 + 1;
         BitMask forbiddenOrange = new();
-        foreach (var (slot, _) in Raid.WithSlot(true))
+        foreach (var (slot, _) in Raid.WithSlot(true, true, true))
             if (_playerBlue[slot, blueSlot])
                 forbiddenOrange.Set(slot);
         var forbiddenBlue = forbiddenOrange ^ new BitMask(0xF);
@@ -133,6 +133,6 @@ class MalformedPrayer2(BossModule module) : Components.GenericTowers(module)
     }
 }
 
-abstract class FlickeringFlame(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(46, 2.5f), 8);
+abstract class FlickeringFlame(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(46, 2.5f), 8);
 class NFlickeringFlame(BossModule module) : FlickeringFlame(module, AID.NFireSpreadCross);
 class SFlickeringFlame(BossModule module) : FlickeringFlame(module, AID.SFireSpreadCross);

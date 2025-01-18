@@ -47,8 +47,7 @@ public enum AID : uint
 
 public enum IconID : uint
 {
-    Tankbuster = 218, // player
-    Spreadmarker = 139 // player
+    Tankbuster = 218 // player
 }
 
 class TrismegistosArenaChange(BossModule module) : Components.GenericAOEs(module)
@@ -80,7 +79,7 @@ class TrueTornadoTankbuster(BossModule module) : Components.BaitAwayIcon(module,
 {
     public override void AddGlobalHints(GlobalHints hints)
     {
-        if (CurrentBaits.Count > 0)
+        if (CurrentBaits.Count != 0)
             hints.Add("Tankbuster cleave");
     }
 }
@@ -99,15 +98,15 @@ class TrueAeroFirst(BossModule module) : Components.GenericBaitAway(module)
     }
 }
 
-class TrueAeroRepeat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TrueAeroRepeat), new AOEShapeRect(40, 3));
+class TrueAeroRepeat(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TrueAeroRepeat), new AOEShapeRect(40, 3));
 
 class TrueAeroII2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.TrueAeroII2), 6);
 class TrueAeroII3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TrueAeroII3), 6);
 
-class TrueAeroIV1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TrueAeroIV1), new AOEShapeRect(50, 5));
-class TrueAeroIV3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TrueAeroIV3), new AOEShapeRect(50, 5), 4);
+class TrueAeroIV1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TrueAeroIV1), new AOEShapeRect(50, 5));
+class TrueAeroIV3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TrueAeroIV3), new AOEShapeRect(50, 5), 4);
 
-class CosmicKiss(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CosmicKiss), new AOEShapeCircle(10));
+class CosmicKiss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CosmicKiss), 10);
 
 class TrueAeroIVLOS(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.TrueAeroIVLOS), 50, false, true)
 {

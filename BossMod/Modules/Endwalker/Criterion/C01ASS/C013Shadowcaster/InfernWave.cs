@@ -30,7 +30,7 @@ abstract class InfernWave(BossModule module, bool savage, bool showHints, int ma
             foreach (var b in ActiveBeacons())
             {
                 b.Targets.Clear();
-                foreach (var t in Raid.WithoutSlot().SortedByRange(b.Source.Position).Take(2))
+                foreach (var t in Raid.WithoutSlot(false, true, true).SortedByRange(b.Source.Position).Take(2))
                     b.Targets.Add((t, Angle.FromDirection(t.Position - b.Source.Position)));
             }
         }
@@ -50,7 +50,7 @@ abstract class InfernWave(BossModule module, bool savage, bool showHints, int ma
                 if (t.target == actor)
                 {
                     ++numBaits;
-                    clipping |= Raid.WithoutSlot().Exclude(actor).InShape(_shape, b.Source.Position, t.dir).Any();
+                    clipping |= Raid.WithoutSlot(false, true, true).Exclude(actor).InShape(_shape, b.Source.Position, t.dir).Any();
                 }
                 else
                 {

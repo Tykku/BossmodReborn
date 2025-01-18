@@ -90,15 +90,19 @@ class ArenaChanges(BossModule module) : BossComponent(module)
     }
 }
 
-class ShieldSkewer(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ShieldSkewer), new AOEShapeRect(40, 7))
+class ShieldSkewer(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ShieldSkewer), new AOEShapeRect(40, 7))
 {
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => ActiveCasters.Select(c => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation,
-    Module.CastFinishAt(c.CastInfo), Color == 0 ? Colors.AOE : Color, !Module.FindComponent<ArenaChanges>()!.Safespots));
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        if (Casters.Count == 0)
+            yield break;
+        yield return Casters[0] with { Risky = !Module.FindComponent<ArenaChanges>()!.Safespots };
+    }
 }
 
 class Shrapnel(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(36);
     private static readonly AOEShapeCircle circle = new(6);
     private static readonly Dictionary<string, WPos[]> shrapnelPositions = new()
     {
@@ -148,13 +152,13 @@ class Shrapnel(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.ShrapnelShellAOE)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID == AID.ShrapnelShellAOE)
             _aoes.RemoveAll(x => x.Origin.AlmostEqual(spell.LocXZ, 1));
     }
 }
 
-class Impact(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Impact), new AOEShapeRect(14, 20));
-class TartareanSpark(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TartareanSpark), new AOEShapeRect(40, 3));
+class Impact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Impact), new AOEShapeRect(14, 20));
+class TartareanSpark(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TartareanSpark), new AOEShapeRect(40, 3));
 class AnvilOfTartarus(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.AnvilOfTartarus));
 class TartareanImpact(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.TartareanImpact));
 

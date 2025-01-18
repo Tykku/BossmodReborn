@@ -15,7 +15,7 @@ public enum AID : uint
     HydroelectricShockVisual = 40593, // Boss->self, 9.0+1,0s cast, single-target
     HydroelectricShock = 41113, // Helper->self, 10.0s cast, ???
 
-    Levinfang = 40594, // Boss->player, 5.0s cast, single-target
+    Levinfang = 40594 // Boss->player, 5.0s cast, single-target
 }
 
 class Levinfang(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Levinfang));

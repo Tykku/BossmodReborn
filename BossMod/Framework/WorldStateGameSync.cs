@@ -171,17 +171,22 @@ sealed class WorldStateGameSync : IDisposable
             _ws.Execute(new NetworkState.OpIDScramble(Network.IDScramble.Delta));
         }
 
-        foreach (var c in _confirms)
+        for (var i = 0; i < _confirms.Count; ++i)
+        {
+            var c = _confirms[i];
             _ws.PendingEffects.Confirm(_ws.CurrentTime, c.Seq, c.Target, c.TargetIndex);
+        }
         _confirms.Clear();
         _ws.PendingEffects.RemoveExpired(_ws.CurrentTime);
-        foreach (var c in _castEvents)
-            _ws.PendingEffects.AddEntry(_ws.CurrentTime, c.Caster, c.Event);
-        _castEvents.Clear();
-
-        foreach (var op in _globalOps)
+        for (var i = 0; i < _castEvents.Count; ++i)
         {
-            _ws.Execute(op);
+            var c = _castEvents[i];
+            _ws.PendingEffects.AddEntry(_ws.CurrentTime, c.Caster, c.Event);
+        }
+        _castEvents.Clear();
+        for (var i = 0; i < _globalOps.Count; ++i)
+        {
+            _ws.Execute(_globalOps[i]);
         }
         _globalOps.Clear();
 
@@ -280,7 +285,6 @@ sealed class WorldStateGameSync : IDisposable
         var eventState = obj->EventState;
         var radius = obj->GetRadius();
         var mountId = chr != null ? chr->Mount.MountId : 0u;
-
         if (act == null)
         {
             var type = (ActorType)(((int)obj->ObjectKind << 8) + obj->SubKind);
@@ -294,38 +298,39 @@ sealed class WorldStateGameSync : IDisposable
         }
         else
         {
+            var id = act.InstanceID;
             if (act.NameID != nameID || act.Name != name)
-                _ws.Execute(new ActorState.OpRename(act.InstanceID, name, nameID));
+                _ws.Execute(new ActorState.OpRename(id, name, nameID));
             if (act.Class != classID || act.Level != level)
-                _ws.Execute(new ActorState.OpClassChange(act.InstanceID, classID, level));
+                _ws.Execute(new ActorState.OpClassChange(id, classID, level));
             if (act.PosRot != posRot)
-                _ws.Execute(new ActorState.OpMove(act.InstanceID, posRot));
+                _ws.Execute(new ActorState.OpMove(id, posRot));
             if (act.HitboxRadius != radius)
-                _ws.Execute(new ActorState.OpSizeChange(act.InstanceID, radius));
+                _ws.Execute(new ActorState.OpSizeChange(id, radius));
             if (act.HPMP != hpmp)
-                _ws.Execute(new ActorState.OpHPMP(act.InstanceID, hpmp));
+                _ws.Execute(new ActorState.OpHPMP(id, hpmp));
             if (act.IsTargetable != targetable)
-                _ws.Execute(new ActorState.OpTargetable(act.InstanceID, targetable));
+                _ws.Execute(new ActorState.OpTargetable(id, targetable));
             if (act.IsAlly != friendly)
-                _ws.Execute(new ActorState.OpAlly(act.InstanceID, friendly));
+                _ws.Execute(new ActorState.OpAlly(id, friendly));
         }
-
+        var instanceID = act.InstanceID;
         if (act.IsDead != isDead)
-            _ws.Execute(new ActorState.OpDead(act.InstanceID, isDead));
+            _ws.Execute(new ActorState.OpDead(instanceID, isDead));
         if (act.InCombat != inCombat)
-            _ws.Execute(new ActorState.OpCombat(act.InstanceID, inCombat));
+            _ws.Execute(new ActorState.OpCombat(instanceID, inCombat));
         if (act.AggroPlayer != hasAggro)
-            _ws.Execute(new ActorState.OpAggroPlayer(act.InstanceID, hasAggro));
+            _ws.Execute(new ActorState.OpAggroPlayer(instanceID, hasAggro));
         if (act.ModelState != modelState)
-            _ws.Execute(new ActorState.OpModelState(act.InstanceID, modelState));
+            _ws.Execute(new ActorState.OpModelState(instanceID, modelState));
         if (act.EventState != eventState)
-            _ws.Execute(new ActorState.OpEventState(act.InstanceID, eventState));
+            _ws.Execute(new ActorState.OpEventState(instanceID, eventState));
         if (act.TargetID != target)
-            _ws.Execute(new ActorState.OpTarget(act.InstanceID, target));
+            _ws.Execute(new ActorState.OpTarget(instanceID, target));
         if (act.MountId != mountId)
-            _ws.Execute(new ActorState.OpMount(act.InstanceID, mountId));
+            _ws.Execute(new ActorState.OpMount(instanceID, mountId));
 
-        DispatchActorEvents(act.InstanceID);
+        DispatchActorEvents(instanceID);
 
         var castInfo = chr != null ? chr->GetCastInfo() : null;
         if (castInfo != null)
@@ -529,7 +534,7 @@ sealed class WorldStateGameSync : IDisposable
 
     private unsafe void UpdatePartyNPCs()
     {
-        for (int i = PartyState.MaxAllianceSize; i < PartyState.MaxAllies; ++i)
+        for (var i = PartyState.MaxAllianceSize; i < PartyState.MaxAllies; ++i)
         {
             ref var m = ref _ws.Party.Members[i];
             if (m.InstanceId != 0)
@@ -670,19 +675,27 @@ sealed class WorldStateGameSync : IDisposable
 
     private List<(int, Cooldown)> CalcCooldownDifference(Span<Cooldown> values, ReadOnlySpan<Cooldown> reference)
     {
-        var res = new List<(int, Cooldown)>();
-        for (int i = 0, cnt = Math.Min(values.Length, reference.Length); i < cnt; ++i)
-            if (values[i] != reference[i])
-                res.Add((i, values[i]));
+        var max = values.Length < reference.Length ? values.Length : reference.Length;
+        var res = new List<(int, Cooldown)>(max);
+        for (int i = 0, cnt = max; i < cnt; ++i)
+        {
+            var value = values[i];
+            if (value != reference[i])
+                res.Add((i, value));
+        }
         return res;
     }
 
     private List<(BozjaHolsterID, byte)> CalcBozjaHolster(Span<byte> contents)
     {
-        var res = new List<(BozjaHolsterID, byte)>();
-        for (var i = 0; i < contents.Length; ++i)
-            if (contents[i] != 0)
-                res.Add(((BozjaHolsterID)i, contents[i]));
+        var len = contents.Length;
+        var res = new List<(BozjaHolsterID, byte)>(len);
+        for (var i = 0; i < len; ++i)
+        {
+            var content = contents[i];
+            if (content != 0)
+                res.Add(((BozjaHolsterID)i, content));
+        }
         return res;
     }
 
@@ -708,7 +721,7 @@ sealed class WorldStateGameSync : IDisposable
         if (_netConfig.Data.DumpClientPackets)
         {
             var sb = new StringBuilder($"Client IPC [0x{opcode:X4}]: data=");
-            foreach (byte b in payload)
+            foreach (var b in payload)
                 sb.Append($"{b:X2}");
             _decoder.LogNode(new(sb.ToString()), "");
         }

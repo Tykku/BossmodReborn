@@ -147,7 +147,7 @@ class PalladionStack : Components.UniformStackSpread
     {
         Stacks.Clear();
         if (_palladion != null && _numCasts < _palladion.JumpTargets.Length && _palladion.JumpTargets[_numCasts] is var target && target != null)
-            AddStack(target, activation, Raid.WithSlot(true).Exclude(_palladion.Partners[_numCasts]).Mask());
+            AddStack(target, activation, Raid.WithSlot(true, true, true).Exclude(_palladion.Partners[_numCasts]).Mask());
     }
 }
 
@@ -183,27 +183,27 @@ class PalladionWhiteFlame : Components.GenericBaitAway
     {
         CurrentBaits.Clear();
         if (_palladion != null && _palladion.NumBaitsDone < _palladion.NumBaitsAssigned && _palladion.BaitOrder[_palladion.NumBaitsDone])
-            foreach (var t in Raid.WithoutSlot().SortedByRange(Module.Center).Take(2))
+            foreach (var t in Raid.WithoutSlot(false, true, true).SortedByRange(Arena.Center).Take(2))
                 CurrentBaits.Add(new(FakeActor, t, _shape));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
         if (NumCasts < 4 && !ForbiddenPlayers[slot])
-            hints.Add("Bait next aoe", CurrentBaits.Count > 0 && !ActiveBaitsOn(actor).Any());
+            hints.Add("Bait next aoe", CurrentBaits.Count != 0 && !ActiveBaitsOn(actor).Any());
         base.AddHints(slot, actor, hints);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        if (CurrentBaits.Count > 0)
-            Arena.Actor(Module.Center, default, Colors.Object);
+        if (CurrentBaits.Count != 0)
+            Arena.Actor(Arena.Center, default, Colors.Object);
         base.DrawArenaForeground(pcSlot, pc);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.WhiteFlame)
+        if ((AID)spell.Action.ID == AID.WhiteFlame)
         {
             ++NumCasts;
             UpdateBaiters();
@@ -223,7 +223,7 @@ class PalladionWhiteFlame : Components.GenericBaitAway
                 2 => (0, 2),
                 _ => (1, 3)
             };
-            ForbiddenPlayers = Raid.WithSlot(true).Exclude(_palladion.JumpTargets[b1]).Exclude(_palladion.JumpTargets[b2]).Mask();
+            ForbiddenPlayers = Raid.WithSlot(true, true, true).Exclude(_palladion.JumpTargets[b1]).Exclude(_palladion.JumpTargets[b2]).Mask();
         }
     }
 }
@@ -234,6 +234,6 @@ class PalladionDestroyPlatforms(BossModule module) : Components.GenericAOEs(modu
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        yield return new(_shape, Module.Center);
+        yield return new(_shape, Arena.Center);
     }
 }

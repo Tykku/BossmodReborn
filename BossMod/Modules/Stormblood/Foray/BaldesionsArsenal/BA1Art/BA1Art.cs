@@ -2,7 +2,7 @@ namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA1Art;
 
 class Thricecull(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Thricecull));
 class AcallamNaSenorach(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AcallamNaSenorach));
-class DefilersDeserts(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DefilersDeserts), new AOEShapeRect(35.5f, 4));
+class DefilersDeserts(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DefilersDeserts), new AOEShapeRect(35.5f, 4));
 class Pitfall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Pitfall), 20);
 class LegendaryGeasAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LegendaryGeas), 8);
 

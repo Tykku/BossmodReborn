@@ -5,24 +5,25 @@ public enum OID : uint
     Boss = 0x1817, // R3.750, x1
     LavaBomb = 0x18E9, // R0.600, x0 (spawn during fight)
     GreyBomb = 0x18E8, // R1.200, x0 (spawn during fight)
-    GiddyBomb = 0x18EA, // R1.200, x0 (spawn during fight)
+    GiddyBomb = 0x18EA // R1.200, x0 (spawn during fight)
 }
 
 public enum AID : uint
 {
     AutoAttack = 6499, // Boss->player, no cast, single-target
+
     Burst = 7105, // GreyBomb->self, 20.0s cast, range 50+R circle
     HypothermalCombustion = 7104, // GiddyBomb->self, 5.0s cast, range 6+R circle
     MassiveBurst = 7102, // Boss->self, 25.0s cast, range 50 circle
     Sap = 7101, // Boss->location, 3.5s cast, range 8 circle
     ScaldingScolding = 7100, // Boss->self, no cast, range 8+R ?-degree cone
-    SelfDestruct = 7106, // LavaBomb->self, 3.0s cast, range 6+R circle
+    SelfDestruct = 7106 // LavaBomb->self, 3.0s cast, range 6+R circle
 }
 
 class BossAdds(BossModule module) : Components.AddsMulti(module, [(uint)OID.GreyBomb, (uint)OID.GiddyBomb]);
 class Burst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Burst), "Kill the Grey Bomb! or take 80% of your Max HP");
 // future thing to do: maybe add a tether between bomb/boss to show it needs to show the aoe needs to explode on them. . . 
-class HypothermalCombustion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HypothermalCombustion), new AOEShapeCircle(7.2f));
+class HypothermalCombustion(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HypothermalCombustion), 7.2f);
 class MassiveBurst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MassiveBurst), "Knock the Giddy bomb into the boss and let it explode on the boss. \n or else take 99% damage!");
 class Sap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Sap), 8);
 class ScaldingScolding(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ScaldingScolding), new AOEShapeCone(11.75f, 45.Degrees()))

@@ -13,7 +13,7 @@ public enum AID : uint
 }
 
 class FireII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireII), 5);
-class BlizzardII(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlizzardII), new AOEShapeCone(40, 22.5f.Degrees()));
+class BlizzardII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlizzardII), new AOEShapeCone(40, 22.5f.Degrees()));
 
 class CrystalIncarnationStates : StateMachineBuilder
 {

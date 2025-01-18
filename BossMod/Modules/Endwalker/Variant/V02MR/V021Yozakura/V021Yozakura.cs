@@ -1,8 +1,8 @@
 namespace BossMod.Endwalker.VariantCriterion.V02MR.V021Yozakura;
 
 class GloryNeverlasting(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.GloryNeverlasting));
-class ArtOfTheFireblossom(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ArtOfTheFireblossom), new AOEShapeCircle(9));
-class ArtOfTheWindblossom(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ArtOfTheWindblossom), new AOEShapeDonut(5, 60));
+class ArtOfTheFireblossom(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ArtOfTheFireblossom), 9);
+class ArtOfTheWindblossom(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ArtOfTheWindblossom), new AOEShapeDonut(5, 60));
 class KugeRantsui(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.KugeRantsui));
 class OkaRanman(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.OkaRanman));
 class LevinblossomStrike(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LevinblossomStrike), 3);
@@ -30,12 +30,12 @@ class DriftingPetals(BossModule module) : Components.KnockbackFromCastTarget(mod
 
 class Mudrain(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.Mudrain), module => module.Enemies(OID.MudVoidzone).Where(z => z.EventState != 7), 0.7f);
 class Icebloom(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Icebloom), 6);
-class Shadowflight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Shadowflight), new AOEShapeRect(10, 3));
-class MudPie(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MudPie), new AOEShapeRect(60, 3));
+class Shadowflight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shadowflight), new AOEShapeRect(10, 3));
+class MudPie(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MudPie), new AOEShapeRect(60, 3));
 class FireblossomFlare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireblossomFlare), 6);
 class ArtOfTheFluff1(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.ArtOfTheFluff1));
 class ArtOfTheFluff2(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.ArtOfTheFluff2));
-class TatamiGaeshi(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TatamiGaeshi), new AOEShapeRect(40, 5));
+class TatamiGaeshi(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TatamiGaeshi), new AOEShapeRect(40, 5));
 class AccursedSeedling(BossModule module) : Components.PersistentVoidzone(module, 4, m => m.Enemies(OID.AccursedSeedling));
 
 class RootArrangement(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(4), ActionID.MakeSpell(AID.RockRootArrangementFirst), ActionID.MakeSpell(AID.RockRootArrangementRest), 4, 1, 4, true, (uint)IconID.ChasingAOE)

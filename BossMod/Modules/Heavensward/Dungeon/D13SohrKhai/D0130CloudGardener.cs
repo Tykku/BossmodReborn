@@ -23,8 +23,8 @@ public enum AID : uint
     DarkBlizzardIII = 6236, // Boss->location, 3.0s cast, range 5 circle
 }
 
-class RiseAndFall(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RiseAndFall), new AOEShapeCone(9, 135.Degrees()));
-class TightTornado(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TightTornado), new AOEShapeRect(18, 2));
+class RiseAndFall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RiseAndFall), new AOEShapeCone(9, 135.Degrees()));
+class TightTornado(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TightTornado), new AOEShapeRect(18, 2));
 class Venom(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Venom), new AOEShapeCone(10.9f, 60.Degrees()), (uint)OID.SanctuarySkipper);
 class DarkBlizzardIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkBlizzardIII), 5);
 

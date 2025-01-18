@@ -44,7 +44,7 @@ class ThirdLegForward(BossModule module) : Components.Cleave(module, ActionID.Ma
     }
 }
 
-class RazorScales(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RazorScales), new AOEShapeCone(64.9f, 30.Degrees()));
+class RazorScales(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RazorScales), new AOEShapeCone(64.9f, 30.Degrees()));
 class PrimordialRoar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PrimordialRoar));
 class MadDashSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.MadDash), 6);
 class MadDashStack(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.MadDashStack), 6, 4, 4);

@@ -120,8 +120,8 @@ class TwinscorchedHaloVeil(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class HaloOfHeat1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HaloOfHeat1), new AOEShapeDonut(10, 40));
-class VeilOfHeat1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.VeilOfHeat1), new AOEShapeCircle(15));
+class HaloOfHeat1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HaloOfHeat1), new AOEShapeDonut(10, 40));
+class VeilOfHeat1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VeilOfHeat1), 15);
 class FiresDomain(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.FiresDomain), 3);
 class CaptiveBolt(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.CaptiveBolt), 6, 8);
 class PyreOfRebirth(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PyreOfRebirth));

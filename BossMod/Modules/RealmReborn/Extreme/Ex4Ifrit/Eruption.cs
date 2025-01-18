@@ -25,7 +25,7 @@ class Eruption(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeS
             case AID.EruptionAOE:
                 if (WorldState.CurrentTime < _baitDetectDeadline)
                 {
-                    var baiter = Raid.WithoutSlot().Closest(spell.LocXZ);
+                    var baiter = Raid.WithoutSlot(false, true, true).Closest(spell.LocXZ);
                     if (baiter != null)
                         Baiters.Set(Raid.FindSlot(baiter.InstanceID));
                 }

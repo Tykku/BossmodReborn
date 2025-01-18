@@ -26,8 +26,8 @@ public enum AID : uint
 
 class SteelClaw(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.SteelClaw));
 class Ferocity(BossModule module) : Components.StretchTetherDuo(module, 15, 5.7f);
-class PreternaturalTurnCircle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PreternaturalTurnCircle), new AOEShapeCircle(15));
-class PreternaturalTurnDonut(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PreternaturalTurnDonut), new AOEShapeDonut(6, 30));
+class PreternaturalTurnCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PreternaturalTurnCircle), 15);
+class PreternaturalTurnDonut(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PreternaturalTurnDonut), new AOEShapeDonut(6, 30));
 
 class Shatter(BossModule module) : Components.GenericAOEs(module)
 {
@@ -73,8 +73,8 @@ class Shatter(BossModule module) : Components.GenericAOEs(module)
 }
 
 class Roar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Roar));
-class FallingRock(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FallingRock), new AOEShapeCircle(3));
-class Impact(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Impact), new AOEShapeCircle(5));
+class FallingRock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FallingRock), 3);
+class Impact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Impact), 5);
 
 class DD70AeturnaStates : StateMachineBuilder
 {

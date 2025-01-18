@@ -53,8 +53,8 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Overpower(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Overpower), new AOEShapeCone(7.08f, 45.Degrees()));
-class Sneeze(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Sneeze), new AOEShapeCone(20.85f, 45.Degrees()));
+class Overpower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Overpower), new AOEShapeCone(7.08f, 45.Degrees()));
+class Sneeze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Sneeze), new AOEShapeCone(20.85f, 45.Degrees()));
 class SneezeHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Sneeze), true, true, showNameInHint: true);
 
 class D150SiegeGobbueStates : StateMachineBuilder

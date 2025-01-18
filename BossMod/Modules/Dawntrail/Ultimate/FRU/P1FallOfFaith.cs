@@ -20,7 +20,7 @@ class P1FallOfFaith(BossModule module) : Components.CastCounter(module, default)
         if (_tetherTargets.Count == 4 && NumCasts < _tetherTargets.Count)
         {
             var nextSource = _tetherTargets[NumCasts];
-            _currentBaiters.AddRange(Raid.WithoutSlot().Exclude(nextSource).SortedByRange(nextSource.Position).Take(_fireTethers[NumCasts] ? 1 : 3));
+            _currentBaiters.AddRange(Raid.WithoutSlot(false, true, true).Exclude(nextSource).SortedByRange(nextSource.Position).Take(_fireTethers[NumCasts] ? 1 : 3));
         }
     }
 

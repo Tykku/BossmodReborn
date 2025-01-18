@@ -2,7 +2,7 @@ namespace BossMod.Dawntrail.Raid.M01NBlackCat;
 
 public class BlackCatCrossing(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(8);
     private static readonly AOEShapeCone cone = new(60, 22.5f.Degrees());
     private enum Pattern { None, Cardinals, Intercardinals }
     private Pattern _currentPattern;
@@ -15,12 +15,18 @@ public class BlackCatCrossing(BossModule module) : Components.GenericAOEs(module
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        if (count > 3)
-            for (var i = 0; i < 4; ++i)
-                yield return _aoes[i] with { Color = Colors.Danger };
-        if (count > 7)
-            for (var i = 4; i < 8; ++i)
-                yield return _aoes[i] with { Risky = false };
+        if (count == 0)
+            return [];
+        List<AOEInstance> aoes = new(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i < 4)
+                aoes.Add(count > 4 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe with { Risky = false });
+        }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

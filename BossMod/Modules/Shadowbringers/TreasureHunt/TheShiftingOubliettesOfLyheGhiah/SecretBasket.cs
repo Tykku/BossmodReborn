@@ -54,12 +54,12 @@ class HeavyStrike(BossModule module) : Components.ConcentricAOEs(module, _shapes
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.HeavyStrike1)
-            AddSequence(caster.Position, Module.CastFinishAt(spell), spell.Rotation);
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell), spell.Rotation);
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0)
+        if (Sequences.Count != 0)
         {
             var order = (AID)spell.Action.ID switch
             {
@@ -68,26 +68,26 @@ class HeavyStrike(BossModule module) : Components.ConcentricAOEs(module, _shapes
                 AID.HeavyStrike3 => 2,
                 _ => -1
             };
-            AdvanceSequence(order, caster.Position, WorldState.FutureTime(1.1f), caster.Rotation);
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(1.1f), caster.Rotation);
         }
     }
 }
 
-class PollenCorona(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PollenCorona), new AOEShapeCircle(8));
+class PollenCorona(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PollenCorona), 8);
 class StraightPunch(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.StraightPunch));
-class Leafcutter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Leafcutter), new AOEShapeRect(15, 2));
-class EarthCrusher(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.EarthCrusher2), new AOEShapeDonut(10, 20));
+class Leafcutter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Leafcutter), new AOEShapeRect(15, 2));
+class EarthCrusher(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EarthCrusher2), new AOEShapeDonut(10, 20));
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
-class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
-class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
 
 class SecretBasketStates : StateMachineBuilder
 {

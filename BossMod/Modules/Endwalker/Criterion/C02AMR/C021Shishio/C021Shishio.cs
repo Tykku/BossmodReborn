@@ -4,7 +4,7 @@ abstract class SplittingCry(BossModule module, AID aid) : Components.BaitAwayCas
 class NSplittingCry(BossModule module) : SplittingCry(module, AID.NSplittingCry);
 class SSplittingCry(BossModule module) : SplittingCry(module, AID.SSplittingCry);
 
-abstract class ThunderVortex(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(8, 30));
+abstract class ThunderVortex(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(8, 30));
 class NThunderVortex(BossModule module) : ThunderVortex(module, AID.NThunderVortex);
 class SThunderVortex(BossModule module) : ThunderVortex(module, AID.SThunderVortex);
 

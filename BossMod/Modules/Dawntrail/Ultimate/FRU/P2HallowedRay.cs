@@ -8,7 +8,7 @@ class P2HallowedRay(BossModule module) : Components.GenericWildCharge(module, 3,
         {
             Source = actor;
             Activation = WorldState.FutureTime(5.7f);
-            foreach (var (i, p) in Raid.WithSlot(true))
+            foreach (var (i, p) in Raid.WithSlot(true, true, true))
                 PlayerRoles[i] = p.InstanceID == targetID ? PlayerRole.Target : PlayerRole.Share;
         }
     }

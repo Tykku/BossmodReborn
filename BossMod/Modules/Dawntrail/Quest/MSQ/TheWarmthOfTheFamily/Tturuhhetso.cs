@@ -80,7 +80,7 @@ class CandescentRayTB(BossModule module) : Components.CastSharedTankbuster(modul
     }
 }
 
-class SearingSwell(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SearingSwell), new AOEShapeCone(40, 22.5f.Degrees()));
+class SearingSwell(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SearingSwell), new AOEShapeCone(40, 22.5f.Degrees()));
 class Ensnare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Ensnare), 6);
 class TriceraSnare(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.TriceraSnare), 6, 4.7f)
 {
@@ -111,7 +111,7 @@ class OrbCollecting(BossModule module) : BossComponent(module)
         var orbs = new List<Func<WPos, float>>();
         if (ActiveOrbs.Any())
             foreach (var o in ActiveOrbs)
-                orbs.Add(ShapeDistance.InvertedCircle(o.Position + 0.55f * o.Rotation.ToDirection(), 0.75f));
+                orbs.Add(ShapeDistance.InvertedCircle(o.Position + 0.56f * o.Rotation.ToDirection(), 0.75f));
         if (orbs.Count > 0)
             hints.AddForbiddenZone(p => orbs.Max(f => f(p)));
     }

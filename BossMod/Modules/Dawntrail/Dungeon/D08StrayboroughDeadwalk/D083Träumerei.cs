@@ -148,10 +148,10 @@ class IllIntentMaliciousMist(BossModule module) : Components.StretchTetherDuo(mo
     }
 }
 
-class BitterRegret1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BitterRegret1), new AOEShapeRect(50, 8));
-class BitterRegret2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BitterRegret2), new AOEShapeRect(50, 6));
-class BitterRegret3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BitterRegret3), new AOEShapeRect(40, 2), 5);
-class Impact(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Impact), new AOEShapeRect(40, 2));
+class BitterRegret1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BitterRegret1), new AOEShapeRect(50, 8));
+class BitterRegret2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BitterRegret2), new AOEShapeRect(50, 6));
+class BitterRegret3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BitterRegret3), new AOEShapeRect(40, 2), 5);
+class Impact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Impact), new AOEShapeRect(40, 2));
 class Ghostcrusher(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.GhostcrusherMarker), ActionID.MakeSpell(AID.Ghostcrusher), 5, 80, maxStackSize: 4);
 class Ghostduster(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Ghostduster), 8)
 {

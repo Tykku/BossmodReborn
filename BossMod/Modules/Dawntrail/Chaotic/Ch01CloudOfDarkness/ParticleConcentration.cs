@@ -52,8 +52,12 @@ class ParticleConcentration(BossModule module) : Components.GenericTowers(module
 
     public void ShowOuterTowers()
     {
-        var activation = Towers.Count > 0 ? Towers[0].Activation : default;
-        Towers.AddRange(_outerTowers.Select(p => new Tower(p, 3, 3, 3, _innerPlayers, activation)));
+        var activation = Towers.Count != 0 ? Towers[0].Activation : default;
+        for (var i = 0; i < _outerTowers.Count; ++i)
+        {
+            var newTower = new Tower(_outerTowers[i], 3, 3, 3, _innerPlayers, activation);
+            Towers.Add(newTower);
+        }
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -133,9 +137,9 @@ class ParticleConcentration(BossModule module) : Components.GenericTowers(module
         };
 
         if (count == 3)
-            _outerTowers.Add(Module.Center + offset);
+            _outerTowers.Add(Arena.Center + offset);
         else if (count > 0)
-            Towers.Add(new(Module.Center + offset, 3, count, count, _outerPlayers, WorldState.FutureTime(10.1f)));
+            Towers.Add(new(Arena.Center + offset, 3, count, count, _outerPlayers, WorldState.FutureTime(10.1f)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -143,8 +147,15 @@ class ParticleConcentration(BossModule module) : Components.GenericTowers(module
         if ((AID)spell.Action.ID is AID.ParticleBeam1 or AID.ParticleBeam2 or AID.ParticleBeam3)
         {
             ++NumCasts;
-            if (Towers.RemoveAll(t => t.Position == caster.Position) != 1)
-                ReportError($"Unexpected tower position @ {caster.Position}");
+            for (var i = 0; i < Towers.Count; ++i)
+            {
+                var tower = Towers[i];
+                if (tower.Position == caster.Position)
+                {
+                    Towers.Remove(tower);
+                    break;
+                }
+            }
         }
     }
 }

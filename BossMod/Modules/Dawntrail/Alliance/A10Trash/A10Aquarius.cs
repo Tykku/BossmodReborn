@@ -31,11 +31,11 @@ public enum AID : uint
 
 class CursedSphere(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CursedSphere), 3);
 class WaterIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaterIII), 7);
-class BubbleShower(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BubbleShower), new AOEShapeCone(6, 30.Degrees()));
-class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
-class Agaricus(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Agaricus), new AOEShapeCircle(5));
-class Beatdown(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Beatdown), new AOEShapeRect(9, 1.5f));
-class SpiderWeb(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpiderWeb), new AOEShapeCircle(6));
+class BubbleShower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BubbleShower), new AOEShapeCone(6, 30.Degrees()));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Agaricus(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Agaricus), 5);
+class Beatdown(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Beatdown), new AOEShapeRect(9, 1.5f));
+class SpiderWeb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpiderWeb), 6);
 class HundredFists(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.HundredFists), showNameInHint: true);
 
 public class A10AquariusStates : StateMachineBuilder

@@ -33,10 +33,10 @@ public enum IconID : uint
     Baitaway = 23 // player
 }
 
-class FlurryOfRage(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FlurryOfRage), new AOEShapeCone(13.06f, 60.Degrees()));
+class FlurryOfRage(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlurryOfRage), new AOEShapeCone(13.06f, 60.Degrees()));
 class WaveOfMalice(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaveOfMalice), 5);
-class WhorlOfFrenzy(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WhorlOfFrenzy), new AOEShapeCircle(11.06f));
-class TheWardensVerdict(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheWardensVerdict), new AOEShapeRect(45.06f, 2));
+class WhorlOfFrenzy(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WhorlOfFrenzy), 11.06f);
+class TheWardensVerdict(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheWardensVerdict), new AOEShapeRect(45.06f, 2));
 class FlamesOfFury(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 10, ActionID.MakeSpell(AID.FlamesOfFury), m => m.Enemies(OID.FireVoidzone).Where(z => z.EventState != 7), 1.2f);
 
 class FlamesOfFuryBait(BossModule module) : Components.GenericBaitAway(module)
@@ -75,7 +75,7 @@ class FlamesOfFuryBait(BossModule module) : Components.GenericBaitAway(module)
     }
 }
 
-class RaucousScritch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
+class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
 class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
 class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.AltarMatanga);
 

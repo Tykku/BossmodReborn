@@ -175,8 +175,8 @@ class SludgeVoidzone3(BossModule module) : SludgeVoidzone(module, 4, OID.SludgeV
 class DubiousTulidisaster(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DubiousTulidisaster));
 class GreatestLabyrinthRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GreatestLabyrinth));
 class GreatestFloodRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GreatestFlood));
-class ExaltedWobble(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ExaltedWobble), new AOEShapeCircle(9));
-class MisplacedMystery(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MisplacedMystery), new AOEShapeRect(25.5f, 2.5f, 25.5f));
+class ExaltedWobble(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ExaltedWobble), 9);
+class MisplacedMystery(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MisplacedMystery), new AOEShapeRect(52, 2.5f));
 class GreatTorrent(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GreatTorrentAOE), 6, maxCasts: 10);
 class GreatTorrentSpread(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.GreatTorrentSpread), 6, 5.1f);
 

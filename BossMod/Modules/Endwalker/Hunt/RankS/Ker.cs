@@ -54,19 +54,19 @@ public enum SID : uint
 }
 
 class MinaxGlare(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.MinaxGlare));
-class Heliovoid(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Heliovoid), new AOEShapeCircle(12));
+class Heliovoid(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Heliovoid), 12);
 
-abstract class Blizzard(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(8, 40));
+abstract class Blizzard(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(8, 40));
 class AncientBlizzard1(BossModule module) : Blizzard(module, AID.AncientBlizzard1);
 class AncientBlizzard2(BossModule module) : Blizzard(module, AID.AncientBlizzard2);
 class AncientBlizzardWhispersManifest(BossModule module) : Blizzard(module, AID.WhispersManifest3);
 
-abstract class AncientHoly(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(20));
+abstract class AncientHoly(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 20);
 class AncientHoly1(BossModule module) : AncientHoly(module, AID.AncientHoly1);
 class AncientHoly2(BossModule module) : AncientHoly(module, AID.AncientHoly2);
 class AncientHolyWhispersManifest(BossModule module) : AncientHoly(module, AID.WhispersManifest2);
 
-abstract class Interment(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
+abstract class Interment(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
 class ForeInterment(BossModule module) : Interment(module, AID.ForeInterment);
 class RearInterment(BossModule module) : Interment(module, AID.RearInterment);
 class RightInterment(BossModule module) : Interment(module, AID.RightInterment);
@@ -104,30 +104,26 @@ class MirroredIncantation(BossModule module) : BossComponent(module)
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if (actor == Module.PrimaryActor)
-            switch ((SID)status.ID)
-            {
-                case SID.MirroredIncantation:
-                    var stacks = status.Extra switch
-                    {
-                        0x1 => 1,
-                        0x2 => 2,
-                        0x3 => 3,
-                        0x4 => 4,
-                        _ => 0
-                    };
-                    Mirrorstacks = stacks;
-                    break;
-            }
+        switch ((SID)status.ID)
+        {
+            case SID.MirroredIncantation:
+                var stacks = status.Extra switch
+                {
+                    0x1 => 1,
+                    0x2 => 2,
+                    0x3 => 3,
+                    0x4 => 4,
+                    _ => 0
+                };
+                Mirrorstacks = stacks;
+                break;
+        }
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if (actor == Module.PrimaryActor)
-        {
-            if ((SID)status.ID == SID.MirroredIncantation)
-                Mirrorstacks = 0;
-        }
+        if ((SID)status.ID == SID.MirroredIncantation)
+            Mirrorstacks = 0;
     }
 
     public override void AddGlobalHints(GlobalHints hints)
@@ -146,15 +142,15 @@ class AncientFlare(BossModule module) : Components.StayMove(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID is AID.AncientFlare or AID.AncientFlare2 or AID.WhispersManifest1)
-            foreach (var m in Raid.WithSlot())
+            foreach (var m in Raid.WithSlot(excludeNPCs: true))
                 SetState(m.Item1, new(Requirement.Stay, Module.CastFinishAt(spell)));
     }
 
     public override void Update() // we don't know which players will be affected by pyretic due to 32 player cap, so we need to do a trick to clear states again...
     {
         if (PlayerStates != default && PlayerStates[0].Activation.AddSeconds(2) < WorldState.CurrentTime)
-            if (Raid.WithoutSlot().All(x => x.FindStatus(SID.Pyretic) == null))
-                foreach (var p in Raid.WithSlot())
+            if (Raid.WithoutSlot(excludeNPCs: true).All(x => x.FindStatus(SID.Pyretic) == null))
+                foreach (var p in Raid.WithSlot(excludeNPCs: true))
                     ClearState(p.Item1);
     }
 }

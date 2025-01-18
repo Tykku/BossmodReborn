@@ -208,7 +208,7 @@ class CratersWildRampage(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-abstract class RagingSlice(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(50, 3));
+abstract class RagingSlice(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(50, 3));
 class RagingSliceFirst(BossModule module) : RagingSlice(module, AID.RagingSliceFirst);
 class RagingSliceRest(BossModule module) : RagingSlice(module, AID.RagingSliceRest);
 

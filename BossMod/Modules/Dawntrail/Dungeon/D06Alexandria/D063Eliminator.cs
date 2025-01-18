@@ -94,13 +94,13 @@ class DisruptionArenaChange(BossModule module) : Components.GenericAOEs(module)
 
 class Disruption(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Disruption));
 
-abstract class Partition(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
+abstract class Partition(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
 class Partition1(BossModule module) : Partition(module, AID.Partition1);
 class Partition2(BossModule module) : Partition(module, AID.Partition2);
 class Partition3(BossModule module) : Partition(module, AID.Partition3);
 
-class Terminate(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Terminate), new AOEShapeRect(40, 5));
-class HaloOfDestruction(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HaloOfDestruction), new AOEShapeDonut(6, 40));
+class Terminate(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Terminate), new AOEShapeRect(40, 5));
+class HaloOfDestruction(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HaloOfDestruction), new AOEShapeDonut(6, 40));
 
 class Electray(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Electray), 6)
 {
@@ -120,19 +120,12 @@ class Electray(BossModule module) : Components.SpreadFromCastTargets(module, Act
     }
 }
 
-class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeRect(25, 4, 25))
+class Explosion : Components.SimpleAOEs
 {
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public Explosion(BossModule module) : base(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeRect(50, 4))
     {
-        var count = Casters.Count;
-        var aoes = new List<AOEInstance>(count);
-        for (var i = 0; i < count; ++i)
-        {
-            var caster = Casters[i];
-            var instance = new AOEInstance(Shape, caster.Position, caster.CastInfo!.Rotation, Module.CastFinishAt(caster.CastInfo), i < 2 ? Colors.Danger : Colors.AOE, i < 4);
-            aoes.Add(instance);
-        }
-        return aoes;
+        MaxDangerColor = 2;
+        MaxRisky = 4;
     }
 }
 
@@ -153,7 +146,7 @@ class Impact(BossModule module) : Components.KnockbackFromCastTarget(module, Act
     }
 }
 
-class Compression(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Compression), new AOEShapeCircle(6));
+class Compression(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Compression), 6);
 
 class Overexposure(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.OverexposureMarker), ActionID.MakeSpell(AID.Overexposure), 5, 40, 3);
 class LightOfDevotion(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.LightOfDevotionMarker), ActionID.MakeSpell(AID.LightOfDevotion), 5.5f, 40, 3)

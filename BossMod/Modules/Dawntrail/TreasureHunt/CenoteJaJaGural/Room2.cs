@@ -51,18 +51,18 @@ public enum AID : uint
     Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
-class SwiftwindSerenade(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SwiftwindSerenade), new AOEShapeRect(40, 4));
-class Ovation(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Ovation), new AOEShapeRect(14, 2));
-class GravelShower(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GravelShower), new AOEShapeRect(10, 2));
-class Flatten(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Flatten), new AOEShapeCone(8, 45.Degrees()));
-class PollenCorona(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PollenCorona), new AOEShapeCircle(8));
+class SwiftwindSerenade(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SwiftwindSerenade), new AOEShapeRect(40, 4));
+class Ovation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Ovation), new AOEShapeRect(14, 2));
+class GravelShower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GravelShower), new AOEShapeRect(10, 2));
+class Flatten(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Flatten), new AOEShapeCone(8, 45.Degrees()));
+class PollenCorona(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PollenCorona), 8);
 class WaterIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaterIII), 8);
 
-abstract class Cone1045(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(10, 45.Degrees()));
+abstract class Cone1045(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(10, 45.Degrees()));
 class Dissever(BossModule module) : Cone1045(module, AID.Dissever);
 class NepenthicPlunge(BossModule module) : Cone1045(module, AID.NepenthicPlunge);
 
-abstract class Cone1060(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(10, 60.Degrees()));
+abstract class Cone1060(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(10, 60.Degrees()));
 class DoubleSmash(BossModule module) : Cone1060(module, AID.DoubleSmash);
 class CriticalBite(BossModule module) : Cone1060(module, AID.CriticalBite);
 
@@ -71,9 +71,9 @@ class Tornado(BossModule module) : CircleLoc6(module, AID.Tornado);
 class TornadicSerenade(BossModule module) : CircleLoc6(module, AID.TornadicSerenade);
 class RottenSpores(BossModule module) : CircleLoc6(module, AID.RottenSpores);
 
-class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

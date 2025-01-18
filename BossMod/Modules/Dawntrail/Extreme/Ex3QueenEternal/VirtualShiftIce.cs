@@ -182,7 +182,7 @@ class RaisedTribute(BossModule module) : Components.GenericWildCharge(module, 4,
         if (iconID == (uint)IconID.RaisedTribute)
         {
             Source = actor;
-            foreach (var (i, p) in Raid.WithSlot(true))
+            foreach (var (i, p) in Raid.WithSlot(true, true, true))
             {
                 PlayerRoles[i] = p.InstanceID == targetID ? PlayerRole.Target : p.Tether.ID != 0 ? PlayerRole.Avoid : PlayerRole.Share;
             }

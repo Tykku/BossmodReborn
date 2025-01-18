@@ -16,7 +16,7 @@ public enum AID : uint
     Windage = 11906, // 23E3->self, 1.0s cast, range 6 circle // need to make this show up as a void zone while it's still up, just because they cast so quickly
 }
 
-class AncientAero(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AncientAero), new AOEShapeRect(52.4f, 4));
+class AncientAero(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AncientAero), new AOEShapeRect(52.4f, 4));
 class AncientAeroII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AncientAeroII), 6);
 class AncientAeroIII(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.AncientAeroIII), 23.5f, true, stopAtWall: true);
 class Tornado(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Tornado), 6);

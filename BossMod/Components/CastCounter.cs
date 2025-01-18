@@ -13,9 +13,9 @@ public class CastCounter(BossModule module, ActionID aid) : BossComponent(module
     }
 }
 
-public class CastCounterMulti(BossModule module, ActionID[] aids) : BossComponent(module)
+public class CastCounterMulti(BossModule module, HashSet<ActionID> aids) : BossComponent(module)
 {
-    public readonly ActionID[] WatchedActions = aids;
+    public readonly HashSet<ActionID> WatchedActions = aids;
     public int NumCasts;
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

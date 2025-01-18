@@ -17,7 +17,7 @@ public enum AID : uint
     SDeracinator = 31098, // SBoss->player, 4.0s cast, single-target tankbuster
 }
 
-abstract class AtropineSpore(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(10, 40));
+abstract class AtropineSpore(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(10, 40));
 class NAtropineSpore(BossModule module) : AtropineSpore(module, AID.NAtropineSpore);
 class SAtropineSpore(BossModule module) : AtropineSpore(module, AID.SAtropineSpore);
 

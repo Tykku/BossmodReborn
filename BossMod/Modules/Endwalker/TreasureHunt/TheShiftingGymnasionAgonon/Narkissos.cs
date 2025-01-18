@@ -87,8 +87,8 @@ class SapShower : Components.SimpleAOEs
     }
 }
 
-class ExtensibleTendrils(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ExtensibleTendrils), new AOEShapeCross(25, 3));
-class PutridBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PutridBreath), new AOEShapeCone(25, 45.Degrees()));
+class ExtensibleTendrils(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ExtensibleTendrils), new AOEShapeCross(25, 3));
+class PutridBreath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PutridBreath), new AOEShapeCone(25, 45.Degrees()));
 class RockHard(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.RockHard), 6);
 class BeguilingGasTM(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.BeguilingGas));
 class BeguilingGas(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BeguilingGas));

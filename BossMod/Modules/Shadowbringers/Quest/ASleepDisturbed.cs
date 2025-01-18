@@ -6,11 +6,11 @@ public enum OID : uint
     Cymet = 0x2D40, // R0.500, x?
     Almet = 0x2D3E, // R0.500, x?
     Yshtola = 0x2D3D, // R0.500, x?
-    BossHelper = 0x233C, // R0.500, x?, 523 type
     Boss = 0x2D3C, // R7.500, x?
     ThornHuaca = 0x2D42, // R1.600, x?, Voidgate helper?
     Voidgate = 0x2D44, // R1.000, x?
     CubusHuaca = 0x2D43, // R2.250, x?, adds
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -32,13 +32,13 @@ public enum AID : uint
     TheDeceitOfPain = 19629, // BossHelper->location, 5.0s cast, range 14 circle
     Animate = 19630, // Boss->self, 5.0s cast, single-target
     TheBalmOfDisgraceCast = 19626, // Boss->self, 4.0s cast, ???
-    TheBalmOfDisgrace = 19627, // BossHelper->self, 4.0s cast, range 12 circle
+    TheBalmOfDisgrace = 19627 // BossHelper->self, 4.0s cast, range 12 circle
 }
 
 public enum TetherID : uint
 {
     NPCBaitAway = 1, // ThornHuaca->player/Cymet/Yshtola/Almet/Uimet
-    BaitAway = 84, // ThornHuaca->Cymet/player
+    BaitAway = 84 // ThornHuaca->Cymet/player
 }
 
 class TouchOfShadow(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.TheTouchOfShadow));
@@ -46,9 +46,9 @@ class MarrowOfFlame(BossModule module) : Components.SpreadFromCastTargets(module
 class GraceOfCalamity(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.TheGraceOfCalamity), 6);
 class BurningBeamNPC(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(40, 2), (uint)TetherID.NPCBaitAway);
 class BurningBeamPlayer(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(40, 2), (uint)TetherID.BaitAway);
-class SoundOfHeat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheSoundOfHeat), new AOEShapeCone(60, 30.Degrees()));
+class SoundOfHeat(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheSoundOfHeat), new AOEShapeCone(60, 30.Degrees()));
 class DeceitOfPain(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheDeceitOfPain), 14);
-class BalmOfDisgrace(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheBalmOfDisgrace), new AOEShapeCircle(12));
+class BalmOfDisgrace(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheBalmOfDisgrace), 12);
 class ASleepDisturbedStates : StateMachineBuilder
 {
     public ASleepDisturbedStates(BossModule module) : base(module)

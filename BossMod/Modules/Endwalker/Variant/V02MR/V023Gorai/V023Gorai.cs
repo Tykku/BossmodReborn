@@ -10,12 +10,12 @@ class StringSnap(BossModule module) : Components.ConcentricAOEs(module, _shapes)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.StringSnap1)
-            AddSequence(Module.Center, Module.CastFinishAt(spell));
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0)
+        if (Sequences.Count != 0)
         {
             var order = (AID)spell.Action.ID switch
             {
@@ -24,7 +24,7 @@ class StringSnap(BossModule module) : Components.ConcentricAOEs(module, _shapes)
                 AID.StringSnap3 => 2,
                 _ => -1
             };
-            AdvanceSequence(order, Module.Center, WorldState.FutureTime(2));
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(2));
         }
     }
 }

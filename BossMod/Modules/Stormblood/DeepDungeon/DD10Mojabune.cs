@@ -16,7 +16,7 @@ public enum AID : uint
 
 class ConcussiveOscillationAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ConcussiveOscillation), 7);
 class OvertowKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Overtow), 23.7f, true);
-class AmorphousApplauseAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AmorphousApplause), new AOEShapeCone(27.4f, 90.Degrees()));
+class AmorphousApplauseAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AmorphousApplause), new AOEShapeCone(27.4f, 90.Degrees()));
 
 class DD10MojabuneStates : StateMachineBuilder
 {

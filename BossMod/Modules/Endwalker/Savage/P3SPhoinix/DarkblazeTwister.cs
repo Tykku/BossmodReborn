@@ -2,7 +2,7 @@
 
 // state related to darkblaze twister mechanics
 class TwisterVoidzone(BossModule module) : Components.PersistentVoidzone(module, 5, m => m.Enemies(OID.TwisterVoidzone).Where(z => z.EventState != 7));
-class BurningTwister(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BurningTwister), new AOEShapeDonut(7, 20));
+class BurningTwister(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BurningTwister), new AOEShapeDonut(7, 20));
 
 class DarkTwister(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.DarkTwister), _knockbackRange, true)
 {

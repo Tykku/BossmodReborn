@@ -4,25 +4,25 @@ public enum OID : uint
 {
     Boss = 0x181F, // R11.600, x1
     TornadoVoidZones = 0x18F0, // R1.000, x0 (spawn during fight)
-    Actor1E86E0 = 0x1E86E0, // R2.000, x1, EventObj type
 }
 
 public enum AID : uint
 {
     AutoAttack = 6497, // Boss->player, no cast, single-target
+
     CharybdisCast = 7163, // Boss->location, 3.0s cast, range 6 circle
     CharybdisTornado = 7164, // TornadoVoidZones->self, no cast, range 6 circle
     EclipticMeteor = 7166, // Boss->self, 6.0s cast, range 50 circle
     Maelstrom = 7167, // TornadoVoidZones->self, 1.3s cast, range 10 circle
     Thunderbolt = 7162, // Boss->self, 2.5s cast, range 5+R 120-degree cone
-    Trounce = 7165, // Boss->self, 2.5s cast, range 40+R 60-degree cone
+    Trounce = 7165 // Boss->self, 2.5s cast, range 40+R 60-degree cone
 }
 
 class Charybdis(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CharybdisCast), 6);
 class Maelstrom(BossModule module) : Components.PersistentVoidzone(module, 10, m => m.Enemies(OID.TornadoVoidZones));
-class Trounce(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Trounce), new AOEShapeCone(51.6f, 30.Degrees()));
+class Trounce(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Trounce), new AOEShapeCone(51.6f, 30.Degrees()));
 class EclipticMeteor(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.EclipticMeteor), "Kill him before he kills you! 80% max HP damage incoming!");
-class Thunderbolt(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Thunderbolt), new AOEShapeCone(16.6f, 60.Degrees()));
+class Thunderbolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Thunderbolt), new AOEShapeCone(16.6f, 60.Degrees()));
 
 class EncounterHints(BossModule module) : BossComponent(module)
 {

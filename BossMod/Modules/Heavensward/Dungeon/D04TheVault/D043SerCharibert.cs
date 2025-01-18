@@ -40,7 +40,7 @@ public enum TetherID : uint
     HolyChain = 9 // player->player
 }
 
-class KnightsTour(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 2));
+class KnightsTour(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 2));
 class WhiteKnightsTour(BossModule module) : KnightsTour(module, AID.WhiteKnightsTour);
 class BlackKnightsTour(BossModule module) : KnightsTour(module, AID.BlackKnightsTour);
 

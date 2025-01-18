@@ -5,25 +5,25 @@ public enum OID : uint
     Boss = 0x1820, // R3.750, x1
     GiddyBomb = 0x18F3, // R0.600, x0 (spawn during fight), small bombs that are untargetable, multiple spawn up and explode at once
     LavaBomb = 0x18F2, // R1.200, x0 (spawn during fight), (also known as greybomb) cast a pbaoe that stuns needs to be on top of the boss's hitbox to stun
-    RemedyBomb = 0x18F1, // R1.200, x0 (spawn during fight), cast a roomwide aoe that will hit for 80% of max hp + inflicts a dot
-    Actor1E86E0 = 0x1E86E0, // R2.000, x1, EventObj type
+    RemedyBomb = 0x18F1 // R1.200, x0 (spawn during fight), cast a roomwide aoe that will hit for 80% of max hp + inflicts a dot
 }
 
 public enum AID : uint
 {
     AutoAttack = 6499, // Boss->player, no cast, single-target
-    Flashthoom = 7170, // LavaBomb->self, 5.0s cast, range 6+R(7.2f) circle, needs to be on boss's hitbox and finish the cast to stun the boss
-    HypothermalCombustionMinionCast = 7172, // GiddyBomb->self, 1.5s cast, range 6+R(6.6f) circle, pbaoe's. Should be considered voidzones while they're alive
-    HypothermalCombustionRemedyBomb = 7171, // RemedyBomb->self, 15.0s cast, range 50+R(51.2f) circle, roomwide cast, will take 80% of your hp and give a dot (15 potency for 5 seconds) if not killed
+
+    Flashthoom = 7170, // LavaBomb->self, 5.0s cast, range 6+R circle, needs to be on boss's hitbox and finish the cast to stun the boss
+    HypothermalCombustionMinionCast = 7172, // GiddyBomb->self, 1.5s cast, range 6+R circle, pbaoe's. Should be considered voidzones while they're alive
+    HypothermalCombustionRemedyBomb = 7171, // RemedyBomb->self, 15.0s cast, range 50+R circle, roomwide cast, will take 80% of your hp and give a dot (15 potency for 5 seconds) if not killed
     MassiveBurst = 7103, // Boss->self, 25.0s cast, range 50 circle, roomwide cast, needs to be stunned by Flashthoom (Lavabomb/GreyBomb) cast
     Sap = 7169, // Boss->location, 3.5s cast, range 8 circle, location targeted aoe's
-    ScaldingScolding = 7168, // Boss->self, no cast, range 8+R(11.75f) ?-degree cone, think might be a 90 degree's, needs checked
+    ScaldingScolding = 7168, // Boss->self, no cast, range 8+R ?-degree cone, think might be a 90 degree's, needs checked
 }
 
 //TODO: Make the boss's hitbox show up potentially/maybe add 2 circle indicators to show how close the stun bomb needs to be, add indicators to where the stun bomb will spawn next, to allow pre-positioning
 //spawn locations for stun bomb are as follows: 1:(-288.626, -300.256) 2:(-297.465, -297.525) 3:(-288.837, -305.537) 4:(-309.132, -303.739) 5:(-298.355, -293.630) 6:(-301.954, -314.289) 7:(-299.119, -297.563)
 class BossAdds(BossModule module) : Components.AddsMulti(module, [(uint)OID.LavaBomb, (uint)OID.RemedyBomb]);
-class Flashthoom(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Flashthoom), new AOEShapeCircle(7.2f));
+class Flashthoom(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Flashthoom), 7.2f);
 class Sap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Sap), 8);
 class ScaldingScoldingCleave(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ScaldingScolding), new AOEShapeCone(11.75f, 45.Degrees()), activeWhileCasting: false);
 

@@ -17,15 +17,15 @@ public enum AID : uint
     SCreepingIvy = 31101, // SBoss->self, 3.0s cast, range 10 90-degree cone aoe
 }
 
-abstract class RightSweep(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 105.Degrees()));
+abstract class RightSweep(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 105.Degrees()));
 class NRightSweep(BossModule module) : RightSweep(module, AID.NRightSweep);
 class SRightSweep(BossModule module) : RightSweep(module, AID.SRightSweep);
 
-abstract class LeftSweep(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 105.Degrees()));
-class NLeftSweep(BossModule module) : LeftSweep(module, AID.NLeftSweep);
-class SLeftSweep(BossModule module) : LeftSweep(module, AID.SLeftSweep);
+abstract class Sweep(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 105.Degrees()));
+class NLeftSweep(BossModule module) : Sweep(module, AID.NLeftSweep);
+class SLeftSweep(BossModule module) : Sweep(module, AID.SLeftSweep);
 
-abstract class CreepingIvy(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(10, 45.Degrees()));
+abstract class CreepingIvy(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(10, 45.Degrees()));
 class NCreepingIvy(BossModule module) : CreepingIvy(module, AID.NCreepingIvy);
 class SCreepingIvy(BossModule module) : CreepingIvy(module, AID.SCreepingIvy);
 

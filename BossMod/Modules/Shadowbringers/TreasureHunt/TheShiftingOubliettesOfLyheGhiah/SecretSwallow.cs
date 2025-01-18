@@ -29,9 +29,9 @@ public enum AID : uint
     Scoop = 21768 // KeeperOfKeys->self, 4.0s cast, range 15 120-degree cone
 }
 
-class ElectricWhorl(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SeventhWave), new AOEShapeCircle(11));
-class PrevailingCurrent(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PrevailingCurrent), new AOEShapeRect(24, 3));
-class SeventhWave(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectricWhorl), new AOEShapeDonut(8, 60));
+class ElectricWhorl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SeventhWave), 11);
+class PrevailingCurrent(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PrevailingCurrent), new AOEShapeRect(24, 3));
+class SeventhWave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ElectricWhorl), new AOEShapeDonut(8, 60));
 class Hydrocannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrocannon2), 8);
 class Ceras(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Ceras));
 class BodySlam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BodySlam), 10);
@@ -41,9 +41,9 @@ class BodySlamKB(BossModule module) : Components.KnockbackFromCastTarget(module,
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => Module.FindComponent<PrevailingCurrent>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false;
 }
 
-class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
-class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
-class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
 
 class SecretSwallowStates : StateMachineBuilder
 {

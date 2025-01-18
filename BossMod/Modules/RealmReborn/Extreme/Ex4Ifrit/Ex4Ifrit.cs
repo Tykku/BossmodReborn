@@ -8,7 +8,7 @@ class Incinerate(BossModule module) : Components.Cleave(module, ActionID.MakeSpe
 class RadiantPlume(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RadiantPlumeAOE), 8);
 
 // TODO: consider showing next charge before its cast starts...
-class CrimsonCyclone(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CrimsonCyclone), new AOEShapeRect(49, 9));
+class CrimsonCyclone(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CrimsonCyclone), new AOEShapeRect(49, 9));
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 63, NameID = 1185)]
 public class Ex4Ifrit : BossModule

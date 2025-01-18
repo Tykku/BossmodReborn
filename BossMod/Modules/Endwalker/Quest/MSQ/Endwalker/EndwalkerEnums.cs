@@ -54,7 +54,7 @@ public enum AID : uint
     SilveredEdgeVisual = 26947, // Helpers->self, no cast, range 40 width 6 rect
     SwiftAsShadow = 26948, // ZenosP2->location, 2.5s cast, width 2 rect charge
     CandlewickPointBlank = 26949, // ZenosP2->self, 5.0s cast, range 10 circle
-    CandlewickDonut = 26950, // Helpers->self, 5.0s cast, range ?-30 donut
+    CandlewickDonut = 26950, // Helpers->self, 5.0s cast, range 10-30 donut
     Exconcentrativity = 26953, // ZenosP2->self, no cast, single-target
     ExconcentrativityHelper = 26954, // Helpers->self, no cast, range 60 circle
     Extinguishment = 26951, // ZenosP2->self, 4.0s cast, single-target

@@ -35,7 +35,7 @@ class RonkanAbyss(BossModule module) : Components.SimpleAOEs(module, ActionID.Ma
 
 class WrathOfTheRonka(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(6);
     private static readonly AOEShapeRect rectShort = new(12, 4), rectMedium = new(22, 4), rectLong = new(35, 4);
 
     private static readonly (WPos Position, AOEShapeRect Shape)[] aoeMap =
@@ -70,7 +70,7 @@ class WrathOfTheRonka(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class BurningBeam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BurningBeam), new AOEShapeRect(15, 2));
+class BurningBeam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BurningBeam), new AOEShapeRect(15, 2));
 
 class D030RonkanDreamerStates : StateMachineBuilder
 {

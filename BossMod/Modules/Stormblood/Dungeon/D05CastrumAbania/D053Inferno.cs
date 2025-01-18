@@ -51,10 +51,10 @@ class RahuRay(BossModule module) : Components.SpreadFromIcon(module, (uint)IconI
 class KetuSlash1(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.KetuSlash1));
 class KetuSlash2(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.KetuSlash2));
 class KetuSlash3(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.KetuSlash3));
-class KetuCutter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.KetuCutter), new AOEShapeCone(20.5f, 10.Degrees()));
+class KetuCutter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.KetuCutter), new AOEShapeCone(20.5f, 10.Degrees()));
 class KetuWave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.KetuWave), 10);
 
-class RahuBlaster(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(44.5f, 3));
+class RahuBlaster(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(44.5f, 3));
 class RahuBlaster1(BossModule module) : RahuBlaster(module, AID.RahuBlaster1);
 class RahuBlaster2(BossModule module) : RahuBlaster(module, AID.RahuBlaster2);
 class RahuBlaster3(BossModule module) : RahuBlaster(module, AID.RahuBlaster3);

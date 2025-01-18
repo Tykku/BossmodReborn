@@ -30,9 +30,9 @@ public enum AID : uint
 }
 
 class GarleanFire(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 8, ActionID.MakeSpell(AID.GarleanFire), m => m.Enemies(OID.FireVoidzone).Where(z => z.EventState != 7), 0.2f);
-class DrillCannons(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DrillCannons), new AOEShapeRect(32.8f, 2.5f));
+class DrillCannons(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DrillCannons), new AOEShapeRect(32.8f, 2.5f));
 class CarpetBomb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CarpetBomb), 5);
-class Overcharge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Overcharge), new AOEShapeCone(10.8f, 60.Degrees()));
+class Overcharge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Overcharge), new AOEShapeCone(10.8f, 60.Degrees()));
 
 class Flamethrower(BossModule module) : Components.GenericAOEs(module)
 {

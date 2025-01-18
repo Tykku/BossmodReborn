@@ -159,8 +159,8 @@ class TheThrill2(BossModule module) : TheThrill(module, AID.TheThrill2);
 
 class FireVoidzone(BossModule module) : Components.PersistentVoidzone(module, 6, m => m.Enemies(OID.FireVoidzone).Where(z => z.EventState != 7));
 class FancyBladework(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FancyBladework));
-class CoiledStrike(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CoiledStrike), new AOEShapeCone(30, 75.Degrees()));
-class GloryBlaze(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GloryBlaze), new AOEShapeRect(40, 3));
+class CoiledStrike(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CoiledStrike), new AOEShapeCone(30, 75.Degrees()));
+class GloryBlaze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GloryBlaze), new AOEShapeRect(40, 3));
 class BattleBreaker(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BattleBreaker));
 
 abstract class MorningStars(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 4);

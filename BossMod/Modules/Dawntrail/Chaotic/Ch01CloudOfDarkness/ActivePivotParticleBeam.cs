@@ -13,7 +13,7 @@ class ActivePivotParticleBeam(BossModule module) : Components.GenericRotatingAOE
             _ => default
         };
         if (rotation != default)
-            Sequences.Add(new(_shape, caster.Position, spell.Rotation, rotation, Module.CastFinishAt(spell, 0.6f), 1.6f, 5));
+            Sequences.Add(new(_shape, spell.LocXZ, spell.Rotation, rotation, Module.CastFinishAt(spell, 0.6f), 1.6f, 5));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

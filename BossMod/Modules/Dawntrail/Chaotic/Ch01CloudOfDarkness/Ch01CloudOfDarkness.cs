@@ -3,8 +3,8 @@
 class Flare(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Flare, ActionID.MakeSpell(AID.FlareAOE), 25, 8.1f);
 class StygianShadow(BossModule module) : Components.Adds(module, (uint)OID.StygianShadow);
 class Atomos(BossModule module) : Components.Adds(module, (uint)OID.Atomos);
-class GhastlyGloomCross(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GhastlyGloomCrossAOE), new AOEShapeCross(40, 15));
-class GhastlyGloomDonut(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GhastlyGloomDonutAOE), new AOEShapeDonut(21, 40));
+class GhastlyGloomCross(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GhastlyGloomCrossAOE), new AOEShapeCross(40, 15));
+class GhastlyGloomDonut(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GhastlyGloomDonutAOE), new AOEShapeDonut(21, 40));
 class FloodOfDarknessAdd(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.FloodOfDarknessAdd)); // TODO: only if add is player's?..
 class Excruciate(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.Excruciate), new AOEShapeCircle(4), true);
 class LoomingChaos(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.LoomingChaosAOE));

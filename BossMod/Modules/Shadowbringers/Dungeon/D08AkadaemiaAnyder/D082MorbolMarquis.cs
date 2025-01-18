@@ -31,7 +31,7 @@ abstract class Leash(BossModule module, AID aid) : Components.SingleTargetEventD
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (Targets.Count > 0 && spell.Action != ActionVisual && spell.Action != ActionVisual)  // it seems like sometimes the tankbuster gets skipped and it does it twice next time
+        if (Targets.Count != 0 && spell.Action != ActionVisual && spell.Action != ActionVisual)  // it seems like sometimes the tankbuster gets skipped and it does it twice next time
             Targets.Clear();
     }
 }
@@ -73,7 +73,7 @@ class ExtensibleTendrilsPutridBreath(BossModule module) : Components.GenericAOEs
         {
             remainingCasts = 5;
             activation = Module.CastFinishAt(spell);
-            _aoe = new(cross, Module.PrimaryActor.Position, spell.Rotation, activation);
+            _aoe = new(cross, spell.LocXZ, spell.Rotation, activation);
         }
     }
 

@@ -35,17 +35,17 @@ public enum AID : uint
     Telega = 9630 // Mandragoras/GymnasiouLyssa->self, no cast, single-target, bonus add disappear
 }
 
-class InfernoBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.InfernoBlast), new AOEShapeRect(46, 10));
+class InfernoBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.InfernoBlast), new AOEShapeRect(46, 10));
 
-abstract class Circles(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(12));
+abstract class Circles(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 12);
 class Roar(BossModule module) : Circles(module, AID.Roar);
 class FlareStar(BossModule module) : Circles(module, AID.FlareStar);
 
-class MarkOfTheBeast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MarkOfTheBeast), new AOEShapeCone(8, 60.Degrees()));
+class MarkOfTheBeast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MarkOfTheBeast), new AOEShapeCone(8, 60.Degrees()));
 class Pounce(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Pounce));
 class MagmaChamber(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagmaChamber), 8);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

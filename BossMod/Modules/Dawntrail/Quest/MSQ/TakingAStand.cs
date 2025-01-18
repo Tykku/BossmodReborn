@@ -183,10 +183,10 @@ class Kickdown(BossModule module) : Components.Knockback(module)
 class RiotousRampage(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.RiotousRampage), 4);
 class Roar1(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Roar1));
 class Roar2(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Roar2));
-class LethalSwipe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LethalSwipe), new AOEShapeCone(45, 90.Degrees()));
-class Fireshower(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Fireshower), new AOEShapeCircle(6));
+class LethalSwipe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LethalSwipe), new AOEShapeCone(45, 90.Degrees()));
+class Fireshower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fireshower), 6);
 
-abstract class RunThrough(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(45, 2.5f));
+abstract class RunThrough(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(45, 2.5f));
 class RunThrough1(BossModule module) : RunThrough(module, AID.RunThrough1);
 class RunThrough2(BossModule module) : RunThrough(module, AID.RunThrough2);
 

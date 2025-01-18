@@ -66,7 +66,7 @@ class Flintlock(BossModule module) : Components.GenericWildCharge(module, 4)
             case AID.NHumbleHammerAOE:
             case AID.SHumbleHammerAOE:
                 Source = Module.PrimaryActor;
-                foreach (var (slot, player) in Raid.WithSlot(true))
+                foreach (var (slot, player) in Raid.WithSlot(true, true, true))
                     PlayerRoles[slot] = spell.MainTargetID == player.InstanceID ? PlayerRole.Target : player.Role == Role.Tank ? PlayerRole.Share : PlayerRole.ShareNotFirst; // TODO: or should it be 'avoid'?
                 break;
             case AID.NFlintlockAOE:

@@ -41,28 +41,28 @@ public enum AID : uint
     Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
-class Windrune(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WindRune), new AOEShapeRect(40, 4));
+class Windrune(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindRune), new AOEShapeRect(40, 4));
 class SongRune(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SongRune), 6);
 class StormRune(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.StormRune));
 
-abstract class BushBash(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(12));
+abstract class BushBash(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 12);
 class BushBash1(BossModule module) : BushBash(module, AID.BushBash1);
 class BushBash2(BossModule module) : BushBash(module, AID.BushBash2);
 
-abstract class NatureCall(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 60.Degrees()));
+abstract class NatureCall(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(30, 60.Degrees()));
 class NatureCall1(BossModule module) : NatureCall(module, AID.NatureCall1);
 class NatureCall2(BossModule module) : NatureCall(module, AID.NatureCall2);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
-class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
-class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
 
 class GreedyPixieStates : StateMachineBuilder
 {

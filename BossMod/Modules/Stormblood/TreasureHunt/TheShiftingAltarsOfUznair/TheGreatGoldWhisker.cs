@@ -19,7 +19,7 @@ public enum AID : uint
 
 class TripleTrident(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.TripleTrident));
 class FishOutOfWater(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.FishOutOfWater), "Spawns adds");
-class Tingle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Tingle), new AOEShapeCircle(12.4f));
+class Tingle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Tingle), 12.4f);
 
 class TheGreatGoldWhiskerStates : StateMachineBuilder
 {

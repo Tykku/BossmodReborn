@@ -40,8 +40,6 @@ class ChitinousTrace(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (caster != Module.PrimaryActor)
-            return;
         switch ((AID)spell.Action.ID)
         {
             case AID.ChitinousTraceCircle:
@@ -64,7 +62,7 @@ class ChitinousTrace(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (caster == Module.PrimaryActor && _pendingShapes.Count > 0 && castEnds.Contains((AID)spell.Action.ID))
+        if (_pendingShapes.Count > 0 && castEnds.Contains((AID)spell.Action.ID))
         {
             _pendingShapes.RemoveAt(0);
             _active = _pendingShapes.Count > 0;

@@ -14,9 +14,9 @@ class P3TemporalStasis(BossModule module) : Components.GenericBaitAway(module, A
     {
         CurrentBaits.Clear();
         if (BJ() is var bj && bj != null)
-            CurrentBaits.AddRange(Raid.WithoutSlot().SortedByRange(bj.Position).Take(2).Select(t => new Bait(bj, t, _shapeBJ)));
+            CurrentBaits.AddRange(Raid.WithoutSlot(false, true, true).SortedByRange(bj.Position).Take(2).Select(t => new Bait(bj, t, _shapeBJ)));
         if (CC() is var cc && cc != null)
-            CurrentBaits.AddRange(Raid.WithoutSlot().SortedByRange(cc.Position).Take(3).Select(t => new Bait(cc, t, _shapeCC)));
+            CurrentBaits.AddRange(Raid.WithoutSlot(false, true, true).SortedByRange(cc.Position).Take(3).Select(t => new Bait(cc, t, _shapeCC)));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)

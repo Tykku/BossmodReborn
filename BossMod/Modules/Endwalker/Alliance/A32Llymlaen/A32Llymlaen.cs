@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Endwalker.Alliance.A32Llymlaen;
 
-class WindRose(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WindRose), new AOEShapeCircle(12));
-class SeafoamSpiral(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SeafoamSpiral), new AOEShapeDonut(6, 70));
+class WindRose(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindRose), 12);
+class SeafoamSpiral(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SeafoamSpiral), new AOEShapeDonut(6, 70));
 class DeepDiveNormal(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.DeepDiveNormal), 6, 8);
 class Stormwhorl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Stormwhorl), 6);
 class Stormwinds(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Stormwinds), 6);

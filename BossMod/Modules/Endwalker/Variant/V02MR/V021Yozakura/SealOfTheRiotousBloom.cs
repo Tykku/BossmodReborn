@@ -9,7 +9,17 @@ class SealOfRiotousBloom(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeDonut donut = new(5, 60);
     private static readonly AOEShapeCone cone = new(70, 22.5f.Degrees());
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(5);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 5 ? 5 : count;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
+            aoes.Add(_aoes[i]);
+        return aoes;
+    }
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
@@ -56,14 +66,14 @@ class SealOfRiotousBloom(BossModule module) : Components.GenericAOEs(module)
                 break;
         }
         elements.Remove(element);
-        if (_aoes.Count == 5 && elements.Count > 0)
+        if (_aoes.Count == 5 && elements.Count != 0)
             foreach (var e in elements)
                 ActivateAOE(e, WorldState.FutureTime(16.3f));
     }
 
-    private void AddConeAOEs(Angle[] angles, DateTime activationTime)
+    private void AddConeAOEs(ReadOnlySpan<Angle> angles, DateTime activationTime)
     {
-        foreach (var angle in angles)
-            _aoes.Add(new(cone, Arena.Center, angle, activationTime));
+        for (var i = 0; i < 4; ++i)
+            _aoes.Add(new(cone, Arena.Center, angles[i], activationTime));
     }
 }

@@ -1,14 +1,17 @@
 ﻿namespace BossMod.RealmReborn.Extreme.Ex2Garuda;
 
 class DownburstBoss(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Downburst1), new AOEShapeCone(11.7f, 60.Degrees())); // TODO: verify angle
-class DownburstSuparna(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Downburst1), new AOEShapeCone(11.36f, 60.Degrees()), (uint)OID.Suparna); // TODO: verify angle
-class DownburstChirada(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Downburst2), new AOEShapeCone(11.36f, 60.Degrees()), (uint)OID.Chirada); // TODO: verify angle
-class Slipstream(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Slipstream), new AOEShapeCone(11.7f, 45.Degrees()));
+
+abstract class Downburst(BossModule module, AID aid, uint oid) : Components.Cleave(module, ActionID.MakeSpell(aid), new AOEShapeCone(11.36f, 60.Degrees()), oid); // TODO: verify angle
+class DownburstSuparna(BossModule module) : Downburst(module, AID.Downburst1, (uint)OID.Suparna); // TODO: verify angle
+class DownburstChirada(BossModule module) : Downburst(module, AID.Downburst2, (uint)OID.Chirada); // TODO: verify angle
+
+class Slipstream(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Slipstream), new AOEShapeCone(11.7f, 45.Degrees()));
 class FrictionAdds(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrictionAdds), 5);
 class FeatherRain(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FeatherRain), 3);
 class AerialBlast(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AerialBlast));
 class MistralShriek(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MistralShriek));
-class Gigastorm(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Gigastorm), new AOEShapeCircle(6.5f));
+class Gigastorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Gigastorm), 6.5f);
 class GreatWhirlwind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwind), 8);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 65, NameID = 1644)]

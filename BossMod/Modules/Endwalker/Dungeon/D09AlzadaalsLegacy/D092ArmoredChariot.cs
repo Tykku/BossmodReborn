@@ -81,7 +81,20 @@ class AssaultCannon(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        return currentType == Type.TwoWaves ? _aoesCones.Take(2).Concat(_aoesRects.Take(2)) : _aoesCones.Concat(_aoesRects);
+        var countCones = _aoesCones.Count;
+        var countRects = _aoesRects.Count;
+        var total = countCones + countRects;
+        if (total == 0)
+            return [];
+        List<AOEInstance> aoes = new(total);
+        var type = currentType == Type.TwoWaves;
+        var maxCone = type && countCones > 2 ? 2 : countCones;
+        var maxRect = type && countRects > 2 ? 2 : countRects;
+        for (var i = 0; i < maxCone; ++i)
+            aoes.Add(_aoesCones[i]);
+        for (var i = 0; i < maxRect; ++i)
+            aoes.Add(_aoesRects[i]);
+        return aoes;
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
@@ -137,8 +150,8 @@ class AssaultCannon(BossModule module) : Components.GenericAOEs(module)
 
     private void AddConeAOEs(DateTime activation, params Angle[] angles)
     {
-        foreach (var angle in angles)
-            _aoesCones.Add(new(cone, Arena.Center, angle, activation));
+        for (var i = 0; i < 2; ++i)
+            _aoesCones.Add(new(cone, Arena.Center, angles[i], activation));
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

@@ -107,7 +107,7 @@ class Ex1ZodiarkStates : StateMachineBuilder
         CastStartMulti(id, [AID.AstralFlowCW, AID.AstralFlowCCW], delay);
         CastEnd(id + 1, 10, "Rotate")
             .SetHint(StateMachine.StateHint.PositioningStart);
-        return Condition(id + 0x10, 6.2f, () => Module.WorldState.Party.WithoutSlot().All(a => a.FindStatus(SID.TenebrousGrasp) == null), "Rotate resolve", 5, 1)
+        return Condition(id + 0x10, 6.2f, () => Module.WorldState.Party.WithoutSlot(false, true, true).All(a => a.FindStatus(SID.TenebrousGrasp) == null), "Rotate resolve", 5, 1)
             .DeactivateOnExit<Paradeigma>()
             .SetHint(StateMachine.StateHint.PositioningEnd);
     }

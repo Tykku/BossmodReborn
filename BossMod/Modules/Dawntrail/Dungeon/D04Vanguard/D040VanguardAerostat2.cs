@@ -20,9 +20,9 @@ public enum AID : uint
     SpreadShot = 39017, // SentryS7->self, 4.0s cast, range 12 90-degree cone
 }
 
-class IncendiaryRing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IncendiaryRing), new AOEShapeDonut(3, 12));
-class Electrobeam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Electrobeam), new AOEShapeRect(50, 2));
-class SpreadShot(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpreadShot), new AOEShapeCone(12, 45.Degrees()));
+class IncendiaryRing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IncendiaryRing), new AOEShapeDonut(3, 12));
+class Electrobeam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Electrobeam), new AOEShapeRect(50, 2));
+class SpreadShot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpreadShot), new AOEShapeCone(12, 45.Degrees()));
 
 class D040VanguardAerostat2States : StateMachineBuilder
 {

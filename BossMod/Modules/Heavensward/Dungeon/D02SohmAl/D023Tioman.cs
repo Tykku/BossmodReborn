@@ -12,6 +12,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 870, // Boss->player, no cast, single-target
+
     AbyssicBuster = 3811, // Boss->self, no cast, range 25+R 90-degree cone
     ChaosBlastCircle = 3813, // Boss->location, 2.0s cast, range 2 circle
     ChaosBlastRect = 3819, // Helper->self, 2.0s cast, range 50+R width 4 rect
@@ -95,7 +96,7 @@ class MeteorImpact(BossModule module) : Components.GenericAOEs(module)
 
 class DarkStar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DarkStar));
 class ChaosBlastCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ChaosBlastCircle), 2);
-class ChaosBlastRect(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ChaosBlastRect), new AOEShapeRect(50.5f, 2));
+class ChaosBlastRect(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ChaosBlastRect), new AOEShapeRect(50.5f, 2));
 class AbyssicBuster(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.AbyssicBuster), new AOEShapeCone(31.84f, 45.Degrees()));
 class Comet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Comet), 4);
 class Heavensfall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Heavensfall2), 5);

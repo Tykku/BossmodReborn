@@ -45,12 +45,12 @@ class HeartOfNatureConcentric(BossModule module) : Components.ConcentricAOEs(mod
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.NaturesPulse1)
-            AddSequence(caster.Position, Module.CastFinishAt(spell));
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0)
+        if (Sequences.Count != 0)
         {
             var order = (AID)spell.Action.ID switch
             {
@@ -59,12 +59,12 @@ class HeartOfNatureConcentric(BossModule module) : Components.ConcentricAOEs(mod
                 AID.NaturesPulse3 => 2,
                 _ => -1
             };
-            AdvanceSequence(order, caster.Position);
+            AdvanceSequence(order, spell.LocXZ);
         }
     }
 }
 
-class TasteOfBlood(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TasteOfBlood), new AOEShapeCone(40, 90.Degrees()));
+class TasteOfBlood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TasteOfBlood), new AOEShapeCone(40, 90.Degrees()));
 class TasteOfBloodHint(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.TasteOfBlood), "Go behind Lyon!");
 
 class RavenousGale(BossModule module) : Components.GenericAOEs(module)
@@ -117,7 +117,7 @@ class RavenousGale(BossModule module) : Components.GenericAOEs(module)
 }
 
 class TwinAgonies(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.TwinAgonies), "Heavy Tankbuster, use Manawall or tank mitigations");
-class WindsPeak(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WindsPeak1), new AOEShapeCircle(5));
+class WindsPeak(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindsPeak1), 5);
 
 class WindsPeakKB(BossModule module) : Components.Knockback(module)
 {
@@ -212,7 +212,7 @@ class SpitefulFlameCircleVoidzone(BossModule module) : Components.GenericAOEs(mo
     }
 }
 
-class SpitefulFlameRect(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpitefulFlame2), new AOEShapeRect(80, 2));
+class SpitefulFlameRect(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpitefulFlame2), new AOEShapeRect(80, 2));
 
 class DynasticFlame(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(10), (uint)TetherID.fireorbs, centerAtTarget: true)
 {

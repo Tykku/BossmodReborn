@@ -18,10 +18,10 @@ public enum AID : uint
     GoldenTalons = 32787, // AlbusGriffin->self, 4.5s cast, range 8 90-degree cone
 }
 
-class TransonicBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TransonicBlast), new AOEShapeCone(9, 45.Degrees()));
+class TransonicBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TransonicBlast), new AOEShapeCone(9, 45.Degrees()));
 class WindsOfWinter(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WindsOfWinter));
 class WindsOfWinterStunHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.WindsOfWinter), false, true);
-class GoldenTalons(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GoldenTalons), new AOEShapeCone(8, 45.Degrees()));
+class GoldenTalons(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldenTalons), new AOEShapeCone(8, 45.Degrees()));
 class Freefall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Freefall), 8);
 
 class D110AlbusGriffinStates : StateMachineBuilder

@@ -34,13 +34,13 @@ public enum IconID : uint
 }
 
 class AerialBlast(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AerialBlast));
-class IxaliAeroII(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IxaliAeroII), new AOEShapeRect(43, 3));
+class IxaliAeroII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IxaliAeroII), new AOEShapeRect(43, 3));
 class IxaliAeroIII(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.IxaliAeroIII));
 class Bill(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Bill), 5);
 class Ingurgitate(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.Ingurgitate), 5, 5.5f, 4, 4);
-class EyeOfTheStorm(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.EyeOfTheStorm), new AOEShapeDonut(10, 20));
-class WickedWheel(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WickedWheel), new AOEShapeCircle(7));
-class MistralSong(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MistralSong), new AOEShapeCone(32.89f, 60.Degrees()));
+class EyeOfTheStorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EyeOfTheStorm), new AOEShapeDonut(10, 20));
+class WickedWheel(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WickedWheel), 7);
+class MistralSong(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MistralSong), new AOEShapeCone(32.89f, 60.Degrees()));
 
 class D153TozolHuatotlStates : StateMachineBuilder
 {

@@ -62,11 +62,14 @@ class ElectrowaveArenaChange(BossModule module) : Components.GenericAOEs(module)
 
 class Electrowave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Electrowave));
 class Disassembly(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Disassembly));
-class CentralizedCurrent(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CentralizedCurrent), new AOEShapeRect(45, 7.5f, 45));
-class SplitCurrent1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SplitCurrent1), new AOEShapeRect(20, 20, -5, -90.Degrees()));
-class SplitCurrent2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SplitCurrent2), new AOEShapeRect(20, 20, -5, 90.Degrees()));
-class SupercellMatrix1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SupercellMatrix1), new AOEShapeTriCone(40, 45.Degrees()));
-class SupercellMatrix2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SupercellMatrix2), new AOEShapeRect(55, 4));
+class CentralizedCurrent(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CentralizedCurrent), new AOEShapeRect(90, 7.5f));
+
+abstract class SplitCurrent(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(90, 12.5f));
+class SplitCurrent1(BossModule module) : SplitCurrent(module, AID.SplitCurrent1);
+class SplitCurrent2(BossModule module) : SplitCurrent(module, AID.SplitCurrent2);
+
+class SupercellMatrix1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SupercellMatrix1), new AOEShapeTriCone(40, 45.Degrees()));
+class SupercellMatrix2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SupercellMatrix2), new AOEShapeRect(55, 4));
 class StaticSpark(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.StaticSpark), 6);
 class Amalgamight(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Amalgamight));
 class Voltburst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Voltburst), 6);

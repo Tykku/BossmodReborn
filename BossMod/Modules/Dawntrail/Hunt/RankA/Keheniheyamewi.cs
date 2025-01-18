@@ -8,15 +8,16 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     Scatterscourge1 = 39807, // Boss->self, 4.0s cast, range 10-40 donut
-    BodyPress = 40063, // Boss->self, 4.0s cast, range 15 circle
     SlipperyScatterscourge = 38648, // Boss->self, 5.0s cast, range 20 width 10 rect
     WildCharge = 39559, // Boss->self, no cast, range 20 width 10 rect
     Scatterscourge2 = 38650, // Boss->self, 1.5s cast, range 10-40 donut
     PoisonGas = 38652, // Boss->self, 5.0s cast, range 60 circle
+    BodyPress1 = 40063, // Boss->self, 4.0s cast, range 15 circle
     BodyPress2 = 38651, // Boss->self, 4.0s cast, range 15 circle
     MalignantMucus = 38653, // Boss->self, 5.0s cast, single-target
-    PoisonMucus = 38654, // Boss->location, 1.0s cast, range 6 circle
+    PoisonMucus = 38654 // Boss->location, 1.0s cast, range 6 circle
 }
 
 public enum SID : uint
@@ -27,9 +28,11 @@ public enum SID : uint
     AboutFace = 2162
 }
 
-class BodyPress(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BodyPress), new AOEShapeCircle(15));
-class BodyPress2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BodyPress2), new AOEShapeCircle(15));
-class Scatterscourge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scatterscourge1), new AOEShapeDonut(10, 40));
+abstract class BodyPress(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 15);
+class BodyPress1(BossModule module) : BodyPress(module, AID.BodyPress1);
+class BodyPress2(BossModule module) : BodyPress(module, AID.BodyPress2);
+
+class Scatterscourge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scatterscourge1), new AOEShapeDonut(10, 40));
 
 class SlipperyScatterscourge(BossModule module) : Components.GenericAOEs(module)
 {
@@ -153,7 +156,7 @@ class KeheniheyamewiStates : StateMachineBuilder
     public KeheniheyamewiStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<BodyPress>()
+            .ActivateOnEnter<BodyPress1>()
             .ActivateOnEnter<BodyPress2>()
             .ActivateOnEnter<Scatterscourge>()
             .ActivateOnEnter<SlipperyScatterscourge>()

@@ -4,7 +4,7 @@ public enum OID : uint
 {
     Boss = 0x38C7, // x1
     MaelstromVisual = 0x38C8, // spawn during fight
-    MaelstromHelper = 0x38D0, // x4
+    MaelstromHelper = 0x38D0 // x4
 }
 
 public enum AID : uint
@@ -13,7 +13,7 @@ public enum AID : uint
     SpikedTail = 28732, // Boss->player, 5.0s cast, tankbuster
     SonicStorm = 29053, // Boss->location, 3.0s cast, range 6 aoe
     Typhoon = 28730, // Boss->self, 3.0s cast, visual
-    TyphoonAOE = 28731, // MaelstromHelper->self, no cast, range 3 aoe
+    TyphoonAOE = 28731 // MaelstromHelper->self, no cast, range 3 aoe
 }
 
 class SpikedTail(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SpikedTail));

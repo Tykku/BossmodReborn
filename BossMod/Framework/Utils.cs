@@ -176,10 +176,9 @@ public static partial class Utils
     public static void SortByReverse<TValue, TKey>(this TValue[] arr, Func<TValue, TKey> proj) where TKey : notnull, IComparable => Array.Sort(arr, (l, r) => proj(r).CompareTo(proj(l)));
 
     // get enumerable of zero or one elements, depending on whether argument is null
-    public static IEnumerable<T> ZeroOrOne<T>(T? value) where T : struct
+    public static List<T> ZeroOrOne<T>(T? value) where T : struct
     {
-        if (value != null)
-            yield return value.Value;
+        return value != null ? [value.Value] : [];
     }
 
     // enumerate pairs of neighbouring elements

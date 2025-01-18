@@ -10,8 +10,9 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 872, // Boss->player, no cast, single-target
+    AutoAttack1 = 872, // Boss->player, no cast, single-target
     AutoAttack2 = 870, // PackArmadillo->player, no cast, single-target
+
     StoneFlail = 15589, // Boss->player, 4.5s cast, single-target
     FallingRock = 15594, // Helper->location, 3.0s cast, range 4 circle
     HeadToss = 15590, // Boss->player, 5.0s cast, range 6 circle
@@ -26,21 +27,20 @@ class StoneFlail(BossModule module) : Components.SingleTargetCast(module, Action
 class FallingRock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FallingRock), 4);
 class FlailSmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlailSmash), 10);
 class HeadToss(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HeadToss), 6, 4, 4);
-class Earthshake(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Earthshake), new AOEShapeDonut(10, 20));
+class Earthshake(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Earthshake), new AOEShapeDonut(10, 20));
 class Rehydration(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Rehydration), showNameInHint: true);
 
 class RightRound(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCircle circle = new(10);
+    private static readonly AOEShapeCircle circle = new(9);
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        // the origin of the rightround cast event seems to be weird, using the primaryactor position is not pixel perfect, seen variances of almost 1y, so i increased the circle radius from 9 to 10
         if ((AID)spell.Action.ID == AID.RightRoundVisual)
-            _aoe = new(circle, Module.PrimaryActor.Position, default, Module.CastFinishAt(spell, 0.9f));
+            _aoe = new(circle, spell.LocXZ, default, Module.CastFinishAt(spell, 0.9f));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

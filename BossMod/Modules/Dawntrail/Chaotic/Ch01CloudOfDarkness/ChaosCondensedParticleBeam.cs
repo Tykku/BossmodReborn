@@ -8,7 +8,7 @@ class ChaosCondensedParticleBeam(BossModule module) : Components.GenericWildChar
         {
             Source = caster;
             Activation = Module.CastFinishAt(spell, 0.7f);
-            foreach (var (i, p) in Raid.WithSlot(true))
+            foreach (var (i, p) in Raid.WithSlot(true, false, true))
                 PlayerRoles[i] = p.Role == Role.Tank ? PlayerRole.Target : PlayerRole.ShareNotFirst;
         }
     }

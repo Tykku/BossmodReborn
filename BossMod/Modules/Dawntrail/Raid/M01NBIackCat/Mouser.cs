@@ -71,15 +71,22 @@ class Mouser(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        var aoeCount = Math.Clamp(count, 0, NumCasts > 2 ? 2 : 3);
-        var aoeCount2 = Math.Clamp(count, 0, 4);
-        var totalAoeCount = Math.Min(count, aoeCount + aoeCount2);
-        if (_aoes.Count >= totalAoeCount)
-            for (var i = aoeCount; i < totalAoeCount; ++i)
-                yield return _aoes[i];
-        if (_aoes.Count > 0)
-            for (var i = 0; i < aoeCount; ++i)
-                yield return _aoes[i] with { Color = Colors.Danger };
+        if (count == 0)
+            return [];
+        var countDanger = NumCasts > 2 ? 2 : 3;
+        var total = countDanger + 4;
+        var max = total > count ? count : total;
+
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i < countDanger)
+                aoes.Add(count > countDanger ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe);
+        }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

@@ -20,7 +20,7 @@ public enum AID : uint
 }
 
 class AquaticLance(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AquaticLance), 8);
-class Icestorm(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Icestorm), new AOEShapeCone(16, 45.Degrees()));
+class Icestorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Icestorm), new AOEShapeCone(16, 45.Degrees()));
 
 class D120HaamOtodusStates : StateMachineBuilder
 {

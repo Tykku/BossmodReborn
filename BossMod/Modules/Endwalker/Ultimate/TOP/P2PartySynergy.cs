@@ -127,22 +127,22 @@ class P2PartySynergyDoubleAOEs(BossModule module) : Components.GenericAOEs(modul
             case OID.OmegaMHelper:
                 if (actor.ModelState.ModelState == 4)
                 {
-                    AOEs.Add(new(new AOEShapeDonut(10, 40), actor.Position, actor.Rotation, WorldState.FutureTime(5.1f)));
+                    AOEs.Add(new(P5OmegaDoubleAOEs.Shapes[0], actor.Position, actor.Rotation, WorldState.FutureTime(5.1f)));
                 }
                 else
                 {
-                    AOEs.Add(new(new AOEShapeCircle(10), actor.Position, actor.Rotation, WorldState.FutureTime(5.1f)));
+                    AOEs.Add(new(P5OmegaDoubleAOEs.Shapes[1], actor.Position, actor.Rotation, WorldState.FutureTime(5.1f)));
                 }
                 break;
             case OID.OmegaFHelper:
                 if (actor.ModelState.ModelState == 4)
                 {
-                    AOEs.Add(new(new AOEShapeRect(40, 40, -4), actor.Position, actor.Rotation + 90.Degrees(), WorldState.FutureTime(5.1f)));
-                    AOEs.Add(new(new AOEShapeRect(40, 40, -4), actor.Position, actor.Rotation - 90.Degrees(), WorldState.FutureTime(5.1f)));
+                    AOEs.Add(new(P5OmegaDoubleAOEs.Shapes[2], actor.Position, actor.Rotation + 90.Degrees(), WorldState.FutureTime(5.1f)));
+                    AOEs.Add(new(P5OmegaDoubleAOEs.Shapes[2], actor.Position, actor.Rotation - 90.Degrees(), WorldState.FutureTime(5.1f)));
                 }
                 else
                 {
-                    AOEs.Add(new(new AOEShapeCross(100, 5), actor.Position, actor.Rotation, WorldState.FutureTime(5.1f)));
+                    AOEs.Add(new(P5OmegaDoubleAOEs.Shapes[3], actor.Position, actor.Rotation, WorldState.FutureTime(5.1f)));
                 }
                 break;
         }
@@ -153,7 +153,7 @@ class P2PartySynergyOptimizedFire : Components.UniformStackSpread
 {
     public P2PartySynergyOptimizedFire(BossModule module) : base(module, 0, 7, alwaysShowSpreads: true)
     {
-        AddSpreads(Raid.WithoutSlot(true));
+        AddSpreads(Raid.WithoutSlot(true, true, true));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -233,7 +233,7 @@ class P2PartySynergyEfficientBladework : Components.GenericAOEs
         _sources.AddRange(module.Enemies(OID.OmegaF));
         // by default, use same group as for synergy
         if (_synergy != null)
-            _firstGroup = Raid.WithSlot(true).WhereSlot(s => _synergy.PlayerStates[s].Group == 1).Mask();
+            _firstGroup = Raid.WithSlot(true, true, true).WhereSlot(s => _synergy.PlayerStates[s].Group == 1).Mask();
     }
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)

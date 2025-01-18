@@ -13,7 +13,7 @@ class P3Gaols(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (CurState == State.Fetters && !_targets[slot])
-            foreach (var (_, target) in Raid.WithSlot(true).IncludedInMask(_targets))
+            foreach (var (_, target) in Raid.WithSlot(true, true, true).IncludedInMask(_targets))
                 yield return new(_freefireShape, target.Position);
     }
 
@@ -50,7 +50,7 @@ class P3Gaols(BossModule module) : Components.GenericAOEs(module)
                 _targets.Set(Raid.FindSlot(spell.MainTargetID));
                 break;
             case AID.FreefireGaol:
-                var (closestSlot, closestPlayer) = Raid.WithSlot(true).IncludedInMask(_targets).Closest(caster.Position);
+                var (closestSlot, closestPlayer) = Raid.WithSlot(true, true, true).IncludedInMask(_targets).Closest(caster.Position);
                 if (closestPlayer != null)
                 {
                     _targets.Clear(closestSlot);

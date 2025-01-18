@@ -145,7 +145,7 @@ class Gunsaw(BossModule module) : Components.GenericBaitAway(module)
     {
         if ((AID)spell.Action.ID == AID.GunsawFirst)
         {
-            var target = Raid.WithoutSlot().FirstOrDefault(x => x.Position.InRect(Module.PrimaryActor.Position, Module.PrimaryActor.Rotation, rect.LengthFront, 0, 0.02f));
+            var target = Raid.WithoutSlot(false, true, true).FirstOrDefault(x => x.Position.InRect(Module.PrimaryActor.Position, Module.PrimaryActor.Rotation, rect.LengthFront, 0, 0.02f));
             if (target != default)
                 CurrentBaits.Add(new(caster, target, rect));
         }

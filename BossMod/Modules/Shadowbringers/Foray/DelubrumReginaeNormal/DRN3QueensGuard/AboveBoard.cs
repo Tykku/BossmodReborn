@@ -4,7 +4,7 @@ class AboveBoard(BossModule module) : Components.GenericAOEs(module)
 {
     public enum State { Initial, ThrowUpDone, ShortExplosionsDone, LongExplosionsDone }
 
-    public State CurState { get; private set; }
+    public State CurState;
     private readonly List<Actor> _smallBombs = module.Enemies(OID.AetherialBolt);
     private readonly List<Actor> _bigBombs = module.Enemies(OID.AetherialBurst);
     private bool _invertedBombs; // bombs are always either all normal (big=short) or all inverted

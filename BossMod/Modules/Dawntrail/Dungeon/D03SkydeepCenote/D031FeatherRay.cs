@@ -69,12 +69,14 @@ class AiryBubble(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _aoes.Count;
         if (count == 0)
-            yield break;
+            return [];
+        List<AOEInstance> aoes = new(count);
         for (var i = 0; i < count; ++i)
         {
             var o = _aoes[i];
-            yield return new(capsule, o.Position, o.Rotation);
+            aoes.Add(new(capsule, o.Position, o.Rotation));
         }
+        return aoes;
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
@@ -98,7 +100,18 @@ class AiryBubble(BossModule module) : Components.GenericAOEs(module)
             forbidden.Add(ShapeDistance.Capsule(o.Position, o.Rotation, Length, Radius));
         }
         forbidden.Add(ShapeDistance.Circle(Arena.Center, Module.PrimaryActor.HitboxRadius));
-        hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
+        float minDistance(WPos p)
+        {
+            var minValue = float.MaxValue;
+            for (var i = 0; i < forbidden.Count; ++i)
+            {
+                var value = forbidden[i](p);
+                if (value < minValue)
+                    minValue = value;
+            }
+            return minValue;
+        }
+        hints.AddForbiddenZone(minDistance);
     }
 }
 
@@ -138,7 +151,7 @@ class Burst(BossModule module) : Components.GenericAOEs(module)
 }
 
 class Immersion(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Immersion));
-class WorrisomeWaveBoss(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WorrisomeWave1), new AOEShapeCone(24, 15.Degrees()));
+class WorrisomeWaveBoss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WorrisomeWave1), new AOEShapeCone(24, 15.Degrees()));
 
 class WorrisomeWavePlayer(BossModule module) : Components.GenericBaitAway(module, centerAtTarget: true)
 {
@@ -147,7 +160,7 @@ class WorrisomeWavePlayer(BossModule module) : Components.GenericBaitAway(module
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.WorrisomeWave1)
-            CurrentBaits.AddRange(Raid.WithoutSlot().Select(p => new Bait(p, p, cone, WorldState.FutureTime(6.3f))));
+            CurrentBaits.AddRange(Raid.WithoutSlot(false, true, true).Select(p => new Bait(p, p, cone, WorldState.FutureTime(6.3f))));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -167,7 +180,7 @@ class WorrisomeWavePlayer(BossModule module) : Components.GenericBaitAway(module
     {
         base.AddAIHints(slot, actor, assignment, hints);
         foreach (var b in ActiveBaitsOn(actor))
-            foreach (var p in Raid.WithoutSlot().Exclude(actor))
+            foreach (var p in Raid.WithoutSlot(false, true, true).Exclude(actor))
                 hints.ForbiddenDirections.Add((Angle.FromDirection(p.Position - actor.Position), 15.Degrees(), b.Activation));
     }
 }

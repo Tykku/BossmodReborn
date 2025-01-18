@@ -94,7 +94,7 @@ class ShiningBladeExecution(BossModule module) : Components.CastCounter(module, 
     {
         if (_target == actor)
         {
-            if (Raid.WithoutSlot().InRadiusExcluding(_target, _executionRadius).Any())
+            if (Raid.WithoutSlot(false, true, true).InRadiusExcluding(_target, _executionRadius).Any())
                 hints.Add("GTFO from raid!");
         }
         else if (_target != null)

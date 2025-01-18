@@ -8,11 +8,16 @@ abstract class Sweethearts(BossModule module, uint oid, uint aid) : Components.G
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
+        var count = _hearts.Count;
+        if (count == 0)
+            return [];
+        List<AOEInstance> aoes = new(count);
         for (var i = 0; i < _hearts.Count; ++i)
         {
             var h = _hearts[i];
-            yield return new(capsule, h.Position, h.Rotation);
+            aoes.Add(new(capsule, h.Position, h.Rotation));
         }
+        return aoes;
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
@@ -38,14 +43,26 @@ abstract class Sweethearts(BossModule module, uint oid, uint aid) : Components.G
         var count = _hearts.Count;
         if (count == 0)
             return;
-        var forbidden = new List<Func<WPos, float>>(count);
+        var forbidden = new List<Func<WPos, float>>(count + 1);
         for (var i = 0; i < count; ++i)
         {
             var h = _hearts[i];
             forbidden.Add(ShapeDistance.Capsule(h.Position, h.Rotation, Length, Radius)); // merging all forbidden zones into one to make pathfinding less demanding
         }
         forbidden.Add(ShapeDistance.Circle(Arena.Center, Module.PrimaryActor.HitboxRadius));
-        hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
+
+        float minDistance(WPos p)
+        {
+            var minValue = float.MaxValue;
+            for (var i = 0; i < forbidden.Count; ++i)
+            {
+                var value = forbidden[i](p);
+                if (value < minValue)
+                    minValue = value;
+            }
+            return minValue;
+        }
+        hints.AddForbiddenZone(minDistance);
     }
 }
 

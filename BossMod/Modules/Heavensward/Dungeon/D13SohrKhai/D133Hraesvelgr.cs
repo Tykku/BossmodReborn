@@ -39,11 +39,11 @@ class Wyrmclaw(BossModule module) : Components.SingleTargetCast(module, ActionID
 class HolyStorm(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HolyStorm));
 class DiamondStorm(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DiamondStorm));
 
-abstract class Dive(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 10));
+abstract class Dive(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 10));
 class HallowedDive(BossModule module) : Dive(module, AID.HallowedDive);
 class FrigidDive(BossModule module) : Dive(module, AID.FrigidDive);
 
-class FrostedOrb(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FrostedOrb), new AOEShapeCircle(6));
+class FrostedOrb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrostedOrb), 6);
 
 class AkhMorn(BossModule module) : Components.UniformStackSpread(module, 6, 0, 4, 4)
 {

@@ -8,7 +8,7 @@ class OminousWind(BossModule module) : BossComponent(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (Targets[slot] && Raid.WithSlot().IncludedInMask(Targets).InRadiusExcluding(actor, 6).Any())
+        if (Targets[slot] && Raid.WithSlot(false, true, true).IncludedInMask(Targets).InRadiusExcluding(actor, 6).Any())
             hints.Add("GTFO from other bubble!");
     }
 
@@ -17,7 +17,7 @@ class OminousWind(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (Targets[pcSlot])
-            foreach (var (_, p) in Raid.WithSlot().IncludedInMask(Targets).Exclude(pc))
+            foreach (var (_, p) in Raid.WithSlot(false, true, true).IncludedInMask(Targets).Exclude(pc))
                 Arena.AddCircle(p.Position, 6, Colors.Danger);
     }
 

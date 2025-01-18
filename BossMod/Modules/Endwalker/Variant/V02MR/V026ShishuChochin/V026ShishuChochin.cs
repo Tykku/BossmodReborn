@@ -76,7 +76,7 @@ class Lanterns(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Illume(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Illume), new AOEShapeCone(6, 45.Degrees()));
+class Illume(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Illume), new AOEShapeCone(6, 45.Degrees()));
 
 class V026ShishuChochinStates : StateMachineBuilder
 {

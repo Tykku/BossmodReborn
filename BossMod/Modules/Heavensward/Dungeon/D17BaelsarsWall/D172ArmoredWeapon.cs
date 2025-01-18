@@ -35,7 +35,7 @@ public enum SID : uint
 }
 
 class Launcher(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Launcher));
-class AssaultCannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AssaultCannon), new AOEShapeRect(40.94f, 1));
+class AssaultCannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AssaultCannon), new AOEShapeRect(40.94f, 1));
 
 abstract class DiffractiveLaser(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 5);
 class DiffractiveLaser1(BossModule module) : DiffractiveLaser(module, AID.DiffractiveLaser1);

@@ -46,7 +46,7 @@ class Anthrabomb2(BossModule module) : Anthrabomb(module, AID.Anthrabomb2);
 
 class AnthrabombSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.AnthrabombSpread), 6);
 
-class HotBlast(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 3));
+class HotBlast(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 3));
 class HotBlast1(BossModule module) : HotBlast(module, AID.HotBlast1);
 class HotBlast2(BossModule module) : HotBlast(module, AID.HotBlast2);
 

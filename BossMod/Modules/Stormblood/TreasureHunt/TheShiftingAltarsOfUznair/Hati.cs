@@ -33,13 +33,13 @@ public enum AID : uint
     Telega = 9630 // Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
-class PolarRoar(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PolarRoar), new AOEShapeDonut(9, 40));
+class PolarRoar(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PolarRoar), new AOEShapeDonut(9, 40));
 class Hellstorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hellstorm2), 10);
-class Netherwind(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Netherwind), new AOEShapeRect(18, 2));
-class GlassyNova(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GlassyNova), new AOEShapeRect(45.4f, 4));
-class BrainFreeze(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BrainFreeze), new AOEShapeCircle(15.4f));
+class Netherwind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Netherwind), new AOEShapeRect(18, 2));
+class GlassyNova(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GlassyNova), new AOEShapeRect(45.4f, 4));
+class BrainFreeze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BrainFreeze), 15.4f);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

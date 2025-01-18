@@ -9,10 +9,10 @@ class LevinblossomLance(BossModule module) : Components.GenericRotatingAOE(modul
         switch ((AID)spell.Action.ID)
         {
             case AID.LevinblossomLanceCCW:
-                Sequences.Add(new(rect, Module.PrimaryActor.Position, spell.Rotation, 28.Degrees(), Module.CastFinishAt(spell, 0.8f), 1, 5, 2));
+                Sequences.Add(new(rect, spell.LocXZ, spell.Rotation, 28.Degrees(), Module.CastFinishAt(spell, 0.8f), 1, 5, 2));
                 break;
             case AID.LevinblossomLanceCW:
-                Sequences.Add(new(rect, Module.PrimaryActor.Position, spell.Rotation, -28.Degrees(), Module.CastFinishAt(spell, 0.8f), 1, 5, 2));
+                Sequences.Add(new(rect, spell.LocXZ, spell.Rotation, -28.Degrees(), Module.CastFinishAt(spell, 0.8f), 1, 5, 2));
                 break;
         }
     }

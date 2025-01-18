@@ -34,7 +34,7 @@ public enum AID : uint
     Bury7 = 36503, // Helper->self, 4.0s cast, range 25 width 6 rect
     Bury8 = 36504, // Helper->self, 4.0s cast, range 35 width 10 rect
 
-    Decay = 36505, // IhuykatumuFlytrap->self, 7.0s cast, range ?-40 donut
+    Decay = 36505, // IhuykatumuFlytrap->self, 7.0s cast, range 6-40 donut
 
     SongOfThePunutiy = 36506, // Boss->self, 5.0s cast, single-target
 
@@ -75,7 +75,7 @@ class HydrowaveBait(BossModule module) : Components.BaitAwayTethers(module, new 
     }
 }
 
-class Resurface(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Resurface), new AOEShapeCone(100, 30.Degrees()));
+class Resurface(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Resurface), new AOEShapeCone(100, 30.Degrees()));
 class Inhale(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
@@ -101,7 +101,7 @@ class Inhale(BossModule module) : Components.GenericAOEs(module)
 }
 
 class PunutiyPress(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PunutiyPress));
-class Hydrowave(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hydrowave), new AOEShapeCone(60, 15.Degrees()));
+class Hydrowave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrowave), new AOEShapeCone(60, 15.Degrees()));
 
 class BuryDecay(BossModule module) : Components.GenericAOEs(module)
 {
@@ -113,20 +113,24 @@ class BuryDecay(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        List<AOEInstance> aoes = new(count);
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
             if (i < 2)
-                yield return count > 1 ? aoe with { Color = Colors.Danger } : aoe;
+                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
             else if (i > 1)
-                yield return aoe;
+                aoes.Add(aoe);
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         void AddAOE(AOEShape shape)
-        => _aoes.Add(new(shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+        => _aoes.Add(new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
         switch ((AID)spell.Action.ID)
         {
             case AID.Bury1:

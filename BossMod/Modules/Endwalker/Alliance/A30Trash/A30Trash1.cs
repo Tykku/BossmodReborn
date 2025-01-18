@@ -24,14 +24,14 @@ public enum AID : uint
 
 class WaterIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaterIII), 8);
 
-abstract class PelagicCleaver(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 30.Degrees()));
+abstract class PelagicCleaver(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 30.Degrees()));
 class PelagicCleaver1(BossModule module) : PelagicCleaver(module, AID.PelagicCleaver1);
 class PelagicCleaver2(BossModule module) : PelagicCleaver(module, AID.PelagicCleaver2);
 
 class PelagicCleaver1Hint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PelagicCleaver1));
 class PelagicCleaver2Hint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PelagicCleaver2));
 
-class Flood(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
+class Flood(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class WaterFlood(BossModule module) : Flood(module, AID.WaterFlood);
 class DivineFlood(BossModule module) : Flood(module, AID.DivineFlood);
 

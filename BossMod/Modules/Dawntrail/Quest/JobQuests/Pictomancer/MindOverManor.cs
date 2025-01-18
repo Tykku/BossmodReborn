@@ -17,7 +17,7 @@ public enum AID : uint
     JitteringGlare = 37516, // Boss->self, 4.0s cast, range 40 30-degree cone
 }
 
-class JitteringGlare(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.JitteringGlare), new AOEShapeCone(40, 15.Degrees()));
+class JitteringGlare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.JitteringGlare), new AOEShapeCone(40, 15.Degrees()));
 class GyratingGlare(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GyratingGlare));
 
 abstract class Rubble(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10);

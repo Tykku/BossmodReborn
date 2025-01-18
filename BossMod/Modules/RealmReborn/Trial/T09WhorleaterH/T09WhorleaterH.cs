@@ -21,12 +21,13 @@ class T09WhorleaterHStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "taurenkey, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 72, NameID = 2505)]
-public class T09WhorleaterH(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, 0), new ArenaBoundsRect(14.5f, 20))
+public class T09WhorleaterH(WorldState ws, Actor primary) : BossModule(ws, primary, default, new ArenaBoundsRect(14.5f, 20))
 {
+    private static readonly uint[] adds = [(uint)OID.Tail, (uint)OID.WavespineSahagin, (uint)OID.WavespineSahagin, (uint)OID.WavetoothSahagin];
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Tail).Concat(Enemies(OID.WavespineSahagin).Concat(Enemies(OID.WavespineSahagin)).Concat(Enemies(OID.WavetoothSahagin))));
+        Arena.Actors(Enemies(adds));
         Arena.Actors(Enemies(OID.Spume), Colors.Vulnerable);
         Arena.Actor(Enemies(OID.Converter).FirstOrDefault(), Colors.Object);
     }

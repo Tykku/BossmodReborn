@@ -8,7 +8,7 @@ abstract class SculptorsPassion(BossModule module, AID aid) : Components.Generic
         if ((AID)spell.Action.ID == AID.SculptorsPassionTargetSelection)
         {
             Source = Module.PrimaryActor;
-            foreach (var (slot, player) in Raid.WithSlot(true))
+            foreach (var (slot, player) in Raid.WithSlot(true, true, true))
                 PlayerRoles[slot] = player.InstanceID == spell.MainTargetID ? PlayerRole.Target : player.Role == Role.Tank ? PlayerRole.Share : PlayerRole.ShareNotFirst;
         }
     }

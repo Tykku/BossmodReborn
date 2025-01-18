@@ -46,10 +46,10 @@ public enum AID : uint
     Telega = 9630 // Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
-class AChoo(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AChoo), new AOEShapeCone(12, 45.Degrees()));
-class FellSwipe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FellSwipe), new AOEShapeCone(8, 60.Degrees()));
-class WindShot(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WindShot), new AOEShapeRect(40, 3));
-class LingeringSnort(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LingeringSnort), new AOEShapeCircle(20));
+class AChoo(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AChoo), new AOEShapeCone(12, 45.Degrees()));
+class FellSwipe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FellSwipe), new AOEShapeCone(8, 60.Degrees()));
+class WindShot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindShot), new AOEShapeRect(40, 3));
+class LingeringSnort(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LingeringSnort), 20);
 class UnpleasantBreeze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.UnpleasantBreeze), 6);
 class Fireball(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Fireball), 6, 8, 8);
 
@@ -131,7 +131,7 @@ class Snortsault(BossModule module) : Components.GenericRotatingAOE(module)
     }
 }
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

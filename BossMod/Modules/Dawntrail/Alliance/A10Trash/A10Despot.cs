@@ -23,7 +23,7 @@ public enum AID : uint
 }
 
 class IsleDrop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IsleDrop), 6);
-class WingCutter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WingCutter), new AOEShapeCone(6, 60.Degrees()));
+class WingCutter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingCutter), new AOEShapeCone(6, 60.Degrees()));
 class PanzerfaustHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Panzerfaust), showNameInHint: true);
 class Panzerfaust(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Panzerfaust));
 class ScraplineStorm(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ScraplineStorm), 12.5f, kind: Kind.TowardsOrigin)
@@ -54,8 +54,8 @@ class ScraplineTyphoon(BossModule module) : Components.GenericAOEs(module)
     {
         if ((AID)spell.Action.ID == AID.ScraplineStorm)
         {
-            _aoes.Add(new(circle, caster.Position, default, Module.CastFinishAt(spell, 2.1f)));
-            _aoes.Add(new(donut, caster.Position, default, Module.CastFinishAt(spell, 5.6f)));
+            _aoes.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell, 2.1f)));
+            _aoes.Add(new(donut, spell.LocXZ, default, Module.CastFinishAt(spell, 5.6f)));
         }
     }
 

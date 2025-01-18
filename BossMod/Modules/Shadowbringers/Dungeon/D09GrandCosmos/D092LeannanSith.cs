@@ -41,7 +41,7 @@ class OdeToLostLove(BossModule module) : Components.RaidwideCast(module, ActionI
 class StormOfColor(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.StormOfColor));
 class FarWindSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FarWindSpread), 5);
 class FarWind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FarWind), 8);
-class OdeToFallenPetals(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.OdeToFallenPetals), new AOEShapeDonut(5, 60));
+class OdeToFallenPetals(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OdeToFallenPetals), new AOEShapeDonut(5, 60));
 class IrefulWind(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.IrefulWind), 10, kind: Kind.DirForward, stopAtWall: true);
 
 class GreenTiles(BossModule module) : Components.GenericAOEs(module)

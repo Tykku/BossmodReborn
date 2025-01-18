@@ -32,8 +32,8 @@ public enum AID : uint
 
 class Thunderbolt(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Thunderbolt));
 class Shockbolt(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Shockbolt));
-class ShockingPlumage(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ShockingPlumage), new AOEShapeCone(40, 30.Degrees()));
-class WindingCurrent(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WindingCurrent), new AOEShapeDonut(5, 40));
+class ShockingPlumage(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ShockingPlumage), new AOEShapeCone(40, 30.Degrees()));
+class WindingCurrent(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindingCurrent), new AOEShapeDonut(5, 40));
 class ThunderstormAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThunderstormAOE), 5);
 class ThunderstormSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.ThunderstormSpread), 5);
 
@@ -91,7 +91,7 @@ class ExpandingOrb(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        if (count > 0)
+        if (count != 0)
         {
             var size = Math.Clamp(circle.Radius + NumCasts / 4, default, 12);
             for (var i = 0; i < count; ++i)

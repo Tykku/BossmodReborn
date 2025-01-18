@@ -3,15 +3,16 @@
 public enum OID : uint
 {
     Boss = 0xF7, // x1
-    Helper = 0x1B2, // x5
     GraniteGaol = 0x5E1, // spawn during fight
     BombBoulder = 0x5A3, // spawn during fight
     TitansHeart = 0x5E4, // Part type, spawn during fight
+    Helper = 0x1B2
 }
 
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     RockBuster = 1360, // Boss->self, no cast, range 6+R 120-degree cone cleave
     Tumult = 1361, // Boss->self, no cast, multihit raidwide (2 hits until 1st geocrush, 3 hits until earthen fury, 4 hits until kill)
     WeightOfTheLand = 1362, // Boss->self, 2.0s cast, single-target, visual
@@ -25,7 +26,7 @@ public enum AID : uint
     GraniteSepulchre = 1477, // GraniteGaol->self, 15.0s cast, oneshot target if gaol not killed
 
     EarthenFury = 1366, // Boss->self, no cast, wipe if heart not killed, otherwise just a raidwide
-    MountainBuster = 643, // Boss->self, no cast, range 16+R ?-degree cone cleave
+    MountainBuster = 643 // Boss->self, no cast, range 16+R ?-degree cone cleave
 }
 
 class Hints(BossModule module) : BossComponent(module)
@@ -50,7 +51,7 @@ class Hints(BossModule module) : BossComponent(module)
 class MountainBuster(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.MountainBuster), new AOEShapeCone(21.25f, 60.Degrees())); // TODO: verify angle
 
 class WeightOfTheLand(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WeightOfTheLandAOE), 6);
-class Landslide(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Landslide), new AOEShapeRect(40.25f, 3));
+class Landslide(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Landslide), new AOEShapeRect(40.25f, 3));
 
 class Geocrush(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.Geocrush))
 {
@@ -62,9 +63,9 @@ class Geocrush(BossModule module) : Components.GenericAOEs(module, ActionID.Make
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_outer != null)
-            yield return new(_outer, Module.Center);
+            yield return new(_outer, Arena.Center);
         if (_inner != null)
-            yield return new(_inner, Module.Center, new(), _innerFinish);
+            yield return new(_inner, Arena.Center, new(), _innerFinish);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -76,9 +77,9 @@ class Geocrush(BossModule module) : Components.GenericAOEs(module, ActionID.Make
                 1 => 23,
                 2 => 20,
                 3 => 15,
-                _ => Module.Bounds.Radius
+                _ => Arena.Bounds.Radius
             };
-            _outer = new AOEShapeDonut(outerRadius, Module.Bounds.Radius);
+            _outer = new AOEShapeDonut(outerRadius, Arena.Bounds.Radius);
             _inner = new AOEShapeCircle(outerRadius - 2); // TODO: check falloff...
             _innerFinish = Module.CastFinishAt(spell);
         }
@@ -93,7 +94,7 @@ class Geocrush(BossModule module) : Components.GenericAOEs(module, ActionID.Make
     }
 }
 
-class Burst(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Burst), new AOEShapeCircle(6.3f))
+class Burst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Burst), new AOEShapeCircle(6.3f))
 {
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -101,8 +102,19 @@ class Burst(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.Ma
         // pattern 2: center -> 4 cardinals at small offset ~1s later -> 4 intercardinals at bigger offset ~1s later
         // pattern 3: 3 in center line -> 3 in side line ~1.5s later -> 3 in other side line ~1.5s later
         // showing casts that end within 2.25s seems to deal with all patterns reasonably well
-        var timeLimit = Module.CastFinishAt(Casters.FirstOrDefault()?.CastInfo, 2.25f);
-        return Casters.TakeWhile(c => Module.CastFinishAt(c.CastInfo!) <= timeLimit).Select(c => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo!)));
+        var count = Casters.Count;
+        if (count == 0)
+            return [];
+        var timeLimit = Casters[0].Activation.AddSeconds(2.25f);
+
+        List<AOEInstance> result = new(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var caster = Casters[i];
+            if (caster.Activation <= timeLimit)
+                result.Add(caster);
+        }
+        return result;
     }
 }
 
@@ -126,7 +138,7 @@ public class T07TitanH : BossModule
     private readonly List<Actor> _heart;
     public IEnumerable<Actor> ActiveHeart => _heart.Where(h => h.IsTargetable && !h.IsDead);
 
-    public T07TitanH(WorldState ws, Actor primary) : base(ws, primary, new(0, 0), new ArenaBoundsCircle(25))
+    public T07TitanH(WorldState ws, Actor primary) : base(ws, primary, default, new ArenaBoundsCircle(25))
     {
         _heart = Enemies(OID.TitansHeart);
     }

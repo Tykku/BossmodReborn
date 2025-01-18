@@ -33,7 +33,7 @@ public enum AID : uint
 }
 
 class Neurotoxify(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Neurotoxify));
-class NoxiousSap1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.NoxiousSap1), new AOEShapeCone(40, 60.Degrees()));
+class NoxiousSap1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.NoxiousSap1), new AOEShapeCone(40, 60.Degrees()));
 class Cocopult(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Cocopult), 5, 8);
 
 class RavagingRoots(BossModule module) : Components.GenericRotatingAOE(module)

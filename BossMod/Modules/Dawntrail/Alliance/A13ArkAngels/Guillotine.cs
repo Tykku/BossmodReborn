@@ -12,7 +12,7 @@ class Guillotine(BossModule module) : Components.GenericAOEs(module)
     {
         if ((AID)spell.Action.ID == AID.Guillotine)
         {
-            _aoe = new(_shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell, 0.6f));
+            _aoe = new(_shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell, 0.6f));
         }
     }
 

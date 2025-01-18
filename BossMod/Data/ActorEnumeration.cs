@@ -136,18 +136,39 @@ public static class ActorEnumeration
     // sort range by distance from point
     public static IEnumerable<Actor> SortedByRange(this IEnumerable<Actor> range, WPos origin)
     {
-        return range
-            .Select(actor => (actor, (actor.Position - origin).LengthSq()))
-            .OrderBy(actorDist => actorDist.Item2)
-            .Select(actorDist => actorDist.actor);
+        var actors = new List<(Actor actor, float distanceSq)>();
+
+        foreach (var a in range)
+        {
+            var distanceSq = (a.Position - origin).LengthSq();
+            actors.Add((a, distanceSq));
+        }
+
+        actors.Sort((a, b) => a.distanceSq.CompareTo(b.distanceSq));
+
+        for (var i = 0; i < actors.Count; ++i)
+        {
+            yield return actors[i].actor;
+        }
     }
 
     public static IEnumerable<(int, Actor)> SortedByRange(this IEnumerable<(int, Actor)> range, WPos origin)
     {
-        return range
-            .Select(indexPlayer => (indexPlayer.Item1, indexPlayer.Item2, (indexPlayer.Item2.Position - origin).LengthSq()))
-            .OrderBy(indexPlayerDist => indexPlayerDist.Item3)
-            .Select(indexPlayerDist => (indexPlayerDist.Item1, indexPlayerDist.Item2));
+        var actors = new List<(int index, Actor actor, float distanceSq)>();
+
+        foreach (var a in range)
+        {
+            var distanceSq = (a.Item2.Position - origin).LengthSq();
+            actors.Add((a.Item1, a.Item2, distanceSq));
+        }
+
+        actors.Sort((a, b) => a.distanceSq.CompareTo(b.distanceSq));
+
+        for (var i = 0; i < actors.Count; ++i)
+        {
+            var actor = actors[i];
+            yield return (actor.index, actor.actor);
+        }
     }
 
     // find closest actor to point

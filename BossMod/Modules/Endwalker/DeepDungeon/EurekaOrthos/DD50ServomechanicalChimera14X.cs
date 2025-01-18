@@ -39,10 +39,20 @@ class RamsDragonVoice(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (_aoes.Count > 1)
-            yield return _aoes[1] with { Risky = false };
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i == 0)
+                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+            else if (i == 1)
+                aoes.Add(aoe with { Risky = false });
+        }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -71,24 +81,16 @@ class RamsDragonVoice(BossModule module) : Components.GenericAOEs(module)
         }
     }
 
-    public override void Update()
-    {
-        var count = _aoes.Count;
-        if (count > 0)
-            for (var i = 0; i < count; ++i)
-                _aoes[i] = new(_aoes[i].Shape, Module.PrimaryActor.Position, default, _aoes[i].Activation);
-    }
-
     private void AddAOEs(AOEShape first, AOEShape second, ActorCastInfo spell)
     {
-        var position = Module.PrimaryActor.Position;
+        var position = spell.LocXZ;
         _aoes.Add(new(first, position, default, Module.CastFinishAt(spell)));
         _aoes.Add(new(second, position, default, Module.CastFinishAt(spell, 3)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count > 0 && castEnd.Contains((AID)spell.Action.ID))
+        if (_aoes.Count != 0 && castEnd.Contains((AID)spell.Action.ID))
             _aoes.RemoveAt(0);
     }
 }
@@ -97,7 +99,7 @@ class TC(BossModule module, AID aid) : Components.BaitAwayChargeCast(module, Act
 class ThunderousCold(BossModule module) : TC(module, AID.ThunderousCold);
 class ColdThunder(BossModule module) : TC(module, AID.ColdThunder);
 
-class Breath(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
+class Breath(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
 class RightbreathedCold(BossModule module) : Breath(module, AID.RightbreathedCold);
 class LeftbreathedThunder(BossModule module) : Breath(module, AID.LeftbreathedThunder);
 

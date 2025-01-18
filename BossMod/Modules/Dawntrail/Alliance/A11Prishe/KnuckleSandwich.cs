@@ -2,7 +2,7 @@ namespace BossMod.Dawntrail.Alliance.A11Prishe;
 
 class KnuckleSandwich(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(2);
     private static readonly HashSet<AID> castEnd = [AID.KnuckleSandwich1, AID.KnuckleSandwich2, AID.KnuckleSandwich3,
     AID.BrittleImpact1, AID.BrittleImpact2, AID.BrittleImpact3];
     private static readonly AOEShape[] _shapes = [new AOEShapeCircle(9), new AOEShapeCircle(18), new AOEShapeCircle(27), new AOEShapeDonut(9, 60),

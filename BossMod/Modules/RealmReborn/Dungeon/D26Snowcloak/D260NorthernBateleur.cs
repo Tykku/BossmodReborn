@@ -23,7 +23,7 @@ public enum AID : uint
     DoubleSmash = 3259, // Hrimthurs->self, 2.5s cast, range 6+R 120-degree cone
     SicklySneeze = 31264, // SnowcloakGoobbue->self, 2.5s cast, range 6+R 90-degree cone
     Peck = 965, // Boss->player, no cast, single-target
-    Beatdown = 575, // SnowcloakGoobbue->player, no cast, single-target
+    Beatdown = 575 // SnowcloakGoobbue->player, no cast, single-target
 }
 
 class WallRemoval(BossModule module) : BossComponent(module)
@@ -81,9 +81,9 @@ class Frostbite(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class WingCutter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WingCutter), new AOEShapeCone(6.9f, 30.Degrees()));
-class DoubleSmash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DoubleSmash), new AOEShapeCone(7.69f, 60.Degrees()));
-class SicklySneeze(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SicklySneeze), new AOEShapeCone(7.9f, 45.Degrees()));
+class WingCutter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingCutter), new AOEShapeCone(6.9f, 30.Degrees()));
+class DoubleSmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DoubleSmash), new AOEShapeCone(7.69f, 60.Degrees()));
+class SicklySneeze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SicklySneeze), new AOEShapeCone(7.9f, 45.Degrees()));
 
 class D260NorthernBateleurStates : StateMachineBuilder
 {

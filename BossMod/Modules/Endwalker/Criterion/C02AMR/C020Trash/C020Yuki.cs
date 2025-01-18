@@ -1,12 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C020Trash1;
 
-abstract class RightSwipe(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 90.Degrees()));
-class NRightSwipe(BossModule module) : RightSwipe(module, AID.NRightSwipe);
-class SRightSwipe(BossModule module) : RightSwipe(module, AID.SRightSwipe);
-
-abstract class LeftSwipe(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 90.Degrees()));
-class NLeftSwipe(BossModule module) : LeftSwipe(module, AID.NLeftSwipe);
-class SLeftSwipe(BossModule module) : LeftSwipe(module, AID.SLeftSwipe);
+abstract class Swipe(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 90.Degrees()));
+class NRightSwipe(BossModule module) : Swipe(module, AID.NRightSwipe);
+class SRightSwipe(BossModule module) : Swipe(module, AID.SRightSwipe);
+class NLeftSwipe(BossModule module) : Swipe(module, AID.NLeftSwipe);
+class SLeftSwipe(BossModule module) : Swipe(module, AID.SLeftSwipe);
 
 class C020YukiStates : StateMachineBuilder
 {

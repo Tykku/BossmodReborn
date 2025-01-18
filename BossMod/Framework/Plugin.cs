@@ -14,7 +14,7 @@ public sealed class Plugin : IDalamudPlugin
 {
     public string Name => "BossMod Reborn";
 
-    private ICommandManager CommandManager { get; init; }
+    private readonly ICommandManager CommandManager;
 
     private readonly RotationDatabase _rotationDB;
     private readonly WorldState _ws;
@@ -127,6 +127,7 @@ public sealed class Plugin : IDalamudPlugin
         ActionDefinitions.Instance.Dispose();
         CommandManager.RemoveHandler("/bmr");
         CommandManager.RemoveHandler("/vbm");
+        GarbageCollection();
     }
 
     private void OnCommand(string cmd, string args)
@@ -151,9 +152,7 @@ public sealed class Plugin : IDalamudPlugin
                     Service.ChatGui.Print(msg);
                 break;
             case "GC":
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                GC.Collect();
+                GarbageCollection();
                 break;
             case "R":
                 HandleReplayCommand(split);
@@ -362,5 +361,12 @@ public sealed class Plugin : IDalamudPlugin
     private static void OnConditionChanged(ConditionFlag flag, bool value)
     {
         Service.Log($"Condition change: {flag}={value}");
+    }
+
+    public static void GarbageCollection()
+    {
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
     }
 }

@@ -45,7 +45,7 @@ class FeedingTime(BossModule module) : Components.InterceptTether(module, Action
     }
 }
 
-class CriticalBite(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CriticalBite), new AOEShapeCone(10, 60.Degrees()));
+class CriticalBite(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CriticalBite), new AOEShapeCone(10, 60.Degrees()));
 
 class AlphaAlligatorStates : StateMachineBuilder
 {

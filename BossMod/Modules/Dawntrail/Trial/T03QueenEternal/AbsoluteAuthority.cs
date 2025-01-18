@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Trial.T03QueenEternal;
 
-class AbsoluteAuthorityCircle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AbsoluteAuthorityCircle), new AOEShapeCircle(8));
+class AbsoluteAuthorityCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbsoluteAuthorityCircle), 8);
 
 class AbsoluteAuthorityFlare(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(12), (uint)IconID.Flare, ActionID.MakeSpell(AID.AbsoluteAuthorityFlare), 6, true)
 {
@@ -25,7 +25,7 @@ class AbsoluteAuthorityDorito(BossModule module) : Components.GenericStackSpread
         if (Stacks.Count != 0)
         {
             var player = Raid.Player()!;
-            var sort = Raid.WithoutSlot().Exclude(player).OrderBy(a => (player.Position - a.Position).LengthSq());
+            var sort = Raid.WithoutSlot(false, true, true).Exclude(player).OrderBy(a => (player.Position - a.Position).LengthSq());
             var actor = sort.FirstOrDefault(x => !(Module.FindComponent<AbsoluteAuthorityCircle>()?.ActiveAOEs(0, x).Any(z => z.Shape.Check(x.Position, z.Origin, z.Rotation) && z.Risky) ?? false));
             Stacks[0] = Stacks[0] with { Target = actor ?? player };
         }

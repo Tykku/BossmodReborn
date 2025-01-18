@@ -9,10 +9,9 @@ public sealed class NetworkState
 
     public uint IDScramble;
 
-    public IEnumerable<WorldState.Operation> CompareToInitial()
+    public List<WorldState.Operation> CompareToInitial()
     {
-        if (IDScramble != 0)
-            yield return new OpIDScramble(IDScramble);
+        return IDScramble != 0 ? [new OpIDScramble(IDScramble)] : [];
     }
 
     public Event<OpIDScramble> IDScrambleChanged = new();

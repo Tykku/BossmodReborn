@@ -42,12 +42,12 @@ class FrigidNeedle(BossModule module) : Components.ConcentricAOEs(module, _shape
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.FrigidNeedleVisual)
-            AddSequence(Module.Center, Module.CastFinishAt(spell, 0.5f));
+            AddSequence(Arena.Center, Module.CastFinishAt(spell, 0.5f));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0)
+        if (Sequences.Count != 0)
         {
             var order = (AID)spell.Action.ID switch
             {
@@ -55,7 +55,7 @@ class FrigidNeedle(BossModule module) : Components.ConcentricAOEs(module, _shape
                 AID.CircleOfIce => 1,
                 _ => -1
             };
-            AdvanceSequence(order, Arena.Center, WorldState.FutureTime(2));
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(2));
         }
     }
 }
@@ -67,12 +67,12 @@ class CircleOfIce(BossModule module) : Components.ConcentricAOEs(module, _shapes
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.CircleOfIceVisual)
-            AddSequence(Module.Center, Module.CastFinishAt(spell, 0.5f));
+            AddSequence(Arena.Center, Module.CastFinishAt(spell, 0.5f));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0)
+        if (Sequences.Count != 0)
         {
             var order = (AID)spell.Action.ID switch
             {
@@ -80,12 +80,12 @@ class CircleOfIce(BossModule module) : Components.ConcentricAOEs(module, _shapes
                 AID.FrigidNeedle => 1,
                 _ => -1
             };
-            AdvanceSequence(order, Arena.Center, WorldState.FutureTime(2));
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(2));
         }
     }
 }
 
-class PillarPierce(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PillarPierce), new AOEShapeRect(80, 2));
+class PillarPierce(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PillarPierce), new AOEShapeRect(80, 2));
 class SkullDasher(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SkullDasher));
 class HeavySmash(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HeavySmash), 6, 8, 8);
 

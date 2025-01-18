@@ -56,7 +56,7 @@ class Giri(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && casts.Contains((AID)spell.Action.ID))
+        if (_aoes.Count != 0 && casts.Contains((AID)spell.Action.ID))
         {
             _aoes.RemoveAt(0);
             if (_aoes.Count == 0)

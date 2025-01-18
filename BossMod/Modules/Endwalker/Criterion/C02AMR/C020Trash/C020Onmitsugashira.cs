@@ -8,7 +8,7 @@ abstract class Huton(BossModule module, AID aid) : Components.SingleTargetCast(m
 class NHuton(BossModule module) : Huton(module, AID.NHuton);
 class SHuton(BossModule module) : Huton(module, AID.SHuton);
 
-abstract class JujiShuriken(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 1.5f));
+abstract class JujiShuriken(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 1.5f));
 class NJujiShuriken(BossModule module) : JujiShuriken(module, AID.NJujiShuriken);
 class SJujiShuriken(BossModule module) : JujiShuriken(module, AID.SJujiShuriken);
 class NJujiShurikenFast(BossModule module) : JujiShuriken(module, AID.NJujiShurikenFast);

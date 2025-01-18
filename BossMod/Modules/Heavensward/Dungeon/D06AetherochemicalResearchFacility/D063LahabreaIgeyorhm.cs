@@ -52,7 +52,7 @@ public enum TetherID : uint
 }
 
 class ShadowFlare(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ShadowFlare));
-class GripOfNight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GripOfNight), new AOEShapeCone(40, 75.Degrees()));
+class GripOfNight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GripOfNight), new AOEShapeCone(40, 75.Degrees()));
 class DarkFireIIAOE(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.DarkFireIIAOE), 6);
 class EndOfDays(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.EndOfDays), ActionID.MakeSpell(AID.EndOfDays2), 5.1f);
 
@@ -65,15 +65,7 @@ class Stars(BossModule module) : Components.GenericAOEs(module)
 
     private bool _tutorialFire, _tutorialIce;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        var count = _aoes.Count;
-        if (count != 0)
-        {
-            for (var i = 0; i < count; ++i)
-                yield return _aoes[i];
-        }
-    }
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {

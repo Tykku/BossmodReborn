@@ -36,8 +36,6 @@ class Aspect(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (caster != Module.PrimaryActor)
-            return;
         AOEShape? shape = (AID)spell.Action.ID switch
         {
             AID.AspectEarth => cone,
@@ -54,7 +52,7 @@ class Aspect(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (caster == Module.PrimaryActor && (AID)spell.Action.ID is AID.Whorlstorm or AID.Defibrillate or AID.EarthenAugur)
+        if ((AID)spell.Action.ID is AID.Whorlstorm or AID.Defibrillate or AID.EarthenAugur)
             _imminentAOE = null;
     }
 }

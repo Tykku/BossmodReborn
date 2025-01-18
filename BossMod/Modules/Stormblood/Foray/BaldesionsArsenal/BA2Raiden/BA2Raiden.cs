@@ -9,16 +9,16 @@ class Shingan(BossModule module) : Components.SingleTargetCast(module, ActionID.
 {
     public override bool KeepOnPhaseChange => true;
 }
-class AmeNoSakahoko(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AmeNoSakahoko), new AOEShapeCircle(25))
+class AmeNoSakahoko(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AmeNoSakahoko), 25)
 {
     public override bool KeepOnPhaseChange => true;
 }
-class WhirlingZantetsuken(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WhirlingZantetsuken), new AOEShapeDonut(5, 60))
+class WhirlingZantetsuken(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WhirlingZantetsuken), new AOEShapeDonut(5, 60))
 {
     public override bool KeepOnPhaseChange => true;
 }
-class Shock(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Shock), new AOEShapeCircle(8));
-class ForHonor(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ForHonor), new AOEShapeCircle(11.4f));
+class Shock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shock), 8);
+class ForHonor(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ForHonor), 11.4f);
 
 abstract class LateralZantetsuken(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(75.4f, 19.5f));
 class LateralZantetsuken1(BossModule module) : LateralZantetsuken(module, AID.LateralZantetsuken1);

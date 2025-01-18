@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C023Moko;
 
-abstract class AzureAuspice(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(6, 40)); // TODO: verify inner radius
+abstract class AzureAuspice(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(6, 40)); // TODO: verify inner radius
 class NAzureAuspice(BossModule module) : AzureAuspice(module, AID.NAzureAuspice);
 class SAzureAuspice(BossModule module) : AzureAuspice(module, AID.SAzureAuspice);
 
-abstract class BoundlessAzure(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(30, 5, 30));
+abstract class BoundlessAzure(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(60, 5));
 class NBoundlessAzure(BossModule module) : BoundlessAzure(module, AID.NBoundlessAzureAOE);
 class SBoundlessAzure(BossModule module) : BoundlessAzure(module, AID.SBoundlessAzureAOE);
 
@@ -41,8 +41,10 @@ class Upwell(BossModule module) : Components.GenericAOEs(module)
         if ((AID)spell.Action.ID is AID.NUpwellFirst or AID.SUpwellFirst)
         {
             var advance = spell.Rotation.ToDirection().OrthoR() * 5;
-            _lines.Add(new() { NextOrigin = caster.Position, Advance = advance, Rotation = spell.Rotation, NextActivation = Module.CastFinishAt(spell), NextShape = _shapeWide });
-            _lines.Add(new() { NextOrigin = caster.Position, Advance = -advance, Rotation = (spell.Rotation + 180.Degrees()).Normalized(), NextActivation = Module.CastFinishAt(spell) });
+            var pos = caster.Position;
+            var activation = Module.CastFinishAt(spell);
+            _lines.Add(new() { NextOrigin = pos, Advance = advance, Rotation = spell.Rotation, NextActivation = activation, NextShape = _shapeWide });
+            _lines.Add(new() { NextOrigin = pos, Advance = -advance, Rotation = (spell.Rotation + 180.Degrees()).Normalized(), NextActivation = activation });
         }
     }
 
@@ -85,7 +87,7 @@ class Upwell(BossModule module) : Components.GenericAOEs(module)
     {
         line.NextOrigin += line.Advance;
         line.NextActivation = WorldState.FutureTime(2);
-        var offset = (line.NextOrigin - Module.Center).Abs();
+        var offset = (line.NextOrigin - Arena.Center).Abs();
         line.NextShape = offset.X < 19 && offset.Z < 19 ? _shapeNarrow : null;
     }
 }

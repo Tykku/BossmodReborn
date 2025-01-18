@@ -51,15 +51,22 @@ public enum AID : uint
     PoisonDaggers = 39046 // Helper->player/TentoawaTheWideEye/LoazenikweTheShutEye, no cast, single-target
 }
 
-class Bladestorm(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Bladestorm), new AOEShapeCone(20, 45.Degrees()));
-class KeenTempest(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.KeenTempest), new AOEShapeCircle(8))
+class Bladestorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Bladestorm), new AOEShapeCone(20, 45.Degrees()));
+class KeenTempest(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.KeenTempest), 8)
 {
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (Casters.Count > 0)
-            foreach (var a in Casters)
-                if ((Module.CastFinishAt(a.CastInfo) - Module.CastFinishAt(Casters[0].CastInfo)).TotalSeconds <= 1)
-                    yield return new(Shape, a.Position, a.CastInfo!.Rotation, Module.CastFinishAt(a.CastInfo));
+        var count = Casters.Count;
+        if (count == 0)
+            return [];
+        List<AOEInstance> list = new(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = Casters[i];
+            if ((aoe.Activation - Casters[0].Activation).TotalSeconds <= 1)
+                list.Add(aoe);
+        }
+        return list;
     }
 }
 
@@ -83,7 +90,7 @@ class Conviction(BossModule module) : Components.CastTowers(module, ActionID.Mak
     }
 }
 
-class AetherialRay(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AetherialRay), new AOEShapeRect(40, 2), 10);
+class AetherialRay(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherialRay), new AOEShapeRect(40, 2), 10);
 class Aethershot(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Aethershot), 5);
 class BloodyTrinity(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.BloodyTrinity));
 class PoisonDaggers(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PoisonDaggersVisual));
@@ -128,9 +135,11 @@ class CradleOfTheSleepless(BossModule module) : Components.GenericAOEs(module)
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
         var activeAOEs = ActiveAOEs(slot, actor).ToList();
+        if (activeAOEs.Count == 0)
+            return;
         if (activeAOEs.Any(c => !c.Check(actor.Position)))
             hints.Add(RiskHint);
-        else if (activeAOEs.Any(c => c.Check(actor.Position)))
+        else
             hints.Add(StayHint, false);
     }
 }
@@ -168,7 +177,7 @@ public class DreamsOfANewDay(WorldState ws, Actor primary) : BossModule(ws, prim
         Arena.Actors(Enemies(all));
     }
 
-    protected override bool CheckPull() => Raid.WithoutSlot().Any(x => x.InCombat);
+    protected override bool CheckPull() => Raid.Player()!.InCombat;
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", PrimaryActorOID = (uint)OID.BossP2, GroupType = BossModuleInfo.GroupType.Quest, GroupID = 70359, NameID = 13046, SortOrder = 2)]

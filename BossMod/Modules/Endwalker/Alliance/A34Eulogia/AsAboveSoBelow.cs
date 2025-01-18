@@ -7,10 +7,12 @@ class AsAboveSoBelow(BossModule module) : Components.Exaflare(module, 6)
         if ((AID)spell.Action.ID is AID.EverfireFirst or AID.OnceBurnedFirst)
         {
             var advance = 6 * spell.Rotation.ToDirection();
+            var pos = spell.LocXZ;
+            var activation = Module.CastFinishAt(spell);
             // outer lines have 4 explosion only, rest 5
-            var numExplosions = (caster.Position - Module.Center).LengthSq() > 500 ? 4 : 6;
-            Lines.Add(new() { Next = caster.Position, Advance = advance, NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1.5f, ExplosionsLeft = numExplosions, MaxShownExplosions = 5 });
-            Lines.Add(new() { Next = caster.Position, Advance = -advance, NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1.5f, ExplosionsLeft = numExplosions, MaxShownExplosions = 5 });
+            var numExplosions = (pos - Arena.Center).LengthSq() > 500 ? 4 : 6;
+            Lines.Add(new() { Next = pos, Advance = advance, NextExplosion = activation, TimeToMove = 1.5f, ExplosionsLeft = numExplosions, MaxShownExplosions = 5 });
+            Lines.Add(new() { Next = pos, Advance = -advance, NextExplosion = activation, TimeToMove = 1.5f, ExplosionsLeft = numExplosions, MaxShownExplosions = 5 });
         }
     }
 

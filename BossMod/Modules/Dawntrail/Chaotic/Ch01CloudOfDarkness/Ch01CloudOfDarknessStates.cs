@@ -102,6 +102,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
     private void DelugeOfDarkness1(uint id, float delay)
     {
         Cast(id, AID.DelugeOfDarkness1, delay, 8, "Raidwide + arena transition")
+            .DeactivateOnEnter<Phase2InnerCells>()
             .SetHint(StateMachine.StateHint.Raidwide);
         CastMulti(id + 0x100, [AID.GrimEmbraceForward, AID.GrimEmbraceBackward], 9.2f, 5, "Debuffs 1")
             .ActivateOnEnter<GrimEmbraceBait>()
@@ -380,7 +381,6 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
         CastStart(id, AID.FloodOfDarkness2, delay, "Adds disappear")
             .DeactivateOnExit<StygianShadow>()
             .DeactivateOnExit<Atomos>()
-            .DeactivateOnExit<Phase2InnerCells>()
             .DeactivateOnExit<DarkEnergyParticleBeam>();
         CastEnd(id + 1, 7, "Raidwide + arena transition")
             .SetHint(StateMachine.StateHint.Raidwide);

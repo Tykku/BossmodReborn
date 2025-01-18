@@ -138,7 +138,7 @@ class WindShotStack(BossModule module) : Components.DonutStack(module, ActionID.
             return;
         var comp = Module.FindComponent<WindEarthShot>()!.ActiveAOEs(slot, actor).ToList();
         var forbidden = new List<Func<WPos, float>>();
-        foreach (var c in Raid.WithoutSlot().Exclude(actor).Where(x => comp.Any(c => c.Shape is AOEShapeDonut && !c.Check(x.Position) || c.Shape is AOEShapeCustom && c.Check(x.Position))))
+        foreach (var c in Raid.WithoutSlot(false, true, true).Exclude(actor).Where(x => comp.Any(c => c.Shape is AOEShapeDonut && !c.Check(x.Position) || c.Shape is AOEShapeCustom && c.Check(x.Position))))
             forbidden.Add(ShapeDistance.InvertedCircle(c.Position, Donut.InnerRadius * 0.33f));
         if (forbidden.Count > 0)
             hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), ActiveStacks.FirstOrDefault().Activation);
@@ -148,9 +148,9 @@ class WindShotStack(BossModule module) : Components.DonutStack(module, ActionID.
 class WindUnbound(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WindUnbound));
 class CrystallineCrush(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.CrystallineCrush), 6, 4, 4);
 class EarthenShot(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.EarthenShot), 6);
-class StalagmiteCircle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.StalagmiteCircle), new AOEShapeCircle(15));
-class CrystallineStorm(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CrystallineStorm), new AOEShapeRect(25, 1, 25));
-class CyclonicRing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CyclonicRing), new AOEShapeDonut(8, 40));
+class StalagmiteCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StalagmiteCircle), 15);
+class CrystallineStorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CrystallineStorm), new AOEShapeRect(50, 1));
+class CyclonicRing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CyclonicRing), new AOEShapeDonut(8, 40));
 class EyeOfTheFierce(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EyeOfTheFierce));
 class SeedCrystals(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SeedCrystals), 6);
 
@@ -176,7 +176,7 @@ class D022KahderyorStates : StateMachineBuilder
 public class D022Kahderyor(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultBounds.Center, DefaultBounds)
 {
     private static readonly WPos arenaCenter = new(-53, -57);
-    public static readonly ArenaBoundsComplex DefaultBounds = new([new Circle(arenaCenter, 19.5f)], [new Rectangle(new(-72.5f, -57), 20, 0.75f, 90.Degrees()), new Rectangle(new(-53, -37), 20, 1.5f)]);
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Circle(arenaCenter, 19.5f)], [new Rectangle(new(-72.5f, -57), 0.75f, 20), new Rectangle(new(-53, -37), 20, 1.5f)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

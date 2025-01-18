@@ -39,9 +39,9 @@ public enum AID : uint
     FreezeInCyan = 37540, // Boss->self, 5.0s cast, range 40 45-degree cone
 }
 
-class FreezeInCyan(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FreezeInCyan), new AOEShapeCone(40, 22.5f.Degrees()));
-class NineIvies(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.NineIvies), new AOEShapeCone(50, 10.Degrees()), 9);
-class TornadoInGreen(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TornadoInGreen), new AOEShapeDonut(10, 40));
+class FreezeInCyan(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FreezeInCyan), new AOEShapeCone(40, 22.5f.Degrees()));
+class NineIvies(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.NineIvies), new AOEShapeCone(50, 10.Degrees()), 9);
+class TornadoInGreen(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TornadoInGreen), new AOEShapeDonut(10, 40));
 class SculptureCast(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.SculptureCast));
 class BlazeInRed(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BlazeInRed));
 
@@ -72,12 +72,12 @@ class Earthquake(BossModule module) : Components.ConcentricAOEs(module, _shapes)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.Earthquake1)
-            AddSequence(caster.Position, Module.CastFinishAt(spell));
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0)
+        if (Sequences.Count != 0)
         {
             var order = (AID)spell.Action.ID switch
             {
@@ -86,12 +86,15 @@ class Earthquake(BossModule module) : Components.ConcentricAOEs(module, _shapes)
                 AID.Earthquake3 => 2,
                 _ => -1
             };
-            AdvanceSequence(order, caster.Position, WorldState.FutureTime(2));
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(2));
         }
     }
 }
 
-class FloodInBlueFirst(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FloodInBlueFirst), new AOEShapeRect(25, 5, 25), color: Colors.Danger);
+class FloodInBlueFirst : Components.SimpleAOEs
+{
+    public FloodInBlueFirst(BossModule module) : base(module, ActionID.MakeSpell(AID.FloodInBlueFirst), new AOEShapeRect(25, 5, 25)) { Color = Colors.Danger; }
+}
 
 class FloodInBlueRest(BossModule module) : Components.Exaflare(module, new AOEShapeRect(25, 2.5f, 25))
 {
@@ -101,8 +104,9 @@ class FloodInBlueRest(BossModule module) : Components.Exaflare(module, new AOESh
         {
             var advance1 = spell.Rotation.ToDirection().OrthoR() * 7.5f;
             var advance2 = spell.Rotation.ToDirection().OrthoR() * 5;
-            Lines.Add(new() { Next = caster.Position + advance1, Advance = advance2, Rotation = spell.Rotation, NextExplosion = Module.CastFinishAt(spell), TimeToMove = 2, ExplosionsLeft = 5, MaxShownExplosions = 2 });
-            Lines.Add(new() { Next = caster.Position - advance1, Advance = -advance2, Rotation = (spell.Rotation + 180.Degrees()).Normalized(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 2, ExplosionsLeft = 5, MaxShownExplosions = 2 });
+            var pos = caster.Position;
+            Lines.Add(new() { Next = pos + advance1, Advance = advance2, Rotation = spell.Rotation, NextExplosion = Module.CastFinishAt(spell), TimeToMove = 2, ExplosionsLeft = 5, MaxShownExplosions = 2 });
+            Lines.Add(new() { Next = pos - advance1, Advance = -advance2, Rotation = (spell.Rotation + 180.Degrees()).Normalized(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 2, ExplosionsLeft = 5, MaxShownExplosions = 2 });
         }
     }
 
@@ -110,7 +114,6 @@ class FloodInBlueRest(BossModule module) : Components.Exaflare(module, new AOESh
     {
         if ((AID)spell.Action.ID == AID.FloodInBlueRest)
         {
-            ++NumCasts;
             var index = Lines.FindIndex(l => l.Next.AlmostEqual(caster.Position, 3));
             if (index >= 0)
             {
@@ -135,8 +138,7 @@ class JanquetilaquesPortraitStates : StateMachineBuilder
             .ActivateOnEnter<Earthquake>()
             .ActivateOnEnter<BlazeInRed>()
             .ActivateOnEnter<FloodInBlueFirst>()
-            .ActivateOnEnter<FloodInBlueRest>()
-            ;
+            .ActivateOnEnter<FloodInBlueRest>();
     }
 }
 

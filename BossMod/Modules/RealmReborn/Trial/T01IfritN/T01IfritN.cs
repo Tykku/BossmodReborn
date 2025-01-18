@@ -4,19 +4,20 @@ public enum OID : uint
 {
     Boss = 0xCF, // x1
     InfernalNail = 0xD0, // spawn during fight
-    Helper = 0x191, // x19
+    Helper = 0x191
 }
 
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast
+
     Incinerate = 453, // Boss->self, no cast, range 10+R ?-degree cone cleave
     VulcanBurst = 454, // Boss->self, no cast, range 16+R circle unavoidable aoe with knockback ?
     Eruption = 455, // Boss->self, 2.2s cast, visual
     EruptionAOE = 733, // Helper->location, 3.0s cast, range 8 aoe
     Hellfire = 458, // Boss->self, 2.0s cast, infernal nail 'enrage'
     RadiantPlume = 456, // Boss->self, 2.2s cast, visual
-    RadiantPlumeAOE = 734, // Helper->location, 3.0s cast, range 8 aoe
+    RadiantPlumeAOE = 734 // Helper->location, 3.0s cast, range 8 aoe
 }
 
 class Hints(BossModule module) : BossComponent(module)
@@ -54,4 +55,4 @@ class T01IfritNStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 56, NameID = 1185)]
-public class T01IfritN(WorldState ws, Actor primary) : BossModule(ws, primary, new(-0, 0), new ArenaBoundsCircle(20));
+public class T01IfritN(WorldState ws, Actor primary) : BossModule(ws, primary, default, new ArenaBoundsCircle(20));

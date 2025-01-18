@@ -42,7 +42,7 @@ public enum AID : uint
     PungentPirouette = 32303, // GymnasticGarlic->self, 3.5s cast, range 7 circle
     TearyTwirl = 32301, // GymnasticOnion->self, 3.5s cast, range 7 circle
     HeavySmash = 32317, // GymnasiouLyssa->location, 3.0s cast, range 6 circle
-    Telega = 9630, // Mandragoras/GymnasiouLyssa->self, no cast, single-target, bonus add disappear
+    Telega = 9630 // Mandragoras/GymnasiouLyssa->self, no cast, single-target, bonus add disappear
 }
 
 class DoubleHammer(BossModule module) : Components.GenericAOEs(module)
@@ -54,10 +54,18 @@ class DoubleHammer(BossModule module) : Components.GenericAOEs(module)
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        if (count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (count > 1)
-            yield return _aoes[1] with { Risky = false };
+        if (count == 0)
+            return [];
+        List<AOEInstance> aoes = new(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i == 0)
+                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe with { Risky = false });
+        }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -75,8 +83,8 @@ class DoubleHammer(BossModule module) : Components.GenericAOEs(module)
 
     private void AddAOEs(Actor caster, ActorCastInfo spell, Angle first, Angle second)
     {
-        _aoes.Add(new(Cone, caster.Position, first, Module.CastFinishAt(spell, 0.8f)));
-        _aoes.Add(new(Cone, caster.Position, second, Module.CastFinishAt(spell, 3.7f)));
+        _aoes.Add(new(Cone, spell.LocXZ, first, Module.CastFinishAt(spell, 0.8f)));
+        _aoes.Add(new(Cone, spell.LocXZ, second, Module.CastFinishAt(spell, 3.7f)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
@@ -130,10 +138,10 @@ class QuadrupleHammer(BossModule module) : Components.GenericRotatingAOE(module)
 class VolcanicHowl(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.VolcanicHowl));
 class Earthbreak(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Earthbreak), 5);
 class DeadlyHold(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DeadlyHold));
-class TailSwing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TailSwing), new AOEShapeCircle(13));
-class CriticalBite(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CriticalBite), new AOEShapeCone(10, 60.Degrees()));
+class TailSwing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TailSwing), 13);
+class CriticalBite(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CriticalBite), new AOEShapeCone(10, 60.Degrees()));
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

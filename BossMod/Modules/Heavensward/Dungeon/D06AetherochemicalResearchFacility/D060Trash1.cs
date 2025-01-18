@@ -52,8 +52,8 @@ abstract class HeadSpin(BossModule module, AID aid, uint enemy) : Components.Cle
 class Headspin1(BossModule module) : HeadSpin(module, AID.Headspin1, (uint)OID.ScrambledPaladin);
 class Headspin2(BossModule module) : HeadSpin(module, AID.Headspin2, (uint)OID.ScrambledEngineer);
 
-class GrandSword(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GrandSword), new AOEShapeCone(16, 60.Degrees()));
-class TheHand(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheHand), new AOEShapeCone(7.5f, 60.Degrees()));
+class GrandSword(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrandSword), new AOEShapeCone(16, 60.Degrees()));
+class TheHand(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheHand), new AOEShapeCone(7.5f, 60.Degrees()));
 
 class D060EnforcementDroid210States : StateMachineBuilder
 {

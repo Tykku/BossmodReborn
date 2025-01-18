@@ -26,8 +26,8 @@ public enum AID : uint
 
     BrewingStorm = 21670, // Boss->self, 2.5s cast, range 5 60-degree cone, knockback 10 away from source
     HarrowingDream = 21671, // Boss->self, 3.0s cast, range 6 circle, applies sleep
-    BecloudingDust = 22935, // Boss->self, 3.0s cast, single-target
-    BecloudingDust2 = 22936, // BossHelper->location, 3.0s cast, range 6 circle
+    BecloudingDustVisual = 22935, // Boss->self, 3.0s cast, single-target
+    BecloudingDust = 22936, // BossHelper->location, 3.0s cast, range 6 circle
     SweepStart = 22937, // Brooms>self, 4.0s cast, range 6 circle
     SweepRest = 21672, // Brooms->self, no cast, range 6 circle
     SweepVisual = 22508, // Brooms->self, no cast, single-target, visual
@@ -45,9 +45,9 @@ public enum AID : uint
     PungentPirouette = 6450, // SecretGarlic->self, 3.5s cast, range 6+R circle
 }
 
-class BrewingStorm(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BrewingStorm), new AOEShapeCone(5, 30.Degrees()));
-class HarrowingDream(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HarrowingDream), new AOEShapeCircle(6));
-class BecloudingDust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BecloudingDust2), 6);
+class BrewingStorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BrewingStorm), new AOEShapeCone(5, 30.Degrees()));
+class HarrowingDream(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HarrowingDream), 6);
+class BecloudingDust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BecloudingDust), 6);
 
 class Sweep(BossModule module) : Components.Exaflare(module, 6)
 {
@@ -69,11 +69,11 @@ class Sweep(BossModule module) : Components.Exaflare(module, 6)
     }
 }
 
-class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
-class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
-class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

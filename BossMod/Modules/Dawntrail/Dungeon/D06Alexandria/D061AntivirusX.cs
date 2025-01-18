@@ -25,13 +25,13 @@ public enum AID : uint
     Quarantine = 36386, // Helper->players, no cast, range 6 circle, stack
     Disinfection = 36385, // Helper->player, no cast, range 6 circle, tankbuster cleave
 
-    Cytolysis = 36387, // Boss->self, 5.0s cast, range 40 circle
+    Cytolysis = 36387 // Boss->self, 5.0s cast, range 40 circle
 }
 
 public enum IconID : uint
 {
     Tankbuster = 344, // player
-    Stackmarker = 62, // player
+    Stackmarker = 62 // player
 }
 
 class ImmuneResponseArenaChange(BossModule module) : Components.GenericAOEs(module)
@@ -67,9 +67,10 @@ class PathoCircuitCrossPurge(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = _aoes.Count > 1 ? Colors.Danger : Colors.AOE };
-        if (_aoes.Count > 1)
+        var count = _aoes.Count;
+        if (count != 0)
+            yield return _aoes[0] with { Color = count > 1 ? Colors.Danger : Colors.AOE };
+        if (count > 1)
         {
             var isDonuts = _aoes[0].Shape == donut && _aoes[1].Shape == donut;
             var isConeWithDelay = (_aoes[1].Shape == coneBig || _aoes[1].Shape == coneSmall) && (_aoes[1].Activation - _aoes[0].Activation).TotalSeconds > 2;
@@ -107,7 +108,7 @@ class PathoCircuitCrossPurge(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && castEnd.Contains((AID)spell.Action.ID))
+        if (_aoes.Count != 0 && castEnd.Contains((AID)spell.Action.ID))
             _aoes.RemoveAt(0);
     }
 }
@@ -122,7 +123,7 @@ class Quarantine(BossModule module) : Components.StackWithIcon(module, (uint)Ico
     {
         if (ActiveStacks.Count == 0)
             return;
-        var forbidden = Raid.WithSlot().WhereActor(p => _tb.ActiveBaits.Any(x => x.Target == p)).Mask();
+        var forbidden = Raid.WithSlot(false, true, true).WhereActor(p => _tb.ActiveBaits.Any(x => x.Target == p)).Mask();
         foreach (ref var t in Stacks.AsSpan())
             t.ForbiddenPlayers = forbidden;
     }
@@ -131,7 +132,7 @@ class Quarantine(BossModule module) : Components.StackWithIcon(module, (uint)Ico
     {
         if (!_tb.CurrentBaits.Any(x => x.Target == actor) && actor == ActiveStacks.FirstOrDefault().Target)
         {
-            var party = Raid.WithoutSlot().Where(x => !x.IsDead);
+            var party = Raid.WithoutSlot(false, true, true).Where(x => !x.IsDead);
             List<Actor> exclude = [actor, _tb.CurrentBaits[0].Target];
             var closestAlly = party.Exclude(exclude).Closest(actor.Position);
             if (closestAlly != null)
@@ -146,7 +147,7 @@ class Disinfection(BossModule module) : Components.BaitAwayIcon(module, new AOES
 {
     public override void AddGlobalHints(GlobalHints hints)
     {
-        if (CurrentBaits.Count > 0)
+        if (CurrentBaits.Count != 0)
             hints.Add("Tankbuster cleave");
     }
 

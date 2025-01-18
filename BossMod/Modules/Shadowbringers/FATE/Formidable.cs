@@ -21,6 +21,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // Boss/AutomatonEscort->player, no cast, single-target
+
     Spincrush = 17408, // Boss->self, 3.0s cast, range 15 120-degree cone
     FireShot = 17397, // FireShotHelper->location, 5.0s cast, range 7 circle puddle
     FiresOfMtGulg = 17395, // Boss->self, 4.0s cast, range 10-20 donut
@@ -37,7 +38,7 @@ public enum AID : uint
     DwarvenDischargeDonut = 17404, // DwarvenChargeDonut->self, 3.5s cast, range 9-60 donut
     DwarvenDischargeCircle = 17405, // DwarvenChargeCircle->self, 3.0s cast, range 8 circle
     SteamDome = 17394, // Boss->self, 3.0s cast, range 30 circle knockback 15
-    DynamicSensoryJammer = 17407, // Boss->self, 3.0s cast, range 70 circle
+    DynamicSensoryJammer = 17407 // Boss->self, 3.0s cast, range 70 circle
 }
 
 public enum IconID : uint
@@ -50,7 +51,7 @@ public enum SID : uint
     ExtremeCaution = 1269, // Boss->players
 }
 
-class Spincrush(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spincrush), new AOEShapeCone(15, 60.Degrees()));
+class Spincrush(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spincrush), new AOEShapeCone(15, 60.Degrees()));
 class FireShot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireShot), 7);
 
 class FiresOfMtGulg(BossModule module) : Components.GenericAOEs(module)
@@ -141,7 +142,7 @@ class ExplosionMissile(BossModule module) : BossComponent(module)
     }
 }
 
-class ExplosionGrenade(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ExplosionGrenade), new AOEShapeCircle(12));
+class ExplosionGrenade(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ExplosionGrenade), 12);
 
 class DwarvenDischarge(BossModule module, AOEShape shape, OID oid, AID aid, float delay) : Components.GenericAOEs(module)
 {

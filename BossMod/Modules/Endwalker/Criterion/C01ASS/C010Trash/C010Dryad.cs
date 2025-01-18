@@ -21,7 +21,7 @@ public enum AID : uint
     SUproot = 31090, // SOdqan->self, 3.0s cast, range 6 circle
 }
 
-abstract class ArborealStorm(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(12));
+abstract class ArborealStorm(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 12);
 class NArborealStorm(BossModule module) : ArborealStorm(module, AID.NArborealStorm);
 class SArborealStorm(BossModule module) : ArborealStorm(module, AID.SArborealStorm);
 
@@ -33,7 +33,7 @@ abstract class GelidGale(BossModule module, AID aid) : Components.SimpleAOEs(mod
 class NGelidGale(BossModule module) : GelidGale(module, AID.NGelidGale);
 class SGelidGale(BossModule module) : GelidGale(module, AID.SGelidGale);
 
-abstract class Uproot(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
+abstract class Uproot(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class NUproot(BossModule module) : Uproot(module, AID.NUproot);
 class SUproot(BossModule module) : Uproot(module, AID.SUproot);
 

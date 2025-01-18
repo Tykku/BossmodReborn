@@ -42,9 +42,9 @@ public enum AID : uint
 }
 
 class SludgeBomb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SludgeBomb2), 8);
-class RustlingWind(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RustlingWind), new AOEShapeRect(15, 2));
-class AcidMist(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AcidMist), new AOEShapeCircle(6));
-class OdiousAir(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.OdiousAir), new AOEShapeCone(12, 60.Degrees()));
+class RustlingWind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RustlingWind), new AOEShapeRect(15, 2));
+class AcidMist(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AcidMist), 6);
+class OdiousAir(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OdiousAir), new AOEShapeCone(12, 60.Degrees()));
 class VineWhip(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.VineWhip));
 
 class OdiousAtmosphere(BossModule module) : Components.GenericAOEs(module)
@@ -77,7 +77,7 @@ class OdiousAtmosphere(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

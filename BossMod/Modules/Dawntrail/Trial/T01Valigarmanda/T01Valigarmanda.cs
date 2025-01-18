@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Trial.T01Valigarmanda;
 
-class SlitheringStrike(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SlitheringStrike), new AOEShapeCone(24, 90.Degrees()));
+class SlitheringStrike(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SlitheringStrike), new AOEShapeCone(24, 90.Degrees()));
 class Skyruin1(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Skyruin1));
 class Skyruin2(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Skyruin2));
 class HailOfFeathers(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HailOfFeathers));
@@ -41,7 +41,7 @@ class FreezingDust(BossModule module) : Components.StayMove(module)
 }
 
 class RuinForetold(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RuinForetold));
-class CalamitousEcho(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CalamitousEcho), new AOEShapeCone(40, 10.Degrees()));
+class CalamitousEcho(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CalamitousEcho), new AOEShapeCone(40, 10.Degrees()));
 
 abstract class Tulidisaster(BossModule module, AID aid, float delay) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.TulidisasterVisual), ActionID.MakeSpell(aid), delay);
 class Tulidisaster1(BossModule module) : Tulidisaster(module, AID.Tulidisaster1, 3.1f);

@@ -84,7 +84,7 @@ class ArenaChanges(BossModule module) : BossComponent(module)
     }
 }
 
-class GallopAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GallopAOE), new AOEShapeRect(40.5f, 1));
+class GallopAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GallopAOE), new AOEShapeRect(40.5f, 1));
 
 class GallopKB(BossModule module) : Components.Knockback(module)
 {
@@ -167,7 +167,7 @@ class GallopKBHint(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Touchdown(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TouchdownVisual), new AOEShapeCircle(25));
+class Touchdown(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TouchdownVisual), 25);
 
 class BurningBright(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.BurningBright), new AOEShapeRect(28.5f, 3), endsOnCastEvent: true)
 {

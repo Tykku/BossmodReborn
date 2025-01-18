@@ -141,7 +141,7 @@ class Draw(BossModule module) : Components.GenericAOEs(module)
         if ((AID)spell.Action.ID == AID.CardTrickAOEFake)
         {
             _activation = DateTime.MaxValue;
-            if (_safeZones.Count > 0)
+            if (_safeZones.Count != 0)
                 _safeZones.RemoveAt(0);
         }
     }
@@ -166,14 +166,14 @@ class FlourishingBow(BossModule module) : Components.GenericAOEs(module)
         };
         if (shape != null)
         {
-            _aoes.Add(new(shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.Add(new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
             _aoes.SortBy(aoe => aoe.Activation);
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID is AID.TwinklingFlourishLong or AID.TwinklingFlourishShort or AID.TwinklingRingLong or AID.TwinklingRingShort)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.TwinklingFlourishLong or AID.TwinklingFlourishShort or AID.TwinklingRingLong or AID.TwinklingRingShort)
         {
             _aoes.RemoveAt(0);
         }
@@ -192,14 +192,14 @@ class DoubleMisdirect(BossModule module) : Components.GenericAOEs(module)
     {
         if ((AID)spell.Action.ID is AID.DoubleMisdirectAOELong or AID.DoubleMisdirectAOEShort)
         {
-            _aoes.Add(new(_shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.Add(new(_shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
             _aoes.SortBy(aoe => aoe.Activation);
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.DoubleMisdirectAOELong or AID.DoubleMisdirectAOEShort && _aoes.Count > 0)
+        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.DoubleMisdirectAOELong or AID.DoubleMisdirectAOEShort)
         {
             _aoes.RemoveAt(0);
         }
@@ -242,7 +242,7 @@ class RollingStarlight(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class MagicalHat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TwinkleToss), new AOEShapeRect(21, 2.5f, 21), 4);
+class MagicalHat(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TwinkleToss), new AOEShapeRect(42, 2.5f), 4);
 class Shimmerstorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ShimmerstormAOE), 6);
 class Shimmerstrike(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.ShimmerstrikeAOE), new AOEShapeCircle(6), true);
 class SparkOfImagination(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SparkOfImaginationAOE));

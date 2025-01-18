@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C032Lala;
 
 // TODO: we could detect aoe positions slightly earlier, when golems spawn
-abstract class ConstructiveFigure(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(50, 4));
+abstract class ConstructiveFigure(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(50, 4));
 class NConstructiveFigure(BossModule module) : ConstructiveFigure(module, AID.NAero);
 class SConstructiveFigure(BossModule module) : ConstructiveFigure(module, AID.SAero);
 
@@ -15,7 +15,7 @@ class ArcanePoint(BossModule module) : BossComponent(module)
         if (NumCasts > 0)
             return;
         var spot = CurrentSafeSpot(actor.Position);
-        if (spot != null && Raid.WithoutSlot().Exclude(actor).Any(p => CurrentSafeSpot(p.Position) == spot))
+        if (spot != null && Raid.WithoutSlot(false, true, true).Exclude(actor).Any(p => CurrentSafeSpot(p.Position) == spot))
             hints.Add("Spread on different squares!");
     }
 

@@ -52,7 +52,7 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 class DarkWings(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.DarkWings), 6, 5.1f);
 class Whirlwind(BossModule module) : Components.PersistentVoidzone(module, 6, m => m.Enemies(OID.Whirlwind));
 class Stormcoming(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Stormcoming), 6);
-class OnLow(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.OnLow), new AOEShapeCone(10.98f, 60.Degrees()));
+class OnLow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OnLow), new AOEShapeCone(10.98f, 60.Degrees()));
 
 class OnLowHaste(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Swiftfeather), new AOEShapeCone(10.98f, 60.Degrees()))
 {

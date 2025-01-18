@@ -18,7 +18,7 @@ public enum AID : uint
     SpreadShot = 39017, // VanguardSentryG7->self, 4.0s cast, range 12 90,000-degree cone
 }
 
-class SpreadShot(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpreadShot), new AOEShapeCone(12, 45.Degrees()));
+class SpreadShot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpreadShot), new AOEShapeCone(12, 45.Degrees()));
 
 class D040VanguardLeptocyonStates : StateMachineBuilder
 {

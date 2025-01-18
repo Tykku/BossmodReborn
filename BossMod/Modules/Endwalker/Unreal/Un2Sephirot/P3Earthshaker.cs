@@ -15,7 +15,7 @@ class P3Earthshaker(BossModule module) : Components.GenericAOEs(module, ActionID
             yield break;
 
         // TODO: timing...
-        foreach (var target in Raid.WithSlot(true).IncludedInMask(_targets))
+        foreach (var target in Raid.WithSlot(true, true, true).IncludedInMask(_targets))
             yield return new(_shape, origin.Position, Angle.FromDirection(target.Item2.Position - origin.Position));
     }
 

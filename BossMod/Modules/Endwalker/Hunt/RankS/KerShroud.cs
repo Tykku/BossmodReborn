@@ -14,7 +14,7 @@ public enum AID : uint
 
 class AccursedPox(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AccursedPox), 8);
 
-class EntropicFlame(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.EntropicFlame), new AOEShapeRect(60, 4));
+class EntropicFlame(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EntropicFlame), new AOEShapeRect(60, 4));
 
 class KerShroudStates : StateMachineBuilder
 {

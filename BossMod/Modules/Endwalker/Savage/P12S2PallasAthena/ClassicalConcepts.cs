@@ -171,7 +171,7 @@ class ClassicalConcepts(BossModule module, bool invert) : BossComponent(module)
 class ClassicalConcepts1(BossModule module) : ClassicalConcepts(module, false);
 class ClassicalConcepts2(BossModule module) : ClassicalConcepts(module, true);
 
-class Implode(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Implode), new AOEShapeCircle(4));
+class Implode(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Implode), 4);
 
 class PalladianRayBait(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.PalladianRayAOEFirst))
 {
@@ -183,7 +183,7 @@ class PalladianRayBait(BossModule module) : Components.GenericBaitAway(module, A
     {
         CurrentBaits.Clear();
         foreach (var d in _dummies)
-            foreach (var p in Raid.WithoutSlot().SortedByRange(d.Position).Take(4))
+            foreach (var p in Raid.WithoutSlot(false, true, true).SortedByRange(d.Position).Take(4))
                 CurrentBaits.Add(new(d, p, _shape));
     }
 }

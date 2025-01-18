@@ -39,9 +39,9 @@ public sealed record class AOEShapeCone(float Radius, Angle HalfAngle, Angle Dir
 public sealed record class AOEShapeCircle(float Radius, bool InvertForbiddenZone = false) : AOEShape
 {
     public override string ToString() => $"Circle: r={Radius:f3}, ifz={InvertForbiddenZone}";
-    public override bool Check(WPos position, WPos origin, Angle rotation = new()) => position.InCircle(origin, Radius);
-    public override void Draw(MiniArena arena, WPos origin, Angle rotation = new(), uint color = 0) => arena.ZoneCircle(origin, Radius, color);
-    public override void Outline(MiniArena arena, WPos origin, Angle rotation = new(), uint color = 0) => arena.AddCircle(origin, Radius, color);
+    public override bool Check(WPos position, WPos origin, Angle rotation = default) => position.InCircle(origin, Radius);
+    public override void Draw(MiniArena arena, WPos origin, Angle rotation = default, uint color = 0) => arena.ZoneCircle(origin, Radius, color);
+    public override void Outline(MiniArena arena, WPos origin, Angle rotation = default, uint color = 0) => arena.AddCircle(origin, Radius, color);
     public override Func<WPos, float> Distance(WPos origin, Angle rotation)
     {
         return !InvertForbiddenZone
@@ -53,9 +53,9 @@ public sealed record class AOEShapeCircle(float Radius, bool InvertForbiddenZone
 public sealed record class AOEShapeDonut(float InnerRadius, float OuterRadius, bool InvertForbiddenZone = false) : AOEShape
 {
     public override string ToString() => $"Donut: r={InnerRadius:f3}-{OuterRadius:f3}, ifz={InvertForbiddenZone}";
-    public override bool Check(WPos position, WPos origin, Angle rotation = new()) => position.InDonut(origin, InnerRadius, OuterRadius);
-    public override void Draw(MiniArena arena, WPos origin, Angle rotation = new(), uint color = 0) => arena.ZoneDonut(origin, InnerRadius, OuterRadius, color);
-    public override void Outline(MiniArena arena, WPos origin, Angle rotation = new(), uint color = 0)
+    public override bool Check(WPos position, WPos origin, Angle rotation = default) => position.InDonut(origin, InnerRadius, OuterRadius);
+    public override void Draw(MiniArena arena, WPos origin, Angle rotation = default, uint color = 0) => arena.ZoneDonut(origin, InnerRadius, OuterRadius, color);
+    public override void Outline(MiniArena arena, WPos origin, Angle rotation = default, uint color = 0)
     {
         arena.AddCircle(origin, InnerRadius, color);
         arena.AddCircle(origin, OuterRadius, color);

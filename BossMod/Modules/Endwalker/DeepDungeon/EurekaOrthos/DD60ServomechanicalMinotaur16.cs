@@ -31,11 +31,20 @@ class OctupleSwipe(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (_aoes.Count > 1)
-            for (var i = 1; i < Math.Clamp(_aoes.Count, 0, 3); ++i)
-                yield return _aoes[i];
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+
+        List<AOEInstance> aoes = new(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i == 0)
+                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe);
+        }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -46,13 +55,13 @@ class OctupleSwipe(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count > 0 && castEnd.Contains((AID)spell.Action.ID))
+        if (_aoes.Count != 0 && castEnd.Contains((AID)spell.Action.ID))
             _aoes.RemoveAt(0);
     }
 }
 
-class BullishSwing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BullishSwing), new AOEShapeCircle(13));
-class BullishSwipe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BullishSwipe), new AOEShapeCone(40, 45.Degrees()));
+class BullishSwing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BullishSwing), 13);
+class BullishSwipe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BullishSwipe), new AOEShapeCone(40, 45.Degrees()));
 
 class DisorientingGroan(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.DisorientingGroan), 15)
 {

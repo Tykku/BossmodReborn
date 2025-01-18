@@ -5,9 +5,18 @@ class UmbraSmash(BossModule module) : Components.Exaflare(module, new AOEShapeRe
     private static readonly HashSet<AID> casts = [AID.UmbraSmashAOE1, AID.UmbraSmashAOE2, AID.UmbraSmashAOE3, AID.UmbraSmashAOE4, AID.UmbraSmashAOEClone];
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
+        var linesCount = Lines.Count;
+        if (linesCount == 0)
+            return;
+
+        var imminentAOEs = ImminentAOEs(linesCount);
+
         // use only imminent aoes for hints
-        foreach (var (c, t, r) in ImminentAOEs())
-            hints.AddForbiddenZone(Shape, c, r, t);
+        for (var i = 0; i < imminentAOEs.Count; ++i)
+        {
+            var aoe = imminentAOEs[i];
+            hints.AddForbiddenZone(Shape, aoe.Item1, aoe.Item3, aoe.Item2);
+        }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -15,7 +24,7 @@ class UmbraSmash(BossModule module) : Components.Exaflare(module, new AOEShapeRe
         if ((AID)spell.Action.ID is AID.UmbraSmashAOE1 or AID.UmbraSmashAOE2 or AID.UmbraSmashAOE3 or AID.UmbraSmashAOE4 or AID.UmbraSmashAOEClone)
         {
             var dir = spell.Rotation.ToDirection();
-            var origin = caster.Position + 30 * dir;
+            var origin = spell.LocXZ + 30 * dir;
             Lines.Add(new() { Next = origin, Advance = 5 * dir.OrthoL(), Rotation = spell.Rotation + 90.Degrees(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 2.3f, ExplosionsLeft = 6, MaxShownExplosions = 2 });
             Lines.Add(new() { Next = origin, Advance = 5 * dir.OrthoR(), Rotation = spell.Rotation - 90.Degrees(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 2.3f, ExplosionsLeft = 6, MaxShownExplosions = 2 });
         }
@@ -26,7 +35,7 @@ class UmbraSmash(BossModule module) : Components.Exaflare(module, new AOEShapeRe
         if (casts.Contains((AID)spell.Action.ID))
         {
             ++NumCasts;
-            var origin = caster.Position + 30 * spell.Rotation.ToDirection();
+            var origin = spell.LocXZ + 30 * spell.Rotation.ToDirection();
             foreach (var l in Lines.Where(l => l.Next.AlmostEqual(origin, 1)))
             {
                 l.Next = origin + l.Advance;

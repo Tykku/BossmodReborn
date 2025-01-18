@@ -11,11 +11,11 @@ public enum AID : uint
 {
     AutoAttack = 32287, // Boss->player, no cast, single-target
 
-    AetherialLight = 32293, // Boss->self, 1.3s cast, single-target
-    AetherialLight2 = 32294, // Helper->self, 3.0s cast, range 40 60-degree cone
+    AetherialLightVisual = 32293, // Boss->self, 1.3s cast, single-target
+    AetherialLight = 32294, // Helper->self, 3.0s cast, range 40 60-degree cone
     unknown = 32236, // Boss->self, no cast, single-target, seems to be connected to Aetherial Light
-    Lightburst = 32289, // Boss->self, 3.3s cast, single-target
-    Lightburst2 = 32290, // Helper->player, 5.0s cast, single-target
+    LightburstVisual = 32289, // Boss->self, 3.3s cast, single-target
+    Lightburst = 32290, // Helper->player, 5.0s cast, single-target
     Shine = 32291, // Boss->self, 1.3s cast, single-target
     Shine2 = 32292, // Helper->location, 3.0s cast, range 5 circle
     Summon = 32288, // Boss->self, 1.3s cast, single-target, spawns bonus loot adds
@@ -24,22 +24,12 @@ public enum AID : uint
 
 class Shine(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shine2), 5);
 
-class AetherialLight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AetherialLight2), new AOEShapeCone(40, 30.Degrees()), 4)
+class AetherialLight : Components.SimpleAOEs
 {
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        return ActiveCasters.Select((c, i) => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), (NumCasts > 2 && i < 2) ? Colors.Danger : Colors.AOE));
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        base.OnCastStarted(caster, spell);
-        if ((AID)spell.Action.ID == AID.AetherialLight2)
-            ++NumCasts;
-    }
+    public AetherialLight(BossModule module) : base(module, ActionID.MakeSpell(AID.AetherialLight), new AOEShapeCone(40, 30.Degrees()), 4) { MaxDangerColor = 2; }
 }
 
-class Lightburst(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Lightburst2));
+class Lightburst(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Lightburst));
 class Summon(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Summon), "Calls bonus adds");
 
 class LampasChrysineStates : StateMachineBuilder

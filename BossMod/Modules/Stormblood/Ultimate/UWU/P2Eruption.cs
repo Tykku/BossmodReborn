@@ -4,7 +4,7 @@
 // casts are 3s long and 2s apart (overlapping)
 class P2Eruption(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EruptionAOE), 8)
 {
-    public int NumCastsStarted { get; private set; }
+    public int NumCastsStarted;
     private BitMask _baiters;
 
     public override void Update()
@@ -13,7 +13,7 @@ class P2Eruption(BossModule module) : Components.SimpleAOEs(module, ActionID.Mak
         {
             var source = ((UWU)Module).Ifrit();
             if (source != null)
-                _baiters = Raid.WithSlot().WhereActor(a => a.Class.IsDD()).SortedByRange(source.Position).TakeLast(2).Mask();
+                _baiters = Raid.WithSlot(false, true, true).WhereActor(a => a.Class.IsDD()).SortedByRange(source.Position).TakeLast(2).Mask();
         }
     }
 
@@ -32,7 +32,7 @@ class P2Eruption(BossModule module) : Components.SimpleAOEs(module, ActionID.Mak
             {
                 if (NumCastsStarted == 0)
                     _baiters.Reset();
-                var (baiterSlot, baiter) = Raid.WithSlot().ExcludedFromMask(_baiters).Closest(spell.LocXZ);
+                var (baiterSlot, baiter) = Raid.WithSlot(false, true, true).ExcludedFromMask(_baiters).Closest(spell.LocXZ);
                 if (baiter != null)
                     _baiters.Set(baiterSlot);
             }

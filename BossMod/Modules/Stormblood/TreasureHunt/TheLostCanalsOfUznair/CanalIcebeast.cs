@@ -29,10 +29,10 @@ public enum AID : uint
 }
 
 class Eyeshine(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.Eyeshine));
-class AbsoluteZero(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AbsoluteZero), new AOEShapeCone(45.5f, 45.Degrees()));
+class AbsoluteZero(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbsoluteZero), new AOEShapeCone(45.5f, 45.Degrees()));
 class Freezeover(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Freezeover), 6);
-class PlainPound(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PlainPound), new AOEShapeCircle(4.56f));
-class RaucousScritch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
+class PlainPound(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PlainPound), 4.56f);
+class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
 class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
 class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.Abharamu);
 

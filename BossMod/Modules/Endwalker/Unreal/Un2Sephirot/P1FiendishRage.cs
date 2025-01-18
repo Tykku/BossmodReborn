@@ -10,7 +10,7 @@ class P1FiendishRage(BossModule module) : Components.CastCounter(module, ActionI
     {
         if (_targets.Any())
         {
-            var numClips = Raid.WithSlot(true).IncludedInMask(_targets).InRadius(actor.Position, _range).Count();
+            var numClips = Raid.WithSlot(true, true, true).IncludedInMask(_targets).InRadius(actor.Position, _range).Count();
             if (Module.PrimaryActor.TargetID == actor.InstanceID)
             {
                 if (numClips > 0)
@@ -32,7 +32,7 @@ class P1FiendishRage(BossModule module) : Components.CastCounter(module, ActionI
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        foreach (var target in Raid.WithSlot(true).IncludedInMask(_targets))
+        foreach (var target in Raid.WithSlot(true, true, true).IncludedInMask(_targets))
             Arena.AddCircle(target.Item2.Position, _range, Colors.Danger);
     }
 

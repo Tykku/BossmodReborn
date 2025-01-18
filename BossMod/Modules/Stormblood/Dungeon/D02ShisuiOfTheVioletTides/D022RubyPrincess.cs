@@ -9,6 +9,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     Tornadogenesis = 8063, // Boss->self, no cast, range 8+R 120-degree cone
     Old = 8062, // Helper->self, no cast, range 4 circle, chest when polymorphing player
     Seduce = 8058, // Boss->self, 7.0s cast, range 50 circle
@@ -121,7 +122,7 @@ class SeduceCoriolisKick(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class AbyssalVolcano(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AbyssalVolcano), new AOEShapeCircle(7));
+class AbyssalVolcano(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbyssalVolcano), 7);
 
 class GeothermalFlatulence(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(4), ActionID.MakeSpell(AID.GeothermalFlatulenceFirst), ActionID.MakeSpell(AID.GeothermalFlatulenceRest), 3, 0.8f, 10, true, (uint)IconID.ChasingAOE)
 {

@@ -15,8 +15,8 @@ public enum AID : uint
 }
 
 class LionsBreathCleave(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.LionsBreath), new AOEShapeCone(10.24f, 60.Degrees()), activeWhileCasting: false);
-class LionsBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LionsBreath), new AOEShapeCone(10.24f, 60.Degrees()));
-class Swinge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Swinge), new AOEShapeCone(40, 30.Degrees()));
+class LionsBreath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LionsBreath), new AOEShapeCone(10.24f, 60.Degrees()));
+class Swinge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Swinge), new AOEShapeCone(40, 30.Degrees()));
 
 class D101ChudoYudoStates : StateMachineBuilder
 {

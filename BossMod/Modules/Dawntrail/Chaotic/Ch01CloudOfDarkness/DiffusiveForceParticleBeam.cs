@@ -12,7 +12,7 @@ class DiffusiveForceParticleBeam(BossModule module) : Components.UniformStackSpr
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.DiffusiveForceParticleBeam)
-            AddSpreads(Raid.WithoutSlot(true), Module.CastFinishAt(spell, 0.7f));
+            AddSpreads(Raid.WithoutSlot(true, false, true), Module.CastFinishAt(spell, 0.7f));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

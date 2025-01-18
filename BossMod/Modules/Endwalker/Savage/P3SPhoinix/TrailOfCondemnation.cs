@@ -13,7 +13,7 @@ class TrailOfCondemnation(BossModule module) : BossComponent(module)
             return;
         if (_isCenter)
         {
-            if (Raid.WithoutSlot().InRadiusExcluding(actor, _aoeRadius).Any())
+            if (Raid.WithoutSlot(false, true, true).InRadiusExcluding(actor, _aoeRadius).Any())
             {
                 hints.Add("Spread!");
             }
@@ -23,7 +23,7 @@ class TrailOfCondemnation(BossModule module) : BossComponent(module)
             // note: sparks either target all tanks & healers or all dds - so correct pairings are always dd+tank/healer
             var numStacked = 0;
             var goodPair = false;
-            foreach (var pair in Raid.WithoutSlot().InRadiusExcluding(actor, _aoeRadius))
+            foreach (var pair in Raid.WithoutSlot(false, true, true).InRadiusExcluding(actor, _aoeRadius))
             {
                 ++numStacked;
                 goodPair = (actor.Role == Role.Tank || actor.Role == Role.Healer) != (pair.Role == Role.Tank || pair.Role == Role.Healer);
@@ -42,7 +42,7 @@ class TrailOfCondemnation(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         // draw all raid members, to simplify positioning
-        foreach (var player in Raid.WithoutSlot().Exclude(pc))
+        foreach (var player in Raid.WithoutSlot(false, true, true).Exclude(pc))
         {
             var inRange = player.Position.InCircle(pc.Position, _aoeRadius);
             Arena.Actor(player, inRange ? Colors.PlayerInteresting : Colors.PlayerGeneric);

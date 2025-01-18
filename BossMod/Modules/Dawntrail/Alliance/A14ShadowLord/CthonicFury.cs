@@ -42,7 +42,7 @@ class BurningCourtMoatKeepBattlements(BossModule module) : Components.GenericAOE
 
     private static readonly AOEShape _shapeC = new AOEShapeCircle(8);
     private static readonly AOEShape _shapeM = new AOEShapeDonut(5, 15);
-    private static readonly AOEShape _shapeK = new AOEShapeRect(11.5f, 11.5f, 11.5f);
+    private static readonly AOEShape _shapeK = new AOEShapeRect(23, 11.5f);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs;
 
@@ -50,14 +50,25 @@ class BurningCourtMoatKeepBattlements(BossModule module) : Components.GenericAOE
     {
         var shape = ShapeForAction(spell.Action);
         if (shape != null)
-            AOEs.Add(new(shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            AOEs.Add(new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         var shape = ShapeForAction(spell.Action);
         if (shape != null)
-            AOEs.RemoveAll(aoe => aoe.Shape == shape && aoe.Origin == caster.Position);
+        {
+            ++NumCasts;
+            for (var i = 0; i < AOEs.Count; ++i)
+            {
+                var aoe = AOEs[i];
+                if (aoe.ActorID == caster.InstanceID)
+                {
+                    AOEs.Remove(aoe);
+                    break;
+                }
+            }
+        }
     }
 
     private static AOEShape? ShapeForAction(ActionID aid) => (AID)aid.ID switch

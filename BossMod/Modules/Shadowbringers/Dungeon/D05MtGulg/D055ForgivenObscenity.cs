@@ -6,7 +6,6 @@ public enum OID : uint
     BossClones = 0x27CF, //R=5.0
     Orbs = 0x27D0, //R=1.0
     Rings = 0x1EAB62,
-    Helper2 = 0x2E8, //R=0.5
     Helper = 0x233C
 }
 
@@ -40,7 +39,7 @@ public enum AID : uint
 
 class Orbs(BossModule module) : Components.GenericAOEs(module, default, "GTFO from voidzone!")
 {
-    private readonly List<Actor> _orbs = [];
+    private readonly List<Actor> _orbs = new(6);
     private const int Radius = 3;
     private static readonly AOEShapeCapsule capsule = new(Radius, default);
     private static readonly AOEShapeCircle circle = new(Radius);
@@ -96,7 +95,7 @@ class Orbs(BossModule module) : Components.GenericAOEs(module, default, "GTFO fr
 class GoldChaser(BossModule module) : Components.GenericAOEs(module)
 {
     private DateTime _activation;
-    private readonly List<Actor> _casters = [];
+    private readonly List<Actor> _casters = new(6);
     private static readonly AOEShapeRect rect = new(100, 2.53f, 100); // halfwidth is 2.5, but +0.03 safety margin because ring position doesn't seem to be exactly caster position
     private static readonly WPos[] positionsSet1 = [new(-227.5f, 253), new(-232.5f, 251.5f)];
     private static readonly WPos[] positionsSet2 = [new(-252.5f, 253), new(-247.5f, 251.5f)];
@@ -209,14 +208,15 @@ class GoldChaser(BossModule module) : Components.GenericAOEs(module)
 class SacramentSforzando(BossModule module) : Components.SingleTargetCastDelay(module, ActionID.MakeSpell(AID.SacramentSforzando), ActionID.MakeSpell(AID.SacramentSforzando2), 0.8f);
 class OrisonFortissimo(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.OrisonFortissimo), ActionID.MakeSpell(AID.OrisonFortissimo2), 0.8f);
 
-class DivineDiminuendoCircle(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(8));
+abstract class DivineDiminuendoCircle(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 8);
 class DivineDiminuendoCircle1(BossModule module) : DivineDiminuendoCircle(module, AID.DivineDiminuendoCircle1);
 class DivineDiminuendoCircle2(BossModule module) : DivineDiminuendoCircle(module, AID.DivineDiminuendoCircle2);
 class DivineDiminuendoCircle3(BossModule module) : DivineDiminuendoCircle(module, AID.DivineDiminuendoCircle3);
-class DivineDiminuendoDonut1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DivineDiminuendoDonut1), new AOEShapeDonut(10, 16));
-class DivineDiminuendoDonut2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DivineDiminuendoDonut2), new AOEShapeDonut(18, 32));
 
-class ConvictionMarcato(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 2.5f));
+class DivineDiminuendoDonut1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DivineDiminuendoDonut1), new AOEShapeDonut(10, 16));
+class DivineDiminuendoDonut2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DivineDiminuendoDonut2), new AOEShapeDonut(18, 32));
+
+abstract class ConvictionMarcato(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 2.5f));
 class ConvictionMarcato1(BossModule module) : ConvictionMarcato(module, AID.ConvictionMarcato1);
 class ConvictionMarcato2(BossModule module) : ConvictionMarcato(module, AID.ConvictionMarcato2);
 class ConvictionMarcato3(BossModule module) : ConvictionMarcato(module, AID.ConvictionMarcato3);
@@ -281,6 +281,6 @@ public class D055ForgivenObscenity(WorldState ws, Actor primary) : BossModule(ws
     public static readonly ArenaBounds ArenaCircle = new ArenaBoundsCircle(15);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, Colors.Enemy, true);
+        Arena.Actor(PrimaryActor, allowDeadAndUntargetable: true);
     }
 }

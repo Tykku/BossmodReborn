@@ -18,9 +18,9 @@ public enum AID : uint
 }
 
 class SwoopingFrenzy(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SwoopingFrenzy), 12);
-class Feathercut(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Feathercut), new AOEShapeRect(10, 2.5f));
-class FrigidPulse(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FrigidPulse), new AOEShapeDonut(12, 60));
-class FervidPulse(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FervidPulse), new AOEShapeCross(50, 7));
+class Feathercut(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Feathercut), new AOEShapeRect(10, 2.5f));
+class FrigidPulse(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrigidPulse), new AOEShapeDonut(12, 60));
+class FervidPulse(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FervidPulse), new AOEShapeCross(50, 7));
 class EyeOfTheFierce(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EyeOfTheFierce));
 
 class FlightOfTheGriffinStates : StateMachineBuilder

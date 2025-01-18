@@ -149,10 +149,10 @@ class PomPraise(BossModule module) : BossComponent(module)
     }
 }
 
-class HundredKuponzeSwipe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HundredKuponzeSwipe), new AOEShapeCone(20.9f, 45.Degrees()));
-class PomFlare(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PomFlare), new AOEShapeCircle(20.9f));
+class HundredKuponzeSwipe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HundredKuponzeSwipe), new AOEShapeCone(20.9f, 45.Degrees()));
+class PomFlare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PomFlare), 20.9f);
 class PomHoly(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PomHoly));
-class SpinningMogshield(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpinningMogshield), new AOEShapeCircle(6.9f));
+class SpinningMogshield(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinningMogshield), 6.9f);
 
 class D131ChieftainMoglinStates : StateMachineBuilder
 {

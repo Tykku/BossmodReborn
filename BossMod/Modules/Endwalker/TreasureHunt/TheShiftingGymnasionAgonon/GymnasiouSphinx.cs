@@ -42,15 +42,15 @@ public enum AID : uint
 }
 
 class Scratch(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Scratch));
-class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeDonut(3, 12));
-class FrigidPulse(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FrigidPulse), new AOEShapeDonut(12, 60));
-class FervidPulse(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FervidPulse), new AOEShapeCross(50, 7));
+class Explosion(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeDonut(3, 12));
+class FrigidPulse(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrigidPulse), new AOEShapeDonut(12, 60));
+class FervidPulse(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FervidPulse), new AOEShapeCross(50, 7));
 class MoltingPlumage(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MoltingPlumage));
-class AlpineDraft(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AlpineDraft), new AOEShapeRect(45, 2.5f));
+class AlpineDraft(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AlpineDraft), new AOEShapeRect(45, 2.5f));
 class FeatherRain(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FeatherRain), 6);
 class AeroII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AeroII), 4);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

@@ -39,7 +39,7 @@ public enum AID : uint
 }
 
 class Innocence(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Innocence), 5);
-class HydroPush(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HydroPush), new AOEShapeRect(49.4f, 22, 5));
+class HydroPush(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HydroPush), new AOEShapeRect(49.4f, 22));
 
 class BloodyPuddle(BossModule module) : Components.GenericAOEs(module)
 {
@@ -71,18 +71,18 @@ class BloodyPuddle(BossModule module) : Components.GenericAOEs(module)
 
 class Torpedo(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.Torpedo));
 class RisingSeas(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RisingSeas));
-class HydroPushKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.HydroPush), 20, shape: new AOEShapeRect(49.4f, 22, 5), kind: Kind.DirForward, stopAtWall: true);
+class HydroPushKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.HydroPush), 20, shape: new AOEShapeRect(44.4f, 22, 5), kind: Kind.DirForward, stopAtWall: true);
 
 class RisingSeasKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.RisingSeas), 20, stopAtWall: true)
 {
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => Module.FindComponent<BloodyPuddle>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false;
 }
 
-class RaucousScritch(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
+class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
 class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
 class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.AltarMatanga);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

@@ -96,13 +96,16 @@ public sealed class PartyState
         return -1;
     }
 
-    public IEnumerable<WorldState.Operation> CompareToInitial()
+    public List<WorldState.Operation> CompareToInitial()
     {
-        for (var i = 0; i < Members.Length; ++i)
+        var length = Members.Length;
+        List<WorldState.Operation> ops = new(length + 1);
+        for (var i = 0; i < length; ++i)
             if (Members[i].IsValid())
-                yield return new OpModify(i, Members[i]);
+                ops.Add(new OpModify(i, Members[i]));
         if (LimitBreakCur != 0 || LimitBreakMax != 10000)
-            yield return new OpLimitBreakChange(LimitBreakCur, LimitBreakMax);
+            ops.Add(new OpLimitBreakChange(LimitBreakCur, LimitBreakMax));
+        return ops;
     }
 
     // implementation of operations

@@ -69,7 +69,7 @@ public enum AID : uint
 
 class Stonecarver(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(2);
     private static readonly AOEShapeRect rect = new(40, 10);
     private static readonly HashSet<AID> aids = [AID.Stonecarver1, AID.Stonecarver2, AID.Stonecarver3, AID.Stonecarver4];
     private static readonly WDir offset = new(0, 20);
@@ -197,7 +197,7 @@ class Impact3(BossModule module) : Impact(module, AID.Impact3, 20)
     }
 }
 
-abstract class Crush(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(10));
+abstract class Crush(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10);
 class ColossalImpact(BossModule module) : Crush(module, AID.ColossalImpact);
 class Skullcrush1(BossModule module) : Crush(module, AID.Skullcrush1);
 class Skullcrush2(BossModule module) : Crush(module, AID.Skullcrush2);

@@ -28,10 +28,10 @@ public class Cleave(BossModule module, ActionID aid, AOEShape shape, uint enemyO
             if (actor != target)
                 hints.AddForbiddenZone(Shape, origin.Position, angle, NextExpected);
             else
-                AddTargetSpecificHints(actor, origin, angle, hints);
+                AddTargetSpecificHints(actor, origin, hints);
     }
 
-    private void AddTargetSpecificHints(Actor actor, Actor source, Angle angle, AIHints hints)
+    private void AddTargetSpecificHints(Actor actor, Actor source, AIHints hints)
     {
         foreach (var a in Raid.WithoutSlot().Exclude(actor))
             switch (Shape)

@@ -60,7 +60,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
 
         public void Show()
         {
-            Analysis ??= new(Replays.Where(r => r.Replay.IsCompletedSuccessfully && r.Replay.Result.Ops.Count > 0).Select(r => r.Replay.Result).ToList());
+            Analysis ??= new([.. Replays.Where(r => r.Replay.IsCompletedSuccessfully && r.Replay.Result.Ops.Count > 0).Select(r => r.Replay.Result)]);
             Window ??= new($"Multiple logs: {Identifier}", Analysis.Draw, false, new(1200, 800));
             Window.IsOpen = true;
         }
@@ -136,8 +136,10 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
     private void DrawEntries()
     {
         using var table = ImRaii.Table("entries", 3);
+
         if (!table)
             return;
+        var dispose = false;
         ImGui.TableSetupColumn("op", ImGuiTableColumnFlags.WidthFixed, 100);
         ImGui.TableSetupColumn("unload", ImGuiTableColumnFlags.WidthFixed, 50);
 
@@ -180,18 +182,21 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
                 e.Dispose();
                 foreach (var a in _analysisEntries.Where(a => !a.Disposed && a.Replays.Contains(e)))
                     a.Dispose();
+                dispose = true;
             }
 
             ImGui.TableNextColumn();
             ImGui.Checkbox($"{e.Path}", ref e.Selected);
         }
+        if (dispose) //  replays somehow don't get cleaned up correctly without this?
+            Plugin.GarbageCollection();
     }
 
     private void DrawEntriesOperations()
     {
         if (_replayEntries.Count == 0)
             return;
-
+        var dispose = false;
         var numSelected = _replayEntries.Count(e => e.Selected);
         var shouldSelectAll = _replayEntries.Count == 0 || numSelected < _replayEntries.Count;
         if (ImGui.Button(shouldSelectAll ? "Select all" : "Unselect all", new(80, 0)))
@@ -204,7 +209,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
             ImGui.SameLine();
             if (ImGui.Button("Analyze selected"))
             {
-                _analysisEntries.Add(new((++_nextAnalysisId).ToString(), _replayEntries.Where(e => e.Selected).ToList()));
+                _analysisEntries.Add(new((++_nextAnalysisId).ToString(), [.. _replayEntries.Where(e => e.Selected)]));
             }
             ImGui.SameLine();
             if (ImGui.Button("Unload selected"))
@@ -222,7 +227,10 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
                 e.Dispose();
             foreach (var e in _analysisEntries)
                 e.Dispose();
+            dispose = true;
         }
+        if (dispose) //  replays somehow don't get cleaned up correctly without this?
+            Plugin.GarbageCollection();
     }
 
     private void DrawNewEntry()

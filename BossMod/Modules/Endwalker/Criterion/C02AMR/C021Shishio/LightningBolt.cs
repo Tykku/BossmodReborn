@@ -28,7 +28,7 @@ class CloudToCloud(BossModule module) : Components.GenericAOEs(module)
     {
         var shape = ShapeForAction(spell.Action);
         if (shape != null)
-            _aoes.Add(new(shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.Add(new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)

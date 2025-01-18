@@ -3,7 +3,7 @@
 class IncendiaryBarrage(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IncendiaryBarrage), 27);
 class StandardSurfaceMissile1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StandardSurfaceMissile1), 10);
 class StandardSurfaceMissile2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StandardSurfaceMissile2), 10);
-class LethalRevolution(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LethalRevolution), new AOEShapeCircle(15));
+class LethalRevolution(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LethalRevolution), 15);
 
 class GuidedMissile(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GuidedMissile), 4);
 class IncendiaryBombing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IncendiaryBombing), 8);

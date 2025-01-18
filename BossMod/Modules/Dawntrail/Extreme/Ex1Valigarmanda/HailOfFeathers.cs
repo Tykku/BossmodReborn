@@ -5,12 +5,23 @@ class HailOfFeathers(BossModule module) : Components.GenericAOEs(module)
     private readonly List<AOEInstance> _aoes = [];
 
     private static readonly AOEShapeCircle _shape = new(20); // TODO: verify falloff
+    private static readonly HashSet<AID> casts = [AID.HailOfFeathersAOE1, AID.HailOfFeathersAOE2, AID.HailOfFeathersAOE3, AID.HailOfFeathersAOE4, AID.HailOfFeathersAOE5, AID.HailOfFeathersAOE6];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Skip(NumCasts).Take(2);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
+            aoes.Add(_aoes[i]);
+        return aoes;
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.HailOfFeathersAOE1 or AID.HailOfFeathersAOE2 or AID.HailOfFeathersAOE3 or AID.HailOfFeathersAOE4 or AID.HailOfFeathersAOE5 or AID.HailOfFeathersAOE6)
+        if (casts.Contains((AID)spell.Action.ID))
         {
             _aoes.Add(new(_shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
             _aoes.SortBy(x => x.Activation);
@@ -19,8 +30,9 @@ class HailOfFeathers(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.HailOfFeathersAOE1 or AID.HailOfFeathersAOE2 or AID.HailOfFeathersAOE3 or AID.HailOfFeathersAOE4 or AID.HailOfFeathersAOE5 or AID.HailOfFeathersAOE6)
+        if (_aoes.Count != 0 && casts.Contains((AID)spell.Action.ID))
         {
+            _aoes.RemoveAt(0);
             ++NumCasts;
         }
     }
@@ -40,7 +52,7 @@ class BlightedBolt : Components.GenericAOEs
         var platform = module.FindComponent<ThunderPlatform>();
         if (platform != null)
         {
-            foreach (var (i, _) in module.Raid.WithSlot(true))
+            foreach (var (i, _) in module.Raid.WithSlot(true, true, true))
             {
                 platform.RequireHint[i] = true;
                 platform.RequireLevitating[i] = false;

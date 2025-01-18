@@ -6,23 +6,24 @@ public enum OID : uint
     WhiteBavarois = 0x41E, // spawn during fight
     GreenBavarois = 0x41F, // spawn during fight
     PurpleBavarois = 0x421, // spawn during fight
-    BlueBavarois = 0x422, // spawn during fight
+    BlueBavarois = 0x422 // spawn during fight
 }
 
 public enum AID : uint
 {
     AutoAttack = 872, // Boss/WhiteBavarois/GreenBavarois/PurpleBavarois/BlueBavarois->player, no cast, single-target
+
     AmorphicFlail = 943, // Boss/WhiteBavarois/GreenBavarois/PurpleBavarois/BlueBavarois->self, no cast, range 5+R ?-degree cone
     Fire = 1394, // Boss->player, 3.0s cast, single-target
     Blizzard = 1395, // WhiteBavarois->player, 1.0s cast, single-target
     Aero = 1397, // GreenBavarois->player, 1.0s cast, single-target
     Thunder = 1396, // PurpleBavarois->player, 1.0s cast, single-target
-    Water = 971, // BlueBavarois->player, 1.0s cast, single-target
+    Water = 971 // BlueBavarois->player, 1.0s cast, single-target
 }
 
 public enum IconID : uint
 {
-    AmorphicFlail = 1, // player
+    AmorphicFlail = 1 // player
 }
 
 class Fire(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Fire), "Single-target damage");

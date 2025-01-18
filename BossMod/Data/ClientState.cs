@@ -75,45 +75,94 @@ public sealed class ClientState
     }
     public unsafe T GetGauge<T>() where T : unmanaged => GetGauge<T>(GaugePayload);
 
-    public IEnumerable<WorldState.Operation> CompareToInitial()
+    public List<WorldState.Operation> CompareToInitial()
     {
+        List<WorldState.Operation> ops = new(12);
         if (CountdownRemaining != null)
-            yield return new OpCountdownChange(CountdownRemaining);
+            ops.Add(new OpCountdownChange(CountdownRemaining));
 
-        if (AnimationLock > 0)
-            yield return new OpAnimationLockChange(AnimationLock);
+        if (AnimationLock != 0)
+            ops.Add(new OpAnimationLockChange(AnimationLock));
 
-        if (ComboState.Remaining > 0)
-            yield return new OpComboChange(ComboState);
+        if (ComboState.Remaining != 0)
+            ops.Add(new OpComboChange(ComboState));
 
         if (PlayerStats != default)
-            yield return new OpPlayerStatsChange(PlayerStats);
+            ops.Add(new OpPlayerStatsChange(PlayerStats));
 
-        var cooldowns = Cooldowns.Select((v, i) => (i, v)).Where(iv => iv.v.Total > 0).ToList();
-        if (cooldowns.Count > 0)
-            yield return new OpCooldown(false, cooldowns);
+        var cdlen = Cooldowns.Length;
+        if (cdlen != 0)
+        {
+            var cooldowns = new List<(int, Cooldown)>(cdlen);
 
+            for (var i = 0; i < cdlen; ++i)
+            {
+                var cds = Cooldowns[i];
+                if (cds.Total != 0)
+                    cooldowns.Add((i, cds));
+            }
+            if (cooldowns.Count != 0)
+                ops.Add(new OpCooldown(false, cooldowns));
+        }
         if (DutyActions.Any(a => a != default))
-            yield return new OpDutyActionsChange(DutyActions[0], DutyActions[1]);
+            ops.Add(new OpDutyActionsChange(DutyActions[0], DutyActions[1]));
 
-        var bozjaHolster = BozjaHolster.Select((v, i) => ((BozjaHolsterID)i, v)).Where(iv => iv.v > 0).ToList();
-        if (BozjaHolster.Any(count => count != 0))
-            yield return new OpBozjaHolsterChange(bozjaHolster);
+        var holsterlen = BozjaHolster.Length;
+        if (holsterlen != 0)
+        {
+            var bozjaHolster = new List<(BozjaHolsterID, byte)>(holsterlen);
+            for (var i = 0; i < holsterlen; ++i)
+            {
+                var holster = BozjaHolster[i];
+                if (holster != 0)
+                    bozjaHolster.Add(((BozjaHolsterID)i, holster));
+            }
+            var hasNonZeroHolster = false;
+            for (var i = 0; i < holsterlen; ++i)
+            {
+                if (BozjaHolster[i] != 0)
+                {
+                    hasNonZeroHolster = true;
+                    break;
+                }
+            }
+            if (hasNonZeroHolster)
+                ops.Add(new OpBozjaHolsterChange(bozjaHolster));
+        }
 
-        if (BlueMageSpells.Any(a => a != 0))
-            yield return new OpBlueMageSpellsChange(BlueMageSpells);
+        var hasNonZeroBMSpell = false;
+        for (var i = 0; i < BlueMageSpells.Length; ++i)
+        {
+            if (BlueMageSpells[i] != 0)
+            {
+                hasNonZeroBMSpell = true;
+                break;
+            }
+        }
+        if (hasNonZeroBMSpell)
+            ops.Add(new OpBlueMageSpellsChange(BlueMageSpells));
 
-        if (ClassJobLevels.Any(a => a != 0))
-            yield return new OpClassJobLevelsChange(ClassJobLevels);
+        var hasNonZeroLevels = false;
+        for (var i = 0; i < ClassJobLevels.Length; ++i)
+        {
+            if (ClassJobLevels[i] != 0)
+            {
+                hasNonZeroLevels = true;
+                break;
+            }
+        }
+        if (hasNonZeroLevels)
+            ops.Add(new OpClassJobLevelsChange(ClassJobLevels));
 
         if (ActiveFate.ID != 0)
-            yield return new OpActiveFateChange(ActiveFate);
+            ops.Add(new OpActiveFateChange(ActiveFate));
 
         if (ActivePet.InstanceID != 0)
-            yield return new OpActivePetChange(ActivePet);
+            ops.Add(new OpActivePetChange(ActivePet));
 
         if (FocusTargetId != 0)
-            yield return new OpFocusTargetChange(FocusTargetId);
+            ops.Add(new OpFocusTargetChange(FocusTargetId));
+        return ops;
     }
 
     public void Tick(float dt)
@@ -223,17 +272,25 @@ public sealed class ClientState
         {
             if (Reset)
                 Array.Fill(ws.Client.Cooldowns, default);
-            foreach (var cd in Cooldowns)
+
+            for (var i = 0; i < Cooldowns.Count; ++i)
+            {
+                var cd = Cooldowns[i];
                 ws.Client.Cooldowns[cd.group] = cd.value;
+            }
             ws.Client.CooldownsChanged.Fire(this);
         }
         public override void Write(ReplayRecorder.Output output)
         {
+            var count = Cooldowns.Count;
             output.EmitFourCC("CLCD"u8);
             output.Emit(Reset);
-            output.Emit((byte)Cooldowns.Count);
-            foreach (var e in Cooldowns)
-                output.Emit((byte)e.group).Emit(e.value.Elapsed).Emit(e.value.Total);
+            output.Emit((byte)count);
+            for (var i = 0; i < count; ++i)
+            {
+                var cd = Cooldowns[i];
+                output.Emit((byte)cd.group).Emit(cd.value.Elapsed).Emit(cd.value.Total);
+            }
         }
     }
 
@@ -255,16 +312,23 @@ public sealed class ClientState
         protected override void Exec(WorldState ws)
         {
             Array.Fill(ws.Client.BozjaHolster, (byte)0);
-            foreach (var e in Contents)
+            for (var i = 0; i < Contents.Count; ++i)
+            {
+                var e = Contents[i];
                 ws.Client.BozjaHolster[(int)e.entry] = e.count;
+            }
             ws.Client.BozjaHolsterChanged.Fire(this);
         }
         public override void Write(ReplayRecorder.Output output)
         {
+            var count = Contents.Count;
             output.EmitFourCC("CLBH"u8);
-            output.Emit((byte)Contents.Count);
-            foreach (var e in Contents)
+            output.Emit((byte)count);
+            for (var i = 0; i < count; ++i)
+            {
+                var e = Contents[i];
                 output.Emit((byte)e.entry).Emit(e.count);
+            }
         }
     }
 
@@ -280,10 +344,13 @@ public sealed class ClientState
         }
         public override void Write(ReplayRecorder.Output output)
         {
+            var len = Values.Length;
             output.EmitFourCC("CBLU"u8);
             output.Emit((byte)Values.Length);
-            foreach (var e in Values)
-                output.Emit(e);
+            for (var i = 0; i < len; ++i)
+            {
+                output.Emit(Values[i]);
+            }
         }
     }
 
@@ -301,10 +368,13 @@ public sealed class ClientState
         }
         public override void Write(ReplayRecorder.Output output)
         {
+            var len = Values.Length;
             output.EmitFourCC("CLVL"u8);
-            output.Emit((byte)Values.Length);
-            foreach (var e in Values)
-                output.Emit(e);
+            output.Emit((byte)len);
+            for (var i = 0; i < len; ++i)
+            {
+                output.Emit(Values[i]);
+            }
         }
     }
 

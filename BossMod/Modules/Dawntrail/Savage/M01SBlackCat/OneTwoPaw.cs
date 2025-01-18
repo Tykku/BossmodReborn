@@ -12,16 +12,18 @@ class OneTwoPawBoss(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _aoes.Count;
         if (count == 0)
-            yield break;
+            return [];
+        List<AOEInstance> aoes = new(count);
         var pounce = _pounce != null && _pounce.AOEs.Count != 0;
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
             if (i == 0)
-                yield return count > 1 && !pounce ? aoe with { Color = Colors.Danger } : aoe;
+                aoes.Add(count > 1 && !pounce ? aoe with { Color = Colors.Danger } : aoe);
             else if (i == 1 && !pounce)
-                yield return aoe with { Risky = false };
+                aoes.Add(aoe with { Risky = false });
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -55,9 +57,11 @@ class OneTwoPawShade(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _aoes.Count;
         if (count == 0)
-            yield break;
+            return [];
+        List<AOEInstance> aoes = new(count);
         for (var i = 0; i < (count > 2 ? 2 : count); ++i)
-            yield return _aoes[i];
+            aoes.Add(_aoes[i]);
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -109,15 +113,17 @@ class LeapingOneTwoPaw(BossModule module) : Components.GenericAOEs(module)
     {
         var count = AOEs.Count;
         if (count == 0)
-            yield break;
+            return [];
+        List<AOEInstance> aoes = new(count);
         for (var i = 0; i < count; ++i)
         {
             var aoe = AOEs[i];
             if (i == 0)
-                yield return count != 1 ? aoe with { Color = Colors.Danger } : aoe;
-            else if (i == 1)
-                yield return aoe with { Risky = false };
+                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe with { Risky = false });
         }
+        return aoes;
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)

@@ -16,8 +16,8 @@ public enum AID : uint
 }
 
 class Swoop(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.Swoop), 2.5f);
-class FloaterTurn(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FloaterTurn), new AOEShapeDonut(4, 10));
-class SpinningAxle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpinningAxle), new AOEShapeCircle(6));
+class FloaterTurn(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FloaterTurn), new AOEShapeDonut(4, 10));
+class SpinningAxle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinningAxle), 6);
 
 class D040VanguardSentryR7States : StateMachineBuilder
 {

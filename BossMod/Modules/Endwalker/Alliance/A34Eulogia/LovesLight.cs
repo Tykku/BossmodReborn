@@ -7,17 +7,27 @@ class LovesLight(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (AOEs.Count > 0)
-            yield return AOEs[0] with { Color = Colors.Danger };
-        if (AOEs.Count > 1)
-            yield return AOEs[1];
+        var count = AOEs.Count;
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
+        {
+            var aoe = AOEs[i];
+            if (i == 0)
+                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+            else
+                aoes.Add(aoe);
+        }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID is AID.FirstBlush1 or AID.FirstBlush2 or AID.FirstBlush3 or AID.FirstBlush4)
         {
-            AOEs.Add(new(_shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            AOEs.Add(new(_shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
             AOEs.SortBy(x => x.Activation);
         }
     }

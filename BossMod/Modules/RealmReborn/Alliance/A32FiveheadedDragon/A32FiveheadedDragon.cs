@@ -1,6 +1,6 @@
 ﻿namespace BossMod.RealmReborn.Alliance.A32FiveheadedDragon;
 
-class WhiteBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WhiteBreath), new AOEShapeCone(30, 60.Degrees()));
+class WhiteBreath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WhiteBreath), new AOEShapeCone(30, 60.Degrees()));
 class BreathOfFire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BreathOfFire), 6);
 class BreathOfLight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BreathOfLight), 6);
 class BreathOfPoison(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BreathOfPoison), 6);

@@ -53,7 +53,7 @@ class WreathOfThorns4(BossModule module) : BossComponent(module)
             if (_playerIcons[slot] == IconID.AkanthaiWater)
             {
                 hints.Add("Break tether!");
-                if (Raid.WithoutSlot().InRadiusExcluding(actor, _waterExplosionRange).Any())
+                if (Raid.WithoutSlot(false, true, true).InRadiusExcluding(actor, _waterExplosionRange).Any())
                 {
                     hints.Add("GTFO from others!");
                 }
@@ -102,7 +102,7 @@ class WreathOfThorns4(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         // draw other players
-        foreach ((var slot, var player) in Raid.WithSlot().Exclude(pc))
+        foreach ((var slot, var player) in Raid.WithSlot(false, true, true).Exclude(pc))
         {
             var icon = _playerIcons[slot];
             var nextBreaking = _doneTowers < 4 ? icon == IconID.AkanthaiWater : (icon == IconID.AkanthaiDark && NextAOE()?.Tether.Target == player.InstanceID);

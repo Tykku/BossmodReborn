@@ -4,22 +4,23 @@ public enum OID : uint
 {
     Boss = 0x16AC, // R4.800, x1
     FireVoidPuddle = 0x1E8D9B, // R0.500, x0 (spawn during fight), EventObj type
-    IceVoidPuddle = 0x1E8D9C, // R0.500, x0 (spawn during fight), EventObj type
+    IceVoidPuddle = 0x1E8D9C // R0.500, x0 (spawn during fight), EventObj type
 }
 
 public enum AID : uint
 {
     AutoAttack = 6501, // Boss->player, no cast, range 6+R ?-degree cone
+
     Dissever = 6426, // Boss->self, no cast, range 6+R 90-degree cone
     BallOfFire = 6427, // Boss->location, no cast, range 6 circle
     BallOfIce = 6428, // Boss->location, no cast, range 6 circle
-    FearItself = 6429, // Boss->self, 6.0s cast, range 54+R circle
+    FearItself = 6429 // Boss->self, 6.0s cast, range 54+R circle
 }
 
 class Dissever(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Dissever), new AOEShapeCone(10.8f, 45.Degrees()), activeWhileCasting: false);
 class BallofFire(BossModule module) : Components.PersistentVoidzone(module, 6, m => m.Enemies(OID.FireVoidPuddle).Where(z => z.EventState != 7));
 class BallofIce(BossModule module) : Components.PersistentVoidzone(module, 6, m => m.Enemies(OID.IceVoidPuddle).Where(z => z.EventState != 7));
-class FearItself(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FearItself), new AOEShapeDonut(5, 50));
+class FearItself(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FearItself), new AOEShapeDonut(5, 50));
 
 class Hints(BossModule module) : BossComponent(module)
 {

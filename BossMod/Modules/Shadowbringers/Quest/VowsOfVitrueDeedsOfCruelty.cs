@@ -4,10 +4,10 @@ public enum OID : uint
 {
     Boss = 0x2C85, // R6.000, x1
     TerminusEstVisual = 0x2C98, // R1.000, x3
-    BossHelper = 0x233C, // R0.500, x15, 523 type
     SigniferPraetorianus = 0x2C9A, // R0.500, x0 (spawn during fight), the adds on the catwalk that just rain down Fire II
     LembusPraetorianus = 0x2C99, // R2.400, x0 (spawn during fight), two large magitek ships
     MagitekBit = 0x2C9C, // R0.600, x0 (spawn during fight)
+    BossHelper = 0x233C
 }
 
 public enum AID : uint
@@ -33,9 +33,11 @@ public enum AID : uint
     SelfDetonate = 18792, // MagitekBit->self, 7.0s cast, range 40+R circle, enrage if bits are not killed before cast
 }
 
-class MagitekRayRightArm(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRayRightArm), new AOEShapeRect(45, 4));
-class MagitekRayLeftArm(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRayLeftArm), new AOEShapeRect(45, 4));
-class AngrySalamander(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AngrySalamander), new AOEShapeRect(40, 3));
+abstract class MagitekRay(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(45, 4));
+class MagitekRayRightArm(BossModule module) : MagitekRay(module, AID.MagitekRayRightArm);
+class MagitekRayLeftArm(BossModule module) : MagitekRay(module, AID.MagitekRayLeftArm);
+
+class AngrySalamander(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AngrySalamander), new AOEShapeRect(40, 3));
 class TerminusEstRects(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
@@ -48,9 +50,9 @@ class TerminusEstRects(BossModule module) : Components.GenericAOEs(module)
         {
             _aoes.AddRange(
             [
-                new(_shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)),
-                new(_shape, caster.Position, spell.Rotation - 90.Degrees(), Module.CastFinishAt(spell)),
-                new(_shape, caster.Position, spell.Rotation + 90.Degrees(), Module.CastFinishAt(spell))
+                new(_shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)),
+                new(_shape, spell.LocXZ, spell.Rotation - 90.Degrees(), Module.CastFinishAt(spell)),
+                new(_shape, spell.LocXZ, spell.Rotation + 90.Degrees(), Module.CastFinishAt(spell))
             ]);
         }
     }
@@ -64,12 +66,12 @@ class TerminusEstRects(BossModule module) : Components.GenericAOEs(module)
         }
     }
 }
-class TerminusEstCircle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TerminusEstLocationHelper), new AOEShapeCircle(3));
+class TerminusEstCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TerminusEstLocationHelper), 3);
 class FireII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireII), 5);
 class GarleanFire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GarleanFire), 5);
-class MetalCutter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MetalCutter), new AOEShapeCone(30, 10.Degrees()));
-class MagitekRayBits(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekRayBit), new AOEShapeRect(50, 1));
-class AtomicRay(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AtomicRay), new AOEShapeCircle(10));
+class MetalCutter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MetalCutter), new AOEShapeCone(30, 10.Degrees()));
+class MagitekRayBits(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekRayBit), new AOEShapeRect(50, 1));
+class AtomicRay(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AtomicRay), 10);
 class SelfDetonate(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.SelfDetonate), "Enrage if bits are not killed before cast");
 class VowsOfVirtueDeedsOfCrueltyStates : StateMachineBuilder
 {

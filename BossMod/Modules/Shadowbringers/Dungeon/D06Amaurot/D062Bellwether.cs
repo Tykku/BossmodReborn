@@ -31,7 +31,7 @@ public enum AID : uint
 }
 
 class ShrillShriek(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ShrillShriek));
-class Aetherspike(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Aetherspike), new AOEShapeRect(40, 4));
+class Aetherspike(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Aetherspike), new AOEShapeRect(40, 4));
 class Comet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Comet), 4);
 class SicklyInferno(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SicklyInferno), 5);
 class Burst(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.BurstEnrage), "Enrage!", true);

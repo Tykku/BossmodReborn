@@ -44,7 +44,8 @@ class Caterwaul(BossModule module) : Components.RaidwideCast(module, ActionID.Ma
 class Stance(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<Angle> _pendingCleaves = [];
-
+    private static readonly HashSet<AID> castEnds = [AID.LongLickForward, AID.LongLickBackward, AID.LongLickLeftward, AID.LongLickRightward, AID.LongLickSecond,
+    AID.HindWhipForward, AID.HindWhipBackward, AID.HindWhipLeftward, AID.HindWhipRightward, AID.HindWhipSecond];
     private static readonly AOEShapeCone _shape = new(40, 90.Degrees());
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
@@ -86,12 +87,8 @@ class Stance(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (caster == Module.PrimaryActor && _pendingCleaves.Count > 0 &&
-            (AID)spell.Action.ID is AID.LongLickForward or AID.LongLickBackward or AID.LongLickLeftward or AID.LongLickRightward or AID.LongLickSecond
-                                 or AID.HindWhipForward or AID.HindWhipBackward or AID.HindWhipLeftward or AID.HindWhipRightward or AID.HindWhipSecond)
-        {
+        if (_pendingCleaves.Count != 0 && castEnds.Contains((AID)spell.Action.ID))
             _pendingCleaves.RemoveAt(0);
-        }
     }
 
     private void InitCleaves(Angle reference, bool inverted)

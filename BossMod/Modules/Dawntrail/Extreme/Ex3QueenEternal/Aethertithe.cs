@@ -40,7 +40,7 @@ class Retribute : Components.GenericWildCharge
     public Retribute(BossModule module) : base(module, 4, ActionID.MakeSpell(AID.RetributeAOE), 60)
     {
         Source = module.PrimaryActor;
-        foreach (var (i, p) in module.Raid.WithSlot(true))
+        foreach (var (i, p) in module.Raid.WithSlot(true, true, true))
             PlayerRoles[i] = p.Role == Role.Healer ? PlayerRole.Target : PlayerRole.Share;
     }
 }

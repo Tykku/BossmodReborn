@@ -105,10 +105,10 @@ class CrossbonesKB(BossModule module) : Components.Knockback(module, stopAtWall:
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => Module.FindComponent<Bombardment>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false;
 }
 
-class AngrySalamander(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AngrySalamander), new AOEShapeRect(45.6f, 3));
-class Quaternity1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Quaternity1), new AOEShapeRect(41, 2));
-class Quaternity2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Quaternity2), new AOEShapeRect(23, 2, 3));
-class StunningSweep(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.StunningSweep), new AOEShapeCircle(6.6f));
+class AngrySalamander(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AngrySalamander), new AOEShapeRect(45.6f, 3));
+class Quaternity1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Quaternity1), new AOEShapeRect(41, 2));
+class Quaternity2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Quaternity2), new AOEShapeRect(26, 2));
+class StunningSweep(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StunningSweep), 6.6f);
 class Bombardment(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Bombardment), 10);
 class MagitekMissile(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MissileImpact), 6);
 class CoveringFire(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.CoveringFire), 8);

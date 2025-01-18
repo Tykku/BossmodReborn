@@ -34,7 +34,7 @@ class FlamespireClaw(BossModule module) : Components.GenericBaitAway(module, Act
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
-        foreach (var (_, player) in Raid.WithSlot(true).IncludedInMask(_tethers))
+        foreach (var (_, player) in Raid.WithSlot(true, true, true).IncludedInMask(_tethers))
             Arena.AddLine(player.Position, Module.PrimaryActor.Position, Colors.Danger);
     }
 

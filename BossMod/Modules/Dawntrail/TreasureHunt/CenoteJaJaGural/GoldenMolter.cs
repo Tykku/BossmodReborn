@@ -97,16 +97,16 @@ class Crypsis(BossModule module) : BossComponent(module)
     }
 }
 
-class GoldenGall(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GoldenGall), new AOEShapeCone(40, 90.Degrees()));
+class GoldenGall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldenGall), new AOEShapeCone(40, 90.Degrees()));
 class GoldenRadiance(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldenRadiance), 5);
 class BlindingLight(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BlindingLight), 6);
 
-class AetherialLight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AetherialLight), new AOEShapeCone(40, 30.Degrees()), 4)
+class AetherialLight : Components.SimpleAOEs
 {
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => ActiveCasters.Select((c, i) => new AOEInstance(Shape, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo), i < 2 ? Colors.Danger : Colors.AOE));
+    public AetherialLight(BossModule module) : base(module, ActionID.MakeSpell(AID.AetherialLight), new AOEShapeCone(40, 30.Degrees()), 4) { MaxDangerColor = 2; }
 }
 
-abstract class Vasoconstrictor(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
+abstract class Vasoconstrictor(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
 class Vasoconstrictor1(BossModule module) : Vasoconstrictor(module, AID.Vasoconstrictor1);
 class Vasoconstrictor2(BossModule module) : Vasoconstrictor(module, AID.Vasoconstrictor2);
 class Vasoconstrictor3(BossModule module) : Vasoconstrictor(module, AID.Vasoconstrictor3);
@@ -131,10 +131,10 @@ class VasoconstrictorPool(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
 class RottenSpores(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RottenSpores), 6);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

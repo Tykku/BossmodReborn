@@ -182,8 +182,8 @@ class MagnetismCircleDonut(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class ProximityPlasma1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ProximityPlasma1), new AOEShapeCircle(20));
-class RingLightning1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RingLightning1), new AOEShapeDonut(8, 60));
+class ProximityPlasma1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ProximityPlasma1), 20);
+class RingLightning1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RingLightning1), new AOEShapeDonut(8, 60));
 class ThunderousShower(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ThunderousShower), 6, 8);
 class Electrowave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Electrowave));
 class Magnetron(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Magnetron));

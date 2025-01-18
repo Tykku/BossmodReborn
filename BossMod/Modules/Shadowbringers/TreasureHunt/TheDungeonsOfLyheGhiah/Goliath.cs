@@ -37,19 +37,19 @@ public enum AID : uint
     Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
-class Wellbore(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wellbore), new AOEShapeCircle(15));
-class Compress1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Compress1), new AOEShapeCross(100, 3.5f));
-class Compress2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Compress2), new AOEShapeRect(102.1f, 3.5f));
+class Wellbore(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wellbore), 15);
+class Compress1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Compress1), new AOEShapeCross(100, 3.5f));
+class Compress2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Compress2), new AOEShapeRect(102.1f, 3.5f));
 class Accelerate(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Accelerate), 6, 8, 8);
 class Incinerate(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Incinerate));
 class Fount(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fount), 4);
 class MechanicalBlow(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.MechanicalBlow));
 
-class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
-class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(15.23f, 2));
-class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(15.23f, 2));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
 
-class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
+class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

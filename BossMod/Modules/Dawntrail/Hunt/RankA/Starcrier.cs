@@ -14,12 +14,12 @@ public enum AID : uint
     SwiftwindSerenade = 37305, // Boss->self, 4.0s cast, range 40 width 8 rect
 }
 
-class WingsbreadthWinds(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WingsbreadthWinds), new AOEShapeCircle(8));
-class StormwallWinds(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.StormwallWinds), new AOEShapeDonut(8, 25));
-class DirgeOfTheLost(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DirgeOfTheLost), new AOEShapeCircle(40));
+class WingsbreadthWinds(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingsbreadthWinds), 8);
+class StormwallWinds(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StormwallWinds), new AOEShapeDonut(8, 25));
+class DirgeOfTheLost(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DirgeOfTheLost), 40);
 class DirgeOfTheLostHint(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.DirgeOfTheLost));
 class AeroIV(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AeroIV));
-class SwiftwindSerenade(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SwiftwindSerenade), new AOEShapeRect(40, 4));
+class SwiftwindSerenade(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SwiftwindSerenade), new AOEShapeRect(40, 4));
 
 class StarcrierStates : StateMachineBuilder
 {

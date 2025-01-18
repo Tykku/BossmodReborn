@@ -26,8 +26,8 @@ public enum AID : uint
     WildRattle = 408, // ChasmCobra->player, no cast, single-target
 }
 
-class FlashFlood(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FlashFlood), new AOEShapeCone(8.16f, 60.Degrees()));
-class LaboredLeap(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LaboredLeap), new AOEShapeCircle(10.32f));
+class FlashFlood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlashFlood), new AOEShapeCone(8.16f, 60.Degrees()));
+class LaboredLeap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LaboredLeap), 10.32f);
 class FallenRock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FallingRock), 4);
 class WingsOfWoe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingsOfWoe), 6);
 

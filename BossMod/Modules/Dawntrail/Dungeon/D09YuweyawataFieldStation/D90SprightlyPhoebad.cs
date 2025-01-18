@@ -18,8 +18,8 @@ public enum AID : uint
     Landslip = 41118 // Boss->self, 4.8s cast, range 12 120-degree cone
 }
 
-class Landslip(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Landslip), new AOEShapeCone(12, 60.Degrees()));
-class Plummet(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Plummet), new AOEShapeCircle(10));
+class Landslip(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Landslip), new AOEShapeCone(12, 60.Degrees()));
+class Plummet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Plummet), 10);
 
 class D90SprightlyPhoebadStates : StateMachineBuilder
 {

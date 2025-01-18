@@ -17,7 +17,7 @@ public enum AID : uint
     PeckingFlurry = 39760, //  Boss->self, 5.0s cast, range 40 circle
     PeckingFlurry2 = 39761, // Boss->self, no cast, range 40 circle
 }
-class GlidingSwoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GlidingSwoop), new AOEShapeRect(18, 8));
+class GlidingSwoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GlidingSwoop), new AOEShapeRect(18, 8));
 class PeckingFlurry(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PeckingFlurry), "Raidwide (3x)");
 
 class MarchingSamba(BossModule module) : Components.GenericAOEs(module)

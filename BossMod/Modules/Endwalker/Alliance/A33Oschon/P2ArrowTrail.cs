@@ -5,7 +5,7 @@ class P2ArrowTrail(BossModule module) : Components.Exaflare(module, new AOEShape
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.ArrowTrailHint)
-            Lines.Add(new() { Next = caster.Position, Advance = 5 * caster.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell, 0.4f), TimeToMove = 0.5f, ExplosionsLeft = 8, MaxShownExplosions = 3 });
+            Lines.Add(new() { Next = spell.LocXZ, Advance = 5 * caster.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell, 0.4f), TimeToMove = 0.5f, ExplosionsLeft = 8, MaxShownExplosions = 3 });
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

@@ -55,9 +55,9 @@ abstract class LineVoltage(BossModule module, AID narrow, float delay, AID? wide
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == narrow)
-            AOEs.Add(new(rectNarrow, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            AOEs.Add(new(rectNarrow, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
         else if ((AID)spell.Action.ID == wide1 || (AID)spell.Action.ID == wide2)
-            AOEs.Add(new(rectWide, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            AOEs.Add(new(rectWide, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
         if (AOEs.Count > 1)
             AOEs.SortBy(x => x.Activation);
     }

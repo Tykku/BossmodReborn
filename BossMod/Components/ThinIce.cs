@@ -52,7 +52,18 @@ public abstract class ThinIce(BossModule module, float distance, bool createforb
                 ShapeDistance.InvertedDonut(pos, ddistance, ddistance + 0.5f),
                 ShapeDistance.InvertedRect(pos, offset, 0.5f, 0.5f, 0.5f)
             };
-            hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), DateTime.MaxValue);
+            float maxDistanceFunc(WPos pos)
+            {
+                var minDistance = float.MinValue;
+                for (var i = 0; i < forbidden.Count; ++i)
+                {
+                    var distance = forbidden[i](pos);
+                    if (distance > minDistance)
+                        minDistance = distance;
+                }
+                return minDistance;
+            }
+            hints.AddForbiddenZone(maxDistanceFunc, DateTime.MaxValue);
         }
     }
 }

@@ -2,17 +2,18 @@
 
 public enum OID : uint
 {
-    Boss = 0x3671, // R7.500, x1
+    Boss = 0x3671 // R7.500, x1
 }
 
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     Leafstorm = 27708, // Boss->self, 6.0s cast, range 10 circle
     Rimestorm = 27709, // Boss->self, 1.0s cast, range 40 180-degree cone
     Snowball = 27710, // Boss->location, 3.0s cast, range 8 circle
     Canopy = 27711, // Boss->players, no cast, range 12 120-degree cone cleave
-    BackhandBlow = 27712, // Boss->self, 3.0s cast, range 12 120-degree cone
+    BackhandBlow = 27712 // Boss->self, 3.0s cast, range 12 120-degree cone
 }
 
 class LeafstormRimestorm(BossModule module) : Components.GenericAOEs(module)
@@ -47,7 +48,7 @@ class LeafstormRimestorm(BossModule module) : Components.GenericAOEs(module)
 
 class Snowball(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Snowball), 8);
 class Canopy(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Canopy), new AOEShapeCone(12, 60.Degrees()), activeWhileCasting: false);
-class BackhandBlow(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BackhandBlow), new AOEShapeCone(12, 60.Degrees()));
+class BackhandBlow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BackhandBlow), new AOEShapeCone(12, 60.Degrees()));
 
 class AegeirosStates : StateMachineBuilder
 {

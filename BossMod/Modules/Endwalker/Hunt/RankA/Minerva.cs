@@ -2,12 +2,13 @@
 
 public enum OID : uint
 {
-    Boss = 0x3609, // R6.000, x1
+    Boss = 0x3609 // R6.000, x1
 }
 
 public enum AID : uint
 {
     AutoAttack = 872,
+
     AntiPersonnelBuild = 27297, // Boss->self, 5.0s cast, single-target, visual
     RingBuild = 27298, // Boss->self, 5.0s cast, single-target, visual
     BallisticMissileCircle = 27299, // Boss->location, 3.5s cast, range 6 circle
@@ -17,7 +18,7 @@ public enum AID : uint
     HammerKnuckles = 27304, // Boss->player, 5.0s cast, single-target
     BallisticMissileMarkTarget = 27377, // Boss->player, no cast, single-target
     BallisticMissileCircleWarning = 27517, // Boss->player, 6.5s cast, single-target
-    BallisticMissileDonutWarning = 27518, // Boss->player, 6.5s cast, single-target
+    BallisticMissileDonutWarning = 27518 // Boss->player, 6.5s cast, single-target
 }
 
 class BallisticMissile(BossModule module) : Components.GenericAOEs(module)
@@ -51,8 +52,6 @@ class BallisticMissile(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (caster != Module.PrimaryActor)
-            return;
         switch ((AID)spell.Action.ID)
         {
             case AID.BallisticMissileCircleWarning:
@@ -72,8 +71,6 @@ class BallisticMissile(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (caster != Module.PrimaryActor)
-            return;
         switch ((AID)spell.Action.ID)
         {
             case AID.BallisticMissileCircleWarning:
@@ -89,7 +86,7 @@ class BallisticMissile(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Hyperflame(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hyperflame), new AOEShapeCone(60, 30.Degrees()));
+class Hyperflame(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hyperflame), new AOEShapeCone(60, 30.Degrees()));
 class SonicAmplifier(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SonicAmplifier));
 class HammerKnuckles(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.HammerKnuckles));
 

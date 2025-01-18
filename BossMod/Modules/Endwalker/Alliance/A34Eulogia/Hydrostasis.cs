@@ -2,7 +2,7 @@
 
 class Hydrostasis(BossModule module) : Components.Knockback(module)
 {
-    private readonly List<Source> _sources = [];
+    private readonly List<Source> _sources = new(3);
 
     public override IEnumerable<Source> Sources(int slot, Actor actor) => _sources;
 
@@ -20,7 +20,7 @@ class Hydrostasis(BossModule module) : Components.Knockback(module)
         if ((AID)spell.Action.ID is AID.HydrostasisAOE1 or AID.HydrostasisAOE2 or AID.HydrostasisAOE3)
         {
             ++NumCasts;
-            if (_sources.Count > 0)
+            if (_sources.Count != 0)
                 _sources.RemoveAt(0);
         }
     }

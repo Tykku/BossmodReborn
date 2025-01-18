@@ -6,7 +6,7 @@ class DimensionalDistortion(BossModule module) : Components.Exaflare(module, 6)
     {
         if ((AID)spell.Action.ID is AID.DimensionalDistortionFirst)
         {
-            Lines.Add(new() { Next = caster.Position, Advance = 8.5f * spell.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1.1f, ExplosionsLeft = 5, MaxShownExplosions = 2 });
+            Lines.Add(new() { Next = spell.LocXZ, Advance = 8.5f * spell.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1.1f, ExplosionsLeft = 5, MaxShownExplosions = 2 });
         }
     }
 
@@ -15,7 +15,7 @@ class DimensionalDistortion(BossModule module) : Components.Exaflare(module, 6)
         if ((AID)spell.Action.ID is AID.DimensionalDistortionFirst or AID.DimensionalDistortionRest)
         {
             ++NumCasts;
-            int index = Lines.FindIndex(item => item.Next.AlmostEqual(caster.Position, 1));
+            var index = Lines.FindIndex(item => item.Next.AlmostEqual(caster.Position, 1));
             if (index == -1)
             {
                 ReportError($"Failed to find entry for {caster.InstanceID:X}");

@@ -153,15 +153,15 @@ class BlackFlame(BossModule module) : Components.GenericBaitAway(module)
     }
 }
 
-class OtherworldlyHeat(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.OtherworldlyHeat), new AOEShapeCross(10, 2));
+class OtherworldlyHeat(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OtherworldlyHeat), new AOEShapeCross(10, 2));
 
-abstract class Scorching(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
+abstract class Scorching(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
 class ScorchingLeft(BossModule module) : Scorching(module, AID.ScorchingLeft);
 class ScorchingRight(BossModule module) : Scorching(module, AID.ScorchingRight);
 
 class CullingBlade(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CullingBlade));
 class CaptiveBolt(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.CaptiveBolt));
-class FiresIre(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FiresIre), new AOEShapeCone(20, 45.Degrees()));
+class FiresIre(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FiresIre), new AOEShapeCone(20, 45.Degrees()));
 class Plummet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Plummet), 3);
 class FiresDomainTether(BossModule module) : Components.StretchTetherDuo(module, default, default)
 {
@@ -225,7 +225,7 @@ class FiresIreBait(BossModule module) : Components.GenericBaitAway(module)
         if (CurrentBaits.Any(x => x.Target == actor))
         {
             var b = ActiveBaitsOn(actor).FirstOrDefault();
-            var actors = Furniture.Concat(Raid.WithoutSlot().Exclude([actor]));
+            var actors = Furniture.Concat(Raid.WithoutSlot(false, true, true).Exclude([actor]));
             foreach (var a in actors)
                 hints.AddForbiddenZone(ShapeDistance.Circle(a.Position, 10), b.Activation);
         }

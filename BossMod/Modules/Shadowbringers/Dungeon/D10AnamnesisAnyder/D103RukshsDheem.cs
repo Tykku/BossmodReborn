@@ -64,35 +64,40 @@ class ArenaChanges(BossModule module) : BossComponent(module)
 
 class Wavebreaker(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(8);
     private static readonly AOEShapeRect rectNarrow = new(36, 4);
     private static readonly AOEShapeRect rectWide = new(21, 5);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count == 0)
-            yield break;
         var count = _aoes.Count;
+        if (count == 0)
+            return [];
+
+        List<AOEInstance> aoes = new(count);
         if (Arena.Bounds == D103RukshsDheem.SplitBounds)
             for (var i = 0; i < count; ++i)
             {
+                var aoe = _aoes[i];
                 if (i == 0)
-                    yield return _aoes[i] with { Color = Colors.Danger };
-                else if (i > 0)
-                    yield return _aoes[i];
+                    aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+                else
+                    aoes.Add(aoe);
             }
         else if (Arena.Bounds == D103RukshsDheem.DefaultBounds)
             for (var i = 0; i < count; ++i)
-                yield return _aoes[i];
+                aoes.Add(_aoes[i]);
         else
-            for (var i = 0; i < Math.Clamp(count, 0, 4); ++i)
+            for (var i = 0; i < (count > 4 ? 4 : count); ++i)
             {
-                if (_aoes[i].Rotation == _aoes[0].Rotation)
+                var aoe = _aoes[i];
+                if (aoe.Rotation == _aoes[0].Rotation)
                     if (i == 0)
-                        yield return _aoes[i] with { Color = Colors.Danger };
-                    else if (i > 0)
-                        yield return _aoes[i];
+                        aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+                    else
+                        aoes.Add(aoe);
             }
+        return aoes;
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -130,7 +135,7 @@ class Wavebreaker(BossModule module) : Components.GenericAOEs(module)
 
 class Drains(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<WPos> activeDrains = [], solvedDrains = [];
+    private readonly List<WPos> activeDrains = new(8), solvedDrains = new(4);
     private static readonly int[] xPositions = [-11, 11];
     private const float SideLength = 1.25f;
     private static readonly WPos[] drainPositions = new WPos[8];
@@ -153,13 +158,17 @@ class Drains(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
+        if (activation == default)
+            return [];
+        List<AOEInstance> aoes = new(8);
         for (var i = 0; i < activeDrains.Count; ++i)
-            yield return new(square, activeDrains[i], Color: Colors.SafeFromAOE, Risky: false);
+            aoes.Add(new(square, activeDrains[i], Color: Colors.SafeFromAOE, Risky: false));
         for (var i = 0; i < solvedDrains.Count; ++i)
         {
             var drain = solvedDrains[i];
-            yield return new(square, drain, Color: IsBlockingDrain(actor, drain) ? Colors.SafeFromAOE : Colors.AOE, Risky: false);
+            aoes.Add(new(square, drain, Color: IsBlockingDrain(actor, drain) ? Colors.SafeFromAOE : 0, Risky: false));
         }
+        return aoes;
     }
 
     public static bool IsBlockingDrain(Actor actor, WPos pos) => actor.Position.InRect(pos, new Angle(), SideLength, SideLength, SideLength);
@@ -232,9 +241,9 @@ class Seafoam(BossModule module) : Components.RaidwideCast(module, ActionID.Make
 class Bonebreaker(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.Bonebreaker));
 class FallingWater(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FallingWater), 8);
 class FlyingFount(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.FlyingFount), 6);
-class CommandCurrent(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CommandCurrent), new AOEShapeCone(40, 15.Degrees()));
-class CoralTrident(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CoralTrident), new AOEShapeCone(6, 45.Degrees()));
-class RisingTide(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RisingTide), new AOEShapeCross(50, 3));
+class CommandCurrent(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CommandCurrent), new AOEShapeCone(40, 15.Degrees()));
+class CoralTrident(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CoralTrident), new AOEShapeCone(6, 45.Degrees()));
+class RisingTide(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RisingTide), new AOEShapeCross(50, 3));
 
 class D103RukshsDheemStates : StateMachineBuilder
 {

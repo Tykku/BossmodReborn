@@ -7,10 +7,10 @@ class Sabertail(BossModule module) : Components.Exaflare(module, new AOEShapeCir
         if ((AID)spell.Action.ID is AID.SabertailFirst)
         {
             var dir = spell.Rotation.ToDirection();
-            var startOffset = caster.Position - Module.Center;
+            var startOffset = spell.LocXZ - Arena.Center;
             startOffset.Z *= 0.99f; // handle exaflares right on N/S borders
-            var distanceToBorder = Module.Bounds.IntersectRay(startOffset, dir);
-            Lines.Add(new() { Next = caster.Position, Advance = 6.5f * dir, NextExplosion = Module.CastFinishAt(spell), TimeToMove = 0.7f, ExplosionsLeft = (int)(distanceToBorder / 6.5f) + 1, MaxShownExplosions = 5 });
+            var distanceToBorder = Arena.Bounds.IntersectRay(startOffset, dir);
+            Lines.Add(new() { Next = spell.LocXZ, Advance = 6.5f * dir, NextExplosion = Module.CastFinishAt(spell), TimeToMove = 0.7f, ExplosionsLeft = (int)(distanceToBorder / 6.5f) + 1, MaxShownExplosions = 5 });
         }
     }
 

@@ -19,23 +19,52 @@ public class Exaflare(BossModule module, AOEShape shape, ActionID aid = default)
     public uint FutureColor = Colors.AOE;
     public readonly List<Line> Lines = [];
 
-    public bool Active => Lines.Count > 0;
+    public bool Active => Lines.Count != 0;
 
     public Exaflare(BossModule module, float radius, ActionID aid = new()) : this(module, new AOEShapeCircle(radius), aid) { }
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        foreach (var (c, t, r) in FutureAOEs())
-            yield return new(Shape, c, r, t, FutureColor);
-        foreach (var (c, t, r) in ImminentAOEs())
-            yield return new(Shape, c, r, t, ImminentColor);
+        var linesCount = Lines.Count;
+        if (linesCount == 0)
+            return [];
+        var futureAOEs = FutureAOEs(linesCount);
+        var imminentAOEs = ImminentAOEs(linesCount);
+        var futureCount = futureAOEs.Count;
+        var imminentCount = imminentAOEs.Count;
+
+        List<AOEInstance> aoes = new(futureCount + imminentCount);
+        for (var i = 0; i < futureCount; ++i)
+        {
+            var aoe = futureAOEs[i];
+            aoes.Add(new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, FutureColor));
+        }
+
+        for (var i = 0; i < imminentCount; ++i)
+        {
+            var aoe = imminentAOEs[i];
+            aoes.Add(new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, ImminentColor));
+        }
+        return aoes;
     }
 
-    protected IEnumerable<(WPos, DateTime, Angle)> ImminentAOEs() => Lines.Where(l => l.ExplosionsLeft > 0).Select(l => (l.Next, l.NextExplosion, l.Rotation));
-
-    protected IEnumerable<(WPos, DateTime, Angle)> FutureAOEs()
+    protected List<(WPos, DateTime, Angle)> ImminentAOEs(int count)
     {
-        for (var i = 0; i < Lines.Count; ++i)
+        var exas = new List<(WPos, DateTime, Angle)>(count);
+
+        for (var i = 0; i < count; ++i)
+        {
+            var l = Lines[i];
+            if (l.ExplosionsLeft != 0)
+                exas.Add((l.Next, l.NextExplosion, l.Rotation));
+        }
+        return exas;
+    }
+
+    protected List<(WPos, DateTime, Angle)> FutureAOEs(int count)
+    {
+        var exas = new List<(WPos, DateTime, Angle)>(count);
+        for (var i = 0; i < count; ++i)
         {
             var l = Lines[i];
             var num = Math.Min(l.ExplosionsLeft, l.MaxShownExplosions);
@@ -45,9 +74,10 @@ public class Exaflare(BossModule module, AOEShape shape, ActionID aid = default)
             {
                 pos += l.Advance;
                 time = time.AddSeconds(l.TimeToMove);
-                yield return (pos, time, l.Rotation);
+                exas.Add((pos, time, l.Rotation));
             }
         }
+        return exas;
     }
 
     protected void AdvanceLine(Line l, WPos pos)

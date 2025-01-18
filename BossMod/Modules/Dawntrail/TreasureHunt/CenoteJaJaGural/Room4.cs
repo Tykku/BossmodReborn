@@ -54,19 +54,19 @@ class Tornado(BossModule module) : CircleLoc6(module, AID.Tornado);
 class RootsOfAtopy(BossModule module) : CircleLoc6(module, AID.RootsOfAtopy);
 class RottenSpores(BossModule module) : CircleLoc6(module, AID.RottenSpores);
 
-class AetherialBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AetherialBlast), new AOEShapeRect(20, 2));
-class SerratedSpin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SerratedSpin), new AOEShapeCircle(8));
-class SyrupSpout(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SyrupSpout), new AOEShapeCone(10, 60.Degrees()));
-class SpinningAttack(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpinningAttack), new AOEShapeRect(10, 2));
-class OdiousAir(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.OdiousAir), new AOEShapeCone(12, 60.Degrees()));
+class AetherialBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherialBlast), new AOEShapeRect(20, 2));
+class SerratedSpin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SerratedSpin), 8);
+class SyrupSpout(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SyrupSpout), new AOEShapeCone(10, 60.Degrees()));
+class SpinningAttack(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinningAttack), new AOEShapeRect(10, 2));
+class OdiousAir(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OdiousAir), new AOEShapeCone(12, 60.Degrees()));
 
-abstract class Wingblade(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(8, 90.Degrees()));
+abstract class Wingblade(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(8, 90.Degrees()));
 class LeftWingblade(BossModule module) : Wingblade(module, AID.LeftWingblade);
 class RightWingblade(BossModule module) : Wingblade(module, AID.RightWingblade);
 
-class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(7));
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);

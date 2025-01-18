@@ -18,7 +18,7 @@ class SurgingWaveCorridor(BossModule module) : BossComponent(module)
     }
 }
 
-class SurgingWaveAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SurgingWaveAOE), new AOEShapeCircle(6));
+class SurgingWaveAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SurgingWaveAOE), 6);
 class SurgingWaveShockwave(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.SurgingWaveShockwave), 68, true);
 class SurgingWaveSeaFoam(BossModule module) : Components.PersistentVoidzone(module, 1.5f, m => m.Enemies(OID.SeaFoam).Where(x => !x.IsDead));
 
@@ -50,7 +50,7 @@ public class SurgingWaveFrothingSea : Components.Exaflare
         if ((AID)spell.Action.ID == AID.SurgingWaveFrothingSea)
         {
             ++NumCasts;
-            if (Lines.Count > 0)
+            if (Lines.Count != 0)
             {
                 AdvanceLine(Lines[0], Lines[0].Next + 2.3f * Lines[0].Rotation.ToDirection());
                 if (Lines[0].ExplosionsLeft == 0)
@@ -60,5 +60,5 @@ public class SurgingWaveFrothingSea : Components.Exaflare
     }
 }
 
-class LeftStrait(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeftStrait), new AOEShapeCone(100, 90.Degrees()));
-class RightStrait(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RightStrait), new AOEShapeCone(100, 90.Degrees()));
+class LeftStrait(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LeftStrait), new AOEShapeCone(100, 90.Degrees()));
+class RightStrait(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RightStrait), new AOEShapeCone(100, 90.Degrees()));

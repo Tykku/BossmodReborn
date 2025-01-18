@@ -27,7 +27,7 @@ public enum AID : uint
     Judged = 15633, // Helper->self, no cast, range 5 circle, tower success
     FoundWanting = 15632, // Helper->self, no cast, range 40 circle, tower fail
     RiteOfTheSacrament = 15629, // Boss->self, no cast, single-target
-    PerfectContrition = 15630, // Brightsphere->self, 6.0s cast, range 5-15 donut
+    PerfectContrition = 15630 // Brightsphere->self, 6.0s cast, range 5-15 donut
 }
 
 class PerfectContrition(BossModule module) : Components.GenericAOEs(module)
@@ -70,7 +70,7 @@ class JudgmentDay(BossModule module) : Components.GenericTowers(module)
 
 class Exegesis(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(5);
     private static readonly AOEShapeRect rect = new(5, 5, 5);
     private static readonly AOEShapeCross cross = new(15, 5);
     private static readonly WPos[] diagonalPositions = [new(-240, -50), new(-250, -40), new(-230, -40), new(-250, -60), new(-230, -60)];

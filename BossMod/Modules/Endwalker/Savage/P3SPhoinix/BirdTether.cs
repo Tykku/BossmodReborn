@@ -48,7 +48,7 @@ class BirdTether(BossModule module) : BossComponent(module)
                 var fromTo = nextTarget.Position - bird.Position;
                 var len = fromTo.Length();
                 fromTo /= len;
-                foreach ((var j, var player) in Raid.WithSlot().Exclude(nextTarget))
+                foreach ((var j, var player) in Raid.WithSlot(false, true, true).Exclude(nextTarget))
                 {
                     if (player.Position.InRect(bird.Position, fromTo, len, 0, _chargeHalfWidth))
                     {
@@ -108,7 +108,7 @@ class BirdTether(BossModule module) : BossComponent(module)
     {
         // draw all birds and all players
         var birdsLarge = Module.Enemies(OID.SunbirdLarge);
-        foreach ((var i, var player) in Raid.WithSlot())
+        foreach ((var i, var player) in Raid.WithSlot(false, true, true))
             Arena.Actor(player, _playersInAOE[i] ? Colors.PlayerInteresting : Colors.PlayerGeneric);
 
         // draw chains containing player

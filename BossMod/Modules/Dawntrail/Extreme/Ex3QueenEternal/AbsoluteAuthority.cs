@@ -47,7 +47,7 @@ class AbsoluteAuthorityHeel(BossModule module) : Components.GenericStackSpread(m
         if (Stacks.Count != 0)
         {
             var player = Raid.Player()!;
-            var actor = Raid.WithoutSlot().Exclude(player).OrderBy(a => (player.Position - a.Position).LengthSq()).First();
+            var actor = Raid.WithoutSlot(false, true, true).Exclude(player).OrderBy(a => (player.Position - a.Position).LengthSq()).First();
             Stacks[0] = Stacks[0] with { Target = actor ?? player };
         }
     }

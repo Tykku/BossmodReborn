@@ -5,21 +5,32 @@ class SidewiseSpark(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCone cone = new(60, 90.Degrees());
     private static readonly AOEShapeRect rect = new(40, 8);
     private readonly List<AOEInstance> _aoes = [];
+    private static readonly HashSet<AID> castEnd = [AID.SidewiseSpark1, AID.SidewiseSpark2, AID.SidewiseSpark3, AID.SidewiseSpark4, AID.SidewiseSpark5, AID.SidewiseSpark6, AID.Burst];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = _aoes.Count == 1 || _aoes.Count > 1 && _aoes[0].Activation == _aoes[1].Activation ? Colors.AOE : Colors.Danger };
-        if (_aoes.Count > 1)
-            yield return _aoes[1] with { Risky = _aoes[0].Activation == _aoes[1].Activation };
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i == 0)
+                aoes.Add(aoe with { Color = count == 1 || count > 1 && _aoes[0].Activation == _aoes[1].Activation ? 0 : Colors.Danger });
+            else if (i == 1)
+                aoes.Add(aoe with { Risky = _aoes[0].Activation == _aoes[1].Activation });
+        }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID is AID.SidewiseSpark1 or AID.SidewiseSpark2 or AID.SidewiseSpark3 or AID.SidewiseSpark4)
-            _aoes.Add(new(cone, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
         else if ((AID)spell.Action.ID == AID.Burst)
-            _aoes.Add(new(rect, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.Add(new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
@@ -41,7 +52,7 @@ class SidewiseSpark(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID is AID.SidewiseSpark1 or AID.SidewiseSpark2 or AID.SidewiseSpark3 or AID.SidewiseSpark4 or AID.SidewiseSpark5 or AID.SidewiseSpark6 or AID.Burst)
+        if (_aoes.Count != 0 && castEnd.Contains((AID)spell.Action.ID))
             _aoes.RemoveAt(0);
     }
 }

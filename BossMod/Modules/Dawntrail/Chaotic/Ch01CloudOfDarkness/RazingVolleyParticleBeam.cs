@@ -1,19 +1,25 @@
 ﻿namespace BossMod.Dawntrail.Chaotic.Ch01CloudOfDarkness;
 
-class RazingVolleyParticleBeam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RazingVolleyParticleBeam), new AOEShapeRect(45, 4))
+class RazingVolleyParticleBeam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RazingVolleyParticleBeam), new AOEShapeRect(45, 4))
 {
     private DateTime _nextBundle;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        var deadline = Module.CastFinishAt(Casters.Count > 0 ? Casters[0].CastInfo : null, 3);
-        foreach (var c in Casters)
+        var count = Casters.Count;
+        if (count == 0)
+            return [];
+        var deadline = Casters[0].Activation.AddSeconds(3);
+
+        List<AOEInstance> result = new(count);
+        for (var i = 0; i < count; ++i)
         {
-            var activation = Module.CastFinishAt(c.CastInfo);
-            if (activation > deadline)
+            var caster = Casters[i];
+            if (caster.Activation > deadline)
                 break;
-            yield return new(Shape, c.Position, c.CastInfo?.Rotation ?? c.Rotation, activation);
+            result.Add(caster);
         }
+        return result;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

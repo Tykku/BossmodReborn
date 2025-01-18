@@ -90,13 +90,13 @@ class ParhelionCone(BossModule module) : Components.GenericRotatingAOE(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.ParhelionRotationFirst)
-            Sequences.Add(new(cone, caster.Position, spell.Rotation, increment, Module.CastFinishAt(spell), 2.6f, 9));
+            Sequences.Add(new(cone, spell.LocXZ, spell.Rotation, increment, Module.CastFinishAt(spell), 2.6f, 9));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID is AID.ParhelionRotationFirst or AID.ParhelionRotationRest)
-            AdvanceSequence(caster.Position, caster.Rotation, WorldState.CurrentTime);
+            AdvanceSequence(spell.LocXZ, spell.Rotation, WorldState.CurrentTime);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
@@ -115,10 +115,10 @@ class ParhelionDonut(BossModule module) : Components.ConcentricAOEs(module, [new
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.Parhelion1)
-            AddSequence(Arena.Center, Module.CastFinishAt(spell));
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         var order = (AID)spell.Action.ID switch
         {
@@ -127,7 +127,7 @@ class ParhelionDonut(BossModule module) : Components.ConcentricAOEs(module, [new
             AID.Parhelion3 => 2,
             _ => -1
         };
-        AdvanceSequence(order, caster.Position, WorldState.FutureTime(3));
+        AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(3));
     }
 }
 
@@ -161,8 +161,10 @@ class EpeaPteroenta(BossModule module) : Components.GenericAOEs(module)
 }
 
 class CrepuscularRay(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.CrepuscularRay), 4);
-class CircumzenithalArc(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CircumzenithalArcFirst), new AOEShapeCone(40, 90.Degrees()));
-class CircumzenithalArcSecond(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CircumzenithalArcSecond), new AOEShapeCone(40, 90.Degrees()))
+
+abstract class CircumzenithalArc(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
+class CircumzenithalArcFirst(BossModule module) : CircumzenithalArc(module, AID.CircumzenithalArcFirst);
+class CircumzenithalArcSecond(BossModule module) : CircumzenithalArc(module, AID.CircumzenithalArcSecond)
 {
     private CrepuscularRay? ray;
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -173,14 +175,14 @@ class CircumzenithalArcSecond(BossModule module) : Components.SelfTargetedAOEs(m
     }
 }
 
-class CircleOfBrilliance(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CircleOfBrilliance), new AOEShapeCircle(5));
+class CircleOfBrilliance(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CircleOfBrilliance), 5);
 class Enomotos(BossModule module) : Components.Exaflare(module, new AOEShapeCircle(6), ActionID.MakeSpell(AID.EnomotosFirst))
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action == WatchedAction)
         {
-            Lines.Add(new() { Next = caster.Position, Advance = 5 * spell.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1, ExplosionsLeft = 9, MaxShownExplosions = 3 });
+            Lines.Add(new() { Next = spell.LocXZ, Advance = 5 * spell.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1, ExplosionsLeft = 9, MaxShownExplosions = 3 });
         }
     }
 
@@ -218,9 +220,9 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module, ActionID.M
     }
 }
 
-class Windage(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Windage), new AOEShapeCircle(5));
-class AfflatusAzem(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(5), ActionID.MakeSpell(AID.AfflatusAzemFirst), ActionID.MakeSpell(AID.AfflatusAzemChase), 5, 2.1f, 5);
-class WindageSlow(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WindageSlow), new AOEShapeCircle(5));
+class Windage(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Windage), 5);
+class AfflatusAzem(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(5), ActionID.MakeSpell(AID.AfflatusAzemFirst), ActionID.MakeSpell(AID.AfflatusAzemChase), 5, 2.1f, 5, true);
+class WindageSlow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindageSlow), 5);
 class TrueHoly(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.TrueHoly), 20)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

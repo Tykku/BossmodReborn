@@ -28,17 +28,17 @@ public enum AID : uint
 }
 
 class Gust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Gust), 6);
-class ChangelessWinds(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ChangelessWinds), new AOEShapeRect(40, 4));
+class ChangelessWinds(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ChangelessWinds), new AOEShapeRect(40, 4));
 class ChangelessWindsKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ChangelessWinds), 10, shape: new AOEShapeRect(40, 4), kind: Kind.DirForward, stopAtWall: true);
-class Whipwind(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Whipwind), new AOEShapeRect(54, 20, 0.5f));
+class Whipwind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Whipwind), new AOEShapeRect(55, 20));
 class WhipwindKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Whipwind), 25, shape: new AOEShapeRect(55, 20, 0.5f), kind: Kind.DirForward, stopAtWall: true);
-class GentleBreeze(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GentleBreeze), new AOEShapeRect(15, 2));
+class GentleBreeze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GentleBreeze), new AOEShapeRect(15, 2));
 class WhirlingGaol(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WhirlingGaol), "Raidwide + Knockback");
 class WhirlingGaolKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.WhirlingGaol), 25, stopAtWall: true);
 
-class Spin(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCircle(11));
-class Mash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
-class Scoop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
 
 class SecretDjinnStates : StateMachineBuilder
 {
@@ -56,7 +56,14 @@ class SecretDjinnStates : StateMachineBuilder
             .ActivateOnEnter<Spin>()
             .ActivateOnEnter<Mash>()
             .ActivateOnEnter<Scoop>()
-            .Raw.Update = () => module.Enemies(SecretDjinn.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(SecretDjinn.All);
+                for (var i = 0; i < enemies.Count; ++i)
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                return true;
+            };
     }
 }
 

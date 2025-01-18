@@ -15,8 +15,8 @@ public enum AID : uint
     WreckingBall = 4557 // Boss->location, 4.0s cast, range 8 circle
 }
 
-class Rotoswipe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Rotoswipe), new AOEShapeCone(11, 60.Degrees()));
-class AutoCannons(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AutoCannons), new AOEShapeRect(42.4f, 2.5f));
+class Rotoswipe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Rotoswipe), new AOEShapeCone(11, 60.Degrees()));
+class AutoCannons(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AutoCannons), new AOEShapeRect(42.4f, 2.5f));
 class WreckingBall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WreckingBall), 8);
 
 class D060FacilityDreadnaughtStates : StateMachineBuilder

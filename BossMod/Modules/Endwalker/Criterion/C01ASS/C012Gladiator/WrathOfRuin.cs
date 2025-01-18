@@ -66,7 +66,7 @@ class GoldenSilverFlame(BossModule module) : BossComponent(module)
 
     private IEnumerable<WPos> SafeCenters(int debuff)
     {
-        var limit = Arena.Center + new WDir(Arena.Bounds.Radius, Module.Bounds.Radius);
+        var limit = Arena.Center + new WDir(Arena.Bounds.Radius, Arena.Bounds.Radius);
         var first = Arena.Center - new WDir(Arena.Bounds.Radius - _shape.HalfWidth, Module.Bounds.Radius - _shape.HalfWidth);
         var advance = 2 * _shape.HalfWidth;
         for (var x = first.X; x < limit.X; x += advance)
@@ -78,7 +78,7 @@ class GoldenSilverFlame(BossModule module) : BossComponent(module)
 
 // note: actual spell targets location, but it seems to be incorrect...
 // note: we can predict cast start during Regret actor spawn...
-abstract class RackAndRuin(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 2.5f), 8);
+abstract class RackAndRuin(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 2.5f), 8);
 class NRackAndRuin(BossModule module) : RackAndRuin(module, AID.NRackAndRuin);
 class SRackAndRuin(BossModule module) : RackAndRuin(module, AID.SRackAndRuin);
 

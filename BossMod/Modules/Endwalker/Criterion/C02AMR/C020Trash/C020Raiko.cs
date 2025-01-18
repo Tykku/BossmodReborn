@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C020Trash1;
 
-abstract class BloodyCaress(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(12, 60.Degrees()));
+abstract class BloodyCaress(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(12, 60.Degrees()));
 class NBloodyCaress(BossModule module) : BloodyCaress(module, AID.NBloodyCaress);
 class SBloodyCaress(BossModule module) : BloodyCaress(module, AID.SBloodyCaress);
 
-abstract class DisciplesOfLevin(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(10));
+abstract class DisciplesOfLevin(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10);
 class NDisciplesOfLevin(BossModule module) : DisciplesOfLevin(module, AID.NDisciplesOfLevin);
 class SDisciplesOfLevin(BossModule module) : DisciplesOfLevin(module, AID.SDisciplesOfLevin);
 
@@ -16,7 +16,7 @@ abstract class Howl(BossModule module, AID aid) : Components.RaidwideCast(module
 class NHowl(BossModule module) : Howl(module, AID.NHowl);
 class SHowl(BossModule module) : Howl(module, AID.SHowl);
 
-abstract class MasterOfLevin(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(5, 30));
+abstract class MasterOfLevin(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(5, 30));
 class NMasterOfLevin(BossModule module) : MasterOfLevin(module, AID.NMasterOfLevin);
 class SMasterOfLevin(BossModule module) : MasterOfLevin(module, AID.SMasterOfLevin);
 

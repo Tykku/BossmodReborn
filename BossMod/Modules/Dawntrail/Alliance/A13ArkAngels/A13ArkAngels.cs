@@ -4,7 +4,7 @@ class Cloudsplitter(BossModule module) : Components.BaitAwayCast(module, ActionI
 {
     public override void AddGlobalHints(GlobalHints hints)
     {
-        if (CurrentBaits.Count > 0)
+        if (CurrentBaits.Count != 0)
             hints.Add("Tankbuster cleave");
     }
 }
@@ -13,8 +13,8 @@ class CriticalReaverRaidwide(BossModule module) : Components.CastCounter(module,
 class CriticalReaverEnrage(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.CriticalReaverEnrage));
 class Meteor(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Meteor));
 class TachiGekko(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.TachiGekko));
-class TachiKasha(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TachiKasha), new AOEShapeCircle(20));
-class TachiYukikaze(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TachiYukikaze), new AOEShapeRect(50, 2.5f));
+class TachiKasha(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TachiKasha), 20);
+class TachiYukikaze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TachiYukikaze), new AOEShapeRect(50, 2.5f));
 class Raiton(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Raiton));
 class Utsusemi(BossModule module) : Components.StretchTetherSingle(module, (uint)TetherID.Utsusemi, 10, needToKite: true);
 

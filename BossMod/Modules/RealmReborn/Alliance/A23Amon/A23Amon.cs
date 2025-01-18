@@ -1,7 +1,7 @@
 ﻿namespace BossMod.RealmReborn.Alliance.A23Amon;
 
-class BlizzagaForte(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlizzagaForte), new AOEShapeCircle(10));
-class Darkness(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Darkness), new AOEShapeCone(6, 22.5f.Degrees()));
+class BlizzagaForte(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlizzagaForte), 10);
+class Darkness(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Darkness), new AOEShapeCone(6, 22.5f.Degrees()));
 
 class CurtainCall(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.CurtainCall), 60)
 {

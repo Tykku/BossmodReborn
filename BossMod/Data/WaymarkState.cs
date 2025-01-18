@@ -27,10 +27,12 @@ public sealed class WaymarkState
         private set => this[(int)wm] = value;
     }
 
-    public IEnumerable<WorldState.Operation> CompareToInitial()
+    public List<WorldState.Operation> CompareToInitial()
     {
+        List<WorldState.Operation> waymarks = new(8);
         foreach (var i in _setMarkers.SetBits())
-            yield return new OpWaymarkChange((Waymark)i, _positions[i]);
+            waymarks.Add(new OpWaymarkChange((Waymark)i, _positions[i]));
+        return waymarks;
     }
 
     // implementation of operations

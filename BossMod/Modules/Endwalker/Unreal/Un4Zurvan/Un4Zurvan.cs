@@ -5,16 +5,16 @@ class P1FlareStar(BossModule module) : Components.SimpleAOEs(module, ActionID.Ma
 class P1Purge(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Purge));
 class P2MetalCutter(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.MetalCutterP2), new AOEShapeCone(37.44f, 45.Degrees()), (uint)OID.BossP2);
 class P2IcyVoidzone(BossModule module) : Components.PersistentVoidzone(module, 5, m => m.Enemies(OID.IcyVoidzone).Where(z => z.EventState != 7));
-class P2BitingHalberd(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BitingHalberd), new AOEShapeCone(55.27f, 135.Degrees()));
-class P2TailEnd(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TailEnd), new AOEShapeCircle(15));
-class P2Ciclicle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Ciclicle), new AOEShapeDonut(10, 20)); // TODO: verify inner radius
+class P2BitingHalberd(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BitingHalberd), new AOEShapeCone(55.27f, 135.Degrees()));
+class P2TailEnd(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TailEnd), 15);
+class P2Ciclicle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Ciclicle), new AOEShapeDonut(10, 20)); // TODO: verify inner radius
 class P2SouthernCross(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SouthernCrossAOE), 6);
 class P2SouthernCrossVoidzone(BossModule module) : Components.PersistentVoidzone(module, 6, m => m.Enemies(OID.SouthernCrossVoidzone).Where(z => z.EventState != 7));
 class P2WaveCannon(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.WaveCannonSolo), new AOEShapeRect(55.27f, 5));
 class P2TyrfingFire(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.TyrfingFire), new AOEShapeCircle(5), (uint)OID.BossP2, originAtTarget: true);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.BossP1, GroupType = BossModuleInfo.GroupType.RemovedUnreal, GroupID = 951, NameID = 5567, PlanLevel = 90)]
-public class Un4Zurvan(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, 0), new ArenaBoundsCircle(20))
+public class Un4Zurvan(WorldState ws, Actor primary) : BossModule(ws, primary, default, new ArenaBoundsCircle(20))
 {
     private Actor? _bossP2;
 

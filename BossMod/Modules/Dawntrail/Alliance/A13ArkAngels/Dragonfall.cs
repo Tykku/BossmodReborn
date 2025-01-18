@@ -16,7 +16,7 @@ class Dragonfall(BossModule module) : Components.UniformStackSpread(module, 6, 0
         {
             ++NumCasts;
             Stacks.RemoveAll(s => s.Target.InstanceID == spell.MainTargetID);
-            var forbidden = Raid.WithSlot().WhereActor(a => spell.Targets.Any(t => t.ID == a.InstanceID)).Mask();
+            var forbidden = Raid.WithSlot(false, false, true).WhereActor(a => spell.Targets.Any(t => t.ID == a.InstanceID)).Mask();
             foreach (ref var s in Stacks.AsSpan())
                 s.ForbiddenPlayers |= forbidden;
         }

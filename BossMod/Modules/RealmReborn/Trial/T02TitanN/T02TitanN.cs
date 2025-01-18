@@ -3,9 +3,9 @@
 public enum OID : uint
 {
     Boss = 0xF6, // x1
-    Helper = 0x1B2, // x4
     TitansHeart = 0x5E3, // Part type, spawn during fight
     GraniteGaol = 0x5A4, // spawn during fight
+    Helper = 0x1B2
 }
 
 public enum AID : uint
@@ -19,7 +19,7 @@ public enum AID : uint
     GraniteSepulchre = 28799, // GraniteGaol->self, 15.0s cast, oneshot target if gaol not killed
     EarthenFury = 652, // Boss->self, no cast, wipe if heart not killed, otherwise just a raidwide
     WeightOfTheLand = 644, // Boss->self, 3.0s cast, visual
-    WeightOfTheLandAOE = 973, // Helper->location, 3.5s cast, range 6 puddle
+    WeightOfTheLandAOE = 973 // Helper->location, 3.5s cast, range 6 puddle
 }
 
 class Hints(BossModule module) : BossComponent(module)
@@ -41,8 +41,8 @@ class Hints(BossModule module) : BossComponent(module)
 }
 
 class RockBuster(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.RockBuster), new AOEShapeCone(11.25f, 60.Degrees())); // TODO: verify angle
-class Geocrush(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Geocrush), new AOEShapeCircle(18)); // TODO: verify falloff
-class Landslide(BossModule module) : Components.SelfTargetedLegacyRotationAOEs(module, ActionID.MakeSpell(AID.Landslide), new AOEShapeRect(40, 3));
+class Geocrush(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Geocrush), 18); // TODO: verify falloff
+class Landslide(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Landslide), new AOEShapeRect(40, 3));
 class WeightOfTheLand(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WeightOfTheLandAOE), 6);
 
 class T02TitanNStates : StateMachineBuilder
@@ -64,7 +64,7 @@ public class T02TitanN : BossModule
     private readonly List<Actor> _heart;
     public IEnumerable<Actor> ActiveHeart => _heart.Where(h => h.IsTargetable && !h.IsDead);
 
-    public T02TitanN(WorldState ws, Actor primary) : base(ws, primary, new(-0, 0), new ArenaBoundsCircle(20)) // note: initial area is size 25, but it becomes smaller at 75%
+    public T02TitanN(WorldState ws, Actor primary) : base(ws, primary, default, new ArenaBoundsCircle(20)) // note: initial area is size 25, but it becomes smaller at 75%
     {
         _heart = Enemies(OID.TitansHeart);
     }

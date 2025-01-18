@@ -25,12 +25,12 @@ class P1CyclonicBreakSpreadStack(BossModule module) : Components.UniformStackSpr
             case AID.CyclonicBreakImageStack:
                 // TODO: this can target either supports or dd
                 Activation = Module.CastFinishAt(spell, 2.7f);
-                AddStacks(Module.Raid.WithoutSlot(true).Where(p => p.Class.IsSupport()), Activation);
+                AddStacks(Raid.WithoutSlot(true, true, true).Where(p => p.Class.IsSupport()), Activation);
                 break;
             case AID.CyclonicBreakBossSpread:
             case AID.CyclonicBreakImageSpread:
                 Activation = Module.CastFinishAt(spell, 2.7f);
-                AddSpreads(Module.Raid.WithoutSlot(true), Activation);
+                AddSpreads(Raid.WithoutSlot(true, true, true), Activation);
                 break;
         }
     }
@@ -136,13 +136,13 @@ class P1CyclonicBreakAIDodgeSpreadStack(BossModule module) : BossComponent(modul
         {
             if (_spreadStack.Stacks.Count > 0)
             {
-                var closestPartner = Module.Raid.WithoutSlot().Where(p => p.Class.IsSupport() != isSupport).Closest(actor.Position);
+                var closestPartner = Module.Raid.WithoutSlot(false, true, true).Where(p => p.Class.IsSupport() != isSupport).Closest(actor.Position);
                 if (closestPartner != null)
                     hints.AddForbiddenZone(ShapeDistance.InvertedCircle(closestPartner.Position, _spreadStack.StackRadius), _spreadStack.Activation);
             }
             else
             {
-                foreach (var p in Raid.WithoutSlot().Exclude(actor))
+                foreach (var p in Raid.WithoutSlot(false, true, true).Exclude(actor))
                     hints.AddForbiddenZone(ShapeDistance.Circle(p.Position, _spreadStack.SpreadRadius), _spreadStack.Activation);
             }
         }

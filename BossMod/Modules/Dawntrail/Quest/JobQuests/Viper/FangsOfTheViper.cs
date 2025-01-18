@@ -26,12 +26,12 @@ public enum AID : uint
     LeftSidedShockwave = 37702 // WanderingGowrow->self, 4.0s cast, range 20 180-degree cone
 }
 
-class BurningCyclone(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BurningCyclone), new AOEShapeCone(6, 60.Degrees()));
-class FoulBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FoulBreath), new AOEShapeCone(7, 45.Degrees()));
-class BrowHorn(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BrowHorn), new AOEShapeRect(6, 2));
-class Firebreathe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Firebreathe), new AOEShapeCone(60, 45.Degrees()));
+class BurningCyclone(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BurningCyclone), new AOEShapeCone(6, 60.Degrees()));
+class FoulBreath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FoulBreath), new AOEShapeCone(7, 45.Degrees()));
+class BrowHorn(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BrowHorn), new AOEShapeRect(6, 2));
+class Firebreathe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Firebreathe), new AOEShapeCone(60, 45.Degrees()));
 
-abstract class Shockwave(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(20, 90.Degrees()));
+abstract class Shockwave(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(20, 90.Degrees()));
 class RightSidedShockwave(BossModule module) : Shockwave(module, AID.RightSidedShockwave);
 class LeftSidedShockwave(BossModule module) : Shockwave(module, AID.LeftSidedShockwave);
 
@@ -61,5 +61,5 @@ public class FangsOfTheViper(WorldState ws, Actor primary) : BossModule(ws, prim
         Arena.Actors(Enemies(all));
     }
 
-    protected override bool CheckPull() => Raid.WithoutSlot().Any(x => x.InCombat);
+    protected override bool CheckPull() => Raid.Player()!.InCombat;
 }

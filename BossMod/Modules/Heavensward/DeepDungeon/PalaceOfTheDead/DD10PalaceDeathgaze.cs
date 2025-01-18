@@ -17,9 +17,9 @@ public enum AID : uint
 }
 
 class AeroBlast(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AeroBlast));
-class Bombination(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Bombination), new AOEShapeCircle(12));
+class Bombination(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Bombination), 12);
 class Lumisphere(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Lumisphere), 6);
-class Stormwind(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Stormwind), new AOEShapeCone(18, 45.Degrees()));
+class Stormwind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Stormwind), new AOEShapeCone(18, 45.Degrees()));
 
 class DD10PalaceDeathgazeStates : StateMachineBuilder
 {

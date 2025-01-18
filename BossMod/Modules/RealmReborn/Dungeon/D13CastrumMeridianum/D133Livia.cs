@@ -10,6 +10,7 @@ public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
     Teleport = 28788, // Boss->location, no cast, single-target
+
     AglaeaClimb = 28798, // Boss->player, 5.0s cast, single-target, tankbuster
     ArtificialPlasma = 28033, // Boss->self, 5.0s cast, range 40 circle, raidwide
 
@@ -33,7 +34,7 @@ public enum AID : uint
 
     ArtificialBoost = 29354, // Boss->self, 4.0s cast, single-target, visual (buff)
     ArtificialPlasmaBoostFirst = 29352, // Boss->self, 5.0s cast, raidwide
-    ArtificialPlasmaBoostRest = 29353, // Boss->self, no cast, raidwide
+    ArtificialPlasmaBoostRest = 29353 // Boss->self, no cast, raidwide
 }
 
 class AglaeaClimb(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.AglaeaClimb));

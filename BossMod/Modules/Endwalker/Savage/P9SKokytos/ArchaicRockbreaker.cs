@@ -29,7 +29,7 @@ class ArchaicRockbreakerPairs : Components.UniformStackSpread
 {
     public ArchaicRockbreakerPairs(BossModule module) : base(module, 6, 0, 2)
     {
-        foreach (var p in Raid.WithoutSlot(true).Where(p => p.Class.IsSupport()))
+        foreach (var p in Raid.WithoutSlot(true, true, true).Where(p => p.Class.IsSupport()))
             AddStack(p, WorldState.FutureTime(7.8f));
     }
 
@@ -128,7 +128,7 @@ class ArchaicDemolish(BossModule module) : Components.UniformStackSpread(module,
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.ArchaicDemolish)
-            AddStacks(Raid.WithoutSlot(true).Where(a => a.Role == Role.Healer), Module.CastFinishAt(spell, 1.2f));
+            AddStacks(Raid.WithoutSlot(true, true, true).Where(a => a.Role == Role.Healer), Module.CastFinishAt(spell, 1.2f));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

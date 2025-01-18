@@ -12,7 +12,7 @@ class RapidSequenceParticleBeam(BossModule module) : Components.GenericWildCharg
             Activation = Module.CastFinishAt(spell, 0.8f);
             // TODO: not sure how targets are selected, assume it's first healer of each alliance
             BitMask selectedTargetsInAlliance = default;
-            foreach (var (i, p) in Raid.WithSlot())
+            foreach (var (i, p) in Raid.WithSlot(false, false, true))
             {
                 if (p.Role == Role.Healer && !selectedTargetsInAlliance[i >> 3])
                 {

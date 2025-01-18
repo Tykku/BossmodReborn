@@ -3,22 +3,23 @@
 public enum OID : uint
 {
     Boss = 0x1819, // R3.600, x1
-    DeepPalaceHornet = 0x1905, // R0.400, x0 (spawn during fight)
+    DeepPalaceHornet = 0x1905 // R0.400, x0 (spawn during fight)
 }
 
 public enum AID : uint
 {
     AutoAttack = 6499, // Boss->player, no cast, single-target
     AutoAttackAdds = 6498, // DeepPalaceHornet->player, no cast, single-target
+
     AcidMist = 7134, // Boss->self, 3.0s cast, range 6+R circle
     BloodyCaress = 7133, // Boss->self, no cast, range 8+R 120-degree cone
     FinalSting = 919, // DeepPalaceHornet->player, 3.0s cast, single-target
     GoldDust = 7135, // Boss->location, 3.0s cast, range 8 circle
     Leafstorm = 7136, // Boss->self, 3.0s cast, range 50 circle
-    RottenStench = 7137, // Boss->self, 3.0s cast, range 45+R width 12 rect
+    RottenStench = 7137 // Boss->self, 3.0s cast, range 45+R width 12 rect
 }
 
-class AcidMist(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AcidMist), new AOEShapeCircle(9.6f));
+class AcidMist(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AcidMist), 9.6f);
 class BossAdds(BossModule module) : Components.Adds(module, (uint)OID.DeepPalaceHornet)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -36,7 +37,7 @@ class BloodyCaress(BossModule module) : Components.Cleave(module, ActionID.MakeS
 class FinalSting(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.FinalSting), "Final sting is being cast! \nKill the add or take 98% of your hp!");
 class GoldDust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldDust), 8);
 class Leafstorm(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Leafstorm));
-class RottenStench(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RottenStench), new AOEShapeRect(47.6f, 6));
+class RottenStench(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RottenStench), new AOEShapeRect(48.6f, 6));
 
 class DD120KirtimukhaStates : StateMachineBuilder
 {

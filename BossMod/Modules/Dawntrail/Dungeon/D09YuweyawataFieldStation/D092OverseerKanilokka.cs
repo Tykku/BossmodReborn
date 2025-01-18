@@ -117,7 +117,7 @@ class DarkSouls(BossModule module) : Components.SingleTargetCast(module, ActionI
 class TelltaleTears(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.TelltaleTears), 5);
 class SoulDouse(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.SoulDouse), 6, 4, 4);
 class LostHope(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.LostHope));
-class Necrohazard(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Necrohazard), new AOEShapeCircle(18));
+class Necrohazard(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Necrohazard), 18);
 
 class DarkII(BossModule module) : Components.GenericAOEs(module)
 {
@@ -128,9 +128,12 @@ class DarkII(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _aoes.Count;
         if (count == 0)
-            yield break;
-        for (var i = 0; i < (count > 6 ? 6 : count); ++i)
-            yield return _aoes[i];
+            return [];
+        var max = count > 6 ? 6 : count;
+        List<AOEInstance> aoes = new(max);
+        for (var i = 0; i < max; ++i)
+            aoes.Add(_aoes[i]);
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

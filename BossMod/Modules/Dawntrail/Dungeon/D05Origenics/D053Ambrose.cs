@@ -66,7 +66,7 @@ class PsychicWaveArenaChange(BossModule module) : Components.GenericAOEs(module)
 }
 
 class PsychicWave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PsychicWave));
-class Psychokinesis(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Psychokinesis), new AOEShapeRect(70, 6.5f));
+class Psychokinesis(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Psychokinesis), new AOEShapeRect(70, 6.5f));
 
 class ExtrasensoryExpulsion(BossModule module) : Components.Knockback(module, maxCasts: 1)
 {
@@ -243,12 +243,14 @@ class Rush(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _aoes.Count;
         if (count == 0)
-            yield break;
+            return [];
+        List<AOEInstance> aoes = new(count);
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
-            yield return i == 0 ? count > 1 ? aoe with { Color = Colors.Danger } : aoe : aoe;
+            aoes.Add(i == 0 ? count > 1 ? aoe with { Color = Colors.Danger } : aoe : aoe);
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

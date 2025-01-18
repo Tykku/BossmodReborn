@@ -23,7 +23,7 @@ public enum AID : uint
 }
 
 class CroakingChorus(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.CroakingChorus), "Calls adds");
-class FrigidNeedle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FrigidNeedle), new AOEShapeCross(40, 2.5f));
+class FrigidNeedle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrigidNeedle), new AOEShapeCross(40, 2.5f));
 class Spittle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spittle), 8);
 class ToyHammer(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ToyHammer));
 class Hydrocannon(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Hydrocannon), 6, 8, 8);
