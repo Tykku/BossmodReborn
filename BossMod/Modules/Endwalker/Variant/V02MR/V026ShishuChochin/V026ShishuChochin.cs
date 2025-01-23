@@ -59,7 +59,7 @@ class Lanterns(BossModule module) : Components.GenericAOEs(module)
                     lanternPriorityCount++;
                 }
                 else
-                    e.Priority = -1;
+                    e.Priority = AIHints.Enemy.PriorityUndesirable;
     }
 
     public override void AddGlobalHints(GlobalHints hints)

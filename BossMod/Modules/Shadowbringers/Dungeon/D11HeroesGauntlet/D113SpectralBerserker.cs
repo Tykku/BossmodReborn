@@ -143,7 +143,7 @@ class WildRageKnockback(BossModule module) : Components.KnockbackFromCastTarget(
             var dir = source.Origin.X == 738 ? 1 : -1;
             forbidden.Add(ShapeDistance.InvertedDonutSector(source.Origin, 8, 9, a45 * dir, a10));
             forbidden.Add(ShapeDistance.InvertedDonutSector(source.Origin, 8, 9, 3 * a45 * dir, a10));
-            hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), source.Activation);
+            hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), source.Activation);
         }
     }
 }

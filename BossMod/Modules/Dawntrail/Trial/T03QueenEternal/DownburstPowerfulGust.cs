@@ -30,7 +30,7 @@ class DownburstKB(BossModule module) : Components.KnockbackFromCastTarget(module
                 var forbidden = new List<Func<WPos, float>>(4);
                 for (var i = 0; i < 4; ++i)
                     forbidden.Add(ShapeDistance.InvertedCone(source.Origin, 5, source.Direction + Angle.AnglesCardinals[i], 10.Degrees()));
-                hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), source.Activation);
+                hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), source.Activation);
             }
         }
     }

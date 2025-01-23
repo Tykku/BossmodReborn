@@ -57,7 +57,7 @@ class PounceErrant(BossModule module) : Components.SpreadFromIcon(module, (uint)
             var forbidden = new List<Func<WPos, float>>(count);
             for (var i = 0; i < count; ++i)
                 forbidden.Add(ShapeDistance.Circle(Module.Enemies(OID.IronCage)[i].Position, 11));
-            hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), spread.Activation);
+            hints.AddForbiddenZone(ShapeDistance.Union(forbidden), spread.Activation);
         }
     }
 
@@ -116,7 +116,7 @@ class ForlornImpact(BossModule module) : Components.GenericBaitAway(module)
                 var a = cages[i];
                 forbidden.Add(ShapeDistance.Cone(bait.Source.Position, 100, bait.Source.AngleTo(a), Angle.Asin(3.5f / (a.Position - bait.Source.Position).Length())));
             }
-            hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), bait.Activation);
+            hints.AddForbiddenZone(ShapeDistance.Union(forbidden), bait.Activation);
         }
     }
 

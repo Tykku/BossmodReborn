@@ -73,8 +73,10 @@ class Frostbite(BossModule module) : Components.GenericAOEs(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
+        if (_aoes.Count == 0)
+            return;
         var activeAOEs = ActiveAOEs(slot, actor).ToList();
-        if (activeAOEs.Any(c => c.Risky && c.Check(actor.Position)))
+        if (ActiveAOEs(slot, actor).Any(c => c.Risky && c.Check(actor.Position)))
             hints.Add(RiskHint);
         else if (activeAOEs.Any(c => !c.Risky && c.Check(actor.Position)))
             hints.Add(RiskHint2 + $" {(activeAOEs.FirstOrDefault(c => !c.Risky && c.Check(actor.Position)).Activation - WorldState.CurrentTime).TotalSeconds:F1}s until activation.");

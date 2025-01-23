@@ -72,18 +72,7 @@ class DarkNebula(BossModule module) : Components.Knockback(module)
             var circleIndex = rotationMatch ? mapping.CircleIndices[0] : mapping.CircleIndices[1];
             forbidden.Add(CreateForbiddenZone(circleIndex, mapping.Directions));
         }
-        float maxDistanceFunc(WPos pos)
-        {
-            var minDistance = float.MinValue;
-            for (var i = 0; i < forbidden.Count; ++i)
-            {
-                var distance = forbidden[i](pos);
-                if (distance > minDistance)
-                    minDistance = distance;
-            }
-            return minDistance;
-        }
 
-        hints.AddForbiddenZone(maxDistanceFunc, Sources(slot, actor).FirstOrDefault().Activation);
+        hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), Sources(slot, actor).FirstOrDefault().Activation);
     }
 }

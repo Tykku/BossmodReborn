@@ -194,7 +194,7 @@ class Resonance(BossModule module) : Components.BaitAwayCast(module, ActionID.Ma
 {
     public override void AddGlobalHints(GlobalHints hints)
     {
-        if (CurrentBaits.Count > 0)
+        if (CurrentBaits.Count != 0)
             hints.Add("Tankbuster cleave");
     }
 }

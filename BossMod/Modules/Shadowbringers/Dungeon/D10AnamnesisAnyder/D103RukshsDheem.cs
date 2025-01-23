@@ -140,6 +140,7 @@ class Drains(BossModule module) : Components.GenericAOEs(module)
     private const float SideLength = 1.25f;
     private static readonly WPos[] drainPositions = new WPos[8];
     private const string Hint = "Block a drain!";
+    private static readonly WDir dir = new(0, 1);
     private DateTime activation;
 
     static Drains()
@@ -171,7 +172,7 @@ class Drains(BossModule module) : Components.GenericAOEs(module)
         return aoes;
     }
 
-    public static bool IsBlockingDrain(Actor actor, WPos pos) => actor.Position.InRect(pos, new Angle(), SideLength, SideLength, SideLength);
+    public static bool IsBlockingDrain(Actor actor, WPos pos) => actor.Position.InRect(pos, dir, SideLength, SideLength, SideLength);
 
     public override void OnEventEnvControl(byte index, uint state)
     {
@@ -206,22 +207,31 @@ class Drains(BossModule module) : Components.GenericAOEs(module)
         }
     }
 
+    public override void OnActorDestroyed(Actor actor)
+    {
+        if ((OID)actor.OID == OID.QueensHarpooner) // there doesn't seem to be any ENVC or the like when mechanic ends
+            activation = default;
+    }
+
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var forbidden = new List<Func<WPos, float>>();
+        if (activation == default)
+            return;
+        var forbidden = new List<Func<WPos, float>>(8);
         for (var i = 0; i < activeDrains.Count; ++i)
-            forbidden.Add(ShapeDistance.InvertedRect(activeDrains[i], new Angle(), SideLength, SideLength, SideLength));
+            forbidden.Add(ShapeDistance.InvertedRect(activeDrains[i], dir, SideLength, SideLength, SideLength));
         for (var i = 0; i < solvedDrains.Count; ++i)
         {
             var drain = solvedDrains[i];
             if (IsBlockingDrain(actor, drain))
             {
-                forbidden.Add(ShapeDistance.InvertedRect(drain, new Angle(), SideLength, SideLength, SideLength));
+                forbidden.Add(ShapeDistance.InvertedRect(drain, dir, SideLength, SideLength, SideLength));
                 break; // can only block one drain at a time, no point to keep checking
             }
         }
-        if (forbidden.Count > 0)
-            hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), activation);
+
+        if (forbidden.Count != 0)
+            hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), activation);
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -276,6 +286,20 @@ public class D103RukshsDheem(WorldState ws, Actor primary) : BossModule(ws, prim
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.QueensHarpooner).Concat([PrimaryActor]));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.QueensHarpooner));
+    }
+
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        {
+            var e = hints.PotentialTargets[i];
+            e.Priority = (OID)e.Actor.OID switch
+            {
+                OID.QueensHarpooner => 1,
+                _ => 0
+            };
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace BossMod.Heavensward.Quest.Heliodrome;
+﻿namespace BossMod.Heavensward.Quest.MSQ.Heliodrome;
 
 public enum OID : uint
 {
@@ -82,29 +82,19 @@ class GrynewahtStates : StateMachineBuilder
             .ActivateOnEnter<MagitekMissiles>();
 
         SimplePhase(1, id => build(id).ActivateOnEnter<Bounds>(), "P1")
-            .Raw.Update = () => Module.Enemies(OID.GrynewahtP2).Count != 0;
+            .Raw.Update = () => module.Enemies(OID.GrynewahtP2).Count != 0;
         DeathPhase(0x100, id => build(id).ActivateOnEnter<ReaperAI>().OnEnter(() =>
         {
-            Module.Arena.Bounds = new ArenaBoundsCircle(20);
+            module.Arena.Bounds = Grynewaht.CircleBounds;
         }));
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.WIP, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 222, NameID = 5576)]
-public class Grynewaht(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, 0), HexBounds)
+[ModuleInfo(BossModuleInfo.Maturity.Contributed, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 222, NameID = 5576)]
+public class Grynewaht(WorldState ws, Actor primary) : BossModule(ws, primary, default, hexBounds)
 {
-    public static readonly ArenaBoundsCustom HexBounds = BuildHexBounds();
+    private static readonly ArenaBoundsComplex hexBounds = new([new Polygon(default, 10.675f, 6, 30.Degrees())]);
+    public static readonly ArenaBoundsComplex CircleBounds = new([new Polygon(default, 20, 20)]);
 
-    private static ArenaBoundsCustom BuildHexBounds()
-    {
-        var hexSideLen = 20 / MathF.Sqrt(3);
-
-        // slight adjustment to account for player hitbox radius, otherwise dodges can get very sketchy
-        hexSideLen -= 1.5f;
-
-        List<WDir> verts = [new(hexSideLen, 0), hexSideLen * 30.Degrees().ToDirection(), -hexSideLen * 150.Degrees().ToDirection(), new(-hexSideLen, 0), hexSideLen * -30.Degrees().ToDirection(), hexSideLen * 150.Degrees().ToDirection()];
-        return new(hexSideLen, new(verts));
-    }
-
-    protected override bool CheckPull() => true;
+    protected override bool CheckPull() => Raid.Player()!.InCombat;
 }

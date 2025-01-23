@@ -1,3 +1,5 @@
+using BossMod.Dawntrail.Quest.MSQ.TheProtectorAndTheDestroyer.Otis;
+
 namespace BossMod.Dawntrail.Quest.MSQ.TheProtectorAndTheDestroyer.Gwyddrud;
 
 public enum OID : uint
@@ -13,6 +15,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player/WukLamat, no cast, single-target
+
     CracklingHowlVisual = 38211, // Boss->self, 4.3+0,7s cast, single-target
     CracklingHowl = 38212, // Helper->self, 5.0s cast, range 40 circle
     Teleport = 38213, // Boss->location, no cast, single-target
@@ -116,19 +119,7 @@ class RoaringBoltKB(BossModule module) : Components.KnockbackFromCastTarget(modu
         {
             for (var i = 0; i < count; ++i)
                 forbidden.Add(ShapeDistance.Cone(Arena.Center, 20, Angle.FromDirection(aoes[i].Origin - Arena.Center), a25));
-            float minDistanceFunc(WPos pos)
-            {
-                var minDistance = float.MaxValue;
-                for (var i = 0; i < forbidden.Count; ++i)
-                {
-                    var distance = forbidden[i](pos);
-                    if (distance < minDistance)
-                        minDistance = distance;
-                }
-                return minDistance;
-            }
-
-            hints.AddForbiddenZone(minDistanceFunc, source.Activation);
+            hints.AddForbiddenZone(ShapeDistance.Union(forbidden), source.Activation);
         }
     }
 }
@@ -193,7 +184,7 @@ class GwyddrudStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.Quest, GroupID = 70478, NameID = 13170)]
-public class Gwyddrud(WorldState ws, Actor primary) : BossModule(ws, primary, new(349, -14), new ArenaBoundsCircle(19.5f))
+public class Gwyddrud(WorldState ws, Actor primary) : BossModule(ws, primary, OtisOathbroken.ArenaCenter, OtisOathbroken.ArenaBounds)
 {
     private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.SuperchargedLevin, (uint)OID.BallOfLevin];
 

@@ -209,7 +209,7 @@ class BurningBright(BossModule module) : Components.BaitAwayCast(module, ActionI
                 forbidden.Add(ShapeDistance.Cone(bait.Source.Position, 100, bait.Source.AngleTo(a), Angle.Asin(8 / (a.Position - bait.Source.Position).Length())));
             }
             if (forbidden.Count != 0)
-                hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), bait.Activation);
+                hints.AddForbiddenZone(ShapeDistance.Union(forbidden), bait.Activation);
         }
     }
 }

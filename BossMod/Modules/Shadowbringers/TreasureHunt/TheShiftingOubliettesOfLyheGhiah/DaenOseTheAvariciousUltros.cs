@@ -68,8 +68,8 @@ class WaveOfTurmoil(BossModule module) : Components.KnockbackFromCastTarget(modu
             {
                 forbidden.Add(ShapeDistance.Cone(Arena.Center, 20, Angle.FromDirection(c.Origin - Module.Center), 30.Degrees()));
             }
-            if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), source.Activation);
+            if (forbidden.Count != 0)
+                hints.AddForbiddenZone(ShapeDistance.Union(forbidden), source.Activation);
         }
     }
 }

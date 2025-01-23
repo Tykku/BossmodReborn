@@ -11,7 +11,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
 {
     public WorldState WorldState => autorot.Bossmods.WorldState;
     public Preset? AIPreset = aiPreset;
-    public float ForceMovementIn { get; private set; } = float.MaxValue; // TODO: reconsider
+    public float ForceMovementIn = float.MaxValue; // TODO: reconsider
     private readonly AIConfig _config = Service.Config.Get<AIConfig>();
     private readonly NavigationDecision.Context _naviCtx = new();
     private NavigationDecision _naviDecision;
@@ -51,7 +51,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
             {
                 var t = autorot.WorldState.Actors.Find(player.TargetID);
                 if (t != null)
-                    target.Target = new AIHints.Enemy(t, false);
+                    target.Target = new AIHints.Enemy(t, 100, false);
                 else
                     target = new();
             }
@@ -63,7 +63,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         var followTarget = _config.FollowTarget;
         _followMaster = (_config.FollowDuringCombat || !master.InCombat || (_masterPrevPos - _masterMovementStart).LengthSq() > 100) && (_config.FollowDuringActiveBossModule || autorot.Bossmods.ActiveModule?.StateMachine.ActiveState == null) && (_config.FollowOutOfCombat || master.InCombat);
         // note: if there are pending knockbacks, don't update navigation decision to avoid fucking up positioning
-        if (!WorldState.PendingEffects.PendingKnockbacks(player.InstanceID))
+        if (player.PendingKnockbacks.Count == 0)
         {
             var actorTarget = autorot.WorldState.Actors.Find(player.TargetID);
             (var naviDecision, target) = followTarget && actorTarget != null
@@ -93,7 +93,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
     private Targeting SelectPrimaryTarget(Actor player, Actor master)
     {
         if (AIManager.Instance?.Beh != null && autorot.Hints.InteractWithTarget is Actor interact)
-            return new Targeting(new AIHints.Enemy(interact, false), 3);
+            return new(new AIHints.Enemy(interact, 100, false), 3.5f);
 
         // we prefer not to switch targets unnecessarily, so start with current target - it could've been selected manually or by AI on previous frames
         // if current target is not among valid targets, clear it - this opens way for future target selection heuristics

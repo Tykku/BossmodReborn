@@ -45,10 +45,11 @@ class UnbreakableCermetBlade(BossModule module) : Components.GenericAOEs(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        var activeAOEs = ActiveAOEs(slot, actor).ToList();
-        if (activeAOEs.Any(c => !c.Check(actor.Position)))
+        if (_aoe == null)
+            return;
+        if (ActiveAOEs(slot, actor).Any(c => !c.Check(actor.Position)))
             hints.Add(RiskHint);
-        else if (activeAOEs.Any(c => c.Check(actor.Position)))
+        else
             hints.Add(StayHint, false);
     }
 }

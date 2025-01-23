@@ -16,8 +16,9 @@ class ExplosiveImpulse1(BossModule module) : ExplosiveImpulse(module, AID.Explos
 class ExplosiveImpulse2(BossModule module) : ExplosiveImpulse(module, AID.ExplosiveImpulse2);
 
 class AernsWynavExplosion(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.ExplosionWyvern), "Aerns Wyvnav is enraging!", true);
+class MeteorEnrageCounter(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.MeteorEnrageRepeat));
 
-[ModuleInfo(BossModuleInfo.Maturity.WIP, GroupType = BossModuleInfo.GroupType.BaldesionArsenal, GroupID = 639, NameID = 7976, PlanLevel = 70)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.BaldesionArsenal, GroupID = 639, NameID = 7976, PlanLevel = 70, SortOrder = 4)]
 public class BA3AbsoluteVirtue(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-175, 314), 29.95f, 96), new Rectangle(new(-146, 314), 0.8f, 5.8f), new Rectangle(new(-175, 285), 6, 1.05f)],

@@ -65,6 +65,7 @@ public sealed unsafe class ActionManagerEx : IDisposable
     private readonly HookAddress<ActionManager.Delegates.UseActionLocation> _useActionLocationHook;
     private readonly HookAddress<PublicContentBozja.Delegates.UseFromHolster> _useBozjaFromHolsterDirectorHook;
     private readonly HookAddress<ActionEffectHandler.Delegates.Receive> _processPacketActionEffectHook;
+    private readonly HookAddress<AutoAttackState.Delegates.SetImpl> _setAutoAttackStateHook;
 
     private delegate void ExecuteCommandGTDelegate(uint commandId, Vector3* position, uint param1, uint param2, uint param3, uint param4);
     private readonly ExecuteCommandGTDelegate _executeCommandGT;
@@ -89,6 +90,7 @@ public sealed unsafe class ActionManagerEx : IDisposable
         _useActionLocationHook = new(ActionManager.Addresses.UseActionLocation, UseActionLocationDetour);
         _useBozjaFromHolsterDirectorHook = new(PublicContentBozja.Addresses.UseFromHolster, UseBozjaFromHolsterDirectorDetour);
         _processPacketActionEffectHook = new(ActionEffectHandler.Addresses.Receive, ProcessPacketActionEffectDetour);
+        _setAutoAttackStateHook = new(AutoAttackState.Addresses.SetImpl, SetAutoAttackStateDetour);
 
         var executeCommandGTAddress = Service.SigScanner.ScanText("E8 ?? ?? ?? ?? EB 1E 48 8B 53 08");
         Service.Log($"ExecuteCommandGT address: 0x{executeCommandGTAddress:X}");
@@ -97,6 +99,7 @@ public sealed unsafe class ActionManagerEx : IDisposable
 
     public void Dispose()
     {
+        _setAutoAttackStateHook.Dispose();
         _processPacketActionEffectHook.Dispose();
         _useBozjaFromHolsterDirectorHook.Dispose();
         _useActionLocationHook.Dispose();
@@ -123,8 +126,15 @@ public sealed unsafe class ActionManagerEx : IDisposable
         AutoQueue = _hints.ActionsToExecute.FindBest(_ws, player, _ws.Client.Cooldowns, EffectiveAnimationLock, _hints, _animLockTweak.DelayEstimate);
         if (AutoQueue.Delay > 0)
             AutoQueue = default;
-        if (Config.PyreticThreshold > 0 && _hints.ImminentSpecialMode.mode == AIHints.SpecialMode.Pyretic && _hints.ImminentSpecialMode.activation < _ws.FutureTime(Config.PyreticThreshold) && AutoQueue.Priority < ActionQueue.Priority.ManualEmergency)
-            AutoQueue = default; // do not execute non-emergency actions when pyretic is imminent
+
+        if (AutoQueue.Priority < ActionQueue.Priority.ManualEmergency)
+        {
+            if (Config.PyreticThreshold > 0 && _hints.ImminentSpecialMode.mode == AIHints.SpecialMode.Pyretic && _hints.ImminentSpecialMode.activation < _ws.FutureTime(Config.PyreticThreshold))
+                AutoQueue = default; // do not execute non-emergency actions when pyretic is imminent
+
+            if (_hints.FindEnemy(AutoQueue.Target)?.Priority == AIHints.Enemy.PriorityForbidden)
+                AutoQueue = default; // or if selected target is forbidden
+        }
     }
 
     public Vector3? GetWorldPosUnderCursor()
@@ -389,8 +399,8 @@ public sealed unsafe class ActionManagerEx : IDisposable
             UIState.Instance()->Hotbar.CancelCast();
         ForceCancelCastNextFrame = false;
 
-        var autosEnabled = UIState.Instance()->WeaponState.IsAutoAttacking;
-        if (_autoAutosTweak.GetDesiredState(autosEnabled) != autosEnabled)
+        var autosEnabled = UIState.Instance()->WeaponState.AutoAttackState.IsAutoAttacking;
+        if (_autoAutosTweak.GetDesiredState(autosEnabled, _ws.Party.Player()?.TargetID ?? 0) != autosEnabled)
             _inst->UseAction(CSActionType.GeneralAction, 1);
 
         if (_hints.WantDismount && _dismountTweak.AllowDismount())
@@ -538,5 +548,17 @@ public sealed unsafe class ActionManagerEx : IDisposable
         var (recastElapsed, recastTotal) = recast != null ? (recast->Elapsed, recast->Total) : (0, 0);
         Service.Log($"[AMEx] UAL #{seq} {action} @ {targetID:X} / {Utils.Vec3String(targetPos)}, ALock={_inst->AnimationLock:f3}, CTR={CastTimeRemaining:f3}, CD={recastElapsed:f3}/{recastTotal:f3}, GCD={GCD():f3}");
         ActionRequestExecuted.Fire(new(action, targetID, targetPos, seq, _inst->AnimationLock, castElapsed, castTotal, recastElapsed, recastTotal));
+    }
+
+    // note: we can't rely on worldstate target id, it might not be updated when this is called
+    // TODO: current implementation means that we'll check desired state twice (once before making a decision to start autos, then again in the hook)
+    private bool SetAutoAttackStateDetour(AutoAttackState* self, bool value, bool sendPacket, bool isInstant)
+    {
+        if (value && !_autoAutosTweak.GetDesiredState(true, TargetSystem.Instance()->GetTargetObjectId()))
+        {
+            Service.Log($"[AMEx] Prevented starting autoattacks");
+            return true;
+        }
+        return _setAutoAttackStateHook.Original(self, value, sendPacket, isInstant);
     }
 }

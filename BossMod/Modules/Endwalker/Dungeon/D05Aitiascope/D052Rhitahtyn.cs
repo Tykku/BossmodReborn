@@ -85,8 +85,8 @@ class ArenaChanges(BossModule module) : BossComponent(module)
                 if (shape is Rectangle rectangle)
                     forbidden.Add(ShapeDistance.InvertedCircle(rectangle.Center, 5));
         }
-        if (forbidden.Count > 0)
-            hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), activation);
+        if (forbidden.Count != 0)
+            hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), activation);
     }
 }
 

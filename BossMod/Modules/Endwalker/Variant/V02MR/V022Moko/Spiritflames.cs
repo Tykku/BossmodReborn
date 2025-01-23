@@ -32,6 +32,6 @@ class Spiritflames(BossModule module) : Components.GenericAOEs(module)
         var forbidden = new List<Func<WPos, float>>();
         foreach (var f in _flames)
             forbidden.Add(ShapeDistance.Capsule(f.Position, f.Rotation, Length, Radius));
-        hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
+        hints.AddForbiddenZone(ShapeDistance.Union(forbidden));
     }
 }

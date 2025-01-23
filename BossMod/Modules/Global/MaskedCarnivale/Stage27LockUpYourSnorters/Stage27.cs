@@ -181,7 +181,7 @@ public class Stage27 : BossModule
             {
                 OID.MagitekExplosive => 2,
                 OID.Boss => 1,
-                OID.Bomb => AIHints.Enemy.PriorityForbidAI,
+                OID.Bomb => AIHints.Enemy.PriorityPointless,
                 _ => 0
             };
         }

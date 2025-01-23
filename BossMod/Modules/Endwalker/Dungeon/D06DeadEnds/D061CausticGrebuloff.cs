@@ -112,22 +112,19 @@ class NecroticFluidMist(BossModule module) : Components.Exaflare(module, 6)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
+        static WPos RoundPosition(WPos position) => new(MathF.Round(position.X * 10) * 0.1f, MathF.Round(position.Z * 10) * 0.1f);
         if ((AID)spell.Action.ID == AID.NecroticFluid)
         {
-            var numExplosions = GetNumExplosions(caster);
-            var advance = 6 * (CurrentWind == Pattern.Southward ? new WDir(1, 0) : new(-1, 0));
+            var roundedPos = RoundPosition(spell.LocXZ);
+            var numExplosions = CurrentWind switch
+            {
+                Pattern.Southward => GetSouthwardExplosions(roundedPos, Arena.Center),
+                Pattern.Northward => GetNorthwardExplosions(roundedPos, Arena.Center),
+                _ => 0
+            };
+            var advance = 6 * (CurrentWind == Pattern.Southward ? new WDir(0, 1) : new(0, -1));
             Lines.Add(new() { Next = spell.LocXZ, Advance = advance, NextExplosion = Module.CastFinishAt(spell), TimeToMove = 2, ExplosionsLeft = numExplosions, MaxShownExplosions = 5 });
         }
-    }
-
-    private int GetNumExplosions(Actor caster)
-    {
-        return CurrentWind switch
-        {
-            Pattern.Southward => GetSouthwardExplosions(caster.Position, Arena.Center),
-            Pattern.Northward => GetNorthwardExplosions(caster.Position, Arena.Center),
-            _ => 0
-        };
     }
 
     private static int GetSouthwardExplosions(WPos position, WPos center)
@@ -160,7 +157,7 @@ class NecroticFluidMist(BossModule module) : Components.Exaflare(module, 6)
     {
         if ((AID)spell.Action.ID is AID.NecroticFluid or AID.NecroticMist)
         {
-            Advance((AID)spell.Action.ID == AID.NecroticFluid ? caster.Position : spell.LocXZ);
+            Advance(spell.LocXZ);
             ++NumCasts;
         }
     }
@@ -196,19 +193,21 @@ class WaveOfNausea(BossModule module) : Components.GenericAOEs(module)
     private readonly NecroticFluidMist _exa = module.FindComponent<NecroticFluidMist>()!;
     private readonly List<AOEInstance> _aoes = new(2);
     private static readonly AOEShapeDonut donut = new(6, 40);
-    private static readonly Shape[] differenceShapes = [new Circle(new(271.5f, -178), 6), new Circle(new(261.5f, -178), 6)];
+    private static readonly Shape[] differenceShapes = [new Circle(new(271.473f, -178.027f), 6), new Circle(new(261.494f, -178.027f), 6)];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
+        void AddAOE(Angle start, Angle end)
+                => _aoes.Add(new(new AOEShapeCustom([new ConeHA(spell.LocXZ, 6, start, end)], differenceShapes, InvertForbiddenZone: true), Arena.Center, default, Module.CastFinishAt(spell), Colors.SafeFromAOE));
         if ((AID)spell.Action.ID == AID.WaveOfNausea)
         {
-            _aoes.Add(new(donut, caster.Position, default, Module.CastFinishAt(spell)));
+            _aoes.Add(new(donut, spell.LocXZ, default, Module.CastFinishAt(spell)));
             if (_exa.CurrentWind == NecroticFluidMist.Pattern.Southward)
-                _aoes.Add(new(new AOEShapeCustom([new ConeHA(spell.LocXZ, 6, 180.Degrees(), 90.Degrees())], differenceShapes, InvertForbiddenZone: true), Arena.Center, default, Module.CastFinishAt(spell), Colors.SafeFromAOE));
+                AddAOE(180.Degrees(), 90.Degrees());
             else if (_exa.CurrentWind == NecroticFluidMist.Pattern.Northward)
-                _aoes.Add(new(new AOEShapeCustom([new ConeHA(spell.LocXZ, 6, 0.Degrees(), 90.Degrees())], differenceShapes, InvertForbiddenZone: true), Arena.Center, default, Module.CastFinishAt(spell), Colors.SafeFromAOE));
+                AddAOE(default, 90.Degrees());
         }
     }
 
@@ -251,5 +250,6 @@ class D061CausticGrebuloffStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 792, NameID = 10313)]
 public class D061CausticGrebuloff(WorldState ws, Actor primary) : BossModule(ws, primary, defaultBounds.Center, defaultBounds)
 {
-    private static readonly ArenaBoundsComplex defaultBounds = new([new Circle(new(266.5f, -178), 19.5f)], [new Rectangle(new(266.5f, -198.75f), 20, 2), new Rectangle(new(266.5f, -157), 20, 2)]);
+    private static readonly ArenaBoundsComplex defaultBounds = new([new Polygon(new(266.5f, -178), 19.5f * CosPI.Pi32th, 32)],
+    [new Rectangle(new(266.5f, -198.75f), 20, 2), new Rectangle(new(266.5f, -157), 20, 2)]);
 }

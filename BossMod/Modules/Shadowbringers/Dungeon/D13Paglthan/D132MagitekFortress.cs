@@ -119,7 +119,7 @@ class MagitekMissile(BossModule module) : Components.GenericAOEs(module)
             var m = _missiles[i];
             forbidden.Add(ShapeDistance.Capsule(m.Position, m.Rotation, Length, Radius)); // merging all forbidden zones into one to make pathfinding less demanding
         }
-        hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
+        hints.AddForbiddenZone(ShapeDistance.Union(forbidden));
     }
 }
 

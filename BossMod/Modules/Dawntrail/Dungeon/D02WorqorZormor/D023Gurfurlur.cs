@@ -90,7 +90,7 @@ class AuraSphere(BossModule module) : BossComponent(module)
             }
         }
         if (orbs.Count != 0)
-            hints.AddForbiddenZone(p => orbs.Max(f => f(p)));
+            hints.AddForbiddenZone(ShapeDistance.Intersection(orbs));
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
@@ -252,8 +252,8 @@ class Windswrath2(BossModule module) : Windswrath(module, AID.Windswrath2)
             }
             else
                 forbidden.Add(ShapeDistance.InvertedCircle(sources.Origin, 8));
-            if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), sources.Activation);
+            if (forbidden.Count != 0)
+                hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), sources.Activation);
         }
     }
 }

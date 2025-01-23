@@ -56,10 +56,14 @@ class BattleCryArenaChange(BossModule module) : Components.GenericAOEs(module)
             if (state == 0x00020001)
             {
                 Arena.Bounds = D122Arkas.SmallerBounds;
+                Arena.Center = D122Arkas.SmallerBounds.Center;
                 _aoe = null;
             }
             else if (state == 0x00080004)
+            {
                 Arena.Bounds = D122Arkas.DefaultBounds;
+                Arena.Center = D122Arkas.DefaultBounds.Center;
+            }
         }
     }
 
@@ -210,6 +214,7 @@ class D122ArkasStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 822, NameID = 12337, SortOrder = 6)]
 public class D122Arkas(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultBounds.Center, DefaultBounds)
 {
-    public static readonly ArenaBoundsComplex DefaultBounds = new([new Polygon(new(425, -440), 14.5f, 48)], [new Rectangle(new(425, -424), 20, 2.4f), new Rectangle(new(425, -455), 10, 1.25f)]);
-    public static readonly ArenaBoundsCircle SmallerBounds = new(10);
+    private static readonly WPos ArenaCenter = new(425, -440);
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Polygon(ArenaCenter, 14.5f, 48)], [new Rectangle(new(425, -424), 20, 2.4f), new Rectangle(new(425, -455), 10, 1.25f)]);
+    public static readonly ArenaBoundsComplex SmallerBounds = new([new Polygon(ArenaCenter, 10, 48)]);
 }

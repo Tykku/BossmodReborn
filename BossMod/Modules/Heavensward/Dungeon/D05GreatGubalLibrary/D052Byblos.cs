@@ -140,7 +140,7 @@ public class D052Byblos(WorldState ws, Actor primary) : BossModule(ws, primary, 
             var e = hints.PotentialTargets[i];
             if (e.Actor.FindStatus(SID.Invincibility) != null)
             {
-                e.Priority = AIHints.Enemy.PriorityForbidFully;
+                e.Priority = AIHints.Enemy.PriorityInvincible;
                 break;
             }
         }

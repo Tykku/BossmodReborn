@@ -64,7 +64,7 @@ class OrbCollecting(BossModule module) : BossComponent(module)
         for (var i = 0; i < count; ++i)
             orbs.Add(ShapeDistance.InvertedCircle(_orbs[i].Position, 0.7f));
         var activation = _aoe.ActiveAOEs(slot, actor).FirstOrDefault().Activation.AddSeconds(1.1f);
-        hints.AddForbiddenZone(p => orbs.Max(f => f(p)), activation == default ? WorldState.FutureTime(2) : activation);
+        hints.AddForbiddenZone(ShapeDistance.Intersection(orbs), activation == default ? WorldState.FutureTime(2) : activation);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)

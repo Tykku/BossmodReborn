@@ -43,7 +43,7 @@ class DecisiveBattle(BossModule module) : BossComponent(module)
             {
                 var enemy = hints.PotentialTargets[i];
                 if (enemy.Actor != AssignedBoss[slot])
-                    enemy.Priority = AIHints.Enemy.PriorityForbidFully;
+                    enemy.Priority = AIHints.Enemy.PriorityInvincible;
             }
     }
 }

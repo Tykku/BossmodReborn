@@ -43,7 +43,7 @@ class Fracture(BossModule module) : Components.CastTowers(module, ActionID.MakeS
     {
         if (Towers.Count == 0)
             return;
-        var forbidden = Raid.WithSlot(false, true, true).WhereActor(p => p.Statuses.Where(i => i.ID is ((uint)SID.HeadOverHeels) or ((uint)SID.HopelessDevotion)).Any()).Mask();
+        var forbidden = Raid.WithSlot(false, true, true).WhereActor(p => p.Statuses.Any(i => i.ID is ((uint)SID.HeadOverHeels) or ((uint)SID.HopelessDevotion))).Mask();
         foreach (ref var t in Towers.AsSpan())
             t.ForbiddenSoakers = forbidden;
     }

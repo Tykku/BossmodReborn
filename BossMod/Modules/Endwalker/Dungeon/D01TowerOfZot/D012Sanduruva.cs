@@ -97,7 +97,7 @@ public class D012Sanduruva(WorldState ws, Actor primary) : BossModule(ws, primar
             var e = hints.PotentialTargets[i];
             e.Priority = (OID)e.Actor.OID switch
             {
-                OID.BerserkerSphere => AIHints.Enemy.PriorityForbidFully,
+                OID.BerserkerSphere => AIHints.Enemy.PriorityPointless,
                 _ => 0
             };
         }

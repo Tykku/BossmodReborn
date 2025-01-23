@@ -145,8 +145,6 @@ public class T07TitanH : BossModule
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var heart in ActiveHeart)
-            hints.PotentialTargets.Add(new(heart, assignment == PartyRolesConfig.Assignment.MT));
         foreach (var enemy in hints.PotentialTargets)
         {
             enemy.Priority = (OID)enemy.Actor.OID switch

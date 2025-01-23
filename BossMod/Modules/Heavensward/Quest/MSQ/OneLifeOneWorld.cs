@@ -1,4 +1,4 @@
-﻿namespace BossMod.Heavensward.Quest.OneLifeForOneWorld;
+﻿namespace BossMod.Heavensward.Quest.MSQ.OneLifeForOneWorld;
 
 public enum OID : uint
 {
@@ -20,7 +20,7 @@ public enum AID : uint
 
 public enum SID : uint
 {
-    Invincibility = 325, // _Gen_KnightOfDarkness->Boss/_Gen_FirstWard, extra=0x0
+    Invincibility = 325, // KnightOfDarkness->Boss/_Gen_FirstWard, extra=0x0
 }
 
 class Overpower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Overpower), new AOEShapeCone(7, 45.Degrees()));
@@ -115,10 +115,12 @@ class WarriorOfDarknessStates : StateMachineBuilder
             .ActivateOnEnter<BladeOfLight>()
             .ActivateOnEnter<RollingBlade>()
             .ActivateOnEnter<RollingBladeCone>()
-            .ActivateOnEnter<UtterDestruction>()
-            ;
+            .ActivateOnEnter<UtterDestruction>();
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.WIP, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 194, NameID = 5240)]
-public class WarriorOfDarkness(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, 0), new ArenaBoundsCircle(20));
+[ModuleInfo(BossModuleInfo.Maturity.Contributed, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 194, NameID = 5240)]
+public class WarriorOfDarkness(WorldState ws, Actor primary) : BossModule(ws, primary, default, arena)
+{
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(default, 19.5f, 36)]);
+}

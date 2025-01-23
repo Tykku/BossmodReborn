@@ -141,7 +141,7 @@ class WindShotStack(BossModule module) : Components.DonutStack(module, ActionID.
         foreach (var c in Raid.WithoutSlot(false, true, true).Exclude(actor).Where(x => comp.Any(c => c.Shape is AOEShapeDonut && !c.Check(x.Position) || c.Shape is AOEShapeCustom && c.Check(x.Position))))
             forbidden.Add(ShapeDistance.InvertedCircle(c.Position, Donut.InnerRadius * 0.33f));
         if (forbidden.Count > 0)
-            hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), ActiveStacks.FirstOrDefault().Activation);
+            hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), ActiveStacks.FirstOrDefault().Activation);
     }
 }
 

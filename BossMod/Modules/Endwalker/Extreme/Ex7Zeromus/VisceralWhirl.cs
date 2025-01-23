@@ -72,7 +72,7 @@ class VoidBio(BossModule module) : Components.GenericAOEs(module)
             var h = bubbles[i];
             forbidden.Add(ShapeDistance.Capsule(h.Position, angle, 3, 2)); // merging all forbidden zones into one to make pathfinding less demanding
         }
-        hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
+        hints.AddForbiddenZone(ShapeDistance.Union(forbidden));
     }
 }
 

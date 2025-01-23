@@ -185,10 +185,10 @@ class Towerfall(BossModule module) : Components.GenericAOEs(module)
                         forbidden.Add(ShapeDistance.Rect(_aoes[i].Origin, _aoes[i].Rotation, rect.LengthFront, default, rect.HalfWidth));
             }
             var activation = Module.FindComponent<Landslip>()!.Activation.AddSeconds(0.7f);
-            if (forbiddenInverted.Count > 0)
-                hints.AddForbiddenZone(p => forbiddenInverted.Max(f => f(p)), activation);
-            if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), activation);
+            if (forbiddenInverted.Count != 0)
+                hints.AddForbiddenZone(ShapeDistance.Intersection(forbiddenInverted), activation);
+            if (forbidden.Count != 0)
+                hints.AddForbiddenZone(ShapeDistance.Union(forbidden), activation);
         }
         else
             base.AddAIHints(slot, actor, assignment, hints);

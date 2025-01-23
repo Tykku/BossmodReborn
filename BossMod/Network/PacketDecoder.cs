@@ -1,6 +1,5 @@
 ﻿using BossMod.Network.ServerIPC;
 using Dalamud.Memory;
-using Dalamud.Utility;
 
 namespace BossMod.Network;
 
@@ -10,7 +9,7 @@ public abstract unsafe class PacketDecoder
     private const float Hundredth = 1e-2f;
     private const float Thousandth = 1e-3f;
     private const float TwoKD65k = (float)(2000d / 65535);
-    private const float Inv65k = (float)(1d / 65535);
+    private const float Inv65kDoublePI = (float)(1d / 65535 * 2 * Math.PI);
 
     public class TextNode(string text)
     {
@@ -387,7 +386,7 @@ public abstract unsafe class PacketDecoder
 
     public static Angle IntToFloatAngle(ushort rot)
     {
-        return (rot * Inv65k * Angle.DoublePI - MathF.PI).Radians();
+        return (rot * Inv65kDoublePI - MathF.PI).Radians();
     }
 }
 

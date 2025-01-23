@@ -95,7 +95,7 @@ class Aetheroplasm(BossModule module) : BossComponent(module)
                 orbs.Add(ShapeDistance.InvertedCircle(o.Position + 0.5f * o.Rotation.ToDirection(), 0.56f));
         }
         if (orbs.Count > 0)
-            hints.AddForbiddenZone(p => orbs.Max(f => f(p)));
+            hints.AddForbiddenZone(ShapeDistance.Intersection(orbs));
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)

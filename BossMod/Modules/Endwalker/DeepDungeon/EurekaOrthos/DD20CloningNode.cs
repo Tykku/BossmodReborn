@@ -23,16 +23,25 @@ public enum AID : uint
 
 class FlameBreath(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(5);
     private static readonly AOEShapeCone cone = new(50, 15.Degrees());
     private static readonly float intercardinalDistance = 16 * MathF.Sqrt(2);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count != 0)
-            foreach (var a in _aoes)
-                if ((a.Activation - _aoes[0].Activation).TotalSeconds <= 1)
-                    yield return a;
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+
+        List<AOEInstance> aoes = new(5);
+        var firstact = _aoes[0].Activation;
+        for (var i = 0; i < count; ++i)
+        {
+            var a = _aoes[i];
+            if ((a.Activation - firstact).TotalSeconds < 1)
+                aoes.Add(a);
+        }
+        return aoes;
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -64,8 +73,8 @@ class FlameBreath(BossModule module) : Components.GenericAOEs(module)
 
     private static bool IsCasterIntercardinal(Actor caster)
     {
-        foreach (var angle in Angle.AnglesIntercardinals)
-            if (caster.Rotation.AlmostEqual(angle, Angle.DegToRad))
+        for (var i = 0; i < 4; ++i)
+            if (caster.Rotation.AlmostEqual(Angle.AnglesIntercardinals[i], Angle.DegToRad))
                 return true;
         return false;
     }

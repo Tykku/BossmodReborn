@@ -2,11 +2,11 @@
 
 public enum OID : uint
 {
-    Helpers = 0x233C, // R0.500, x28, 523 type
-    AvatarVisual = 0x3366, // R0.920, x1
     ZenosP1 = 0x3364, // R2.001, x1
     ZenosP2 = 0x3365, // R2.001, x1
+    AvatarVisual = 0x3366, // R0.920, x1
     Puddles = 0x1E950D, // R0.500, EventObj type, spawn during fight
+    Helper = 0x233C
 }
 
 public enum AID : uint

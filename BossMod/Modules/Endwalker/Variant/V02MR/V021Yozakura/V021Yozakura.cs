@@ -19,8 +19,8 @@ class DriftingPetals(BossModule module) : Components.KnockbackFromCastTarget(mod
             if (component != null && component.Count != 0)
                 foreach (var c in component)
                     forbidden.Add(ShapeDistance.Cone(source.Origin, 20, Angle.FromDirection(c.Origin - Arena.Center), 20.Degrees()));
-            if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), source.Activation);
+            if (forbidden.Count != 0)
+                hints.AddForbiddenZone(ShapeDistance.Union(forbidden), source.Activation);
         }
     }
 

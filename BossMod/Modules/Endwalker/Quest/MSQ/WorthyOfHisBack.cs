@@ -235,14 +235,7 @@ class TrueHoly(BossModule module) : Components.KnockbackFromCastTarget(module, A
 class TrueStoneIV(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TrueStoneIV), 10, maxCasts: 7);
 class EnomotosSmall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EnomotosSmall), 4);
 
-class Adds(BossModule module) : Components.AddsMulti(module, [(uint)OID.Thelema, (uint)OID.ThelemaAgape])
-{
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        foreach (var e in hints.PotentialTargets)
-            e.Priority = OIDs.Contains(e.Actor.OID) ? 1 : 0;
-    }
-}
+class Adds(BossModule module) : Components.AddsMulti(module, [(uint)OID.Thelema, (uint)OID.ThelemaAgape], 1);
 
 public class WorthyOfHisBackStates : StateMachineBuilder
 {
@@ -272,7 +265,9 @@ public class WorthyOfHisBackStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.Quest, GroupID = 69968, NameID = 10586)]
-public class WorthyOfHisBack(WorldState ws, Actor primary) : BossModule(ws, primary, new(-630, 72), new ArenaBoundsCircle(24.5f))
+public class WorthyOfHisBack(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    public static readonly ArenaBoundsCircle DefaultBounds = new(20);
+    private static readonly WPos arenaCenter = new(-630, 72);
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Polygon(arenaCenter, 20, 20)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(arenaCenter, 24.5f, 20)]);
 }

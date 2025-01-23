@@ -9,7 +9,7 @@ class BrightDarkAurora(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        void AddAOE() => _aoes.Add(new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
+        void AddAOE() => _aoes.Add(new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
         switch ((AID)spell.Action.ID)
         {
             case AID.DarkAurora1:
@@ -19,6 +19,7 @@ class BrightDarkAurora(BossModule module) : Components.GenericAOEs(module)
                 break;
             case AID.BrightAurora1:
             case AID.BrightAurora2:
+
                 if (caster.FindStatus(SID.AstralEssence) != null)
                     AddAOE();
                 break;
@@ -27,10 +28,22 @@ class BrightDarkAurora(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
+        var count = _aoes.Count;
         if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.BrightAurora1 or AID.BrightAurora2 or AID.DarkAurora1 or AID.DarkAurora2)
-            _aoes.RemoveAt(0);
+            for (var i = 0; i < count; ++i)
+            {
+                var aoe = _aoes[i];
+                if (aoe.ActorID == caster.InstanceID)
+                {
+                    _aoes.Remove(aoe);
+                    break;
+                }
+            }
     }
 }
+
+class BrightDarkAuroraCounter(BossModule module) : Components.CastCounterMulti(module, [ActionID.MakeSpell(AID.DarkAurora1), ActionID.MakeSpell(AID.BrightAurora1),
+ActionID.MakeSpell(AID.DarkAurora2), ActionID.MakeSpell(AID.BrightAurora2)]);
 
 class AstralUmbralRays(BossModule module) : Components.GenericAOEs(module)
 {
@@ -61,11 +74,3 @@ class AstralUmbralRays(BossModule module) : Components.GenericAOEs(module)
             _aoes.Clear();
     }
 }
-
-// class BrightDarkAuroraTethers(BossModule module) : Components.GenericAOEs(module)
-// {
-//     private static readonly AOEShapeCircle circle = new(8);
-//     public readonly List<AOEInstance> _aoes = new(3);
-
-//     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
-// }

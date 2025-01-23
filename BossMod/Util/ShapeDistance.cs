@@ -638,8 +638,7 @@ public static class ShapeDistance
         };
     }
 
-    // positive offset increases area
-    public static Func<WPos, float> ConvexPolygon(List<(WPos, WPos)> edges, bool cw, float offset = 0)
+    public static Func<WPos, float> ConvexPolygon(List<(WPos, WPos)> edges, bool cw)
     {
         Func<WPos, float> edge((WPos p1, WPos p2) e)
         {
@@ -649,13 +648,55 @@ public static class ShapeDistance
             var normal = cw ? dir.OrthoL() : dir.OrthoR();
             return p => normal.Dot(p - e.p1);
         }
-        return Intersection([.. edges.Select(edge)], offset);
+        return Intersection([.. edges.Select(edge)]);
     }
 
-    public static Func<WPos, float> ConvexPolygon(ReadOnlySpan<WPos> vertices, bool cw, float offset = 0) => ConvexPolygon(PolygonUtil.EnumerateEdges(vertices), cw, offset);
+    public static Func<WPos, float> ConvexPolygon(ReadOnlySpan<WPos> vertices, bool cw) => ConvexPolygon(PolygonUtil.EnumerateEdges(vertices), cw);
 
-    public static Func<WPos, float> Intersection(List<Func<WPos, float>> funcs, float offset = 0) => p => funcs.Max(e => e(p)) - offset;
-    public static Func<WPos, float> Union(List<Func<WPos, float>> funcs, float offset = 0) => p => funcs.Min(e => e(p)) - offset;
+    public static Func<WPos, float> Intersection(List<Func<WPos, float>> funcs) // max distance func
+    {
+        return p =>
+        {
+            var maxDistance = float.MinValue;
+            for (var i = 0; i < funcs.Count; ++i)
+            {
+                var distance = funcs[i](p);
+                if (distance > maxDistance)
+                    maxDistance = distance;
+            }
+            return maxDistance;
+        };
+    }
+
+    public static Func<WPos, float> Union(List<Func<WPos, float>> funcs) // min distance func
+    {
+        return p =>
+        {
+            var minDistance = float.MaxValue;
+            for (var i = 0; i < funcs.Count; ++i)
+            {
+                var distance = funcs[i](p);
+                if (distance < minDistance)
+                    minDistance = distance;
+            }
+            return minDistance;
+        };
+    }
+
+    public static Func<WPos, float> InvertedUnion(List<Func<WPos, float>> funcs) // min distance func
+    {
+        return p =>
+        {
+            var minDistance = float.MaxValue;
+            for (var i = 0; i < funcs.Count; ++i)
+            {
+                var distance = funcs[i](p);
+                if (distance < minDistance)
+                    minDistance = distance;
+            }
+            return -minDistance;
+        };
+    }
 
     // special distance function for precise positioning, finer than map resolution
     // it's an inverted rect of a size equal to one grid cell, with a special adjustment if starting position is in the same cell, but farther than tolerance

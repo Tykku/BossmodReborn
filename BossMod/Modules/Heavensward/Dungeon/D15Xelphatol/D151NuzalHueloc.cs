@@ -104,7 +104,7 @@ public class D151NuzalHueloc(WorldState ws, Actor primary) : BossModule(ws, prim
             var e = hints.PotentialTargets[i];
             if (e.Actor.FindStatus(SID.Invincibility) != null)
             {
-                e.Priority = AIHints.Enemy.PriorityForbidFully;
+                e.Priority = AIHints.Enemy.PriorityInvincible;
                 continue;
             }
             e.Priority = (OID)e.Actor.OID switch

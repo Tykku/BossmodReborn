@@ -66,7 +66,7 @@ class OneTwoPaw(BossModule module) : Components.GenericAOEs(module)
         if (leapingVisuals.Contains((AID)spell.Action.ID))
             helper = null;
 
-        else if (_aoes.Count > 0 && allOneTwoPaws.Contains((AID)spell.Action.ID))
+        else if (_aoes.Count != 0 && allOneTwoPaws.Contains((AID)spell.Action.ID))
         {
             _currentPattern = Pattern.None;
             _aoes.RemoveAt(0);

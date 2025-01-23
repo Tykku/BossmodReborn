@@ -33,9 +33,9 @@ public enum AID : uint
     IconographyPedestalPurge = 35969, // Boss->self, 5.0s cast, range 10 circle
     IconicExecution = 36017, // Boss->self, 4.0s cast, single-target
     IconicExecution2 = 36018, // Boss->self, 3.0s cast, single-target
-    PedestalPurge = 35970, // AsuraImage->self, 4.0s cast, range 27 circle (lumina data says range 60, which is obvious bs)
+    PedestalPurge = 35970, // AsuraImage->self, 4.0s cast, range 60 circle
     IconographyWheelOfDeincarnation = 35971, // Boss->self, 5.0s cast, range 8-40 donut
-    WheelOfDeincarnation = 35972, // AsuraImage->self, 4.0s cast, range 15-96 donut
+    WheelOfDeincarnation = 35972, // AsuraImage->self, 4.0s cast, range 48-96 donut
     IconographyBladewise = 35973, // Boss->self, 5.0s cast, range 50 width 6 rect
     Bladewise = 35974, // AsuraImage->self, 4.0s cast, range 100 width 28 rect
     RemoveStatus = 36010, // AsuraImage->self, no cast, single-target, removes status 2552 (unknown effect) from itself
@@ -61,16 +61,16 @@ public enum AID : uint
     TheFaceOfDelightA = 35989, // Boss->self, 8.0s cast, single-target
     TheFaceOfDelightB = 35987, // Boss->self, 8.0s cast, single-target
     TheFaceOfDelight = 36023, // Helper->self, no cast, single-target
-    TheFaceOfDelightSnapshot = 36007, // Helper->self, no cast, range 20 180-degree cone
-    TheFaceOfWrathSnapshot = 36006, // Helper->self, no cast, range 20 180-degree cone
+    TheFaceOfDelightAOE = 36007, // Helper->self, no cast, range 20 180-degree cone
+    TheFaceOfWrathAOE = 36006, // Helper->self, no cast, range 20 180-degree cone
 
-    MyriadAspects = 36019, // Boss->self, 3.0s cast, single-target
+    MyriadAspectsVisual = 36019, // Boss->self, 3.0s cast, single-target
     MyriadAspects1 = 36020, // Helper->self, 4.0s cast, range 40 30-degree cone
     MyriadAspects2 = 36021, // Helper->self, 6.0s cast, range 40 30-degree cone
     Bladescatter = 35992, // Boss->self, 5.0s cast, single-target
     Scattering = 35993, // Helper->self, 3.0s cast, range 20 width 6 rect
-    OrderedChaos = 36002, // Boss->self, no cast, single-target
-    OrderedChaos2 = 36003 // Helper->player, 5.0s cast, range 5 circle
+    OrderedChaosVisual = 36002, // Boss->self, no cast, single-target, spread
+    OrderedChaos = 36003 // Helper->player, 5.0s cast, range 5 circle
 }
 
 public enum IconID : uint

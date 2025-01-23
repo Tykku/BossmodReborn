@@ -44,7 +44,7 @@ public sealed class AIHintsBuilder : IDisposable
         {
             var playerAssignment = Service.Config.Get<PartyRolesConfig>()[_ws.Party.Members[playerSlot].ContentId];
             var activeModule = _bmm.ActiveModule?.StateMachine.ActivePhase != null ? _bmm.ActiveModule : null;
-            hints.FillPotentialTargets(_ws, playerAssignment == PartyRolesConfig.Assignment.MT || playerAssignment == PartyRolesConfig.Assignment.OT && !_ws.Party.WithoutSlot().Any(p => p != player && p.Role == Role.Tank));
+            FillEnemies(hints, playerAssignment == PartyRolesConfig.Assignment.MT || playerAssignment == PartyRolesConfig.Assignment.OT && !_ws.Party.WithoutSlot().Any(p => p != player && p.Role == Role.Tank));
             if (activeModule != null)
             {
                 activeModule.CalculateAIHints(playerSlot, player, playerAssignment, hints);
@@ -56,6 +56,30 @@ public sealed class AIHintsBuilder : IDisposable
             }
         }
         hints.Normalize();
+    }
+
+    // fill list of potential targets from world state
+    private void FillEnemies(AIHints hints, bool playerIsDefaultTank)
+    {
+        var playerInFate = _ws.Client.ActiveFate.ID != 0 && (_ws.Party.Player()?.Level <= Service.LuminaRow<Lumina.Excel.Sheets.Fate>(_ws.Client.ActiveFate.ID)?.ClassJobLevelMax
+        || Service.LuminaRow<Lumina.Excel.Sheets.Fate>(_ws.Client.ActiveFate.ID)?.EurekaFate == 1); // TODO: find out how to get the current player elemental level
+        var allowedFateID = playerInFate ? _ws.Client.ActiveFate.ID : 0;
+        foreach (var actor in _ws.Actors.Where(a => a.IsTargetable && !a.IsAlly && !a.IsDead))
+        {
+            var index = actor.CharacterSpawnIndex;
+            if (index < 0 || index >= hints.Enemies.Length)
+                continue;
+
+            // determine default priority for the enemy
+            var priority = actor.FateID > 0 && actor.FateID != allowedFateID ? AIHints.Enemy.PriorityInvincible // fate mob in fate we are NOT a part of can't be damaged at all
+                : actor.PredictedDead ? AIHints.Enemy.PriorityPointless // this mob is about to be dead, any attacks will likely ghost
+                : actor.AggroPlayer ? 0 // enemies in our enmity list can be attacked, regardless of who they are targeting (since they are keeping us in combat)
+                : actor.InCombat && _ws.Party.FindSlot(actor.TargetID) >= 0 ? 0 // we generally want to assist our party members (note that it includes allied npcs in duties)
+                : AIHints.Enemy.PriorityUndesirable; // this enemy is either not pulled yet or fighting someone we don't care about - try not to aggro it by default
+
+            var enemy = hints.Enemies[index] = new(actor, priority, playerIsDefaultTank);
+            hints.PotentialTargets.Add(enemy);
+        }
     }
 
     private void CalculateAutoHints(AIHints hints, Actor player)

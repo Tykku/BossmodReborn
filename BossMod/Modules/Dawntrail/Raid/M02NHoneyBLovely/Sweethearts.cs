@@ -51,18 +51,7 @@ abstract class Sweethearts(BossModule module, uint oid, uint aid) : Components.G
         }
         forbidden.Add(ShapeDistance.Circle(Arena.Center, Module.PrimaryActor.HitboxRadius));
 
-        float minDistance(WPos p)
-        {
-            var minValue = float.MaxValue;
-            for (var i = 0; i < forbidden.Count; ++i)
-            {
-                var value = forbidden[i](p);
-                if (value < minValue)
-                    minValue = value;
-            }
-            return minValue;
-        }
-        hints.AddForbiddenZone(minDistance);
+        hints.AddForbiddenZone(ShapeDistance.Union(forbidden));
     }
 }
 

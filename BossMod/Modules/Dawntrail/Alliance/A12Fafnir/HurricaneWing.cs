@@ -141,18 +141,8 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
             var w = _smallWhirldwinds[i];
             forbidden.Add(ShapeDistance.Capsule(w.Position, !moving ? w.Rotation + a180 : w.Rotation, length, 5));
         }
-        float minDistanceFunc(WPos pos)
-        {
-            var minDistance = float.MaxValue;
-            for (var i = 0; i < forbidden.Count; ++i)
-            {
-                var distance = forbidden[i](pos);
-                if (distance < minDistance)
-                    minDistance = distance;
-            }
-            return minDistance;
-        }
-        hints.AddForbiddenZone(minDistanceFunc, WorldState.FutureTime(1.1f));
+
+        hints.AddForbiddenZone(ShapeDistance.Union(forbidden), WorldState.FutureTime(1.1f));
     }
 }
 

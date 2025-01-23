@@ -10,6 +10,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 6497, // Boss->player, no cast, single-target
+
     FallingRock = 31441, // Helper->self, 2.5s cast, range 3 circle
     Ferocity = 31442, // Boss->self, 5.0s cast, single-target
     FerocityTetherStretchSuccess = 31443, // Boss->player, no cast, single-target

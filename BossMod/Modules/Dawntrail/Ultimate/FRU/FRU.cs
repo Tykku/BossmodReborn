@@ -7,8 +7,9 @@ class P3BlackHalo(BossModule module) : Components.CastSharedTankbuster(module, A
 abstract class P4HallowedWings(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(80, 20));
 class P4HallowedWingsL(BossModule module) : P4HallowedWings(module, AID.HallowedWingsL);
 class P4HallowedWingsR(BossModule module) : P4HallowedWings(module, AID.HallowedWingsR);
+class P5ParadiseLost(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.ParadiseLostP5AOE));
 
-[ModuleInfo(BossModuleInfo.Maturity.WIP, PrimaryActorOID = (uint)OID.BossP1, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1006, NameID = 9707, PlanLevel = 100)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.BossP1, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1006, NameID = 9707, PlanLevel = 100)]
 public class FRU(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena with { IsCircle = true })
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(100, 100), 20, 64)]);

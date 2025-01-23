@@ -76,7 +76,7 @@ class Orbs(BossModule module) : Components.GenericAOEs(module, default, "GTFO fr
             else
                 forbidden.Add(ShapeDistance.Circle(o.Position, Radius));
         }
-        hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
+        hints.AddForbiddenZone(ShapeDistance.Union(forbidden));
     }
 
     public override void OnActorCreated(Actor actor)

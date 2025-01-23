@@ -195,7 +195,7 @@ public class D131ChieftainMoglin(WorldState ws, Actor primary) : BossModule(ws, 
                 var e = hints.PotentialTargets[i];
                 if (e.Actor.FindStatus(SID.Invincibility) != null)
                 {
-                    e.Priority = AIHints.Enemy.PriorityForbidAI;
+                    e.Priority = AIHints.Enemy.PriorityInvincible;
                     continue;
                 }
                 e.Priority = (OID)e.Actor.OID switch

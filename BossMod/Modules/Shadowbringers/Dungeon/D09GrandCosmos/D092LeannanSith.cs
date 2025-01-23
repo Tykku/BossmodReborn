@@ -143,7 +143,7 @@ class GreenTiles(BossModule module) : Components.GenericAOEs(module)
             forbidden.Add(ShapeDistance.InvertedCircle(seed.Position, 3));
         var distance = (actor.Position - closestSeed.Position).LengthSq();
         if (forbidden.Count > 0 && distance > 9)
-            hints.AddForbiddenZone(p => forbidden.Max(f => f(p)));
+            hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden));
         else if (distance < 9)
             hints.InteractWithTarget = closestSeed;
     }

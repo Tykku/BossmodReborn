@@ -32,7 +32,7 @@ class Shockwave(BossModule module) : Components.SimpleAOEs(module, ActionID.Make
 class ExplosiveFlare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ExplosiveFlare), 10);
 class CripplingBlow(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CripplingBlow));
 class PlasmaField(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PlasmaField));
-class Towers(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.Explosion), 6);
+class Towers(BossModule module) : Components.CastTowersOpenWorld(module, ActionID.MakeSpell(AID.Explosion), 6);
 class MagitekRay(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekRay), new AOEShapeRect(50, 2));
 
 class CE14VigilForLostStates : StateMachineBuilder

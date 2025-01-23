@@ -10,6 +10,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 6499, // Boss->player, no cast, single-target
+
     OctupleSwipeTelegraph = 31867, // Helper->self, 1.0s cast, range 40 90-degree cone
     OctupleSwipe = 31872, // Boss->self, 10.8s cast, range 40 90-degree cone
     BullishSwipe1 = 31868, // Boss->self, no cast, range 40 90-degree cone

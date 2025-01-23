@@ -156,7 +156,7 @@ class BarrelBreaker(BossModule module) : Components.KnockbackFromCastTarget(modu
             forbidden.Add(ShapeDistance.InvertedDonutSector(source.Origin, 4, 5, cactusSmall != default ? -a45 : a45, a5));
         }
         if (forbidden.Count > 0)
-            hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), source.Activation);
+            hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), source.Activation);
     }
 
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<NeedleStormSuperstormHeavyWeightNeedles>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || !Module.InBounds(pos);

@@ -9,7 +9,8 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    Attack = 6499, // Boss->player, no cast, single-target
+    AutoAttack = 6499, // Boss->player, no cast, single-target
+
     SongsOfIceAndThunder = 31851, // Boss->self, 5.0s cast, range 9 circle
     SongsOfThunderAndIce = 31852, // Boss->self, 5.0s cast, range 8-40 donut
     TheRamsVoice1 = 31854, // Boss->self, no cast, range 9 circle

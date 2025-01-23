@@ -267,7 +267,7 @@ class ThermalDivideSides(BossModule module) : Components.GenericAOEs(module)
 
 class IceBloomCross(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(6);
     private static readonly AOEShapeCross cross = new(40, 2.5f);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)

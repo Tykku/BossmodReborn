@@ -33,7 +33,7 @@ public enum AID : uint
 
 class DecimationArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donut = new(16, 19.5f);
+    private static readonly AOEShapeDonut donut = new(16, 20);
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
@@ -43,6 +43,7 @@ class DecimationArenaChange(BossModule module) : Components.GenericAOEs(module)
         if (index == 0x17 && state == 0x00020001)
         {
             Arena.Bounds = D062Peacekeeper.SmallerBounds;
+            Arena.Center = D062Peacekeeper.ArenaCenter;
             _aoe = null;
         }
     }
@@ -76,22 +77,21 @@ class EclipsingExhaust(BossModule module) : Components.RaidwideCast(module, Acti
 
 class EclipsingExhaustKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.EclipsingExhaust), 11)
 {
+    private static readonly Angle a36 = 36.Degrees();
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<Peacefire>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || !Module.InBounds(pos);
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var forbidden = new List<Func<WPos, float>>();
         var component = Module.FindComponent<Peacefire>()?.ActiveAOEs(slot, actor)?.ToList();
         var source = Sources(slot, actor).FirstOrDefault();
         if (component != null && source != default)
         {
-            foreach (var c in component)
-            {
-                forbidden.Add(ShapeDistance.InvertedCircle(Arena.Center, 5));
-                forbidden.Add(ShapeDistance.Cone(Arena.Center, 16, Angle.FromDirection(c.Origin - Arena.Center), 36.Degrees()));
-            }
-            if (forbidden.Count > 0)
-                hints.AddForbiddenZone(p => forbidden.Min(f => f(p)), source.Activation);
+            var forbidden = new List<Func<WPos, float>>(6);
+            for (var i = 0; i < component.Count; ++i)
+
+                forbidden.Add(ShapeDistance.Cone(Arena.Center, 16, Angle.FromDirection(component[i].Origin - Arena.Center), a36));
+            forbidden.Add(ShapeDistance.InvertedCircle(Arena.Center, 4));
+            hints.AddForbiddenZone(ShapeDistance.Union(forbidden), source.Activation);
         }
     }
 }
@@ -116,8 +116,11 @@ class D062PeacekeeperStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 792, NameID = 10315)]
-public class D062Peacekeeper(WorldState ws, Actor primary) : BossModule(ws, primary, new(-105, -210), StartingBounds)
+public class D062Peacekeeper(WorldState ws, Actor primary) : BossModule(ws, primary, StartingBounds.Center, StartingBounds)
 {
-    public static readonly ArenaBoundsCircle StartingBounds = new(19.5f);
-    public static readonly ArenaBoundsCircle SmallerBounds = new(16);
+    public static readonly WPos ArenaCenter = new(-105, -210);
+    private static readonly Angle offset = 5.625f.Degrees();
+    public static readonly ArenaBoundsComplex StartingBounds = new([new Polygon(ArenaCenter, 19.5f * CosPI.Pi32th, 32, offset)], [new Rectangle(new(-105, -229), 20, 0.78f),
+    new Rectangle(new(-105, -190), 20, 1.1f)]);
+    public static readonly ArenaBoundsComplex SmallerBounds = new([new Polygon(ArenaCenter, 16, 32, offset)]);
 }

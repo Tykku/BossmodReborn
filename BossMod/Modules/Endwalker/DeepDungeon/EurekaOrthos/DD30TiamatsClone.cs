@@ -9,17 +9,18 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    HeadAttack = 31842, // 233C->player, no cast, single-target
-    AutoAttack = 32702, // 3D9A->player, no cast, single-target
-    CreatureOfDarkness = 31841, // 3D9A->self, 3.0s cast, single-target, summon Heads E<->W heading S
-    DarkMegaflareVisual = 31849, // 3D9A->self, 3.0s cast, single-target
-    DarkMegaflare = 31850, // 233C->location, 3.0s cast, range 6 circle
-    DarkWyrmtailVisual = 31843, // 3D9A->self, 5.0s cast, single-target
-    DarkWyrmtail = 31844, // 233C->self, 6.0s cast, range 40 width 16 rect, summon Heads Heading E/W from Middle Lane
-    DarkWyrmwingVisual = 31845, // 3D9A->self, 5.0s cast, single-target
-    DarkWyrmwing = 31846, // 233C->self, 6.0s cast, range 40 width 16 rect, summon Heads Heading E/W from E/W Walls
-    WheiMornFirst = 31847, // 3D9A->location, 5.0s cast, range 6 circle
-    WheiMornRest = 31848 // 3D9A->location, no cast, range 6 circle
+    AutoAttack = 32702, // Boss->player, no cast, single-target
+    HeadAttack = 31842, // Helper->player, no cast, single-target
+
+    CreatureOfDarkness = 31841, // Boss->self, 3.0s cast, single-target, summon Heads E<->W heading S
+    DarkMegaflareVisual = 31849, // Boss->self, 3.0s cast, single-target
+    DarkMegaflare = 31850, // Helper->location, 3.0s cast, range 6 circle
+    DarkWyrmtailVisual = 31843, // Boss->self, 5.0s cast, single-target
+    DarkWyrmtail = 31844, // Helper->self, 6.0s cast, range 40 width 16 rect, summon Heads Heading E/W from Middle Lane
+    DarkWyrmwingVisual = 31845, // Boss->self, 5.0s cast, single-target
+    DarkWyrmwing = 31846, // Helper->self, 6.0s cast, range 40 width 16 rect, summon Heads Heading E/W from E/W Walls
+    WheiMornFirst = 31847, // Boss->location, 5.0s cast, range 6 circle
+    WheiMornRest = 31848 // Boss->location, no cast, range 6 circle
 }
 
 public enum IconID : uint

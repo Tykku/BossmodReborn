@@ -1,8 +1,15 @@
 ﻿namespace BossMod.Autorotation;
 
+public interface IRotationModuleData
+{
+    public Type Type { get; }
+}
+
 // the manager contains a set of rotation module instances corresponding to the selected preset/plan
 public sealed class RotationModuleManager : IDisposable
 {
+    private readonly record struct ActiveModule(int DataIndex, RotationModuleDefinition Definition, RotationModule Module);
+
 #pragma warning disable IDE0032
     private Preset? _preset; // if non-null, this preset overrides the configuration
 #pragma warning restore IDE0032
@@ -24,7 +31,7 @@ public sealed class RotationModuleManager : IDisposable
     public PlanExecution? Planner { get; private set; }
     private readonly PartyRolesConfig _prc = Service.Config.Get<PartyRolesConfig>();
     private readonly EventSubscriptions _subscriptions;
-    public List<(RotationModuleDefinition Definition, RotationModule Module)>? ActiveModules;
+    private List<ActiveModule>? ActiveModules;
 
     public static readonly Preset ForceDisable = new(""); // empty preset, so if it's activated, rotation is force disabled
 
@@ -88,7 +95,7 @@ public sealed class RotationModuleManager : IDisposable
         }
 
         // rebuild modules if needed
-        ActiveModules ??= _preset != null ? RebuildActiveModules(_preset.Modules.Keys) : Planner?.Plan != null ? RebuildActiveModules(Planner.Plan.Modules.Keys) : [];
+        ActiveModules ??= _preset != null ? RebuildActiveModules(_preset.Modules) : Planner?.Plan != null ? RebuildActiveModules(Planner.Plan.Modules) : [];
 
         // forced target update
         if (Hints.ForcedTarget == null && _preset == null && Planner?.ActiveForcedTarget() is var forced && forced != null)
@@ -103,8 +110,7 @@ public sealed class RotationModuleManager : IDisposable
         for (var i = 0; i < ActiveModules.Count; ++i)
         {
             var m = ActiveModules[i];
-            var mt = m.Module.GetType();
-            var values = _preset?.ActiveStrategyOverrides(mt) ?? Planner?.ActiveStrategyOverrides(mt) ?? throw new InvalidOperationException("Both preset and plan are null, but there are active modules");
+            var values = _preset?.ActiveStrategyOverrides(m.DataIndex) ?? Planner?.ActiveStrategyOverrides(m.DataIndex) ?? throw new InvalidOperationException("Both preset and plan are null, but there are active modules");
             m.Module.Execute(values, target, estimatedAnimLockDelay, isMoving);
         }
     }
@@ -140,22 +146,22 @@ public sealed class RotationModuleManager : IDisposable
     public override string ToString() => string.Join(", ", ActiveModules?.Select(m => m.Module.GetType().Name) ?? []);
 
     // TODO: consider not recreating modules that were active and continue to be active?
-    private List<(RotationModuleDefinition Definition, RotationModule Module)> RebuildActiveModules(IEnumerable<Type> types)
+    private List<ActiveModule> RebuildActiveModules<T>(List<T> modules) where T : IRotationModuleData
     {
-        List<(RotationModuleDefinition Definition, RotationModule Module)> res = [];
+        List<ActiveModule> res = [];
         var player = Player;
         if (player != null)
         {
             var isRPMode = player.Statuses.Any(IsTransformStatus);
-            foreach (var m in types)
+            for (int i = 0; i < modules.Count; ++i)
             {
-                if (!RotationModuleRegistry.Modules.TryGetValue(m, out var def))
+                if (!RotationModuleRegistry.Modules.TryGetValue(modules[i].Type, out var def))
                     continue;
                 if (!def.Definition.Classes[(int)player.Class] || player.Level < def.Definition.MinLevel || player.Level > def.Definition.MaxLevel)
                     continue;
                 if (!def.Definition.CanUseWhileRoleplaying && isRPMode)
                     continue;
-                res.Add((def.Definition, def.Builder(this, player)));
+                res.Add(new(i, def.Definition, def.Builder(this, player)));
             }
         }
         return res;

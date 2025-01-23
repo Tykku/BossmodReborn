@@ -80,7 +80,7 @@ class LightningBolt(BossModule module) : Components.GenericBaitAway(module, Acti
         foreach (var a in Rods)
             forbidden.Add(ShapeDistance.InvertedCircle(a.Position, 4));
         if (forbidden.Count != 0)
-            hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), activation);
+            hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), activation);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)

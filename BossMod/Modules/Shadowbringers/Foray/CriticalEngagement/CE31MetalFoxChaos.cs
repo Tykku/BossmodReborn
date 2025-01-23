@@ -9,11 +9,11 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    Attack = 6497, // Boss->player, no cast, single-target
+    AutoAttack = 6497, // Boss->player, no cast, single-target
+    Teleport = 20192, // MagitekBit->location, no cast, ???
 
-    MagitektBitTeleporting = 20192, // 2DB6->location, no cast, ???
     DiffractiveLaser = 20138, // Boss->self, 7.0s cast, range 60 150-degree cone
-    RefractedLaser = 20141, // 2DB6->self, no cast, range 100 width 6 rect
+    RefractedLaser = 20141, // MagitekBit->self, no cast, range 100 width 6 rect
     LaserShower = 20136, // Boss->self, 3.0s cast, single-target
     LaserShower2 = 20140, // Helper->location, 5.0s cast, range 10 circle
     Rush = 20139, // Boss->player, 3.0s cast, width 14 rect charge
@@ -25,7 +25,7 @@ class MagitekBitLasers(BossModule module) : Components.GenericAOEs(module)
     private readonly List<DateTime> _times = [];
     private Angle startrotation;
     public enum Types { None, SatelliteLaser, DiffractiveLaser, LaserShower }
-    public Types Type { get; private set; }
+    public Types Type;
 
     private static readonly AOEShapeRect rect = new(100, 3);
 
@@ -111,11 +111,4 @@ class CE31MetalFoxChaosStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 735, NameID = 13)] // bnpcname=9424
-public class CE31MetalFoxChaos(WorldState ws, Actor primary) : BossModule(ws, primary, new(-234, 262), new ArenaBoundsSquare(30.2f))
-{
-    protected override void DrawEnemies(int pcSlot, Actor pc)
-    {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.MagitekBit), Colors.Vulnerable, true);
-    }
-}
+public class CE31MetalFoxChaos(WorldState ws, Actor primary) : BossModule(ws, primary, new(-234, 262), new ArenaBoundsSquare(30));

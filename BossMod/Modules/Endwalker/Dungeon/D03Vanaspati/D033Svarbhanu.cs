@@ -197,7 +197,7 @@ class CosmicKissKnockback(BossModule module) : Components.KnockbackFromCastTarge
             else if (component!.Any(x => x.Origin.Z == -162) && component!.Any(x => x.Origin.Z == -172))
                 forbidden.Add(ShapeDistance.InvertedCone(Arena.Center, 7, a0, a90));
             if (forbidden.Count != 0)
-                hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), source.Activation);
+                hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), source.Activation);
         }
     }
 }

@@ -158,7 +158,7 @@ class RockyRoll(BossModule module) : Components.GenericBaitAway(module)
             for (var i = 0; i < activeHoles.Count; ++i)
                 forbidden.Add(ShapeDistance.InvertedRect(b.Source.Position, activeHoles[i], 1));
         if (forbidden.Count != 0)
-            hints.AddForbiddenZone(p => forbidden.Max(f => f(p)));
+            hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden));
     }
 }
 

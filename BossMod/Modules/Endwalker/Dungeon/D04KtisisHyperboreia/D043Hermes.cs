@@ -52,7 +52,7 @@ public enum IconID : uint
 
 class TrismegistosArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donut = new(20, 22.5f);
+    private static readonly AOEShapeDonut donut = new(20, 22);
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);

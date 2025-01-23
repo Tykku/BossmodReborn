@@ -113,7 +113,7 @@ class OrbCollecting(BossModule module) : BossComponent(module)
             foreach (var o in ActiveOrbs)
                 orbs.Add(ShapeDistance.InvertedCircle(o.Position + 0.56f * o.Rotation.ToDirection(), 0.75f));
         if (orbs.Count > 0)
-            hints.AddForbiddenZone(p => orbs.Max(f => f(p)));
+            hints.AddForbiddenZone(ShapeDistance.Intersection(orbs));
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)

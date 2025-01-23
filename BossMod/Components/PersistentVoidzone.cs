@@ -26,19 +26,7 @@ public class PersistentVoidzone(BossModule module, float radius, Func<BossModule
         var forbidden = new List<Func<WPos, float>>();
         foreach (var s in Sources(Module))
             forbidden.Add(Shape.Distance(s.Position, s.Rotation));
-        hints.AddForbiddenZone(minDistanceFunc);
-
-        float minDistanceFunc(WPos pos)
-        {
-            var minDistance = float.MaxValue;
-            for (var i = 0; i < forbidden.Count; ++i)
-            {
-                var distance = forbidden[i](pos);
-                if (distance < minDistance)
-                    minDistance = distance;
-            }
-            return minDistance;
-        }
+        hints.AddForbiddenZone(ShapeDistance.Union(forbidden));
     }
 }
 
@@ -125,18 +113,7 @@ public class PersistentInvertibleVoidzone(BossModule module, float radius, Func<
         if (shapes.Count == 0)
             return;
 
-        float distance(WPos p)
-        {
-            var minDistance = float.MaxValue;
-            for (var i = 0; i < shapes.Count; ++i)
-            {
-                var distance = shapes[i](p);
-                if (distance < minDistance)
-                    minDistance = distance;
-            }
-            return Inverted ? -minDistance : minDistance;
-        }
-        hints.AddForbiddenZone(distance, InvertResolveAt);
+        hints.AddForbiddenZone(Inverted ? ShapeDistance.InvertedUnion(shapes) : ShapeDistance.Union(shapes), InvertResolveAt);
     }
 
     // TODO: reconsider - draw foreground circles instead?

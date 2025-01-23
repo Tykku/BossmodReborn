@@ -30,7 +30,6 @@ public enum AID : uint
 
 public enum SID : uint
 {
-    HiddenStatus = 2056, // none->GoldenWings, extra=0x16C, probably just a visual?
     Doom = 1769 // Helper->player, extra=0x0, heal to full doom
 }
 
@@ -98,5 +97,5 @@ class D063RalaStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 792, NameID = 10316)]
 public class D063Rala(WorldState ws, Actor primary) : BossModule(ws, primary, defaultBounds.Center, defaultBounds)
 {
-    private static readonly ArenaBoundsComplex defaultBounds = new([new Circle(new(-380, -135), 19.5f)], [new Rectangle(new(-380, -114.25f), 20, 2)]);
+    private static readonly ArenaBoundsComplex defaultBounds = new([new Polygon(new(-380, -135), 19.5f * CosPI.Pi32th, 32)], [new Rectangle(new(-380, -114.25f), 20, 2)]);
 }

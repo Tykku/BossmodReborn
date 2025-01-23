@@ -147,7 +147,6 @@ class Combos(BossModule module) : Components.GenericAOEs(module)
     private static readonly HashSet<AID> castEnd = [AID.CarapaceForeArms2dot0A, AID.CarapaceForeArms2dot0B,
     AID.CarapaceRearGuns2dot0A, AID.CarapaceRearGuns2dot0B, AID.RearGunsForeArms2dot0, AID.ForeArmsRearGuns2dot0,
     AID.RearGuns2dot0, AID.ForeArms2dot0];
-    private static readonly Angle a90 = 90.Degrees();
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -208,7 +207,7 @@ class Combos(BossModule module) : Components.GenericAOEs(module)
             return;
         // make ai stay close to boss to ensure successfully dodging the combo
         var aoe = _aoes[0];
-        hints.AddForbiddenZone(ShapeDistance.InvertedRect(aoe.Origin, aoe.Rotation + a90, 20, 20, 5), aoe.Activation);
+        hints.AddForbiddenZone(ShapeDistance.InvertedRect(Module.PrimaryActor.Position, aoe.Rotation, 2, 2, 40), aoe.Activation);
     }
 }
 

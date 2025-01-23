@@ -44,7 +44,10 @@ public enum AID : uint
     ExplosiveImpulse2 = 14228, // Boss->self, 5.0s cast, range 60 circle, proximity AOE
 
     CallWyvern = 14232, // Boss->self, 3.0s cast, single-target
-    ExplosionWyvern = 14676 // AernsWynav->self, 8.0s cast, range 60 circle, add soft enrage
+    ExplosionWyvern = 14676, // AernsWynav->self, 8.0s cast, range 60 circle, add soft enrage
+
+    MeteorEnrage = 14700, // Boss->self, 10.0s cast, range 60 circle
+    MeteorEnrageRepeat = 14703, // Boss->self, no cast, range 60 circle, repeat until everyone is dead
 }
 
 public enum TetherID : uint

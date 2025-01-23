@@ -54,7 +54,7 @@ class Voidzone(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnActorEState(Actor actor, ushort state)
     {
-        if (actor.OID == (uint)OID.Voidzone && state == 0x0004)
+        if ((OID)actor.OID == OID.Voidzone && state == 0x0004)
             _aoe = null;
     }
 

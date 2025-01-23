@@ -134,10 +134,9 @@ class CradleOfTheSleepless(BossModule module) : Components.GenericAOEs(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        var activeAOEs = ActiveAOEs(slot, actor).ToList();
-        if (activeAOEs.Count == 0)
+        if (_aoe == null)
             return;
-        if (activeAOEs.Any(c => !c.Check(actor.Position)))
+        if (ActiveAOEs(slot, actor).Any(c => !c.Check(actor.Position)))
             hints.Add(RiskHint);
         else
             hints.Add(StayHint, false);
