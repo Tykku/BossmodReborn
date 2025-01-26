@@ -12,7 +12,7 @@ class UmbraSmash(BossModule module) : Components.Exaflare(module, new AOEShapeRe
         var imminentAOEs = ImminentAOEs(linesCount);
 
         // use only imminent aoes for hints
-        for (var i = 0; i < imminentAOEs.Count; ++i)
+        for (var i = 0; i < imminentAOEs.Length; ++i)
         {
             var aoe = imminentAOEs[i];
             hints.AddForbiddenZone(Shape, aoe.Item1, aoe.Item3, aoe.Item2);

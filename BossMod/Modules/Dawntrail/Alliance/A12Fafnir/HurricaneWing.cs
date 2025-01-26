@@ -82,16 +82,16 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
         var total = countSmall + countBig;
         if (total == 0)
             return [];
-        List<AOEInstance> aoes = new(total);
+        var aoes = new AOEInstance[total];
         for (var i = 0; i < countSmall; ++i)
         {
             var w = _smallWhirldwinds[i];
-            aoes.Add(new(moving ? capsuleSmall : circleSmall, w.Position, w.Rotation));
+            aoes[i] = new(moving ? capsuleSmall : circleSmall, w.Position, w.Rotation);
         }
         for (var i = 0; i < countBig; ++i)
         {
             var w = _bigWhirldwinds[i];
-            aoes.Add(new(moving ? capsuleBig : circleBig, w.Position, w.Rotation));
+            aoes[i + countSmall] = new(moving ? capsuleBig : circleBig, w.Position, w.Rotation);
         }
         return aoes;
     }
@@ -128,18 +128,18 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
         var total = countSmall + countBig;
         if (countSmall == 0 && countBig == 0)
             return;
-        var forbidden = new List<Func<WPos, float>>(total); // merging all forbidden zones into one to make pathfinding less demanding
+        var forbidden = new Func<WPos, float>[total]; // merging all forbidden zones into one to make pathfinding less demanding
 
         const int length = Length + 5;
         for (var i = 0; i < countBig; ++i)
         {
             var w = _bigWhirldwinds[i];
-            forbidden.Add(ShapeDistance.Capsule(w.Position, !moving ? w.Rotation + a180 : w.Rotation, length, 10));
+            forbidden[i] = ShapeDistance.Capsule(w.Position, !moving ? w.Rotation + a180 : w.Rotation, length, 10);
         }
         for (var i = 0; i < countSmall; ++i)
         {
             var w = _smallWhirldwinds[i];
-            forbidden.Add(ShapeDistance.Capsule(w.Position, !moving ? w.Rotation + a180 : w.Rotation, length, 5));
+            forbidden[i + countBig] = ShapeDistance.Capsule(w.Position, !moving ? w.Rotation + a180 : w.Rotation, length, 5);
         }
 
         hints.AddForbiddenZone(ShapeDistance.Union(forbidden), WorldState.FutureTime(1.1f));

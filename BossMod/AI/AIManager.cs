@@ -10,7 +10,7 @@ sealed class AIManager : IDisposable
     public static AIManager? Instance;
     public readonly RotationModuleManager Autorot;
     public readonly AIController Controller;
-    private readonly AIConfig _config;
+    private static readonly AIConfig _config = Service.Config.Get<AIConfig>();
     private readonly AIManagementWindow _wndAI;
     public int MasterSlot = PartyState.PlayerSlot; // non-zero means corresponding player is master
     public AIBehaviour? Beh;
@@ -26,7 +26,6 @@ sealed class AIManager : IDisposable
         _wndAI = new AIManagementWindow(this);
         Autorot = autorot;
         Controller = new(autorot.WorldState, amex, movement);
-        _config = Service.Config.Get<AIConfig>();
         Service.CommandManager.AddHandler("/bmrai", new Dalamud.Game.Command.CommandInfo(OnCommand) { HelpMessage = "Toggle AI mode" });
         Service.CommandManager.AddHandler("/vbmai", new Dalamud.Game.Command.CommandInfo(OnCommand) { ShowInHelp = false });
     }

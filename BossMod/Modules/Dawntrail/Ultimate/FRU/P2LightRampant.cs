@@ -316,7 +316,7 @@ class P2LightRampantAIStackPrepos(BossModule module) : BossComponent(module)
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         var isPuddleBaiter = _puddles?.ActiveBaitsOn(actor).Any() ?? false;
-        var northCamp = isPuddleBaiter ? actor.Position.X < Module.Center.X : actor.Position.Z < Module.Center.Z; // this assumes CW movement for baiter
+        var northCamp = isPuddleBaiter ? actor.Position.X < Arena.Center.X : actor.Position.Z < Module.Center.Z; // this assumes CW movement for baiter
         var dest = Module.Center + new WDir(0, northCamp ? -18 : 18);
         if (isPuddleBaiter)
         {
@@ -344,7 +344,7 @@ class P2LightRampantAIStackResolve(BossModule module) : BossComponent(module)
         var northCamp = IsNorthCamp(actor);
         var centerDangerous = _orbs.ActiveCasters.Any(c => c.Origin.Z - Arena.Center.Z is var off && (northCamp ? off < -15 : off > 15));
         var destDir = (northCamp ? 180 : 0).Degrees() - (centerDangerous ? 40 : 20).Degrees();
-        var destPos = Module.Center + Radius * destDir.ToDirection();
+        var destPos = Arena.Center + Radius * destDir.ToDirection();
         if (_stack.IsStackTarget(actor))
         {
             // as a stack target, our responsibility is to wait for everyone to stack up, then carefully move towards destination
@@ -384,17 +384,20 @@ class P2LightRampantAIOrbs(BossModule module) : BossComponent(module)
         if (_orbs == null || _orbs.Casters.Count == 0)
             return;
 
-        // actual orb aoes
+        // actual orb aoes; use slightly bigger radius to make dodges less sus
         foreach (var c in _orbs.ActiveCasters)
-            hints.AddForbiddenZone(_orbs.Shape.Distance(c.Origin, default), c.Activation);
+            hints.AddForbiddenZone(ShapeDistance.Circle(c.Origin, 12), c.Activation);
 
         if (_orbs.NumCasts == 0)
         {
             // dodge first orbs, while staying near edge
             hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 16));
             // ... and close to the aoes
-            var cushioned = ShapeDistance.Union([.. _orbs.ActiveCasters.Select(c => ShapeDistance.Circle(c.Origin, 13))]);
-            hints.AddForbiddenZone(p => -cushioned(p), DateTime.MaxValue);
+            var count = _orbs.ActiveCasters.Count;
+            var orbs = new Func<WPos, float>[count];
+            for (var i = 0; i < count; ++i)
+                orbs[i] = ShapeDistance.Circle(_orbs.ActiveCasters[i].Origin, 13.5f);
+            hints.AddForbiddenZone(ShapeDistance.InvertedUnion(orbs), DateTime.MaxValue);
         }
         else if (_orbs.Casters.Any(c => _orbs.Shape.Check(actor.Position, c.Origin, default)))
         {

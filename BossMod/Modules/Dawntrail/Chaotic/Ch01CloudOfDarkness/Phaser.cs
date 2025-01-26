@@ -9,13 +9,14 @@ class Phaser(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpe
             return [];
         var deadline = Casters[0].Activation.AddSeconds(1);
 
-        List<AOEInstance> result = new(count);
+        var aoes = new AOEInstance[count];
+        var index = 0;
         for (var i = 0; i < count; ++i)
         {
             var caster = Casters[i];
             if (caster.Activation < deadline)
-                result.Add(caster);
+                aoes[index++] = caster;
         }
-        return result;
+        return aoes[..index];
     }
 }

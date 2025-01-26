@@ -31,14 +31,14 @@ class SewageWave(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        List<AOEInstance> aoes = new(count);
+        var aoes = new AOEInstance[count];
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
             if (i == 0)
-                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
             else if (i == 1)
-                aoes.Add(aoe with { Risky = false });
+                aoes[i] = aoe with { Risky = false };
         }
         return aoes;
     }
@@ -71,7 +71,7 @@ class BaalStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<SewageWave>()
-            .ActivateOnEnter<SewerWater>()
+            .ActivateOnEnter<SewerWater1>()
             .ActivateOnEnter<SewerWater2>();
     }
 }

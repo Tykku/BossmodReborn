@@ -70,8 +70,6 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
         new(-12, -104)
     ];
 
-    private static readonly Circle[] circles = [.. circlePositions.Select(pos => new Circle(pos, Radius))];
-
     private static readonly (int, int)[] rectanglePairs =
     [
         (0, 1), (7, 9), (5, 6), (13, 20), (17, 18), (11, 14), (21, 20), (14, 15),
@@ -80,25 +78,45 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
         (24, 8), (0, 22), (0, 4), (2, 10), (22, 13),
     ];
 
-    private static readonly RectangleSE[] rectangles = [.. rectanglePairs.Select(pair => new RectangleSE(circles[pair.Item1].Center, circles[pair.Item2].Center, Radius))];
+    private static readonly Polygon[] circles = CreateCircles(circlePositions, Radius, 12);
+    private static readonly RectangleSE[] rectangles = CreateRectangles(rectanglePairs, circlePositions, Radius);
+
+    private static Polygon[] CreateCircles(WPos[] positions, float radius, int edges)
+    {
+        var result = new Polygon[26];
+        for (var i = 0; i < 26; ++i)
+            result[i] = new Polygon(positions[i], radius, edges);
+        return result;
+    }
+
+    private static RectangleSE[] CreateRectangles((int, int)[] pairs, WPos[] positions, float width)
+    {
+        var result = new RectangleSE[28];
+        for (var i = 0; i < 28; ++i)
+        {
+            var pair = pairs[i];
+            result[i] = new RectangleSE(positions[pair.Item1], positions[pair.Item2], width);
+        }
+        return result;
+    }
 
     private static readonly AOEShapeCustom rectArenaChange = new(startingRect, defaultRect);
 
     private static readonly Shape[] union01000080Shapes = GetShapesForUnion([0, 1, 2, 3, 4, 5], [0, 1, 7, 9, 5, 6, 13, 20, 17, 18, 11, 14]);
     private static readonly AOEShapeCustom electricFences01000080AOE = new(union01000080Shapes);
-    private static readonly ArenaBoundsComplex electricFences01000080Arena = new(defaultRect, union01000080Shapes, Offset: -Radius);
+    private static readonly ArenaBoundsComplex electricFences01000080Arena = new(defaultRect, union01000080Shapes);
 
     private static readonly Shape[] union08000400Shapes = GetShapesForUnion([6, 7, 8, 9, 10, 11], [21, 20, 14, 15, 12, 17, 1, 10, 3, 7, 6, 8]);
     private static readonly AOEShapeCustom electricFences08000400AOE = new(union08000400Shapes);
-    private static readonly ArenaBoundsComplex electricFences08000400Arena = new(defaultRect, union08000400Shapes, Offset: -Radius);
+    private static readonly ArenaBoundsComplex electricFences08000400Arena = new(defaultRect, union08000400Shapes);
 
     private static readonly Shape[] union00020001Shapes = GetShapesForUnion([12, 13, 14, 15, 16, 17, 18, 19], [2, 8, 11, 10, 13, 16]);
     private static readonly AOEShapeCustom electricFences00020001AOE = new(union00020001Shapes);
-    private static readonly ArenaBoundsComplex electricFences00020001Arena = new(defaultRect, union00020001Shapes, Offset: -Radius);
+    private static readonly ArenaBoundsComplex electricFences00020001Arena = new(defaultRect, union00020001Shapes);
 
     private static readonly Shape[] union00200010Shapes = GetShapesForUnion([20, 21, 22, 23, 24, 25, 26, 27], [4, 8, 11, 19, 13, 10]);
     private static readonly AOEShapeCustom electricFences00200010AOE = new(union00200010Shapes);
-    private static readonly ArenaBoundsComplex electricFences00200010Arena = new(defaultRect, union00200010Shapes, Offset: -Radius);
+    private static readonly ArenaBoundsComplex electricFences00200010Arena = new(defaultRect, union00200010Shapes);
 
     private AOEInstance? _aoe;
 
@@ -106,10 +124,16 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 
     private static Shape[] GetShapesForUnion(int[] rectIndices, int[] circleIndices)
     {
-        var shapes = new List<Shape>();
-        shapes.AddRange(rectIndices.Select(index => rectangles[index]));
-        shapes.AddRange(circleIndices.Select(index => circles[index]));
-        return [.. shapes];
+        var rectLen = rectIndices.Length;
+        var circleLen = circleIndices.Length;
+        var shapes = new Shape[rectLen + circleLen];
+        var position = 0;
+
+        for (var i = 0; i < rectLen; ++i)
+            shapes[position++] = rectangles[rectIndices[i]];
+        for (var i = 0; i < circleLen; ++i)
+            shapes[position++] = circles[circleIndices[i]];
+        return shapes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -183,7 +207,7 @@ class BatteryCircuit(BossModule module) : Components.GenericRotatingAOE(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.BatteryCircuitFirst)
-            Sequences.Add(new(_shape, caster.Position, spell.Rotation, _increment, Module.CastFinishAt(spell), 0.5f, 34, 9));
+            Sequences.Add(new(_shape, spell.LocXZ, spell.Rotation, _increment, Module.CastFinishAt(spell), 0.5f, 34, 9));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -228,7 +252,7 @@ class HomingCannon(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.HomingCannon)
-            _aoes.Add(new(rect, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.Add(new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)

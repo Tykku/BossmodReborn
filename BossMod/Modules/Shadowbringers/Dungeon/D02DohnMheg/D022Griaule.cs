@@ -33,7 +33,7 @@ class FeedingTime(BossModule module) : Components.InterceptTether(module, Action
         {
             var source = Module.Enemies(OID.PaintedSapling)[slot];
             var target = Module.PrimaryActor;
-            hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.5f), _activation);
+            hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.6f), _activation);
         }
     }
 }

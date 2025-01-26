@@ -26,6 +26,7 @@ public class ArcList(WPos center, float radius)
         if (min.Rad < -MathF.PI)
         {
             Forbidden.Add(min.Rad + Angle.DoublePI, MathF.PI);
+            min = -MathF.PI.Radians();
         }
         var max = center + halfWidth;
         if (max.Rad > MathF.PI)

@@ -10,14 +10,15 @@ class RoyalBanishment(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        List<AOEInstance> aoes = new(count);
+        var aoes = new AOEInstance[count];
+        var index = 0;
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
-            if ((aoe.Activation - _aoes[0].Activation).TotalSeconds <= 1)
-                aoes.Add(aoe);
+            if ((aoe.Activation - _aoes[0].Activation).TotalSeconds < 1)
+                aoes[index++] = aoe;
         }
-        return aoes;
+        return aoes[..index];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

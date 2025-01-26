@@ -77,26 +77,25 @@ class AuraSphere(BossModule module) : BossComponent(module)
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var orbs = new List<Func<WPos, float>>();
-        Actor[] sph = [.. _orbs];
-        var len = sph.Length;
+        Actor[] orbz = [.. _orbs];
+        var len = orbz.Length;
         if (len != 0)
         {
+            var orbs = new Func<WPos, float>[len];
             hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Sprint), actor, ActionQueue.Priority.High);
             for (var i = 0; i < len; ++i)
             {
-                var o = sph[i];
-                orbs.Add(ShapeDistance.InvertedCircle(o.Position + 0.5f * o.Rotation.ToDirection(), 0.56f));
+                var o = orbz[i];
+                orbs[i] = ShapeDistance.InvertedRect(o.Position + 0.5f * o.Rotation.ToDirection(), new WDir(0, 1), 0.7f, 0.7f, 0.7f);
             }
-        }
-        if (orbs.Count != 0)
             hints.AddForbiddenZone(ShapeDistance.Intersection(orbs));
+        }
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var orb in _orbs)
-            Arena.AddCircle(orb.Position, 1.4f, Colors.Safe);
+            Arena.AddCircle(orb.Position, 1, Colors.Safe);
     }
 }
 

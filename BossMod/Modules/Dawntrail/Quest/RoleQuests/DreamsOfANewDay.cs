@@ -110,7 +110,7 @@ class Daggerflight(BossModule module) : Components.InterceptTether(module, Actio
         {
             var source = Module.PrimaryActor;
             var target = Module.Enemies(OID.TentoawaTheWideEye).FirstOrDefault()!;
-            hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.5f), _activation);
+            hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.6f), _activation);
         }
     }
 }

@@ -5,7 +5,7 @@
 // each wave is 5 subsequent lines, except for two horizontal ones that go towards edges - they only have 1 line - meaning there's a total 22 'rest' casts
 class UpwellFirst : Components.SimpleAOEs
 {
-    public UpwellFirst(BossModule module) : base(module, ActionID.MakeSpell(AID.UpwellFirst), new AOEShapeRect(30, 5, 30)) { Color = Colors.Danger; }
+    public UpwellFirst(BossModule module) : base(module, ActionID.MakeSpell(AID.UpwellFirst), new AOEShapeRect(60, 5)) { Color = Colors.Danger; }
 }
 class UpwellRest(BossModule module) : Components.Exaflare(module, new AOEShapeRect(30, 2.5f, 30))
 {
@@ -17,24 +17,24 @@ class UpwellRest(BossModule module) : Components.Exaflare(module, new AOEShapeRe
         var futureAOEs = FutureAOEs(linesCount);
         var imminentAOEs = ImminentAOEs(linesCount);
         var futureCount = futureAOEs.Count;
-        var imminentCount = imminentAOEs.Count;
+        var imminentCount = imminentAOEs.Length;
         var imminentDeadline = WorldState.FutureTime(5);
-
-        List<AOEInstance> aoes = new(futureCount + imminentCount);
+        var index = 0;
+        var aoes = new AOEInstance[futureCount + imminentCount];
         for (var i = 0; i < futureCount; ++i)
         {
             var aoe = futureAOEs[i];
             if (aoe.Item2 <= imminentDeadline)
-                aoes.Add(new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, FutureColor));
+                aoes[index++] = new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, FutureColor);
         }
 
         for (var i = 0; i < imminentCount; ++i)
         {
             var aoe = imminentAOEs[i];
             if (aoe.Item2 <= imminentDeadline)
-                aoes.Add(new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, ImminentColor));
+                aoes[index++] = new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, ImminentColor);
         }
-        return aoes;
+        return aoes[..index];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

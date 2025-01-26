@@ -4,6 +4,7 @@ class P3QuickmarchTrio(BossModule module) : BossComponent(module)
 {
     private Actor? _relNorth;
     private readonly WPos[] _safeSpots = new WPos[PartyState.MaxPartySize];
+    private readonly UCOBConfig _config = Service.Config.Get<UCOBConfig>();
 
     public bool Active => _relNorth != null;
 
@@ -21,7 +22,7 @@ class P3QuickmarchTrio(BossModule module) : BossComponent(module)
         {
             _relNorth = actor;
             var dirToNorth = Angle.FromDirection(actor.Position - Arena.Center);
-            foreach (var p in Service.Config.Get<UCOBConfig>().P3QuickmarchTrioAssignments.Resolve(Raid))
+            foreach (var p in _config.P3QuickmarchTrioAssignments.Resolve(Raid))
             {
                 var left = p.group < 4;
                 var order = p.group & 3;
@@ -33,9 +34,9 @@ class P3QuickmarchTrio(BossModule module) : BossComponent(module)
     }
 }
 
-class P3TwistingDive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TwistingDive), new AOEShapeRect(60, 4));
-class P3LunarDive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LunarDive), new AOEShapeRect(60, 4));
-class P3MegaflareDive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MegaflareDive), new AOEShapeRect(60, 6));
+class P3TwistingDive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TwistingDive), new AOEShapeRect(63.96f, 4));
+class P3LunarDive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LunarDive), new AOEShapeRect(62.55f, 4));
+class P3MegaflareDive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MegaflareDive), new AOEShapeRect(64.2f, 6));
 class P3Twister(BossModule module) : Components.ImmediateTwister(module, 2, (uint)OID.VoidzoneTwister, 1.4f); // TODO: verify radius
 
 class P3MegaflareSpreadStack : Components.UniformStackSpread

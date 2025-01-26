@@ -104,77 +104,79 @@ public class Map
     public void BlockPixelsInside(Func<WPos, float> shape, float maxG, float threshold)
     {
         MaxG = Math.Max(MaxG, maxG);
-        var pixels = Pixels;
+        ref var pixels = ref Pixels;
         var width = Width;
         var height = Height;
         var resolution = Resolution;
-        var rotation = Rotation;
-        var center = Center;
-
-        var dir = rotation.ToDirection();
+        var dir = Rotation.ToDirection();
         var dx = dir.OrthoL() * resolution;
         var dy = dir * resolution;
-        var startPos = center - (width * HalfPixel - HalfPixel) * dx - (height * HalfPixel - HalfPixel) * dy;
+        var startPos = Center - (width * HalfPixel - HalfPixel) * dx - (height * HalfPixel - HalfPixel) * dy;
 
         Parallel.For(0, height, y =>
         {
-            var rowPixels = pixels.AsSpan(y * width, width);
             var posY = startPos + y * dy;
+            var rowBaseIndex = y * width;
             for (var x = 0; x < width; ++x)
             {
+                ref var pixel = ref Pixels[rowBaseIndex + x];
+                if (pixel.MaxG == -1) // pixel is outside of walkable arena bounds, no need to test or modify
+                    continue;
                 var pos = posY + x * dx;
                 if (shape(pos) <= threshold)
                 {
-                    rowPixels[x].MaxG = Math.Min(rowPixels[x].MaxG, maxG);
+                    ref var pixelMaxG = ref pixel.MaxG;
+                    pixelMaxG = pixelMaxG < maxG ? pixelMaxG : maxG;
                 }
             }
         });
     }
 
-    // for testing 4 points per pixel for increased accuracy, suiteable for convex polygons
-    public void BlockPixelsInsideConvex(Func<WPos, float> shape, float maxG, float threshold)
+    private static readonly (float, float)[] offsets =
+            [
+                (Epsilon, Epsilon),
+                (Epsilon, 1 - Epsilon),
+                (1 - Epsilon, Epsilon),
+                (1 - Epsilon, 1 - Epsilon)
+            ];
+
+    // for testing 4 points per pixel for increased accuracy to rasterize circle and rectangle arena bounds
+    public void BlockPixelsInside2(Func<WPos, float> shape, float maxG)
     {
         MaxG = Math.Max(MaxG, maxG);
         var width = Width;
         var height = Height;
-        var pixels = Pixels;
+        ref var pixels = ref Pixels;
         var resolution = Resolution;
-        var rotation = Rotation;
-        var center = Center;
-        float[] offsets = [Epsilon, 1 - Epsilon];
-
-        var dir = rotation.ToDirection();
+        var dir = Rotation.ToDirection();
         var dx = dir.OrthoL() * resolution;
         var dy = dir * resolution;
-        var startPos = center - width * HalfPixel * dx - height * HalfPixel * dy;
+        var startPos = Center - width * HalfPixel * dx - height * HalfPixel * dy;
 
         Parallel.For(0, height, y =>
         {
-            var rowPixels = pixels.AsSpan(y * width, width);
             var posY = startPos + y * dy;
+            var rowBaseIndex = y * width;
+
             for (var x = 0; x < width; ++x)
             {
                 var posBase = posY + x * dx;
-                var blocked = false;
-                for (var i = 0; i < 2; ++i)
+                var isBlocked = false;
+                for (var i = 0; i < 4; ++i)
                 {
-                    for (var j = 0; j < 2; ++j)
-                    {
-                        var pos = posBase + offsets[i] * dx + offsets[j] * dy;
-                        if (shape(pos) <= threshold)
-                        {
-                            blocked = true;
-                            break;
-                        }
-                    }
-                    if (blocked)
-                        break;
-                }
+                    ref var points = ref offsets[i];
+                    var pos = posBase + points.Item1 * dx + points.Item2 * dy;
 
-                if (blocked)
+                    if (shape(pos) <= 0)
+                    {
+                        isBlocked = true;
+                        break;
+                    }
+                }
+                if (isBlocked)
                 {
-                    ref var pixel = ref rowPixels[x];
-                    pixel.MaxG = Math.Min(pixel.MaxG, maxG);
+                    ref var pixelMaxG = ref Pixels[rowBaseIndex + x].MaxG;
+                    pixelMaxG = pixelMaxG < maxG ? pixelMaxG : maxG;
                 }
             }
         });

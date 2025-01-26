@@ -57,7 +57,7 @@ class ArenaChanges(BossModule module) : BossComponent(module)
     private void UpdateArenaBounds()
     {
         Shape[] brokenTiles = [.. Tiles.Where((tile, index) => DestroyedCells[index])];
-        ArenaBoundsComplex arena = new(defaultSquare, brokenTiles, Offset: -0.5f);
+        ArenaBoundsComplex arena = new(defaultSquare, brokenTiles);
         Arena.Bounds = arena;
         Arena.Center = arena.Center;
     }

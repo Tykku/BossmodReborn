@@ -14,7 +14,7 @@ public enum AID : uint
     ThermobaricCharge = 28779, // Helper->self, 7.0s cast, range 60 circle aoe with ? falloff
     Hypercharge = 28780, // Boss->self, 4.1s cast, single-target, visual
     HyperchargeInner = 28781, // Helper->self, 5.0s cast, range 10 circle
-    HyperchargeOuter = 28782, // Helper->self, 5.0s cast, range ?-30 donut
+    HyperchargeOuter = 28782, // Helper->self, 5.0s cast, range 12-30 donut
     TargetedSupport = 28783, // Boss->self, 4.0s cast, single-target, visual
     TargetedSupportAOE = 28784, // Helper->self, 3.0s cast, range 5 circle aoe
     CermetDrill = 28785, // Boss->player, 5.0s cast, single-target tankbuster
@@ -23,7 +23,7 @@ public enum AID : uint
 
 class ThermobaricCharge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThermobaricCharge), 20);
 class HyperchargeInner(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HyperchargeInner), 10);
-class HyperchargeOuter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HyperchargeOuter), new AOEShapeDonut(12.5f, 30));
+class HyperchargeOuter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HyperchargeOuter), new AOEShapeDonut(12, 30));
 class TargetedSupport(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TargetedSupportAOE), 5);
 class CermetDrill(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CermetDrill));
 class Overcharge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Overcharge), new AOEShapeCone(11, 60.Degrees()));
@@ -43,4 +43,8 @@ class D132MagitekVanguardF1States : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 15, NameID = 2116)]
-public class D132MagitekVanguardF1(WorldState ws, Actor primary) : BossModule(ws, primary, new(-13, 31), new ArenaBoundsSquare(19.5f, 11.Degrees()));
+public class D132MagitekVanguardF1(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
+{
+    private static readonly ArenaBoundsComplex arena = new([new Square(new(-13, 31), 19.5f, -11.Degrees()), new Rectangle(new(-9.107f, 51.025f), 8, 1.25f, -11.Degrees())],
+    [new Rectangle(new(-9.107f, 51.025f), 8, 1.25f, -11.Degrees())]);
+}

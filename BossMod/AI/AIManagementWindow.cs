@@ -6,7 +6,7 @@ namespace BossMod.AI;
 
 sealed class AIManagementWindow : UIWindow
 {
-    private readonly AIConfig _config;
+    private static readonly AIConfig _config = Service.Config.Get<AIConfig>();
     private readonly AIManager _manager;
     private readonly EventSubscriptions _subscriptions;
     private const string _title = $"AI: off{_windowID}";
@@ -15,7 +15,6 @@ sealed class AIManagementWindow : UIWindow
     public AIManagementWindow(AIManager manager) : base(_windowID, false, new(100, 100))
     {
         WindowName = _title;
-        _config = Service.Config.Get<AIConfig>();
         _manager = manager;
         _subscriptions = new
         (

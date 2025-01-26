@@ -17,21 +17,25 @@ class Phase2InnerCells(BossModule module) : Components.GenericAOEs(module)
         if (!_config.ShowOccupiedTiles)
             return [];
         var cell = CellIndex(actor.Position - Arena.Center) - 3;
-        List<AOEInstance> tiles = new(16); // 3 * 4 + 4 margin for error
+        var tiles = new AOEInstance[28];
+        var index = 0;
         for (var i = 0; i < 28; ++i)
         {
-            if (_breakTime[i] != default)
+            ref var breaktime = ref _breakTime[i];
+            if (breaktime != default)
             {
                 if (i == cell)
                 {
-                    if ((_breakTime[i] - WorldState.CurrentTime).TotalSeconds < 6)
-                        tiles.Add(new(square, CellCenter(i)));
+                    if ((breaktime - WorldState.CurrentTime).TotalSeconds < 6)
+                    {
+                        tiles[index++] = new(square, CellCenter(i));
+                    }
                 }
                 else
-                    tiles.Add(new(square, CellCenter(i), Color: Colors.FutureVulnerable));
+                    tiles[index++] = new(square, CellCenter(i), Color: Colors.FutureVulnerable);
             }
         }
-        return tiles;
+        return tiles[..index];
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)

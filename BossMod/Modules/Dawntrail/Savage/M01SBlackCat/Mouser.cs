@@ -73,7 +73,7 @@ class ArenaChanges(BossModule module) : BossComponent(module)
     {
         Shape[] brokenTiles = [.. Tiles.Where((tile, index) => DestroyedCells[index])];
         var brokenTilesCount = brokenTiles.Length == 16 ? [] : brokenTiles; // prevents empty sequence error at end of enrage
-        ArenaBoundsComplex arena = new(defaultSquare, brokenTiles, Offset: -0.5f);
+        ArenaBoundsComplex arena = new(defaultSquare, brokenTiles);
         Arena.Bounds = arena;
         Arena.Center = arena.Center;
     }

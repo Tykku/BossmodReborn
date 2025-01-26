@@ -12,7 +12,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
     public WorldState WorldState => autorot.Bossmods.WorldState;
     public Preset? AIPreset = aiPreset;
     public float ForceMovementIn = float.MaxValue; // TODO: reconsider
-    private readonly AIConfig _config = Service.Config.Get<AIConfig>();
+    private static readonly AIConfig _config = Service.Config.Get<AIConfig>();
     private readonly NavigationDecision.Context _naviCtx = new();
     private NavigationDecision _naviDecision;
     private bool _afkMode;
@@ -63,7 +63,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         var followTarget = _config.FollowTarget;
         _followMaster = (_config.FollowDuringCombat || !master.InCombat || (_masterPrevPos - _masterMovementStart).LengthSq() > 100) && (_config.FollowDuringActiveBossModule || autorot.Bossmods.ActiveModule?.StateMachine.ActiveState == null) && (_config.FollowOutOfCombat || master.InCombat);
         // note: if there are pending knockbacks, don't update navigation decision to avoid fucking up positioning
-        if (player.PendingKnockbacks.Count == 0)
+        if (player.PendingKnockbacks == 0)
         {
             var actorTarget = autorot.WorldState.Actors.Find(player.TargetID);
             (var naviDecision, target) = followTarget && actorTarget != null

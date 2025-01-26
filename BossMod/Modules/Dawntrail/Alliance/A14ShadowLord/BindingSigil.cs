@@ -11,14 +11,15 @@ class BindingSigil(BossModule module) : Components.GenericAOEs(module)
         if (count == 0)
             return [];
         var firstactivation = _aoes[0].Activation;
-        List<AOEInstance> list = new(count);
+        var aoes = new AOEInstance[count];
+        var index = 0;
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
             if ((aoe.Activation - firstactivation).TotalSeconds < 1)
-                list.Add(aoe);
+                aoes[index++] = aoe;
         }
-        return list;
+        return aoes[..index];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

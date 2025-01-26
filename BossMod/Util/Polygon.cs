@@ -140,11 +140,11 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
         var bucketIndex = (int)((y - buckets.MinY) * buckets.InvBucketHeight);
         if ((uint)bucketIndex >= BucketCount)
             return false;
-        var edges = buckets.EdgeBuckets[bucketIndex];
+        ref var edges = ref buckets.EdgeBuckets[bucketIndex];
         var inside = false;
         for (var i = 0; i < edges.Length; ++i)
         {
-            var edge = edges[i];
+            ref var edge = ref edges[i];
             if ((edge.y0 > y) != (edge.y1 > y) && x < edge.x0 + edge.slopeX * (y - edge.y0))
             {
                 inside = !inside;
@@ -261,51 +261,6 @@ public record class RelSimplifiedComplexPolygon(List<RelPolygonWithHoles> Parts)
             if (Parts[i].Contains(p))
                 return true;
         return false;
-    }
-
-    // positive offsets inflate, negative shrink polygon
-    public RelSimplifiedComplexPolygon Offset(float offset)
-    {
-        var clipperOffset = new ClipperOffset();
-        var allPaths = new Paths64();
-
-        for (var i = 0; i < Parts.Count; ++i)
-        {
-            var part = Parts[i];
-            allPaths.Add(ToPath64(part.Exterior));
-            foreach (var j in part.Holes)
-                allPaths.Add(ToPath64(part.Interior(j)));
-        }
-
-        var solution = new Paths64();
-        clipperOffset.AddPaths(allPaths, JoinType.Miter, EndType.Polygon);
-        clipperOffset.Execute(offset * PolygonClipper.Scale, solution);
-
-        var result = new RelSimplifiedComplexPolygon();
-        BuildResultFromPaths(result, solution);
-        return result;
-    }
-
-    private void BuildResultFromPaths(RelSimplifiedComplexPolygon result, Paths64 paths)
-    {
-        var c = new Clipper64();
-        c.AddPaths(paths, PathType.Subject);
-        var tree = new PolyTree64();
-        c.Execute(ClipType.Union, FillRule.NonZero, tree);
-
-        PolygonClipper.BuildResult(result, tree);
-    }
-
-    private static Path64 ToPath64(ReadOnlySpan<WDir> vertices)
-    {
-        var count = vertices.Length;
-        var path = new Path64(count);
-        for (var i = 0; i < count; ++i)
-        {
-            var vertex = vertices[i];
-            path.Add(new(vertex.X * PolygonClipper.Scale, vertex.Z * PolygonClipper.Scale));
-        }
-        return path;
     }
 }
 
@@ -465,11 +420,15 @@ public class SpatialIndex
 
         for (var i = 0; i < _edges.Length; ++i)
         {
-            var edge = _edges[i];
-            var ex0 = (int)MathF.Floor(Math.Min(edge.Ax, edge.Ax + edge.Dx));
-            var ex1 = (int)MathF.Floor(Math.Max(edge.Ax, edge.Ax + edge.Dx));
-            var ey0 = (int)MathF.Floor(Math.Min(edge.Ay, edge.Ay + edge.Dy));
-            var ey1 = (int)MathF.Floor(Math.Max(edge.Ay, edge.Ay + edge.Dy));
+            ref var edge = ref _edges[i];
+            var edgeAx = edge.Ax;
+            var edgeAy = edge.Ay;
+            var edgeAxDx = edgeAx + edge.Dx;
+            var edgeAydy = edgeAy + edge.Dy;
+            var ex0 = (int)MathF.Floor(Math.Min(edgeAx, edgeAxDx));
+            var ex1 = (int)MathF.Floor(Math.Max(edgeAx, edgeAxDx));
+            var ey0 = (int)MathF.Floor(Math.Min(edgeAy, edgeAydy));
+            var ey1 = (int)MathF.Floor(Math.Max(edgeAy, edgeAydy));
 
             minX = Math.Min(minX, ex0);
             minY = Math.Min(minY, ey0);
@@ -492,11 +451,15 @@ public class SpatialIndex
 
         for (var i = 0; i < _edges.Length; ++i)
         {
-            var edge = _edges[i];
-            var minX = Math.Min(edge.Ax, edge.Ax + edge.Dx);
-            var maxX = Math.Max(edge.Ax, edge.Ax + edge.Dx);
-            var minY = Math.Min(edge.Ay, edge.Ay + edge.Dy);
-            var maxY = Math.Max(edge.Ay, edge.Ay + edge.Dy);
+            ref var edge = ref _edges[i];
+            var edgeAx = edge.Ax;
+            var edgeAy = edge.Ay;
+            var edgeAxDx = edgeAx + edge.Dx;
+            var edgeAydy = edgeAy + edge.Dy;
+            var minX = Math.Min(edgeAx, edgeAxDx);
+            var maxX = Math.Max(edgeAx, edgeAxDx);
+            var minY = Math.Min(edgeAy, edgeAydy);
+            var maxY = Math.Max(edgeAy, edgeAydy);
 
             var x0 = (int)MathF.Floor(minX) - _minX;
             var x1 = (int)MathF.Floor(maxX) - _minX;
@@ -520,7 +483,7 @@ public class SpatialIndex
         }
     }
 
-    public ReadOnlySpan<int> Query(float px, float py)
+    public int[] Query(float px, float py)
     {
         var cellX = (int)MathF.Floor(px) - _minX;
         var cellY = (int)MathF.Floor(py) - _minY;
@@ -605,10 +568,14 @@ public readonly struct PolygonWithHolesDistanceFunction
         var indices = _spatialIndex.Query(pX, pZ);
         for (var i = 0; i < indices.Length; ++i)
         {
-            var edge = _edges[indices[i]];
-            var t = Math.Clamp(((pX - edge.Ax) * edge.Dx + (pZ - edge.Ay) * edge.Dy) * edge.InvLengthSq, 0, 1);
-            var distX = pX - (edge.Ax + t * edge.Dx);
-            var distY = pZ - (edge.Ay + t * edge.Dy);
+            ref var edge = ref _edges[indices[i]];
+            var edgeAx = edge.Ax;
+            var edgeAy = edge.Ay;
+            var edgeDx = edge.Dx;
+            var edgeDy = edge.Dy;
+            var t = Math.Clamp(((pX - edgeAx) * edgeDx + (pZ - edgeAy) * edgeDy) * edge.InvLengthSq, 0, 1);
+            var distX = pX - (edgeAx + t * edgeDx);
+            var distY = pZ - (edgeAy + t * edgeDy);
 
             minDistanceSq = Math.Min(minDistanceSq, distX * distX + distY * distY);
         }
@@ -628,10 +595,14 @@ public readonly struct PolygonWithHolesDistanceFunction
         var indices = _spatialIndex.Query(pX, pZ);
         for (var i = 0; i < indices.Length; ++i)
         {
-            var edge = _edges[indices[i]];
-            var t = Math.Clamp(((pX - edge.Ax) * edge.Dx + (pZ - edge.Ay) * edge.Dy) * edge.InvLengthSq, 0, 1);
-            var distX = pX - (edge.Ax + t * edge.Dx);
-            var distY = pZ - (edge.Ay + t * edge.Dy);
+            ref var edge = ref _edges[indices[i]];
+            var edgeAx = edge.Ax;
+            var edgeAy = edge.Ay;
+            var edgeDx = edge.Dx;
+            var edgeDy = edge.Dy;
+            var t = Math.Clamp(((pX - edgeAx) * edgeDx + (pZ - edgeAy) * edgeDy) * edge.InvLengthSq, 0, 1);
+            var distX = pX - (edgeAx + t * edgeDx);
+            var distY = pZ - (edgeAy + t * edgeDy);
 
             minDistanceSq = Math.Min(minDistanceSq, distX * distX + distY * distY);
         }

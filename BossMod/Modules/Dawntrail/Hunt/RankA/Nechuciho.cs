@@ -49,14 +49,14 @@ class WhispersOfTheWood(BossModule module) : Components.GenericAOEs(module)
         if (count == 0)
             return [];
         var max = count > 2 ? 2 : count;
-        List<AOEInstance> aoes = new(max);
+        var aoes = new AOEInstance[max];
         for (var i = 0; i < max; ++i)
         {
             var aoe = _aoes[i];
             if (i == 0)
-                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
             else if (i == 1)
-                aoes.Add(_aoes[0].Rotation.AlmostEqual(_aoes[1].Rotation + a180, Angle.DegToRad) ? aoe with { Risky = false } : aoe);
+                aoes[i] = _aoes[0].Rotation.AlmostEqual(_aoes[1].Rotation + a180, Angle.DegToRad) ? aoe with { Risky = false } : aoe;
         }
         return aoes;
     }

@@ -29,8 +29,8 @@ class AugmentedSuffering(BossModule module) : Components.KnockbackFromCastTarget
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (Casters.Count > 0)
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center, Module.Bounds.Radius - Distance), Module.CastFinishAt(Casters[0].CastInfo!));
+        if (Casters.Count != 0)
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, Arena.Bounds.Radius - Distance), Module.CastFinishAt(Casters[0].CastInfo!));
     }
 }
 

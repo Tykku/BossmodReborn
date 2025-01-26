@@ -11,9 +11,12 @@ public sealed class AIHintsBuilder : IDisposable
     private readonly BossModuleManager _bmm;
     private readonly ZoneModuleManager _zmm;
     private readonly EventSubscriptions _subscriptions;
-    private readonly Dictionary<ulong, (Actor Caster, Actor? Target, AOEShape Shape, bool IsCharge)> _activeAOEs = [];
+    private readonly Dictionary<ulong, (Actor Caster, Actor? Target, AOEShape Shape)> _activeAOEs = [];
     private ArenaBoundsCircle? _activeFateBounds;
     private static readonly HashSet<uint> ignore = [27503, 33626]; // action IDs that the AI should ignore
+    private static readonly PartyRolesConfig _config = Service.Config.Get<PartyRolesConfig>();
+    private static readonly Dictionary<uint, (byte, byte)> _fateCache = [];
+    private static readonly Dictionary<uint, (byte, byte, byte, uint, string, string, string, int, bool)> _spellCache = [];
 
     public AIHintsBuilder(WorldState ws, BossModuleManager bmm, ZoneModuleManager zmm)
     {
@@ -42,9 +45,9 @@ public sealed class AIHintsBuilder : IDisposable
         var player = _ws.Party[playerSlot];
         if (player != null)
         {
-            var playerAssignment = Service.Config.Get<PartyRolesConfig>()[_ws.Party.Members[playerSlot].ContentId];
+            var playerAssignment = _config[_ws.Party.Members[playerSlot].ContentId];
             var activeModule = _bmm.ActiveModule?.StateMachine.ActivePhase != null ? _bmm.ActiveModule : null;
-            FillEnemies(hints, playerAssignment == PartyRolesConfig.Assignment.MT || playerAssignment == PartyRolesConfig.Assignment.OT && !_ws.Party.WithoutSlot().Any(p => p != player && p.Role == Role.Tank));
+            FillEnemies(hints, playerAssignment == PartyRolesConfig.Assignment.MT || playerAssignment == PartyRolesConfig.Assignment.OT && !_ws.Party.WithoutSlot(false, false, true).Any(p => p != player && p.Role == Role.Tank));
             if (activeModule != null)
             {
                 activeModule.CalculateAIHints(playerSlot, player, playerAssignment, hints);
@@ -58,24 +61,41 @@ public sealed class AIHintsBuilder : IDisposable
         hints.Normalize();
     }
 
-    // fill list of potential targets from world state
+    // Fill list of potential targets from world state
     private void FillEnemies(AIHints hints, bool playerIsDefaultTank)
     {
-        var playerInFate = _ws.Client.ActiveFate.ID != 0 && (_ws.Party.Player()?.Level <= Service.LuminaRow<Lumina.Excel.Sheets.Fate>(_ws.Client.ActiveFate.ID)?.ClassJobLevelMax
-        || Service.LuminaRow<Lumina.Excel.Sheets.Fate>(_ws.Client.ActiveFate.ID)?.EurekaFate == 1); // TODO: find out how to get the current player elemental level
-        var allowedFateID = playerInFate ? _ws.Client.ActiveFate.ID : 0;
-        foreach (var actor in _ws.Actors.Where(a => a.IsTargetable && !a.IsAlly && !a.IsDead))
+        uint allowedFateID = 0;
+        var activeFateID = _ws.Client.ActiveFate.ID;
+        if (activeFateID != 0)
+        {
+            var fate = GetFateData(activeFateID);
+            var playerInFate = _ws.Party.Player()?.Level <= fate.ClassJobLevelMax || fate.EurekaFate == 1;
+            allowedFateID = playerInFate ? activeFateID : 0;
+        }
+        foreach (var actor in _ws.Actors.Actors.Values)
         {
             var index = actor.CharacterSpawnIndex;
             if (index < 0 || index >= hints.Enemies.Length)
                 continue;
+            if (!actor.IsTargetable || actor.IsAlly || actor.IsDead)
+                continue;
 
-            // determine default priority for the enemy
-            var priority = actor.FateID > 0 && actor.FateID != allowedFateID ? AIHints.Enemy.PriorityInvincible // fate mob in fate we are NOT a part of can't be damaged at all
-                : actor.PredictedDead ? AIHints.Enemy.PriorityPointless // this mob is about to be dead, any attacks will likely ghost
-                : actor.AggroPlayer ? 0 // enemies in our enmity list can be attacked, regardless of who they are targeting (since they are keeping us in combat)
-                : actor.InCombat && _ws.Party.FindSlot(actor.TargetID) >= 0 ? 0 // we generally want to assist our party members (note that it includes allied npcs in duties)
-                : AIHints.Enemy.PriorityUndesirable; // this enemy is either not pulled yet or fighting someone we don't care about - try not to aggro it by default
+            int priority;
+            if (actor.FateID != 0)
+            {
+                if (actor.FateID != allowedFateID)
+                    priority = AIHints.Enemy.PriorityInvincible; // Fate mob in an irrelevant fate
+                else
+                    priority = 0; // Relevant fate mob
+            }
+            else if (actor.PredictedDead)
+                priority = AIHints.Enemy.PriorityPointless; // Mob is about to die
+            else if (actor.AggroPlayer)
+                priority = 0; // Aggroed player
+            else if (actor.InCombat && _ws.Party.FindSlot(actor.TargetID) >= 0)
+                priority = 0; // Assisting party members
+            else
+                priority = AIHints.Enemy.PriorityUndesirable; // Default undesirable
 
             var enemy = hints.Enemies[index] = new(actor, priority, playerIsDefaultTank);
             hints.PotentialTargets.Add(enemy);
@@ -84,8 +104,15 @@ public sealed class AIHintsBuilder : IDisposable
 
     private void CalculateAutoHints(AIHints hints, Actor player)
     {
-        var inFate = _ws.Client.ActiveFate.ID != 0 && (_ws.Party.Player()?.Level <= Service.LuminaRow<Lumina.Excel.Sheets.Fate>(_ws.Client.ActiveFate.ID)?.ClassJobLevelMax
-        || Service.LuminaRow<Lumina.Excel.Sheets.Fate>(_ws.Client.ActiveFate.ID)?.EurekaFate == 1); // TODO: find out how to get the current player elemental level
+        var inFate = false;
+        var activeFateID = _ws.Client.ActiveFate.ID;
+        if (activeFateID != 0)
+        {
+            var fate = GetFateData(activeFateID);
+            var playerInFate = _ws.Party.Player()?.Level <= fate.ClassJobLevelMax || fate.EurekaFate == 1;
+            inFate = playerInFate;
+        }
+
         var center = inFate ? _ws.Client.ActiveFate.Center : player.PosRot.XYZ();
         var (e, bitmap) = Obstacles.Find(center);
         var resolution = bitmap?.PixelSize ?? 0.5f;
@@ -138,92 +165,88 @@ public sealed class AIHintsBuilder : IDisposable
             var target = aoe.Target?.Position ?? aoe.Caster.CastInfo!.LocXZ;
             var rot = aoe.Caster.CastInfo!.Rotation;
             var finishAt = _ws.FutureTime(aoe.Caster.CastInfo.NPCRemainingTime);
-            if (aoe.IsCharge)
-            {
-                hints.AddForbiddenZone(ShapeDistance.Rect(aoe.Caster.Position, target, ((AOEShapeRect)aoe.Shape).HalfWidth), finishAt);
-            }
-            else
-            {
-                hints.AddForbiddenZone(aoe.Shape, target, rot, finishAt);
-            }
+            hints.AddForbiddenZone(aoe.Shape, target, rot, finishAt);
         }
     }
 
     private void OnCastStarted(Actor actor)
     {
+        if (_bmm.ActiveModule?.StateMachine.ActivePhase != null) // no need to do all of this if it won't be used anyway
+            return;
         if (actor.Type is not ActorType.Enemy and not ActorType.Helper || actor.IsAlly)
             return;
-        var data = actor.CastInfo!.IsSpell() ? Service.LuminaRow<Lumina.Excel.Sheets.Action>(actor.CastInfo.Action.ID) : null;
-        var dat = data!.Value;
-        if (data == null || dat.CastType == 1)
+        var actionID = actor.CastInfo!.Action.ID;
+        if (ignore.Contains(actionID))
             return;
-        if (dat.CastType is 2 or 5 && dat.EffectRange >= RaidwideSize)
+        var spell = actor.CastInfo!.IsSpell();
+        if (!spell)
             return;
-        if (ignore.Contains(actor.CastInfo!.Action.ID))
+        var data = GetSpellData(actionID);
+        if (data.CastType == 1)
             return;
-        AOEShape? shape = dat.CastType switch
+        if (data.CastType is 2 or 5 && data.EffectRange >= RaidwideSize)
+            return;
+        AOEShape? shape = data.CastType switch
         {
-            2 => new AOEShapeCircle(dat.EffectRange), // used for some point-blank aoes and enemy location-targeted - does not add caster hitbox
-            3 => new AOEShapeCone(dat.EffectRange + actor.HitboxRadius, DetermineConeAngle(dat) * HalfWidth),
-            4 => new AOEShapeRect(dat.EffectRange + actor.HitboxRadius, dat.XAxisModifier * HalfWidth),
-            5 => new AOEShapeCircle(dat.EffectRange + actor.HitboxRadius),
+            2 => new AOEShapeCircle(data.EffectRange), // used for some point-blank aoes and enemy location-targeted - does not add caster hitbox
+            3 => new AOEShapeCone(data.EffectRange + actor.HitboxRadius, DetermineConeAngle(data) * HalfWidth),
+            4 => new AOEShapeRect(data.EffectRange + actor.HitboxRadius, data.XAxisModifier * HalfWidth),
+            5 => new AOEShapeCircle(data.EffectRange + actor.HitboxRadius),
             //6 => custom shapes
             //7 => new AOEShapeCircle(data.EffectRange), - used for player ground-targeted circles a-la asylum
-            8 => new AOEShapeRect((actor.CastInfo!.LocXZ - actor.Position).Length(), dat.XAxisModifier * HalfWidth),
-            10 => new AOEShapeDonut(3, dat.EffectRange),
-            11 => new AOEShapeCross(dat.EffectRange, dat.XAxisModifier * HalfWidth),
-            12 => new AOEShapeRect(dat.EffectRange, dat.XAxisModifier * HalfWidth),
-            13 => new AOEShapeCone(dat.EffectRange, DetermineConeAngle(dat) * HalfWidth),
+            8 => new AOEShapeRect((actor.CastInfo!.LocXZ - actor.Position).Length(), data.XAxisModifier * HalfWidth),
+            10 => new AOEShapeDonut(3, data.EffectRange),
+            11 => new AOEShapeCross(data.EffectRange, data.XAxisModifier * HalfWidth),
+            12 => new AOEShapeRect(data.EffectRange, data.XAxisModifier * HalfWidth),
+            13 => new AOEShapeCone(data.EffectRange, DetermineConeAngle(data) * HalfWidth),
             _ => null
         };
         if (shape == null)
         {
-            Service.Log($"[AutoHints] Unknown cast type {dat.CastType} for {actor.CastInfo.Action}");
+            Service.Log($"[AutoHints] Unknown cast type {data.CastType} for {actor.CastInfo.Action}");
             return;
         }
         var target = _ws.Actors.Find(actor.CastInfo.TargetID);
-        _activeAOEs[actor.InstanceID] = (actor, target, shape, dat.CastType == 8);
+        _activeAOEs[actor.InstanceID] = (actor, target, shape);
     }
 
     private void OnCastFinished(Actor actor) => _activeAOEs.Remove(actor.InstanceID);
 
-    private Angle DetermineConeAngle(Lumina.Excel.Sheets.Action data)
+    private static Angle DetermineConeAngle((byte, byte, byte, uint RowId, string Name, string PathAlly, string Path, int Pos, bool Omen) data)
     {
-        var omen = data.Omen.ValueNullable;
-        var om = omen!.Value;
-        if (omen == null)
+        if (!data.Omen)
         {
             Service.Log($"[AutoHints] No omen data for {data.RowId} '{data.Name}'...");
             return 180.Degrees();
         }
-        var path = om.Path.ToString();
-        var pos = path.IndexOf("fan", StringComparison.Ordinal);
+        var path = data.Path;
+        var pos = data.Pos;
         if (pos < 0 || pos + 6 > path.Length || !int.TryParse(path.AsSpan(pos + 3, 3), out var angle))
         {
-            Service.Log($"[AutoHints] Can't determine angle from omen ({path}/{om.PathAlly}) for {data.RowId} '{data.Name}'...");
+            Service.Log($"[AutoHints] Can't determine angle from omen ({path}/{data.PathAlly}) for {data.RowId} '{data.Name}'...");
             return 180.Degrees();
         }
         return angle.Degrees();
     }
 
-    // private float DetermineDonutInner(Lumina.Excel.Sheets.Action data)
-    // {
-    //     var omen = data.Omen.ValueNullable;
-    //     if (omen == null)
-    //     {
-    //         Service.Log($"[AutoHints] No omen data for {data.RowId} '{data.Name}'...");
-    //         return 0;
-    //     }
-    //     var path = omen.Value.Path.ToString();
-    //     var pos = path.IndexOf("sircle_", StringComparison.Ordinal);
-    //     if (pos >= 0 && pos + 11 <= path.Length && int.TryParse(path.AsSpan(pos + 9, 2), out var inner))
-    //         return inner;
+    private static (byte ClassJobLevelMax, byte EurekaFate) GetFateData(uint fateID)
+    {
+        if (_fateCache.TryGetValue(fateID, out var fateRow))
+            return fateRow;
+        var row = Service.LuminaRow<Lumina.Excel.Sheets.Fate>(fateID);
+        (byte, byte)? data;
+        data = (row!.Value.ClassJobLevelMax, row.Value.EurekaFate);
+        return _fateCache[fateID] = data.Value;
+    }
 
-    //     pos = path.IndexOf("circle", StringComparison.Ordinal);
-    //     if (pos >= 0 && pos + 10 <= path.Length && int.TryParse(path.AsSpan(pos + 8, 2), out inner))
-    //         return inner;
-
-    //     Service.Log($"[AutoHints] Can't determine inner radius from omen ({path}/{omen.Value.PathAlly}) for {data.RowId} '{data.Name}'...");
-    //     return 0;
-    // }
+    private static (byte CastType, byte EffectRange, byte XAxisModifier, uint RowId, string Name, string PathAlly, string path, int pos, bool Omen) GetSpellData(uint actionID)
+    {
+        if (_spellCache.TryGetValue(actionID, out var actionRow))
+            return actionRow;
+        var row = Service.LuminaRow<Lumina.Excel.Sheets.Action>(actionID);
+        (byte, byte, byte, uint, string, string, string, int, bool)? data;
+        var omenPath = row!.Value.Omen.Value.Path.ToString();
+        data = (row.Value.CastType, row.Value.EffectRange, row.Value.XAxisModifier, row.Value.RowId, row.Value.Name.ToString(), row.Value.Omen.Value.PathAlly.ToString(), omenPath, omenPath.IndexOf("fan", StringComparison.Ordinal), row.Value.Omen.ValueNullable != null);
+        return _spellCache[actionID] = data!.Value;
+    }
 }

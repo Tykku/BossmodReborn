@@ -4,18 +4,18 @@ abstract class Sweethearts(BossModule module, uint oid, uint aid) : Components.G
 {
     private const int Radius = 1, Length = 3;
     private static readonly AOEShapeCapsule capsule = new(Radius, Length);
-    private readonly List<Actor> _hearts = [];
+    private readonly List<Actor> _hearts = new(34);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _hearts.Count;
         if (count == 0)
             return [];
-        List<AOEInstance> aoes = new(count);
+        var aoes = new AOEInstance[count];
         for (var i = 0; i < _hearts.Count; ++i)
         {
             var h = _hearts[i];
-            aoes.Add(new(capsule, h.Position, h.Rotation));
+            aoes[i] = new(capsule, h.Position, h.Rotation);
         }
         return aoes;
     }
@@ -43,13 +43,14 @@ abstract class Sweethearts(BossModule module, uint oid, uint aid) : Components.G
         var count = _hearts.Count;
         if (count == 0)
             return;
-        var forbidden = new List<Func<WPos, float>>(count + 1);
+        var forbidden = new Func<WPos, float>[count + 1];
         for (var i = 0; i < count; ++i)
         {
             var h = _hearts[i];
-            forbidden.Add(ShapeDistance.Capsule(h.Position, h.Rotation, Length, Radius)); // merging all forbidden zones into one to make pathfinding less demanding
+            forbidden[i] = ShapeDistance.Capsule(h.Position, h.Rotation, Length, Radius); // merging all forbidden zones into one to make pathfinding less demanding
         }
-        forbidden.Add(ShapeDistance.Circle(Arena.Center, Module.PrimaryActor.HitboxRadius));
+
+        forbidden[count] = ShapeDistance.Circle(Arena.Center, Module.PrimaryActor.HitboxRadius);
 
         hints.AddForbiddenZone(ShapeDistance.Union(forbidden));
     }

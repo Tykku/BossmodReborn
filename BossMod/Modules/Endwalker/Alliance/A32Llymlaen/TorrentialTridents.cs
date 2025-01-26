@@ -13,14 +13,14 @@ class TorrentialTridentAOE(BossModule module) : Components.GenericAOEs(module)
         if (count == 0)
             return [];
         var max = count > 5 ? 5 : count;
-        List<AOEInstance> aoes = new(max);
+        var aoes = new AOEInstance[max];
         for (var i = 0; i < max; ++i)
         {
             var aoe = AOEs[i];
             if (i == 0)
-                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
             else
-                aoes.Add(aoe);
+                aoes[i] = aoe;
         }
         return aoes;
     }

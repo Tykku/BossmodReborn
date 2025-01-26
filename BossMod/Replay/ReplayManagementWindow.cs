@@ -1,5 +1,4 @@
 ﻿using BossMod.Autorotation;
-using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.ImGuiFileDialog;
 using ImGuiNET;
@@ -13,7 +12,7 @@ public class ReplayManagementWindow : UIWindow
 {
     private readonly WorldState _ws;
     private DirectoryInfo _logDir;
-    private readonly ReplayManagementConfig _config;
+    private static readonly ReplayManagementConfig _config = Service.Config.Get<ReplayManagementConfig>();
     private readonly ReplayManager _manager;
     private readonly EventSubscriptions _subscriptions;
     private ReplayRecorder? _recorder;
@@ -30,7 +29,6 @@ public class ReplayManagementWindow : UIWindow
     {
         _ws = ws;
         _logDir = logDir;
-        _config = Service.Config.Get<ReplayManagementConfig>();
         _manager = new(rotationDB, logDir.FullName);
         _subscriptions = new
         (

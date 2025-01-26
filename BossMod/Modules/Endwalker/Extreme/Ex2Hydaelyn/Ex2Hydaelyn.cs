@@ -1,4 +1,6 @@
-﻿namespace BossMod.Endwalker.Extreme.Ex2Hydaelyn;
+﻿using BossMod.Endwalker.Trial.T02Hydaelyn;
+
+namespace BossMod.Endwalker.Extreme.Ex2Hydaelyn;
 
 class HerosSundering(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.HerosSundering), new AOEShapeCone(40, 45.Degrees()));
 
@@ -12,4 +14,4 @@ class PureCrystal(BossModule module) : Components.CastCounter(module, ActionID.M
 class Exodus(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Exodus));
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 791, NameID = 10453, PlanLevel = 90)]
-public class Ex2Hydaelyn(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(20));
+public class Ex2Hydaelyn(WorldState ws, Actor primary) : BossModule(ws, primary, T02Hydaelyn.ArenaCenter, T02Hydaelyn.ArenaBounds);

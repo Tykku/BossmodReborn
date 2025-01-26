@@ -13,6 +13,7 @@ class P5ParadiseLost(BossModule module) : Components.CastCounter(module, ActionI
 public class FRU(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena with { IsCircle = true })
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(100, 100), 20, 64)]);
+    public static readonly ArenaBoundsSquare PathfindHugBorderBounds = new(20); // this is a hack to allow precise positioning near border by some mechanics, TODO reconsider
 
     private Actor? _bossP2;
     private Actor? _iceVeil;

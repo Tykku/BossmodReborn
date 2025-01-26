@@ -3,13 +3,13 @@ namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA3AbsoluteVirtue;
 class BrightDarkAurora(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeRect rect = new(30, 50);
-    public readonly List<AOEInstance> _aoes = new(3);
+    public readonly List<AOEInstance> _aoes = new(2);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        void AddAOE() => _aoes.Add(new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
+        void AddAOE() => _aoes.Add(new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
         switch ((AID)spell.Action.ID)
         {
             case AID.DarkAurora1:
@@ -28,17 +28,8 @@ class BrightDarkAurora(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        var count = _aoes.Count;
-        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.BrightAurora1 or AID.BrightAurora2 or AID.DarkAurora1 or AID.DarkAurora2)
-            for (var i = 0; i < count; ++i)
-            {
-                var aoe = _aoes[i];
-                if (aoe.ActorID == caster.InstanceID)
-                {
-                    _aoes.Remove(aoe);
-                    break;
-                }
-            }
+        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.BrightAurora1 or AID.BrightAurora2) // bright and dark always happen in a pair and we only add one of them to active AOEs
+            _aoes.RemoveAt(0);
     }
 }
 

@@ -188,7 +188,7 @@ class P4DarklitDragonsongPathOfLight(BossModule module) : Components.GenericBait
 
         // do not clip either tower (it's visible at half-angle = asin(4/8) = 30) or each other
         var dir = (_darklit.AssignE[slot] ? +1 : -1) * (_darklit.AssignS[slot] ? 60 : 120).Degrees();
-        hints.AddForbiddenZone(ShapeDistance.PrecisePosition(Module.Center + 4 * dir.ToDirection(), new(0, 1), Arena.Bounds.MapResolution, actor.Position, 0.1f), _activation);
+        hints.AddForbiddenZone(ShapeDistance.PrecisePosition(Arena.Center + 4 * dir.ToDirection(), new(0, 1), Arena.Bounds.MapResolution, actor.Position, 0.1f), _activation);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

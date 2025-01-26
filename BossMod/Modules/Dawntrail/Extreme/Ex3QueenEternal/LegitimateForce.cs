@@ -10,15 +10,17 @@ class LegitimateForce(BossModule module) : Components.GenericAOEs(module)
     {
         var count = AOEs.Count;
         if (count == 0)
-            yield break;
+            return [];
+        var aoes = new AOEInstance[count];
         for (var i = 0; i < count; ++i)
         {
             var aoe = AOEs[i];
             if (i == 0)
-                yield return count != 1 ? aoe with { Color = Colors.Danger } : aoe;
+                aoes[i] = count != 1 ? aoe with { Color = Colors.Danger } : aoe;
             else if (i == 1)
-                yield return aoe with { Risky = false };
+                aoes[i] = aoe with { Risky = false };
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

@@ -11,8 +11,19 @@ class StageCombo(BossModule module) : Components.GenericAOEs(module)
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        var firstActivation = _aoes.Count > 0 ? _aoes[0].Activation : default;
-        return _aoes.TakeWhile(aoe => aoe.Activation == firstActivation);
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var firstactivation = _aoes[0].Activation;
+        var aoes = new AOEInstance[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoes[i];
+            if ((aoe.Activation - firstactivation).TotalSeconds < 1)
+                aoes[index++] = aoe;
+        }
+        return aoes[..index];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

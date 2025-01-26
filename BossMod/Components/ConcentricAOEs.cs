@@ -17,23 +17,22 @@ public class ConcentricAOEs(BossModule module, AOEShape[] shapes, bool showall =
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = Sequences.Count;
-        List<AOEInstance> activeAOEs = new(count);
+        var aoes = new AOEInstance[count];
         for (var i = 0; i < count; ++i)
         {
             var s = Sequences[i];
             if (s.NumCastsDone < Shapes.Length)
             {
                 if (!showall)
-                    activeAOEs.Add(new(Shapes[s.NumCastsDone], s.Origin, s.Rotation, s.NextActivation));
+                    aoes[i] = new(Shapes[s.NumCastsDone], s.Origin, s.Rotation, s.NextActivation);
                 else
                 {
                     for (var j = s.NumCastsDone; j < Shapes.Length; ++j)
-                        activeAOEs.Add(new(Shapes[j], s.Origin, s.Rotation, s.NextActivation));
+                        aoes[i] = new(Shapes[j], s.Origin, s.Rotation, s.NextActivation);
                 }
             }
         }
-
-        return activeAOEs;
+        return aoes;
     }
 
     public void AddSequence(WPos origin, DateTime activation = default, Angle rotation = default) => Sequences.Add(new() { Origin = origin, Rotation = rotation, NextActivation = activation });

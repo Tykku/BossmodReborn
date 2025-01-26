@@ -42,8 +42,9 @@ public struct NavigationDecision
     public Map? Map;
     public int MapGoal;
     public Decision DecisionType;
+    private static readonly AI.AIConfig _config = Service.Config.Get<AI.AIConfig>();
 
-    public const float DefaultForbiddenZoneCushion = 0.19f;
+    public const float DefaultForbiddenZoneCushion = 0.354f; // 0.25 * sqrt(2) = distance from center to a corner for the standard 0.5 map resolution
 
     public static NavigationDecision Build(Context ctx, WorldState ws, AIHints hints, Actor player, WPos? targetPos, float targetRadius, Angle targetRot, Positional positional, float playerSpeed = 6, float forbiddenZoneCushion = DefaultForbiddenZoneCushion)
     {
@@ -61,7 +62,8 @@ public struct NavigationDecision
         while (left <= right)
         {
             var mid = (left + right) / 2;
-            if (localForbiddenZones[mid].activation <= imminent)
+            ref var lfz = ref localForbiddenZones[mid];
+            if (lfz.activation <= imminent)
                 left = mid + 1;
             else
             {
@@ -72,11 +74,11 @@ public struct NavigationDecision
 
         hints.PathfindMapBounds.PathfindMap(ctx.Map, hints.PathfindMapCenter);
 
-        if (!Service.Config.Get<AI.AIConfig>().AllowAIToBeOutsideBounds && IsOutsideBounds(player.Position, ctx))
+        if (!_config.AllowAIToBeOutsideBounds && IsOutsideBounds(player.Position, ctx))
         {
             for (var i = 0; i < len; ++i)
             {
-                var zf = localForbiddenZones[i];
+                ref var zf = ref localForbiddenZones[i];
                 AddBlockerZone(ctx.Map, imminent, zf.activation, zf.shapeDistance, forbiddenZoneCushion);
             }
             return FindPathFromOutsideBounds(ctx, player.Position, playerSpeed);
@@ -86,10 +88,10 @@ public struct NavigationDecision
         var inZone = new bool[len];
         var inImminentForbiddenZone = false;
         var isInsideAnyZone = false;
+
         for (var i = 0; i < len; ++i)
         {
-            var zone = localForbiddenZones[i];
-            var inside = zone.shapeDistance(player.Position) <= forbiddenZoneCushion - 0.1f;
+            var inside = localForbiddenZones[i].shapeDistance(player.Position) <= forbiddenZoneCushion - 0.1f;
             inZone[i] = inside;
             if (inside)
             {
@@ -108,7 +110,7 @@ public struct NavigationDecision
             {
                 if (!inZone[i])
                 {
-                    var zf = localForbiddenZones[i];
+                    ref var zf = ref localForbiddenZones[i];
                     AddBlockerZone(ctx.Map, imminent, zf.activation, zf.shapeDistance, forbiddenZoneCushion);
                 }
             }
@@ -120,7 +122,7 @@ public struct NavigationDecision
                 {
                     if (inZone[i])
                     {
-                        var zf = localForbiddenZones[i];
+                        ref var zf = ref localForbiddenZones[i];
                         AddBlockerZone(ctx.Map2, imminent, zf.activation, zf.shapeDistance, forbiddenZoneCushion);
                     }
                 }
@@ -134,8 +136,7 @@ public struct NavigationDecision
                 {
                     if (inZone[i])
                     {
-                        var zf = localForbiddenZones[i];
-                        ctx.Map.AddGoal(zf.shapeDistance, forbiddenZoneCushion, 0, -1);
+                        ctx.Map.AddGoal(localForbiddenZones[i].shapeDistance, forbiddenZoneCushion, 0, -1);
                     }
                 }
                 return FindPathFromImminent(ctx.ThetaStar, ctx.Map, player.Position, playerSpeed);
@@ -147,8 +148,7 @@ public struct NavigationDecision
                 {
                     if (inZone[i])
                     {
-                        var zf = localForbiddenZones[i];
-                        ctx.Map.AddGoal(zf.shapeDistance, forbiddenZoneCushion, 0, -1);
+                        ctx.Map.AddGoal(localForbiddenZones[i].shapeDistance, forbiddenZoneCushion, 0, -1);
                     }
                 }
                 return FindPathFromImminent(ctx.ThetaStar, ctx.Map, player.Position, playerSpeed);
@@ -166,7 +166,7 @@ public struct NavigationDecision
                 // we're not in uptime zone, just run to it, avoiding any aoes
                 for (var i = 0; i < len; ++i)
                 {
-                    var zf = localForbiddenZones[i];
+                    ref var zf = ref localForbiddenZones[i];
                     AddBlockerZone(ctx.Map, imminent, zf.activation, zf.shapeDistance, forbiddenZoneCushion);
                 }
                 var maxGoal = AddTargetGoal(ctx.Map, targetPos.Value, targetRadius, targetRot, Positional.Any, 0);
@@ -213,7 +213,7 @@ public struct NavigationDecision
                 ctx.Map.BlockPixelsInside(ShapeDistance.InvertedCircle(targetPos.Value, targetRadius), 0, 0);
                 for (var i = 0; i < len; ++i)
                 {
-                    var zf = localForbiddenZones[i];
+                    ref var zf = ref localForbiddenZones[i];
                     AddBlockerZone(ctx.Map, imminent, zf.activation, zf.shapeDistance, forbiddenZoneCushion);
                 }
                 var maxGoal = AddPositionalGoal(ctx.Map, targetPos.Value, targetRadius, targetRot, positional, 0);
@@ -329,8 +329,7 @@ public struct NavigationDecision
         var closestDistance = float.MaxValue;
         foreach (var p in ctx.Map.EnumeratePixels())
         {
-            var px = ctx.Map[p.x, p.y];
-            if (px.MaxG > 0) // assume any pixel not marked as blocked is better than being outside of bounds
+            if (ctx.Map[p.x, p.y].MaxG > 0) // assume any pixel not marked as blocked is better than being outside of bounds
             {
                 var distance = (p.center - startPos).LengthSq();
                 if (distance < closestDistance)

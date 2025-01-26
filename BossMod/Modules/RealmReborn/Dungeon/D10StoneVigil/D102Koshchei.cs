@@ -9,11 +9,12 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 870, // Boss->player, no cast
-    SpikedTail = 28732, // Boss->player, 5.0s cast, tankbuster
-    SonicStorm = 29053, // Boss->location, 3.0s cast, range 6 aoe
-    Typhoon = 28730, // Boss->self, 3.0s cast, visual
-    TyphoonAOE = 28731 // MaelstromHelper->self, no cast, range 3 aoe
+    AutoAttack = 870, // Boss->player, no cast, single-target
+
+    SpikedTail = 28732, // Boss->player, 5.0s cast, single-target, tankbuster
+    SonicStorm = 29053, // Boss->location, 3.0s cast, range 6 circle
+    Typhoon = 28730, // Boss->self, 3.0s cast, single-target, visual
+    TyphoonAOE = 28731, // MaelstromHelper->self, no cast, range 3 circle
 }
 
 class SpikedTail(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SpikedTail));

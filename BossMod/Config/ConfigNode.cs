@@ -64,17 +64,18 @@ public abstract class ConfigNode
 
         var fields = t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
         var len = fields.Length;
-        var discoveredFields = new List<FieldInfo>(len);
+        var discoveredFields = new FieldInfo[len];
+        var index = 0;
         for (var i = 0; i < len; ++i)
         {
             var field = fields[i];
             if (!field.IsStatic && !field.IsDefined(typeof(JsonIgnoreAttribute), false))
             {
-                discoveredFields.Add(field);
+                discoveredFields[index++] = field;
             }
         }
 
-        return _fieldsCache[t] = [.. discoveredFields];
+        return _fieldsCache[t] = discoveredFields[..index];
     }
 
     // deserialize fields from json; default implementation should work fine for most cases

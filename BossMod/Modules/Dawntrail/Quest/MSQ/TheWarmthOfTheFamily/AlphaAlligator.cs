@@ -40,7 +40,7 @@ class FeedingTime(BossModule module) : Components.InterceptTether(module, Action
                 return;
             var target = WorldState.Actors.Find(source.Tether.Target);
             if (target != null)
-                hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.5f), _activation);
+                hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.6f), _activation);
         }
     }
 }

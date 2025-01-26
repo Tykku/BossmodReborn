@@ -22,13 +22,13 @@ class DarkNebula(BossModule module) : Components.Knockback(module)
         if (count == 0)
             return [];
         var max = count > 2 ? 2 : count;
-        List<Source> sources = new(max);
+        var sources = new Source[max];
         for (var i = 0; i < max; ++i)
         {
             var caster = Casters[i];
             var dir = caster.CastInfo?.Rotation ?? caster.Rotation;
-            var kind = dir.ToDirection().OrthoL().Dot(actor.Position - caster.Position) > 0 ? Kind.DirLeft : Kind.DirRight;
-            sources.Add(new(caster.Position, 20, Module.CastFinishAt(caster.CastInfo), null, dir, kind));
+            var kind = dir.ToDirection().OrthoL().Dot(actor.Position - caster.Position) >= 0 ? Kind.DirLeft : Kind.DirRight;
+            sources[i] = new(caster.Position, 20, Module.CastFinishAt(caster.CastInfo), null, dir, kind);
         }
         return sources;
     }

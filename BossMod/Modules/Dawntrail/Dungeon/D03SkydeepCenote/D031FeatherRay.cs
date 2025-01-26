@@ -64,19 +64,32 @@ class AiryBubble(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCapsule capsule = new(Radius, Length);
     private readonly List<Actor> bubbles = module.Enemies(OID.AiryBubble);
     private readonly List<Actor> _aoes = new(36);
+    private bool active;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        List<AOEInstance> aoes = new(count);
+        var aoes = new AOEInstance[count];
         for (var i = 0; i < count; ++i)
         {
             var o = _aoes[i];
-            aoes.Add(new(capsule, o.Position, o.Rotation));
+            aoes[i] = new(capsule, o.Position, o.Rotation);
         }
         return aoes;
+    }
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID is AID.TroubleBubbles or AID.BlowingBubbles)
+            active = true;
+    }
+
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    {
+        if ((AID)spell.Action.ID is AID.TroubleBubbles or AID.BlowingBubbles)
+            active = false;
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
@@ -91,17 +104,19 @@ class AiryBubble(BossModule module) : Components.GenericAOEs(module)
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         var count = _aoes.Count;
+        if (active)
+            hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, Module.PrimaryActor.HitboxRadius));
         if (count == 0)
             return;
-        var forbidden = new List<Func<WPos, float>>(count + 1);
+        var forbidden = new Func<WPos, float>[count + 1];
         for (var i = 0; i < count; ++i)
         {
             var o = _aoes[i];
-            forbidden.Add(ShapeDistance.Capsule(o.Position, o.Rotation, Length, Radius));
+            forbidden[i] = ShapeDistance.Capsule(o.Position, o.Rotation, Length, Radius);
         }
-        forbidden.Add(ShapeDistance.Circle(Arena.Center, Module.PrimaryActor.HitboxRadius));
+        forbidden[count] = ShapeDistance.Circle(Arena.Center, Module.PrimaryActor.HitboxRadius);
 
-        hints.AddForbiddenZone(ShapeDistance.Union(forbidden));
+        hints.AddForbiddenZone(ShapeDistance.Union(forbidden), WorldState.FutureTime(1.1f));
     }
 }
 

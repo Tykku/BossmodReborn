@@ -93,7 +93,7 @@ class Earthquake(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 
 class FloodInBlueFirst : Components.SimpleAOEs
 {
-    public FloodInBlueFirst(BossModule module) : base(module, ActionID.MakeSpell(AID.FloodInBlueFirst), new AOEShapeRect(25, 5, 25)) { Color = Colors.Danger; }
+    public FloodInBlueFirst(BossModule module) : base(module, ActionID.MakeSpell(AID.FloodInBlueFirst), new AOEShapeRect(50, 5)) { Color = Colors.Danger; }
 }
 
 class FloodInBlueRest(BossModule module) : Components.Exaflare(module, new AOEShapeRect(25, 2.5f, 25))

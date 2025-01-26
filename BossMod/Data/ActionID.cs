@@ -39,12 +39,13 @@ public readonly record struct ActionID(uint Raw)
 
     public static implicit operator bool(ActionID x) => x.Raw != 0;
     public override readonly string ToString() => $"{Type} {ID} '{Name()}'";
+    private static readonly Dictionary<uint, (float, string)> _spellCache = [];
 
     public readonly AID As<AID>() where AID : Enum => (AID)(object)ID;
 
     public readonly string Name() => Type switch
     {
-        ActionType.Spell => Service.LuminaRow<Lumina.Excel.Sheets.Action>(ID)?.Name.ToString() ?? "<not found>",
+        ActionType.Spell => GetSpellData(SpellId()).Name,
         ActionType.Item => $"{Service.LuminaRow<Lumina.Excel.Sheets.Item>(ID % 1000000)?.Name ?? "<not found>"}{(ID > 1000000 ? " (HQ)" : "")}", // see Dalamud.Game.Text.SeStringHandling.Payloads.GetAdjustedId; TODO: id > 500000 is "collectible", >2000000 is "event" ??
         ActionType.BozjaHolsterSlot0 or ActionType.BozjaHolsterSlot1 => $"{(BozjaHolsterID)ID}",
         _ => ""
@@ -65,11 +66,11 @@ public readonly record struct ActionID(uint Raw)
 
     public readonly float CastTime() => Type switch
     {
-        ActionType.Spell => (Service.LuminaRow<Lumina.Excel.Sheets.Action>(ID)?.Cast100ms ?? 0) * 0.1f,
+        ActionType.Spell => GetSpellData(SpellId()).ExtraCastTime,
         _ => 0
     };
 
-    public readonly float CastTimeExtra() => Service.LuminaRow<Lumina.Excel.Sheets.Action>(SpellId())?.ExtraCastTime100ms * 0.1f ?? 0;
+    public readonly float CastTimeExtra() => GetSpellData(SpellId()).ExtraCastTime;
 
     public readonly bool IsCasted() => CastTime() > 0;
 
@@ -85,4 +86,15 @@ public readonly record struct ActionID(uint Raw)
         1 => new(ActionType.BozjaHolsterSlot1, (uint)id),
         _ => default
     };
+
+    private static (float ExtraCastTime, string Name) GetSpellData(uint actionID)
+    {
+        if (_spellCache.TryGetValue(actionID, out var actionRow))
+            return actionRow;
+        var row = Service.LuminaRow<Lumina.Excel.Sheets.Action>(actionID);
+        (float, string)? data;
+
+        data = (row!.Value.ExtraCastTime100ms * 0.1f, row.Value.Name.ToString());
+        return _spellCache[actionID] = data!.Value;
+    }
 }

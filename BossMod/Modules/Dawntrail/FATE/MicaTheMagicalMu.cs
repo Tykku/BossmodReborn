@@ -210,10 +210,7 @@ class RollingStarlight(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
 
-    private static readonly AOEShapeRect _shape1 = new(20, 5);
-    private static readonly AOEShapeRect _shape2 = new(29, 5);
-    private static readonly AOEShapeRect _shape3 = new(43, 5);
-    private static readonly AOEShapeRect _shape4 = new(52, 5);
+    private static readonly AOEShapeRect[] rects = [new(20, 5), new(29, 5), new(43, 5), new(52, 5)];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
 
@@ -221,15 +218,15 @@ class RollingStarlight(BossModule module) : Components.GenericAOEs(module)
     {
         var shape = (AID)spell.Action.ID switch
         {
-            AID.RollingStarlightVisual1 => _shape1,
-            AID.RollingStarlightVisual2 => _shape2,
-            AID.RollingStarlightVisual3 => _shape3,
-            AID.RollingStarlightVisual4 => _shape4,
+            AID.RollingStarlightVisual1 => rects[0],
+            AID.RollingStarlightVisual2 => rects[1],
+            AID.RollingStarlightVisual3 => rects[2],
+            AID.RollingStarlightVisual4 => rects[3],
             _ => null
         };
         if (shape != null)
         {
-            _aoes.Add(new(shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell, 5 + _aoes.Count * 0.6f)));
+            _aoes.Add(new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell, 5 + _aoes.Count * 0.6f)));
         }
     }
 

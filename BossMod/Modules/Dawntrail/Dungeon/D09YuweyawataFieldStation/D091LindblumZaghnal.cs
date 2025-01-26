@@ -44,12 +44,14 @@ abstract class LineVoltage(BossModule module, AID narrow, float delay, AID? wide
     {
         var count = AOEs.Count;
         if (count == 0)
-            yield break;
+            return [];
+        var aoes = new AOEInstance[count];
         for (var i = 0; i < count; ++i)
         {
             var aoe = AOEs[i];
-            yield return (aoe.Activation - AOEs[0].Activation).TotalSeconds <= delay ? aoe with { Color = Colors.Danger } : aoe with { Risky = false };
+            aoes[i] = (aoe.Activation - AOEs[0].Activation).TotalSeconds <= delay ? aoe with { Color = Colors.Danger } : aoe with { Risky = false };
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

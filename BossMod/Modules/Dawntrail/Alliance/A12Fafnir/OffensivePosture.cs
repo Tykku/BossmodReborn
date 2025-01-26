@@ -11,7 +11,7 @@ class Touchdown(BossModule module) : Components.SimpleAOEs(module, ActionID.Make
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        return Casters.Count == 0 ? [] : Module.FindComponent<DragonBreath>()?.AOE == null || Arena.Bounds != A12Fafnir.FireArena ? [Casters[0]] : [];
+        return Casters.Count != 0 && (Module.FindComponent<DragonBreath>()?.AOE == null || Arena.Bounds != A12Fafnir.FireArena) ? [Casters[0]] : [];
     }
 }
 

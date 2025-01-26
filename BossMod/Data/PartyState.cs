@@ -52,36 +52,81 @@ public sealed class PartyState
     public Actor[] WithoutSlot(bool includeDead = false, bool excludeAlliance = false, bool excludeNPCs = false)
     {
         var limit = excludeNPCs ? MaxAllianceSize : MaxAllies;
-        var result = new List<Actor>(limit);
-        for (var i = 0; i < limit; ++i)
-        {
-            if (excludeAlliance && i >= MaxPartySize && i < MaxAllianceSize)
-                continue;
+        var result = new Actor[limit];
+        var count = 0;
 
-            var player = _actors[i];
-            if (player == null || !includeDead && player.IsDead)
-                continue;
-            result.Add(player);
+        if (excludeAlliance)
+        {
+            for (var i = 0; i < MaxPartySize; ++i)
+            {
+                ref var player = ref _actors[i];
+                if (player == null || !includeDead && player.IsDead)
+                    continue;
+
+                result[count++] = player;
+            }
+            if (!excludeNPCs)
+                for (var i = MaxAllianceSize; i < limit; ++i)
+                {
+                    ref var player = ref _actors[i];
+                    if (player == null || !includeDead && player.IsDead)
+                        continue;
+
+                    result[count++] = player;
+                }
         }
-        return [.. result];
+        else
+        {
+            for (var i = 0; i < limit; ++i)
+            {
+                ref var player = ref _actors[i];
+                if (player == null || !includeDead && player.IsDead)
+                    continue;
+
+                result[count++] = player;
+            }
+        }
+        return result[..count];
     }
 
     public (int, Actor)[] WithSlot(bool includeDead = false, bool excludeAlliance = false, bool excludeNPCs = false)
     {
         var limit = excludeNPCs ? MaxAllianceSize : MaxAllies;
-        var result = new List<(int, Actor)>(limit);
-        for (var i = 0; i < limit; ++i)
+        var result = new (int, Actor)[limit];
+        var count = 0;
+
+        if (excludeAlliance)
         {
-            if (excludeAlliance && i is >= MaxPartySize and < MaxAllianceSize)
-                continue;
-            var player = _actors[i];
-            if (player == null)
-                continue;
-            if (!includeDead && player.IsDead)
-                continue;
-            result.Add((i, player));
+            for (var i = 0; i < MaxPartySize; ++i)
+            {
+                ref var player = ref _actors[i];
+                if (player == null || !includeDead && player.IsDead)
+                    continue;
+
+                result[count++] = (i, player);
+            }
+            if (!excludeNPCs)
+                for (var i = MaxAllianceSize; i < limit; ++i)
+                {
+                    ref var player = ref _actors[i];
+                    if (player == null || !includeDead && player.IsDead)
+                        continue;
+
+                    result[count++] = (i, player);
+                }
         }
-        return [.. result];
+        else
+        {
+            for (var i = 0; i < limit; ++i)
+            {
+                ref var player = ref _actors[i];
+                if (player == null || !includeDead && player.IsDead)
+                    continue;
+
+                result[count++] = (i, player);
+            }
+        }
+        return result[..count];
     }
 
     // find a slot index containing specified player (by instance ID); returns -1 if not found

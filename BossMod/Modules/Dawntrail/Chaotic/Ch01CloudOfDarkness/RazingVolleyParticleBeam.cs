@@ -11,15 +11,16 @@ class RazingVolleyParticleBeam(BossModule module) : Components.SimpleAOEs(module
             return [];
         var deadline = Casters[0].Activation.AddSeconds(3);
 
-        List<AOEInstance> result = new(count);
+        var aoes = new AOEInstance[count];
+        var index = 0;
         for (var i = 0; i < count; ++i)
         {
             var caster = Casters[i];
             if (caster.Activation > deadline)
                 break;
-            result.Add(caster);
+            aoes[index++] = caster;
         }
-        return result;
+        return aoes[..index];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

@@ -11,21 +11,22 @@ class ToTheLast(BossModule module) : Components.GenericAOEs(module)
         if (count == 0)
             return [];
         var max = count > 2 ? 2 : count;
-        List<AOEInstance> aoes = new(max);
+        var aoes = new AOEInstance[max];
         for (var i = 0; i < max; ++i)
         {
             var aoe = _aoes[i];
             if (i == 0)
-                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
             else
-                aoes.Add(aoe with { Risky = false });
+                aoes[i] = aoe with { Risky = false };
         }
         return aoes;
     }
+
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.ToTheLastVisual)
-            _aoes.Add(new(rect, caster.Position, spell.Rotation, Module.CastFinishAt(spell, 5 + 1.9f + _aoes.Count)));
+            _aoes.Add(new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell, 5 + 1.9f + _aoes.Count)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)

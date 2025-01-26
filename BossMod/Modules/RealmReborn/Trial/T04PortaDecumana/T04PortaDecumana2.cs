@@ -74,7 +74,7 @@ class Aetheroplasm(BossModule module) : BossComponent(module)
 {
     private readonly List<Actor> _orbs = module.Enemies(OID.Aetheroplasm);
 
-    public IEnumerable<Actor> ActiveOrbs => _orbs.Where(orb => !orb.IsDead);
+    public IEnumerable<Actor> ActiveOrbs => _orbs.Where(x => !x.IsDead && !x.Rotation.AlmostEqual(0.Degrees(), Angle.DegToRad));
 
     public override void AddGlobalHints(GlobalHints hints)
     {
@@ -86,22 +86,25 @@ class Aetheroplasm(BossModule module) : BossComponent(module)
     {
         // orbs spawn with rotation 0°, checking for a different angle makes sure the AI doesn't run into the wall trying to catch them
         // since orbs are outside of the arena until they start rotating
-        var orb = ActiveOrbs.FirstOrDefault(x => !x.Rotation.AlmostEqual(0.Degrees(), Angle.DegToRad));
-        var orbs = new List<Func<WPos, float>>();
-        if (orb != null)
+        Actor[] orbz = [.. ActiveOrbs];
+        var len = orbz.Length;
+        if (len != 0)
         {
+            var orbs = new Func<WPos, float>[len];
             hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Sprint), actor, ActionQueue.Priority.High);
-            foreach (var o in ActiveOrbs)
-                orbs.Add(ShapeDistance.InvertedCircle(o.Position + 0.5f * o.Rotation.ToDirection(), 0.56f));
-        }
-        if (orbs.Count > 0)
+            for (var i = 0; i < len; ++i)
+            {
+                var o = orbz[i];
+                orbs[i] = ShapeDistance.InvertedRect(o.Position + 0.5f * o.Rotation.ToDirection(), new WDir(0, 1), 0.7f, 0.7f, 0.7f);
+            }
             hints.AddForbiddenZone(ShapeDistance.Intersection(orbs));
+        }
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var orb in ActiveOrbs)
-            Arena.AddCircle(orb.Position, 1.4f, Colors.Safe);
+            Arena.AddCircle(orb.Position, 1, Colors.Safe);
     }
 }
 

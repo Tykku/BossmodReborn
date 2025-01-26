@@ -123,6 +123,7 @@ class OpList(Replay replay, Replay.Encounter? enc, BossModuleRegistry.Info? modu
             ActorState.OpCastEvent op => FilterInterestingActor(op.InstanceID, op.Timestamp, false) && !_filteredActions.Contains(op.Value.Action),
             ActorState.OpEffectResult => false,
             ActorState.OpStatus op => FilterInterestingStatuses(op.InstanceID, op.Index, op.Timestamp) && FilterInterestingActor(op.InstanceID, op.Timestamp, true),
+            ActorState.OpIncomingEffect => false,
             PartyState.OpLimitBreakChange => false,
             ActorState.OpEventNpcYell op => FilterInterestingActor(op.InstanceID, op.Timestamp, false),
             ActorState.OpEventObjectStateChange op => FilterInterestingActor(op.InstanceID, op.Timestamp, false),

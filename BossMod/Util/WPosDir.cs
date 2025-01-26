@@ -25,6 +25,8 @@ public record struct WDir(float X, float Z)
     public readonly WDir Sign() => new(Math.Sign(X), Math.Sign(Z));
     public readonly WDir OrthoL() => new(Z, -X); // CCW, same length
     public readonly WDir OrthoR() => new(-Z, X); // CW, same length
+    public readonly WDir MirrorX() => new(-X, Z);
+    public readonly WDir MirrorZ() => new(X, -Z);
     public static float Dot(WDir a, WDir b) => a.X * b.X + a.Z * b.Z;
     public readonly float Dot(WDir a) => X * a.X + Z * a.Z;
     public static float Cross(WDir a, WDir b) => a.X * b.Z - a.Z * b.X;
@@ -156,27 +158,9 @@ public record struct WPos(float X, float Z)
 
     public readonly bool InCapsule(WPos origin, WDir direction, float radius, float length)
     {
-        var D = direction.Normalized();
-        var OP = this - origin;
-        var t = WDir.Dot(OP, D);
-
-        if (t <= 0)
-        {
-            // Closest point is at the origin
-            return OP.LengthSq() <= radius * radius;
-        }
-        else if (t >= length)
-        {
-            // Closest point is at the end point of the capsule
-            var EP = this - (origin + D * length);
-            return EP.LengthSq() <= radius * radius;
-        }
-        else
-        {
-            // Closest point is along the segment between origin and end point
-            var closestPoint = origin + D * t;
-            var CP = this - closestPoint;
-            return CP.LengthSq() <= radius * radius;
-        }
+        var offset = this - origin;
+        var t = Math.Clamp(offset.Dot(direction), 0, length);
+        var proj = origin + t * direction;
+        return (this - proj).LengthSq() <= radius * radius;
     }
 }

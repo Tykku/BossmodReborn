@@ -56,7 +56,7 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
     public float IntersectRayBounds(WPos rayOrigin, WDir rayDir) => _bounds.IntersectRay(rayOrigin - _center, rayDir);
 
     // prepare for drawing - set up internal state, clip rect etc.
-    public async Task Begin(Angle cameraAzimuth)
+    public void Begin(Angle cameraAzimuth)
     {
         var centerOffset = new Vector2(ScreenMarginSize + Config.SlackForRotations * ScreenHalfSize);
         var fullSize = 2 * centerOffset;
@@ -86,13 +86,8 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
 
         if (Config.OpaqueArenaBackground)
         {
-            await GenerateBackgroundAsync().ConfigureAwait(true);
+            Zone(_bounds.ShapeTriangulation, Colors.Background);
         }
-    }
-    private Task GenerateBackgroundAsync()
-    {
-        Zone(_bounds.ShapeTriangulation, Colors.Background);
-        return Task.CompletedTask;
     }
 
     // if you are 100% sure your primitive does not need clipping, you can use drawlist api directly

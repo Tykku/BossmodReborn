@@ -40,7 +40,7 @@ class ScraplineStorm(BossModule module) : Components.KnockbackFromCastTarget(mod
 
 class ScraplineTyphoon(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(2);
     private static readonly AOEShapeCircle circle = new(10);
     private static readonly AOEShapeDonut donut = new(8, 40);
 

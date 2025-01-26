@@ -3,14 +3,14 @@ namespace BossMod.Dawntrail.Alliance.A14ShadowLord;
 class GigaSlash(BossModule module) : Components.GenericAOEs(module)
 {
     public readonly List<AOEInstance> AOEs = [];
+
     private static readonly HashSet<AID> castEnds = [AID.GigaSlashLAOE1, AID.GigaSlashRAOE2, AID.GigaSlashRAOE1, AID.GigaSlashLAOE2, AID.GigaSlashNightfallFAOE3,
     AID.GigaSlashNightfallBAOE3, AID.GigaSlashNightfallLAOE1, AID.GigaSlashNightfallRAOE2, AID.GigaSlashNightfallRAOE1, AID.GigaSlashNightfallLAOE2];
     private static readonly AOEShapeCone[] _shapes = [new(60, 112.5f.Degrees()), new(60, 135.Degrees()), new(60, 105.Degrees())];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (AOEs.Count != 0)
-            yield return AOEs[0] with { Risky = Module.FindComponent<DarkNebula>()?.Casters.Count == 0 };
+        return AOEs.Count != 0 ? [AOEs[0] with { Risky = Module.FindComponent<DarkNebula>()?.Casters.Count == 0 }] : [];
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

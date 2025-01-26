@@ -25,7 +25,7 @@ public sealed class ActorState : IEnumerable<Actor>
 
     public List<Operation> CompareToInitial()
     {
-        List<Operation> ops = new(Actors.Count * 2);
+        List<Operation> ops = new(Actors.Count * 5);
 
         foreach (var act in Actors.Values)
         {
@@ -53,6 +53,9 @@ public sealed class ActorState : IEnumerable<Actor>
                 if (status.ID != 0)
                     ops.Add(new OpStatus(instanceID, j, status));
             }
+            for (var i = 0; i < act.IncomingEffects.Length; ++i)
+                if (act.IncomingEffects[i].GlobalSequence != 0)
+                    ops.Add(new OpIncomingEffect(act.InstanceID, i, act.IncomingEffects[i]));
         }
         return ops;
     }
@@ -111,14 +114,6 @@ public sealed class ActorState : IEnumerable<Actor>
                     case ActionEffectType.LoseStatusEffectSource:
                         effTarget.PendingDispels.Add(new(header, eff.Value));
                         break;
-                    case ActionEffectType.Knockback:
-                    case ActionEffectType.Attract1:
-                    case ActionEffectType.Attract2:
-                    case ActionEffectType.AttractCustom1:
-                    case ActionEffectType.AttractCustom2:
-                    case ActionEffectType.AttractCustom3:
-                        effTarget.PendingKnockbacks.Add(header);
-                        break;
                 }
             }
         }
@@ -131,7 +126,6 @@ public sealed class ActorState : IEnumerable<Actor>
         target.PendingMPDifferences.RemoveAll(e => predicate(e.Effect));
         target.PendingStatuses.RemoveAll(e => predicate(e.Effect));
         target.PendingDispels.RemoveAll(e => predicate(e.Effect));
-        target.PendingKnockbacks.RemoveAll(e => predicate(e));
     }
 
     // implementation of operations
@@ -452,6 +446,36 @@ public sealed class ActorState : IEnumerable<Actor>
                 output.EmitFourCC("STA+"u8).EmitActor(InstanceID).Emit(Index).Emit(Value);
             else
                 output.EmitFourCC("STA-"u8).EmitActor(InstanceID).Emit(Index);
+        }
+    }
+
+    public Event<Actor, int> IncomingEffectAdd = new();
+    public Event<Actor, int> IncomingEffectRemove = new();
+    public sealed record class OpIncomingEffect(ulong InstanceID, int Index, ActorIncomingEffect Value) : Operation(InstanceID)
+    {
+        protected override void ExecActor(WorldState ws, Actor actor)
+        {
+            ref var prev = ref actor.IncomingEffects[Index];
+            if (prev.GlobalSequence != 0 && (prev.GlobalSequence != Value.GlobalSequence || prev.TargetIndex != Value.TargetIndex))
+            {
+                if (prev.Effects.Any(eff => eff.Type is ActionEffectType.Knockback or ActionEffectType.Attract1 or ActionEffectType.Attract2 or ActionEffectType.AttractCustom1 or ActionEffectType.AttractCustom2 or ActionEffectType.AttractCustom3))
+                    --actor.PendingKnockbacks;
+                ws.Actors.IncomingEffectRemove.Fire(actor, Index);
+            }
+            actor.IncomingEffects[Index] = Value;
+            if (Value.GlobalSequence != 0)
+            {
+                if (Value.Effects.Any(eff => eff.Type is ActionEffectType.Knockback or ActionEffectType.Attract1 or ActionEffectType.Attract2 or ActionEffectType.AttractCustom1 or ActionEffectType.AttractCustom2 or ActionEffectType.AttractCustom3))
+                    ++actor.PendingKnockbacks;
+                ws.Actors.IncomingEffectAdd.Fire(actor, Index);
+            }
+        }
+        public override void Write(ReplayRecorder.Output output)
+        {
+            if (Value.GlobalSequence != 0)
+                output.EmitFourCC("AIE+"u8).EmitActor(InstanceID).Emit(Index).Emit(Value.GlobalSequence).Emit(Value.TargetIndex).EmitActor(Value.SourceInstanceId).Emit(Value.Action).Emit(Value.Effects);
+            else
+                output.EmitFourCC("AIE-"u8).EmitActor(InstanceID).Emit(Index);
         }
     }
 

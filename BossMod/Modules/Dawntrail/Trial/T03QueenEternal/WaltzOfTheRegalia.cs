@@ -14,12 +14,14 @@ class WaltzOfTheRegaliaBait(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _targets.Count;
         if (count == 0)
-            yield break;
-        for (var i = 0; i < _targets.Count; ++i)
+            return [];
+        var aoes = new AOEInstance[count];
+        for (var i = 0; i < count; ++i)
         {
             var t = _targets[i];
-            yield return new(circle, t.Item1.Position, default, t.Item2);
+            aoes[i] = new(circle, t.Item1.Position, default, t.Item2);
         }
+        return aoes;
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
@@ -42,4 +44,4 @@ class WaltzOfTheRegaliaBait(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class WaltzOfTheRegalia(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaltzOfTheRegalia), new AOEShapeRect(7, 2, 7));
+class WaltzOfTheRegalia(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaltzOfTheRegalia), new AOEShapeRect(14, 2));

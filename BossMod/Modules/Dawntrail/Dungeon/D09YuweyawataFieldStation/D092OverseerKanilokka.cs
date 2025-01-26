@@ -17,8 +17,8 @@ public enum AID : uint
     FreeSpiritsVisual = 40639, // Boss->self, 4.0+1,0s cast, single-target
     FreeSpirits = 40640, // Helper->self, 5.0s cast, range 20 circle
 
-    Soulweave1 = 40642, // PreservedSoul->self, 2.5s cast, range ?-32 donut
-    Soulweave2 = 40641, // PreservedSoul->self, 2.5s cast, range ?-32 donut
+    Soulweave1 = 40642, // PreservedSoul->self, 2.5s cast, range 28-32 donut
+    Soulweave2 = 40641, // PreservedSoul->self, 2.5s cast, range 28-32 donut
 
     PhantomFloodVisual = 40643, // Boss->self, 3.7+1,3s cast, single-target
     PhantomFlood = 40644, // Helper->self, 5.0s cast, range 5-20 donut
@@ -90,12 +90,14 @@ class Soulweave(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _aoes.Count;
         if (count == 0)
-            yield break;
+            return [];
+        var aoes = new AOEInstance[count];
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
-            yield return (aoe.Activation - _aoes[0].Activation).TotalSeconds <= 1.2 ? aoe with { Color = Colors.Danger } : aoe with { Risky = false };
+            aoes[i] = (aoe.Activation - _aoes[0].Activation).TotalSeconds <= 1.3f ? aoe with { Color = Colors.Danger } : aoe with { Risky = false };
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -130,9 +132,9 @@ class DarkII(BossModule module) : Components.GenericAOEs(module)
         if (count == 0)
             return [];
         var max = count > 6 ? 6 : count;
-        List<AOEInstance> aoes = new(max);
+        var aoes = new AOEInstance[max];
         for (var i = 0; i < max; ++i)
-            aoes.Add(_aoes[i]);
+            aoes[i] = _aoes[i];
         return aoes;
     }
 

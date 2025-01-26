@@ -44,8 +44,11 @@ class T02HydaelynStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 790, NameID = 10453)]
-public class T02Hydaelyn(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(20))
+public class T02Hydaelyn(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, ArenaBounds)
 {
+    public static readonly WPos ArenaCenter = new(100, 100);
+    public static readonly ArenaBoundsComplex ArenaBounds = new([new Polygon(ArenaCenter, 20, 48)]);
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);

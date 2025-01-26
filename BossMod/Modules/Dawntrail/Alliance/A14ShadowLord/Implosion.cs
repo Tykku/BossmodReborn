@@ -2,7 +2,7 @@ namespace BossMod.Dawntrail.Alliance.A14ShadowLord;
 
 class Implosion(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(4);
 
     private static readonly AOEShapeCone _shapeSmall = new(12, 90.Degrees()), _shapeLarge = new(90, 90.Degrees());
 
@@ -17,7 +17,7 @@ class Implosion(BossModule module) : Components.GenericAOEs(module)
             _ => null
         };
         if (shape != null)
-            _aoes.Add(new(shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.Add(new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
@@ -25,7 +25,15 @@ class Implosion(BossModule module) : Components.GenericAOEs(module)
         if ((AID)spell.Action.ID is AID.ImplosionLargeL or AID.ImplosionSmallR or AID.ImplosionLargeR or AID.ImplosionSmallL)
         {
             ++NumCasts;
-            _aoes.RemoveAll(aoe => aoe.Origin.AlmostEqual(caster.Position, 1) && aoe.Rotation.AlmostEqual(spell.Rotation, 0.1f));
+            for (var i = 0; i < _aoes.Count; ++i)
+            {
+                var aoe = _aoes[i];
+                if (aoe.ActorID == caster.InstanceID)
+                {
+                    _aoes.Remove(aoe);
+                    break;
+                }
+            }
         }
     }
 }

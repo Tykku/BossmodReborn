@@ -29,7 +29,7 @@ public class Ch01CloudOfDarkness(WorldState ws, Actor primary) : BossModule(ws, 
     public static readonly ArenaBoundsComplex Phase2BoundsWD = new(Phase2ShapesWD, IntersectionBlockers);
     public static readonly ArenaBoundsComplex Phase2BoundsND = new(Phase2ShapesND, [.. IntersectionBlockers, .. donut]);
 
-    private static List<Square> GenerateIntersectionBlockers() // at intersections there are small blockers to prevent players from skipping tiles
+    private static Square[] GenerateIntersectionBlockers() // at intersections there are small blockers to prevent players from skipping tiles
     {
         var a45 = 45.Degrees();
         var a135 = 135.Degrees();
@@ -37,11 +37,11 @@ public class Ch01CloudOfDarkness(WorldState ws, Actor primary) : BossModule(ws, 
         WPos[] pos = [new(85, 85), new(115, 85), new(115, 115), new(85, 115)];
         var distance = 3 * MathF.Sqrt(2);
 
-        List<Square> squares = new(16);
-
+        var squares = new Square[16];
+        var index = 0;
         for (var i = 0; i < 4; ++i)
             for (var j = 0; j < 4; ++j)
-                squares.Add(new(pos[i] + distance * dirs[j], 1, a45));
+                squares[index++] = new(pos[i] + distance * dirs[j], 1, a45);
         return squares;
     }
 }

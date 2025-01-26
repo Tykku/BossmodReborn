@@ -62,9 +62,11 @@ class AuthoritysGaze(BossModule module) : Components.GenericGaze(module)
     {
         var count = _affected.Count;
         if (count == 0 || WorldState.CurrentTime < _activation.AddSeconds(-10))
-            yield break;
+            return [];
+        var eyes = new Eye[count];
         for (var i = 0; i < count; ++i)
-            yield return new(_affected[i].Position, _activation);
+            eyes[i] = new(_affected[i].Position, _activation);
+        return eyes;
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

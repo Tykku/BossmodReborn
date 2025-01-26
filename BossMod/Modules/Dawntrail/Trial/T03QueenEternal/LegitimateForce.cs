@@ -19,16 +19,17 @@ class LegitimateForce(BossModule module) : Components.GenericAOEs(module)
             return [];
         var compare = count > 1 && _aoes[0].Rotation != _aoes[1].Rotation;
         var max = count > 2 ? 2 : count;
-        List<AOEInstance> aoes = new(max);
+        var aoes = new AOEInstance[count];
+        var index = 0;
         for (var i = 0; i < max; ++i)
         {
             var aoe = _aoes[i];
             if (i == 0)
-                aoes.Add(compare ? aoe with { Color = Colors.Danger } : aoe);
+                aoes[index++] = compare ? aoe with { Color = Colors.Danger } : aoe;
             else if (i == 1 && compare)
-                aoes.Add(aoe with { Risky = false });
+                aoes[index++] = aoe with { Risky = false };
         }
-        return aoes;
+        return aoes[..index];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

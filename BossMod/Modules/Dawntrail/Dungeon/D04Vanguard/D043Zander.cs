@@ -64,6 +64,7 @@ class ElectrothermiaArenaChange(BossModule module) : Components.GenericAOEs(modu
         if (state == 0x00020001 && index == 0x00)
         {
             Arena.Bounds = D043Zander.DefaultBounds;
+            Arena.Center = D043Zander.DefaultBounds.Center;
             _aoe = null;
         }
     }
@@ -97,27 +98,26 @@ class SlitherbaneBurstCombo(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
+        void AddAOE(AOEShape shape)
+        {
+            _aoes.Add(new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.SortBy(x => x.Activation);
+        }
         switch ((AID)spell.Action.ID)
         {
             case AID.SlitherbaneRearguardCone:
             case AID.SlitherbaneForeguardCone:
-                AddAOE(cone, caster.Position, spell.Rotation, Module.CastFinishAt(spell));
+                AddAOE(cone);
                 break;
             case AID.Burst2:
-                AddAOE(rect, caster.Position, spell.Rotation, Module.CastFinishAt(spell));
+                AddAOE(rect);
                 break;
         }
     }
 
-    private void AddAOE(AOEShape shape, WPos position, Angle rotation, DateTime activation)
-    {
-        _aoes.Add(new(shape, position, rotation, activation));
-        _aoes.SortBy(x => x.Activation);
-    }
-
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0)
+        if (_aoes.Count != 0)
             switch ((AID)spell.Action.ID)
             {
                 case AID.SlitherbaneRearguardCone:
@@ -183,10 +183,11 @@ class D043ZanderStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 831, NameID = 12752, SortOrder = 7)]
-public class D043Zander(WorldState ws, Actor primary) : BossModule(ws, primary, new(90, -430), StartingBounds)
+public class D043Zander(WorldState ws, Actor primary) : BossModule(ws, primary, StartingBounds.Center, StartingBounds)
 {
-    public static readonly ArenaBoundsCircle StartingBounds = new(19.5f);
-    public static readonly ArenaBoundsCircle DefaultBounds = new(17);
+    private static readonly WPos ArenaCenter = new(90, -430);
+    public static readonly ArenaBoundsComplex StartingBounds = new([new Polygon(ArenaCenter, 19.5f, 40)], [new Rectangle(new(90, -410), 20, 0.85f)]);
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Polygon(ArenaCenter, 17, 40)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

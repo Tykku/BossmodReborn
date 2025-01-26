@@ -31,32 +31,31 @@ public class Exaflare(BossModule module, AOEShape shape, ActionID aid = default)
         var futureAOEs = FutureAOEs(linesCount);
         var imminentAOEs = ImminentAOEs(linesCount);
         var futureCount = futureAOEs.Count;
-        var imminentCount = imminentAOEs.Count;
+        var imminentCount = imminentAOEs.Length;
 
-        List<AOEInstance> aoes = new(futureCount + imminentCount);
+        var aoes = new AOEInstance[futureCount + imminentCount];
         for (var i = 0; i < futureCount; ++i)
         {
             var aoe = futureAOEs[i];
-            aoes.Add(new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, FutureColor));
+            aoes[i] = new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, FutureColor);
         }
 
         for (var i = 0; i < imminentCount; ++i)
         {
             var aoe = imminentAOEs[i];
-            aoes.Add(new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, ImminentColor));
+            aoes[futureCount + i] = new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, ImminentColor);
         }
         return aoes;
     }
 
-    protected List<(WPos, DateTime, Angle)> ImminentAOEs(int count)
+    protected (WPos, DateTime, Angle)[] ImminentAOEs(int count)
     {
-        var exas = new List<(WPos, DateTime, Angle)>(count);
-
+        var exas = new (WPos, DateTime, Angle)[count];
         for (var i = 0; i < count; ++i)
         {
             var l = Lines[i];
             if (l.ExplosionsLeft != 0)
-                exas.Add((l.Next, l.NextExplosion, l.Rotation));
+                exas[i] = (l.Next, l.NextExplosion, l.Rotation);
         }
         return exas;
     }
