@@ -107,9 +107,10 @@ public abstract class ConfigNode
         writer.WriteStartObject();
 
         var fields = GetSerializableFields(GetType());
-        for (var i = 0; i < fields.Length; ++i)
+        var len = fields.Length;
+        for (var i = 0; i < len; ++i)
         {
-            var field = fields[i];
+            ref var field = ref fields[i];
             var fieldValue = field.GetValue(this);
 
             writer.WritePropertyName(field.Name);

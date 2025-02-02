@@ -40,8 +40,8 @@ public enum AID : uint
     ForceOfLoathing = 27031 // TerminusVanquisher->self, no cast, range 10 120-degree cone
 }
 
-class TheBlackDeath(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.TheBlackDeath), new AOEShapeCone(25, 60.Degrees()), (uint)OID.Boss, activeWhileCasting: false);
-class ForceOfLoathing(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ForceOfLoathing), new AOEShapeCone(10, 60.Degrees()), (uint)OID.TerminusVanquisher, activeWhileCasting: false);
+class TheBlackDeath(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.TheBlackDeath), new AOEShapeCone(25, 60.Degrees()), [(uint)OID.Boss], activeWhileCasting: false);
+class ForceOfLoathing(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ForceOfLoathing), new AOEShapeCone(10, 60.Degrees()), [(uint)OID.TerminusVanquisher], activeWhileCasting: false);
 class DeadlyImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeadlyImpact), 10, 6);
 class BlackStar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BlackStar));
 

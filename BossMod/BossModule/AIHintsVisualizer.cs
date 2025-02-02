@@ -54,7 +54,7 @@ public class AIHintsVisualizer(AIHints hints, WorldState ws, Actor player, ulong
     {
         var map = new Map();
         hints.InitPathfindMap(map);
-        map.BlockPixelsInside(shape, 0, NavigationDecision.DefaultForbiddenZoneCushion);
+        map.BlockPixelsInside(shape, 0, map.Resolution * NavigationDecision.DefaultForbiddenZoneCushion);
         return new MapVisualizer(map, 0, player.Position);
     }
 
@@ -68,8 +68,9 @@ public class AIHintsVisualizer(AIHints hints, WorldState ws, Actor player, ulong
             _navi.Map = new();
             hints.PathfindMapBounds.PathfindMap(_navi.Map, hints.PathfindMapCenter);
             var imm = NavigationDecision.ImminentExplosionTime(ws.CurrentTime);
+            var cushion = _navi.Map.Resolution * NavigationDecision.DefaultForbiddenZoneCushion;
             foreach (var (shape, activation) in hints.ForbiddenZones)
-                NavigationDecision.AddBlockerZone(_navi.Map, imm, activation, shape, NavigationDecision.DefaultForbiddenZoneCushion);
+                NavigationDecision.AddBlockerZone(_navi.Map, imm, activation, shape, cushion);
             if (targetEnemy != null)
                 _navi.MapGoal = NavigationDecision.AddTargetGoal(_navi.Map, targetEnemy.Actor.Position, targetEnemy.Actor.HitboxRadius + player.HitboxRadius + targeting.range, targetEnemy.Actor.Rotation, targeting.pos, 0);
         }

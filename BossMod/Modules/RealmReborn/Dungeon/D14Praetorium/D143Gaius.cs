@@ -74,10 +74,14 @@ class AddEnrage(BossModule module) : BossComponent(module)
             hints.Add($"Enrage in {(_enrage - WorldState.CurrentTime).TotalSeconds:f1}s");
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void Update()
     {
-        if ((AID)spell.Action.ID == AID.AddPhaseStart)
-            _enrage = WorldState.FutureTime(91);
+        var primary = Module.PrimaryActor.IsTargetable;
+        var enrage = _enrage == default;
+        if (enrage && !primary)
+            _enrage = WorldState.FutureTime(92.4f);
+        else if (!enrage && primary)
+            _enrage = default;
     }
 }
 
@@ -104,6 +108,7 @@ public class D143Gaius(WorldState ws, Actor primary) : BossModule(ws, primary, n
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.PhantomGaiusAdd).Concat([PrimaryActor]));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(OID.PhantomGaiusAdd));
     }
 }

@@ -38,7 +38,7 @@ public enum AID : uint
     BossPhase2Vanish = 4256 // SerGrinnauxTheBull->self, no cast, single-target
 }
 
-class HeavySwing(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.HeavySwing), new AOEShapeCone(6.5f, 45.Degrees()), (uint)OID.SerGrinnauxTheBull);
+class HeavySwing(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.HeavySwing), new AOEShapeCone(6.5f, 45.Degrees()), [(uint)OID.SerGrinnauxTheBull]);
 class Overpower(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Overpower), new AOEShapeCone(10.2f, 45.Degrees()));
 class DimensionalRip(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.DimensionalRip), m => m.Enemies(OID.StellarImplodeArea).Where(e => e.EventState != 7), 1.1f);
 

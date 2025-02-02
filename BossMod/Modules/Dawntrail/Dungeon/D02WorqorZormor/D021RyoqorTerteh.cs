@@ -36,9 +36,9 @@ public enum TetherID : uint
     Freeze = 272 // RorrlohTeh/QorrlohTeh1->Boss
 }
 
-class FrostingFracasArenaChange(BossModule module) : Components.GenericAOEs(module)
+class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donut = new(20, 22.5f);
+    private static readonly AOEShapeDonut donut = new(20, 23);
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
@@ -141,7 +141,7 @@ class D021RyoqorTertehStates : StateMachineBuilder
     public D021RyoqorTertehStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<FrostingFracasArenaChange>()
+            .ActivateOnEnter<ArenaChange>()
             .ActivateOnEnter<FrostingFracas>()
             .ActivateOnEnter<IceScreamFrozenSwirl>()
             .ActivateOnEnter<SnowBoulder>()
@@ -150,8 +150,9 @@ class D021RyoqorTertehStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 824, NameID = 12699)]
-public class D021RyoqorTerteh(WorldState ws, Actor primary) : BossModule(ws, primary, new(-108, 119), StartingBounds)
+public class D021RyoqorTerteh(WorldState ws, Actor primary) : BossModule(ws, primary, StartingBounds.Center, StartingBounds)
 {
-    public static readonly ArenaBounds StartingBounds = new ArenaBoundsCircle(22.5f);
-    public static readonly ArenaBounds DefaultBounds = new ArenaBoundsCircle(20);
+    private static readonly WPos arenaCenter = new(-108, 119);
+    public static readonly ArenaBoundsComplex StartingBounds = new([new Polygon(arenaCenter, 22.5f, 52)]);
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Polygon(arenaCenter, 20, 52)]);
 }

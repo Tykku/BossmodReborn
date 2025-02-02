@@ -144,8 +144,7 @@ class Shield(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCircle circle = new(5, true);
     private AOEInstance? _aoe;
-    private const string RiskHint = "Go under shield!";
-    private const string StayHint = "Wait under shield!";
+    private const string Hint = "Go under shield!";
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
@@ -165,10 +164,20 @@ class Shield(BossModule module) : Components.GenericAOEs(module)
     {
         if (_aoe == null)
             return;
-        if (ActiveAOEs(slot, actor).Any(c => !c.Check(actor.Position)))
-            hints.Add(RiskHint);
+
+        var shouldAddHint = false;
+        foreach (var c in ActiveAOEs(slot, actor))
+        {
+            if (!c.Check(actor.Position))
+            {
+                shouldAddHint = true;
+                break;
+            }
+        }
+        if (shouldAddHint)
+            hints.Add(Hint);
         else
-            hints.Add(StayHint, false);
+            hints.Add(Hint, false);
     }
 }
 

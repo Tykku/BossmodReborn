@@ -30,7 +30,7 @@ public enum SID : uint
     SteelScales = 349, // Boss->Boss, extra=1-8 (num stacks)
 }
 
-class HoodSwing(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.HoodSwing), new AOEShapeCone(11, 60.Degrees()), (uint)OID.Boss) // TODO: verify angle
+class HoodSwing(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.HoodSwing), new AOEShapeCone(11, 60.Degrees())) // TODO: verify angle
 {
     private DateTime _lastBossCast; // assume boss/add cleaves are synchronized?..
     public float SecondsUntilNextCast() => Math.Max(0, 18 - (float)(WorldState.CurrentTime - _lastBossCast).TotalSeconds);

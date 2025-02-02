@@ -2,9 +2,9 @@
 
 class DownburstBoss(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Downburst1), new AOEShapeCone(11.7f, 60.Degrees())); // TODO: verify angle
 
-abstract class Downburst(BossModule module, AID aid, uint oid) : Components.Cleave(module, ActionID.MakeSpell(aid), new AOEShapeCone(11.36f, 60.Degrees()), oid); // TODO: verify angle
-class DownburstSuparna(BossModule module) : Downburst(module, AID.Downburst1, (uint)OID.Suparna); // TODO: verify angle
-class DownburstChirada(BossModule module) : Downburst(module, AID.Downburst2, (uint)OID.Chirada); // TODO: verify angle
+abstract class Downburst(BossModule module, AID aid, OID oid) : Components.Cleave(module, ActionID.MakeSpell(aid), new AOEShapeCone(11.36f, 60.Degrees()), [(uint)oid]); // TODO: verify angle
+class DownburstSuparna(BossModule module) : Downburst(module, AID.Downburst1, OID.Suparna); // TODO: verify angle
+class DownburstChirada(BossModule module) : Downburst(module, AID.Downburst2, OID.Chirada); // TODO: verify angle
 
 class Slipstream(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Slipstream), new AOEShapeCone(11.7f, 45.Degrees()));
 class FrictionAdds(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrictionAdds), 5);

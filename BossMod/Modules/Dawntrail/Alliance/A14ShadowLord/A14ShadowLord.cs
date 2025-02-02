@@ -14,7 +14,7 @@ public class A14ShadowLord(WorldState ws, Actor primary) : BossModule(ws, primar
     private const int Edges = 64;
     public static readonly WPos ArenaCenter = new(150, 800);
     public static readonly ArenaBoundsCircle DefaultBounds = new(30);
-    public static readonly Polygon[] Circles = [new(new(166.249f, 800), RadiusSmall, Edges), new(new(133.783f, 800), RadiusSmall, Edges),
+    public static readonly Polygon[] Circles = [new(new(166.251f, 800), RadiusSmall, Edges), new(new(133.788f, 800), RadiusSmall, Edges),
     new(new(150, 816.227f), RadiusSmall, Edges), new(new(150, 783.812f), RadiusSmall, Edges)]; // the circle coordinates are not perfectly placed for some reason, got these from analyzing the collision data
     private static readonly RectangleSE[] rects = [new(Circles[1].Center, Circles[2].Center, HalfWidth), new(Circles[1].Center, Circles[3].Center, HalfWidth),
     new(Circles[3].Center, Circles[0].Center, HalfWidth), new(Circles[0].Center, Circles[2].Center, HalfWidth)];

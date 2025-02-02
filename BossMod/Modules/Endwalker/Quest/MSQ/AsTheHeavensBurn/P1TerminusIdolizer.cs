@@ -11,8 +11,8 @@ public enum OID : uint
 
 public enum AID : uint
 {
-
     AutoAttack = 26994, // Boss->Estinien, no cast, single-target
+
     DeadlyTentacles = 26998, // Boss->Estinien, no cast, single-target
     TentacleWhip = 27005, // Boss->self, no cast, single-target
     Shout = 27000, // Boss->self, no cast, single-target
@@ -52,14 +52,14 @@ class TentacleWhip(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        List<AOEInstance> aoes = new(count);
+        var aoes = new AOEInstance[count];
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
             if (i == 0)
-                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
             else
-                aoes.Add(aoe with { Risky = false });
+                aoes[i] = aoe with { Risky = false };
         }
         return aoes;
     }

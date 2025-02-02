@@ -2,7 +2,7 @@ namespace BossMod.Heavensward.Extreme.Ex3Thordan;
 
 class AscalonsMight(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.AscalonsMight), new AOEShapeCone(11.8f, 45.Degrees()));
 
-abstract class HeavenlySlash(BossModule module, OID oid) : Components.Cleave(module, ActionID.MakeSpell(AID.HeavenlySlash), new AOEShapeCone(10.2f, 45.Degrees()), (uint)oid);
+abstract class HeavenlySlash(BossModule module, OID oid) : Components.Cleave(module, ActionID.MakeSpell(AID.HeavenlySlash), new AOEShapeCone(10.2f, 45.Degrees()), [(uint)oid]);
 class HeavenlySlashAdelphel(BossModule module) : HeavenlySlash(module, OID.SerAdelphel);
 class HeavenlySlashJanlenoux(BossModule module) : HeavenlySlash(module, OID.SerJanlenoux);
 

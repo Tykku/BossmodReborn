@@ -44,7 +44,8 @@ class SapShower(BossModule module) : Components.SpreadFromCastTargets(module, Ac
 class ExtensibleTendrilsPutridBreath(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCross cross = new(25, 3);
-    private static readonly AOEShapeCone cone = new(25, D082MorbolMarquis.A45);
+    private static readonly Angle a45 = 45.Degrees();
+    private static readonly AOEShapeCone cone = new(25, a45);
     private AOEInstance? _aoe;
     private DateTime activation;
     private int remainingCasts;
@@ -60,7 +61,7 @@ class ExtensibleTendrilsPutridBreath(BossModule module) : Components.GenericAOEs
         {
             var delay1 = activation.AddSeconds((5 - remainingCasts) * 6.1f);
             if ((delay1 - WorldState.CurrentTime).TotalSeconds <= 2.5f)
-                yield return new(cross, Module.PrimaryActor.Position, Module.PrimaryActor.Rotation + D082MorbolMarquis.A45, delay1);
+                yield return new(cross, Module.PrimaryActor.Position, Module.PrimaryActor.Rotation + a45, delay1);
         }
         var delay2 = activation.AddSeconds(27.1f);
         if (activation != default && (delay2 - WorldState.CurrentTime).TotalSeconds <= 4.9f)
@@ -128,14 +129,14 @@ class D082MorbolMarquisStates : StateMachineBuilder
 public class D082MorbolMarquis(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultBounds.Center, DefaultBounds)
 {
     private const int X = -224, InnerRadius = 10, OuterRadius = 15, Radius = 25, Edges = 12;
-    private static readonly WPos ArenaCenter = new(X, -38);
-    public static readonly Angle A45 = 45.Degrees(), a135 = 135.Degrees();
-    private static readonly Polygon[] defaultCircle = [new(ArenaCenter, 24.5f * CosPI.Pi48th, 48)];
+    private static readonly WPos arenaCenter = new(X, -38);
+    private static readonly Angle a45 = 45.Degrees(), a135 = 135.Degrees();
+    private static readonly Polygon[] defaultCircle = [new(arenaCenter, 24.5f * CosPI.Pi48th, 48)];
     private static readonly Rectangle[] defaultDifference = [new(new(X, -13), Radius, 1.1f), new(new(X, -63), Radius, 1.1f)];
-    private static readonly Shape[] blueBlossom = [new ConeV(ArenaCenter, InnerRadius, A45, A45, Edges), new ConeV(ArenaCenter, InnerRadius, -a135, A45, Edges),
-    new DonutSegmentV(ArenaCenter, OuterRadius, Radius, A45, A45, Edges), new DonutSegmentV(ArenaCenter, OuterRadius, Radius, -a135, A45, Edges)];
-    private static readonly Shape[] yellowBlossom = [new ConeV(ArenaCenter, InnerRadius, -A45, A45, Edges), new ConeV(ArenaCenter, InnerRadius, a135, A45, Edges),
-    new DonutSegmentV(ArenaCenter, OuterRadius, Radius, -A45, A45, Edges), new DonutSegmentV(ArenaCenter, OuterRadius, Radius, a135, A45, Edges)];
+    private static readonly Shape[] blueBlossom = [new ConeV(arenaCenter, InnerRadius, a45, a45, Edges), new ConeV(arenaCenter, InnerRadius, -a135, a45, Edges),
+    new DonutSegmentV(arenaCenter, OuterRadius, Radius, a45, a45, Edges), new DonutSegmentV(arenaCenter, OuterRadius, Radius, -a135, a45, Edges)];
+    private static readonly Shape[] yellowBlossom = [new ConeV(arenaCenter, InnerRadius, -a45, a45, Edges), new ConeV(arenaCenter, InnerRadius, a135, a45, Edges),
+    new DonutSegmentV(arenaCenter, OuterRadius, Radius, -a45, a45, Edges), new DonutSegmentV(arenaCenter, OuterRadius, Radius, a135, a45, Edges)];
     public static readonly ArenaBoundsComplex DefaultBounds = new(defaultCircle, defaultDifference);
     public static readonly ArenaBoundsComplex BlueBlossomBounds = new(defaultCircle, [.. defaultDifference, .. blueBlossom]);
     public static readonly ArenaBoundsComplex YellowBlossomBounds = new(defaultCircle, [.. defaultDifference, .. yellowBlossom]);

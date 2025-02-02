@@ -747,7 +747,7 @@ public static class ShapeDistance
     // it's an inverted rect of a size equal to one grid cell, with a special adjustment if starting position is in the same cell, but farther than tolerance
     public static Func<WPos, float> PrecisePosition(WPos origin, WDir dir, float cellSize, WPos starting, float tolerance = 0)
     {
-        var cellSizeAdj = cellSize + NavigationDecision.DefaultForbiddenZoneCushion;
+        var cellSizeAdj = cellSize + cellSize * NavigationDecision.DefaultForbiddenZoneCushion;
         var delta = starting - origin;
         var dparr = delta.Dot(dir);
         if (dparr > tolerance && dparr <= cellSizeAdj)

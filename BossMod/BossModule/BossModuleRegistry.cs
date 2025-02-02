@@ -176,7 +176,7 @@ public static class BossModuleRegistry
                 continue;
             _modulesByType[t] = info;
             if (!RegisteredModules.TryAdd(info.PrimaryActorOID, info))
-                Service.Log($"Two boss modules have same primary actor OID: {t.Name} and {RegisteredModules[info.PrimaryActorOID].ModuleType.Name}");
+                Service.Log($"[ModuleRegistry] Two boss modules have same primary actor OID: {t.FullName} and {RegisteredModules[info.PrimaryActorOID].ModuleType.FullName}");
         }
     }
 

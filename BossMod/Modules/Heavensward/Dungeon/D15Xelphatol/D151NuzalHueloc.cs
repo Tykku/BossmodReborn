@@ -43,7 +43,7 @@ class HotBlast(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCircle circle = new(4, true);
     private AOEInstance? _aoe;
-    private const string RiskHint = "Go under boss!";
+    private const string Hint = "Go under boss!";
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
@@ -61,11 +61,22 @@ class HotBlast(BossModule module) : Components.GenericAOEs(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        var activeAOEs = ActiveAOEs(slot, actor).ToList();
-        if (activeAOEs.Any(c => !c.Check(actor.Position)))
-            hints.Add(RiskHint);
-        else if (activeAOEs.Any(c => c.Check(actor.Position)))
-            hints.Add(RiskHint, false);
+        if (_aoe == null)
+            return;
+
+        var shouldAddHint = false;
+        foreach (var c in ActiveAOEs(slot, actor))
+        {
+            if (!c.Check(actor.Position))
+            {
+                shouldAddHint = true;
+                break;
+            }
+        }
+        if (shouldAddHint)
+            hints.Add(Hint);
+        else
+            hints.Add(Hint, false);
     }
 }
 

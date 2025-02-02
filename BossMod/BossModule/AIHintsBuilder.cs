@@ -50,7 +50,7 @@ public sealed class AIHintsBuilder : IDisposable
             FillEnemies(hints, playerAssignment == PartyRolesConfig.Assignment.MT || playerAssignment == PartyRolesConfig.Assignment.OT && !_ws.Party.WithoutSlot(false, false, true).Any(p => p != player && p.Role == Role.Tank));
             if (activeModule != null)
             {
-                activeModule.CalculateAIHints(playerSlot, player, playerAssignment, hints);
+                activeModule.CalculateAIHints(playerSlot, ref player, ref playerAssignment, ref hints);
             }
             else
             {

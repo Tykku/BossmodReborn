@@ -194,39 +194,6 @@ public sealed record class Cross(WPos Center, float Length, float HalfWidth, Ang
     public override string ToString() => $"Cross:{Center.X},{Center.Z},{Length},{HalfWidth},{Rotation}";
 }
 
-// Equilateral triangle defined by center, sidelength and rotation
-public sealed record class TriangleE(WPos Center, float SideLength, Angle Rotation = default) : Shape
-{
-    private static readonly float heightFactor = MathF.Sqrt(3) * Half;
-
-    public override List<WDir> Contour(WPos center)
-    {
-        if (Points == null)
-        {
-            var height = SideLength * heightFactor;
-            var halfSideLength = SideLength * Half;
-            var halfHeight = height * Half;
-            var (sin, cos) = ((float, float))Math.SinCos(Rotation.Rad);
-            var halfSideCos = halfSideLength * cos;
-            var halfSideSin = halfSideLength * sin;
-            var halfHeightSin = halfHeight * sin;
-            var halfHeightCos = halfHeight * cos;
-            Points =
-            [
-                new WDir(halfSideCos - halfHeightSin, halfSideSin + halfHeightCos),
-                new WDir(-halfSideCos - halfHeightSin, -halfSideSin + halfHeightCos),
-                new WDir(halfHeightSin, -halfHeight * cos)
-            ];
-        }
-        var offset = Center - center;
-        var result = new List<WDir>(3);
-        for (var i = 0; i < 3; ++i)
-            result.Add(Points[i] + offset);
-        return result;
-    }
-    public override string ToString() => $"TriangleE:{Center.X},{Center.Z},{SideLength},{Rotation}";
-}
-
 // for polygons with edge count number of lines of symmetry, eg. pentagons, hexagons and octagons
 public sealed record class Polygon(WPos Center, float Radius, int Edges, Angle Rotation = default) : Shape
 {
@@ -236,13 +203,13 @@ public sealed record class Polygon(WPos Center, float Radius, int Edges, Angle R
         {
             var angleIncrement = Angle.DoublePI / Edges;
             var initialRotation = Rotation.Rad;
-            var vertices = new List<WDir>(Edges);
+            var vertices = new WDir[Edges];
             for (var i = 0; i < Edges; ++i)
             {
                 var (sin, cos) = ((float, float))Math.SinCos(i * angleIncrement + initialRotation);
-                vertices.Add(new(Center.X + Radius * sin, Center.Z + Radius * cos));
+                vertices[i] = new(Center.X + Radius * sin, Center.Z + Radius * cos);
             }
-            Points = [.. vertices];
+            Points = vertices;
         }
         var len = Points.Length;
         var result = new List<WDir>(len);
@@ -262,10 +229,10 @@ public record class Cone(WPos Center, float Radius, Angle StartAngle, Angle EndA
         {
             var points = CurveApprox.CircleSector(Center, Radius, StartAngle, EndAngle, MaxApproxError);
             var length = points.Length;
-            var vertices = new List<WDir>(length);
+            var vertices = new WDir[length];
             for (var i = 0; i < length; ++i)
-                vertices.Add(points[i] - new WPos());
-            Points = [.. vertices];
+                vertices[i] = points[i] - new WPos();
+            Points = vertices;
         }
         var len = Points.Length;
         var result = new List<WDir>(len);
@@ -310,14 +277,17 @@ public sealed record class ConeV(WPos Center, float Radius, Angle CenterDir, Ang
         {
             var angleIncrement = 2 * HalfAngle.Rad / Edges;
             var startAngle = CenterDir.Rad - HalfAngle.Rad;
-            var vertices = new List<WDir>(Edges + 1);
+            var vertices = new WDir[Edges + 2];
+            var centerX = Center.X;
+            var CenterZ = Center.Z;
+            var radius = Radius;
             for (var i = 0; i < Edges + 1; ++i)
             {
                 var (sin, cos) = ((float, float))Math.SinCos(startAngle + i * angleIncrement);
-                vertices.Add(new(Center.X + Radius * sin, Center.Z + Radius * cos));
+                vertices[i] = new(centerX + radius * sin, CenterZ + radius * cos);
             }
-            vertices.Add(Center - new WPos());
-            Points = [.. vertices];
+            vertices[Edges + 1] = Center - new WPos();
+            Points = vertices;
         }
         var len = Points.Length;
         var result = new List<WDir>(len);
@@ -338,18 +308,20 @@ public sealed record class DonutSegmentV(WPos Center, float InnerRadius, float O
         {
             var angleIncrement = 2 * HalfAngle.Rad / Edges;
             var startAngle = CenterDir.Rad - HalfAngle.Rad;
-            var vertices = new List<WDir>(2 * (Edges + 1));
-            for (var i = 0; i < Edges + 1; ++i)
+            var n = Edges + 1;
+            var vertices = new WDir[2 * n];
+            var centerX = Center.X;
+            var CenterZ = Center.Z;
+            var innerRadius = InnerRadius;
+            var outerRadius = OuterRadius;
+            for (var i = 0; i < n; ++i)
             {
                 var (sin, cos) = ((float, float))Math.SinCos(startAngle + i * angleIncrement);
-                vertices.Add(new(Center.X + OuterRadius * sin, Center.Z + OuterRadius * cos));
+                vertices[i] = new(centerX + outerRadius * sin, CenterZ + outerRadius * cos);
+                vertices[2 * n - 1 - i] = new WDir(centerX + innerRadius * sin, CenterZ + innerRadius * cos);
             }
-            for (var i = Edges; i >= 0; --i)
-            {
-                var (sin, cos) = ((float, float))Math.SinCos(startAngle + i * angleIncrement);
-                vertices.Add(new(Center.X + InnerRadius * sin, Center.Z + InnerRadius * cos));
-            }
-            Points = [.. vertices];
+
+            Points = vertices;
         }
         var len = Points.Length;
         var result = new List<WDir>(len);
@@ -369,21 +341,21 @@ public sealed record class DonutV(WPos Center, float InnerRadius, float OuterRad
         if (Points == null)
         {
             var angleIncrement = Angle.DoublePI / Edges;
-            var vertices = new List<WDir>(2 * (Edges + 1));
-
-            for (var i = 0; i <= Edges; ++i)
+            var n = Edges + 1;
+            var vertices = new WDir[2 * n];
+            var centerX = Center.X;
+            var CenterZ = Center.Z;
+            var innerRadius = InnerRadius;
+            var outerRadius = OuterRadius;
+            for (var i = 0; i < n; ++i)
             {
                 var (sin, cos) = ((float, float))Math.SinCos(i * angleIncrement);
-                vertices.Add(new(Center.X + OuterRadius * sin, Center.Z + OuterRadius * cos));
+                vertices[i] = new(centerX + outerRadius * sin, CenterZ + outerRadius * cos);
+                vertices[2 * n - 1 - i] = new(centerX + innerRadius * sin, CenterZ + innerRadius * cos);
             }
-
-            for (var i = Edges; i >= 0; --i)
-            {
-                var (sin, cos) = ((float, float))Math.SinCos(i * angleIncrement);
-                vertices.Add(new(Center.X + InnerRadius * sin, Center.Z + InnerRadius * cos));
-            }
-            Points = [.. vertices];
+            Points = vertices;
         }
+
         var len = Points.Length;
         var result = new List<WDir>(len);
         for (var i = 0; i < len; ++i)
@@ -392,4 +364,82 @@ public sealed record class DonutV(WPos Center, float InnerRadius, float OuterRad
     }
 
     public override string ToString() => $"DonutV:{Center.X},{Center.Z},{InnerRadius},{OuterRadius},{Edges}";
+}
+
+// Approximates an ellipse with a customizable number of edges
+public sealed record class Ellipse(WPos Center, float HalfWidth, float HalfHeight, int Edges, Angle Rotation = default) : Shape
+{
+    public override List<WDir> Contour(WPos center)
+    {
+        if (Points == null)
+        {
+            var angleIncrement = Angle.DoublePI / Edges;
+            var (sinRotation, cosRotation) = ((float, float))Math.SinCos(Rotation.Rad);
+            var vertices = new WDir[Edges];
+            var halfWidth = HalfWidth;
+            var halfHeight = HalfHeight;
+            for (var i = 0; i < Edges; ++i)
+            {
+                var currentAngle = i * angleIncrement;
+                var (sin, cos) = ((float, float))Math.SinCos(currentAngle);
+                var x = halfWidth * cos;
+                var y = halfHeight * sin;
+                var rotatedX = x * cosRotation - y * sinRotation;
+                var rotatedY = x * sinRotation + y * cosRotation;
+
+                vertices[i] = new(rotatedX, rotatedY);
+            }
+            Points = vertices;
+        }
+
+        var len = Points.Length;
+        var offset = Center - center;
+        var result = new List<WDir>(len);
+
+        for (var i = 0; i < len; ++i)
+            result.Add(Points[i] + offset);
+
+        return result;
+    }
+
+    public override string ToString() => $"Ellipse:{Center.X},{Center.Z},{HalfWidth},{HalfHeight},{Edges},{Rotation}";
+}
+
+// Capsule shape defined by center, halfheight, halfwidth (radius), rotation, and number of edges. in this case the halfheight is the distance from capsule center to semicircle centers,
+// the edges are per semicircle
+public sealed record class Capsule(WPos Center, float HalfHeight, float HalfWidth, int Edges, Angle Rotation = default) : Shape
+{
+    public override List<WDir> Contour(WPos center)
+    {
+        if (Points == null)
+        {
+            var vertices = new WDir[2 * Edges];
+            var angleIncrement = MathF.PI / Edges;
+            var (sinRot, cosRot) = ((float, float))Math.SinCos(Rotation.Rad);
+            var halfWidth = HalfWidth;
+            var halfHeight = HalfHeight;
+            for (var i = 0; i < Edges; ++i)
+            {
+                var (sin, cos) = ((float, float))Math.SinCos(i * angleIncrement);
+                var halfWidthCos = halfWidth * cos;
+                var halfWidthSin = halfWidth * sin + halfHeight;
+                var rxTop = halfWidthCos * cosRot - halfWidthSin * sinRot;
+                var ryTop = halfWidthCos * sinRot + halfWidthSin * cosRot;
+                vertices[i] = new(rxTop, ryTop);
+                var rxBot = -rxTop;
+                var ryBot = -ryTop;
+                vertices[Edges + i] = new(rxBot, ryBot);
+            }
+            Points = vertices;
+        }
+
+        var offset = Center - center;
+        var result = new List<WDir>(Points.Length);
+        for (var i = 0; i < Points.Length; ++i)
+            result.Add(Points[i] + offset);
+
+        return result;
+    }
+
+    public override string ToString() => $"Capsule:{Center.X},{Center.Z},{HalfHeight},{HalfWidth},{Rotation},{Edges}";
 }

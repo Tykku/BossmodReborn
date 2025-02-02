@@ -13,14 +13,14 @@ public enum AID : uint
     UnlitCyclone = 6684, // Boss->self, 4.0s cast, range 5+R circle
     UnlitCycloneAdds = 6685, // 18D6->location, 4.0s cast, range 9 circle
     Skydrive = 6686, // Boss->player, 5.0s cast, single-target
-    UtterDestruction = 6690, // _Gen_FirstWard->self, 3.0s cast, range 20+R circle
+    UtterDestruction = 6690, // FirstWard->self, 3.0s cast, range 20+R circle
     RollingBladeCircle = 6691, // Boss->self, 3.0s cast, range 7 circle
-    RollingBladeCone = 6692, // _Gen_FirstWard->self, 3.0s cast, range 60+R 30-degree cone
+    RollingBladeCone = 6692 // FirstWard->self, 3.0s cast, range 60+R 30-degree cone
 }
 
 public enum SID : uint
 {
-    Invincibility = 325, // KnightOfDarkness->Boss/_Gen_FirstWard, extra=0x0
+    Invincibility = 325 // KnightOfDarkness->Boss/_Gen_FirstWard, extra=0x0
 }
 
 class Overpower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Overpower), new AOEShapeCone(7, 45.Degrees()));
@@ -47,7 +47,7 @@ class Adds(BossModule module) : Components.AddsMulti(module, [0x17CE, 0x17CF, 0x
 class TargetPriorityHandler(BossModule module) : BossComponent(module)
 {
     private Actor? Knight => Module.Enemies(OID.KnightOfDarkness).FirstOrDefault();
-    private Actor? Covered => WorldState.Actors.FirstOrDefault(s => s.FindStatus(SID.Invincibility) != null);
+    private Actor? Covered => WorldState.Actors.FirstOrDefault(s => s.OID != 0x18D6 && s.FindStatus(SID.Invincibility) != null);
     private Actor? BladeOfLight => WorldState.Actors.FirstOrDefault(s => (OID)s.OID == OID.BladeOfLight && s.IsTargetable);
 
     public override void DrawArenaBackground(int pcSlot, Actor pc)
@@ -62,8 +62,9 @@ class TargetPriorityHandler(BossModule module) : BossComponent(module)
         {
             var playerIsAttacked = false;
 
-            foreach (var e in hints.PotentialTargets)
+            for (var i = 0; i < hints.PotentialTargets.Count; ++i)
             {
+                var e = hints.PotentialTargets[i];
                 if (e.Actor.TargetID == actor.InstanceID)
                 {
                     playerIsAttacked = true;
@@ -71,7 +72,7 @@ class TargetPriorityHandler(BossModule module) : BossComponent(module)
                 }
                 else
                 {
-                    e.Priority = -1;
+                    e.Priority = AIHints.Enemy.PriorityUndesirable;
                 }
             }
 
@@ -85,8 +86,9 @@ class TargetPriorityHandler(BossModule module) : BossComponent(module)
         }
         else
         {
-            foreach (var e in hints.PotentialTargets)
+            for (var i = 0; i < hints.PotentialTargets.Count; ++i)
             {
+                var e = hints.PotentialTargets[i];
                 if (e.Actor == Knight)
                     e.Priority = 2;
                 else if (e.Actor == Covered)
@@ -119,7 +121,7 @@ class WarriorOfDarknessStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Contributed, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 194, NameID = 5240)]
+[ModuleInfo(BossModuleInfo.Maturity.Contributed, GroupType = BossModuleInfo.GroupType.Quest, GroupID = 67885, NameID = 5240)]
 public class WarriorOfDarkness(WorldState ws, Actor primary) : BossModule(ws, primary, default, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(default, 19.5f, 36)]);

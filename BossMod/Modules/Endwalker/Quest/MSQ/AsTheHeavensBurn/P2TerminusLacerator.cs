@@ -30,7 +30,7 @@ public enum AID : uint
     Explosion = 27026 // Meteorite->self, 3.0s cast, range 6 circle
 }
 
-class TheBlackDeath(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.TheBlackDeath), new AOEShapeCone(25, 60.Degrees()), (uint)OID.Boss, activeWhileCasting: false);
+class TheBlackDeath(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.TheBlackDeath), new AOEShapeCone(25, 60.Degrees()), [(uint)OID.Boss], activeWhileCasting: false);
 class Burst(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.Burst), 5);
 class DeadlyImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeadlyImpact), 10, 6);
 class BlackStar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BlackStar));

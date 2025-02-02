@@ -281,7 +281,8 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
         var drawlist = ImGui.GetWindowDrawList();
         var restoreFlags = drawlist.Flags;
         drawlist.Flags &= ~ImDrawListFlags.AntiAliasedFill;
-        for (var i = 0; i < triangulation.Count; ++i)
+        var count = triangulation.Count;
+        for (var i = 0; i < count; ++i)
         {
             var tri = triangulation[i];
             drawlist.AddTriangleFilled(ScreenCenter + WorldOffsetToScreenOffset(tri.A), ScreenCenter + WorldOffsetToScreenOffset(tri.B), ScreenCenter + WorldOffsetToScreenOffset(tri.C), color != 0 ? color : Colors.AOE);
@@ -349,13 +350,13 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
     public void Border(uint color)
     {
         var dl = ImGui.GetWindowDrawList();
-
-        for (var i = 0; i < _bounds.ShapeSimplified.Parts.Count; ++i)
+        var count = _bounds.ShapeSimplified.Parts.Count;
+        for (var i = 0; i < count; ++i)
         {
             var part = _bounds.ShapeSimplified.Parts[i];
             Vector2? lastPoint = null;
-
-            for (var j = 0; j < part.Exterior.Length; ++j)
+            var exteriorLen = part.Exterior.Length;
+            for (var j = 0; j < exteriorLen; ++j)
             {
                 var offset = part.Exterior[j];
                 var currentPoint = ScreenCenter + WorldOffsetToScreenOffset(offset);
@@ -366,12 +367,14 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
 
             dl.PathStroke(color, ImDrawFlags.Closed, 2);
 
-            foreach (var holeIndex in part.Holes)
+            var lenHoles = part.Holes.Length;
+            for (var l = 0; l < lenHoles; ++l)
             {
                 lastPoint = null;
 
-                var holeInteriorPoints = part.Interior(holeIndex);
-                for (var k = 0; k < holeInteriorPoints.Length; ++k)
+                var holeInteriorPoints = part.Interior(part.Holes[l]);
+                var interiorLen = holeInteriorPoints.Length;
+                for (var k = 0; k < interiorLen; ++k)
                 {
                     var offset = holeInteriorPoints[k];
                     var currentPoint = ScreenCenter + WorldOffsetToScreenOffset(offset);
@@ -467,7 +470,10 @@ public sealed class MiniArena(BossModuleConfig config, WPos center, ArenaBounds 
 
     public void Actors(List<Actor> actors, uint color = 0, bool allowDeadAndUntargetable = false)
     {
-        for (var i = 0; i < actors.Count; ++i)
+        var count = actors.Count;
+        if (count == 0)
+            return;
+        for (var i = 0; i < count; ++i)
         {
             Actor(actors[i], color == 0 ? Colors.Enemy : color, allowDeadAndUntargetable);
         }

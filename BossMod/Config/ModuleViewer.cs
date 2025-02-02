@@ -50,6 +50,7 @@ public sealed class ModuleViewer : IDisposable
         Customize(BossModuleInfo.Category.Dungeon, contentType.GetRow(2));
         Customize(BossModuleInfo.Category.Trial, contentType.GetRow(4));
         Customize(BossModuleInfo.Category.Raid, contentType.GetRow(5));
+        Customize(BossModuleInfo.Category.Chaotic, contentType.GetRow(37));
         Customize(BossModuleInfo.Category.PVP, contentType.GetRow(6));
         Customize(BossModuleInfo.Category.Quest, contentType.GetRow(7));
         Customize(BossModuleInfo.Category.FATE, contentType.GetRow(8));
@@ -58,7 +59,6 @@ public sealed class ModuleViewer : IDisposable
         Customize(BossModuleInfo.Category.DeepDungeon, contentType.GetRow(21));
         Customize(BossModuleInfo.Category.Ultimate, contentType.GetRow(28));
         Customize(BossModuleInfo.Category.VariantCriterion, contentType.GetRow(30));
-        Customize(BossModuleInfo.Category.Chaotic, contentType.GetRow(37));
 
         var playStyle = Service.LuminaSheet<CharaCardPlayStyle>()!;
         Customize(BossModuleInfo.Category.Foray, playStyle.GetRow(6));

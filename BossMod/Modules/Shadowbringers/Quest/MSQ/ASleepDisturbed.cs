@@ -66,4 +66,12 @@ class ASleepDisturbedStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "croizat", GroupType = BossModuleInfo.GroupType.Quest, GroupID = 69301, NameID = 9296)]
-public class ASleepDisturbed(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsSquare(19.5f));
+public class ASleepDisturbed(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsSquare(19.5f))
+{
+    protected override bool CheckPull() => PrimaryActor.IsTargetable;
+
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        hints.PrioritizeTargetsByOID(OID.Boss, 0);
+    }
+}

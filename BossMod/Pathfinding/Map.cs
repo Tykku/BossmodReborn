@@ -230,20 +230,20 @@ public class Map
         return result;
     }
 
-    public List<(int x, int y, WPos center)> EnumeratePixels()
+    public (int x, int y, WPos center)[] EnumeratePixels()
     {
-        var result = new List<(int x, int y, WPos center)>(Width * Height);
+        var result = new (int x, int y, WPos center)[(Width * Height)];
         var rsq = Resolution * Resolution; // since we then multiply by _localZDivRes, end result is same as * res * rotation.ToDir()
         var dx = LocalZDivRes.OrthoL() * rsq;
         var dy = LocalZDivRes * rsq;
         var cy = Center + (-Width * HalfPixel + HalfPixel) * dx + (-Height * HalfPixel + HalfPixel) * dy;
-
+        var index = 0;
         for (var y = 0; y < Height; ++y)
         {
             var cx = cy;
             for (var x = 0; x < Width; ++x)
             {
-                result.Add((x, y, cx));
+                result[index++] = (x, y, cx);
                 cx += dx;
             }
             cy += dy;

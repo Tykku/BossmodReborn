@@ -53,7 +53,8 @@ public class ScarmiglioneP1(WorldState ws, Actor primary) : BossModule(ws, prima
     protected override bool CheckPull()
     {
         var enemies = Enemies(trash);
-        for (var i = 0; i < enemies.Count; ++i)
+        var count = enemies.Count;
+        for (var i = 0; i < count; ++i)
         {
             if (enemies[i].InCombat)
                 return true;

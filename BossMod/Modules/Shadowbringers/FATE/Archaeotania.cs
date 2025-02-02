@@ -117,4 +117,7 @@ class ArchaeotaniaStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.Fate, GroupID = 1432, NameID = 8234)]
-public class Archaeotania(WorldState ws, Actor primary) : BossModule(ws, primary, new(279, 249), new ArenaBoundsSquare(29));
+public class Archaeotania(WorldState ws, Actor primary) : BossModule(ws, primary, new(279, 249), new ArenaBoundsSquare(29))
+{
+    protected override bool CheckPull() => base.CheckPull() && (Center - Raid.Player()!.Position).LengthSq() < 900;
+}

@@ -142,7 +142,7 @@ class DarkII(BossModule module) : Components.GenericAOEs(module)
     {
         if ((AID)spell.Action.ID is AID.DarkII1 or AID.DarkII2)
         {
-            _aoes.Add(new(cone, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
             if (_aoes.Count == 12)
                 _aoes.SortBy(x => x.Activation);
         }

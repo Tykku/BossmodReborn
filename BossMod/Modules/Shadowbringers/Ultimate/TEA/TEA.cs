@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Shadowbringers.Ultimate.TEA;
 
 class P1FluidSwing(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.FluidSwing), new AOEShapeCone(11.5f, 45.Degrees()));
-class P1FluidStrike(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.FluidStrike), new AOEShapeCone(11.6f, 45.Degrees()), (uint)OID.LiquidHand);
+class P1FluidStrike(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.FluidStrike), new AOEShapeCone(11.6f, 45.Degrees()), [(uint)OID.LiquidHand]);
 class P1Sluice(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Sluice), 5);
 class P1Splash(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Splash));
 class P1Drainage(BossModule module) : Components.TankbusterTether(module, ActionID.MakeSpell(AID.DrainageP1), (uint)TetherID.Drainage, 6);
@@ -19,7 +19,7 @@ class P2PropellerWind(BossModule module) : Components.CastLineOfSightAOE(module,
 
 class P2DoubleRocketPunch(BossModule module) : Components.CastSharedTankbuster(module, ActionID.MakeSpell(AID.DoubleRocketPunch), 3);
 class P3ChasteningHeat(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.ChasteningHeat), new AOEShapeCircle(5), true);
-class P3DivineSpear(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.DivineSpear), new AOEShapeCone(24.2f, 45.Degrees()), (uint)OID.AlexanderPrime); // TODO: verify angle
+class P3DivineSpear(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.DivineSpear), new AOEShapeCone(24.2f, 45.Degrees()), [(uint)OID.AlexanderPrime]); // TODO: verify angle
 class P3DivineJudgmentRaidwide(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.DivineJudgmentRaidwide));
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.BossP1, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 694, PlanLevel = 80)]

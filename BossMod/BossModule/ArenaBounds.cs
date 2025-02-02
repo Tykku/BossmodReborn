@@ -58,9 +58,11 @@ public abstract record class ArenaBounds(float Radius, float MapResolution, floa
             (true, false) => CurveApprox.DonutSector(innerRadius, outerRadius, centerDirection - halfAngle, centerDirection + halfAngle, MaxApproxError),
             (true, true) => CurveApprox.Donut(innerRadius, outerRadius, MaxApproxError),
         };
-        for (var i = 0; i < points.Length; ++i)
+        var len = points.Length;
+        var offset = centerOffset;
+        for (var i = 0; i < len; ++i)
         {
-            points[i] += centerOffset;
+            points[i] += offset;
         }
         return ClipAndTriangulate(points);
     }
@@ -68,9 +70,11 @@ public abstract record class ArenaBounds(float Radius, float MapResolution, floa
     public List<RelTriangle> ClipAndTriangulateCircle(WDir centerOffset, float radius)
     {
         var points = CurveApprox.Circle(radius, MaxApproxError);
-        for (var i = 0; i < points.Length; ++i)
+        var len = points.Length;
+        var offset = centerOffset;
+        for (var i = 0; i < len; ++i)
         {
-            points[i] += centerOffset;
+            points[i] += offset;
         }
         return ClipAndTriangulate(points);
     }
@@ -78,9 +82,11 @@ public abstract record class ArenaBounds(float Radius, float MapResolution, floa
     public List<RelTriangle> ClipAndTriangulateCapsule(WDir centerOffset, WDir direction, float radius, float length)
     {
         var points = CurveApprox.Capsule(direction, length, radius, MaxApproxError);
-        for (var i = 0; i < points.Length; ++i)
+        var len = points.Length;
+        var offset = centerOffset;
+        for (var i = 0; i < len; ++i)
         {
-            points[i] += centerOffset;
+            points[i] += offset;
         }
         return ClipAndTriangulate(points);
     }
@@ -90,9 +96,11 @@ public abstract record class ArenaBounds(float Radius, float MapResolution, floa
         if (innerRadius < outerRadius && innerRadius >= 0)
         {
             var points = CurveApprox.Donut(innerRadius, outerRadius, MaxApproxError);
-            for (var i = 0; i < points.Length; ++i)
+            var len = points.Length;
+            var offset = centerOffset;
+            for (var i = 0; i < len; ++i)
             {
-                points[i] += centerOffset;
+                points[i] += offset;
             }
             return ClipAndTriangulate(points);
         }
@@ -144,13 +152,18 @@ public sealed record class ArenaBoundsCircle(float Radius, float MapResolution =
 
     protected override PolygonClipper.Operand BuildClipPoly() => new((ReadOnlySpan<WDir>)CurveApprox.Circle(Radius, MaxApproxError));
     public override void PathfindMap(Pathfinding.Map map, WPos center) => map.Init(_cachedMap ??= BuildMap(), center);
-    public override bool Contains(WDir offset) => offset.LengthSq() <= Radius * Radius;
+    public override bool Contains(WDir offset)
+    {
+        var radius = Radius;
+        return offset.LengthSq() <= radius * radius;
+    }
     public override float IntersectRay(WDir originOffset, WDir dir) => Intersect.RayCircle(originOffset, dir, Radius);
 
     public override WDir ClampToBounds(WDir offset)
     {
-        if (offset.LengthSq() > Radius * Radius)
-            offset *= Radius / offset.Length();
+        var radius = Radius;
+        if (offset.LengthSq() > radius * radius)
+            offset *= radius / offset.Length();
         return offset;
     }
 
@@ -177,8 +190,11 @@ public record class ArenaBoundsRect(float HalfWidth, float HalfHeight, Angle Rot
     public override void PathfindMap(Pathfinding.Map map, WPos center) => map.Init(_cachedMap ??= BuildMap(), center);
     private Pathfinding.Map BuildMap()
     {
-        var map = new Pathfinding.Map(MapResolution, default, HalfWidth, HalfHeight, Rotation);
-        map.BlockPixelsInside2(ShapeDistance.InvertedRect(default, Rotation, HalfHeight, HalfHeight, HalfWidth), -1);
+        var halfWidth = HalfWidth;
+        var halfHeight = HalfHeight;
+        var rotation = Rotation;
+        var map = new Pathfinding.Map(MapResolution, default, halfWidth, halfHeight, rotation);
+        map.BlockPixelsInside2(ShapeDistance.InvertedRect(default, rotation, halfHeight, halfHeight, halfWidth), -1);
         return map;
     }
 
@@ -187,13 +203,16 @@ public record class ArenaBoundsRect(float HalfWidth, float HalfHeight, Angle Rot
 
     public override WDir ClampToBounds(WDir offset)
     {
-        var offsetX = offset.Dot(Orientation.OrthoL());
-        var offsetY = offset.Dot(Orientation);
-        if (Math.Abs(offsetX) > HalfWidth)
-            offsetX = Math.Sign(offsetX) * HalfWidth;
-        if (Math.Abs(offsetY) > HalfHeight)
-            offsetY = Math.Sign(offsetY) * HalfHeight;
-        return Orientation.OrthoL() * offsetX + Orientation * offsetY;
+        var orientation = Orientation;
+        var halfWidth = HalfWidth;
+        var halfHeight = HalfHeight;
+        var offsetX = offset.Dot(orientation.OrthoL());
+        var offsetY = offset.Dot(orientation);
+        if (Math.Abs(offsetX) > halfWidth)
+            offsetX = Math.Sign(offsetX) * halfWidth;
+        if (Math.Abs(offsetY) > halfHeight)
+            offsetY = Math.Sign(offsetY) * halfHeight;
+        return orientation.OrthoL() * offsetX + orientation * offsetY;
     }
 }
 
@@ -214,11 +233,15 @@ public record class ArenaBoundsCustom : ArenaBounds
         poly = Poly;
 
         var edgeList = new List<(WDir, WDir)>();
-        for (var i = 0; i < Poly.Parts.Count; ++i)
+        var count = Poly.Parts.Count;
+        for (var i = 0; i < count; ++i)
         {
             var part = Poly.Parts[i];
             edgeList.AddRange(part.ExteriorEdges);
-            for (var j = 0; j < part.Holes.Length; ++j)
+            var len = part.Holes.Length;
+            if (len == 0)
+                continue;
+            for (var j = 0; j < len; ++j)
             {
                 edgeList.AddRange(part.InteriorEdges(j));
             }
@@ -253,7 +276,8 @@ public record class ArenaBoundsCustom : ArenaBounds
         }
         var minDistance = float.MaxValue;
         var nearestPoint = offset;
-        for (var i = 0; i < edges.Length; ++i)
+        var len = edges.Length;
+        for (var i = 0; i < len; ++i)
         {
             ref var edge = ref edges[i];
             var edge1 = edge.Item1;
@@ -279,21 +303,24 @@ public record class ArenaBoundsCustom : ArenaBounds
         if (HalfHeight == default) // calculate bounding box if not already done by ArenaBoundsComplex to reduce amount of point in polygon tests
         {
             float minX = float.MaxValue, maxX = float.MinValue, minZ = float.MaxValue, maxZ = float.MinValue;
-
-            for (var i = 0; i < polygon.Parts.Count; ++i)
+            var count = polygon.Parts.Count;
+            for (var i = 0; i < count; ++i)
             {
                 var part = polygon.Parts[i];
-                for (var j = 0; j < part.Exterior.Length; ++j)
+                var len = part.Exterior.Length;
+                for (var j = 0; j < len; ++j)
                 {
                     var vertex = part.Exterior[j];
+                    var vertexX = vertex.X;
+                    var vertexZ = vertex.Z;
                     if (vertex.X < minX)
-                        minX = vertex.X;
+                        minX = vertexX;
                     if (vertex.X > maxX)
-                        maxX = vertex.X;
+                        maxX = vertexX;
                     if (vertex.Z < minZ)
-                        minZ = vertex.Z;
+                        minZ = vertexZ;
                     if (vertex.Z > maxZ)
-                        maxZ = vertex.Z;
+                        maxZ = vertexZ;
                 }
             }
             HalfWidth = (maxX - minX) * Half;

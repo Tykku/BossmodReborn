@@ -202,7 +202,7 @@ public sealed class Plugin : IDalamudPlugin
 
         for (var i = 0; i < fields.Length; ++i)
         {
-            var field = fields[i];
+            ref var field = ref fields[i];
             var value = field.GetValue(defaultConfig);
             if (value is Color or Color[])
                 field.SetValue(currentConfig, value);
@@ -245,7 +245,7 @@ public sealed class Plugin : IDalamudPlugin
 
         _dtr.Update();
         Camera.Instance?.Update();
-        _wsSync.Update(_prevUpdateTime);
+        _wsSync.Update(ref _prevUpdateTime);
         _bossmod.Update();
         _zonemod.ActiveModule?.Update();
         _hintsBuilder.Update(_hints, PartyState.PlayerSlot, maxCastTime);

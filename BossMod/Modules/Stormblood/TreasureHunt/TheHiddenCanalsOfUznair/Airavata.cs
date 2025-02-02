@@ -12,11 +12,11 @@ public enum OID : uint
     GoldenApa = 0x1FEC, // R3.12
     GoldenDhara = 0x1FEB, // R1.95
 
-    CanalQueen = 0x1FD1, // R0.840, x0 (spawn during fight)
-    CanalEgg = 0x1FCE, // R0.840, x0 (spawn during fight)
-    CanalTomato = 0x1FD0, // R0.840, x0 (spawn during fight)
-    CanalGarlic = 0x1FCF, // R0.840, x0 (spawn during fight)
-    CanalOnion = 0x1FCD, // R0.840, x0 (spawn during fight)
+    CanalQueen = 0x1FD1, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
+    CanalEgg = 0x1FCE, // R0.84, icon 2, needs to be killed in order from 1 to 5 for maximum rewards
+    CanalTomato = 0x1FD0, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
+    CanalGarlic = 0x1FCF, // R0.84, icon 3, needs to be killed in order from 1 to 5 for maximum rewards
+    CanalOnion = 0x1FCD, // R0.84, icon 1, needs to be killed in order from 1 to 5 for maximum rewards
 
     NamazuStickywhisker = 0x2063, // R0.54
     Abharamu = 0x2064, // R3.42
@@ -50,11 +50,11 @@ public enum AID : uint
     RaucousScritch = 8598, // Abharamu->self, 2.5s cast, range 5+R 120-degree cone
     Hurl = 5352, // Abharamu->location, 3.0s cast, range 6 circle
 
-    PungentPirouette = 6450, // 1FCF->self, 3.5s cast, range 6+R circle
-    PluckAndPrune = 6449, // 1FCE->self, 3.5s cast, range 6+R circle
-    HeirloomScream = 6451, // 1FD0->self, 3.5s cast, range 6+R circle
-    Pollen = 6452, // 1FD1->self, 3.5s cast, range 6+R circle
-    TearyTwirl = 6448, // 1FCD->self, 3.5s cast, range 6+R circle
+    PungentPirouette = 6450, // CanalGarlic->self, 3.5s cast, range 6+R circle
+    PluckAndPrune = 6449, // CanalEgg->self, 3.5s cast, range 6+R circle
+    HeirloomScream = 6451, // CanalTomato->self, 3.5s cast, range 6+R circle
+    Pollen = 6452, // CanalQueen->self, 3.5s cast, range 6+R circle
+    TearyTwirl = 6448, // CanalOnion->self, 3.5s cast, range 6+R circle
 
     Telega = 9630 // Mandragoras/Abharamu/NamazuStickywhisker->self, no cast, single-target, bonus adds disappear
 }
@@ -72,8 +72,8 @@ class AncientAero(BossModule module) : Components.SimpleAOEs(module, ActionID.Ma
 class RingOfFire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RingOfFire), 5);
 class StoneII(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.StoneII));
 
-class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 30.Degrees()));
-class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), (uint)OID.Abharamu);
+class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 60.Degrees()));
+class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), [(uint)OID.Abharamu]);
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);

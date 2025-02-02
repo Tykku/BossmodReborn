@@ -18,14 +18,14 @@ class PredaceousPounce(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        List<AOEInstance> aoes = new(count);
+        var aoes = new AOEInstance[count];
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
             if (i < 2)
-                aoes.Add(count > 2 ? aoe with { Color = Colors.Danger } : aoe);
+                aoes[i] = count > 2 ? aoe with { Color = Colors.Danger } : aoe;
             else
-                aoes.Add(aoe);
+                aoes[i] = aoe;
         }
         return aoes;
     }

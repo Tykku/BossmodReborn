@@ -44,9 +44,9 @@ public struct NavigationDecision
     public Decision DecisionType;
     private static readonly AI.AIConfig _config = Service.Config.Get<AI.AIConfig>();
 
-    public const float DefaultForbiddenZoneCushion = 0.354f; // 0.25 * sqrt(2) = distance from center to a corner for the standard 0.5 map resolution
+    public const float DefaultForbiddenZoneCushion = 0.70710678f; // multiplier distance from cell center to cell corner
 
-    public static NavigationDecision Build(Context ctx, WorldState ws, AIHints hints, Actor player, WPos? targetPos, float targetRadius, Angle targetRot, Positional positional, float playerSpeed = 6, float forbiddenZoneCushion = DefaultForbiddenZoneCushion)
+    public static NavigationDecision Build(Context ctx, WorldState ws, AIHints hints, Actor player, WPos? targetPos, float targetRadius, Angle targetRot, Positional positional, float playerSpeed = 6)
     {
         if (targetRadius < 1)
             targetRadius = 1; // ensure targetRadius is at least 1 to prevent game from freezing
@@ -73,6 +73,7 @@ public struct NavigationDecision
         }
 
         hints.PathfindMapBounds.PathfindMap(ctx.Map, hints.PathfindMapCenter);
+        var forbiddenZoneCushion = ctx.Map.Resolution * DefaultForbiddenZoneCushion;
 
         if (!_config.AllowAIToBeOutsideBounds && IsOutsideBounds(player.Position, ctx))
         {
@@ -91,7 +92,7 @@ public struct NavigationDecision
 
         for (var i = 0; i < len; ++i)
         {
-            var inside = localForbiddenZones[i].shapeDistance(player.Position) <= forbiddenZoneCushion - 0.1f;
+            var inside = localForbiddenZones[i].shapeDistance(player.Position) <= 0.1f;
             inZone[i] = inside;
             if (inside)
             {
@@ -327,8 +328,11 @@ public struct NavigationDecision
     {
         WPos? closest = null;
         var closestDistance = float.MaxValue;
-        foreach (var p in ctx.Map.EnumeratePixels())
+        var map = ctx.Map.EnumeratePixels();
+        var len = map.Length;
+        for (var i = 0; i < len; ++i)
         {
+            var p = map[i];
             if (ctx.Map[p.x, p.y].MaxG > 0) // assume any pixel not marked as blocked is better than being outside of bounds
             {
                 var distance = (p.center - startPos).LengthSq();

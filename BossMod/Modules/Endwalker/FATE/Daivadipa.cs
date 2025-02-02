@@ -227,4 +227,7 @@ class DaivadipaStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.Fate, GroupID = 1763, NameID = 10269)]
-public class Daivadipa(WorldState ws, Actor primary) : BossModule(ws, primary, new(-608, 811), new ArenaBoundsSquare(24.5f));
+public class Daivadipa(WorldState ws, Actor primary) : BossModule(ws, primary, new(-608, 811), new ArenaBoundsSquare(24.5f))
+{
+    protected override bool CheckPull() => base.CheckPull() && (Center - Raid.Player()!.Position).LengthSq() < 625;
+}

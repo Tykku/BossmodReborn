@@ -247,7 +247,8 @@ public sealed record class AOEShapeCustom(IReadOnlyList<Shape> Shapes1, IReadOnl
         if (Shapes2 != null)
         {
             Polygon = clipper.Simplify(shapes1);
-            for (var i = 0; i < Shapes2.Count; ++i)
+            var count = Shapes2.Count;
+            for (var i = 0; i < count; ++i)
             {
                 var shape = Shapes2[i];
                 var singleShapeOperand = CreateOperandFromShape(shape, origin);
@@ -312,27 +313,31 @@ public sealed record class AOEShapeCustom(IReadOnlyList<Shape> Shapes1, IReadOnl
     public override void Outline(MiniArena arena, WPos origin, Angle rotation, uint color = 0)
     {
         var combinedPolygon = Polygon ?? GetCombinedPolygon(origin);
-        for (var i = 0; i < combinedPolygon.Parts.Count; ++i)
+        var count = combinedPolygon.Parts.Count;
+        for (var i = 0; i < count; ++i)
         {
             var part = combinedPolygon.Parts[i];
-            var exteriorEdges = part.ExteriorEdges.ToList();
-            for (var j = 0; j < exteriorEdges.Count; ++j)
+            var exteriorEdges = part.ExteriorEdges;
+            var exteriorCount = exteriorEdges.Count;
+            for (var j = 0; j < exteriorCount; ++j)
             {
                 var (start, end) = exteriorEdges[j];
                 arena.PathLineTo(origin + start);
-                if (j != exteriorEdges.Count - 1)
+                if (j != exteriorCount - 1)
                     arena.PathLineTo(origin + end);
             }
             MiniArena.PathStroke(true, color);
 
-            foreach (var holeIndex in part.Holes)
+            var lenHoles = part.Holes.Length;
+            for (var k = 0; k < lenHoles; ++k)
             {
-                var interiorEdges = part.InteriorEdges(holeIndex).ToList();
-                for (var j = 0; j < interiorEdges.Count; ++j)
+                var interiorEdges = part.InteriorEdges(part.Holes[k]);
+                var interiorCount = interiorEdges.Count;
+                for (var j = 0; j < interiorCount; ++j)
                 {
                     var (start, end) = interiorEdges[j];
                     arena.PathLineTo(origin + start);
-                    if (j != interiorEdges.Count - 1)
+                    if (j != interiorCount - 1)
                         arena.PathLineTo(origin + end);
                 }
                 MiniArena.PathStroke(true, color);

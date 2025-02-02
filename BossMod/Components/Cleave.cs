@@ -2,14 +2,14 @@
 
 // generic component for cleaving autoattacks; shows shape outline and warns when anyone other than main target is inside
 // enemy OID == 0 means 'primary actor'
-public class Cleave(BossModule module, ActionID aid, AOEShape shape, uint enemyOID = 0, bool activeForUntargetable = false, bool originAtTarget = false, bool activeWhileCasting = true) : CastCounter(module, aid)
+public class Cleave(BossModule module, ActionID aid, AOEShape shape, uint[]? enemyOID = null, bool activeForUntargetable = false, bool originAtTarget = false, bool activeWhileCasting = true) : CastCounter(module, aid)
 {
     public readonly AOEShape Shape = shape;
     public readonly bool ActiveForUntargetable = activeForUntargetable;
     public readonly bool ActiveWhileCasting = activeWhileCasting;
     public readonly bool OriginAtTarget = originAtTarget;
     public DateTime NextExpected;
-    public readonly List<Actor> Enemies = module.Enemies(enemyOID != 0 ? enemyOID : module.PrimaryActor.OID);
+    public readonly List<Actor> Enemies = module.Enemies(enemyOID ?? [module.PrimaryActor.OID]);
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {

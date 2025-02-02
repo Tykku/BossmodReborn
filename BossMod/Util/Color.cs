@@ -72,6 +72,7 @@ public static class Colors
     public static uint Other6 => _config.ArenaOther[5].ABGR;
     public static uint Other7 => _config.ArenaOther[6].ABGR;
     public static uint Other8 => _config.ArenaOther[7].ABGR;
+    public static uint Other9 => _config.ArenaOther[8].ABGR;
     public static uint Shadows => _config.Shadows.ABGR;
     public static uint CardinalN => _config.CardinalN.ABGR;
     public static uint CardinalE => _config.CardinalE.ABGR;

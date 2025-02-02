@@ -4,6 +4,7 @@ using Dalamud.Memory;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.Game.Fate;
 using FFXIVClientStructs.FFXIV.Client.Game.Group;
 using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
@@ -142,7 +143,7 @@ sealed class WorldStateGameSync : IDisposable
         _interceptor.Dispose();
     }
 
-    public unsafe void Update(TimeSpan prevFramePerf)
+    public unsafe void Update(ref TimeSpan prevFramePerf)
     {
         var fwk = Framework.Instance();
         _ws.Execute(new WorldState.OpFrameStart
@@ -183,6 +184,7 @@ sealed class WorldStateGameSync : IDisposable
         UpdateActors();
         UpdateParty();
         UpdateClient();
+        UpdateDeepDungeon();
     }
 
     private unsafe void UpdateWaymarks()
@@ -200,9 +202,10 @@ sealed class WorldStateGameSync : IDisposable
     private unsafe void UpdateActors()
     {
         var mgr = GameObjectManager.Instance();
-        for (var i = 0; i < _actorsByIndex.Length; ++i)
+        var len = _actorsByIndex.Length;
+        for (var i = 0; i < len; ++i)
         {
-            var actor = _actorsByIndex[i];
+            ref var actor = ref _actorsByIndex[i];
             var obj = mgr->Objects.IndexSorted[i].Value;
 
             if (obj != null && obj->EntityId == InvalidEntityId)
@@ -216,8 +219,7 @@ sealed class WorldStateGameSync : IDisposable
 
             if (actor != null && (obj == null || actor.InstanceID != obj->EntityId))
             {
-                _actorsByIndex[i] = null;
-                RemoveActor(actor);
+                RemoveActor(ref actor);
                 actor = null;
             }
 
@@ -227,7 +229,7 @@ sealed class WorldStateGameSync : IDisposable
                 {
                     Service.Log($"[WorldState] Actor position mismatch for #{i} {actor}");
                 }
-                UpdateActor(obj, i, actor);
+                UpdateActor(ref obj, i, ref actor);
             }
         }
 
@@ -236,13 +238,14 @@ sealed class WorldStateGameSync : IDisposable
         _actorOps.Clear();
     }
 
-    private void RemoveActor(Actor actor)
+    private void RemoveActor(ref Actor actor)
     {
-        DispatchActorEvents(actor.InstanceID);
-        _ws.Execute(new ActorState.OpDestroy(actor.InstanceID));
+        var id = actor.InstanceID;
+        DispatchActorEvents(id);
+        _ws.Execute(new ActorState.OpDestroy(id));
     }
 
-    private unsafe void UpdateActor(GameObject* obj, int index, Actor? act)
+    private unsafe void UpdateActor(ref GameObject* obj, int index, ref Actor? act)
     {
         var chr = obj->IsCharacter() ? (Character*)obj : null;
         var name = obj->NameString;
@@ -330,7 +333,7 @@ sealed class WorldStateGameSync : IDisposable
                     TotalTime = castInfo->BaseCastTime,
                     Interruptible = castInfo->Interruptible != 0,
                 } : null;
-            UpdateActorCastInfo(act, curCast);
+            UpdateActorCastInfo(ref act, ref curCast);
         }
 
         var sm = chr != null ? chr->GetStatusManager() : null;
@@ -350,21 +353,22 @@ sealed class WorldStateGameSync : IDisposable
                     curStatus.Extra = s.Param;
                     curStatus.ExpireAt = _ws.CurrentTime.AddSeconds(dur);
                 }
-                UpdateActorStatus(act, i, curStatus);
+                UpdateActorStatus(ref act, i, ref curStatus);
             }
         }
 
         var aeh = chr != null ? chr->GetActionEffectHandler() : null;
         if (aeh != null)
         {
-            for (int i = 0; i < aeh->IncomingEffects.Length; ++i)
+            var len = aeh->IncomingEffects.Length;
+            for (var i = 0; i < len; ++i)
             {
                 ref var eff = ref aeh->IncomingEffects[i];
                 ref var prev = ref act.IncomingEffects[i];
                 if ((prev.GlobalSequence, prev.TargetIndex) != (eff.GlobalSequence != 0 ? (eff.GlobalSequence, eff.TargetIndex) : (0, 0)))
                 {
                     var effects = new ActionEffects();
-                    for (int j = 0; j < ActionEffects.MaxCount; ++j)
+                    for (var j = 0; j < ActionEffects.MaxCount; ++j)
                         effects[j] = *(ulong*)eff.Effects.Effects.GetPointer(j);
                     _ws.Execute(new ActorState.OpIncomingEffect(act.InstanceID, i, new(eff.GlobalSequence, eff.TargetIndex, eff.Source, new((ActionType)eff.ActionType, eff.ActionId), effects)));
                 }
@@ -372,16 +376,17 @@ sealed class WorldStateGameSync : IDisposable
         }
     }
 
-    private void UpdateActorCastInfo(Actor act, ActorCastInfo? cast)
+    private void UpdateActorCastInfo(ref Actor act, ref ActorCastInfo? cast)
     {
-        if (cast == null && act.CastInfo == null)
+        ref var castInfo = ref act.CastInfo;
+        if (cast == null && castInfo == null)
             return; // was not casting and is not casting
 
-        if (cast != null && act.CastInfo != null && cast.Action == act.CastInfo.Action && cast.TargetID == act.CastInfo.TargetID && cast.TotalTime == act.CastInfo.TotalTime && Math.Abs(cast.ElapsedTime - act.CastInfo.ElapsedTime) < 0.2)
+        if (cast != null && castInfo != null && cast.Action == castInfo.Action && cast.TargetID == castInfo.TargetID && cast.TotalTime == castInfo.TotalTime && Math.Abs(cast.ElapsedTime - castInfo.ElapsedTime) < 0.2)
         {
             // continuing casting same spell
             // TODO: consider *not* ignoring elapsed differences, these probably mean we're doing something wrong...
-            act.CastInfo.ElapsedTime = cast.ElapsedTime;
+            castInfo.ElapsedTime = cast.ElapsedTime;
             return;
         }
 
@@ -389,7 +394,7 @@ sealed class WorldStateGameSync : IDisposable
         _ws.Execute(new ActorState.OpCastInfo(act.InstanceID, cast));
     }
 
-    private void UpdateActorStatus(Actor act, int index, ActorStatus value)
+    private void UpdateActorStatus(ref Actor act, int index, ref ActorStatus value)
     {
         // note: some statuses have non-zero remaining time but never tick down (e.g. FC buffs); currently we ignore that fact, to avoid log spam...
         // note: RemainingTime is not monotonously decreasing (I assume because it is really calculated by game and frametime fluctuates...), we ignore 'slight' duration increases (<1 sec)
@@ -507,9 +512,10 @@ sealed class WorldStateGameSync : IDisposable
         }
         // consider buddies as party members too
         var ui = UIState.Instance();
-        for (var i = 0; i < ui->Buddy.DutyHelperInfo.ENpcIds.Length; ++i)
+        var len = ui->Buddy.DutyHelperInfo.ENpcIds.Length;
+        for (var i = 0; i < len; ++i)
         {
-            var instanceID = ui->Buddy.DutyHelperInfo.DutyHelpers[i].EntityId;
+            ref var instanceID = ref ui->Buddy.DutyHelperInfo.DutyHelpers[i].EntityId;
             if (instanceID != InvalidEntityId && _ws.Party.FindSlot(instanceID) < 0)
             {
                 var obj = GameObjectManager.Instance()->Objects.GetObjectByEntityId(instanceID);
@@ -564,7 +570,8 @@ sealed class WorldStateGameSync : IDisposable
     private unsafe bool HasBuddy(ulong instanceID)
     {
         var ui = UIState.Instance();
-        for (var i = 0; i < ui->Buddy.DutyHelperInfo.ENpcIds.Length; ++i)
+        var len = ui->Buddy.DutyHelperInfo.ENpcIds.Length;
+        for (var i = 0; i < len; ++i)
             if (ui->Buddy.DutyHelperInfo.DutyHelpers[i].EntityId == instanceID)
                 return true;
         return false;
@@ -662,6 +669,60 @@ sealed class WorldStateGameSync : IDisposable
             _ws.Execute(new ClientState.OpFocusTargetChange(focusTargetId));
     }
 
+    private unsafe void UpdateDeepDungeon()
+    {
+        var dd = EventFramework.Instance()->GetInstanceContentDeepDungeon();
+        if (dd != null)
+        {
+            var currentId = (DeepDungeonState.DungeonType)dd->DeepDungeonId;
+            var fullUpdate = currentId != _ws.DeepDungeon.DungeonId;
+
+            var progress = new DeepDungeonState.DungeonProgress(dd->Floor, dd->ActiveLayoutIndex, dd->WeaponLevel, dd->ArmorLevel, dd->SyncedGearLevel, dd->HoardCount, dd->ReturnProgress, dd->PassageProgress);
+            if (fullUpdate || progress != _ws.DeepDungeon.Progress)
+                _ws.Execute(new DeepDungeonState.OpProgressChange(currentId, progress));
+
+            if (fullUpdate || !MemoryExtensions.SequenceEqual(_ws.DeepDungeon.Rooms.AsSpan(), dd->MapData))
+                _ws.Execute(new DeepDungeonState.OpMapDataChange(dd->MapData.ToArray()));
+
+            Span<DeepDungeonState.PartyMember> party = stackalloc DeepDungeonState.PartyMember[DeepDungeonState.NumPartyMembers];
+            for (var i = 0; i < DeepDungeonState.NumPartyMembers; ++i)
+            {
+                ref var p = ref dd->Party[i];
+                party[i] = new(SanitizedObjectID(p.EntityId), SanitizeDeepDungeonRoom(p.RoomIndex));
+            }
+            if (fullUpdate || !MemoryExtensions.SequenceEqual(_ws.DeepDungeon.Party.AsSpan(), party))
+                _ws.Execute(new DeepDungeonState.OpPartyStateChange(party.ToArray()));
+
+            Span<DeepDungeonState.PomanderState> pomanders = stackalloc DeepDungeonState.PomanderState[DeepDungeonState.NumPomanderSlots];
+            for (var i = 0; i < DeepDungeonState.NumPomanderSlots; ++i)
+            {
+                ref var item = ref dd->Items[i];
+                pomanders[i] = new(item.Count, item.Flags);
+            }
+            if (fullUpdate || !MemoryExtensions.SequenceEqual(_ws.DeepDungeon.Pomanders.AsSpan(), pomanders))
+                _ws.Execute(new DeepDungeonState.OpPomandersChange(pomanders.ToArray()));
+
+            Span<DeepDungeonState.Chest> chests = stackalloc DeepDungeonState.Chest[DeepDungeonState.NumChests];
+            for (var i = 0; i < DeepDungeonState.NumChests; ++i)
+            {
+                ref var c = ref dd->Chests[i];
+                chests[i] = new(c.ChestType, SanitizeDeepDungeonRoom(c.RoomIndex));
+            }
+            if (fullUpdate || !MemoryExtensions.SequenceEqual(_ws.DeepDungeon.Chests.AsSpan(), chests))
+                _ws.Execute(new DeepDungeonState.OpChestsChange(chests.ToArray()));
+
+            if (fullUpdate || !MemoryExtensions.SequenceEqual(_ws.DeepDungeon.Magicite.AsSpan(), dd->Magicite))
+                _ws.Execute(new DeepDungeonState.OpMagiciteChange(dd->Magicite.ToArray()));
+        }
+        else if (_ws.DeepDungeon.DungeonId != DeepDungeonState.DungeonType.None)
+        {
+            // exiting deep dungeon, clean up all state
+            _ws.Execute(new DeepDungeonState.OpProgressChange(DeepDungeonState.DungeonType.None, default));
+        }
+        // else: we were and still are outside deep dungeon, nothing to do
+    }
+
+    private byte SanitizeDeepDungeonRoom(sbyte room) => room < 0 ? (byte)0 : (byte)room;
     private ulong SanitizedObjectID(ulong raw) => raw != InvalidEntityId ? raw : 0;
 
     private void DispatchActorEvents(ulong instanceID)
@@ -669,9 +730,12 @@ sealed class WorldStateGameSync : IDisposable
         var ops = _actorOps.GetValueOrDefault(instanceID);
         if (ops == null)
             return;
-
-        foreach (var op in ops)
+        var count = ops.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var op = ops[i];
             _ws.Execute(op);
+        }
         _actorOps.Remove(instanceID);
     }
 
@@ -681,7 +745,7 @@ sealed class WorldStateGameSync : IDisposable
         var res = new List<(int, Cooldown)>(max);
         for (int i = 0, cnt = max; i < cnt; ++i)
         {
-            var value = values[i];
+            ref var value = ref values[i];
             if (value != reference[i])
                 res.Add((i, value));
         }
@@ -694,7 +758,7 @@ sealed class WorldStateGameSync : IDisposable
         var res = new List<(BozjaHolsterID, byte)>(len);
         for (var i = 0; i < len; ++i)
         {
-            var content = contents[i];
+            ref var content = ref contents[i];
             if (content != 0)
                 res.Add(((BozjaHolsterID)i, content));
         }

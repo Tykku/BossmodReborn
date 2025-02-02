@@ -157,7 +157,7 @@ public sealed class PartyState
     public Event<OpModify> Modified = new();
     public sealed record class OpModify(int Slot, Member Member) : WorldState.Operation
     {
-        protected override void Exec(WorldState ws)
+        protected override void Exec(ref WorldState ws)
         {
             if (Slot >= 0 && Slot < ws.Party.Members.Length)
             {
@@ -176,7 +176,7 @@ public sealed class PartyState
     public Event<OpLimitBreakChange> LimitBreakChanged = new();
     public sealed record class OpLimitBreakChange(int Cur, int Max) : WorldState.Operation
     {
-        protected override void Exec(WorldState ws)
+        protected override void Exec(ref WorldState ws)
         {
             ws.Party.LimitBreakCur = Cur;
             ws.Party.LimitBreakMax = Max;
