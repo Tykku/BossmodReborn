@@ -123,4 +123,8 @@ public static class Colors
     public static uint CollisionColor1 => _config.CollisionColors[0].ABGR;
     public static uint CollisionColor2 => _config.CollisionColors[1].ABGR;
     public static uint CollisionColor3 => _config.CollisionColors[2].ABGR;
+    public static uint PathfindingColor1 => _config.PathfindingColors[0].ABGR;
+    public static uint PathfindingColor2 => _config.PathfindingColors[1].ABGR;
+    public static uint PathfindingColor3 => _config.PathfindingColors[2].ABGR;
+    public static uint PathfindingColor4 => _config.PathfindingColors[3].ABGR;
 }

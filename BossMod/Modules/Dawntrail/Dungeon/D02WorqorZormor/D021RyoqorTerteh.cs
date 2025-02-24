@@ -38,13 +38,13 @@ public enum TetherID : uint
 
 class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donut = new(20, 23);
+    private static readonly AOEShapeDonut donut = new(20f, 23f);
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.FrostingFracas && Arena.Bounds == D021RyoqorTerteh.StartingBounds)
+        if (spell.Action.ID == (uint)AID.FrostingFracas && Arena.Bounds == D021RyoqorTerteh.StartingBounds)
             _aoe = new(donut, Arena.Center, default, Module.CastFinishAt(spell, 0.6f));
     }
 
@@ -60,8 +60,8 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 
 class IceScreamFrozenSwirl(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeRect rect = new(20, 10);
-    private static readonly AOEShapeCircle circle = new(15);
+    private static readonly AOEShapeRect rect = new(20f, 10f);
+    private static readonly AOEShapeCircle circle = new(15f);
     private readonly List<AOEInstance> _aoesCircle = new(4), _aoesRect = new(4);
     private readonly List<Actor> circleAOE = new(4), rectAOE = new(4);
 
@@ -81,9 +81,9 @@ class IceScreamFrozenSwirl(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.QorrlohTeh1)
+        if (actor.OID == (uint)OID.QorrlohTeh1)
             circleAOE.Add(actor);
-        else if ((OID)actor.OID == OID.RorrlohTeh)
+        else if (actor.OID == (uint)OID.RorrlohTeh)
             rectAOE.Add(actor);
     }
 
@@ -125,16 +125,16 @@ class IceScreamFrozenSwirl(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoesRect.Count != 0 && (AID)spell.Action.ID == AID.IceScream)
+        if (_aoesRect.Count != 0 && spell.Action.ID == (uint)AID.IceScream)
             _aoesRect.RemoveAt(0);
-        else if (_aoesCircle.Count != 0 && (AID)spell.Action.ID == AID.FrozenSwirl)
+        else if (_aoesCircle.Count != 0 && spell.Action.ID == (uint)AID.FrozenSwirl)
             _aoesCircle.RemoveAt(0);
     }
 }
 
 class FrostingFracas(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FrostingFracas));
-class SnowBoulder(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SnowBoulder), new AOEShapeRect(50, 3), 6);
-class SparklingSprinkling(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SparklingSprinkling), 5);
+class SnowBoulder(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SnowBoulder), new AOEShapeRect(50f, 3f), 6);
+class SparklingSprinkling(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SparklingSprinkling), 5f);
 
 class D021RyoqorTertehStates : StateMachineBuilder
 {
@@ -152,7 +152,7 @@ class D021RyoqorTertehStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 824, NameID = 12699)]
 public class D021RyoqorTerteh(WorldState ws, Actor primary) : BossModule(ws, primary, StartingBounds.Center, StartingBounds)
 {
-    private static readonly WPos arenaCenter = new(-108, 119);
+    private static readonly WPos arenaCenter = new(-108f, 119f);
     public static readonly ArenaBoundsComplex StartingBounds = new([new Polygon(arenaCenter, 22.5f, 52)]);
-    public static readonly ArenaBoundsComplex DefaultBounds = new([new Polygon(arenaCenter, 20, 52)]);
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Polygon(arenaCenter, 20f, 52)]);
 }

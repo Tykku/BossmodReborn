@@ -16,17 +16,17 @@ public enum AID : uint
     unknown = 32236, // Boss->self, no cast, single-target, seems to be connected to Aetherial Light
     LightburstVisual = 32289, // Boss->self, 3.3s cast, single-target
     Lightburst = 32290, // Helper->player, 5.0s cast, single-target
-    Shine = 32291, // Boss->self, 1.3s cast, single-target
-    Shine2 = 32292, // Helper->location, 3.0s cast, range 5 circle
+    ShineVisual = 32291, // Boss->self, 1.3s cast, single-target
+    Shine = 32292, // Helper->location, 3.0s cast, range 5 circle
     Summon = 32288, // Boss->self, 1.3s cast, single-target, spawns bonus loot adds
     Telega = 9630 // GymnasiouLampas->self, no cast, single-target, bonus loot add despawn
 }
 
-class Shine(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shine2), 5);
+class Shine(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shine), 5f);
 
 class AetherialLight : Components.SimpleAOEs
 {
-    public AetherialLight(BossModule module) : base(module, ActionID.MakeSpell(AID.AetherialLight), new AOEShapeCone(40, 30.Degrees()), 4) { MaxDangerColor = 2; }
+    public AetherialLight(BossModule module) : base(module, ActionID.MakeSpell(AID.AetherialLight), new AOEShapeCone(40f, 30f.Degrees()), 4) { MaxDangerColor = 2; }
 }
 
 class Lightburst(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Lightburst));
@@ -41,7 +41,17 @@ class LampasChrysineStates : StateMachineBuilder
             .ActivateOnEnter<AetherialLight>()
             .ActivateOnEnter<Lightburst>()
             .ActivateOnEnter<Summon>()
-            .Raw.Update = () => module.Enemies(LampasChrysine.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(LampasChrysine.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -53,17 +63,18 @@ public class LampasChrysine(WorldState ws, Actor primary) : THTemplate(ws, prima
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.GymnasiouLampas), Colors.Vulnerable);
+        Arena.Actors(Enemies((uint)OID.GymnasiouLampas), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.GymnasiouLampas => 1,
+                (uint)OID.GymnasiouLampas => 1,
                 _ => 0
             };
         }

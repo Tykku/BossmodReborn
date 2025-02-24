@@ -29,13 +29,13 @@ public enum AID : uint
     Agaricus = 41661 // DeathCap->self, 3.0s cast, range 5 circle
 }
 
-class CursedSphere(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CursedSphere), 3);
-class WaterIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaterIII), 7);
-class BubbleShower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BubbleShower), new AOEShapeCone(6, 30.Degrees()));
-class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
-class Agaricus(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Agaricus), 5);
-class Beatdown(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Beatdown), new AOEShapeRect(9, 1.5f));
-class SpiderWeb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpiderWeb), 6);
+class CursedSphere(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CursedSphere), 3f);
+class WaterIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaterIII), 7f);
+class BubbleShower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BubbleShower), new AOEShapeCone(6f, 30f.Degrees()));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15f, 60f.Degrees()));
+class Agaricus(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Agaricus), 5f);
+class Beatdown(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Beatdown), new AOEShapeRect(9f, 1.5f));
+class SpiderWeb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpiderWeb), 6f);
 class HundredFists(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.HundredFists), showNameInHint: true);
 
 public class A10AquariusStates : StateMachineBuilder
@@ -51,7 +51,17 @@ public class A10AquariusStates : StateMachineBuilder
             .ActivateOnEnter<SpiderWeb>()
             .ActivateOnEnter<HundredFists>()
             .ActivateOnEnter<Agaricus>()
-            .Raw.Update = () => Module.Enemies(A10Aquarius.Trash).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(A10Aquarius.Trash);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -80,7 +90,7 @@ public class A10Aquarius(WorldState ws, Actor primary) : BossModule(ws, primary,
     new(-410.14f, 755.88f), new(-409.01f, 756.23f), new(-409.3f, 759.38f), new(-409.32f, 760.07f), new(-407.32f, 764.18f),
     new(-407.06f, 764.83f), new(-405.69f, 770.83f), new(-402.62f, 778.61f), new(-402.54f, 779.34f), new(-404.95f, 792.13f),
     new(-404.88f, 792.77f), new(-403.92f, 794.71f), new(-404.14f, 810.99f), new(-403.93f, 815.01f), new(-412.73f, 817.93f),
-    new(-413.45f, 818), new(-427.66f, 817.49f), new(-428.17f, 817.69f), new(-429.68f, 822.64f), new(-429.97f, 823.22f),
+    new(-413.45f, 818f), new(-427.66f, 817.49f), new(-428.17f, 817.69f), new(-429.68f, 822.64f), new(-429.97f, 823.22f),
     new(-431.56f, 825.26f), new(-432.02f, 825.68f), new(-432.24f, 825.13f), new(-439.69f, 821.71f), new(-440.34f, 821.33f),
     new(-440.26f, 820.77f), new(-440.05f, 820.31f), new(-439.57f, 819.75f), new(-438.55f, 818.8f), new(-436.36f, 816.11f),
     new(-436.1f, 815.58f), new(-437.12f, 802.89f), new(-443.22f, 794.68f), new(-443.57f, 786.54f), new(-441.28f, 772.63f),

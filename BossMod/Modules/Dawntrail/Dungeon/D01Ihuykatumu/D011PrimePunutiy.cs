@@ -57,41 +57,41 @@ public enum TetherID : uint
     BaitAway = 17, // ProdigiousPunutiy/Punutiy/PetitPunutiy->player
 }
 
-class HydrowaveBait(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(60, 15.Degrees()), (uint)TetherID.BaitAway, ActionID.MakeSpell(AID.HydrowaveBait), (uint)OID.Punutiy, 8.6f)
+class HydrowaveBait(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(60f, 15f.Degrees()), (uint)TetherID.BaitAway, ActionID.MakeSpell(AID.HydrowaveBait), (uint)OID.Punutiy, 8.6f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
         if (CurrentBaits.Any(x => x.Target == actor))
-            hints.AddForbiddenZone(ShapeDistance.Rect(Arena.Center - new WDir(0, -18), Arena.Center - new WDir(0, 18), 18), WorldState.FutureTime(ActivationDelay));
+            hints.AddForbiddenZone(ShapeDistance.Rect(Arena.Center - new WDir(0f, -18f), Arena.Center - new WDir(0f, 18f), 18), WorldState.FutureTime(ActivationDelay));
     }
 
     public override void OnUntethered(Actor source, ActorTetherInfo tether) { } // snapshot is ~0.6s after tether disappears
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.HydrowaveBait)
+        if (spell.Action.ID == (uint)AID.HydrowaveBait)
             CurrentBaits.Clear();
     }
 }
 
-class Resurface(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Resurface), new AOEShapeCone(100, 30.Degrees()));
+class Resurface(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Resurface), Inhale.Cone);
 class Inhale(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
-    private static readonly AOEShapeCone cone = new(100, 30.Degrees());
+    public static readonly AOEShapeCone Cone = new(100f, 30f.Degrees());
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Resurface)
-            _aoe = new(cone, new(15, -95), spell.Rotation, Module.CastFinishAt(spell)); // Resurface and Inhale origin are not identical, but almost 0.4y off
+        if (spell.Action.ID == (uint)AID.Resurface)
+            _aoe = new(Cone, new(15f, -95f), spell.Rotation, Module.CastFinishAt(spell)); // Resurface and Inhale origin are not identical, but almost 0.4y off
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.Inhale)
+        if (spell.Action.ID == (uint)AID.Inhale)
             if (++NumCasts == 6)
             {
                 _aoe = null;
@@ -101,100 +101,111 @@ class Inhale(BossModule module) : Components.GenericAOEs(module)
 }
 
 class PunutiyPress(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PunutiyPress));
-class Hydrowave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrowave), new AOEShapeCone(60, 15.Degrees()));
+class Hydrowave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrowave), new AOEShapeCone(60f, 15f.Degrees()));
 
 class BuryDecay(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
-    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(12), new AOEShapeRect(35, 5), new AOEShapeCircle(8), new AOEShapeCircle(4),
-    new AOEShapeRect(25, 3), new AOEShapeCircle(6), new AOEShapeRect(25, 3), new AOEShapeRect(35, 5), new AOEShapeDonut(6, 40)];
-    private static readonly HashSet<AID> castEnd = [AID.Bury1, AID.Bury2, AID.Bury3, AID.Bury4, AID.Bury5, AID.Bury6, AID.Bury7, AID.Bury8, AID.Decay];
+    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(12f), new AOEShapeRect(35f, 5f), new AOEShapeCircle(8f), new AOEShapeCircle(4f),
+    new AOEShapeRect(25f, 3f), new AOEShapeCircle(6f), new AOEShapeRect(25f, 3f), new AOEShapeRect(35f, 5f), new AOEShapeDonut(6f, 40f)];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        List<AOEInstance> aoes = new(count);
+        var aoes = new AOEInstance[count];
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
             if (i < 2)
-                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
-            else if (i > 1)
-                aoes.Add(aoe);
+                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
+            else
+                aoes[i] = aoe;
         }
         return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        void AddAOE(AOEShape shape)
-        => _aoes.Add(new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
-        switch ((AID)spell.Action.ID)
+        void AddAOE(AOEShape shape) => _aoes.Add(new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
+        switch (spell.Action.ID)
         {
-            case AID.Bury1:
+            case (uint)AID.Bury1:
                 AddAOE(_shapes[0]);
                 break;
-            case AID.Bury2:
+            case (uint)AID.Bury2:
                 AddAOE(_shapes[1]);
                 break;
-            case AID.Bury3:
+            case (uint)AID.Bury3:
                 AddAOE(_shapes[2]);
                 break;
-            case AID.Bury4:
+            case (uint)AID.Bury4:
                 AddAOE(_shapes[3]);
                 break;
-            case AID.Bury5:
+            case (uint)AID.Bury5:
                 AddAOE(_shapes[4]);
                 break;
-            case AID.Bury6:
+            case (uint)AID.Bury6:
                 AddAOE(_shapes[5]);
                 break;
-            case AID.Bury7:
+            case (uint)AID.Bury7:
                 AddAOE(_shapes[6]);
                 break;
-            case AID.Bury8:
+            case (uint)AID.Bury8:
                 AddAOE(_shapes[7]);
                 break;
-            case AID.Decay:
+            case (uint)AID.Decay:
                 AddAOE(_shapes[8]);
                 break;
         }
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count != 0 && castEnd.Contains((AID)spell.Action.ID))
-            _aoes.RemoveAt(0);
+        switch (spell.Action.ID)
+        {
+            case (uint)AID.Bury1:
+            case (uint)AID.Bury2:
+            case (uint)AID.Bury3:
+            case (uint)AID.Bury4:
+            case (uint)AID.Bury5:
+            case (uint)AID.Bury6:
+            case (uint)AID.Bury7:
+            case (uint)AID.Bury8:
+            case (uint)AID.Decay:
+                if (_aoes.Count != 0)
+                    _aoes.RemoveAt(0);
+                break;
+        }
     }
 }
 
-class PunutiyFlop1(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PunutiyFlop1), 14);
-class PunutiyFlop2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PunutiyFlop2), 6);
+class PunutiyFlop1(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PunutiyFlop1), 14f);
+class PunutiyFlop2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PunutiyFlop2), 6f);
 
 class ShoreShaker(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 {
-    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(10), new AOEShapeDonut(10, 20), new AOEShapeDonut(20, 30)];
+    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(10f), new AOEShapeDonut(10f, 20f), new AOEShapeDonut(20f, 30f)];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ShoreShaker1)
-            AddSequence(Arena.Center, Module.CastFinishAt(spell));
+        if (spell.Action.ID == (uint)AID.ShoreShaker1)
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0)
+        if (Sequences.Count != 0)
         {
-            var order = (AID)spell.Action.ID switch
+            var order = spell.Action.ID switch
             {
-                AID.ShoreShaker1 => 0,
-                AID.ShoreShaker2 => 1,
-                AID.ShoreShaker3 => 2,
+                (uint)AID.ShoreShaker1 => 0,
+                (uint)AID.ShoreShaker2 => 1,
+                (uint)AID.ShoreShaker3 => 2,
                 _ => -1
             };
-            AdvanceSequence(order, Arena.Center, WorldState.FutureTime(2));
+            AdvanceSequence(order, Arena.Center, WorldState.FutureTime(2d));
         }
     }
 }

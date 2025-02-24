@@ -40,7 +40,17 @@ class D060SixthLegionMagitekVanguardH1States : StateMachineBuilder
             .ActivateOnEnter<CermetDrill>()
             .ActivateOnEnter<Heartstopper>()
             .ActivateOnEnter<Stoneskin>()
-            .Raw.Update = () => module.Enemies(D060SixthLegionMagitekVanguardH1.Trash).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D060SixthLegionMagitekVanguardH1.Trash);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -60,7 +70,18 @@ public class D060SixthLegionMagitekVanguardH1(WorldState ws, Actor primary) : Bo
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
     public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.SixthLegionTesserarius, (uint)OID.SixthLegionOptio, (uint)OID.SixthLegionMedicus];
 
-    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat);
+    protected override bool CheckPull()
+    {
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.InCombat)
+                return true;
+        }
+        return false;
+    }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

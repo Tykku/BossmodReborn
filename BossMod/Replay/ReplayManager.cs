@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace BossMod;
 
-public sealed class ReplayManager(RotationDatabase rotationDB, string logDirectory) : IDisposable
+public sealed class ReplayManager : IDisposable
 {
     private sealed class ReplayEntry : IDisposable
     {
@@ -19,11 +19,13 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
         public bool AutoShowWindow;
         public bool Selected;
         public bool Disposed;
+        public DateTime? InitialTime;
 
-        public ReplayEntry(string path, bool autoShow)
+        public ReplayEntry(string path, bool autoShow, DateTime? initialTime = null)
         {
             Path = path;
             AutoShowWindow = autoShow;
+            InitialTime = initialTime;
             Replay = Task.Run(() => ReplayParserLog.Parse(path, ref Progress, Cancel.Token));
         }
 
@@ -39,7 +41,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
 
         public void Show(RotationDatabase rotationDB)
         {
-            Window ??= new(Replay.Result, rotationDB);
+            Window ??= new(Replay.Result, rotationDB, InitialTime);
             Window.IsOpen = true;
             Window.BringToFront();
         }
@@ -66,21 +68,30 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
         }
     }
 
+    private static readonly ReplayManagementConfig _config = Service.Config.Get<ReplayManagementConfig>();
     private readonly List<ReplayEntry> _replayEntries = [];
     private readonly List<AnalysisEntry> _analysisEntries = [];
     private int _nextAnalysisId;
     private string _path = "";
     private FileDialog? _fileDialog;
-    private string _logDirectory = logDirectory;
-    private readonly RotationDatabase _rotationDB = rotationDB;
+    private string _logDirectory;
+    private readonly RotationDatabase _rotationDB;
 
     public void SetLogDirectory(string logDirectory)
     {
         _logDirectory = logDirectory;
     }
 
+    public ReplayManager(RotationDatabase rotationDB, string logDirectory)
+    {
+        _rotationDB = rotationDB;
+        _logDirectory = logDirectory;
+        RestoreHistory();
+    }
+
     public void Dispose()
     {
+        SaveHistory();
         foreach (var e in _analysisEntries)
             e.Dispose();
         foreach (var e in _replayEntries)
@@ -182,6 +193,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
                 e.Dispose();
                 foreach (var a in _analysisEntries.Where(a => !a.Disposed && a.Replays.Contains(e)))
                     a.Dispose();
+                SaveHistory();
                 dispose = true;
             }
 
@@ -218,6 +230,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
                     e.Dispose();
                 foreach (var e in _analysisEntries.Where(e => e.Replays.Any(r => r.Selected)))
                     e.Dispose();
+                SaveHistory();
             }
         }
         ImGui.SameLine();
@@ -227,6 +240,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
                 e.Dispose();
             foreach (var e in _analysisEntries)
                 e.Dispose();
+            SaveHistory();
             dispose = true;
         }
         if (dispose) //  replays somehow don't get cleaned up correctly without this?
@@ -248,6 +262,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
             if (ImGui.Button("Open"))
             {
                 _replayEntries.Add(new(_path, true));
+                SaveHistory();
             }
         }
         ImGui.SameLine();
@@ -266,6 +281,7 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
             if (ImGui.Button("Load all"))
             {
                 LoadAll(_path);
+                SaveHistory();
             }
         }
     }
@@ -310,5 +326,30 @@ public sealed class ReplayManager(RotationDatabase rotationDB, string logDirecto
         player.WorldState.Frame.Timestamp = r.Ops[0].Timestamp; // so that we get correct name etc.
         using var relogger = new ReplayRecorder(player.WorldState, format, false, new DirectoryInfo(_logDirectory), format.ToString());
         player.AdvanceTo(DateTime.MaxValue, () => { });
+    }
+
+    private void SaveHistory()
+    {
+        if (!_config.RememberReplays)
+            return;
+        var replayHistory = new List<ReplayMemory>();
+
+        foreach (var r in _replayEntries)
+        {
+            var isOpen = r.Window?.IsOpen ?? true;
+            var currentTime = r.Window?.CurrentTime ?? default;
+            replayHistory.Add(new ReplayMemory(r.Path, isOpen, currentTime));
+        }
+
+        _config.ReplayHistory = replayHistory;
+        _config.Modified.Fire();
+    }
+
+    private void RestoreHistory()
+    {
+        if (!_config.RememberReplays)
+            return;
+        foreach (var memory in _config.ReplayHistory)
+            _replayEntries.Add(new(memory.Path, memory.IsOpen, _config.RememberReplayTimes ? memory.PlaybackPosition : null));
     }
 }

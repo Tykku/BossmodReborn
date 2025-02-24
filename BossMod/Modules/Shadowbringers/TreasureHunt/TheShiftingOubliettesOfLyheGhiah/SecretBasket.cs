@@ -49,11 +49,12 @@ class Earthquake(BossModule module) : Components.RaidwideCastDelay(module, Actio
 
 class HeavyStrike(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 {
-    private static readonly AOEShape[] _shapes = [new AOEShapeCone(6.5f, 135.Degrees()), new AOEShapeDonutSector(6.5f, 12.5f, 135.Degrees()), new AOEShapeDonutSector(12.5f, 18.5f, 135.Degrees())];
+    private static readonly Angle a135 = 135f.Degrees();
+    private static readonly AOEShape[] _shapes = [new AOEShapeCone(6.5f, a135), new AOEShapeDonutSector(6.5f, 12.5f, a135), new AOEShapeDonutSector(12.5f, 18.5f, a135)];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.HeavyStrike1)
+        if (spell.Action.ID == (uint)AID.HeavyStrike1)
             AddSequence(spell.LocXZ, Module.CastFinishAt(spell), spell.Rotation);
     }
 
@@ -61,22 +62,22 @@ class HeavyStrike(BossModule module) : Components.ConcentricAOEs(module, _shapes
     {
         if (Sequences.Count != 0)
         {
-            var order = (AID)spell.Action.ID switch
+            var order = spell.Action.ID switch
             {
-                AID.HeavyStrike1 => 0,
-                AID.HeavyStrike2 => 1,
-                AID.HeavyStrike3 => 2,
+                (uint)AID.HeavyStrike1 => 0,
+                (uint)AID.HeavyStrike2 => 1,
+                (uint)AID.HeavyStrike3 => 2,
                 _ => -1
             };
-            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(1.1f), caster.Rotation);
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(1.1d), spell.Rotation);
         }
     }
 }
 
-class PollenCorona(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PollenCorona), 8);
+class PollenCorona(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PollenCorona), 8f);
 class StraightPunch(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.StraightPunch));
-class Leafcutter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Leafcutter), new AOEShapeRect(15, 2));
-class EarthCrusher(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EarthCrusher2), new AOEShapeDonut(10, 20));
+class Leafcutter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Leafcutter), new AOEShapeRect(15f, 2f));
+class EarthCrusher(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EarthCrusher2), new AOEShapeDonut(10f, 20f));
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
@@ -85,9 +86,9 @@ class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
-class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
-class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11f);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13f, 2f));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15f, 60f.Degrees()));
 
 class SecretBasketStates : StateMachineBuilder
 {
@@ -108,7 +109,17 @@ class SecretBasketStates : StateMachineBuilder
             .ActivateOnEnter<Spin>()
             .ActivateOnEnter<Mash>()
             .ActivateOnEnter<Scoop>()
-            .Raw.Update = () => module.Enemies(SecretBasket.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(SecretBasket.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -122,23 +133,24 @@ public class SecretBasket(WorldState ws, Actor primary) : THTemplate(ws, primary
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.SecretEchivore));
+        Arena.Actors(Enemies((uint)OID.SecretEchivore));
         Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.SecretOnion => 6,
-                OID.SecretEgg => 5,
-                OID.SecretGarlic => 4,
-                OID.SecretTomato or OID.FuathTrickster => 3,
-                OID.SecretQueen or OID.KeeperOfKeys => 2,
-                OID.SecretEchivore => 1,
+                (uint)OID.SecretOnion => 6,
+                (uint)OID.SecretEgg => 5,
+                (uint)OID.SecretGarlic => 4,
+                (uint)OID.SecretTomato or (uint)OID.FuathTrickster => 3,
+                (uint)OID.SecretQueen or (uint)OID.KeeperOfKeys => 2,
+                (uint)OID.SecretEchivore => 1,
                 _ => 0
             };
         }

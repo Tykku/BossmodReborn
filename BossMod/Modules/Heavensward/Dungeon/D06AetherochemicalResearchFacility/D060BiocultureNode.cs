@@ -48,27 +48,27 @@ class Hole(BossModule module) : BossComponent(module)
     {
         if (state == 0x00040008)
         {
-            if ((OID)actor.OID == OID.Boss1Hole)
+            if (actor.OID == (uint)OID.Boss1Hole)
                 Arena.Bounds = D060BiocultureNode.Arena1b;
-            else if ((OID)actor.OID == OID.Boss2Hole)
+            else if (actor.OID == (uint)OID.Boss2Hole)
                 Arena.Bounds = D060BiocultureNode.Arena2b;
         }
     }
 }
 
 class Puncture(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Puncture), new AOEShapeRect(5.5f, 1.5f));
-class TailSlap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TailSlap), new AOEShapeCone(7, 60.Degrees()));
-class CalcifyingMist(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CalcifyingMist), new AOEShapeCone(6.9f, 45.Degrees()));
+class TailSlap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TailSlap), new AOEShapeCone(7f, 60f.Degrees()));
+class CalcifyingMist(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CalcifyingMist), new AOEShapeCone(6.9f, 45f.Degrees()));
 class EerieSoundwave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EerieSoundwave), 7.5f);
 
-abstract class MarrowDrain(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(9.7f, 60.Degrees()));
+abstract class MarrowDrain(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(9.7f, 60f.Degrees()));
 class MarrowDrain1(BossModule module) : MarrowDrain(module, AID.MarrowDrain1);
 class MarrowDrain2(BossModule module) : MarrowDrain(module, AID.MarrowDrain2);
 class MarrowDrain3(BossModule module) : MarrowDrain(module, AID.MarrowDrain3);
 
 class TheRamsVoice(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheRamsVoice), 9.7f);
-class Sideswipe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Sideswipe), new AOEShapeCone(9, 45.Degrees()));
-class Gust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Gust), 3);
+class Sideswipe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Sideswipe), new AOEShapeCone(9f, 45f.Degrees()));
+class Gust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Gust), 3f);
 
 class D060BiocultureNodeStates : StateMachineBuilder
 {
@@ -86,14 +86,25 @@ class D060BiocultureNodeStates : StateMachineBuilder
             .ActivateOnEnter<TheRamsVoice>()
             .ActivateOnEnter<Sideswipe>()
             .ActivateOnEnter<Gust>()
-            .Raw.Update = () => module.Enemies(module.Bounds == D060BiocultureNode.Arena1 || module.Bounds == D060BiocultureNode.Arena1b ? D060BiocultureNode.Trash1 : D060BiocultureNode.Trash2).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(module.Bounds == D060BiocultureNode.Arena1 || module.Bounds == D060BiocultureNode.Arena1b ? D060BiocultureNode.Trash1 : D060BiocultureNode.Trash2);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 38, NameID = 3830, SortOrder = 5)]
 public class D060BiocultureNode(WorldState ws, Actor primary) : BossModule(ws, primary, IsArena1(primary) ? Arena1.Center : arena2.Center, IsArena1(primary) ? Arena1 : arena2)
 {
-    public static bool IsArena1(Actor primary) => primary.Position.Z < 250;
+    public static bool IsArena1(Actor primary) => primary.Position.Z < 250f;
 
     private static readonly WPos[] vertices1 = [new(26.19f, 163.9f), new(29.99f, 164.07f), new(30.59f, 164.12f), new(31.3f, 164.26f), new(31.59f, 164.85f),
     new(31.81f, 165.42f), new(32, 166.01f), new(32.24f, 166.6f), new(34.76f, 168.55f), new(34.99f, 169.17f),
@@ -131,7 +142,7 @@ public class D060BiocultureNode(WorldState ws, Actor primary) : BossModule(ws, p
     new(156.34f, 238.01f), new(157.31f, 238.99f), new(157.72f, 239.59f), new(157.25f, 240.09f), new(155.91f, 241.41f),
     new(155.48f, 241.89f), new(155.35f, 242.44f), new(155.74f, 242.88f), new(156.18f, 243.3f), new(159.31f, 246.46f),
     new(160.21f, 247.35f), new(160.81f, 247.64f), new(164.01f, 250.87f), new(164.5f, 251.29f), new(168.2f, 255.04f),
-    new(168.7f, 255.43f), new(169.29f, 255.76f), new(169.76f, 256.22f), new(171.24f, 257.54f), new(171.72f, 258),
+    new(168.7f, 255.43f), new(169.29f, 255.76f), new(169.76f, 256.22f), new(171.24f, 257.54f), new(171.72f, 258f),
     new(172.65f, 258.95f), new(173.15f, 259.33f), new(173.69f, 259.77f), new(176.39f, 262.67f), new(176.84f, 263.15f),
     new(177.31f, 263.53f), new(177.83f, 263.44f), new(178.29f, 263.02f), new(179.62f, 261.69f), new(180.23f, 261.89f),
     new(182.18f, 263.84f), new(202.04f, 263.92f), new(209.08f, 279.77f), new(208.68f, 280.07f), new(182.47f, 280.07f),
@@ -181,10 +192,11 @@ public class D060BiocultureNode(WorldState ws, Actor primary) : BossModule(ws, p
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            if ((OID)e.Actor.OID == OID.Boss)
+            if (e.Actor.OID == (uint)OID.Boss)
             {
                 e.Priority = 0;
                 break;

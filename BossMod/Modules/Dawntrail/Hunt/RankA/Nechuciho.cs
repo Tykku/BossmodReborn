@@ -33,15 +33,13 @@ public enum AID : uint
 
 class Level5DeathSentence(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Level5DeathSentence), true, false, "Applies Doom!");
 class SentinelRoar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SentinelRoar));
-class WordOfTheWood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CastWordOfTheWood), new AOEShapeCone(30, 90.Degrees()));
+class WordOfTheWood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CastWordOfTheWood), new AOEShapeCone(30f, 90f.Degrees()));
 
 class WhispersOfTheWood(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly Angle a180 = 180.Degrees(), a90 = 90.Degrees(), a0 = 0.Degrees();
+    private static readonly Angle a180 = 180f.Degrees(), a90 = 90f.Degrees();
     private static readonly AOEShapeCone cone = new(30, a90);
-    private readonly List<AOEInstance> _aoes = [];
-    private static readonly HashSet<AID> castEnd = [AID.WordOfTheWood1, AID.WordOfTheWood2, AID.WordOfTheWood3, AID.WordOfTheWood4, AID.WordOfTheWood5,
-    AID.WordOfTheWood6, AID.WordOfTheWood7, AID.WordOfTheWood8, AID.WordOfTheWood9, AID.WordOfTheWood10, AID.WordOfTheWood11, AID.WordOfTheWood12];
+    private readonly List<AOEInstance> _aoes = new(4);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -55,41 +53,56 @@ class WhispersOfTheWood(BossModule module) : Components.GenericAOEs(module)
             var aoe = _aoes[i];
             if (i == 0)
                 aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
-            else if (i == 1)
-                aoes[i] = _aoes[0].Rotation.AlmostEqual(_aoes[1].Rotation + a180, Angle.DegToRad) ? aoe with { Risky = false } : aoe;
+            else
+                aoes[i] = aoes[0].Rotation.AlmostEqual(aoe.Rotation + a180, Angle.DegToRad) ? aoe with { Risky = false } : aoe;
         }
         return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.WhisperOfTheWood1:
-                AddAOEs([a0, -a90, a90, a180], spell);
+            case (uint)AID.WhisperOfTheWood1:
+                AddAOEs([default, -a90, a90, a180]);
                 break;
-            case AID.WhisperOfTheWood2:
-                AddAOEs([a90, a0, a180, -a90], spell);
+            case (uint)AID.WhisperOfTheWood2:
+                AddAOEs([a90, default, a180, -a90]);
                 break;
-            case AID.WhisperOfTheWood3:
-                AddAOEs([a180, a90, -a90, a0], spell);
+            case (uint)AID.WhisperOfTheWood3:
+                AddAOEs([a180, a90, -a90, default]);
                 break;
         }
-    }
-
-    private void AddAOEs(ReadOnlySpan<Angle> angles, ActorCastInfo spell)
-    {
-        for (var i = 0; i < 4; ++i)
+        void AddAOEs(Angle[] angles)
         {
-            var angle = (i == 0 ? spell.Rotation : _aoes[i - 1].Rotation) + angles[i];
-            _aoes.Add(new(cone, Module.PrimaryActor.Position, angle, Module.CastFinishAt(spell, 9.3f + 2 * i)));
+            for (var i = 0; i < 4; ++i)
+            {
+                var angle = (i == 0 ? spell.Rotation : _aoes[i - 1].Rotation) + angles[i];
+                _aoes.Add(new(cone, Module.PrimaryActor.Position, angle, Module.CastFinishAt(spell, 9.3f + 2 * i)));
+            }
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count != 0 && castEnd.Contains((AID)spell.Action.ID))
-            _aoes.RemoveAt(0);
+        if (_aoes.Count != 0)
+            switch (spell.Action.ID)
+            {
+                case (uint)AID.WordOfTheWood1:
+                case (uint)AID.WordOfTheWood2:
+                case (uint)AID.WordOfTheWood3:
+                case (uint)AID.WordOfTheWood4:
+                case (uint)AID.WordOfTheWood5:
+                case (uint)AID.WordOfTheWood6:
+                case (uint)AID.WordOfTheWood7:
+                case (uint)AID.WordOfTheWood8:
+                case (uint)AID.WordOfTheWood9:
+                case (uint)AID.WordOfTheWood10:
+                case (uint)AID.WordOfTheWood11:
+                case (uint)AID.WordOfTheWood12:
+                    _aoes.RemoveAt(0);
+                    break;
+            }
     }
 }
 

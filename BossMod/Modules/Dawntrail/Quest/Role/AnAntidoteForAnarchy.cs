@@ -66,36 +66,36 @@ public enum SID : uint
     TemporaryMisdirectionNPC = 2936 // Helper->LoashkanaTheLeal, extra=0x168
 }
 
-class StingingMalady(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StingingMalady), new AOEShapeCone(50, 30.Degrees()));
+class StingingMalady(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StingingMalady), StingingMaladyBait.Cone);
 class StingingMaladyBait(BossModule module) : Components.GenericBaitAway(module)
 {
-    private static readonly AOEShapeCone cone = new(50, 30.Degrees());
+    public static readonly AOEShapeCone Cone = new(50f, 30f.Degrees());
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.StingingMaladyMarker)
-            CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.MainTargetID)!, cone, WorldState.FutureTime(5)));
-        else if ((AID)spell.Action.ID == AID.StingingMaladyBait)
+        if (spell.Action.ID == (uint)AID.StingingMaladyMarker)
+            CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.MainTargetID)!, Cone, WorldState.FutureTime(5d)));
+        else if (spell.Action.ID == (uint)AID.StingingMaladyBait)
             CurrentBaits.Clear();
     }
 }
 
-class BewilderingBlight(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BewilderingBlight), 6);
+class BewilderingBlight(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BewilderingBlight), 6f);
 class BewilderingBlightTM(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.BewilderingBlight));
 
-abstract class SkineaterSurge(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
+abstract class SkineaterSurge(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40f, 90f.Degrees()));
 class SkineaterSurge1(BossModule module) : SkineaterSurge(module, AID.SkineaterSurge1);
 class SkineaterSurge2(BossModule module) : SkineaterSurge(module, AID.SkineaterSurge2);
 
-abstract class PoisonCloud(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10);
+abstract class PoisonCloud(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10f);
 class Burst(BossModule module) : PoisonCloud(module, AID.Burst1);
 class SkineaterSurgePoisonCloud(BossModule module) : PoisonCloud(module, AID.SkineaterSurgePoisonCloud);
 
-class SelfDestruct(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SelfDestruct), 5);
-class SelfDestructKBMammet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SelfDestructKBMammet), 7, 8);
+class SelfDestruct(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SelfDestruct), 5f);
+class SelfDestructKBMammet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SelfDestructKBMammet), 7f, 8);
 class Fester(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Fester));
 
-class TriDisaster(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.TriDisasterFirst), 5, 2, 2)
+class TriDisaster(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.TriDisasterFirst), 5f, 2, 2)
 {
     private int numCasts;
 
@@ -103,7 +103,7 @@ class TriDisaster(BossModule module) : Components.StackWithCastTargets(module, A
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.TriDisasterRest)
+        if (spell.Action.ID == (uint)AID.TriDisasterRest)
         {
             if (++numCasts == 4)
                 Stacks.Clear();
@@ -111,7 +111,10 @@ class TriDisaster(BossModule module) : Components.StackWithCastTargets(module, A
     }
 }
 
-class SuffocatingCloud(BossModule module) : Components.PersistentVoidzone(module, 9, m => m.Enemies(OID.PoisonVoidzone));
+class SuffocatingCloud(BossModule module) : Components.PersistentVoidzone(module, 9f, GetVoidzone)
+{
+    private static List<Actor> GetVoidzone(BossModule module) => module.Enemies((uint)OID.PoisonVoidzone);
+}
 
 abstract class Raidwides(BossModule module, AID aid) : Components.RaidwideCast(module, ActionID.MakeSpell(aid), "Raidwide + bleed (Esuna!)");
 class StingingAnguish(BossModule module) : Raidwides(module, AID.StingingAnguish);
@@ -120,23 +123,24 @@ class ScornOfTheScorpion(BossModule module) : Raidwides(module, AID.ScornOfTheSc
 
 class Esuna(BossModule module) : BossComponent(module)
 {
-    private readonly List<Actor> _affected = [];
+    private readonly List<Actor> _affected = new(2);
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID is SID.Bleeding or SID.HPRecoveryDown)
+        if (status.ID is (uint)SID.Bleeding or (uint)SID.HPRecoveryDown)
             _affected.Add(actor);
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID is SID.Bleeding or SID.HPRecoveryDown)
+        if (status.ID is (uint)SID.Bleeding or (uint)SID.HPRecoveryDown)
             _affected.Remove(actor);
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        var loashkana = Module.Enemies(OID.LoashkanaTheLeal).FirstOrDefault();
+        var loashkanaL = Module.Enemies(OID.LoashkanaTheLeal);
+        var loashkana = loashkanaL.Count != 0 ? loashkanaL[0] : null;
         if (_affected.Contains(actor))
             hints.Add("Use Esuna on yourself.");
         if (loashkana != null && _affected.Contains(loashkana))
@@ -145,8 +149,9 @@ class Esuna(BossModule module) : BossComponent(module)
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var c in _affected)
-            hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Esuna), c, ActionQueue.Priority.High);
+        var count = _affected.Count;
+        for (var i = 0; i < count; ++i)
+            hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Esuna), _affected[i], ActionQueue.Priority.High);
     }
 }
 

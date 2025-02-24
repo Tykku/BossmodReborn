@@ -8,11 +8,11 @@ class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
 {
     public override bool KeepOnPhaseChange => true;
 
-    public readonly List<AOEInstance> AOEs = [];
+    public readonly List<AOEInstance> AOEs = new(4);
 
-    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(9), new AOEShapeDonut(9, 16), new AOEShapeDonut(16, 23), new AOEShapeDonut(23, 30)];
+    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(9f), new AOEShapeDonut(9f, 16f), new AOEShapeDonut(16f, 23f), new AOEShapeDonut(23f, 30f)];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs.Take(1);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs.Count != 0 ? [AOEs[0]] : [];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -32,10 +32,9 @@ class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
         {
             for (var i = 0; i < AOEs.Count; ++i)
             {
-                var aoe = AOEs[i];
-                if (aoe.ActorID == caster.InstanceID)
+                if (AOEs[i].ActorID == caster.InstanceID)
                 {
-                    AOEs.Remove(aoe);
+                    AOEs.RemoveAt(i);
                     break;
                 }
             }
@@ -43,22 +42,22 @@ class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
         }
     }
 
-    private static AOEShape? ShapeForAction(ActionID aid) => (AID)aid.ID switch
+    private static AOEShape? ShapeForAction(ActionID aid) => aid.ID switch
     {
-        AID.HurricaneWingLongExpanding1 or AID.HurricaneWingShortExpanding1 or AID.HurricaneWingLongShrinking4 or AID.HurricaneWingShortShrinking4 => _shapes[0],
-        AID.HurricaneWingLongExpanding2 or AID.HurricaneWingShortExpanding2 or AID.HurricaneWingLongShrinking3 or AID.HurricaneWingShortShrinking3 => _shapes[1],
-        AID.HurricaneWingLongExpanding3 or AID.HurricaneWingShortExpanding3 or AID.HurricaneWingLongShrinking2 or AID.HurricaneWingShortShrinking2 => _shapes[2],
-        AID.HurricaneWingLongExpanding4 or AID.HurricaneWingShortExpanding4 or AID.HurricaneWingLongShrinking1 or AID.HurricaneWingShortShrinking1 => _shapes[3],
+        (uint)AID.HurricaneWingLongExpanding1 or (uint)AID.HurricaneWingShortExpanding1 or (uint)AID.HurricaneWingLongShrinking4 or (uint)AID.HurricaneWingShortShrinking4 => _shapes[0],
+        (uint)AID.HurricaneWingLongExpanding2 or (uint)AID.HurricaneWingShortExpanding2 or (uint)AID.HurricaneWingLongShrinking3 or (uint)AID.HurricaneWingShortShrinking3 => _shapes[1],
+        (uint)AID.HurricaneWingLongExpanding3 or (uint)AID.HurricaneWingShortExpanding3 or (uint)AID.HurricaneWingLongShrinking2 or (uint)AID.HurricaneWingShortShrinking2 => _shapes[2],
+        (uint)AID.HurricaneWingLongExpanding4 or (uint)AID.HurricaneWingShortExpanding4 or (uint)AID.HurricaneWingLongShrinking1 or (uint)AID.HurricaneWingShortShrinking1 => _shapes[3],
         _ => null
     };
 }
 
-class GreatWhirlwindLarge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindLarge), 10)
+class GreatWhirlwindLarge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindLarge), 10f)
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class GreatWhirlwindSmall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindSmall), 3)
+class GreatWhirlwindSmall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindSmall), 3f)
 {
     public override bool KeepOnPhaseChange => true;
 }
@@ -67,12 +66,12 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
 {
     public override bool KeepOnPhaseChange => true;
 
-    private const int Length = 5;
-    private static readonly AOEShapeCapsule capsuleSmall = new(3, Length), capsuleBig = new(9, Length);
-    private static readonly AOEShapeCircle circleSmall = new(3), circleBig = new(9);
-    private readonly List<Actor> _smallWhirldwinds = [], _bigWhirldwinds = [];
+    private const float Length = 5f;
+    private static readonly AOEShapeCapsule capsuleSmall = new(3f, Length), capsuleBig = new(9f, Length);
+    private static readonly AOEShapeCircle circleSmall = new(3f), circleBig = new(9f);
+    private readonly List<Actor> _smallWhirldwinds = new(3), _bigWhirldwinds = new(3);
     public bool Active => _smallWhirldwinds.Count != 0 || _bigWhirldwinds.Count != 0;
-    private static readonly Angle a180 = 180.Degrees();
+    private static readonly Angle a180 = 180f.Degrees();
     private bool moving;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
@@ -98,26 +97,26 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.GreatWhirlwindLarge)
+        if (spell.Action.ID == (uint)AID.GreatWhirlwindLarge)
         {
             _bigWhirldwinds.Add(caster);
             moving = false;
         }
-        else if ((AID)spell.Action.ID == AID.GreatWhirlwindSmall)
+        else if (spell.Action.ID == (uint)AID.GreatWhirlwindSmall)
             _smallWhirldwinds.Add(caster);
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if ((OID)actor.OID == OID.BitingWind && id == 0x1E3C)
+        if (actor.OID == (uint)OID.BitingWind && id == 0x1E3C)
             _smallWhirldwinds.Remove(actor);
-        else if ((OID)actor.OID == OID.RavagingWind && id == 0x1E39)
+        else if (actor.OID == (uint)OID.RavagingWind && id == 0x1E39)
             _bigWhirldwinds.Remove(actor);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (!moving && (AID)spell.Action.ID is AID.GreatWhirlwindLargeAOE or AID.GreatWhirlwindSmallAOE)
+        if (!moving && spell.Action.ID is (uint)AID.GreatWhirlwindLargeAOE or (uint)AID.GreatWhirlwindSmallAOE)
             moving = true;
     }
 
@@ -130,7 +129,7 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
             return;
         var forbidden = new Func<WPos, float>[total]; // merging all forbidden zones into one to make pathfinding less demanding
 
-        const int length = Length + 5;
+        const float length = Length + 6f;
         for (var i = 0; i < countBig; ++i)
         {
             var w = _bigWhirldwinds[i];
@@ -142,16 +141,16 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
             forbidden[i + countBig] = ShapeDistance.Capsule(w.Position, !moving ? w.Rotation + a180 : w.Rotation, length, 5);
         }
 
-        hints.AddForbiddenZone(ShapeDistance.Union(forbidden), WorldState.FutureTime(1.1f));
+        hints.AddForbiddenZone(ShapeDistance.Union(forbidden), WorldState.FutureTime(1.1d));
     }
 }
 
-class HorridRoarPuddle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HorridRoarPuddle), 4)
+class HorridRoarPuddle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HorridRoarPuddle), 4f)
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class HorridRoarSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HorridRoarSpread), 8)
+class HorridRoarSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HorridRoarSpread), 8f)
 {
     public override bool KeepOnPhaseChange => true;
 }

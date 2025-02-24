@@ -96,17 +96,17 @@ class GhostlyGuise(BossModule module) : Components.GenericAOEs(module)
         if (_avoid.ActiveSpreads.Count != 0)
         {
             shape = IsGhostly(actor) ? circlesInverted : circlesAvoid;
-            activation = _avoid.ActiveSpreads.First().Activation;
+            activation = _avoid.ActiveSpreads[0].Activation;
         }
         else if (fleshbuster.isActive)
         {
             shape = IsGhostly(actor) ? circlesAvoid : circlesInverted;
             activation = fleshbuster.activation;
         }
-        else if (_seek.ActiveBaits.Any())
+        else if (_seek.ActiveBaits.Count != 0)
             shape = IsGhostly(actor) ? circlesAvoid : circlesInverted;
 
-        yield return new(shape, Module.Center, default, activation, shape == circlesInverted ? Colors.SafeFromAOE : Colors.AOE);
+        yield return new(shape, Module.Center, default, activation, shape == circlesInverted ? Colors.SafeFromAOE : 0);
     }
 
     public override void OnEventEnvControl(byte index, uint state)
@@ -130,7 +130,7 @@ class GhostlyGuise(BossModule module) : Components.GenericAOEs(module)
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
         var isGhostly = IsGhostly(actor);
-        if (fleshbuster.isActive || _seek.ActiveBaits.Any())
+        if (fleshbuster.isActive || _seek.ActiveBaits.Count != 0)
             hints.Add(GhostHint, !isGhostly);
         else if (_avoid.ActiveSpreads.Count != 0)
             hints.Add(FleshHint, isGhostly);

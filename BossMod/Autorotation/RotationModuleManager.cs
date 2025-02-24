@@ -3,6 +3,8 @@
 public interface IRotationModuleData
 {
     public Type Type { get; }
+    public RotationModuleDefinition Definition { get; }
+    public Func<RotationModuleManager, Actor, RotationModule> Builder { get; }
 }
 
 // the manager contains a set of rotation module instances corresponding to the selected preset/plan
@@ -51,6 +53,10 @@ public sealed class RotationModuleManager : IDisposable
         (uint)Roleplay.SID.BorrowedFlesh, // used specifically for In from the Cold (Endwalker)
         (uint)Roleplay.SID.FreshPerspective, // sapphire weapon quest
         565, // "Transfiguration" from certain pomanders in Palace of the Dead
+        439, // "Toad", palace of the dead
+        1546, // "Odder", heaven-on-high
+        3502, // "Owlet", EO
+        404, // "Transporting", not a transformation but prevents actions
     ];
 
     public static bool IsTransformStatus(ActorStatus st) => TransformationStatuses.Contains(st.ID);
@@ -69,8 +75,8 @@ public sealed class RotationModuleManager : IDisposable
             WorldState.Actors.InCombatChanged.Subscribe(OnCombatChanged),
             WorldState.Actors.IsDeadChanged.Subscribe(OnDeadChanged),
             WorldState.Actors.CastEvent.Subscribe(OnCastEvent),
-            WorldState.Actors.StatusGain.Subscribe((a, idx) => DirtyActiveModules(PlayerInstanceId == a.InstanceID && a.Statuses[idx].ID == (uint)Roleplay.SID.RolePlaying)),
-            WorldState.Actors.StatusLose.Subscribe((a, idx) => DirtyActiveModules(PlayerInstanceId == a.InstanceID && a.Statuses[idx].ID == (uint)Roleplay.SID.RolePlaying)),
+            WorldState.Actors.StatusGain.Subscribe((a, idx) => DirtyActiveModules(PlayerInstanceId == a.InstanceID && IsTransformStatus(a.Statuses[idx]))),
+            WorldState.Actors.StatusLose.Subscribe((a, idx) => DirtyActiveModules(PlayerInstanceId == a.InstanceID && IsTransformStatus(a.Statuses[idx]))),
             WorldState.Party.Modified.Subscribe(op => DirtyActiveModules(op.Slot == PlayerSlot)),
             WorldState.Client.ActionRequested.Subscribe(OnActionRequested),
             WorldState.Client.CountdownChanged.Subscribe(OnCountdownChanged),
@@ -111,7 +117,7 @@ public sealed class RotationModuleManager : IDisposable
         {
             var m = ActiveModules[i];
             var values = _preset?.ActiveStrategyOverrides(m.DataIndex) ?? Planner?.ActiveStrategyOverrides(m.DataIndex) ?? throw new InvalidOperationException("Both preset and plan are null, but there are active modules");
-            m.Module.Execute(values, ref target, estimatedAnimLockDelay, isMoving);
+            m.Module.Execute(values, target, estimatedAnimLockDelay, isMoving);
         }
     }
 
@@ -128,6 +134,7 @@ public sealed class RotationModuleManager : IDisposable
     public WPos ResolveTargetLocation(StrategyTarget strategy, int param, float off1, float off2) => strategy switch
     {
         StrategyTarget.PointAbsolute => new(off1, off2),
+        StrategyTarget.PointWaymark => WorldState.Waymarks[(Waymark)param] is var wm && wm != null ? new WPos(wm.Value.XZ()) + off1 * off2.Degrees().ToDirection() : default,
         StrategyTarget.PointCenter or StrategyTarget.Automatic => (Bossmods.ActiveModule?.Center + off1 * off2.Degrees().ToDirection()) ?? Player?.Position ?? default,
         _ => (ResolveTargetOverride(strategy, param)?.Position + off1 * off2.Degrees().ToDirection()) ?? Player?.Position ?? default,
     };
@@ -194,13 +201,12 @@ public sealed class RotationModuleManager : IDisposable
             var isRPMode = player.Statuses.Any(IsTransformStatus);
             for (int i = 0; i < modules.Count; ++i)
             {
-                if (!RotationModuleRegistry.Modules.TryGetValue(modules[i].Type, out var def))
+                var def = modules[i].Definition;
+                if (!def.Classes[(int)player.Class] || player.Level < def.MinLevel || player.Level > def.MaxLevel)
                     continue;
-                if (!def.Definition.Classes[(int)player.Class] || player.Level < def.Definition.MinLevel || player.Level > def.Definition.MaxLevel)
+                if (!def.CanUseWhileRoleplaying && isRPMode)
                     continue;
-                if (!def.Definition.CanUseWhileRoleplaying && isRPMode)
-                    continue;
-                res.Add(new(i, def.Definition, def.Builder(this, player)));
+                res.Add(new(i, def, modules[i].Builder(this, player)));
             }
         }
         return res;

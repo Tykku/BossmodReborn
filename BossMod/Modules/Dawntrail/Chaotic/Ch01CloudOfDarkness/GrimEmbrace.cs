@@ -10,13 +10,13 @@ class GrimEmbraceBait(BossModule module) : Components.GenericBaitAway(module)
 
     private readonly PlayerState[] _states = new PlayerState[PartyState.MaxAllianceSize];
 
-    private static readonly AOEShapeRect _shapeForward = new(8, 4);
-    private static readonly AOEShapeRect _shapeBackward = new(0, 4, 8);
+    private static readonly AOEShapeRect _shapeForward = new(8f, 4f);
+    private static readonly AOEShapeRect _shapeBackward = new(0f, 4f, 8f);
 
     public override void Update()
     {
         CurrentBaits.Clear();
-        var deadline = WorldState.FutureTime(7);
+        var deadline = WorldState.FutureTime(7d);
         foreach (var (i, p) in Raid.WithSlot(false, false, true))
         {
             ref var s = ref _states[i];
@@ -29,7 +29,7 @@ class GrimEmbraceBait(BossModule module) : Components.GenericBaitAway(module)
     {
         ref var s = ref _states[slot];
         if (s.Shape != null && s.Activation != default)
-            hints.Add($"Dodge {(s.Shape == _shapeForward ? "backward" : "forward")} in {Math.Max(0, (s.Activation - WorldState.CurrentTime).TotalSeconds):f1}s", false);
+            hints.Add($"Dodge {(s.Shape == _shapeForward ? "backward" : "forward")} in {Math.Max(0d, (s.Activation - WorldState.CurrentTime).TotalSeconds):f1}s", false);
         base.AddHints(slot, actor, hints);
     }
 
@@ -42,10 +42,10 @@ class GrimEmbraceBait(BossModule module) : Components.GenericBaitAway(module)
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
-        var shape = (TetherID)tether.ID switch
+        var shape = tether.ID switch
         {
-            TetherID.GrimEmbraceForward => _shapeForward,
-            TetherID.GrimEmbraceBackward => _shapeBackward,
+            (uint)TetherID.GrimEmbraceForward => _shapeForward,
+            (uint)TetherID.GrimEmbraceBackward => _shapeBackward,
             _ => null
         };
         if (shape != null && Raid.FindSlot(source.InstanceID) is var slot && slot >= 0 && slot < _states.Length)
@@ -54,15 +54,15 @@ class GrimEmbraceBait(BossModule module) : Components.GenericBaitAway(module)
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.DeadlyEmbrace && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0 && slot < _states.Length)
+        if (status.ID == (uint)SID.DeadlyEmbrace && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0 && slot < _states.Length)
             _states[slot].Activation = status.ExpireAt;
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.DeadlyEmbrace && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0 && slot < _states.Length)
+        if (status.ID == (uint)SID.DeadlyEmbrace && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0 && slot < _states.Length)
             _states[slot] = default;
     }
 }
 
-class GrimEmbraceAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrimEmbraceAOE), new AOEShapeRect(8, 4));
+class GrimEmbraceAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrimEmbraceAOE), new AOEShapeRect(8f, 4f));

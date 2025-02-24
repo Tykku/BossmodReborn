@@ -16,8 +16,8 @@ public enum AID : uint
 }
 
 class Swoop(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.Swoop), 2.5f);
-class FloaterTurn(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FloaterTurn), new AOEShapeDonut(4, 10));
-class SpinningAxle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinningAxle), 6);
+class FloaterTurn(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FloaterTurn), new AOEShapeDonut(4f, 10f));
+class SpinningAxle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinningAxle), 6f);
 
 class D040VanguardSentryR7States : StateMachineBuilder
 {
@@ -27,7 +27,18 @@ class D040VanguardSentryR7States : StateMachineBuilder
             .ActivateOnEnter<Swoop>()
             .ActivateOnEnter<FloaterTurn>()
             .ActivateOnEnter<SpinningAxle>()
-            .Raw.Update = () => module.Enemies(D040VanguardSentryR7.Trash).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D040VanguardSentryR7.Trash);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -52,7 +63,7 @@ public class D040VanguardSentryR7(WorldState ws, Actor primary) : BossModule(ws,
     new(-63.71f, 337.46f), new(-64.16f, 337.69f), new(-64.88f, 337.86f), new(-66.28f, 337.76f), new(-66.94f, 337.83f),
     new(-68.31f, 337.72f), new(-70.32f, 337.8f), new(-70.92f, 337.87f), new(-71.61f, 337.81f), new(-72.24f, 338.11f),
     new(-72.51f, 339.51f), new(-74.39f, 339.68f), new(-82.01f, 339.66f), new(-82.7f, 339.51f), new(-85.92f, 336.18f),
-    new(-96.32f, 335.99f), new(-96.94f, 335.95f), new(-97.81f, 335.96f), new(-98, 333.99f), new(-97.9f, 333.37f),
+    new(-96.32f, 335.99f), new(-96.94f, 335.95f), new(-97.81f, 335.96f), new(-98f, 333.99f), new(-97.9f, 333.37f),
     new(-97.88f, 332.78f), new(-97.94f, 332.15f), new(-98.06f, 331.57f), new(-105.24f, 331.38f), new(-105.63f, 331.06f),
     new(-108.96f, 326.19f), new(-109.2f, 311.78f), new(-109.26f, 311.13f), new(-110.74f, 310.93f), new(-110.74f, 310.1f),
     new(-110.51f, 309.02f), new(-110.79f, 308.4f), new(-111.16f, 308.03f), new(-110.61f, 306.2f), new(-110.59f, 295.17f),

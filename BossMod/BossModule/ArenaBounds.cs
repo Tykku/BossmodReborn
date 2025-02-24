@@ -2,10 +2,9 @@
 // radius is the largest horizontal/vertical dimension: radius for circle, max of width/height for rect
 // note: this class to represent *relative* arena bounds (relative to arena center) - the reason being that in some cases effective center moves every frame, and bounds caches a lot (clip poly & base map for pathfinding)
 // note: if arena bounds are changed, new instance is recreated; max approx error can change without recreating the instance
-public abstract record class ArenaBounds(float Radius, float MapResolution, float ScaleFactor = 1)
+public abstract record class ArenaBounds(float Radius, float MapResolution, float ScaleFactor = 1, bool AllowObstacleMap = false)
 {
     // fields below are used for clipping & drawing borders
-    public const float Half = 0.5f;
     public readonly PolygonClipper Clipper = new();
     public float MaxApproxError;
     public RelSimplifiedComplexPolygon ShapeSimplified = new();
@@ -146,7 +145,7 @@ public abstract record class ArenaBounds(float Radius, float MapResolution, floa
     }
 }
 
-public sealed record class ArenaBoundsCircle(float Radius, float MapResolution = ArenaBounds.Half) : ArenaBounds(Radius, MapResolution)
+public sealed record class ArenaBoundsCircle(float Radius, float MapResolution = 0.5f, bool AllowObstacleMap = false) : ArenaBounds(Radius, MapResolution, AllowObstacleMap: AllowObstacleMap)
 {
     private Pathfinding.Map? _cachedMap;
 
@@ -176,7 +175,7 @@ public sealed record class ArenaBoundsCircle(float Radius, float MapResolution =
 }
 
 // if rotation is 0, half-width is along X and half-height is along Z
-public record class ArenaBoundsRect(float HalfWidth, float HalfHeight, Angle Rotation = default, float MapResolution = ArenaBounds.Half) : ArenaBounds(Math.Max(HalfWidth, HalfHeight), MapResolution, Rotation != default ? CalculateScaleFactor(Rotation) : 1)
+public record class ArenaBoundsRect(float HalfWidth, float HalfHeight, Angle Rotation = default, float MapResolution = 0.5f, bool AllowObstacleMap = false) : ArenaBounds(Math.Max(HalfWidth, HalfHeight), MapResolution, Rotation != default ? CalculateScaleFactor(Rotation) : 1, AllowObstacleMap)
 {
     private Pathfinding.Map? _cachedMap;
     public readonly WDir Orientation = Rotation.ToDirection();
@@ -216,19 +215,18 @@ public record class ArenaBoundsRect(float HalfWidth, float HalfHeight, Angle Rot
     }
 }
 
-public sealed record class ArenaBoundsSquare(float Radius, Angle Rotation = default, float MapResolution = ArenaBounds.Half) : ArenaBoundsRect(Radius, Radius, Rotation, MapResolution) { }
+public sealed record class ArenaBoundsSquare(float Radius, Angle Rotation = default, float MapResolution = 0.5f, bool AllowObstacleMap = false) : ArenaBoundsRect(Radius, Radius, Rotation, MapResolution, AllowObstacleMap) { }
 
 // custom complex polygon bounds
 public record class ArenaBoundsCustom : ArenaBounds
 {
-    private const float Epsilon = 1e-5f;
     private Pathfinding.Map? _cachedMap;
     public readonly RelSimplifiedComplexPolygon poly;
     private readonly (WDir, WDir)[] edges;
     public float HalfWidth, HalfHeight;
 
-    public ArenaBoundsCustom(float Radius, RelSimplifiedComplexPolygon Poly, float MapResolution = Half, float ScaleFactor = 1)
-        : base(Radius, MapResolution, ScaleFactor)
+    public ArenaBoundsCustom(float Radius, RelSimplifiedComplexPolygon Poly, float MapResolution = 0.5f, float ScaleFactor = 1, bool AllowObstacleMap = false)
+        : base(Radius, MapResolution, ScaleFactor, AllowObstacleMap)
     {
         poly = Poly;
 
@@ -269,7 +267,7 @@ public record class ArenaBoundsCustom : ArenaBounds
         var cacheKey = (poly, offset);
         if (Cache.TryGetValue(cacheKey, out var cachedResult))
             return (WDir)cachedResult;
-        if (Contains(offset) || offset.AlmostEqual(default, 1) || Math.Abs(offset.X) < 0.1f) // if actor is almost in the center of the arena, do nothing (eg donut arena)
+        if (Contains(offset) || offset.AlmostEqual(default, 1f) || Math.Abs(offset.X) < 0.1f) // if actor is almost in the center of the arena, do nothing (eg donut arena)
         {
             Cache[(poly, offset)] = offset;
             return offset;
@@ -323,33 +321,29 @@ public record class ArenaBoundsCustom : ArenaBounds
                         maxZ = vertexZ;
                 }
             }
-            HalfWidth = (maxX - minX) * Half;
-            HalfHeight = (maxZ - minZ) * Half;
+            HalfWidth = (maxX - minX) * 0.5f;
+            HalfHeight = (maxZ - minZ) * 0.5f;
         }
         var map = new Pathfinding.Map(MapResolution, default, HalfWidth, HalfHeight);
-        var pixels = map.Pixels;
+        var pixels = map.PixelMaxG;
         var width = map.Width;
         var height = map.Height;
         var resolution = map.Resolution;
-
-        var halfSample = resolution * Half - Epsilon; // tiny offset to account for floating point inaccuracies
+        map.BlockPixelsInside(new PolygonWithHolesDistanceFunction(default, poly).InvertedDistance, -1, 0.49999f * resolution); // check inner circle of the pixel
+        // now check the corners
+        var halfSample = resolution * 0.49999f; // tiny offset to account for floating point inaccuracies
 
         WDir[] sampleOffsets =
         [
         new(-halfSample, -halfSample),
-        new(-halfSample,  0),
         new(-halfSample,  halfSample),
-        new(0, -halfSample),
-        new(0, 0),
-        new(0, halfSample),
         new(halfSample, -halfSample),
-        new(halfSample, 0),
         new(halfSample, halfSample)
         ];
 
-        var dx = new WDir(resolution, 0);
-        var dy = new WDir(0, resolution);
-        var startPos = map.Center - (width * Half - Half) * dx - (height * Half - Half) * dy;
+        var dx = new WDir(resolution, 0f);
+        var dy = new WDir(0f, resolution);
+        var startPos = map.Center - ((width >> 1) - 0.5f) * dx - ((height >> 1) - 0.5f) * dy;
 
         Parallel.For(0, height, y =>
         {
@@ -357,11 +351,15 @@ public record class ArenaBoundsCustom : ArenaBounds
             var posY = startPos + y * dy;
             for (var x = 0; x < width; ++x)
             {
+                ref var pixel = ref pixels[rowOffset + x];
+                if (pixel == -1)
+                    continue;
                 var pos = posY + x * dx;
 
                 var relativeCenter = new WDir(pos.X, pos.Z);
                 var allInside = true;
-                for (var i = 0; i < 9; ++i)
+
+                for (var i = 0; i < 4; ++i)
                 {
                     if (!polygon.Contains(relativeCenter + sampleOffsets[i]))
                     {
@@ -369,9 +367,7 @@ public record class ArenaBoundsCustom : ArenaBounds
                         break;
                     }
                 }
-
-                ref var pixel = ref pixels[rowOffset + x];
-                pixel.MaxG = allInside ? float.MaxValue : -1;
+                pixel = allInside ? float.MaxValue : -1f;
             }
         });
 
@@ -387,21 +383,21 @@ public sealed record class ArenaBoundsComplex : ArenaBoundsCustom
     public readonly WPos Center;
     public bool IsCircle; // can be used by gaze component for gazes outside of the arena
 
-    public ArenaBoundsComplex(Shape[] UnionShapes, Shape[]? DifferenceShapes = null, Shape[]? AdditionalShapes = null, float MapResolution = Half, float ScaleFactor = 1)
-        : base(BuildBounds(UnionShapes, DifferenceShapes, AdditionalShapes, MapResolution, ScaleFactor, out var center, out var halfWidth, out var halfHeight))
+    public ArenaBoundsComplex(Shape[] UnionShapes, Shape[]? DifferenceShapes = null, Shape[]? AdditionalShapes = null, float MapResolution = 0.5f, float ScaleFactor = 1, bool AllowObstacleMap = false)
+        : base(BuildBounds(UnionShapes, DifferenceShapes, AdditionalShapes, MapResolution, ScaleFactor, AllowObstacleMap, out var center, out var halfWidth, out var halfHeight))
     {
         Center = center;
         HalfWidth = halfWidth;
         HalfHeight = halfHeight;
     }
 
-    private static ArenaBoundsCustom BuildBounds(Shape[] unionShapes, Shape[]? differenceShapes, Shape[]? additionalShapes, float mapResolution, float scalefactor, out WPos center, out float halfWidth, out float halfHeight)
+    private static ArenaBoundsCustom BuildBounds(Shape[] unionShapes, Shape[]? differenceShapes, Shape[]? additionalShapes, float mapResolution, float scalefactor, bool allowObstacleMap, out WPos center, out float halfWidth, out float halfHeight)
     {
         var properties = CalculatePolygonProperties(unionShapes, differenceShapes ?? [], additionalShapes ?? []);
         center = properties.Center;
         halfWidth = properties.HalfWidth;
         halfHeight = properties.HalfHeight;
-        return new(scalefactor == 1 ? properties.Radius : properties.Radius / scalefactor, properties.Poly, mapResolution, scalefactor);
+        return new(scalefactor == 1 ? properties.Radius : properties.Radius / scalefactor, properties.Poly, mapResolution, scalefactor, allowObstacleMap);
     }
 
     private static (WPos Center, float HalfWidth, float HalfHeight, float Radius, RelSimplifiedComplexPolygon Poly) CalculatePolygonProperties(Shape[] unionShapes, Shape[] differenceShapes, Shape[] additionalShapes)
@@ -431,11 +427,11 @@ public sealed record class ArenaBoundsComplex : ArenaBoundsCustom
             }
         }
 
-        var center = new WPos((minX + maxX) * Half, (minZ + maxZ) * Half);
+        var center = new WPos((minX + maxX) * 0.5f, (minZ + maxZ) * 0.5f);
         var maxDistX = Math.Max(Math.Abs(maxX - center.X), Math.Abs(minX - center.X));
         var maxDistZ = Math.Max(Math.Abs(maxZ - center.Z), Math.Abs(minZ - center.Z));
-        var halfWidth = (maxX - minX) * Half;
-        var halfHeight = (maxZ - minZ) * Half;
+        var halfWidth = (maxX - minX) * 0.5f;
+        var halfHeight = (maxZ - minZ) * 0.5f;
 
         var combinedPolyCentered = CombinePolygons(ParseShapes(unionShapes, center), ParseShapes(differenceShapes, center), ParseShapes(additionalShapes, center));
         return (center, halfWidth, halfHeight, Math.Max(maxDistX, maxDistZ), combinedPolyCentered);

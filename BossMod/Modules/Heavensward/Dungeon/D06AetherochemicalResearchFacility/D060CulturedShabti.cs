@@ -13,8 +13,8 @@ public enum AID : uint
     DeathsDoor = 1260 // Boss->self, 2.0s cast, range 20+R width 2 rect
 }
 
-class Spellsword(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spellsword), new AOEShapeCone(8.2f, 60.Degrees()));
-class DeathsDoor(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeathsDoor), new AOEShapeRect(22.2f, 1));
+class Spellsword(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spellsword), new AOEShapeCone(8.2f, 60f.Degrees()));
+class DeathsDoor(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeathsDoor), new AOEShapeRect(22.2f, 1f));
 
 class D060CulturedShabtiStates : StateMachineBuilder
 {
@@ -23,7 +23,17 @@ class D060CulturedShabtiStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<Spellsword>()
             .ActivateOnEnter<DeathsDoor>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies((uint)OID.Boss);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -71,6 +81,6 @@ public class D060CulturedShabti(WorldState ws, Actor primary) : BossModule(ws, p
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Boss));
+        Arena.Actors(Enemies((uint)OID.Boss));
     }
 }

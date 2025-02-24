@@ -42,6 +42,8 @@ public sealed class ActorState : IEnumerable<Actor>
                 ops.Add(new OpTarget(instanceID, act.TargetID));
             if (act.MountId != 0)
                 ops.Add(new OpMount(instanceID, act.MountId));
+            if (act.ForayInfo != default)
+                ops.Add(new OpForayInfo(act.InstanceID, act.ForayInfo));
             if (act.Tether.ID != 0)
                 ops.Add(new OpTether(instanceID, act.Tether));
             if (act.CastInfo != null)
@@ -134,6 +136,7 @@ public sealed class ActorState : IEnumerable<Actor>
         target.PendingMPDifferences.RemoveAll(e => predicate(e.Effect));
         target.PendingStatuses.RemoveAll(e => predicate(e.Effect));
         target.PendingDispels.RemoveAll(e => predicate(e.Effect));
+        target.PendingKnockbacks.RemoveAll(e => predicate(e));
     }
 
     // implementation of operations
@@ -164,6 +167,7 @@ public sealed class ActorState : IEnumerable<Actor>
             .Emit(HPMP.MaxHP)
             .Emit(HPMP.Shield)
             .Emit(HPMP.CurMP)
+            .Emit(HPMP.MaxMP)
             .Emit(IsTargetable)
             .Emit(IsAlly)
             .EmitActor(OwnerID)
@@ -262,7 +266,7 @@ public sealed class ActorState : IEnumerable<Actor>
             actor.HPMP = HPMP;
             ws.Actors.HPMPChanged.Fire(actor);
         }
-        public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("HP  "u8).EmitActor(InstanceID).Emit(HPMP.CurHP).Emit(HPMP.MaxHP).Emit(HPMP.Shield).Emit(HPMP.CurMP);
+        public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("HP  "u8).EmitActor(InstanceID).Emit(HPMP.CurHP).Emit(HPMP.MaxHP).Emit(HPMP.Shield).Emit(HPMP.CurMP).Emit(HPMP.MaxMP);
     }
 
     public Event<Actor> IsTargetableChanged = new();
@@ -362,6 +366,17 @@ public sealed class ActorState : IEnumerable<Actor>
             ws.Actors.MountChanged.Fire(actor);
         }
         public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("MNTD"u8).EmitActor(InstanceID).Emit(Value);
+    }
+
+    public Event<Actor> ForayInfoChanged = new();
+    public sealed record class OpForayInfo(ulong InstanceID, ActorForayInfo Value) : Operation(InstanceID)
+    {
+        protected override void ExecActor(ref WorldState ws, ref Actor actor)
+        {
+            actor.ForayInfo = Value;
+            ws.Actors.ForayInfoChanged.Fire(actor);
+        }
+        public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("FORA"u8).EmitActor(InstanceID).Emit(Value.Level).Emit(Value.Element);
     }
 
     // note: this is currently based on network events rather than per-frame state inspection
@@ -472,17 +487,19 @@ public sealed class ActorState : IEnumerable<Actor>
         protected override void ExecActor(ref WorldState ws, ref Actor actor)
         {
             ref var prev = ref actor.IncomingEffects[Index];
-            if (prev.GlobalSequence != 0 && (prev.GlobalSequence != Value.GlobalSequence || prev.TargetIndex != Value.TargetIndex))
+            var prevSeq = prev.GlobalSequence;
+            var prevIdx = prev.TargetIndex;
+            if (prevSeq != 0 && (prevSeq != Value.GlobalSequence || prevIdx != Value.TargetIndex))
             {
                 if (prev.Effects.Any(eff => eff.Type is >= ActionEffectType.Knockback and <= ActionEffectType.AttractCustom3))
-                    --actor.PendingKnockbacks;
+                    actor.PendingKnockbacks.RemoveAll(e => e.GlobalSequence == prevSeq && e.TargetIndex == prevIdx);
                 ws.Actors.IncomingEffectRemove.Fire(actor, Index);
             }
             actor.IncomingEffects[Index] = Value;
             if (Value.GlobalSequence != 0)
             {
                 if (prev.Effects.Any(eff => eff.Type is >= ActionEffectType.Knockback and <= ActionEffectType.AttractCustom3))
-                    ++actor.PendingKnockbacks;
+                    actor.PendingKnockbacks.Add(new(Value.GlobalSequence, Value.TargetIndex, Value.SourceInstanceId, ws.FutureTime(3))); // note: sometimes effect can never be applied (eg if source dies shortly after actioneffect), so we need a timeout
                 ws.Actors.IncomingEffectAdd.Fire(actor, Index);
             }
         }

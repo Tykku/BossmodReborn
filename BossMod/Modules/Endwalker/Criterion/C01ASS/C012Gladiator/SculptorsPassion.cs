@@ -5,7 +5,7 @@ abstract class SculptorsPassion(BossModule module, AID aid) : Components.Generic
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         base.OnEventCast(caster, spell);
-        if ((AID)spell.Action.ID == AID.SculptorsPassionTargetSelection)
+        if (spell.Action.ID == (uint)AID.SculptorsPassionTargetSelection)
         {
             Source = Module.PrimaryActor;
             foreach (var (slot, player) in Raid.WithSlot(true, true, true))

@@ -59,21 +59,21 @@ public enum AID : uint
     Telega = 9630 // Mandragoras/Abharamu/NamazuStickywhisker->self, no cast, single-target, bonus adds disappear
 }
 
-abstract class Hurl(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class Hurl(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
 class HurlBoss(BossModule module) : Hurl(module, AID.HurlBoss);
 class HurlBonusAdd(BossModule module) : Hurl(module, AID.Hurl);
 
-class SpinBoss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinBoss), new AOEShapeCone(20, 60.Degrees()));
-class BarbarousScream(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BarbarousScream), 14);
+class SpinBoss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinBoss), new AOEShapeCone(20f, 60f.Degrees()));
+class BarbarousScream(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BarbarousScream), 14f);
 class Buffet(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Buffet));
 
-class DoubleSmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DoubleSmash), new AOEShapeCone(7.95f, 60.Degrees()));
-class AncientAero(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AncientAero), new AOEShapeRect(13.6f, 2));
-class RingOfFire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RingOfFire), 5);
+class DoubleSmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DoubleSmash), new AOEShapeCone(7.95f, 60f.Degrees()));
+class AncientAero(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AncientAero), new AOEShapeRect(13.6f, 2f));
+class RingOfFire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RingOfFire), 5f);
 class StoneII(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.StoneII));
 
-class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 60.Degrees()));
-class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), [(uint)OID.Abharamu]);
+class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 60f.Degrees()));
+class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60f.Degrees()), [(uint)OID.Abharamu]);
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
@@ -99,7 +99,17 @@ class AiravataStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(Airavata.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(Airavata.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -120,19 +130,20 @@ public class Airavata(WorldState ws, Actor primary) : FinalRoomArena(ws, primary
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.CanalOnion => 7,
-                OID.CanalEgg => 6,
-                OID.CanalGarlic => 5,
-                OID.CanalTomato => 4,
-                OID.CanalQueen or OID.NamazuStickywhisker => 3,
-                OID.Abharamu => 2,
-                OID.CanalFireHomunculus or OID.CanalIceHomunculus or OID.CanalWindHomunculus or OID.CanalLightningHomunculus or OID.CanalAnala or OID.CanalAnila or
-                OID.GoldenApa or OID.GoldenDhara => 2,
+                (uint)OID.CanalOnion => 7,
+                (uint)OID.CanalEgg => 6,
+                (uint)OID.CanalGarlic => 5,
+                (uint)OID.CanalTomato => 4,
+                (uint)OID.CanalQueen or (uint)OID.NamazuStickywhisker => 3,
+                (uint)OID.Abharamu => 2,
+                (uint)OID.CanalFireHomunculus or (uint)OID.CanalIceHomunculus or (uint)OID.CanalWindHomunculus or (uint)OID.CanalLightningHomunculus or
+                (uint)OID.CanalAnala or (uint)OID.CanalAnila or (uint)OID.GoldenApa or (uint)OID.GoldenDhara => 1,
                 _ => 0
             };
         }

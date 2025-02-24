@@ -39,11 +39,11 @@ public enum AID : uint
     Telega = 9630 // Mandragoras/KeeperOfKeys->self, no cast, single-target, bonus adds disappear
 }
 
-class Hydrofan(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrofan), new AOEShapeCone(44, 15.Degrees()));
-class Hypnowave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hypnowave), new AOEShapeCone(30, 60.Degrees()));
-class Hydropins(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydropins), new AOEShapeRect(12, 2));
-class AquaGlobe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AquaGlobe), 8);
-class Hydrowhirl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrowhirl), 8);
+class Hydrofan(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrofan), new AOEShapeCone(44f, 15f.Degrees()));
+class Hypnowave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hypnowave), new AOEShapeCone(30f, 60f.Degrees()));
+class Hydropins(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydropins), new AOEShapeRect(12f, 2f));
+class AquaGlobe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AquaGlobe), 8f);
+class Hydrowhirl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrowhirl), 8f);
 class Hydrotaph(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Hydrotaph));
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
@@ -53,9 +53,9 @@ class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
-class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
-class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11f);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13f, 2f));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15f, 60f.Degrees()));
 
 class SecretUndineStates : StateMachineBuilder
 {
@@ -76,7 +76,17 @@ class SecretUndineStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(SecretUndine.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(SecretUndine.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -90,23 +100,24 @@ public class SecretUndine(WorldState ws, Actor primary) : THTemplate(ws, primary
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.AqueousAether));
+        Arena.Actors(Enemies((uint)OID.AqueousAether));
         Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.SecretOnion => 6,
-                OID.SecretEgg => 5,
-                OID.SecretGarlic => 4,
-                OID.SecretTomato => 3,
-                OID.SecretQueen or OID.KeeperOfKeys => 2,
-                OID.AqueousAether => 1,
+                (uint)OID.SecretOnion => 6,
+                (uint)OID.SecretEgg => 5,
+                (uint)OID.SecretGarlic => 4,
+                (uint)OID.SecretTomato => 3,
+                (uint)OID.SecretQueen or (uint)OID.KeeperOfKeys => 2,
+                (uint)OID.AqueousAether => 1,
                 _ => 0
             };
         }

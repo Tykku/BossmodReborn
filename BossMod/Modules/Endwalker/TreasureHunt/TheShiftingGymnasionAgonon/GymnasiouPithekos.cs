@@ -42,13 +42,13 @@ public enum IconID : uint
     Thundercall = 111 // Thundercall marker
 }
 
-class Spark(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spark), new AOEShapeDonut(14, 30));
+class Spark(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spark), new AOEShapeDonut(14f, 30f));
 class SweepingGouge(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SweepingGouge));
-class Thundercall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Thundercall), 3);
+class Thundercall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Thundercall), 3f);
 
 class Thundercall2(BossModule module) : Components.GenericBaitAway(module)
 {
-    private static readonly AOEShapeCircle circle = new(18);
+    private static readonly AOEShapeCircle circle = new(18f);
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
@@ -58,38 +58,40 @@ class Thundercall2(BossModule module) : Components.GenericBaitAway(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Thundercall)
+        if (spell.Action.ID == (uint)AID.Thundercall)
             CurrentBaits.Clear();
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (CurrentBaits.Any(x => x.Target == actor))
+        if (CurrentBaits.Count != 0 && CurrentBaits[0].Target == actor)
             hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 17.5f));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (CurrentBaits.Any(x => x.Target != actor))
+        if (CurrentBaits.Count == 0)
+            return;
+        if (CurrentBaits[0].Target != actor)
             base.AddHints(slot, actor, hints);
-        else if (CurrentBaits.Any(x => x.Target == actor))
+        else
             hints.Add("Bait levinorb away!");
     }
 }
 
-class RockThrow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RockThrow), 6);
-class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 6);
-class ThunderIV(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThunderIV), 18);
+class RockThrow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RockThrow), 6f);
+class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 6f);
+class ThunderIV(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThunderIV), 18f);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6f);
 
 class GymnasiouPithekosStates : StateMachineBuilder
 {
@@ -109,7 +111,17 @@ class GymnasiouPithekosStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(GymnasiouPithekos.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(GymnasiouPithekos.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -123,23 +135,24 @@ public class GymnasiouPithekos(WorldState ws, Actor primary) : THTemplate(ws, pr
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.GymnasiouPithekosMikros));
+        Arena.Actors(Enemies((uint)OID.GymnasiouPithekosMikros));
         Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.GymnasticOnion => 6,
-                OID.GymnasticEggplant => 5,
-                OID.GymnasticGarlic => 4,
-                OID.GymnasticTomato => 3,
-                OID.GymnasticQueen or OID.GymnasiouLyssa => 2,
-                OID.GymnasiouPithekosMikros => 1,
+                (uint)OID.GymnasticOnion => 6,
+                (uint)OID.GymnasticEggplant => 5,
+                (uint)OID.GymnasticGarlic => 4,
+                (uint)OID.GymnasticTomato => 3,
+                (uint)OID.GymnasticQueen or (uint)OID.GymnasiouLyssa => 2,
+                (uint)OID.GymnasiouPithekosMikros => 1,
                 _ => 0
             };
         }

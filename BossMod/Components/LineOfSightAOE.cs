@@ -125,7 +125,7 @@ public abstract class CastLineOfSightAOE : GenericLineOfSightAOE
     public void Refresh()
     {
         var caster = ActiveCaster;
-        WPos? position = caster != null ? (WorldState.Actors.Find(caster.CastInfo!.TargetID)?.Position ?? caster.CastInfo!.LocXZ) : null;
+        WPos? position = caster != null ? caster.CastInfo!.LocXZ : null;
         Modify(position, BlockerActors().Select(b => (b.Position, b.HitboxRadius)), Module.CastFinishAt(caster?.CastInfo));
     }
 }

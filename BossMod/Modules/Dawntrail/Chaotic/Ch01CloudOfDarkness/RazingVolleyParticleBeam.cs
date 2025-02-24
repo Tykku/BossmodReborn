@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Chaotic.Ch01CloudOfDarkness;
 
-class RazingVolleyParticleBeam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RazingVolleyParticleBeam), new AOEShapeRect(45, 4))
+class RazingVolleyParticleBeam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RazingVolleyParticleBeam), new AOEShapeRect(45f, 4f))
 {
     private DateTime _nextBundle;
 
@@ -9,7 +9,7 @@ class RazingVolleyParticleBeam(BossModule module) : Components.SimpleAOEs(module
         var count = Casters.Count;
         if (count == 0)
             return [];
-        var deadline = Casters[0].Activation.AddSeconds(3);
+        var deadline = Casters[0].Activation.AddSeconds(3d);
 
         var aoes = new AOEInstance[count];
         var index = 0;
@@ -35,7 +35,7 @@ class RazingVolleyParticleBeam(BossModule module) : Components.SimpleAOEs(module
         if (spell.Action == WatchedAction && WorldState.CurrentTime > _nextBundle)
         {
             ++NumCasts;
-            _nextBundle = WorldState.FutureTime(1);
+            _nextBundle = WorldState.FutureTime(1d);
         }
     }
 }

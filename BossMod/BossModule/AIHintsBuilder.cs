@@ -15,7 +15,6 @@ public sealed class AIHintsBuilder : IDisposable
     private ArenaBoundsCircle? _activeFateBounds;
     private static readonly HashSet<uint> ignore = [27503, 33626]; // action IDs that the AI should ignore
     private static readonly PartyRolesConfig _config = Service.Config.Get<PartyRolesConfig>();
-    private static readonly Dictionary<uint, (byte, byte)> _fateCache = [];
     private static readonly Dictionary<uint, (byte, byte, byte, uint, string, string, string, int, bool)> _spellCache = [];
 
     public AIHintsBuilder(WorldState ws, BossModuleManager bmm, ZoneModuleManager zmm)
@@ -38,11 +37,13 @@ public sealed class AIHintsBuilder : IDisposable
         Obstacles.Dispose();
     }
 
-    public void Update(AIHints hints, int playerSlot, float maxCastTime)
+    public void Update(AIHints hints, int playerSlot, bool moveImminent)
     {
-        hints.Clear();
-        hints.MaxCastTimeEstimate = maxCastTime;
         var player = _ws.Party[playerSlot];
+
+        hints.Clear();
+        if (moveImminent || player?.PendingKnockbacks.Count > 0)
+            hints.MaxCastTime = 0;
         if (player != null)
         {
             var playerAssignment = _config[_ws.Party.Members[playerSlot].ContentId];
@@ -64,20 +65,14 @@ public sealed class AIHintsBuilder : IDisposable
     // Fill list of potential targets from world state
     private void FillEnemies(AIHints hints, bool playerIsDefaultTank)
     {
-        uint allowedFateID = 0;
-        var activeFateID = _ws.Client.ActiveFate.ID;
-        if (activeFateID != 0)
-        {
-            var fate = GetFateData(activeFateID);
-            var playerInFate = _ws.Party.Player()?.Level <= fate.ClassJobLevelMax || fate.EurekaFate == 1;
-            allowedFateID = playerInFate ? activeFateID : 0;
-        }
+        var allowedFateID = Utils.IsPlayerSyncedToFate(_ws) ? _ws.Client.ActiveFate.ID : 0;
+
         foreach (var actor in _ws.Actors.Actors.Values)
         {
+            if (!actor.IsTargetable || actor.IsAlly || actor.IsDead)
+                continue;
             var index = actor.CharacterSpawnIndex;
             if (index < 0 || index >= hints.Enemies.Length)
-                continue;
-            if (!actor.IsTargetable || actor.IsAlly || actor.IsDead)
                 continue;
 
             int priority;
@@ -104,15 +99,7 @@ public sealed class AIHintsBuilder : IDisposable
 
     private void CalculateAutoHints(AIHints hints, Actor player)
     {
-        var inFate = false;
-        var activeFateID = _ws.Client.ActiveFate.ID;
-        if (activeFateID != 0)
-        {
-            var fate = GetFateData(activeFateID);
-            var playerInFate = _ws.Party.Player()?.Level <= fate.ClassJobLevelMax || fate.EurekaFate == 1;
-            inFate = playerInFate;
-        }
-
+        var inFate = Utils.IsPlayerSyncedToFate(_ws);
         var center = inFate ? _ws.Client.ActiveFate.Center : player.PosRot.XYZ();
         var (e, bitmap) = Obstacles.Find(center);
         var resolution = bitmap?.PixelSize ?? 0.5f;
@@ -162,7 +149,7 @@ public sealed class AIHintsBuilder : IDisposable
 
         foreach (var aoe in _activeAOEs.Values)
         {
-            var target = aoe.Target?.Position ?? aoe.Caster.CastInfo!.LocXZ;
+            var target = aoe.Caster.CastInfo!.LocXZ;
             var rot = aoe.Caster.CastInfo!.Rotation;
             var finishAt = _ws.FutureTime(aoe.Caster.CastInfo.NPCRemainingTime);
             hints.AddForbiddenZone(aoe.Shape, target, rot, finishAt);
@@ -227,16 +214,6 @@ public sealed class AIHintsBuilder : IDisposable
             return 180.Degrees();
         }
         return angle.Degrees();
-    }
-
-    private static (byte ClassJobLevelMax, byte EurekaFate) GetFateData(uint fateID)
-    {
-        if (_fateCache.TryGetValue(fateID, out var fateRow))
-            return fateRow;
-        var row = Service.LuminaRow<Lumina.Excel.Sheets.Fate>(fateID);
-        (byte, byte)? data;
-        data = (row!.Value.ClassJobLevelMax, row.Value.EurekaFate);
-        return _fateCache[fateID] = data.Value;
     }
 
     private static (byte CastType, byte EffectRange, byte XAxisModifier, uint RowId, string Name, string PathAlly, string path, int pos, bool Omen) GetSpellData(uint actionID)

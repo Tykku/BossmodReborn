@@ -76,32 +76,33 @@ public enum IconID : uint
     Bait = 101 // player/Kuiyki
 }
 
-class ScathingSunshot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ScathingSunshot), new AOEShapeCone(70, 60.Degrees()));
-class Foxflare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Foxflare), new AOEShapeRect(50, 5));
-class NinefoldCurse(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.NinefoldCurseVisual), ActionID.MakeSpell(AID.NinefoldCurse), 2);
+class ScathingSunshot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ScathingSunshot), new AOEShapeCone(70f, 60f.Degrees()));
+class Foxflare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Foxflare), new AOEShapeRect(50f, 5f));
+class NinefoldCurse(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.NinefoldCurseVisual), ActionID.MakeSpell(AID.NinefoldCurse), 2f);
 class NinetyNinefoldCurse(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.NinetyNinefoldCurse));
 class Roar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Roar));
-class SonicStorm(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SonicStorm), 6);
-class RushBait(BossModule module) : Components.BaitAwayChargeTether(module, 4, 8.3f, ActionID.MakeSpell(AID.RushBait), ActionID.MakeSpell(AID.RushBaitFail), (uint)TetherID.TetherBad, (uint)TetherID.TetherGood, (uint)OID.Dzo, 30);
+class SonicStorm(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SonicStorm), 6f);
+class RushBait(BossModule module) : Components.BaitAwayChargeTether(module, 4f, 8.3f, ActionID.MakeSpell(AID.RushBait), ActionID.MakeSpell(AID.RushBaitFail), (uint)TetherID.TetherBad, (uint)TetherID.TetherGood, (uint)OID.Dzo, 30f);
 class RushLineStack(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.RushLineStackMarker), ActionID.MakeSpell(AID.RushLineStack), 4.9f, markerIsFinalTarget: false);
-class Trample(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Trample), 15);
+class Trample(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Trample), 15f);
 
-class FallingDusk(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FallingDusk), 15)
+class FallingDusk(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FallingDusk), 15f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (Module.Enemies(OID.FilthyShackle).All(x => x.IsDead))
+        var shackle = Module.Enemies((uint)OID.FilthyShackle);
+        if (shackle.Count != 0 && !shackle[0].IsDead)
             base.AddAIHints(slot, actor, assignment, hints);
     }
 }
 
-class DancingWind(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.DancingWind), 8, kind: Kind.TowardsOrigin)
+class DancingWind(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.DancingWind), 8f, kind: Kind.TowardsOrigin)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var source = Sources(slot, actor).FirstOrDefault();
-        if (source != default)
-            hints.AddForbiddenZone(ShapeDistance.Circle(source.Origin, 18.5f), source.Activation);
+        var source = Casters.Count != 0 ? Casters[0] : null;
+        if (source != null)
+            hints.AddForbiddenZone(ShapeDistance.Circle(source.Position, 18.5f), Module.CastFinishAt(source.CastInfo));
     }
 }
 
@@ -114,13 +115,13 @@ class DawnlitBolt(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.DawnlitBoltTelegraph)
+        if (spell.Action.ID == (uint)AID.DawnlitBoltTelegraph)
             _aoes.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.DawnlitBolt)
+        if (spell.Action.ID == (uint)AID.DawnlitBolt)
             _aoes.RemoveAll(x => x.Origin.AlmostEqual(spell.TargetXZ, 1));
     }
 }
@@ -129,7 +130,8 @@ class Fetters(BossModule module) : BossComponent(module)
 {
     public override void AddGlobalHints(GlobalHints hints)
     {
-        if (Module.Enemies(OID.FilthyShackle).Any(x => !x.IsDead))
+        var shackle = Module.Enemies((uint)OID.FilthyShackle);
+        if (shackle.Count != 0 && !shackle[0].IsDead)
             hints.Add($"Destroy fetters on Kuiyki!");
     }
 }
@@ -164,6 +166,6 @@ public class AHunterTrue(WorldState ws, Actor primary) : BossModule(ws, primary,
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actors(Enemies(all));
-        Arena.Actors(Enemies(OID.FilthyShackle), Colors.Object);
+        Arena.Actors(Enemies((uint)OID.FilthyShackle), Colors.Object);
     }
 }

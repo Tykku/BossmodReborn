@@ -35,24 +35,24 @@ public enum AID : uint
     Telega = 9630 // Mandragoras/GymnasiouLyssa->self, no cast, single-target, bonus add disappear
 }
 
-class InfernoBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.InfernoBlast), new AOEShapeRect(46, 10));
+class InfernoBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.InfernoBlast), new AOEShapeRect(46f, 10f));
 
-abstract class Circles(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 12);
+abstract class Circles(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 12f);
 class Roar(BossModule module) : Circles(module, AID.Roar);
 class FlareStar(BossModule module) : Circles(module, AID.FlareStar);
 
-class MarkOfTheBeast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MarkOfTheBeast), new AOEShapeCone(8, 60.Degrees()));
+class MarkOfTheBeast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MarkOfTheBeast), new AOEShapeCone(8f, 60f.Degrees()));
 class Pounce(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Pounce));
-class MagmaChamber(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagmaChamber), 8);
+class MagmaChamber(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagmaChamber), 8f);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6f);
 
 class GymnasiouLeonStates : StateMachineBuilder
 {
@@ -71,7 +71,17 @@ class GymnasiouLeonStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(GymnasiouLeon.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(GymnasiouLeon.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -85,23 +95,24 @@ public class GymnasiouLeon(WorldState ws, Actor primary) : THTemplate(ws, primar
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.GymnasiouLeonMikros));
+        Arena.Actors(Enemies((uint)OID.GymnasiouLeonMikros));
         Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.GymnasticOnion => 6,
-                OID.GymnasticEggplant => 5,
-                OID.GymnasticGarlic => 4,
-                OID.GymnasticTomato => 3,
-                OID.GymnasticQueen or OID.GymnasiouLyssa => 2,
-                OID.GymnasiouLeonMikros => 1,
+                (uint)OID.GymnasticOnion => 6,
+                (uint)OID.GymnasticEggplant => 5,
+                (uint)OID.GymnasticGarlic => 4,
+                (uint)OID.GymnasticTomato => 3,
+                (uint)OID.GymnasticQueen or (uint)OID.GymnasiouLyssa => 2,
+                (uint)OID.GymnasiouLeonMikros => 1,
                 _ => 0
             };
         }

@@ -16,8 +16,8 @@ public enum AID : uint
     LineVoltage = 40665 // Electrogolem2->self, 4.0s cast, range 14 width 4 rect
 }
 
-class FlashFlood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SweepingGouge), new AOEShapeCone(9, 45.Degrees()));
-class LineVoltage(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LineVoltage), new AOEShapeRect(14, 2));
+class FlashFlood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SweepingGouge), new AOEShapeCone(9f, 45f.Degrees()));
+class LineVoltage(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LineVoltage), new AOEShapeRect(14f, 2f));
 
 class D90ForestBatStates : StateMachineBuilder
 {
@@ -26,7 +26,20 @@ class D90ForestBatStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<FlashFlood>()
             .ActivateOnEnter<LineVoltage>()
-            .Raw.Update = () => module.Enemies(D90ForestBat.Trash).Where(x => x.Position.AlmostEqual(module.Arena.Center, module.Bounds.Radius)).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D90ForestBat.Trash);
+                var center = module.Arena.Center;
+                var radius = module.Bounds.Radius;
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed && enemy.Position.AlmostEqual(center, radius))
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -64,10 +77,34 @@ public class D90ForestBat(WorldState ws, Actor primary) : BossModule(ws, primary
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
     public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.Electrogolem1, (uint)OID.Electrogolem1, (uint)OID.ForestWoolback];
 
-    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
+    protected override bool CheckPull()
+    {
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        var center = Arena.Center;
+        var radius = Bounds.Radius;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.InCombat && enemy.Position.AlmostEqual(center, radius))
+                return true;
+        }
+        return false;
+    }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(Trash).Where(x => x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
+        var filteredEnemies = new List<Actor>();
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        var center = Arena.Center;
+        var radius = Bounds.Radius;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.Position.AlmostEqual(center, radius))
+                filteredEnemies.Add(enemy);
+        }
+        Arena.Actors(filteredEnemies);
     }
 }

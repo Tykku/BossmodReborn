@@ -31,7 +31,7 @@ public enum IconID : uint
     Spreadmarker = 311 // player->self
 }
 
-abstract class HallowedWings(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(50, 11));
+abstract class HallowedWings(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(50f, 11f));
 class HallowedWings1(BossModule module) : HallowedWings(module, AID.HallowedWings1);
 class HallowedWings2(BossModule module) : HallowedWings(module, AID.HallowedWings2);
 
@@ -39,26 +39,26 @@ class Wyrmclaw(BossModule module) : Components.SingleTargetCast(module, ActionID
 class HolyStorm(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HolyStorm));
 class DiamondStorm(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DiamondStorm));
 
-abstract class Dive(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 10));
+abstract class Dive(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40f, 10f));
 class HallowedDive(BossModule module) : Dive(module, AID.HallowedDive);
 class FrigidDive(BossModule module) : Dive(module, AID.FrigidDive);
 
-class FrostedOrb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrostedOrb), 6);
+class FrostedOrb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrostedOrb), 6f);
 
-class AkhMorn(BossModule module) : Components.UniformStackSpread(module, 6, 0, 4, 4)
+class AkhMorn(BossModule module) : Components.UniformStackSpread(module, 6f, default, 4, 4)
 {
     private int numCasts;
     private bool first = true;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.AkhMornFirst)
+        if (spell.Action.ID == (uint)AID.AkhMornFirst)
             AddStack(WorldState.Actors.Find(spell.TargetID)!, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.AkhMornFirst or AID.AkhMornRest)
+        if (spell.Action.ID is (uint)AID.AkhMornFirst or (uint)AID.AkhMornRest)
         {
             ++numCasts;
             if (first && numCasts == 5 || numCasts == 6)
@@ -71,34 +71,55 @@ class AkhMorn(BossModule module) : Components.UniformStackSpread(module, 6, 0, 4
     }
 }
 
-class HolyOrb(BossModule module) : Components.Exaflare(module, new AOEShapeCircle(6))
+class HolyOrb(BossModule module) : Components.Exaflare(module, 6f)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.HolyOrbFirst)
-            Lines.Add(new() { Next = spell.LocXZ, Advance = caster.Rotation.ToDirection() * 6.8f, NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1, ExplosionsLeft = 5, MaxShownExplosions = 3 });
+        if (spell.Action.ID == (uint)AID.HolyOrbFirst)
+            Lines.Add(new() { Next = caster.Position, Advance = caster.Rotation.ToDirection() * 6.8f, NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1f, ExplosionsLeft = 5, MaxShownExplosions = 3 });
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.HolyOrbFirst or AID.HolyOrbRest)
+        if (spell.Action.ID is (uint)AID.HolyOrbFirst or (uint)AID.HolyOrbRest)
         {
-            var index = Lines.FindIndex(item => item.Next.AlmostEqual(caster.Position, 1));
-            if (index < 0)
-                return;
-            AdvanceLine(Lines[index], caster.Position);
-            if (Lines[index].ExplosionsLeft == 0)
-                Lines.RemoveAt(index);
+            var count = Lines.Count;
+            var pos = caster.Position;
+            for (var i = 0; i < count; ++i)
+            {
+                var line = Lines[i];
+                if (line.Next.AlmostEqual(pos, 1f))
+                {
+                    AdvanceLine(line, pos);
+                    if (line.ExplosionsLeft == 0)
+                        Lines.RemoveAt(i);
+                    return;
+                }
+            }
         }
     }
 }
 
-class HolyBreath(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.HolyBreath), 6, 6);
+class HolyBreath(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.HolyBreath), 6f, 6f);
 
-class ThinIce(BossModule module) : Components.ThinIce(module, 11, true, stopAtWall: true)
+class ThinIce(BossModule module) : Components.ThinIce(module, 11f, true, stopAtWall: true)
 {
-    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<FrostedOrb>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) ||
-    (Module.FindComponent<FrigidDive>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false);
+    private readonly FrostedOrb _aoe1 = module.FindComponent<FrostedOrb>()!;
+    private readonly FrigidDive _aoe2 = module.FindComponent<FrigidDive>()!;
+
+    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos)
+    {
+        if (_aoe2.Casters.Count != 0 && _aoe2.Casters[0].Check(pos))
+            return true;
+        var count = _aoe1.Casters.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoe1.Casters[i];
+            if (aoe.Check(pos))
+                return true;
+        }
+        return false;
+    }
 }
 
 class D133HraesvelgrStates : StateMachineBuilder
@@ -124,5 +145,5 @@ class D133HraesvelgrStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 171, NameID = 4954, SortOrder = 6)]
 public class D133Hraesvelgr(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(400, -400), 19.5f, 36)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(400f, -400f), 19.5f, 36)]);
 }

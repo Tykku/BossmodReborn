@@ -68,15 +68,15 @@ class ZoomIn(BossModule module) : Components.LineStack(module, ActionID.MakeSpel
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (ActiveBaits.Any())
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 3), ActiveBaits.FirstOrDefault().Activation);
+        if (ActiveBaits.Count != 0)
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 3f), ActiveBaits[0].Activation);
     }
 }
 
 class PassageOfArms(BossModule module) : BossComponent(module)
 {
     private ActorCastInfo? EnrageCast => Module.PrimaryActor.CastInfo is { Action.ID: 16604 } castInfo ? castInfo : null;
-    private Actor? Paladin => WorldState.Actors.FirstOrDefault(x => x.FindStatus(SID.WingedShield) != null);
+    private Actor? Paladin => WorldState.Actors.FirstOrDefault(x => x.FindStatus((uint)SID.WingedShield) != null);
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -87,12 +87,12 @@ class PassageOfArms(BossModule module) : BossComponent(module)
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         if (EnrageCast != null && Paladin != null)
-            Arena.ZoneCone(Paladin.Position, 0, 8, Paladin.Rotation + 180.Degrees(), 60.Degrees(), Colors.SafeFromAOE);
+            Arena.ZoneCone(Paladin.Position, 0f, 8f, Paladin.Rotation + 180f.Degrees(), 60f.Degrees(), Colors.SafeFromAOE);
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (EnrageCast != null && Paladin != null && !actor.Position.InCircleCone(Paladin.Position, 8, Paladin.Rotation + 180.Degrees(), 60.Degrees()))
+        if (EnrageCast != null && Paladin != null && !actor.Position.InCircleCone(Paladin.Position, 8f, Paladin.Rotation + 180.Degrees(), 60.Degrees()))
             hints.Add("Hide behind tank!");
     }
 }

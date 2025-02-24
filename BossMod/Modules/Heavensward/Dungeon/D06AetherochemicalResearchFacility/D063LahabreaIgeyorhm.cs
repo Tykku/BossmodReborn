@@ -52,16 +52,16 @@ public enum TetherID : uint
 }
 
 class ShadowFlare(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ShadowFlare));
-class GripOfNight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GripOfNight), new AOEShapeCone(40, 75.Degrees()));
-class DarkFireIIAOE(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.DarkFireIIAOE), 6);
+class GripOfNight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GripOfNight), new AOEShapeCone(40f, 75f.Degrees()));
+class DarkFireIIAOE(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.DarkFireIIAOE), 6f);
 class EndOfDays(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.EndOfDays), ActionID.MakeSpell(AID.EndOfDays2), 5.1f);
 
 class Stars(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donutSmall = new(5, 15), donutBig = new(5, 40);
-    private static readonly AOEShapeCircle circleSmall = new(8), circleBig = new(16);
-    private readonly List<AOEInstance> _aoes = [];
-    private readonly List<Actor> _stars = [];
+    private static readonly AOEShapeDonut donutSmall = new(5f, 15f), donutBig = new(5f, 40f);
+    private static readonly AOEShapeCircle circleSmall = new(8f), circleBig = new(16f);
+    private readonly List<AOEInstance> _aoes = new(5);
+    private readonly List<Actor> _stars = new(8);
 
     private bool _tutorialFire, _tutorialIce;
 
@@ -73,7 +73,7 @@ class Stars(BossModule module) : Components.GenericAOEs(module)
         {
             var target = WorldState.Actors.Find(tether.Target)!;
             var targetPos = target.Position;
-            var midpoint = new WPos((source.Position.X + targetPos.X) / 2, (source.Position.Z + targetPos.Z) / 2);
+            var midpoint = WPos.ClampToGrid(new WPos((source.Position.X + targetPos.X) / 2, (source.Position.Z + targetPos.Z) / 2));
             switch (source.OID)
             {
                 case (uint)OID.FrozenStar:
@@ -90,11 +90,27 @@ class Stars(BossModule module) : Components.GenericAOEs(module)
     {
         _stars.Remove(source);
         _stars.Remove(target);
-        var activation = WorldState.FutureTime(10.6f);
+        var activation = WorldState.FutureTime(10.6d);
         _aoes.Add(new(bigShape, midpoint, default, activation));
-        if (_aoes.Any(x => x.Shape == donutBig) || _aoes.Count(x => x.Shape == circleBig) == 2)
+        var hasDonutBig = false;
+        var circleBigCount = 0;
+
+        var count = _aoes.Count;
+        for (var i = 0; i < count; ++i)
         {
-            for (var i = 0; i < _stars.Count; ++i)
+            if (_aoes[i].Shape == donutBig)
+            {
+                hasDonutBig = true;
+                break;
+            }
+            else
+                ++circleBigCount;
+        }
+
+        if (hasDonutBig || circleBigCount == 2)
+        {
+            var countS = _stars.Count;
+            for (var i = 0; i < countS; ++i)
                 _aoes.Add(new(smallShape, _stars[i].Position, default, activation));
             _stars.Clear();
         }
@@ -102,25 +118,45 @@ class Stars(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID is OID.FrozenStar or OID.BurningStar)
+        if (actor.OID is ((uint)OID.FrozenStar) or ((uint)OID.BurningStar))
+        {
             _stars.Add(actor);
-        if (!_tutorialIce && _stars.Count(x => (OID)x.OID == OID.FrozenStar) == 4)
-            Tutorial(donutSmall, ref _tutorialIce);
-        else if (!_tutorialFire && _stars.Count(x => (OID)x.OID == OID.BurningStar) == 5)
-            Tutorial(circleSmall, ref _tutorialFire);
+
+            var frozenStarCount = 0;
+            var burningStarCount = 0;
+
+            if (_tutorialIce && _tutorialFire)
+                return;
+            var count = _stars.Count;
+            for (var i = 0; i < count; ++i)
+            {
+                var star = _stars[i];
+                if (star.OID == (uint)OID.FrozenStar)
+                    ++frozenStarCount;
+                else if (star.OID == (uint)OID.BurningStar)
+                    ++burningStarCount;
+            }
+
+            if (!_tutorialIce && frozenStarCount == 4)
+                Tutorial(donutSmall, ref _tutorialIce);
+            else if (!_tutorialFire && burningStarCount == 5)
+                Tutorial(circleSmall, ref _tutorialFire);
+        }
     }
 
     private void Tutorial(AOEShape shape, ref bool tutorialFlag)
     {
         tutorialFlag = true;
-        for (var i = 0; i < _stars.Count; ++i)
-            _aoes.Add(new(shape, _stars[i].Position, default, WorldState.FutureTime(7.8f)));
+        var activation = WorldState.FutureTime(7.8d);
+        var count = _stars.Count;
+        for (var i = 0; i < count; ++i)
+            _aoes.Add(new(shape, _stars[i].Position, default, activation));
         _stars.Clear();
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.CircleOfIceAOE or AID.CircleOfIcePrimeAOE or AID.FireSphereAOE or AID.FireSpherePrime1)
+        if (spell.Action.ID is (uint)AID.CircleOfIceAOE or (uint)AID.CircleOfIcePrimeAOE or (uint)AID.FireSphereAOE or (uint)AID.FireSpherePrime1)
         {
             _aoes.Clear();
             ++NumCasts;
@@ -144,10 +180,10 @@ class D063LahabreaIgeyorhmStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 38, NameID = 2143, SortOrder = 10)]
 public class D063LahabreaIgeyorhm(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    public static readonly ArenaBoundsComplex arena = new([new Polygon(new(230, -181), 20.26f, 24)], [new Rectangle(new(230, -160), 20, 1.94f)]);
+    public static readonly ArenaBoundsComplex arena = new([new Polygon(new(230f, -181f), 20.26f, 24)], [new Rectangle(new(230f, -160f), 20f, 1.94f)]);
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Igeyorhm));
+        Arena.Actors(Enemies((uint)OID.Igeyorhm));
     }
 }

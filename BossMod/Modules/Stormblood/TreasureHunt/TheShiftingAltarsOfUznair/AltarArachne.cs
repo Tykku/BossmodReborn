@@ -33,15 +33,15 @@ public enum AID : uint
 
 class DarkSpike(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.DarkSpike));
 class FrondAffeared(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.FrondAffeared));
-class SilkenSpray(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SilkenSpray), new AOEShapeCone(24, 30.Degrees()));
+class SilkenSpray(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SilkenSpray), new AOEShapeCone(24f, 30f.Degrees()));
 class Implosion(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Implosion));
 class Earthquake1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Earthquake1), 10.5f);
-class Earthquake2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Earthquake2), new AOEShapeDonut(10, 20));
-class Earthquake3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Earthquake3), new AOEShapeDonut(20, 30));
+class Earthquake2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Earthquake2), new AOEShapeDonut(10f, 20f));
+class Earthquake3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Earthquake3), new AOEShapeDonut(20f, 30f));
 
-class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 60.Degrees()));
-class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
-class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), [(uint)OID.AltarMatanga]);
+class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 60f.Degrees()));
+class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6f);
+class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60f.Degrees()), [(uint)OID.AltarMatanga]);
 
 class AltarArachneStates : StateMachineBuilder
 {
@@ -58,7 +58,17 @@ class AltarArachneStates : StateMachineBuilder
             .ActivateOnEnter<Hurl>()
             .ActivateOnEnter<RaucousScritch>()
             .ActivateOnEnter<Spin>()
-            .Raw.Update = () => module.Enemies(AltarArachne.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(AltarArachne.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -76,13 +86,14 @@ public class AltarArachne(WorldState ws, Actor primary) : THTemplate(ws, primary
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.GoldWhisker => 2,
-                OID.AltarMatanga => 1,
+                (uint)OID.GoldWhisker => 2,
+                (uint)OID.AltarMatanga => 1,
                 _ => 0
             };
         }

@@ -27,7 +27,7 @@ public enum AID : uint
     DefensiveManeuvers = 607 // ScrambledIronClaw->self, 3.0s cast, single-target, apply stoneskin
 }
 
-class PassiveInfraredGuidanceSystem(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.PassiveInfraredGuidanceSystem), new AOEShapeCircle(6), [(uint)OID.Boss], originAtTarget: true);
+class PassiveInfraredGuidanceSystem(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.PassiveInfraredGuidanceSystem), new AOEShapeCircle(6f), [(uint)OID.Boss], originAtTarget: true);
 
 abstract class HeadSpin(BossModule module, AID aid, OID oid) : Components.Cleave(module, ActionID.MakeSpell(aid), new AOEShapeCircle(5.225f), [(uint)oid])
 {
@@ -52,8 +52,8 @@ abstract class HeadSpin(BossModule module, AID aid, OID oid) : Components.Cleave
 class Headspin1(BossModule module) : HeadSpin(module, AID.Headspin1, OID.ScrambledPaladin);
 class Headspin2(BossModule module) : HeadSpin(module, AID.Headspin2, OID.ScrambledEngineer);
 
-class GrandSword(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrandSword), new AOEShapeCone(16, 60.Degrees()));
-class TheHand(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheHand), new AOEShapeCone(7.5f, 60.Degrees()));
+class GrandSword(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrandSword), new AOEShapeCone(16f, 60f.Degrees()));
+class TheHand(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheHand), new AOEShapeCone(7.5f, 60f.Degrees()));
 
 class D060EnforcementDroid210States : StateMachineBuilder
 {
@@ -61,7 +61,17 @@ class D060EnforcementDroid210States : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<PassiveInfraredGuidanceSystem>()
-            .Raw.Update = () => module.Enemies(D060Trash1.TrashP1).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D060Trash1.TrashP1);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -77,7 +87,17 @@ class D060ScrambledIronGiantStates : StateMachineBuilder
             .ActivateOnEnter<Headspin2>()
             .ActivateOnEnter<GrandSword>()
             .ActivateOnEnter<TheHand>()
-            .Raw.Update = () => module.Enemies(D060Trash1.TrashP2).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D060Trash1.TrashP2);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -97,7 +117,18 @@ public abstract class D060Trash1(WorldState ws, Actor primary) : BossModule(ws, 
     public static readonly uint[] TrashP2 = [(uint)OID.ScrambledEngineer, (uint)OID.ScrambledIronClaw, (uint)OID.ScrambledIronGiant, (uint)OID.ScrambledPaladin];
     public static readonly uint[] Trash = [.. TrashP1, .. TrashP2];
 
-    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat);
+    protected override bool CheckPull()
+    {
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.InCombat)
+                return true;
+        }
+        return false;
+    }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

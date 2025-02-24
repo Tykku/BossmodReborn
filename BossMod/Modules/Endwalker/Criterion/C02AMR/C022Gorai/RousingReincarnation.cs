@@ -12,12 +12,12 @@ class MalformedPrayer1(BossModule module) : Components.GenericTowers(module)
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        var order = (SID)status.ID switch
+        var order = status.ID switch
         {
-            SID.RodentialRebirth1 => 0,
-            SID.RodentialRebirth2 => 1,
-            SID.RodentialRebirth3 => 2,
-            SID.RodentialRebirth4 => 3,
+            (uint)SID.RodentialRebirth1 => 0,
+            (uint)SID.RodentialRebirth2 => 1,
+            (uint)SID.RodentialRebirth3 => 2,
+            (uint)SID.RodentialRebirth4 => 3,
             _ => -1,
         };
         if (order >= 0 && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
@@ -26,7 +26,7 @@ class MalformedPrayer1(BossModule module) : Components.GenericTowers(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.NBurstOrange or AID.NBurstBlue or AID.SBurstOrange or AID.SBurstBlue)
+        if (spell.Action.ID is (uint)AID.NBurstOrange or (uint)AID.NBurstBlue or (uint)AID.SBurstOrange or (uint)AID.SBurstBlue)
         {
             ++NumCasts;
             if ((NumCasts & 1) == 0)

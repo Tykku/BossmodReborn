@@ -66,7 +66,7 @@ class ArenaChanges(BossModule module) : BossComponent(module)
 class Mouser(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
-    public static readonly AOEShapeRect Rect = new(5, 5, 5);
+    public static readonly AOEShapeRect Rect = new(5f, 5f, 5f);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -77,21 +77,21 @@ class Mouser(BossModule module) : Components.GenericAOEs(module)
         var total = countDanger + 4;
         var max = total > count ? count : total;
 
-        List<AOEInstance> aoes = new(max);
+        var aoes = new AOEInstance[max];
         for (var i = 0; i < max; ++i)
         {
             var aoe = _aoes[i];
             if (i < countDanger)
-                aoes.Add(count > countDanger ? aoe with { Color = Colors.Danger } : aoe);
+                aoes[i] = count > countDanger ? aoe with { Color = Colors.Danger } : aoe;
             else
-                aoes.Add(aoe);
+                aoes[i] = aoe;
         }
         return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.MouserTelegraphFirst or AID.MouserTelegraphSecond)
+        if (spell.Action.ID is (uint)AID.MouserTelegraphFirst or (uint)AID.MouserTelegraphSecond)
             _aoes.Add(new(Rect, caster.Position, spell.Rotation, WorldState.FutureTime(9.7f)));
     }
 
@@ -103,7 +103,7 @@ class Mouser(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.Mouser)
+        if (spell.Action.ID == (uint)AID.Mouser)
             if (++NumCasts == 19)
                 NumCasts = 0;
     }

@@ -25,36 +25,48 @@ public enum AID : uint
 
 class Slammer(BossModule module) : Components.GenericRotatingAOE(module)
 {
-    private static readonly AOEShapeCone _shape = new(30, 90.Degrees());
-    private static readonly HashSet<AID> castEnds = [AID.LeftHammerSlammer, AID.RightHammerSlammer, AID.LeftHammerSecond, AID.RightHammerSecond,
-    AID.OctupleSlammerLCW, AID.OctupleSlammerRCW, AID.OctupleSlammerRestL, AID.OctupleSlammerRestR, AID.OctupleSlammerLCCW, AID.OctupleSlammerRCCW];
+    private static readonly AOEShapeCone _shape = new(30f, 90f.Degrees());
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        void AddSequence(Angle increment, int casts = 8, int max = 2) => Sequences.Add(new(_shape, spell.LocXZ, spell.Rotation, increment, Module.CastFinishAt(spell), 3.6f, casts, max));
+        switch (spell.Action.ID)
         {
-            case AID.OctupleSlammerLCW:
-            case AID.OctupleSlammerRCW:
-                Sequences.Add(new(_shape, caster.Position, spell.Rotation, 90.Degrees(), Module.CastFinishAt(spell), 3.7f, 8));
+            case (uint)AID.OctupleSlammerLCW:
+            case (uint)AID.OctupleSlammerRCW:
+                AddSequence(90f.Degrees());
                 ImminentColor = Colors.Danger;
                 break;
-            case AID.OctupleSlammerLCCW:
-            case AID.OctupleSlammerRCCW:
-                Sequences.Add(new(_shape, caster.Position, spell.Rotation, -90.Degrees(), Module.CastFinishAt(spell), 3.7f, 8));
+            case (uint)AID.OctupleSlammerLCCW:
+            case (uint)AID.OctupleSlammerRCCW:
+                AddSequence(-90f.Degrees());
                 ImminentColor = Colors.Danger;
                 break;
-            case AID.LeftHammerSlammer:
-            case AID.RightHammerSlammer:
-                Sequences.Add(new(_shape, caster.Position, spell.Rotation, 180.Degrees(), Module.CastFinishAt(spell), 3.6f, 2, 1));
-                ImminentColor = Colors.AOE;
+            case (uint)AID.LeftHammerSlammer:
+            case (uint)AID.RightHammerSlammer:
+                AddSequence(180f.Degrees());
+                ImminentColor = 0;
                 break;
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (castEnds.Contains((AID)spell.Action.ID))
-            AdvanceSequence(0, WorldState.CurrentTime);
+        switch (spell.Action.ID)
+        {
+            case (uint)AID.LeftHammerSlammer:
+            case (uint)AID.RightHammerSlammer:
+            case (uint)AID.LeftHammerSecond:
+            case (uint)AID.RightHammerSecond:
+            case (uint)AID.OctupleSlammerLCW:
+            case (uint)AID.OctupleSlammerRCW:
+            case (uint)AID.OctupleSlammerRestL:
+            case (uint)AID.OctupleSlammerRestR:
+            case (uint)AID.OctupleSlammerLCCW:
+            case (uint)AID.OctupleSlammerRCCW:
+                AdvanceSequence(0, WorldState.CurrentTime);
+                break;
+        }
     }
 }
 

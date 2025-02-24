@@ -78,14 +78,47 @@ class GraspingRancor : Components.SimpleAOEs
     }
 }
 
-class HatefulMiasma(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HatefulMiasma), 6);
-class PoisonedWords(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PoisonedWords), 6);
-class TalonedGaze(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.TalonedGaze), "AOE front/back --> sides");
-class TalonedWings(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.TalonedWings), "AOE sides --> front/back");
-class CoffinNails(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CoffinNails), new AOEShapeCone(60, 45.Degrees()), 2);
+class HatefulMiasma(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HatefulMiasma), 6f);
+class PoisonedWords(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PoisonedWords), 6f);
+
+class CoffinNails(BossModule module) : Components.GenericAOEs(module)
+{
+    private readonly List<AOEInstance> _aoes = new(4);
+    private static readonly AOEShapeCone cone = new(60f, 45f.Degrees());
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var aoes = new AOEInstance[count];
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i < 2)
+                aoes[i] = count > 2 ? aoe with { Color = Colors.Danger } : aoe;
+            else
+                aoes[i] = aoe with { Risky = false };
+        }
+        return aoes;
+    }
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if (spell.Action.ID == (uint)AID.CoffinNails)
+            _aoes.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
+    }
+
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    {
+        if (_aoes.Count != 0 && spell.Action.ID == (uint)AID.CoffinNails)
+            _aoes.RemoveAt(0);
+    }
+}
+
 class Stab(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Stab));
 class GripOfPoison(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GripOfPoison));
-class StepsOfDestruction(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StepsOfDestructionAOE), 6);
+class StepsOfDestruction(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StepsOfDestructionAOE), 6f);
 
 class CE21FinalFurlongStates : StateMachineBuilder
 {
@@ -95,8 +128,6 @@ class CE21FinalFurlongStates : StateMachineBuilder
             .ActivateOnEnter<GraspingRancor>()
             .ActivateOnEnter<HatefulMiasma>()
             .ActivateOnEnter<PoisonedWords>()
-            .ActivateOnEnter<TalonedGaze>()
-            .ActivateOnEnter<TalonedWings>()
             .ActivateOnEnter<CoffinNails>()
             .ActivateOnEnter<Stab>()
             .ActivateOnEnter<GripOfPoison>()
@@ -105,4 +136,4 @@ class CE21FinalFurlongStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 735, NameID = 6)] // bnpcname=9405
-public class CE21FinalFurlong(WorldState ws, Actor primary) : BossModule(ws, primary, new(644, 228), new ArenaBoundsCircle(27));
+public class CE21FinalFurlong(WorldState ws, Actor primary) : BossModule(ws, primary, new(644f, 228f), new ArenaBoundsCircle(27f));

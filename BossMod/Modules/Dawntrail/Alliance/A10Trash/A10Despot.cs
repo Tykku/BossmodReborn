@@ -13,7 +13,7 @@ public enum AID : uint
     AutoAttack2 = 872, // Boss->player, no cast, single-target
 
     WingCutter = 41672, // Flamingo2->self, 2.5s cast, range 6 120-degree cone
-    ScraplineStorm = 40650, // Boss->self, 5.0s cast, range 30 circle, pull 12.5 between centers, log says distance 10, but it seems to be actually ~12.5?
+    ScraplineStorm = 40650, // Boss->self, 5.0s cast, range 30 circle, pull 10 between centers
     Scrapline = 41393, // Boss->self, 1.0s cast, range 10 circle
     Typhoon = 41902, // Boss->self, 1.5s cast, range 8-40 donut
     IsleDrop = 41699, // Boss->location, 3.0s cast, range 6 circle
@@ -22,47 +22,49 @@ public enum AID : uint
     PanzerfaustRepeats = 41353 // Boss->player, no cast, single-target, knockback 10, apply concussion
 }
 
-class IsleDrop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IsleDrop), 6);
-class WingCutter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingCutter), new AOEShapeCone(6, 60.Degrees()));
+class IsleDrop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IsleDrop), 6f);
+class WingCutter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingCutter), new AOEShapeCone(6f, 60f.Degrees()));
 class PanzerfaustHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Panzerfaust), showNameInHint: true);
 class Panzerfaust(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Panzerfaust));
-class ScraplineStorm(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ScraplineStorm), 12.5f, kind: Kind.TowardsOrigin)
+class ScraplineStorm(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ScraplineStorm), 10f, kind: Kind.TowardsOrigin)
 {
-    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => Module.FindComponent<ScraplineTyphoon>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation) && z.Risky) ?? false;
+    private readonly ScraplineTyphoon _aoe = module.FindComponent<ScraplineTyphoon>()!;
+
+    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos)
+    {
+        var aoes = _aoe.AOEs;
+        return aoes.Count != 0 && aoes[0].Check(pos);
+    }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var source = Sources(slot, actor).FirstOrDefault();
-        if (source != default)
-            hints.AddForbiddenZone(ShapeDistance.Circle(source.Origin, 22.5f), source.Activation);
+        var source = Casters.Count != 0 ? Casters[0] : null;
+        if (source != null)
+            hints.AddForbiddenZone(ShapeDistance.Circle(source.Position, 20f), Module.CastFinishAt(source.CastInfo));
     }
 }
 
 class ScraplineTyphoon(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = new(2);
-    private static readonly AOEShapeCircle circle = new(10);
-    private static readonly AOEShapeDonut donut = new(8, 40);
+    public readonly List<AOEInstance> AOEs = new(2);
+    private static readonly AOEShapeCircle circle = new(10f);
+    private static readonly AOEShapeDonut donut = new(8f, 40f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        if (_aoes.Count != 0)
-            yield return _aoes[0] with { Origin = Module.PrimaryActor.Position };
-    }
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs.Count != 0 ? [AOEs[0]] : [];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ScraplineStorm)
+        if (spell.Action.ID == (uint)AID.ScraplineStorm)
         {
-            _aoes.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell, 2.1f)));
-            _aoes.Add(new(donut, spell.LocXZ, default, Module.CastFinishAt(spell, 5.6f)));
+            AOEs.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell, 2.1f)));
+            AOEs.Add(new(donut, spell.LocXZ, default, Module.CastFinishAt(spell, 5.6f)));
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.Scrapline or AID.Typhoon)
-            _aoes.RemoveAt(0);
+        if (AOEs.Count != 0 && spell.Action.ID is (uint)AID.Scrapline or (uint)AID.Typhoon)
+            AOEs.RemoveAt(0);
     }
 }
 
@@ -74,10 +76,20 @@ public class A10DespotStates : StateMachineBuilder
             .ActivateOnEnter<IsleDrop>()
             .ActivateOnEnter<WingCutter>()
             .ActivateOnEnter<ScraplineTyphoon>()
+            .ActivateOnEnter<ScraplineStorm>()
             .ActivateOnEnter<Panzerfaust>()
             .ActivateOnEnter<PanzerfaustHint>()
-            .ActivateOnEnter<ScraplineStorm>()
-            .Raw.Update = () => Module.Enemies(A10Despot.Trash).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(A10Despot.Trash);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -98,7 +110,7 @@ public class A10Despot(WorldState ws, Actor primary) : BossModule(ws, primary, a
     new(-483.28f, -598.38f), new(-483.22f, -597.79f), new(-482.95f, -597.2f), new(-482.4f, -596.83f), new(-482.56f, -596.32f),
     new(-492.75f, -573.42f), new(-492.65f, -572.93f), new(-487.62f, -569.97f), new(-487.26f, -569.61f), new(-487.45f, -566.88f),
     new(-487.39f, -566.19f), new(-487.2f, -565.48f), new(-486.95f, -564.82f), new(-486.64f, -564.13f), new(-486.01f, -561.99f),
-    new(-485.78f, -561.53f), new(-485.22f, -560.66f), new(-485, -560), new(-498.54f, -538.05f), new(-499.21f, -537.84f),
+    new(-485.78f, -561.53f), new(-485.22f, -560.66f), new(-485f, -560f), new(-498.54f, -538.05f), new(-499.21f, -537.84f),
     new(-507.26f, -536.82f), new(-507.98f, -536.85f), new(-509.25f, -538.49f), new(-509.72f, -538.95f), new(-510.24f, -539.05f),
     new(-511.53f, -538.97f), new(-512.14f, -538.89f), new(-512.7f, -538.69f), new(-513.01f, -538.17f), new(-513.51f, -537.7f),
     new(-517.45f, -535.31f), new(-519.94f, -532.16f), new(-520.52f, -531.83f), new(-521.18f, -531.89f), new(-521.83f, -532.08f),
@@ -109,12 +121,12 @@ public class A10Despot(WorldState ws, Actor primary) : BossModule(ws, primary, a
     new(-539.23f, -544.06f), new(-539.07f, -544.64f), new(-539.1f, -545.25f), new(-539.21f, -545.86f), new(-539.63f, -546.23f),
     new(-542.42f, -547.97f), new(-543.03f, -548.24f), new(-545.06f, -548.75f), new(-546.33f, -548.68f), new(-546.94f, -548.49f),
     new(-547.44f, -548.05f), new(-550.57f, -546.55f), new(-551.17f, -546.91f), new(-552.21f, -547.72f), new(-554.33f, -565.17f),
-    new(-554.29f, -565.67f), new(-553.44f, -567.42f), new(-553.24f, -568), new(-553.48f, -568.46f), new(-575, -585.35f),
+    new(-554.29f, -565.67f), new(-553.44f, -567.42f), new(-553.24f, -568), new(-553.48f, -568.46f), new(-575f, -585.35f),
     new(-575.48f, -585.85f), new(-576.07f, -585.86f), new(-576.48f, -585.42f), new(-579.7f, -581.35f), new(-580.39f, -581.19f),
     new(-581.01f, -581.22f), new(-581.59f, -580.82f), new(-582.12f, -580.35f), new(-582.41f, -579.83f), new(-582.31f, -579.14f),
     new(-581.86f, -578.57f), new(-585.24f, -574.25f), new(-585.66f, -573.94f), new(-592.4f, -579.21f), new(-592.88f, -579.69f),
     new(-593.98f, -580.42f), new(-594.46f, -580.26f), new(-596.61f, -577.68f), new(-608.31f, -586.89f), new(-608.07f, -587.53f),
-    new(-591, -609.36f), new(-590.71f, -609.86f), new(-593.18f, -623.19f), new(-589.12f, -632.73f), new(-588.73f, -633.32f),
+    new(-591f, -609.36f), new(-590.71f, -609.86f), new(-593.18f, -623.19f), new(-589.12f, -632.73f), new(-588.73f, -633.32f),
     new(-588.21f, -633.36f), new(-587.48f, -633.3f), new(-586.78f, -633.16f), new(-584.14f, -632.28f), new(-583.52f, -632.53f),
     new(-583.31f, -633.17f), new(-583.26f, -633.79f), new(-583.79f, -634.2f), new(-585.11f, -634.48f), new(-585.79f, -634.7f),
     new(-586.45f, -635.02f), new(-587.01f, -635.5f), new(-587.48f, -636.06f), new(-587.43f, -636.72f), new(-586.1f, -639.84f),
@@ -122,7 +134,18 @@ public class A10Despot(WorldState ws, Actor primary) : BossModule(ws, primary, a
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
     public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.Flamingo1, (uint)OID.Flamingo2];
 
-    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat);
+    protected override bool CheckPull()
+    {
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            if (enemies[i].InCombat)
+                return true;
+        }
+        return false;
+    }
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actors(Enemies(Trash));

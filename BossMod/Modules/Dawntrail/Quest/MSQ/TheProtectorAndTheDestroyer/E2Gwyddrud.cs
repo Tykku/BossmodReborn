@@ -38,13 +38,13 @@ public enum AID : uint
     UntamedCurrent = 38232, // Boss->self, 3.3+0,7s cast, range 40 circle, knockback 15, away from source
     UntamedCurrentAOE1 = 38233, // Helper2->location, 3.1s cast, range 5 circle
     UntamedCurrentAOE2 = 19718, // Helper2->location, 3.2s cast, range 5 circle
-    UntamedCurrentAOE3 = 19719, // Helper2->location, 3.3s cast, range 5 circle
-    UntamedCurrentAOE4 = 19999, // Helper2->location, 3.0s cast, range 5 circle
-    UntamedCurrentAOE5 = 38234, // Helper2->location, 3.1s cast, range 5 circle
+    UntamedCurrentAOE3 = 19999, // Helper2->location, 3.0s cast, range 5 circle
+    UntamedCurrentAOE4 = 38234, // Helper2->location, 3.1s cast, range 5 circle
+    UntamedCurrentAOE5 = 19719, // Helper2->location, 3.3s cast, range 5 circle
     UntamedCurrentAOE6 = 19720, // Helper2->location, 3.2s cast, range 5 circle
     UntamedCurrentAOE7 = 19721, // Helper2->location, 3.3s cast, range 5 circle
-    UntamedCurrentAOE8 = 19728, // Helper2->location, 3.3s cast, range 5 circle (outside arena)
-    UntamedCurrentAOE9 = 19727, // Helper2->location, 3.2s cast, range 5 circle (outside arena)
+    UntamedCurrentAOE8 = 19727, // Helper2->location, 3.2s cast, range 5 circle (outside arena)
+    UntamedCurrentAOE9 = 19728, // Helper2->location, 3.3s cast, range 5 circle (outside arena)
     UntamedCurrentAOE10 = 19179, // Helper2->location, 3.1s cast, range 5 circle (outside arena)
     UntamedCurrentSpread = 19181, // Helper->all, 5.0s cast, range 5 circle
     UntamedCurrentStack = 19276, // Helper->Alisaie, 5.0s cast, range 6 circle
@@ -57,32 +57,36 @@ class UntamedCurrentRaidwide(BossModule module) : Components.RaidwideCast(module
 class VioletVoltage(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = new(4);
-    private static readonly AOEShapeCone cone = new(20, 90.Degrees());
+    private static readonly AOEShapeCone cone = new(20f, 90f.Degrees());
+    private static readonly Angle a180 = 180f.Degrees();
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
         if (count == 0)
-            yield break;
-        for (var i = 0; i < (count > 2 ? 2 : count); ++i)
+            return [];
+        var max = count > 2 ? 2 : count;
+        var aoes = new AOEInstance[max];
+        for (var i = 0; i < max; ++i)
         {
             var aoe = _aoes[i];
             if (i == 0)
-                yield return count != 1 ? aoe with { Color = Colors.Danger } : aoe;
+                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
             else
-                yield return aoe with { Risky = !aoe.Rotation.AlmostEqual(_aoes[0].Rotation + 180.Degrees(), Angle.DegToRad) };
+                aoes[i] = aoes[0].Rotation.AlmostEqual(aoe.Rotation + a180, Angle.DegToRad) ? aoe with { Risky = false } : aoe;
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.VioletVoltageTelegraph)
+        if (spell.Action.ID == (uint)AID.VioletVoltageTelegraph)
             _aoes.Add(new(cone, caster.Position, spell.Rotation, Module.CastFinishAt(spell, 6)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count != 0 && (AID)spell.Action.ID == AID.VioletVoltage)
+        if (_aoes.Count != 0 && spell.Action.ID == (uint)AID.VioletVoltage)
             _aoes.RemoveAt(0);
     }
 }
@@ -90,12 +94,13 @@ class VioletVoltage(BossModule module) : Components.GenericAOEs(module)
 class RoaringBoltKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.RoaringBoltKB), 12, stopAtWall: true)
 {
     private readonly RoaringBolt _aoe = module.FindComponent<RoaringBolt>()!;
-    private static readonly Angle a25 = 25.Degrees();
+    private static readonly Angle a25 = 25f.Degrees();
 
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos)
     {
-        foreach (var z in _aoe.ActiveAOEs(slot, actor))
-            if (z.Shape.Check(pos, z.Origin, z.Rotation))
+        var count = _aoe.Casters.Count;
+        for (var i = 0; i < count; ++i)
+            if (_aoe.Casters[i].Check(pos))
                 return true;
         return false;
     }
@@ -118,7 +123,7 @@ class RoaringBoltKB(BossModule module) : Components.KnockbackFromCastTarget(modu
         if (source != default && count != 0)
         {
             for (var i = 0; i < count; ++i)
-                forbidden.Add(ShapeDistance.Cone(Arena.Center, 20, Angle.FromDirection(aoes[i].Origin - Arena.Center), a25));
+                forbidden.Add(ShapeDistance.Cone(Arena.Center, 20f, Angle.FromDirection(aoes[i].Origin - Arena.Center), a25));
             hints.AddForbiddenZone(ShapeDistance.Union(forbidden), source.Activation);
         }
     }
@@ -126,42 +131,65 @@ class RoaringBoltKB(BossModule module) : Components.KnockbackFromCastTarget(modu
 
 class RollingThunder : Components.SimpleAOEs
 {
-    public RollingThunder(BossModule module) : base(module, ActionID.MakeSpell(AID.RollingThunder), new AOEShapeCone(20, 22.5f.Degrees()), 6) { MaxDangerColor = 2; }
+    public RollingThunder(BossModule module) : base(module, ActionID.MakeSpell(AID.RollingThunder), new AOEShapeCone(20f, 22.5f.Degrees()), 6) { MaxDangerColor = 2; }
 }
 
-class RoaringBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RoaringBolt), 6);
-class UntamedCurrentSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.UntamedCurrentSpread), 5);
-class UntamedCurrentStack(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.UntamedCurrentStack), 6);
+class RoaringBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RoaringBolt), 6f);
+class UntamedCurrentSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.UntamedCurrentSpread), 5f);
+class UntamedCurrentStack(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.UntamedCurrentStack), 6f, 5, 5);
 
 class UntamedCurrentAOEs(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = new(11);
-    private static readonly AOEShapeCircle circle = new(5);
-    private static readonly HashSet<AID> casts = [AID.UntamedCurrentAOE1, AID.UntamedCurrentAOE2, AID.UntamedCurrentAOE3, AID.UntamedCurrentAOE4,
-    AID.UntamedCurrentAOE5, AID.UntamedCurrentAOE6, AID.UntamedCurrentAOE7, AID.UntamedCurrentAOE8, AID.UntamedCurrentAOE9, AID.UntamedCurrentAOE10];
+    private static readonly AOEShapeCircle circle = new(5f);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (casts.Contains((AID)spell.Action.ID))
-            _aoes.Add(new(circle, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
+        switch (spell.Action.ID)
+        {
+            case (uint)AID.UntamedCurrentAOE1:
+            case (uint)AID.UntamedCurrentAOE2:
+            case (uint)AID.UntamedCurrentAOE3:
+            case (uint)AID.UntamedCurrentAOE4:
+            case (uint)AID.UntamedCurrentAOE5:
+            case (uint)AID.UntamedCurrentAOE6:
+            case (uint)AID.UntamedCurrentAOE7:
+            case (uint)AID.UntamedCurrentAOE8:
+            case (uint)AID.UntamedCurrentAOE9:
+            case (uint)AID.UntamedCurrentAOE10:
+                _aoes.Add(new(circle, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
+                break;
+        }
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (casts.Contains((AID)spell.Action.ID))
-        {
-            for (var i = 0; i < _aoes.Count; ++i)
+        var count = _aoes.Count;
+        if (count != 0)
+            switch (spell.Action.ID)
             {
-                var aoe = _aoes[i];
-                if (aoe.ActorID == caster.InstanceID)
-                {
-                    _aoes.Remove(aoe);
+                case (uint)AID.UntamedCurrentAOE1:
+                case (uint)AID.UntamedCurrentAOE2:
+                case (uint)AID.UntamedCurrentAOE3:
+                case (uint)AID.UntamedCurrentAOE4:
+                case (uint)AID.UntamedCurrentAOE5:
+                case (uint)AID.UntamedCurrentAOE6:
+                case (uint)AID.UntamedCurrentAOE7:
+                case (uint)AID.UntamedCurrentAOE8:
+                case (uint)AID.UntamedCurrentAOE9:
+                case (uint)AID.UntamedCurrentAOE10:
+                    for (var i = 0; i < count; ++i)
+                    {
+                        if (_aoes[i].ActorID == caster.InstanceID)
+                        {
+                            _aoes.RemoveAt(i);
+                            break;
+                        }
+                    }
                     break;
-                }
             }
-        }
     }
 }
 

@@ -8,16 +8,17 @@ class IvoryPalm(BossModule module) : Components.GenericGaze(module, inverted: tr
     {
         var count = Tethers.Count;
         if (count == 0)
-            yield break;
+            return [];
+
         for (var i = 0; i < count; ++i)
         {
             var tether = Tethers[i];
             if (tether.target == actor && !tether.source.IsDead) // apparently tethers don't get removed immediately upon death
             {
-                yield return new(tether.source.Position);
-                yield break;
+                return [new(tether.source.Position)];
             }
         }
+        return [];
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -46,7 +47,7 @@ class IvoryPalm(BossModule module) : Components.GenericGaze(module, inverted: tr
 
 class IvoryPalmExplosion(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Explosion), "Ivory Palm is enraging!", true);
 
-class EurekanAero(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.EurekanAero), new AOEShapeCone(6, 60.Degrees()), [(uint)OID.IvoryPalm])
+class EurekanAero(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.EurekanAero), new AOEShapeCone(6f, 60f.Degrees()), [(uint)OID.IvoryPalm])
 {
     public override List<(Actor origin, Actor target, Angle angle)> OriginsAndTargets()
     {
@@ -55,7 +56,7 @@ class EurekanAero(BossModule module) : Components.Cleave(module, ActionID.MakeSp
         for (var i = 0; i < count; ++i)
         {
             var enemy = Enemies[i];
-            if (enemy.IsDead || enemy.FindStatus(SID.Petrification) != null)
+            if (enemy.IsDead || enemy.FindStatus((uint)SID.Petrification) != null)
                 continue;
 
             var target = WorldState.Actors.Find(enemy.TargetID);

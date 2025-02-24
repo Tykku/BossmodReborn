@@ -43,33 +43,45 @@ public enum AID : uint
     Telega = 9630 // Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
-class AquaBreath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AquaBreath), new AOEShapeCone(13, 45.Degrees()));
-class Tentacle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Tentacle), 8);
-class Wallop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wallop), new AOEShapeRect(20, 5));
-class Megavolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Megavolt), 11);
-class Waterspout(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Waterspout), 4);
-class SoakingSplatter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SoakingSplatter), 10);
-class FallingWater(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FallingWater), 8);
+class AquaBreath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AquaBreath), new AOEShapeCone(13f, 45f.Degrees()));
+class Tentacle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Tentacle), 8f);
+class Wallop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wallop), new AOEShapeRect(20f, 5f));
+class Megavolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Megavolt), 11f);
+class Waterspout(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Waterspout), 4f);
+class SoakingSplatter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SoakingSplatter), 10f);
+class FallingWater(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FallingWater), 8f);
 class ThunderIII(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ThunderIII));
 
-class WaveOfTurmoil(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.WaveOfTurmoil), 20, stopAtWall: true)
+class WaveOfTurmoil(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.WaveOfTurmoil), 20f, stopAtWall: true)
 {
     private readonly SoakingSplatter _aoe = module.FindComponent<SoakingSplatter>()!;
+    private static readonly Angle cone = 30f.Degrees();
 
-    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => _aoe?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false;
+    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos)
+    {
+        var count = _aoe.Casters.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var caster = _aoe.Casters[i];
+            if (caster.Check(pos))
+                return true;
+        }
+        return false;
+    }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var forbidden = new List<Func<WPos, float>>();
-        var source = Sources(slot, actor).FirstOrDefault();
-        if (source != default)
+        var source = Casters.Count != 0 ? Casters[0] : null;
+        if (source != null)
         {
-            foreach (var c in _aoe.ActiveAOEs(slot, actor))
+            var count = _aoe.Casters.Count;
+            var forbidden = new Func<WPos, float>[count];
+            for (var i = 0; i < count; ++i)
             {
-                forbidden.Add(ShapeDistance.Cone(Arena.Center, 20, Angle.FromDirection(c.Origin - Module.Center), 30.Degrees()));
+                forbidden[i] = ShapeDistance.Cone(Arena.Center, 20f, Angle.FromDirection(_aoe.Casters[i].Origin - Arena.Center), cone);
             }
-            if (forbidden.Count != 0)
-                hints.AddForbiddenZone(ShapeDistance.Union(forbidden), source.Activation);
+            if (forbidden.Length != 0)
+                hints.AddForbiddenZone(ShapeDistance.Union(forbidden), Module.CastFinishAt(source.CastInfo));
         }
     }
 }
@@ -100,7 +112,17 @@ class DaenOseTheAvariciousUltrosStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(DaenOseTheAvariciousUltros.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(DaenOseTheAvariciousUltros.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -119,16 +141,17 @@ public class DaenOseTheAvariciousUltros(WorldState ws, Actor primary) : THTempla
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.SecretOnion => 5,
-                OID.SecretEgg => 4,
-                OID.SecretGarlic => 3,
-                OID.SecretTomato => 2,
-                OID.SecretQueen => 1,
+                (uint)OID.SecretOnion => 5,
+                (uint)OID.SecretEgg => 4,
+                (uint)OID.SecretGarlic => 3,
+                (uint)OID.SecretTomato => 2,
+                (uint)OID.SecretQueen => 1,
                 _ => 0
             };
         }

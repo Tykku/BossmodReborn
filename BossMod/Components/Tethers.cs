@@ -382,7 +382,7 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
-        if (!ActiveBaits.Any())
+        if (ActiveBaits.Count == 0)
             return;
         if (!IsImmune(pcSlot, ActiveBaits.FirstOrDefault(x => x.Target == pc).Activation))
         {
@@ -471,12 +471,12 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!ActiveBaits.Any())
+        if (ActiveBaits.Count == 0)
             return;
         var immunity = IsImmune(slot, ActiveBaits.FirstOrDefault(x => x.Target == actor).Activation);
         var isImmune = immunity && KnockbackImmunity;
         var couldBeImmune = !immunity && KnockbackImmunity;
-        if (couldBeImmune && ActivationDelayOnActor.Any(x => x.Item1 == actor && x.Item2.AddSeconds(-6) <= WorldState.CurrentTime))
+        if (couldBeImmune && ActivationDelayOnActor.Any(x => x.Item1 == actor && x.Item2.AddSeconds(-6d) <= WorldState.CurrentTime))
         {
             hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.ArmsLength), actor, ActionQueue.Priority.High);
             hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Surecast), actor, ActionQueue.Priority.High);
@@ -495,7 +495,7 @@ StretchTetherDuo(module, minimumDistance, activationDelay, tetherID, tetherID, s
 {
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (!ActiveBaits.Any())
+        if (ActiveBaits.Count == 0)
             return;
         if (needToKite && TetherOnActor.Contains((actor, TIDBad)))
             hints.Add("Kite the add!");

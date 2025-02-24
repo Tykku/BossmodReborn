@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C012Gladiator;
 
-class CurseOfTheFallen(BossModule module) : Components.UniformStackSpread(module, 5, 6, 3, 3, true)
+class CurseOfTheFallen(BossModule module) : Components.UniformStackSpread(module, 5f, 6f, 3, 3, true)
 {
     private readonly List<Actor> _fallen = [];
     private Actor? _thunderous;
@@ -32,19 +32,19 @@ class CurseOfTheFallen(BossModule module) : Components.UniformStackSpread(module
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        switch ((SID)status.ID)
+        switch (status.ID)
         {
-            case SID.EchoOfTheFallen:
+            case (uint)SID.EchoOfTheFallen:
                 _fallen.Add(actor);
                 _spreadResolve = status.ExpireAt;
                 _dirty = true;
                 break;
-            case SID.ThunderousEcho:
+            case (uint)SID.ThunderousEcho:
                 _thunderous = actor;
                 _stackResolve = status.ExpireAt;
                 _dirty = true;
                 break;
-            case SID.LingeringEchoes:
+            case (uint)SID.LingeringEchoes:
                 _lingering.Set(Raid.FindSlot(actor.InstanceID));
                 _dirty = true;
                 break;

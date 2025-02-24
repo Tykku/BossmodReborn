@@ -8,6 +8,7 @@ class C011SilkieStates : StateMachineBuilder
     {
         _savage = savage;
         DeathPhase(0, SinglePhase)
+            .ActivateOnEnter<ArenaChange>()
             .ActivateOnEnter<PuffTracker>();
     }
 

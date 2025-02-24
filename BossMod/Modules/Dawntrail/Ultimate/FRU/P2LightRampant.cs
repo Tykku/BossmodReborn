@@ -280,8 +280,8 @@ class P2LightRampantAITowers(BossModule module) : BossComponent(module)
                 // - if actor and partner are north and south, stay on current side
                 // - if both are on the same side, the 'more clockwise' one (NE/SW) moves to the opposite side
                 // TODO: last rule is fuzzy in practice, see if we can adjust better
-                var north = actor.Position.Z < Module.Center.Z;
-                if (north == (partner.Position.Z < Module.Center.Z))
+                var north = actor.Position.Z < Arena.Center.Z;
+                if (north == (partner.Position.Z < Arena.Center.Z))
                 {
                     // same side, see if we need to swap
                     var moreRight = actor.Position.X > partner.Position.X;
@@ -296,9 +296,9 @@ class P2LightRampantAITowers(BossModule module) : BossComponent(module)
             {
                 // each next bait is just previous position rotated CW by 45 degrees
                 // note that this is only really relevant for second and third puddles - after that towers resolve and we use different component
-                //var nextSpot = Module.Center + BaitOffset * _puddles.PrevBaitOffset[slot].Normalized().Rotate(-45.Degrees());
+                //var nextSpot = Arena.Center + BaitOffset * _puddles.PrevBaitOffset[slot].Normalized().Rotate(-45.Degrees());
                 //hints.AddForbiddenZone(ShapeDistance.InvertedCircle(nextSpot, 3));
-                var shape = ShapeDistance.DonutSector(Module.Center, BaitOffset - 1, BaitOffset + 2, Angle.FromDirection(_puddles.PrevBaitOffset[slot]) - 45.Degrees(), 30.Degrees());
+                var shape = ShapeDistance.DonutSector(Arena.Center, BaitOffset - 1, BaitOffset + 2, Angle.FromDirection(_puddles.PrevBaitOffset[slot]) - 45.Degrees(), 30.Degrees());
                 hints.AddForbiddenZone(p => -shape(p), DateTime.MaxValue);
             }
         }
@@ -309,7 +309,7 @@ class P2LightRampantAITowers(BossModule module) : BossComponent(module)
             if (assignedTowerIndex >= 0 && _towers.Towers.FindIndex(assignedTowerIndex + 1, t => !t.ForbiddenSoakers[slot]) < 0)
             {
                 ref var t = ref _towers.Towers.Ref(assignedTowerIndex);
-                hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center + (t.Position - Module.Center) * 1.125f, 2), t.Activation); // center is at R16, x1.125 == R18
+                hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center + (t.Position - Arena.Center) * 1.125f, 2), t.Activation); // center is at R16, x1.125 == R18
             }
             // else: we either have no towers assigned (== doing puddles), or have multiple assigned (== assignments failed), so do nothing
         }
@@ -323,7 +323,7 @@ class P2LightRampantAIStackPrepos(BossModule module) : BossComponent(module)
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var isPuddleBaiter = _puddles?.ActiveBaitsOn(actor).Any() ?? false;
+        var isPuddleBaiter = _puddles?.ActiveBaitsOn(actor).Count != 0;
         var northCamp = isPuddleBaiter ? actor.Position.X < Arena.Center.X : actor.Position.Z < Module.Center.Z; // this assumes CW movement for baiter
         var dest = Module.Center + new WDir(0, northCamp ? -18 : 18);
         if (isPuddleBaiter)

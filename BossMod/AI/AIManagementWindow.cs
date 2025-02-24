@@ -43,7 +43,6 @@ sealed class AIManagementWindow : UIWindow
         var configModified = false;
 
         ImGui.TextUnformatted($"Navi={_manager.Controller.NaviTargetPos}");
-        _manager.Beh?.DrawDebug();
 
         configModified |= ImGui.Checkbox("Forbid actions", ref _config.ForbidActions);
         ImGui.SameLine();
@@ -61,9 +60,7 @@ sealed class AIManagementWindow : UIWindow
         ImGui.Spacing();
         configModified |= ImGui.Checkbox("Manual targeting", ref _config.ManualTarget);
         ImGui.SameLine();
-        configModified |= ImGui.Checkbox("Override autorotation values", ref _config.OverrideAutorotation);
-        ImGui.SameLine();
-        configModified |= ImGui.Checkbox("Allow outside bounds", ref _config.AllowAIToBeOutsideBounds);
+        configModified |= ImGui.Checkbox("Disable loading obstacle maps", ref _config.DisableObstacleMaps);
 
         ImGui.Text("Follow party slot");
         ImGui.SameLine();
@@ -90,7 +87,7 @@ sealed class AIManagementWindow : UIWindow
         ImGui.SetNextItemWidth(100);
         var positionalOptions = Enum.GetNames(typeof(Positional));
         var positionalIndex = (int)_config.DesiredPositional;
-        if (ImGui.Combo("##DesiredPositional", ref positionalIndex, positionalOptions, positionalOptions.Length))
+        if (ImGui.Combo("##DesiredPositional", ref positionalIndex, positionalOptions, 4))
         {
             _config.DesiredPositional = (Positional)positionalIndex;
             configModified = true;

@@ -22,16 +22,16 @@ public enum AID : uint
     DivineBurst = 35441 // DivineSprite->self, no cast, range 40 circle, raidwide when Divine Sprite dies
 }
 
-class WaterIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaterIII), 8);
+class WaterIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaterIII), 8f);
 
-abstract class PelagicCleaver(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 30.Degrees()));
+abstract class PelagicCleaver(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40f, 30f.Degrees()));
 class PelagicCleaver1(BossModule module) : PelagicCleaver(module, AID.PelagicCleaver1);
 class PelagicCleaver2(BossModule module) : PelagicCleaver(module, AID.PelagicCleaver2);
 
 class PelagicCleaver1Hint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PelagicCleaver1));
 class PelagicCleaver2Hint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PelagicCleaver2));
 
-class Flood(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
+class Flood(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
 class WaterFlood(BossModule module) : Flood(module, AID.WaterFlood);
 class DivineFlood(BossModule module) : Flood(module, AID.DivineFlood);
 
@@ -44,11 +44,11 @@ public class A30Trash1States : StateMachineBuilder
             .ActivateOnEnter<WaterIII>()
             .Raw.Update = () =>
             {
-                var enemies = module.Enemies(OID.Serpent);
-                for (var i = 0; i < enemies.Count; ++i)
+                var enemies = module.Enemies((uint)OID.Serpent);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
                 {
-                    var e = enemies[i];
-                    if (!e.IsDeadOrDestroyed)
+                    if (!enemies[i].IsDeadOrDestroyed)
                         return false;
                 }
                 return true;
@@ -69,19 +69,19 @@ public class A30Trash1States : StateMachineBuilder
                     if (!e.IsDeadOrDestroyed)
                         return false;
                 }
-                return module.Enemies(OID.Serpent).Count == 0;
+                return module.Enemies((uint)OID.Serpent).Count == 0;
             };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus, LTS", PrimaryActorOID = (uint)OID.Serpent, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 962, NameID = 12478, SortOrder = 1)]
-public class A30Trash1(WorldState ws, Actor primary) : BossModule(ws, primary, new(-800, -800), new ArenaBoundsCircle(20))
+public class A30Trash1(WorldState ws, Actor primary) : BossModule(ws, primary, new(-800f, -800f), new ArenaBoundsCircle(20f))
 {
     public static readonly uint[] Trash = [(uint)OID.Triton, (uint)OID.DivineSprite, (uint)OID.WaterSprite];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Serpent));
+        Arena.Actors(Enemies((uint)OID.Serpent));
         Arena.Actors(Enemies(Trash));
     }
 }

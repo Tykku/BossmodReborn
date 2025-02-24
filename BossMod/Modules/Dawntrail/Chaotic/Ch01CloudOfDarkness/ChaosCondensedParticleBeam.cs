@@ -4,7 +4,7 @@ class ChaosCondensedParticleBeam(BossModule module) : Components.GenericWildChar
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ChaosCondensedParticleBeam)
+        if (spell.Action.ID == (uint)AID.ChaosCondensedParticleBeam)
         {
             Source = caster;
             Activation = Module.CastFinishAt(spell, 0.7f);
@@ -15,7 +15,7 @@ class ChaosCondensedParticleBeam(BossModule module) : Components.GenericWildChar
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.ChaosCondensedParticleBeamAOE1 or AID.ChaosCondensedParticleBeamAOE2)
+        if (spell.Action.ID is (uint)AID.ChaosCondensedParticleBeamAOE1 or (uint)AID.ChaosCondensedParticleBeamAOE2)
         {
             ++NumCasts;
             Source = null;

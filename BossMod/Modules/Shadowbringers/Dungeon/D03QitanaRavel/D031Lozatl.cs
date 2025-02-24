@@ -21,36 +21,36 @@ public enum AID : uint
     LozatlsFury2 = 15503 // Boss->self, 4.0s cast, range 60 width 20 rect
 }
 
-abstract class LozatlsFury(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(60, 20));
+abstract class LozatlsFury(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(60f, 10f));
 class LozatlsFury1(BossModule module) : LozatlsFury(module, AID.LozatlsFury1);
 class LozatlsFury2(BossModule module) : LozatlsFury(module, AID.LozatlsFury2);
 
 class Stonefist(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.Stonefist));
 class LozatlsScorn(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.LozatlsScorn));
-class SunToss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SunToss), 5);
+class SunToss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SunToss), 5f);
 
 class RonkanLight(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeRect rect = new(60, 20); //TODO: double halfwidth is strange
+    private static readonly AOEShapeRect rect = new(60f, 20f);
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
+        void AddAOE(Angle rot) => _aoe = new(rect, D031Lozatl.ArenaCenter, rot, WorldState.FutureTime(8d));
         if (state == 0x00040008)
         {
-            var activation = WorldState.FutureTime(8);
-            if (actor.Position.AlmostEqual(new(8, 328), 1))
-                _aoe = new(rect, D031Lozatl.ArenaCenter, 90.Degrees(), activation);
-            else if (actor.Position.AlmostEqual(new(-7, 328), 1))
-                _aoe = new(rect, D031Lozatl.ArenaCenter, -90.Degrees(), activation);
+            if (actor.Position.AlmostEqual(new(8, 328), 1f))
+                AddAOE(90f.Degrees());
+            else if (actor.Position.AlmostEqual(new(-7, 328), 1f))
+                AddAOE(-90f.Degrees());
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.RonkanLightLeft or AID.RonkanLightRight)
+        if (spell.Action.ID is (uint)AID.RonkanLightLeft or (uint)AID.RonkanLightRight)
             _aoe = null;
     }
 }
@@ -72,6 +72,6 @@ class D031LozatlStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 651, NameID = 8231)]
 public class D031Lozatl(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    public static readonly WPos ArenaCenter = new(0, 315);
-    private static readonly ArenaBoundsComplex arena = new([new Polygon(ArenaCenter, 19.5f * CosPI.Pi40th, 40)], [new Rectangle(new(0, 335.1f), 20, 2), new Rectangle(new(0, 294.5f), 20, 2)]);
+    public static readonly WPos ArenaCenter = new(default, 315f);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(ArenaCenter, 19.5f * CosPI.Pi40th, 40)], [new Rectangle(new(default, 335.1f), 20f, 2f), new Rectangle(new(default, 294.5f), 20f, 2f)]);
 }

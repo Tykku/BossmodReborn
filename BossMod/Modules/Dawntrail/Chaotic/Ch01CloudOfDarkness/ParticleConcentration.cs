@@ -93,66 +93,67 @@ class ParticleConcentration(BossModule module) : Components.GenericTowers(module
 
         var (offset, count) = index switch
         {
-            0x1F => (new(-9, -15), 1),
-            0x20 => (new(+9, -15), 1),
-            0x21 => (new(-21, -15), 1),
-            0x22 => (new(+21, -15), 1),
-            0x23 => (new(-15, -9), 1),
-            0x24 => (new(+15, -9), 1),
-            0x25 => (new(-15, -21), 1),
-            0x26 => (new(+15, -21), 1),
-            0x27 => (new(-9, +15), 1),
-            0x28 => (new(+9, +15), 1),
-            0x29 => (new(-21, +15), 1),
-            0x2A => (new(+21, +15), 1),
-            0x2B => (new(-15, +9), 1),
-            0x2C => (new(+15, +9), 1),
-            0x2D => (new(-15, +21), 1),
-            0x2E => (new(+15, +21), 1),
-            0x2F => (new(-12, -15), 2),
-            0x30 => (new(+12, -15), 2),
-            0x31 => (new(-18, -15), 2),
-            0x32 => (new(+18, -15), 2),
-            0x33 => (new(-15, -12), 2),
-            0x34 => (new(+15, -12), 2),
-            0x35 => (new(-15, -18), 2),
-            0x36 => (new(+15, -18), 2),
-            0x37 => (new(-12, +15), 2),
-            0x38 => (new(+12, +15), 2),
-            0x39 => (new(-18, +15), 2),
-            0x3A => (new(+18, +15), 2),
-            0x3B => (new(-15, +12), 2),
-            0x3C => (new(+15, +12), 2),
-            0x3D => (new(-15, +18), 2),
-            0x3E => (new(+15, +18), 2),
+            0x1F => (new(-9f, -15f), 1),
+            0x20 => (new(9f, -15f), 1),
+            0x21 => (new(-21f, -15f), 1),
+            0x22 => (new(21f, -15f), 1),
+            0x23 => (new(-15f, -9f), 1),
+            0x24 => (new(15f, -9f), 1),
+            0x25 => (new(-15f, -21f), 1),
+            0x26 => (new(15f, -21f), 1),
+            0x27 => (new(-9f, 15f), 1),
+            0x28 => (new(9f, 15f), 1),
+            0x29 => (new(-21f, 15f), 1),
+            0x2A => (new(21f, 15f), 1),
+            0x2B => (new(-15f, 9f), 1),
+            0x2C => (new(15f, 9f), 1),
+            0x2D => (new(-15f, 21f), 1),
+            0x2E => (new(15f, 21f), 1),
+            0x2F => (new(-12f, -15f), 2),
+            0x30 => (new(12f, -15f), 2),
+            0x31 => (new(-18f, -15f), 2),
+            0x32 => (new(18f, -15f), 2),
+            0x33 => (new(-15f, -12f), 2),
+            0x34 => (new(15f, -12f), 2),
+            0x35 => (new(-15f, -18f), 2),
+            0x36 => (new(15f, -18f), 2),
+            0x37 => (new(-12f, 15f), 2),
+            0x38 => (new(12f, 15f), 2),
+            0x39 => (new(-18f, 15f), 2),
+            0x3A => (new(18f, 15f), 2),
+            0x3B => (new(-15f, 12f), 2),
+            0x3C => (new(15f, 12f), 2),
+            0x3D => (new(-15f, 18f), 2),
+            0x3E => (new(15f, 18f), 2),
             0x3F => (new(-26.5f, -4.5f), 3),
-            0x40 => (new(-22, 0), 3),
+            0x40 => (new(-22f, 0f), 3),
             0x41 => (new(-26.5f, +4.5f), 3),
-            0x42 => (new(-31, 0), 3),
+            0x42 => (new(-31f, 0f), 3),
             0x43 => (new(+26.5f, -4.5f), 3),
-            0x44 => (new(+22, 0), 3),
+            0x44 => (new(+22f, 0f), 3),
             0x45 => (new(+26.5f, +4.5f), 3),
-            0x46 => (new(+31, 0), 3),
+            0x46 => (new(+31f, 0f), 3),
             _ => (default(WDir), 0)
         };
 
         if (count == 3)
             _outerTowers.Add(Arena.Center + offset);
         else if (count > 0)
-            Towers.Add(new(Arena.Center + offset, 3, count, count, _outerPlayers, WorldState.FutureTime(10.1f)));
+            Towers.Add(new(Arena.Center + offset, 3f, count, count, _outerPlayers, WorldState.FutureTime(10.1d)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.ParticleBeam1 or AID.ParticleBeam2 or AID.ParticleBeam3)
+        if (spell.Action.ID is (uint)AID.ParticleBeam1 or (uint)AID.ParticleBeam2 or (uint)AID.ParticleBeam3)
         {
             ++NumCasts;
-            for (var i = 0; i < Towers.Count; ++i)
+            var count = Towers.Count;
+            var pos = caster.Position;
+            for (var i = 0; i < count; ++i)
             {
-                var tower = Towers[i];
-                if (tower.Position == caster.Position)
+                if (Towers[i].Position == pos)
                 {
-                    Towers.Remove(tower);
+                    Towers.RemoveAt(i);
                     break;
                 }
             }

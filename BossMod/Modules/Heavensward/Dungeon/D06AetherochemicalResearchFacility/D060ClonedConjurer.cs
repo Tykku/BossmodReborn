@@ -15,7 +15,7 @@ public enum AID : uint
     Drain = 2339 // ClonedThaumaturge->player, 4.0s cast, single-target
 }
 
-class Tornado(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Tornado), 6);
+class Tornado(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Tornado), 6f);
 
 class D060ClonedConjurerStates : StateMachineBuilder
 {
@@ -23,7 +23,17 @@ class D060ClonedConjurerStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<Tornado>()
-            .Raw.Update = () => module.Enemies(D060ClonedConjurer.Trash).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D060ClonedConjurer.Trash);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 

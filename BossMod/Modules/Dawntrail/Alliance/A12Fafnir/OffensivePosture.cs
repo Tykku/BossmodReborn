@@ -1,11 +1,11 @@
 namespace BossMod.Dawntrail.Alliance.A12Fafnir;
 
-class SpikeFlail(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpikeFlail), new AOEShapeCone(80, 135.Degrees()))
+class SpikeFlail(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpikeFlail), new AOEShapeCone(80f, 135f.Degrees()))
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class Touchdown(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Touchdown), 24)
+class Touchdown(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Touchdown), 24f)
 {
     public override bool KeepOnPhaseChange => true;
 
@@ -20,13 +20,13 @@ class DragonBreath(BossModule module) : Components.GenericAOEs(module, ActionID.
     public override bool KeepOnPhaseChange => true;
     public AOEInstance? AOE;
 
-    private static readonly AOEShapeDonut donut = new(16, 30);
+    private static readonly AOEShapeDonut donut = new(16f, 30f);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(AOE);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.OffensivePostureDragonBreath)
+        if (spell.Action.ID == (uint)AID.OffensivePostureDragonBreath)
         {
             NumCasts = 0;
             AOE = new(donut, Arena.Center, default, Module.CastFinishAt(spell, 1.2f));
@@ -35,7 +35,7 @@ class DragonBreath(BossModule module) : Components.GenericAOEs(module, ActionID.
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
-        if ((OID)actor.OID == OID.FireVoidzone && state == 0x00040008)
+        if (actor.OID == (uint)OID.FireVoidzone && state == 0x00040008)
             AOE = null;
     }
 }

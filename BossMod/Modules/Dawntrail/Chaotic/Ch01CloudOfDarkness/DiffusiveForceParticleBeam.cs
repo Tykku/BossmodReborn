@@ -11,13 +11,13 @@ class DiffusiveForceParticleBeam(BossModule module) : Components.UniformStackSpr
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.DiffusiveForceParticleBeam)
+        if (spell.Action.ID == (uint)AID.DiffusiveForceParticleBeam)
             AddSpreads(Raid.WithoutSlot(true, false, true), Module.CastFinishAt(spell, 0.7f));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.DiffusiveForceParticleBeamAOE1 or AID.DiffusiveForceParticleBeamAOE2)
+        if (spell.Action.ID is (uint)AID.DiffusiveForceParticleBeamAOE1 or (uint)AID.DiffusiveForceParticleBeamAOE2)
         {
             ++NumCasts;
             Spreads.RemoveAll(s => s.Target.InstanceID == spell.MainTargetID);

@@ -31,9 +31,9 @@ public enum AID : uint
 }
 
 class OpticalIntrusion(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.OpticalIntrusion));
-class Hypnotize(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hypnotize), new AOEShapeCone(22.85f, 45.Degrees()));
+class Hypnotize(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hypnotize), new AOEShapeCone(22.85f, 45f.Degrees()));
 class SaibaiMandragora(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.SaibaiMandragora), "Calls adds");
-class LeafDagger(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LeafDagger), 3);
+class LeafDagger(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LeafDagger), 3f);
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
@@ -56,7 +56,17 @@ class AltarMandragoraStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(AltarMandragora.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(AltarMandragora.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -70,23 +80,24 @@ public class AltarMandragora(WorldState ws, Actor primary) : THTemplate(ws, prim
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.AltarKorrigan));
+        Arena.Actors(Enemies((uint)OID.AltarKorrigan));
         Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.AltarOnion => 6,
-                OID.AltarEgg => 5,
-                OID.AltarGarlic => 4,
-                OID.AltarTomato => 3,
-                OID.AltarQueen => 2,
-                OID.AltarKorrigan => 1,
+                (uint)OID.AltarOnion => 6,
+                (uint)OID.AltarEgg => 5,
+                (uint)OID.AltarGarlic => 4,
+                (uint)OID.AltarTomato => 3,
+                (uint)OID.AltarQueen => 2,
+                (uint)OID.AltarKorrigan => 1,
                 _ => 0
             };
         }

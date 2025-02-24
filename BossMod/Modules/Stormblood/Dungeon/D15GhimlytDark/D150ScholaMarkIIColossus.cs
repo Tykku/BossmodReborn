@@ -47,17 +47,7 @@ class UnbreakableCermetBlade(BossModule module) : Components.GenericAOEs(module)
     {
         if (_aoe == null)
             return;
-
-        var shouldAddHint = false;
-        foreach (var c in ActiveAOEs(slot, actor))
-        {
-            if (!c.Check(actor.Position))
-            {
-                shouldAddHint = true;
-                break;
-            }
-        }
-        if (shouldAddHint)
+        if (!_aoe.Value.Check(actor.Position))
             hints.Add(Hint);
         else
             hints.Add(Hint, false);

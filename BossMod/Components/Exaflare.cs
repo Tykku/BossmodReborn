@@ -55,7 +55,7 @@ public class Exaflare(BossModule module, AOEShape shape, ActionID aid = default)
         {
             var l = Lines[i];
             if (l.ExplosionsLeft != 0)
-                exas[i] = (l.Next, l.NextExplosion, l.Rotation);
+                exas[i] = (WPos.ClampToGrid(l.Next), l.NextExplosion, l.Rotation);
         }
         return exas;
     }
@@ -63,17 +63,18 @@ public class Exaflare(BossModule module, AOEShape shape, ActionID aid = default)
     protected List<(WPos, DateTime, Angle)> FutureAOEs(int count)
     {
         var exas = new List<(WPos, DateTime, Angle)>(count);
+        var currentTime = WorldState.CurrentTime;
         for (var i = 0; i < count; ++i)
         {
             var l = Lines[i];
             var num = Math.Min(l.ExplosionsLeft, l.MaxShownExplosions);
             var pos = l.Next;
-            var time = l.NextExplosion > WorldState.CurrentTime ? l.NextExplosion : WorldState.CurrentTime;
+            var time = l.NextExplosion > currentTime ? l.NextExplosion : currentTime;
             for (var j = 1; j < num; ++j)
             {
                 pos += l.Advance;
                 time = time.AddSeconds(l.TimeToMove);
-                exas.Add((pos, time, l.Rotation));
+                exas.Add((WPos.ClampToGrid(pos), time, l.Rotation));
             }
         }
         return exas;

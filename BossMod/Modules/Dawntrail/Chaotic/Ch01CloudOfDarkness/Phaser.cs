@@ -1,13 +1,13 @@
 ﻿namespace BossMod.Dawntrail.Chaotic.Ch01CloudOfDarkness;
 
-class Phaser(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Phaser), new AOEShapeCone(23, 30.Degrees())) // TODO: verify angle
+class Phaser(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Phaser), new AOEShapeCone(23f, 30f.Degrees())) // TODO: verify angle
 {
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = Casters.Count;
         if (count == 0)
             return [];
-        var deadline = Casters[0].Activation.AddSeconds(1);
+        var deadline = Casters[0].Activation.AddSeconds(1d);
 
         var aoes = new AOEInstance[count];
         var index = 0;

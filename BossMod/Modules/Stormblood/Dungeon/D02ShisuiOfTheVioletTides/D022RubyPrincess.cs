@@ -36,7 +36,7 @@ class SeduceOld(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCircle circle = new(2.5f);
     private bool active;
     private bool addedCircles;
-    private readonly HashSet<Actor> chests = module.Enemies(OID.Helper).Where(x => x.NameID == 6274).ToHashSet();
+    private readonly HashSet<Actor> chests = [.. module.Enemies(OID.Helper).Where(x => x.NameID == 6274)];
     private readonly HashSet<Circle> closedChests = [];
     private readonly HashSet<Circle> openChests = [];
 

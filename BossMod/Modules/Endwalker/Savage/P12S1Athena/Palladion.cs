@@ -190,7 +190,7 @@ class PalladionWhiteFlame : Components.GenericBaitAway
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
         if (NumCasts < 4 && !ForbiddenPlayers[slot])
-            hints.Add("Bait next aoe", CurrentBaits.Count != 0 && !ActiveBaitsOn(actor).Any());
+            hints.Add("Bait next aoe", CurrentBaits.Count != 0 && ActiveBaitsOn(actor).Count == 0);
         base.AddHints(slot, actor, hints);
     }
 

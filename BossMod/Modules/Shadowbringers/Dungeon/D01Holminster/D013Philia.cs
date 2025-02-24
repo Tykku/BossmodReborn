@@ -28,12 +28,12 @@ public enum AID : uint
     IntoTheLightMarker = 15844, // Helper->player, no cast, single-target, line stack
     IntoTheLightVisual = 17232, // Boss->self, 5.0s cast, single-target
     IntoTheLight = 15845, // Boss->self, no cast, range 50 width 8 rect
-    FierceBeating1 = 15834, // Boss->self, 5.0s cast, single-target
-    FierceBeating2 = 15836, // Boss->self, no cast, single-target
-    FierceBeating3 = 15835, // Boss->self, no cast, single-target
-    FierceBeating4 = 15837, // Helper->self, 5.0s cast, range 4 circle
-    FierceBeating5 = 15839, // Helper->location, no cast, range 4 circle
-    FierceBeating6 = 15838, // Helper->self, no cast, range 4 circle
+    FierceBeatingRotationVisual = 15834, // Boss->self, 5.0s cast, single-target
+    FierceBeatingVisual1 = 15836, // Boss->self, no cast, single-target
+    FierceBeatingVisual2 = 15835, // Boss->self, no cast, single-target
+    FierceBeatingExaFirst = 15837, // Helper->self, 5.0s cast, range 4 circle
+    FierceBeatingExaRestFirst = 15838, // Helper->self, no cast, range 4 circle
+    FierceBeatingExaRestRest = 15839, // Helper->location, no cast, range 4 circle
     CatONineTailsVisual = 15840, // Boss->self, no cast, single-target
     CatONineTails = 15841 // Helper->self, 2.0s cast, range 25 120-degree cone
 }
@@ -49,7 +49,27 @@ public enum SID : uint
     Fetters = 1849 // none->player, extra=0xEC4
 }
 
-class SludgeVoidzone(BossModule module) : Components.PersistentVoidzone(module, 9.8f, m => m.Enemies(OID.SludgeVoidzone).Where(z => z.EventState != 7));
+class SludgeVoidzone(BossModule module) : Components.PersistentVoidzone(module, 9.8f, GetVoidzones)
+{
+    private static Actor[] GetVoidzones(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.SludgeVoidzone);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
+
+        var voidzones = new Actor[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (z.EventState != 7)
+                voidzones[index++] = z;
+        }
+        return voidzones[..index];
+    }
+}
+
 class ScavengersDaughter(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ScavengersDaughter));
 class HeadCrusher(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.HeadCrusher));
 
@@ -62,7 +82,7 @@ class Fetters(BossModule module) : BossComponent(module)
 
     public override void Update()
     {
-        var fetters = chaintarget?.FindStatus(SID.Fetters) != null;
+        var fetters = chaintarget?.FindStatus((uint)SID.Fetters) != null;
         if (fetters)
             chainsactive = true;
         if (fetters && !chained)
@@ -89,16 +109,16 @@ class Fetters(BossModule module) : BossComponent(module)
             for (var i = 0; i < hints.PotentialTargets.Count; ++i)
             {
                 var e = hints.PotentialTargets[i];
-                e.Priority = (OID)e.Actor.OID switch
+                e.Priority = e.Actor.OID switch
                 {
-                    OID.IronChain => 1,
-                    OID.Boss => -1,
+                    (uint)OID.IronChain => 1,
+                    (uint)OID.Boss => AIHints.Enemy.PriorityInvincible,
                     _ => 0
                 };
             }
-        var ironchain = Module.Enemies(OID.IronChain).FirstOrDefault();
+        var ironchain = Module.Enemies((uint)OID.IronChain).FirstOrDefault();
         if (ironchain != null && !ironchain.IsDead)
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(ironchain.Position, ironchain.HitboxRadius + 3));
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(ironchain.Position, 3.6f));
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
@@ -112,34 +132,40 @@ class Fetters(BossModule module) : BossComponent(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ChainDown)
+        if (spell.Action.ID == (uint)AID.ChainDown)
             casting = false;
     }
 }
 
 class Aethersup(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCone cone = new(24, 60.Degrees());
+    private static readonly AOEShapeCone cone = new(24f, 60f.Degrees());
     private AOEInstance _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_aoe != default)
-            yield return _aoe with { Risky = Module.Enemies(OID.IronChain).Any(x => x.IsDead) };
+        {
+            var chainL = Module.Enemies((uint)OID.IronChain);
+            var count = chainL.Count;
+            return [_aoe with { Risky = count == 0 || count != 0 && chainL[0].IsDead }];
+        }
+        else
+            return [];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.AethersupFirst)
+        if (spell.Action.ID == (uint)AID.AethersupFirst)
             _aoe = new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.AethersupFirst:
-            case AID.AethersupRest:
+            case (uint)AID.AethersupFirst:
+            case (uint)AID.AethersupRest:
                 if (++NumCasts == 4)
                 {
                     _aoe = default;
@@ -150,58 +176,54 @@ class Aethersup(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class PendulumFlare(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(20), (uint)IconID.SpreadFlare, ActionID.MakeSpell(AID.PendulumAOE1), 5.1f, true)
+class PendulumFlare(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(20f), (uint)IconID.SpreadFlare, ActionID.MakeSpell(AID.PendulumAOE1), 5.1f, true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (ActiveBaits.Any(x => x.Target == actor))
+        if (CurrentBaits.Count != 0 && CurrentBaits[0].Target == actor)
             hints.AddForbiddenZone(ShapeDistance.Circle(D013Philia.ArenaCenter, 18.5f));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
         base.AddHints(slot, actor, hints);
-        if (ActiveBaits.Any(x => x.Target == actor))
+        if (CurrentBaits.Count != 0 && CurrentBaits[0].Target == actor)
             hints.Add("Bait away!");
     }
 }
 
-class PendulumAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PendulumAOE3), 15);
+class PendulumAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PendulumAOE3), 15f);
 
-class Knout(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(24, 105.Degrees()));
+class Knout(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(24f, 105f.Degrees()));
 class LeftKnout(BossModule module) : Knout(module, AID.LeftKnout);
 class RightKnout(BossModule module) : Knout(module, AID.RightKnout);
 
-class Taphephobia(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Taphephobia2), 6);
+class Taphephobia(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Taphephobia2), 6f);
 
 class IntoTheLight(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.IntoTheLightMarker), ActionID.MakeSpell(AID.IntoTheLight), 5.3f);
 
 class CatONineTails(BossModule module) : Components.GenericRotatingAOE(module)
 {
-    private static readonly AOEShapeCone _shape = new(25, 60.Degrees());
+    private static readonly AOEShapeCone _shape = new(25f, 60f.Degrees());
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.FierceBeating1)
-            Sequences.Add(new(_shape, D013Philia.ArenaCenter, spell.Rotation + 180.Degrees(), -45.Degrees(), Module.CastFinishAt(spell), 2, 8));
+        if (spell.Action.ID == (uint)AID.FierceBeatingRotationVisual)
+            Sequences.Add(new(_shape, spell.LocXZ, spell.Rotation + 180f.Degrees(), -45f.Degrees(), Module.CastFinishAt(spell), 2f, 8));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.CatONineTails)
+        if (spell.Action.ID == (uint)AID.CatONineTails)
             AdvanceSequence(0, WorldState.CurrentTime);
     }
 }
 
-class FierceBeating(BossModule module) : Components.Exaflare(module, 4)
+class FierceBeating(BossModule module) : Components.Exaflare(module, 4f)
 {
-    private readonly List<WPos> _casters = [];
-    private int linesstartedcounttotal;
-    private int linesstartedcount1;
-    private int linesstartedcount2;
-    private static readonly AOEShapeCircle circle = new(4);
-    private DateTime _activation;
+    private static readonly AOEShapeCircle circle = new(4f);
+    private readonly List<AOEInstance> _aoes = new(2);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -212,82 +234,78 @@ class FierceBeating(BossModule module) : Components.Exaflare(module, 4)
         var imminentAOEs = ImminentAOEs(linesCount);
         var futureCount = futureAOEs.Count;
         var imminentCount = imminentAOEs.Length;
-        var total = futureCount + imminentCount;
+        var aoesCount = _aoes.Count;
+        var total = futureCount + imminentCount + aoesCount;
         var index = 0;
-        var aoes = new AOEInstance[total + 2];
+        var aoes = new AOEInstance[total];
         for (var i = 0; i < futureCount; ++i)
         {
             var aoe = futureAOEs[i];
-            aoes[index++] = new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, FutureColor);
+            aoes[index++] = new(Shape, WPos.ClampToGrid(aoe.Item1), aoe.Item3, aoe.Item2, FutureColor);
         }
-
         for (var i = 0; i < imminentCount; ++i)
         {
             var aoe = imminentAOEs[i];
-            aoes[index++] = new(Shape, aoe.Item1, aoe.Item3, aoe.Item2, ImminentColor);
+            aoes[index++] = new(Shape, WPos.ClampToGrid(aoe.Item1), aoe.Item3, aoe.Item2, ImminentColor);
         }
-        if (linesstartedcount1 < 8)
-            aoes[index++] = new(circle, WPos.RotateAroundOrigin(linesstartedcount1 * 45, D013Philia.ArenaCenter, _casters[0]), default, _activation.AddSeconds(linesstartedcount1 * 3.7f));
-        if (linesCount > 1 && linesstartedcount2 < 8)
-            aoes[index++] = new(circle, WPos.RotateAroundOrigin(linesstartedcount2 * 45, D013Philia.ArenaCenter, _casters[1]), default, _activation.AddSeconds(linesstartedcount2 * 3.7f));
-        return aoes[..index];
-    }
-
-    public override void Update()
-    {
-        if (linesstartedcount1 != 0 && Lines.Count == 0)
+        for (var i = 0; i < aoesCount; ++i)
         {
-            linesstartedcounttotal = 0;
-            linesstartedcount1 = 0;
-            linesstartedcount2 = 0;
-            _casters.Clear();
+            var aoe = _aoes[i];
+            aoes[index++] = aoe;
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.FierceBeating4)
+        if (spell.Action.ID == (uint)AID.FierceBeatingExaFirst)
         {
-            Lines.Add(new() { Next = caster.Position, Advance = 2.5f * spell.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1, ExplosionsLeft = 7, MaxShownExplosions = 3 });
-            _activation = Module.CastFinishAt(spell);
-            ++linesstartedcounttotal;
-            ++NumCasts;
-            _casters.Add(caster.Position);
-            if (linesstartedcounttotal % 2 != 0)
-                ++linesstartedcount1;
-            else
-                ++linesstartedcount2;
+            AddLine(ref caster, Module.CastFinishAt(spell));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.FierceBeating6)
+        if (spell.Action.ID == (uint)AID.FierceBeatingExaRestFirst)
         {
-            Lines.Add(new() { Next = caster.Position, Advance = 2.5f * caster.Rotation.ToDirection(), NextExplosion = WorldState.FutureTime(1), TimeToMove = 1, ExplosionsLeft = 7, MaxShownExplosions = 3 });
-            ++linesstartedcounttotal;
-            if (linesstartedcounttotal % 2 != 0)
-                ++linesstartedcount1;
-            else
-                ++linesstartedcount2;
+            AddLine(ref caster, WorldState.FutureTime(1d));
         }
-        if (Lines.Count > 0)
+        if (Lines.Count != 0)
         {
-            if ((AID)spell.Action.ID is AID.FierceBeating4 or AID.FierceBeating6)
+            if (spell.Action.ID is (uint)AID.FierceBeatingExaFirst or (uint)AID.FierceBeatingExaRestFirst)
+                Advance(caster.Position);
+            else if (spell.Action.ID == (uint)AID.FierceBeatingExaRestRest)
+                Advance(spell.TargetXZ);
+        }
+
+        void Advance(WPos pos)
+        {
+            var count = Lines.Count;
+            for (var i = 0; i < count; ++i)
             {
-                var index = Lines.FindIndex(item => item.Next.AlmostEqual(caster.Position, 1));
-                AdvanceLine(Lines[index], caster.Position);
-                if (Lines[index].ExplosionsLeft == 0)
-                    Lines.RemoveAt(index);
-            }
-            else if ((AID)spell.Action.ID == AID.FierceBeating5)
-            {
-                var index = Lines.FindIndex(item => item.Next.AlmostEqual(spell.TargetXZ, 1));
-                AdvanceLine(Lines[index], spell.TargetXZ);
-                if (Lines[index].ExplosionsLeft == 0)
-                    Lines.RemoveAt(index);
+                var line = Lines[i];
+                if (line.Next.AlmostEqual(pos, 1f))
+                {
+                    AdvanceLine(line, pos);
+                    if (line.ExplosionsLeft == 0)
+                        Lines.RemoveAt(i);
+                    return;
+                }
             }
         }
+    }
+
+    public void AddLine(ref Actor caster, DateTime activation)
+    {
+        var adv = 2.5f * caster.Rotation.ToDirection();
+        Lines.Add(new() { Next = caster.Position, Advance = adv, NextExplosion = activation, TimeToMove = 1f, ExplosionsLeft = 7, MaxShownExplosions = 3 });
+        ++NumCasts;
+        if (_aoes.Count != 0 && NumCasts > 2)
+            _aoes.RemoveAt(0);
+        if (NumCasts <= 14)
+            _aoes.Add(new(circle, WPos.ClampToGrid(WPos.RotateAroundOrigin(45, D013Philia.ArenaCenter, caster.Position + adv)), default, WorldState.FutureTime(3.7d)));
+        if (NumCasts == 16)
+            NumCasts = 0;
     }
 }
 

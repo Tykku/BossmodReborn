@@ -28,13 +28,32 @@ public enum IconID : uint
     ChasingAOE = 197 // player
 }
 
-class WheiMorn(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(6), ActionID.MakeSpell(AID.WheiMornFirst), ActionID.MakeSpell(AID.WheiMornRest), 6, 2, 5, true, (uint)IconID.ChasingAOE);
-class DarkMegaflare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkMegaflare), 6);
+class WheiMorn(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(6f), ActionID.MakeSpell(AID.WheiMornFirst), ActionID.MakeSpell(AID.WheiMornRest), 6f, 2f, 5, true, (uint)IconID.ChasingAOE);
+class DarkMegaflare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkMegaflare), 6f);
 
-class DarkWyrm(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 8));
+class DarkWyrm(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40f, 8f));
 class DarkWyrmwing(BossModule module) : DarkWyrm(module, AID.DarkWyrmwing);
 class DarkWyrmtail(BossModule module) : DarkWyrm(module, AID.DarkWyrmtail);
-class CreatureOfDarkness(BossModule module) : Components.PersistentVoidzone(module, 2, m => m.Enemies(OID.DarkWanderer).Where(x => x.ModelState.AnimState1 == 1), 6);
+class CreatureOfDarkness(BossModule module) : Components.PersistentVoidzone(module, 2f, GetVoidzones, 6f)
+{
+    private static Actor[] GetVoidzones(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.DarkWanderer);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
+
+        var voidzones = new Actor[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (z.ModelState.AnimState1 == 1)
+                voidzones[index++] = z;
+        }
+        return voidzones[..index];
+    }
+}
 
 class DD30TiamatsCloneStates : StateMachineBuilder
 {
@@ -50,4 +69,4 @@ class DD30TiamatsCloneStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 899, NameID = 12242)]
-public class DD30TiamatsClone(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsSquare(19.5f));
+public class DD30TiamatsClone(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300f, -300f), new ArenaBoundsSquare(19.5f));

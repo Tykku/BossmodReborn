@@ -4,13 +4,13 @@ class Guillotine(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
 
-    private static readonly AOEShapeCone _shape = new(40, 120.Degrees());
+    private static readonly AOEShapeCone _shape = new(40f, 120f.Degrees());
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Guillotine)
+        if (spell.Action.ID == (uint)AID.Guillotine)
         {
             _aoe = new(_shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell, 0.6f));
         }
@@ -18,10 +18,10 @@ class Guillotine(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.GuillotineAOE or AID.GuillotineAOELast)
+        if (spell.Action.ID is (uint)AID.GuillotineAOE or (uint)AID.GuillotineAOELast)
         {
             ++NumCasts;
-            if ((AID)spell.Action.ID == AID.GuillotineAOELast)
+            if (spell.Action.ID == (uint)AID.GuillotineAOELast)
                 _aoe = null;
         }
     }

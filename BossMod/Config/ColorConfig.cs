@@ -142,5 +142,7 @@ public sealed class ColorConfig : ConfigNode
     [PropertyDisplay("Collision debug colors")]
     public Color[] CollisionColors = [new(0xff00ff00), new(0xff00ffff), new(0xff0000ff)];
 
+    [PropertyDisplay("Pathfinding debug colors")]
+    public Color[] PathfindingColors = [new(0xff007fff), new(0xff808080), new(0xff0000ff), new(0xffff0080)];
     public static ColorConfig DefaultConfig => new();
 }

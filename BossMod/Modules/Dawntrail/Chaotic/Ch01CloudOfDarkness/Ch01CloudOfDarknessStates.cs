@@ -15,39 +15,39 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
         DelugeOfDarkness1(id + 0x20000, 4.5f);
 
         // note: flare starts casting ~1.9s before first criss-cross, aero/death ~3.2s after
-        ComponentCondition<RazingVolleyParticleBeam>(id + 0x30000, 4, comp => comp.Casters.Count > 0);
+        ComponentCondition<RazingVolleyParticleBeam>(id + 0x30000, 4f, comp => comp.Casters.Count > 0);
         Dictionary<bool, (uint seqID, Action<uint> buildState)> dispatch = new()
         {
             [true] = (1, Fork1),
             [false] = (2, Fork2),
         };
-        ConditionFork(id + 0x31000, 8, () => Module.PrimaryActor.CastInfo != null, () => Module.PrimaryActor.CastInfo!.IsSpell(AID.Flare), dispatch, "Criss-cross start ...");
+        ConditionFork(id + 0x31000, 8f, () => Module.PrimaryActor.CastInfo != null, () => Module.PrimaryActor.CastInfo!.IsSpell(AID.Flare), dispatch, "Criss-cross start ...");
     }
 
     private void Fork1(uint id)
     {
-        Subphase1Variant1End(id, 0);
-        FloodOfDarkness1(id + 0x100000, 8);
+        Subphase1Variant1End(id, 0f);
+        FloodOfDarkness1(id + 0x100000, 8f);
         Subphase2(id + 0x200000, 6.1f);
 
         DelugeOfDarkness1(id + 0x400000, 8.2f);
-        ComponentCondition<RazingVolleyParticleBeam>(id + 0x410000, 4, comp => comp.Casters.Count > 0);
-        Subphase1Variant2End(id + 0x410000, 8);
+        ComponentCondition<RazingVolleyParticleBeam>(id + 0x410000, 4f, comp => comp.Casters.Count > 0);
+        Subphase1Variant2End(id + 0x410000, 8f);
 
-        Cast(id + 0x500000, AID.Enrage, 11.2f, 12, "Enrage");
+        Cast(id + 0x500000, AID.Enrage, 11.2f, 12f, "Enrage");
     }
 
     private void Fork2(uint id)
     {
-        Subphase1Variant2End(id, 0);
+        Subphase1Variant2End(id, 0f);
         FloodOfDarkness1(id + 0x100000, 11.2f);
         Subphase2(id + 0x200000, 6.1f);
 
         DelugeOfDarkness1(id + 0x400000, 8.2f);
-        ComponentCondition<RazingVolleyParticleBeam>(id + 0x410000, 4, comp => comp.Casters.Count > 0);
+        ComponentCondition<RazingVolleyParticleBeam>(id + 0x410000, 4f, comp => comp.Casters.Count > 0);
         Subphase1Variant1End(id + 0x410000, 6.1f);
 
-        Cast(id + 0x500000, AID.Enrage, 8, 12, "Enrage");
+        Cast(id + 0x500000, AID.Enrage, 8f, 12f, "Enrage");
     }
 
     private void Subphase1Variant1End(uint id, float delay)
@@ -55,7 +55,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
         FlareUnholyDarknessBladeOfDarkness(id + 0x100, delay);
         EndeathEnaero(id + 0x10000, 1.4f);
         Break(id + 0x20000, 13.2f);
-        BladeOfDarknessEndeathEnaeroResolve(id + 0x30000, 4);
+        BladeOfDarknessEndeathEnaeroResolve(id + 0x30000, 4f);
         RazingVolleyParticleBeamStart(id + 0x40000, 4.2f);
         DeathAero(id + 0x50000, 12.3f);
     }
@@ -64,7 +64,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
     {
         ComponentCondition<RazingVolleyParticleBeam>(id + 0x100, delay, comp => comp.NumCasts > 0, "Criss-cross start");
         DeathAero(id + 0x10000, 3.2f);
-        EndeathEnaero(id + 0x20000, 6);
+        EndeathEnaero(id + 0x20000, 6f);
         RapidSequenceParticleBeam(id + 0x30000, 4.1f);
         RazingVolleyParticleBeamBladeOfDarknessEndeathEnaeroResolve(id + 0x40000, 12.3f);
         Flare(id + 0x50000, 9.3f);
@@ -74,16 +74,16 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
     {
         DelugeOfDarkness2(id, delay);
         DarkDominion(id + 0x10000, 9.3f); // note: 1s after cast ends, outer ring becomes dangerous
-        ThirdArtOfDarknessParticleConcentration(id + 0x20000, 4); // note: 3s after towers resolve, outer ring becomes normal
+        ThirdArtOfDarknessParticleConcentration(id + 0x20000, 4f); // note: 3s after towers resolve, outer ring becomes normal
         GhastlyGloom(id + 0x30000, 12.3f);
         CurseOfDarkness(id + 0x40000, 8.3f);
-        EvilSeedChaosCondensedDiffusiveForceParticleBeam(id + 0x50000, 10);
+        EvilSeedChaosCondensedDiffusiveForceParticleBeam(id + 0x50000, 10f);
         ActivePivotParticleBeam(id + 0x70000, 4.5f);
         LoomingChaos(id + 0x80000, 6.2f);
 
         CurseOfDarkness(id + 0x100000, 11.9f);
         ParticleConcentrationPhaser(id + 0x110000, 4.2f);
-        DarkDominion(id + 0x120000, 1); // note: 1s after cast ends, outer ring becomes dangerous
+        DarkDominion(id + 0x120000, 1f); // note: 1s after cast ends, outer ring becomes dangerous
         FeintParticleBeamThirdActOfDarkness(id + 0x130000, 3.1f); // note: 2.5s after act of darkness resolves, outer ring becomes normal
         GhastlyGloom(id + 0x140000, 11.4f);
         PhaserChaosCondensedDiffusiveForceParticleBeam(id + 0x150000, 3.3f);
@@ -93,7 +93,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
 
     private void BladeOfDarkness(uint id, float delay)
     {
-        CastMulti(id, [AID.BladeOfDarknessL, AID.BladeOfDarknessR, AID.BladeOfDarknessC], delay, 7)
+        CastMulti(id, [AID.BladeOfDarknessL, AID.BladeOfDarknessR, AID.BladeOfDarknessC], delay, 7f)
             .ActivateOnEnter<BladeOfDarkness>();
         ComponentCondition<BladeOfDarkness>(id + 2, 0.7f, comp => comp.NumCasts > 0, "In/out")
             .DeactivateOnExit<BladeOfDarkness>();
@@ -101,13 +101,13 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
 
     private void DelugeOfDarkness1(uint id, float delay)
     {
-        Cast(id, AID.DelugeOfDarkness1, delay, 8, "Raidwide + arena transition")
+        Cast(id, AID.DelugeOfDarkness1, delay, 8f, "Raidwide + arena transition")
             .DeactivateOnEnter<Phase2InnerCells>()
             .SetHint(StateMachine.StateHint.Raidwide);
-        CastMulti(id + 0x100, [AID.GrimEmbraceForward, AID.GrimEmbraceBackward], 9.2f, 5, "Debuffs 1")
+        CastMulti(id + 0x100, [AID.GrimEmbraceForward, AID.GrimEmbraceBackward], 9.2f, 5f, "Debuffs 1")
             .ActivateOnEnter<GrimEmbraceBait>()
             .ActivateOnEnter<GrimEmbraceAOE>();
-        CastMulti(id + 0x110, [AID.GrimEmbraceForward, AID.GrimEmbraceBackward], 3.1f, 5, "Debuffs 2")
+        CastMulti(id + 0x110, [AID.GrimEmbraceForward, AID.GrimEmbraceBackward], 3.1f, 5f, "Debuffs 2")
             .ActivateOnEnter<RazingVolleyParticleBeam>() // has weird overlaps, easier to keep active for the entirety of the phase
             .ActivateOnEnter<EnaeroEndeath>() // we want to keep all these components active, so that they provide advance hints for delayed resolve
             .ActivateOnEnter<EndeathAOE>() // death has extra resolve steps, which make writing states weird
@@ -117,7 +117,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
     private void RazingVolleyParticleBeamStart(uint id, float delay)
     {
         ComponentCondition<RazingVolleyParticleBeam>(id, delay, comp => comp.Casters.Count > 0);
-        ComponentCondition<RazingVolleyParticleBeam>(id + 0x10, 8, comp => comp.NumCasts > 0, "Criss-cross start");
+        ComponentCondition<RazingVolleyParticleBeam>(id + 0x10, 8f, comp => comp.NumCasts > 0, "Criss-cross start");
     }
 
     private void DeathAero(uint id, float delay)
@@ -128,7 +128,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
 
     private void EndeathEnaero(uint id, float delay)
     {
-        CastMulti(id, [AID.Endeath, AID.Enaero], delay, 5, "Store knockback/attract");
+        CastMulti(id, [AID.Endeath, AID.Enaero], delay, 5f, "Store knockback/attract");
     }
 
     private void BladeOfDarknessEndeathEnaeroResolve(uint id, float delay)
@@ -153,19 +153,19 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
 
     private void RapidSequenceParticleBeam(uint id, float delay)
     {
-        Cast(id, AID.RapidSequenceParticleBeam, delay, 7)
+        Cast(id, AID.RapidSequenceParticleBeam, delay, 7f)
             .ActivateOnEnter<RapidSequenceParticleBeam>();
         ComponentCondition<RapidSequenceParticleBeam>(id + 0x10, 0.8f, comp => comp.NumCasts > 0, "Wild charges 1");
-        ComponentCondition<RapidSequenceParticleBeam>(id + 0x11, 2, comp => comp.NumCasts > 3, "Wild charges 2");
-        ComponentCondition<RapidSequenceParticleBeam>(id + 0x13, 2, comp => comp.NumCasts > 6, "Wild charges 3");
-        ComponentCondition<RapidSequenceParticleBeam>(id + 0x14, 2, comp => comp.NumCasts > 9, "Wild charges 4")
+        ComponentCondition<RapidSequenceParticleBeam>(id + 0x11, 2f, comp => comp.NumCasts > 3, "Wild charges 2");
+        ComponentCondition<RapidSequenceParticleBeam>(id + 0x13, 2f, comp => comp.NumCasts > 6, "Wild charges 3");
+        ComponentCondition<RapidSequenceParticleBeam>(id + 0x14, 2f, comp => comp.NumCasts > 9, "Wild charges 4")
             .DeactivateOnExit<RapidSequenceParticleBeam>();
     }
 
     private void Flare(uint id, float delay)
     {
         Cast(id, AID.Flare, delay, 4);
-        ComponentCondition<Flare>(id + 0x10, 1, comp => comp.Spreads.Count != 0)
+        ComponentCondition<Flare>(id + 0x10, 1f, comp => comp.Spreads.Count != 0)
             .ActivateOnEnter<Flare>();
         ComponentCondition<Flare>(id + 0x20, 8.1f, comp => comp.NumFinishedSpreads > 0, "Flares")
             .DeactivateOnExit<Flare>();
@@ -175,9 +175,9 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
     {
         CastStart(id, AID.Flare, delay);
         ComponentCondition<RazingVolleyParticleBeam>(id + 1, 1.9f, comp => comp.NumCasts > 0, "Criss-cross start");
-        ComponentCondition<RazingVolleyParticleBeam>(id + 2, 2, comp => comp.NumCasts > 1);
+        ComponentCondition<RazingVolleyParticleBeam>(id + 2, 2f, comp => comp.NumCasts > 1);
         CastEnd(id + 3, 0.1f);
-        ComponentCondition<Flare>(id + 0x10, 1, comp => comp.Spreads.Count != 0)
+        ComponentCondition<Flare>(id + 0x10, 1f, comp => comp.Spreads.Count != 0)
             .ActivateOnEnter<Flare>();
         ComponentCondition<RazingVolleyParticleBeam>(id + 0x11, 0.9f, comp => comp.NumCasts > 2);
         CastStart(id + 0x20, AID.UnholyDarkness, 1.2f);
@@ -198,7 +198,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
 
     private void FloodOfDarkness1(uint id, float delay)
     {
-        Cast(id, AID.FloodOfDarkness1, delay, 7, "Raidwide + arena transition")
+        Cast(id, AID.FloodOfDarkness1, delay, 7f, "Raidwide + arena transition")
             .DeactivateOnExit<GrimEmbraceBait>()
             .DeactivateOnExit<GrimEmbraceAOE>()
             .DeactivateOnExit<RazingVolleyParticleBeam>()
@@ -210,7 +210,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
 
     private void DelugeOfDarkness2(uint id, float delay)
     {
-        Cast(id, AID.DelugeOfDarkness2, delay, 8, "Raidwide + arena transition")
+        Cast(id, AID.DelugeOfDarkness2, delay, 8f, "Raidwide + arena transition")
             .SetHint(StateMachine.StateHint.Raidwide);
         ComponentCondition<StygianShadow>(id + 0x10, 4.2f, comp => comp.ActiveActors.Any(), "Platform adds")
             .ActivateOnEnter<StygianShadow>()
@@ -221,7 +221,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
 
     private void DarkDominion(uint id, float delay)
     {
-        Cast(id, AID.DarkDominion, delay, 5, "Raidwide")
+        Cast(id, AID.DarkDominion, delay, 5f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 
@@ -231,11 +231,11 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
             .ActivateOnEnter<ThirdArtOfDarknessCleave>()
             .ActivateOnEnter<ThirdArtOfDarknessHyperFocusedParticleBeam>()
             .ActivateOnEnter<ThirdArtOfDarknessMultiProngedParticleBeam>();
-        Cast(id + 0x10, AID.ParticleConcentration, 2.1f, 6)
+        Cast(id + 0x10, AID.ParticleConcentration, 2.1f, 6f)
             .ActivateOnEnter<ParticleConcentration>(); // note: towers appear ~1s after cast end
         ComponentCondition<ThirdArtOfDarknessCleave>(id + 0x20, 1.5f, comp => comp.NumCasts > 0, "Add cleave 1");
-        ComponentCondition<ThirdArtOfDarknessCleave>(id + 0x30, 3, comp => comp.NumCasts > 2, "Add cleave 2");
-        ComponentCondition<ThirdArtOfDarknessCleave>(id + 0x40, 3, comp => comp.NumCasts > 4, "Add cleave 3")
+        ComponentCondition<ThirdArtOfDarknessCleave>(id + 0x30, 3f, comp => comp.NumCasts > 2, "Add cleave 2");
+        ComponentCondition<ThirdArtOfDarknessCleave>(id + 0x40, 3f, comp => comp.NumCasts > 4, "Add cleave 3")
             .DeactivateOnExit<ThirdArtOfDarknessHyperFocusedParticleBeam>()
             .DeactivateOnExit<ThirdArtOfDarknessMultiProngedParticleBeam>()
             .DeactivateOnExit<ThirdArtOfDarknessCleave>();
@@ -266,7 +266,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
     {
         ComponentCondition<FloodOfDarknessAdd>(id, delay, comp => comp.Casters.Count > 0)
             .ActivateOnEnter<FloodOfDarknessAdd>();
-        return Timeout(id + 1, 6, "Interrupt adds")
+        return Timeout(id + 1, 6f, "Interrupt adds")
             .DeactivateOnExit<FloodOfDarknessAdd>();
     }
 
@@ -282,12 +282,12 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
         GhastlyGloom(id + 0x1000, 2.8f)
             .DeactivateOnExit<EvilSeedAOE>();
 
-        ComponentCondition<ThornyVine>(id + 0x2000, 14, comp => comp.Targets.Any())
+        ComponentCondition<ThornyVine>(id + 0x2000, 14f, comp => comp.Targets.Any())
             .ActivateOnEnter<ThornyVine>();
-        ComponentCondition<ThornyVine>(id + 0x2010, 3, comp => comp.TethersAssigned, "Tethers");
+        ComponentCondition<ThornyVine>(id + 0x2010, 3f, comp => comp.TethersAssigned, "Tethers");
         FloodOfDarknessAdds(id + 0x2020, 2.2f);
 
-        CastMulti(id + 0x3000, [AID.ChaosCondensedParticleBeam, AID.DiffusiveForceParticleBeam], 8.1f, 8)
+        CastMulti(id + 0x3000, [AID.ChaosCondensedParticleBeam, AID.DiffusiveForceParticleBeam], 8.1f, 8f)
             .ActivateOnEnter<ChaosCondensedParticleBeam>()
             .ActivateOnEnter<DiffusiveForceParticleBeam>()
             .DeactivateOnExit<EvilSeedVoidzone>()
@@ -303,7 +303,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
         ComponentCondition<Phaser>(id + 1, 0.8f, comp => comp.Casters.Count > 0)
             .ActivateOnEnter<ActivePivotParticleBeam>()
             .ActivateOnEnter<Phaser>();
-        ComponentCondition<Phaser>(id + 2, 8, comp => comp.NumCasts > 0, "Adds front/sides");
+        ComponentCondition<Phaser>(id + 2, 8f, comp => comp.NumCasts > 0, "Adds front/sides");
         ComponentCondition<Phaser>(id + 3, 1.5f, comp => comp.NumCasts >= 6, "Adds sides/front")
             .DeactivateOnExit<Phaser>();
         CastEnd(id + 4, 3.7f);
@@ -312,7 +312,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
             .DeactivateOnExit<ActivePivotParticleBeam>();
         ComponentCondition<Excruciate>(id + 0x30, 0.7f, comp => comp.CurrentBaits.Count > 0)
             .ActivateOnEnter<Excruciate>();
-        ComponentCondition<Excruciate>(id + 0x31, 5, comp => comp.NumCasts > 0, "Adds tankbusters")
+        ComponentCondition<Excruciate>(id + 0x31, 5f, comp => comp.NumCasts > 0, "Adds tankbusters")
             .DeactivateOnExit<Excruciate>();
     }
 
@@ -328,10 +328,10 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
     private void ParticleConcentrationPhaser(uint id, float delay)
     {
         CastStart(id, AID.ParticleConcentration, delay);
-        ComponentCondition<Phaser>(id + 1, 1, comp => comp.Casters.Count > 0)
+        ComponentCondition<Phaser>(id + 1, 1f, comp => comp.Casters.Count > 0)
             .ActivateOnEnter<Phaser>();
-        CastEnd(id + 2, 5);
-        ComponentCondition<Phaser>(id + 0x10, 3, comp => comp.NumCasts > 0, "Adds front/sides")
+        CastEnd(id + 2, 5f);
+        ComponentCondition<Phaser>(id + 0x10, 3f, comp => comp.NumCasts > 0, "Adds front/sides")
             .ActivateOnEnter<ParticleConcentration>(); // TODO: towers appear 1s after cast end
         ComponentCondition<Phaser>(id + 0x11, 1.5f, comp => comp.NumCasts >= 6, "Adds sides/front")
             .DeactivateOnExit<Phaser>();
@@ -350,11 +350,11 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
         CastEnd(id + 2, 1.1f);
         ComponentCondition<FeintParticleBeam>(id + 0x10, 1.1f, comp => comp.Chasers.Count > 0)
             .ActivateOnEnter<FeintParticleBeam>();
-        ComponentCondition<FeintParticleBeam>(id + 0x11, 4, comp => comp.NumCasts > 0, "Chasers start");
+        ComponentCondition<FeintParticleBeam>(id + 0x11, 4f, comp => comp.NumCasts > 0, "Chasers start");
         ComponentCondition<ThirdArtOfDarknessCleave>(id + 0x20, 3.5f, comp => comp.NumCasts > 0, "Add cleave 1");
-        ComponentCondition<ThirdArtOfDarknessCleave>(id + 0x30, 3, comp => comp.NumCasts > 2, "Add cleave 2")
+        ComponentCondition<ThirdArtOfDarknessCleave>(id + 0x30, 3f, comp => comp.NumCasts > 2, "Add cleave 2")
             .DeactivateOnExit<FeintParticleBeam>(); // chasers resolve ~0.5s earlier
-        ComponentCondition<ThirdArtOfDarknessCleave>(id + 0x40, 3, comp => comp.NumCasts > 4, "Add cleave 3")
+        ComponentCondition<ThirdArtOfDarknessCleave>(id + 0x40, 3f, comp => comp.NumCasts > 4, "Add cleave 3")
             .DeactivateOnExit<ThirdArtOfDarknessHyperFocusedParticleBeam>()
             .DeactivateOnExit<ThirdArtOfDarknessMultiProngedParticleBeam>()
             .DeactivateOnExit<ThirdArtOfDarknessCleave>();
@@ -370,7 +370,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
             .ActivateOnEnter<DiffusiveForceParticleBeam>();
         ComponentCondition<Phaser>(id + 0x12, 1.5f, comp => comp.NumCasts >= 6, "Adds sides/front")
             .DeactivateOnExit<Phaser>();
-        CastEnd(id + 0x13, 6);
+        CastEnd(id + 0x13, 6f);
         Condition(id + 0x20, 0.8f, () => Module.FindComponent<ChaosCondensedParticleBeam>()?.NumCasts > 0 || Module.FindComponent<DiffusiveForceParticleBeam>()?.NumCasts > 0, "Spread/line stacks")
             .DeactivateOnExit<ChaosCondensedParticleBeam>()
             .DeactivateOnExit<DiffusiveForceParticleBeam>(); // TODO: show second wave ...
@@ -382,7 +382,7 @@ class Ch01CloudOfDarknessStates : StateMachineBuilder
             .DeactivateOnExit<StygianShadow>()
             .DeactivateOnExit<Atomos>()
             .DeactivateOnExit<DarkEnergyParticleBeam>();
-        CastEnd(id + 1, 7, "Raidwide + arena transition")
+        CastEnd(id + 1, 7f, "Raidwide + arena transition")
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 }

@@ -5,7 +5,7 @@ class RapidSequenceParticleBeam(BossModule module) : Components.GenericWildCharg
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         Source = null; // just in case, if mechanic was not finished properly, reset on next cast start
-        if ((AID)spell.Action.ID == AID.RapidSequenceParticleBeam)
+        if (spell.Action.ID == (uint)AID.RapidSequenceParticleBeam)
         {
             NumCasts = 0;
             Source = caster;
@@ -29,7 +29,7 @@ class RapidSequenceParticleBeam(BossModule module) : Components.GenericWildCharg
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.RapidSequenceParticleBeamAOE && ++NumCasts >= 12)
+        if (spell.Action.ID == (uint)AID.RapidSequenceParticleBeamAOE && ++NumCasts >= 12)
             Source = null;
     }
 }

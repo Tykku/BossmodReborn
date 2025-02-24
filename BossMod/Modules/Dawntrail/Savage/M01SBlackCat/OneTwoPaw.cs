@@ -4,7 +4,6 @@ class OneTwoPawBoss(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly PredaceousPounce? _pounce = module.FindComponent<PredaceousPounce>();
     private readonly List<AOEInstance> _aoes = new(2);
-    private static readonly HashSet<AID> casts = [AID.OneTwoPawBossAOERFirst, AID.OneTwoPawBossAOELSecond, AID.OneTwoPawBossAOELFirst, AID.OneTwoPawBossAOERSecond];
 
     private static readonly AOEShapeCone _shape = new(100, 90.Degrees());
 
@@ -20,7 +19,7 @@ class OneTwoPawBoss(BossModule module) : Components.GenericAOEs(module)
             var aoe = _aoes[i];
             if (i == 0)
                 aoes.Add(count > 1 && !pounce ? aoe with { Color = Colors.Danger } : aoe);
-            else if (i == 1 && !pounce)
+            else if (!pounce)
                 aoes.Add(aoe with { Risky = false });
         }
         return aoes;
@@ -28,20 +27,31 @@ class OneTwoPawBoss(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (casts.Contains((AID)spell.Action.ID))
+        switch ((AID)spell.Action.ID)
         {
-            _aoes.Add(new(_shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
-            _aoes.SortBy(aoe => aoe.Activation);
+            case AID.OneTwoPawBossAOERFirst:
+            case AID.OneTwoPawBossAOELSecond:
+            case AID.OneTwoPawBossAOELFirst:
+            case AID.OneTwoPawBossAOERSecond:
+                _aoes.Add(new(_shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
+                if (_aoes.Count == 2)
+                    _aoes.SortBy(x => x.Activation);
+                break;
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (casts.Contains((AID)spell.Action.ID))
+        switch ((AID)spell.Action.ID)
         {
-            ++NumCasts;
-            if (_aoes.Count != 0)
-                _aoes.RemoveAt(0);
+            case AID.OneTwoPawBossAOERFirst:
+            case AID.OneTwoPawBossAOELSecond:
+            case AID.OneTwoPawBossAOELFirst:
+            case AID.OneTwoPawBossAOERSecond:
+                ++NumCasts;
+                if (_aoes.Count != 0)
+                    _aoes.RemoveAt(0);
+                break;
         }
     }
 }
@@ -51,25 +61,26 @@ class OneTwoPawShade(BossModule module) : Components.GenericAOEs(module)
     private Angle _firstDirection;
     private readonly List<AOEInstance> _aoes = new(4);
 
-    private static readonly AOEShapeCone _shape = new(100, 90.Degrees());
+    private static readonly AOEShapeCone _shape = new(100f, 90f.Degrees());
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        List<AOEInstance> aoes = new(count);
-        for (var i = 0; i < (count > 2 ? 2 : count); ++i)
-            aoes.Add(_aoes[i]);
+        var max = count > 2 ? 2 : count;
+        var aoes = new AOEInstance[max];
+        for (var i = 0; i < max; ++i)
+            aoes[i] = _aoes[i];
         return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        var dir = (AID)spell.Action.ID switch
+        var dir = spell.Action.ID switch
         {
-            AID.OneTwoPawBossRL => Angle.AnglesCardinals[0],
-            AID.OneTwoPawBossLR => Angle.AnglesCardinals[3],
+            (uint)AID.OneTwoPawBossRL => Angle.AnglesCardinals[0],
+            (uint)AID.OneTwoPawBossLR => Angle.AnglesCardinals[3],
             _ => default
         };
         if (dir != default)
@@ -80,19 +91,24 @@ class OneTwoPawShade(BossModule module) : Components.GenericAOEs(module)
     {
         if (_aoes.Count < 4 && tether.ID == (uint)TetherID.Soulshade)
         {
-            _aoes.Add(new(_shape, source.Position, source.Rotation + _firstDirection, WorldState.FutureTime(20.3f)));
-            _aoes.Add(new(_shape, source.Position, source.Rotation - _firstDirection, WorldState.FutureTime(23.3f)));
+            _aoes.Add(new(_shape, source.Position, source.Rotation + _firstDirection, WorldState.FutureTime(20.3d)));
+            _aoes.Add(new(_shape, source.Position, source.Rotation - _firstDirection, WorldState.FutureTime(23.3d)));
             _aoes.SortBy(aoe => aoe.Activation);
         }
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.OneTwoPawShadeAOERFirst or AID.OneTwoPawShadeAOELSecond or AID.OneTwoPawShadeAOELFirst or AID.OneTwoPawShadeAOERSecond)
+        switch ((AID)spell.Action.ID)
         {
-            ++NumCasts;
-            if (_aoes.Count != 0)
-                _aoes.RemoveAt(0);
+            case AID.OneTwoPawShadeAOERFirst:
+            case AID.OneTwoPawShadeAOELSecond:
+            case AID.OneTwoPawShadeAOELFirst:
+            case AID.OneTwoPawShadeAOERSecond:
+                ++NumCasts;
+                if (_aoes.Count != 0)
+                    _aoes.RemoveAt(0);
+                break;
         }
     }
 }
@@ -103,25 +119,23 @@ class LeapingOneTwoPaw(BossModule module) : Components.GenericAOEs(module)
     private Angle _leapDirection;
     private Angle _firstDirection;
     private Actor? _clone;
-    private static readonly HashSet<AID> castEnds = [AID.LeapingOneTwoPawBossAOERFirst, AID.LeapingOneTwoPawBossAOELSecond, AID.LeapingOneTwoPawBossAOELFirst,
-    AID.LeapingOneTwoPawBossAOERSecond, AID.LeapingOneTwoPawShadeAOERFirst, AID.LeapingOneTwoPawShadeAOELSecond, AID.LeapingOneTwoPawShadeAOELFirst, AID.LeapingOneTwoPawShadeAOERSecond];
 
-    private static readonly AOEShapeCone _shape = new(100, 90.Degrees());
-    private static readonly List<Angle> angles = [Angle.AnglesCardinals[3], Angle.AnglesCardinals[0]];
+    private static readonly AOEShapeCone _shape = new(100f, 90f.Degrees());
+    private static readonly Angle[] angles = [Angle.AnglesCardinals[3], Angle.AnglesCardinals[0]];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = AOEs.Count;
         if (count == 0)
             return [];
-        List<AOEInstance> aoes = new(count);
+        var aoes = new AOEInstance[count];
         for (var i = 0; i < count; ++i)
         {
             var aoe = AOEs[i];
             if (i == 0)
-                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
             else
-                aoes.Add(aoe with { Risky = false });
+                aoes[i] = aoe with { Risky = false };
         }
         return aoes;
     }
@@ -129,17 +143,17 @@ class LeapingOneTwoPaw(BossModule module) : Components.GenericAOEs(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (_clone != null && NumCasts >= AOEs.Count)
-            Arena.Actor(_clone.Position + 10 * (_clone.Rotation + _leapDirection).ToDirection(), _clone.Rotation, Colors.Object);
+            Arena.Actor(_clone.Position + 10f * (_clone.Rotation + _leapDirection).ToDirection(), _clone.Rotation, Colors.Object);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        var (leapDir, firstDir) = (AID)spell.Action.ID switch
+        var (leapDir, firstDir) = spell.Action.ID switch
         {
-            AID.LeapingOneTwoPawBossLRL => (angles[0], angles[1]),
-            AID.LeapingOneTwoPawBossLLR => (angles[0], angles[0]),
-            AID.LeapingOneTwoPawBossRRL => (angles[1], angles[1]),
-            AID.LeapingOneTwoPawBossRLR => (angles[1], angles[0]),
+            (uint)AID.LeapingOneTwoPawBossLRL => (angles[0], angles[1]),
+            (uint)AID.LeapingOneTwoPawBossLLR => (angles[0], angles[0]),
+            (uint)AID.LeapingOneTwoPawBossRRL => (angles[1], angles[1]),
+            (uint)AID.LeapingOneTwoPawBossRLR => (angles[1], angles[0]),
             _ => default
         };
         if (leapDir == default)
@@ -152,11 +166,20 @@ class LeapingOneTwoPaw(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (castEnds.Contains((AID)spell.Action.ID))
+        switch (spell.Action.ID)
         {
-            ++NumCasts;
-            if (AOEs.Count > 0)
-                AOEs.RemoveAt(0);
+            case (uint)AID.LeapingOneTwoPawBossAOERFirst:
+            case (uint)AID.LeapingOneTwoPawBossAOELSecond:
+            case (uint)AID.LeapingOneTwoPawBossAOELFirst:
+            case (uint)AID.LeapingOneTwoPawBossAOERSecond:
+            case (uint)AID.LeapingOneTwoPawShadeAOERFirst:
+            case (uint)AID.LeapingOneTwoPawShadeAOELSecond:
+            case (uint)AID.LeapingOneTwoPawShadeAOELFirst:
+            case (uint)AID.LeapingOneTwoPawShadeAOERSecond:
+                ++NumCasts;
+                if (AOEs.Count != 0)
+                    AOEs.RemoveAt(0);
+                break;
         }
     }
 
@@ -179,8 +202,8 @@ class LeapingOneTwoPaw(BossModule module) : Components.GenericAOEs(module)
 
     private void StartMechanic(WPos position, Angle rotation, DateTime activation)
     {
-        var origin = position + 10 * (rotation + _leapDirection).ToDirection();
+        var origin = position + 10f * (rotation + _leapDirection).ToDirection();
         AOEs.Add(new(_shape, origin, rotation + _firstDirection, activation));
-        AOEs.Add(new(_shape, origin, rotation - _firstDirection, activation.AddSeconds(2)));
+        AOEs.Add(new(_shape, origin, rotation - _firstDirection, activation.AddSeconds(2d)));
     }
 }

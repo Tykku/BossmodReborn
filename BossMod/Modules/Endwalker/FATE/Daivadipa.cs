@@ -53,7 +53,7 @@ public enum SID : uint
 class LitPath(BossModule module) : Components.GenericAOEs(module)
 {
     public readonly List<AOEInstance> AOEs = new(5);
-    private static readonly AOEShapeRect rect = new(50, 5);
+    private static readonly AOEShapeRect rect = new(50f, 5f);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -66,7 +66,7 @@ class LitPath(BossModule module) : Components.GenericAOEs(module)
         for (var i = 0; i < max; ++i) // either 2 or 3 AOEs in a wave, no need to iterate on all 5
         {
             var aoe = AOEs[i];
-            if ((aoe.Activation - firstact).TotalSeconds < 1)
+            if ((aoe.Activation - firstact).TotalSeconds < 1d)
                 aoes.Add(aoe);
         }
         return aoes;
@@ -74,11 +74,11 @@ class LitPath(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.LoyalFlameBlue or AID.LoyalFlameRed)
+        if (spell.Action.ID is (uint)AID.LoyalFlameBlue or (uint)AID.LoyalFlameRed)
         {
-            var isBlue = (AID)spell.Action.ID == AID.LoyalFlameBlue;
-            AddAOEs(Module.Enemies(OID.OrbOfImmolationBlue), spell, isBlue ? 2.2f : 4.4f);
-            AddAOEs(Module.Enemies(OID.OrbOfImmolationRed), spell, isBlue ? 4.4f : 2.2f);
+            var isBlue = spell.Action.ID == (uint)AID.LoyalFlameBlue;
+            AddAOEs(Module.Enemies((uint)OID.OrbOfImmolationBlue), spell, isBlue ? 2.2f : 4.4f);
+            AddAOEs(Module.Enemies((uint)OID.OrbOfImmolationRed), spell, isBlue ? 4.4f : 2.2f);
             if (!isBlue)
                 AOEs.Reverse();
         }
@@ -89,13 +89,13 @@ class LitPath(BossModule module) : Components.GenericAOEs(module)
         for (var i = 0; i < orbs.Count; ++i)
         {
             var orb = orbs[i];
-            AOEs.Add(new(rect, orb.Position, orb.Position.X < -632 ? Angle.AnglesCardinals[3] : Angle.AnglesCardinals[2], Module.CastFinishAt(spell, delay)));
+            AOEs.Add(new(rect, WPos.ClampToGrid(orb.Position), orb.Position.X < -632f ? Angle.AnglesCardinals[3] : Angle.AnglesCardinals[2], Module.CastFinishAt(spell, delay)));
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (AOEs.Count != 0 && (AID)spell.Action.ID is AID.LitPathBlue or AID.LitPathRed)
+        if (AOEs.Count != 0 && spell.Action.ID is (uint)AID.LitPathBlue or (uint)AID.LitPathRed)
             AOEs.RemoveAt(0);
     }
 }
@@ -103,7 +103,7 @@ class LitPath(BossModule module) : Components.GenericAOEs(module)
 class Burn(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = new(16);
-    private static readonly AOEShapeCircle circle = new(10);
+    private static readonly AOEShapeCircle circle = new(10f);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -111,19 +111,19 @@ class Burn(BossModule module) : Components.GenericAOEs(module)
         if (count == 0)
             return [];
         var max = count > 8 ? 8 : count;
-        List<AOEInstance> aoes = new(max);
+        var aoes = new AOEInstance[max];
         for (var i = 0; i < max; ++i) // 8 AOEs in a wave, no need to iterate on all 16
-            aoes.Add(_aoes[i]);
+            aoes[i] = _aoes[i];
         return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.LoyalFlameBlue or AID.LoyalFlameRed)
+        if (spell.Action.ID is (uint)AID.LoyalFlameBlue or (uint)AID.LoyalFlameRed)
         {
-            var isBlue = (AID)spell.Action.ID == AID.LoyalFlameBlue;
-            AddAOEs(Module.Enemies(OID.OrbOfConflagrationBlue), spell, isBlue ? 2.2f : 6.2f);
-            AddAOEs(Module.Enemies(OID.OrbOfConflagrationRed), spell, isBlue ? 6.2f : 2.2f);
+            var isBlue = spell.Action.ID == (uint)AID.LoyalFlameBlue;
+            AddAOEs(Module.Enemies((uint)OID.OrbOfConflagrationBlue), spell, isBlue ? 2.2f : 6.2f);
+            AddAOEs(Module.Enemies((uint)OID.OrbOfConflagrationRed), spell, isBlue ? 6.2f : 2.2f);
             if (!isBlue)
                 _aoes.Reverse();
         }
@@ -134,61 +134,68 @@ class Burn(BossModule module) : Components.GenericAOEs(module)
         for (var i = 0; i < orbs.Count; ++i)
         {
             var orb = orbs[i];
-            _aoes.Add(new(circle, orb.Position, default, Module.CastFinishAt(spell, delay)));
+            _aoes.Add(new(circle, WPos.ClampToGrid(orb.Position), default, Module.CastFinishAt(spell, delay)));
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.BurnBlue or AID.BurnRed)
+        if (_aoes.Count != 0 && spell.Action.ID is (uint)AID.BurnBlue or (uint)AID.BurnRed)
             _aoes.RemoveAt(0);
     }
 }
 
 class Drumbeat(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Drumbeat));
 
-abstract class Cleave(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(65, 90.Degrees()));
+abstract class Cleave(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(65f, 90f.Degrees()));
 class LeftwardTrisula(BossModule module) : Cleave(module, AID.LeftwardTrisula);
 class RightwardParasu(BossModule module) : Cleave(module, AID.RightwardParasu);
 
-class ErrantAkasa(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ErrantAkasa), new AOEShapeCone(60, 45.Degrees()));
-class CosmicWeave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CosmicWeave), 18);
-class KarmicFlames(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.KarmicFlames), 20);
-class YawningHells(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.YawningHells), 8);
-class InfernalRedemption(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.InfernalRedemptionVisual), ActionID.MakeSpell(AID.InfernalRedemption), 1);
+class ErrantAkasa(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ErrantAkasa), new AOEShapeCone(60f, 45f.Degrees()));
+class CosmicWeave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CosmicWeave), 18f);
+class KarmicFlames(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.KarmicFlames), 20f);
+class YawningHells(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.YawningHells), 8f);
+class InfernalRedemption(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.InfernalRedemptionVisual), ActionID.MakeSpell(AID.InfernalRedemption), 1f);
 
-class DivineCall(BossModule module) : Components.StatusDrivenForcedMarch(module, 2, (uint)SID.ForwardMarch, (uint)SID.AboutFace, (uint)SID.LeftFace, (uint)SID.RightFace)
+class DivineCall(BossModule module) : Components.StatusDrivenForcedMarch(module, 2f, (uint)SID.ForwardMarch, (uint)SID.AboutFace, (uint)SID.LeftFace, (uint)SID.RightFace)
 {
     private readonly LitPath _lit = module.FindComponent<LitPath>()!;
     private readonly LeftwardTrisula _aoe1 = module.FindComponent<LeftwardTrisula>()!;
     private readonly RightwardParasu _aoe2 = module.FindComponent<RightwardParasu>()!;
 
-    private static readonly Dictionary<AID, string> directionhints = new()
-    {
-        { AID.DivineCall1, "Apply backwards march debuff" },
-        { AID.DivineCall2, "Apply right march debuff" },
-        { AID.DivineCall3, "Apply forwards march debuff" },
-        { AID.DivineCall4, "Apply left march debuff" }
-    };
-
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos)
     {
-        return _aoe1.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ||
-        _aoe2.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ||
-        _lit.AOEs.Count != 0 && !_lit.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation));
+        if (_aoe1.Casters.Count != 0 && _aoe1.Casters[0].Check(pos))
+            return true;
+        if (_aoe2.Casters.Count != 0 && _aoe2.Casters[0].Check(pos))
+            return true;
+        var count = _lit.AOEs.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _lit.AOEs[i];
+            if (aoe.Check(pos))
+                return true;
+        }
+        return false;
     }
 
     public override void AddGlobalHints(GlobalHints hints)
     {
-        if (Module.PrimaryActor.CastInfo != null)
-            foreach (var entry in directionhints)
-            {
-                if (Module.PrimaryActor.CastInfo.IsSpell(entry.Key))
-                {
-                    hints.Add(entry.Value);
-                    break;
-                }
-            }
+        switch (Module.PrimaryActor.CastInfo?.Action.ID)
+        {
+            case (uint)AID.DivineCall1:
+                hints.Add("Apply backwards march debuff");
+                break;
+            case (uint)AID.DivineCall2:
+                hints.Add("Apply right march debuff");
+                break;
+            case (uint)AID.DivineCall3:
+                hints.Add("Apply fowards march debuff");
+                break;
+            case (uint)AID.DivineCall4:
+                hints.Add("Apply left march debuff");
+                break;
+        }
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -227,7 +234,7 @@ class DaivadipaStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.Fate, GroupID = 1763, NameID = 10269)]
-public class Daivadipa(WorldState ws, Actor primary) : BossModule(ws, primary, new(-608, 811), new ArenaBoundsSquare(24.5f))
+public class Daivadipa(WorldState ws, Actor primary) : BossModule(ws, primary, new(-608f, 811f), new ArenaBoundsSquare(24.5f))
 {
-    protected override bool CheckPull() => base.CheckPull() && (Center - Raid.Player()!.Position).LengthSq() < 625;
+    protected override bool CheckPull() => base.CheckPull() && (Center - Raid.Player()!.Position).LengthSq() < 625f;
 }

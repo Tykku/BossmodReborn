@@ -2,7 +2,7 @@ namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA3AbsoluteVirtue;
 
 class BrightDarkAuroraExplosion(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCircle circle = new(8);
+    private static readonly AOEShapeCircle circle = new(8f);
     private readonly List<(Actor source, ulong target)> tetherByActor = new(8);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
@@ -22,13 +22,14 @@ class BrightDarkAuroraExplosion(BossModule module) : Components.GenericAOEs(modu
                 break;
             }
         }
-
-        List<AOEInstance> aoes = new(count);
+        var countAdj = isActorTarget ? count - 1 : count;
+        var aoes = new AOEInstance[countAdj];
+        var index = 0;
         for (var i = 0; i < count; ++i)
         {
             var tether = tetherByActor[i];
             if (tether.target != actor.InstanceID)
-                aoes.Add(new(circle, tetherByActor[i].source.Position, Risky: !isActorTarget));
+                aoes[index++] = new(circle, WPos.ClampToGrid(tetherByActor[i].source.Position), Risky: !isActorTarget);
         }
         return aoes;
     }
@@ -44,14 +45,14 @@ class BrightDarkAuroraExplosion(BossModule module) : Components.GenericAOEs(modu
     }
 }
 
-abstract class Towers(BossModule module, OID oid, TetherID tid) : Components.GenericTowersOpenWorld(module)
+abstract class Towers(BossModule module, uint oid, uint tid) : Components.GenericTowersOpenWorld(module)
 {
     private readonly List<(Actor source, Actor target)> tetherByActor = new(4);
     private const string Hint = "Stand in a tower of opposite tether element!";
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
-        if ((OID)actor.OID == oid)
+        if (actor.OID == oid)
         {
             if (state == 0x00040008)
             {
@@ -70,19 +71,19 @@ abstract class Towers(BossModule module, OID oid, TetherID tid) : Components.Gen
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == oid)
-            Towers.Add(new(actor.Position, 2, 1, 1, [], WorldState.FutureTime(20)));
+        if (actor.OID == oid)
+            Towers.Add(new(actor.Position, 2f, 1, 1, [], WorldState.FutureTime(20d)));
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
-        if (tether.ID == (uint)tid)
+        if (tether.ID == tid)
             tetherByActor.Add((source, WorldState.Actors.Find(tether.Target)!));
     }
 
     public override void OnUntethered(Actor source, ActorTetherInfo tether)
     {
-        if (tether.ID == (uint)tid)
+        if (tether.ID == tid)
             tetherByActor.Remove((source, WorldState.Actors.Find(tether.Target)!));
     }
 
@@ -146,7 +147,7 @@ abstract class Towers(BossModule module, OID oid, TetherID tid) : Components.Gen
         if (source != null)
         {
             Arena.AddLine(source.Position, pc.Position);
-            Arena.AddCircle(source.Position, 2);
+            Arena.AddCircle(source.Position, 2f);
             Arena.Actor(source, Colors.Object, true);
         }
     }
@@ -164,5 +165,5 @@ abstract class Towers(BossModule module, OID oid, TetherID tid) : Components.Gen
     }
 }
 
-class BrightAuroraTether(BossModule module) : Towers(module, OID.DarkAuroraHelper, TetherID.BrightAurora);
-class DarkAuroraTether(BossModule module) : Towers(module, OID.BrightAuroraHelper, TetherID.DarkAurora);
+class BrightAuroraTether(BossModule module) : Towers(module, (uint)OID.DarkAuroraHelper, (uint)TetherID.BrightAurora);
+class DarkAuroraTether(BossModule module) : Towers(module, (uint)OID.BrightAuroraHelper, (uint)TetherID.DarkAurora);

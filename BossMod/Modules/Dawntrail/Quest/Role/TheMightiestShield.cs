@@ -82,16 +82,17 @@ class Fractures(BossModule module) : Components.DirectionalParry(module, [(uint)
 {
     private const int sideR = (int)(Side.Front | Side.Back | Side.Left) << 4;
     private const int sideL = (int)(Side.Right | Side.Back | Side.Front) << 4;
+    private static readonly Angle a180 = 180f.Degrees(), a90 = 90f.Degrees(), a20 = 20f.Degrees();
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((OID)actor.OID is not OID.CrackedMettle1 and not OID.CrackedMettle2)
+        if (actor.OID is not (uint)OID.CrackedMettle1 and not (uint)OID.CrackedMettle2)
             return;
-        var sides = (SID)status.ID switch
+        var sides = status.ID switch
         {
-            SID.RightwardFracture => Side.Front | Side.Back | Side.Left,
-            SID.LeftwardFracture => Side.Right | Side.Back | Side.Front,
-            SID.BackwardFracture => Side.Front | Side.Left | Side.Right,
+            (uint)SID.RightwardFracture => Side.Front | Side.Back | Side.Left,
+            (uint)SID.LeftwardFracture => Side.Right | Side.Back | Side.Front,
+            (uint)SID.BackwardFracture => Side.Front | Side.Left | Side.Right,
             _ => Side.None
         };
         if (sides != Side.None)
@@ -100,103 +101,176 @@ class Fractures(BossModule module) : Components.DirectionalParry(module, [(uint)
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID is SID.RightwardFracture or SID.LeftwardFracture or SID.BackwardFracture)
+        if (status.ID is (uint)SID.RightwardFracture or (uint)SID.LeftwardFracture or (uint)SID.BackwardFracture)
             UpdateState(actor.InstanceID, 0);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (ActorStates.Count > 0)
+        if (ActorStates.Count != 0)
         {
-            var first = ActorStates.FirstOrDefault();
+            KeyValuePair<ulong, int> first = default;
+            foreach (var pair in ActorStates)
+            {
+                first = pair;
+                break;
+            }
             var target = WorldState.Actors.Find(first.Key)!;
-            var dir = first.Value == sideR ? target.Rotation - 90.Degrees() : first.Value == sideL ? target.Rotation + 90.Degrees() : target.Rotation + 180.Degrees();
-            hints.AddForbiddenZone(ShapeDistance.InvertedDonutSector(target.Position, target.HitboxRadius, 20, dir, 20.Degrees()));
+            var dir = first.Value == sideR ? target.Rotation - a90 : first.Value == sideL ? target.Rotation + a90 : target.Rotation + a180;
+            hints.AddForbiddenZone(ShapeDistance.InvertedDonutSector(target.Position, target.HitboxRadius, 20f, dir, a20));
         }
     }
 }
 
-class SteelhogsRevenge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SteelhogsRevenge), 12);
-class RuthlessBombardment1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RuthlessBombardment1), 8);
+class SteelhogsRevenge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SteelhogsRevenge), 12f);
+class RuthlessBombardment1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RuthlessBombardment1), 8f);
 
-abstract class Bombardment(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 4);
+abstract class Bombardment(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 4f);
 class RuthlessBombardment2(BossModule module) : Bombardment(module, AID.RuthlessBombardment2);
 class AreaBombardment(BossModule module) : Bombardment(module, AID.AreaBombardment);
 
 class RagingArtillery(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RagingArtilleryFirst));
-class MagitekCannon(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.MagitekCannon), 6);
-class MagitekMissile(BossModule module) : Components.PersistentVoidzone(module, 3, m => m.Enemies(OID.MagitekMissile).Where(x => !x.IsDead), 5);
+class MagitekCannon(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.MagitekCannon), 6f);
+class MagitekMissile(BossModule module) : Components.PersistentVoidzone(module, 3f, GetVoidzones, 5f)
+{
+    private static Actor[] GetVoidzones(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.MagitekMissile);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
+
+        var voidzones = new Actor[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (!z.IsDead)
+                voidzones[index++] = z;
+        }
+        return voidzones[..index];
+    }
+}
 
 class NeedleGunOilShower(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
-    private static readonly AOEShapeCone cone1 = new(40, 135.Degrees());
-    private static readonly AOEShapeCone cone2 = new(40, 45.Degrees());
+    private readonly List<AOEInstance> _aoes = new(2);
+    private static readonly AOEShapeCone cone1 = new(40f, 135f.Degrees());
+    private static readonly AOEShapeCone cone2 = new(40f, 45f.Degrees());
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        if (count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (count > 1)
-            yield return _aoes[1] with { Risky = false };
+        if (count == 0)
+            return [];
+        var aoes = new AOEInstance[count];
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i == 0)
+                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
+            else
+                aoes[i] = aoe with { Risky = false };
+        }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.OilShower1 or AID.OilShower2)
-            _aoes.Add(new(cone1, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
-        else if ((AID)spell.Action.ID is AID.NeedleGun1 or AID.NeedleGun2)
-            _aoes.Add(new(cone2, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
-        if (_aoes.Count > 0)
-            _aoes.SortBy(x => x.Activation);
+        void AddAOE(AOEShape shape)
+        {
+            _aoes.Add(new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
+            if (_aoes.Count == 2)
+                _aoes.SortBy(x => x.Activation);
+        }
+        switch (spell.Action.ID)
+        {
+            case (uint)AID.OilShower1:
+            case (uint)AID.OilShower2:
+                AddAOE(cone1);
+                break;
+            case (uint)AID.NeedleGun1:
+            case (uint)AID.NeedleGun2:
+                AddAOE(cone2);
+                break;
+        }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID is AID.OilShower1 or AID.OilShower2 or AID.NeedleGun1 or AID.NeedleGun2)
-            _aoes.RemoveAt(0);
+        if (_aoes.Count != 0)
+            switch (spell.Action.ID)
+            {
+                case (uint)AID.OilShower1:
+                case (uint)AID.OilShower2:
+                case (uint)AID.NeedleGun1:
+                case (uint)AID.NeedleGun2:
+                    _aoes.RemoveAt(0);
+                    break;
+            }
     }
 }
 
 class HeavySurfaceMissiles(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
-    private static readonly HashSet<AID> casts = [AID.HeavySurfaceMissiles1, AID.HeavySurfaceMissiles2, AID.HeavySurfaceMissiles3, AID.HeavySurfaceMissiles4];
     private static readonly AOEShapeCircle circle = new(14);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(2);
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        var aoes = new AOEInstance[max];
+        for (var i = 0; i < max; ++i)
+            aoes[i] = _aoes[i];
+        return aoes;
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (casts.Contains((AID)spell.Action.ID))
+        switch (spell.Action.ID)
         {
-            _aoes.Add(new(circle, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
-            if (_aoes.Count > 1)
-                _aoes.SortBy(x => x.Activation);
+            case (uint)AID.HeavySurfaceMissiles1:
+            case (uint)AID.HeavySurfaceMissiles2:
+            case (uint)AID.HeavySurfaceMissiles3:
+            case (uint)AID.HeavySurfaceMissiles4:
+                _aoes.Add(new(circle, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
+                if (_aoes.Count > 1)
+                    _aoes.SortBy(x => x.Activation);
+                break;
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count != 0 && casts.Contains((AID)spell.Action.ID))
-            _aoes.RemoveAt(0);
+        if (_aoes.Count != 0)
+            switch (spell.Action.ID)
+            {
+                case (uint)AID.HeavySurfaceMissiles1:
+                case (uint)AID.HeavySurfaceMissiles2:
+                case (uint)AID.HeavySurfaceMissiles3:
+                case (uint)AID.HeavySurfaceMissiles4:
+                    _aoes.RemoveAt(0);
+                    break;
+            }
     }
 }
 
 class HomingLaser(BossModule module) : Components.GenericBaitAway(module)
 {
-    private static readonly AOEShapeRect rect = new(42, 4);
+    private static readonly AOEShapeRect rect = new(42f, 4f);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.HomingLaserMarker)
-            CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.TargetID)!, rect, WorldState.FutureTime(5.7f)));
+        if (spell.Action.ID == (uint)AID.HomingLaserMarker)
+            CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.TargetID)!, rect, WorldState.FutureTime(5.7d)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.HomingLaser)
+        if (spell.Action.ID == (uint)AID.HomingLaser)
             CurrentBaits.Clear();
     }
 }
@@ -223,7 +297,7 @@ class TheMightiestShieldStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.Quest, GroupID = 70377, NameID = 12923)]
 public class TheMightiestShield(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-191, 72), 14.5f, 20)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-191f, 72f), 14.5f, 20)]);
     private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.CravenFollower1, (uint)OID.CravenFollower2, (uint)OID.CravenFollower3, (uint)OID.CravenFollower4,
     (uint)OID.CravenFollower5, (uint)OID.CravenFollower6, (uint)OID.CravenFollower7, (uint)OID.CravenFollower8, (uint)OID.MagitekMissile, (uint)OID.UnyieldingMettle2,
     (uint)OID.UnyieldingMettle3]; // except CrackedMettle1/2 since the Parry component is drawing them

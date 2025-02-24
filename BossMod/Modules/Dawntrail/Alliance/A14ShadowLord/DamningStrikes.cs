@@ -4,15 +4,15 @@ class DamningStrikes(BossModule module) : Components.GenericTowers(module)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.DamningStrikesImpact1 or AID.DamningStrikesImpact2 or AID.DamningStrikesImpact3)
+        if (spell.Action.ID is (uint)AID.DamningStrikesImpact1 or (uint)AID.DamningStrikesImpact2 or (uint)AID.DamningStrikesImpact3)
         {
-            Towers.Add(new(spell.LocXZ, 3, 8, 8, default, Module.CastFinishAt(spell)));
+            Towers.Add(new(spell.LocXZ, 3f, 8, 8, default, Module.CastFinishAt(spell)));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.DamningStrikesImpact1 or AID.DamningStrikesImpact2 or AID.DamningStrikesImpact3)
+        if (spell.Action.ID is (uint)AID.DamningStrikesImpact1 or (uint)AID.DamningStrikesImpact2 or (uint)AID.DamningStrikesImpact3)
         {
             ++NumCasts;
             Towers.RemoveAll(t => t.Position == caster.Position);

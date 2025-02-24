@@ -9,13 +9,13 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Thundercall)
+        if (spell.Action.ID == (uint)AID.Thundercall)
             _aoe = new(donut, Arena.Center, default, Module.CastFinishAt(spell, 3.4f));
     }
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
-        if ((OID)actor.OID == OID.Electricwall)
+        if (actor.OID == (uint)OID.Electricwall)
         {
             if (state == 0x00010002)
             {

@@ -30,57 +30,48 @@ public enum AID : uint
 }
 
 class IntestinalCrank(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.IntestinalCrank));
-class BreakingWheel(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BreakingWheel1), new AOEShapeDonut(5, 60));
-class HereticsFork(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HereticsFork1), new AOEShapeCross(60, 5));
-class CrystalNail(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CrystalNail), 5);
+class BreakingWheel(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BreakingWheel1), new AOEShapeDonut(5f, 60f));
+class HereticsFork(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HereticsFork1), new AOEShapeCross(60f, 5f));
+class CrystalNail(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CrystalNail), 5f);
 
 class HereticsForkBreakingWheelStreak(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donut = new(5, 60);
-    private static readonly AOEShapeCross cross = new(60, 5);
-    private readonly List<AOEInstance> _aoes = new(4);
-    private AOEInstance? _aoe;
+    private static readonly AOEShapeDonut donut = new(5f, 60f);
+    private static readonly AOEShapeCross cross = new(60f, 5f);
+    private readonly List<AOEInstance> _aoes = new(5);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        var count = _aoes.Count;
-        if (count != 0)
-            yield return _aoes[0];
-        if (count == 0 && _aoe != null)
-            yield return _aoe.Value;
-    }
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Count != 0 ? [_aoes[0]] : [];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        void AddAOE(AOEShape shape)
         {
-            case AID.HereticsFork2:
-                _aoes.Add(new(cross, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.Add(new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.Sort((x, y) => x.Activation.CompareTo(y.Activation));
+        }
+        switch (spell.Action.ID)
+        {
+            case (uint)AID.HereticsFork2:
+            case (uint)AID.HereticsFork3:
+                AddAOE(cross);
                 break;
-            case AID.BreakingWheel2:
-                _aoes.Add(new(donut, caster.Position, default, Module.CastFinishAt(spell)));
-                break;
-            case AID.HereticsFork3:
-                _aoe = new(cross, caster.Position, spell.Rotation, Module.CastFinishAt(spell));
-                break;
-            case AID.BreakingWheel3:
-                _aoe = new(donut, caster.Position, default, Module.CastFinishAt(spell));
+            case (uint)AID.BreakingWheel2:
+            case (uint)AID.BreakingWheel3:
+                AddAOE(donut);
                 break;
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.HereticsFork2:
-            case AID.BreakingWheel2:
+            case (uint)AID.HereticsFork2:
+            case (uint)AID.BreakingWheel2:
+            case (uint)AID.HereticsFork3:
+            case (uint)AID.BreakingWheel3:
                 if (_aoes.Count != 0)
                     _aoes.RemoveAt(0);
-                break;
-            case AID.HereticsFork3:
-            case AID.BreakingWheel3:
-                _aoe = null;
                 break;
         }
     }
@@ -102,6 +93,6 @@ class D043StorgeStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 656, NameID = 8249)]
 public class D043Storge(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Cross(new(196, -95), 19.5f, 14), new Square(new(182, -81), 0.3f, 45.Degrees()),
-    new Square(new(210, -81), 0.3f, 45.Degrees()), new Square(new(182, -109), 0.3f, 45.Degrees()), new Square(new(210, -109), 0.3f, 45.Degrees())]);
+    private static readonly ArenaBoundsComplex arena = new([new Cross(new(196f, -95f), 19.5f, 14f), new Square(new(182f, -81f), 0.3f, 45f.Degrees()),
+    new Square(new(210, -81), 0.3f, 45f.Degrees()), new Square(new(182f, -109f), 0.3f, 45f.Degrees()), new Square(new(210f, -109f), 0.3f, 45f.Degrees())]);
 }

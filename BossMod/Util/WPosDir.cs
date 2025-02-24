@@ -5,8 +5,8 @@ public record struct WDir(float X, float Z)
 {
     public WDir(Vector2 v) : this(v.X, v.Y) { }
     public readonly Vector2 ToVec2() => new(X, Z);
-    public readonly Vector3 ToVec3(float y = 0) => new(X, y, Z);
-    public readonly Vector4 ToVec4(float y = 0, float w = 0) => new(X, y, Z, w);
+    public readonly Vector3 ToVec3(float y = 0f) => new(X, y, Z);
+    public readonly Vector4 ToVec4(float y = 0f, float w = 0f) => new(X, y, Z, w);
     public readonly WPos ToWPos() => new(X, Z);
 
     public static WDir operator +(WDir a, WDir b) => new(a.X + b.X, a.Z + b.Z);
@@ -17,7 +17,7 @@ public record struct WDir(float X, float Z)
     public static WDir operator *(float a, WDir b) => new(a * b.X, a * b.Z);
     public static WDir operator /(WDir a, float b)
     {
-        var invB = 1 / b;
+        var invB = 1f / b;
         return new(a.X * invB, a.Z * invB);
     }
 
@@ -86,7 +86,7 @@ public record struct WPos(float X, float Z)
 
     public static WPos operator /(WPos a, float b)
     {
-        var invB = 1 / b;
+        var invB = 1f / b;
         return new(a.X * invB, a.Z * invB);
     }
     public static WPos operator +(WPos a, WDir b) => new(a.X + b.X, a.Z + b.Z);
@@ -98,8 +98,14 @@ public record struct WPos(float X, float Z)
     public readonly WPos Scaled(float multiplier) => new(X * multiplier, Z * multiplier);
     public readonly WPos Rounded() => new(MathF.Round(X), MathF.Round(Z));
     public readonly WPos Rounded(float precision) => Scaled(1f / precision).Rounded().Scaled(precision);
-    public static WPos Lerp(WPos from, WPos to, float progress) => new(from.ToVec2() * (1 - progress) + to.ToVec2() * progress);
-
+    public static WPos Lerp(WPos from, WPos to, float progress) => new(from.ToVec2() * (1f - progress) + to.ToVec2() * progress);
+    public static WPos ClampToGrid(WPos coord) // AOEs are getting clamped to a grid, if spell.LocXZ can't be used, you can correct the position with this method
+    {
+        const float gridSize = (float)(2000.0d / 65535.0d);
+        const float gridSizeInv = (float)(1d / (2000.0d / 65535.0d));
+        int gridIndexX = (int)MathF.Round(coord.X * gridSizeInv), gridIndexZ = (int)MathF.Round(coord.Z * gridSizeInv);
+        return new((gridIndexX - 0.5f) * gridSize, (gridIndexZ - 0.5f) * gridSize);
+    }
     public static WPos RotateAroundOrigin(float rotateByDegrees, WPos origin, WPos point)
     {
         var (sin, cos) = ((float, float))Math.SinCos(rotateByDegrees * Angle.DegToRad);
@@ -127,10 +133,10 @@ public record struct WPos(float X, float Z)
     {
         var s = (v2.X - v1.X) * (Z - v1.Z) - (v2.Z - v1.Z) * (X - v1.X);
         var t = (v3.X - v2.X) * (Z - v2.Z) - (v3.Z - v2.Z) * (X - v2.X);
-        if ((s < 0) != (t < 0) && s != 0 && t != 0)
+        if ((s < 0f) != (t < 0f) && s != 0f && t != 0f)
             return false;
         var d = (v1.X - v3.X) * (Z - v3.Z) - (v1.Z - v3.Z) * (X - v3.X);
-        return d == 0 || (d < 0) == (s + t <= 0);
+        return d == 0f || (d < 0f) == (s + t <= 0f);
     }
 
     public readonly bool InRect(WPos origin, WDir direction, float lenFront, float lenBack, float halfWidth) => (this - origin).InRect(direction, lenFront, lenBack, halfWidth);
@@ -159,7 +165,7 @@ public record struct WPos(float X, float Z)
     public readonly bool InCapsule(WPos origin, WDir direction, float radius, float length)
     {
         var offset = this - origin;
-        var t = Math.Clamp(offset.Dot(direction), 0, length);
+        var t = Math.Clamp(offset.Dot(direction), 0f, length);
         var proj = origin + t * direction;
         return (this - proj).LengthSq() <= radius * radius;
     }

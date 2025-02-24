@@ -16,7 +16,7 @@ public enum AID : uint
     DoubleRay = 41668 // Sprinkler->player, no cast, single-target
 }
 
-class IsleDrop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IsleDrop), 6);
+class IsleDrop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IsleDrop), 6f);
 class MysteriousLight(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.MysteriousLight));
 
 public class A10GroundskeeperStates : StateMachineBuilder
@@ -26,7 +26,17 @@ public class A10GroundskeeperStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<IsleDrop>()
             .ActivateOnEnter<MysteriousLight>()
-            .Raw.Update = () => Module.Enemies(A10Groundskeeper.Trash).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(A10Groundskeeper.Trash);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -48,7 +58,7 @@ public class A10Groundskeeper(WorldState ws, Actor primary) : BossModule(ws, pri
     new(-564.71f, -598.33f), new(-568.95f, -600.82f), new(-569.28f, -601.23f), new(-567.14f, -604.83f), new(-566.46f, -604.8f),
     new(-565.21f, -604.06f), new(-564.32f, -603.14f), new(-563.89f, -602.73f), new(-563.4f, -602.37f), new(-562.83f, -602.15f),
     new(-562.26f, -602.15f), new(-561.68f, -602.32f), new(-561.05f, -603.42f), new(-557.61f, -611.37f), new(-557.63f, -611.93f),
-    new(-558.2f, -612.25f), new(-562.33f, -614), new(-562.88f, -614.49f), new(-561.34f, -618.12f), new(-561.07f, -618.57f),
+    new(-558.2f, -612.25f), new(-562.33f, -614f), new(-562.88f, -614.49f), new(-561.34f, -618.12f), new(-561.07f, -618.57f),
     new(-557.2f, -616.93f), new(-556.69f, -616.59f), new(-556.17f, -616.37f), new(-555.61f, -616.44f), new(-555.32f, -616.94f),
     new(-544.54f, -642.34f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);

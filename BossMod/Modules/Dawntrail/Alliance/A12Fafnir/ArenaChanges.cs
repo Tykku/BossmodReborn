@@ -2,13 +2,14 @@ namespace BossMod.Dawntrail.Alliance.A12Fafnir;
 
 class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donut = new(30, 35);
+    private static readonly AOEShapeDonut donut = new(30f, 35f);
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.DarkMatterBlast && Arena.Bounds != A12Fafnir.DefaultBounds)
+        if (spell.Action.ID == (uint)AID.DarkMatterBlast && Arena.Bounds != A12Fafnir.DefaultBounds)
             _aoe = new(donut, Arena.Center, default, Module.CastFinishAt(spell, 1.1f));
     }
 
@@ -28,11 +29,11 @@ class DragonBreathArenaChange(BossModule module) : BossComponent(module)
 
     private Angle initialRot;
     private DateTime started;
-    private static readonly Circle circle = new(A12Fafnir.ArenaCenter, 16);
+    private static readonly Circle circle = new(A12Fafnir.ArenaCenter, 16f);
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
-        if ((OID)actor.OID == OID.FireVoidzone)
+        if (actor.OID == (uint)OID.FireVoidzone)
         {
             if (state == 0x00010002) // outer arena starts to turn unsafe
                 Arena.Bounds = A12Fafnir.FireArena;
@@ -49,15 +50,15 @@ class DragonBreathArenaChange(BossModule module) : BossComponent(module)
         if (started != default)
         {
             var time = (WorldState.CurrentTime - started).TotalSeconds;
-            var angle = initialRot - ((float)time * 30).Degrees(); // 30° of the outer arena turn safe again per second
-            if (time >= 12)
+            var angle = initialRot - ((float)time * 30f).Degrees(); // 30° of the outer arena turn safe again per second
+            if (time >= 12d)
             {
                 started = default;
                 Arena.Bounds = A12Fafnir.DefaultBounds;
                 Arena.Center = A12Fafnir.ArenaCenter;
                 return;
             }
-            ArenaBoundsComplex refresh = new([circle, new Cone(A12Fafnir.ArenaCenter, 30, angle, initialRot)]);
+            ArenaBoundsComplex refresh = new([circle, new Cone(A12Fafnir.ArenaCenter, 30f, angle, initialRot)]);
             Arena.Bounds = refresh;
             Arena.Center = refresh.Center;
         }

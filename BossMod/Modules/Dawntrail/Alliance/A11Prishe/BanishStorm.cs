@@ -4,15 +4,15 @@ class BanishStorm(BossModule module) : Components.Exaflare(module, 6)
 {
     public bool Done;
 
-    private static readonly WPos[] positions = [new(815, 415), new(800, 385), new(785, 400), new(785, 385), new(815, 400), new(800, 415)];
+    private static readonly WPos[] positions = [new(815f, 415f), new(800f, 385f), new(785f, 400f), new(785f, 385f), new(815f, 400f), new(800f, 415f)];
     private static readonly WDir[] directions =
     [
         4 * (-0.003f).Degrees().ToDirection(),
         4 * 119.997f.Degrees().ToDirection(),
         4 * (-120.003f).Degrees().ToDirection(),
-        4 * 180.Degrees().ToDirection(),
+        4 * 180f.Degrees().ToDirection(),
         4 * (-60.005f).Degrees().ToDirection(),
-        4 * 60.Degrees().ToDirection(),
+        4 * 60f.Degrees().ToDirection(),
         4 * 89.999f.Degrees().ToDirection(),
         4 * (-150.001f).Degrees().ToDirection(),
         4 * (-30.001f).Degrees().ToDirection(),
@@ -46,8 +46,8 @@ class BanishStorm(BossModule module) : Components.Exaflare(module, 6)
         {
             if (state == 0x00020001) // rod appear
             {
-                var activation1 = WorldState.FutureTime(9.1f);
-                var activation2 = WorldState.FutureTime(9.8f);
+                var activation1 = WorldState.FutureTime(9.1d);
+                var activation2 = WorldState.FutureTime(9.8d);
 
                 for (var i = 0; i < 3; ++i)
                 {
@@ -73,13 +73,22 @@ class BanishStorm(BossModule module) : Components.Exaflare(module, 6)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.Banish)
+        if (spell.Action.ID == (uint)AID.Banish)
         {
             ++NumCasts;
-            var index = Lines.FindIndex(item => item.Next.AlmostEqual(caster.Position, 1));
-            AdvanceLine(Lines[index], caster.Position);
-            if (Lines[index].ExplosionsLeft == 0)
-                Lines.RemoveAt(index);
+            var count = Lines.Count;
+            var pos = caster.Position;
+            for (var i = 0; i < count; ++i)
+            {
+                var line = Lines[i];
+                if (line.Next.AlmostEqual(pos, 1f))
+                {
+                    AdvanceLine(line, pos);
+                    if (line.ExplosionsLeft == 0)
+                        Lines.RemoveAt(i);
+                    break;
+                }
+            }
         }
     }
 }

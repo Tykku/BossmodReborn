@@ -1,385 +1,462 @@
 ﻿namespace BossMod.Pathfinding;
 
-public sealed class ThetaStar
+public class ThetaStar
 {
+    public enum Score
+    {
+        JustBad, // the path is unsafe (there are cells along the path with negative leeway, and some cells have lower max-g than starting cell), destination is unsafe and has same or lower max-g than starting cell
+        UltimatelyBetter, // the path is unsafe (there are cells along the path with negative leeway, and some cells have lower max-g than starting cell), destination is unsafe but has larger max-g than starting cell
+        UltimatelySafe, // the path is unsafe (there are cells along the path with negative leeway, and some cells have lower max-g than starting cell), however destination is safe
+        UnsafeAsStart, // the path is unsafe (there are cells along the path with negative leeway, but no max-g lower than starting cell), destination is unsafe with same max-g as starting cell (starting cell will have this score if its max-g is <= 0)
+        SemiSafeAsStart, // the path is semi-safe (no cell along the path has negative leeway or max-g lower than starting cell), destination is unsafe with same max-g as starting cell (starting cell will have this score if its max-g is > 0)
+        UnsafeImprove, // the path is unsafe (there are cells along the path with negative leeway, but no max-g lower than starting cell), destination is at least better than start
+        SemiSafeImprove, // the path is semi-safe (no cell along the path has negative leeway or max-g lower than starting cell), destination is unsafe but better than start
+        Safe, // the path reaches safe cell and is fully safe (no cell along the path has negative leeway) (starting cell will have this score if it's safe)
+        SafeBetterPrio, // the path reaches safe cell with a higher goal priority than starting cell (but less than max) and is fully safe (no cell along the path has negative leeway)
+        SafeMaxPrio, // the path reaches safe cell with max goal priority and is fully safe (no cell along the path has negative leeway)
+    }
+
     public struct Node
     {
         public float GScore;
         public float HScore;
-        public int ParentX;
-        public int ParentY;
+        public int ParentIndex;
         public int OpenHeapIndex; // -1 if in closed list, 0 if not in any lists, otherwise (index+1)
-        public float PathLeeway;
+        public float PathLeeway; // min diff along path between node's g-value and cell's g-value
+        public float PathMinG; // minimum 'max g' value along path
+        public Score Score;
+
+        public readonly float FScore => GScore + HScore;
     }
 
+    private const float Epsilon = 1e-5f;
+
     private Map _map = new();
-    private (int x, int y)[] _goals = [];
     private Node[] _nodes = [];
-    private float[] _distances = [];
     private readonly List<int> _openList = [];
     private float _deltaGSide;
     private float _deltaGDiag;
-    private const float Epsilon = 1e-5f;
-    private readonly object _lock = new();
-    private (int dx, int dy, float cost)[] NeighborOffsets = [];
-    public ref Node NodeByIndex(int index) => ref _nodes[index];
-    public int CellIndex(int x, int y) => y * _map.Width + x;
-    public WPos CellCenter(int index) => _map.GridToWorld(index % _map.Width, index / _map.Width, 0.5f, 0.5f);
+
     private float _mapResolution;
     private float _mapHalfResolution;
+    private int _startNodeIndex;
+    private float _startMaxG;
+    private float _startPrio;
+    private Score _startScore;
+
+    private int _bestIndex; // node with best score
+    private int _fallbackIndex; // best 'fallback' node: node that we don't necessarily want to go to, but might want to move closer to it (to the parent)
+
+    // statistics
+    public int NumSteps;
+    public int NumReopens;
+
+    public ref Node NodeByIndex(int index) => ref _nodes[index];
+    public WPos CellCenter(int index) => _map.GridToWorld(index % _map.Width, index / _map.Width, 0.5f, 0.5f);
 
     // gMultiplier is typically inverse speed, which turns g-values into time
-    public void Start(Map map, List<(int x, int y)> goals, (int x, int y) start, float gMultiplier)
+    public void Start(Map map, WPos startPos, float gMultiplier)
     {
-        lock (_lock)
-        {
-            _map = map;
-            _goals = [.. goals];
-
-            var numPixels = map.Width * map.Height;
-            if (_nodes == null || _nodes.Length < numPixels)
-                _nodes = new Node[numPixels];
+        _map = map;
+        var numPixels = map.Width * map.Height;
+        if (_nodes.Length < numPixels)
+            _nodes = new Node[numPixels];
+        else
             Array.Fill(_nodes, default, 0, numPixels);
-            if (_distances == null || _distances.Length < numPixels)
-                _distances = new float[numPixels];
-            _openList.Clear();
-            _deltaGSide = map.Resolution * gMultiplier;
-            _deltaGDiag = _deltaGSide * 1.414214f;
-            _mapResolution = map.Resolution;
-            _mapHalfResolution = map.Resolution * 0.5f;
-            NeighborOffsets =
-            [
-                (-1, 0, _deltaGSide),
-                (1, 0, _deltaGSide),
-                (0, -1, _deltaGSide),
-                (0, 1, _deltaGSide),
-                (-1, -1, _deltaGDiag),
-                (-1, 1, _deltaGDiag),
-                (1, -1, _deltaGDiag),
-                (1, 1, _deltaGDiag),
-            ];
-            DijkstraDistance();
+        _openList.Clear();
+        _deltaGSide = map.Resolution * gMultiplier;
+        _deltaGDiag = _deltaGSide * 1.414214f;
+        _mapResolution = map.Resolution;
+        _mapHalfResolution = map.Resolution * 0.5f;
 
-            start = map.ClampToGrid(start);
-            var startIndex = CellIndex(start.x, start.y);
-            _nodes[startIndex].GScore = 0;
-            _nodes[startIndex].HScore = _distances[startIndex];
-            _nodes[startIndex].ParentX = start.x; // start's parent is self
-            _nodes[startIndex].ParentY = start.y;
-            _nodes[startIndex].PathLeeway = float.MaxValue; // min diff along path between node's g-value and cell's g-value
-            AddToOpen(startIndex);
-        }
-    }
+        PrefillH();
 
-    public void Start(Map map, int goalPriority, WPos startPos, float gMultiplier)
-    {
-        var goals = map.Goals();
-        var count = goals.Count;
-        var filteredGoals = new List<(int x, int y)>(count);
-        for (var i = 0; i < count; ++i)
+        var startFrac = map.WorldToGridFrac(startPos);
+        var start = map.ClampToGrid(Map.FracToGrid(startFrac));
+        _startNodeIndex = _bestIndex = _fallbackIndex = _map.GridToIndex(start.x, start.y);
+        _startMaxG = _map.PixelMaxG[_startNodeIndex];
+        _startPrio = _map.PixelPriority[_startNodeIndex];
+        //if (_startMaxG < 0)
+        //    _startMaxG = float.MaxValue; // TODO: this is a hack that allows navigating outside the obstacles, reconsider...
+        _startScore = CalculateScore(_startMaxG, _startMaxG, _startMaxG, _startNodeIndex);
+        NumSteps = NumReopens = 0;
+
+        startFrac.X -= start.x + 0.5f;
+        startFrac.Y -= start.y + 0.5f;
+        ref var startNode = ref _nodes[_startNodeIndex];
+        startNode = new()
         {
-            var g = goals[i];
-            if (g.priority >= goalPriority)
-                filteredGoals.Add((g.x, g.y));
-        }
-
-        Start(map, filteredGoals, map.WorldToGrid(startPos), gMultiplier);
+            GScore = 0f,
+            HScore = startNode.HScore, //HeuristicDistance(start.x, start.y),
+            ParentIndex = _startNodeIndex, // start's parent is self
+            PathLeeway = _startMaxG,
+            PathMinG = _startMaxG,
+            Score = _startScore,
+        };
+        AddToOpen(_startNodeIndex);
     }
 
     // returns whether search is to be terminated; on success, first node of the open list would contain found goal
     public bool ExecuteStep()
     {
-        lock (_lock)
-        {
-            if (_goals.Length == 0 || _openList.Count == 0 || _nodes[_openList[0]].HScore <= 0)
-                return false;
+        if (_openList.Count == 0 /*|| _nodes[_openList[0]].HScore <= 0*/)
+            return false;
 
-            var nextNodeIndex = PopMinOpen();
-            var nextNodeX = nextNodeIndex % _map.Width;
-            var nextNodeY = nextNodeIndex / _map.Width;
-            var haveN = nextNodeY > 0;
-            var haveS = nextNodeY < _map.Height - 1;
-            var haveE = nextNodeX > 0;
-            var haveW = nextNodeX < _map.Width - 1;
-            if (haveN)
-            {
-                VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX, nextNodeY - 1, nextNodeIndex - _map.Width, _deltaGSide);
-                if (haveE)
-                    VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX - 1, nextNodeY - 1, nextNodeIndex - _map.Width - 1, _deltaGDiag);
-                if (haveW)
-                    VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX + 1, nextNodeY - 1, nextNodeIndex - _map.Width + 1, _deltaGDiag);
-            }
+        ++NumSteps;
+        var nextNodeIndex = PopMinOpen();
+        var nextNodeX = nextNodeIndex % _map.Width;
+        var nextNodeY = nextNodeIndex / _map.Width;
+        ref var nextNode = ref _nodes[nextNodeIndex];
+
+        // update our best indices
+        if (CompareNodeScores(ref nextNode, ref _nodes[_bestIndex]) < 0)
+            _bestIndex = nextNodeIndex;
+        if (nextNode.Score == Score.UltimatelySafe && (_fallbackIndex == _startNodeIndex || CompareNodeScores(ref nextNode, ref _nodes[_fallbackIndex]) < 0))
+            _fallbackIndex = nextNodeIndex;
+
+        var haveN = nextNodeY > 0;
+        var haveS = nextNodeY < _map.Height - 1;
+        var haveE = nextNodeX > 0;
+        var haveW = nextNodeX < _map.Width - 1;
+        if (haveN)
+        {
+            VisitNeighbour(nextNodeIndex, nextNodeX, nextNodeY - 1, nextNodeIndex - _map.Width, _deltaGSide);
             if (haveE)
-                VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX - 1, nextNodeY, nextNodeIndex - 1, _deltaGSide);
+                VisitNeighbour(nextNodeIndex, nextNodeX - 1, nextNodeY - 1, nextNodeIndex - _map.Width - 1, _deltaGDiag);
             if (haveW)
-                VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX + 1, nextNodeY, nextNodeIndex + 1, _deltaGSide);
-            if (haveS)
-            {
-                VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX, nextNodeY + 1, nextNodeIndex + _map.Width, _deltaGSide);
-                if (haveE)
-                    VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX - 1, nextNodeY + 1, nextNodeIndex + _map.Width - 1, _deltaGDiag);
-                if (haveW)
-                    VisitNeighbour(nextNodeX, nextNodeY, nextNodeIndex, nextNodeX + 1, nextNodeY + 1, nextNodeIndex + _map.Width + 1, _deltaGDiag);
-            }
-            return true;
+                VisitNeighbour(nextNodeIndex, nextNodeX + 1, nextNodeY - 1, nextNodeIndex - _map.Width + 1, _deltaGDiag);
         }
-    }
-
-    public int CurrentResult()
-    {
-        lock (_lock)
+        if (haveE)
+            VisitNeighbour(nextNodeIndex, nextNodeX - 1, nextNodeY, nextNodeIndex - 1, _deltaGSide);
+        if (haveW)
+            VisitNeighbour(nextNodeIndex, nextNodeX + 1, nextNodeY, nextNodeIndex + 1, _deltaGSide);
+        if (haveS)
         {
-            return _openList.Count > 0 && _nodes[_openList[0]].HScore <= 0 ? _openList[0] : -1;
+            VisitNeighbour(nextNodeIndex, nextNodeX, nextNodeY + 1, nextNodeIndex + _map.Width, _deltaGSide);
+            if (haveE)
+                VisitNeighbour(nextNodeIndex, nextNodeX - 1, nextNodeY + 1, nextNodeIndex + _map.Width - 1, _deltaGDiag);
+            if (haveW)
+                VisitNeighbour(nextNodeIndex, nextNodeX + 1, nextNodeY + 1, nextNodeIndex + _map.Width + 1, _deltaGDiag);
         }
+        return true;
     }
 
     public int Execute()
     {
-        while (ExecuteStep())
+        while (_nodes[_bestIndex].HScore > 0f && _fallbackIndex == _startNodeIndex && ExecuteStep())
             ;
-        return CurrentResult();
+        return BestIndex();
     }
 
-    private void VisitNeighbour(int parentX, int parentY, int parentIndex, int nodeX, int nodeY, int nodeIndex, float deltaG)
+    public int BestIndex()
     {
-        ref var node = ref _nodes[nodeIndex];
-        if (node.OpenHeapIndex < 0)
-            return; // in closed list already
+        if (_nodes[_bestIndex].Score > _startScore)
+            return _bestIndex; // we've found something better than start
 
-        ref var parentnode = ref _nodes[parentIndex];
-
-        var tentativeG = parentnode.GScore + deltaG;
-        var nodeLeeway = _map.Pixels[nodeIndex].MaxG - tentativeG;
-        if (nodeLeeway < 0)
-            return; // node is blocked along this path
-
-        var grandParentX = parentnode.ParentX;
-        var grandParentY = parentnode.ParentY;
-        var grandParentIndex = CellIndex(grandParentX, grandParentY);
-
-        var newG = tentativeG;
-        if (LineOfSight(grandParentX, grandParentY, nodeX, nodeY, parentnode.GScore))
+        if (_fallbackIndex != _startNodeIndex)
         {
-            // If there is line of sight, set the parent to the grandparent
-            parentX = grandParentX;
-            parentY = grandParentY;
-            parentIndex = grandParentIndex;
-
-            // Recalculate newG based on the grandparent
-            var distance = MathF.Sqrt(DistanceSq(nodeX, nodeY, parentX, parentY));
-            newG = _nodes[parentIndex].GScore + _deltaGSide * distance;
-        }
-
-        if (node.OpenHeapIndex == 0)
-        {
-            node.GScore = float.MaxValue;
-            node.HScore = _distances[nodeIndex];
-        }
-
-        if (newG + Epsilon < node.GScore)
-        {
-            node.GScore = newG;
-            node.ParentX = parentX;
-            node.ParentY = parentY;
-            node.PathLeeway = MathF.Min(parentnode.PathLeeway, nodeLeeway);
-
-            if (node.OpenHeapIndex == 0)
+            // find first parent of best-among-worst that is at least as good as start
+            var destIndex = _fallbackIndex;
+            var parentIndex = _nodes[destIndex].ParentIndex;
+            while (_nodes[parentIndex].Score < _startScore)
             {
-                AddToOpen(nodeIndex);
+                destIndex = parentIndex;
+                parentIndex = _nodes[destIndex].ParentIndex;
             }
-            else
+
+            // TODO: this is very similar to LineOfSight, try to unify implementations...
+            ref var startNode = ref _nodes[parentIndex];
+            ref var destNode = ref _nodes[destIndex];
+            var (x2, y2) = _map.IndexToGrid(destIndex);
+            var (x1, y1) = _map.IndexToGrid(parentIndex);
+            var dx = x2 - x1;
+            var dy = y2 - y1;
+            var sx = dx > 0 ? 1 : -1;
+            var sy = dy > 0 ? 1 : -1;
+            var hsx = 0.5f * sx;
+            var hsy = 0.5f * sy;
+            var indexDeltaX = sx;
+            var indexDeltaY = sy * _map.Width;
+
+            var ab = new Vector2(dx, dy);
+            ab /= ab.Length();
+            var invx = ab.X != 0f ? 1f / ab.X : float.MaxValue; // either can be infinite, but not both; we want to avoid actual infinities here, because 0*inf = NaN (and we'd rather have it be 0 in this case)
+            var invy = ab.Y != 0f ? 1f / ab.Y : float.MaxValue;
+
+            while (x1 != x2 || y1 != y2)
             {
-                PercolateUp(node.OpenHeapIndex - 1);
+                var tx = hsx * invx; // if negative, we'll never intersect it
+                var ty = hsy * invy;
+                if (tx < 0f || x1 == x2)
+                    tx = float.MaxValue;
+                if (ty < 0f || y1 == y2)
+                    ty = float.MaxValue;
+
+                var nextIndex = parentIndex;
+                if (tx < ty)
+                {
+                    x1 += sx;
+                    nextIndex += indexDeltaX;
+                }
+                else
+                {
+                    y1 += sy;
+                    nextIndex += indexDeltaY;
+                }
+
+                if (_nodes[nextIndex].Score < _startScore)
+                {
+                    return parentIndex;
+                }
+                parentIndex = nextIndex;
             }
         }
+
+        return _bestIndex;
     }
 
-    private bool LineOfSight(int x0, int y0, int x1, int y1, float parentGScore)
+    public Score CalculateScore(float pixMaxG, float pathMinG, float pathLeeway, int pixelIndex)
     {
+        var destSafe = pixMaxG == float.MaxValue;
+        var pathSafe = pathLeeway > 0;
+        var destBetter = pixMaxG > _startMaxG;
+        if (destSafe && pathSafe)
+        {
+            var prio = _map.PixelPriority[pixelIndex];
+            return prio == _map.MaxPriority ? Score.SafeMaxPrio : prio > _startPrio ? Score.SafeBetterPrio : Score.Safe;
+        }
+
+        if (pathMinG == _startMaxG) // TODO: some small threshold? should be solved by preprocessing...
+            return pathSafe
+                ? (destBetter ? Score.SemiSafeImprove : Score.SemiSafeAsStart) // note: if pix.MaxG is < _startMaxG, then PathMinG will be < too
+                : (destBetter ? Score.UnsafeImprove : Score.UnsafeAsStart);
+
+        return destSafe ? Score.UltimatelySafe : destBetter ? Score.UltimatelyBetter : Score.JustBad;
+    }
+
+    // return a 'score' difference: 0 if identical, -1 if left is somewhat better, -2 if left is significantly better, +1/+2 when right is better
+    public static int CompareNodeScores(ref Node nodeL, ref Node nodeR)
+    {
+        if (nodeL.Score != nodeR.Score)
+            return nodeL.Score > nodeR.Score ? -2 : +2;
+
+        // TODO: should we use leeway here or distance?..
+        //return nodeL.PathLeeway > nodeR.PathLeeway;
+        var gl = nodeL.GScore;
+        var gr = nodeR.GScore;
+        var fl = gl + nodeL.HScore;
+        var fr = gr + nodeR.HScore;
+        if (fl + Epsilon < fr)
+            return -1;
+        else if (fr + Epsilon < fl)
+            return +1;
+        else if (gl != gr)
+            return gl > gr ? -1 : 1; // tie-break towards larger g-values
+        else
+            return 0;
+    }
+
+    public bool LineOfSight(int x0, int y0, int x1, int y1, float parentGScore, out float lineOfSightLeeway, out float lineOfSightDist, out float lineOfSightMinG)
+    {
+        lineOfSightLeeway = float.MaxValue;
+        lineOfSightMinG = float.MaxValue;
+        var cumulativeG = parentGScore;
+
         var dx = x1 - x0;
         var dy = y1 - y0;
 
-        var stepX = Math.Sign(dx);
-        var stepY = Math.Sign(dy);
+        var shiftdx = dx >> 31;
+        var shiftdy = dy >> 31;
 
-        dx = Math.Abs(dx);
-        dy = Math.Abs(dy);
+        var stepX = dx == 0 ? 0 : (shiftdx | 1); // Sign of dx
+        var stepY = dy == 0 ? 0 : (shiftdy | 1); // Sign of dy
 
-        var invdx = (dx != 0) ? 1f / dx : float.MaxValue;
-        var invdy = (dy != 0) ? 1f / dy : float.MaxValue;
+        dx = (dx ^ shiftdx) - shiftdx;  // Absolute value of dx
+        dy = (dy ^ shiftdy) - shiftdy;  // Absolute value of dy
+
+        lineOfSightDist = MathF.Sqrt(dx * dx + dy * dy);
+
+        var invdx = dx != 0 ? 1f / dx : float.MaxValue;
+        var invdy = dy != 0 ? 1f / dy : float.MaxValue;
 
         var tMaxX = _mapHalfResolution * invdx;
         var tMaxY = _mapHalfResolution * invdy;
-
         var tDeltaX = _mapResolution * invdx;
         var tDeltaY = _mapResolution * invdy;
 
         var x = x0;
         var y = y0;
-        var cumulativeG = parentGScore;
 
-        while (x != x1 || y != y1)
+        while (true)
         {
-            var nodeIndex = CellIndex(x, y);
+            ref var maxG = ref _map.PixelMaxG[y * _map.Width + x];
 
-            // Check if the node is entirely blocked
-            if (_map.Pixels[nodeIndex].MaxG <= 0)
+            // If this pixel is considered impassable
+            if (maxG <= 0)
                 return false;
 
-            // Determine the movement cost based on the direction
-            float movementCost;
+            // Update the minG we have seen on this line
+            if (maxG < lineOfSightMinG)
+                lineOfSightMinG = maxG;
 
+            // Update the path leeway along this line
+            var thisLeeway = maxG - cumulativeG;
+            if (thisLeeway < lineOfSightLeeway)
+                lineOfSightLeeway = thisLeeway;
+
+            // Check if we're finished
+            if (x == x1 && y == y1)
+                break;
+
+            // Otherwise pick which direction to step
             if (tMaxX < tMaxY)
             {
                 tMaxX += tDeltaX;
                 x += stepX;
-                movementCost = _deltaGSide;
+                cumulativeG += _deltaGSide;
             }
             else if (tMaxY < tMaxX)
             {
                 tMaxY += tDeltaY;
                 y += stepY;
-                movementCost = _deltaGSide;
+                cumulativeG += _deltaGSide;
             }
-            else // tMaxX == tMaxY, moving diagonally
+            else
             {
+                // stepping diagonally
                 tMaxX += tDeltaX;
                 tMaxY += tDeltaY;
                 x += stepX;
                 y += stepY;
-                movementCost = _deltaGDiag;
+                cumulativeG += _deltaGDiag;
             }
-
-            cumulativeG += movementCost;
-
-            // Check if the cumulative G-score exceeds MaxG
-            if (cumulativeG - Epsilon > _map.Pixels[nodeIndex].MaxG)
-                return false;
         }
 
-        // Check the last node
-        return cumulativeG - Epsilon <= _map.Pixels[CellIndex(x1, y1)].MaxG;
+        // If we made it out of the loop, line of sight is good
+        return true;
     }
 
-    private void DijkstraDistance()
+    private void VisitNeighbour(int parentIndex, int nodeX, int nodeY, int nodeIndex, float deltaGrid)
     {
-        var numPixels = _map.Width * _map.Height;
-        Array.Fill(_distances, float.MaxValue, 0, numPixels);
-        var count = _goals.Length;
-        var openList = new List<int>(count);
-        var inOpenHeapIndex = new int[numPixels];
-        Array.Fill(inOpenHeapIndex, 0, 0, numPixels);
+        ref var currentParentNode = ref _nodes[parentIndex];
+        ref var destNode = ref _nodes[nodeIndex];
 
-        for (var i = 0; i < count; ++i)
+        if (destNode.OpenHeapIndex < 0 && destNode.Score >= Score.SemiSafeAsStart)
+            return;
+
+        ref var destPixG = ref _map.PixelMaxG[nodeIndex];
+        ref var parentPixG = ref _map.PixelMaxG[parentIndex];
+        if (destPixG < 0f && parentPixG >= 0f)
+            return; // impassable
+
+        var stepCost = deltaGrid; // either _deltaGSide or _deltaGDiag
+        var candidateG = currentParentNode.GScore + stepCost;
+
+        var candidateLeeway = MathF.Min(currentParentNode.PathLeeway, Math.Min(destPixG, parentPixG) - candidateG);
+        var candidateMinG = MathF.Min(currentParentNode.PathMinG, destPixG);
+
+        var altNode = new Node
         {
-            var goal = _goals[i];
-            var goalIndex = CellIndex(goal.x, goal.y);
-            _distances[goalIndex] = 0;
-            openList.Add(goalIndex);
-            inOpenHeapIndex[goalIndex] = openList.Count;
+            GScore = candidateG,
+            HScore = destNode.HScore, // or init if first time
+            ParentIndex = parentIndex,
+            OpenHeapIndex = destNode.OpenHeapIndex,
+            PathLeeway = candidateLeeway,
+            PathMinG = candidateMinG,
+            Score = CalculateScore(destPixG, candidateMinG, candidateLeeway, nodeIndex)
+        };
+
+        var grandParentIndex = currentParentNode.ParentIndex;
+
+        if (grandParentIndex != nodeIndex && _nodes[grandParentIndex].PathMinG >= currentParentNode.PathMinG)
+        {
+            var (gx, gy) = _map.IndexToGrid(grandParentIndex);
+
+            // Attempt to see if we can go directly from grandparent to (nodeX, nodeY)
+            if (LineOfSight(gx, gy, nodeX, nodeY, _nodes[grandParentIndex].GScore, out var losLeeway, out var losDist, out var losMinG))
+            {
+                var losScore = CalculateScore(destPixG, losMinG, losLeeway, nodeIndex);
+                if (losScore > altNode.Score || losScore == altNode.Score && losLeeway >= (losScore >= Score.Safe ? 0 : altNode.PathLeeway))
+                {
+                    parentIndex = grandParentIndex;
+                    altNode.GScore = _nodes[parentIndex].GScore + _deltaGSide * losDist;
+                    altNode.ParentIndex = grandParentIndex;
+                    altNode.PathLeeway = losLeeway;
+                    altNode.PathMinG = losMinG;
+                    altNode.Score = losScore;
+                }
+            }
         }
 
-        while (openList.Count != 0)
+        var visit = destNode.OpenHeapIndex == 0 || CompareNodeScores(ref altNode, ref destNode) < (destNode.OpenHeapIndex < 0 ? -1 : 0);
+        if (visit)
         {
-            var currentIndex = PopMinOpen(openList, inOpenHeapIndex);
-            var currentX = currentIndex % _map.Width;
-            var currentY = currentIndex / _map.Width;
+            if (destNode.OpenHeapIndex < 0)
+                ++NumReopens;
+            destNode = altNode;
+            AddToOpen(nodeIndex);
+        }
+    }
 
-            for (var i = 0; i < 8; ++i)
+    private void PrefillH()
+    {
+        var width = _map.Width;
+        var hight = _map.Height;
+        var maxPriority = _map.MaxPriority;
+        var iCell = 0;
+        for (var y = 0; y < hight; ++y)
+        {
+            for (var x = 0; x < width; ++x, ++iCell)
             {
-                var (dx, dy, cost) = NeighborOffsets[i];
-                var neighborX = currentX + dx;
-                var neighborY = currentY + dy;
-
-                if (neighborX < 0 || neighborX >= _map.Width || neighborY < 0 || neighborY >= _map.Height)
-                    continue;
-
-                var neighborIndex = CellIndex(neighborX, neighborY);
-                var neighborMaxG = _map.Pixels[neighborIndex].MaxG;
-
-                if (neighborMaxG <= 0)
-                    continue;
-
-                var newDistance = _distances[currentIndex] + cost;
-
-                // If the new distance exceeds MaxG, skip this neighbor
-                if (newDistance > neighborMaxG)
-                    continue;
-
-                if (newDistance < _distances[neighborIndex])
+                if (_map.PixelPriority[iCell] < maxPriority)
                 {
-                    _distances[neighborIndex] = newDistance;
-                    if (inOpenHeapIndex[neighborIndex] == 0)
-                    {
-                        openList.Add(neighborIndex);
-                        inOpenHeapIndex[neighborIndex] = openList.Count;
-                    }
-                    PercolateUp(openList, inOpenHeapIndex, neighborIndex);
+                    ref var node = ref _nodes[iCell];
+                    node.HScore = float.MaxValue;
+                    if (x > 0)
+                        UpdateHNeighbour(x, y, ref node, x - 1, y, iCell - 1);
+                    if (y > 0)
+                        UpdateHNeighbour(x, y, ref node, x, y - 1, iCell - width);
+                }
+                // else: leave unfilled (H=0, parent=uninit)
+            }
+        }
+        --iCell;
+        for (int y0 = hight - 1, y = y0; y >= 0; --y)
+        {
+            for (int x0 = width - 1, x = x0; x >= 0; --x, --iCell)
+            {
+                if (_map.PixelPriority[iCell] < maxPriority)
+                {
+                    ref var node = ref _nodes[iCell];
+                    if (x < x0)
+                        UpdateHNeighbour(x, y, ref node, x + 1, y, iCell + 1);
+                    if (y < y0)
+                        UpdateHNeighbour(x, y, ref node, x, y + 1, iCell + width);
                 }
             }
         }
     }
 
-    private int PopMinOpen(List<int> openList, int[] inOpenHeapIndex)
+    private void UpdateHNeighbour(int x1, int y1, ref Node node, int x2, int y2, int neighIndex)
     {
-        var nodeIndex = openList[0];
-        openList[0] = openList[^1];
-        inOpenHeapIndex[nodeIndex] = -1;
-        openList.RemoveAt(openList.Count - 1);
-        if (openList.Count > 0)
+        ref var neighbour = ref _nodes[neighIndex];
+        if (neighbour.HScore == 0)
         {
-            inOpenHeapIndex[openList[0]] = 1;
-            PercolateDown(openList, inOpenHeapIndex, 0);
+            node.HScore = _deltaGSide; // don't bother with min, it can't be lower
+            node.ParentIndex = neighIndex;
         }
-        return nodeIndex;
-    }
-
-    private void PercolateUp(List<int> openList, int[] inOpenHeapIndex, int nodeIndex)
-    {
-        var heapIndex = inOpenHeapIndex[nodeIndex] - 1;
-        var parent = (heapIndex - 1) >> 1;
-        while (heapIndex > 0 && _distances[openList[heapIndex]] < _distances[openList[parent]])
+        else if (neighbour.HScore < float.MaxValue)
         {
-            (openList[parent], openList[heapIndex]) = (openList[heapIndex], openList[parent]);
-            inOpenHeapIndex[openList[heapIndex]] = heapIndex + 1;
-            inOpenHeapIndex[openList[parent]] = parent + 1;
-
-            heapIndex = parent;
-            parent = (heapIndex - 1) >> 1;
+            (x2, y2) = _map.IndexToGrid(neighbour.ParentIndex);
+            var dx = x2 - x1;
+            var dy = y2 - y1;
+            var hScore = _deltaGSide * MathF.Sqrt(dx * dx + dy * dy);
+            if (hScore < node.HScore)
+            {
+                node.HScore = hScore;
+                node.ParentIndex = neighbour.ParentIndex;
+            }
         }
-    }
-
-    private void PercolateDown(List<int> openList, int[] inOpenHeapIndex, int heapIndex)
-    {
-        var maxSize = openList.Count;
-        while (true)
-        {
-            var leftChild = (heapIndex << 1) + 1;
-            if (leftChild >= maxSize)
-                break;
-            var rightChild = leftChild + 1;
-            var smallest = heapIndex;
-
-            if (_distances[openList[leftChild]] < _distances[openList[smallest]])
-                smallest = leftChild;
-            if (rightChild < maxSize && _distances[openList[rightChild]] < _distances[openList[smallest]])
-                smallest = rightChild;
-            if (smallest == heapIndex)
-                break;
-
-            (openList[smallest], openList[heapIndex]) = (openList[heapIndex], openList[smallest]);
-            inOpenHeapIndex[openList[heapIndex]] = heapIndex + 1;
-            inOpenHeapIndex[openList[smallest]] = smallest + 1;
-
-            heapIndex = smallest;
-        }
-    }
-
-    private static float DistanceSq(int x1, int y1, int x2, int y2)
-    {
-        var dx = x1 - x2;
-        var dy = y1 - y2;
-        return dx * dx + dy * dy;
     }
 
     private void AddToOpen(int nodeIndex)
@@ -410,68 +487,62 @@ public sealed class ThetaStar
 
     private void PercolateUp(int heapIndex)
     {
-        var nodeIndex = _openList[heapIndex];
-        var parent = (heapIndex - 1) >> 1;
-        while (heapIndex > 0 && HeapLess(nodeIndex, _openList[parent]))
+        var openSpan = _openList.AsSpan();
+        int nodeIndex = openSpan[heapIndex];
+        ref var node = ref _nodes[nodeIndex];
+        while (heapIndex > 0)
         {
-            _openList[heapIndex] = _openList[parent];
-            _nodes[_openList[heapIndex]].OpenHeapIndex = heapIndex + 1;
-            heapIndex = parent;
-            parent = (heapIndex - 1) >> 1;
+            int parentHeapIndex = (heapIndex - 1) >> 1;
+            ref int parentNodeIndex = ref openSpan[parentHeapIndex];
+            ref var parent = ref _nodes[parentNodeIndex];
+            if (CompareNodeScores(ref node, ref parent) >= 0)
+                break; // parent is 'less' (same/better), stop
+
+            openSpan[heapIndex] = parentNodeIndex;
+            parent.OpenHeapIndex = heapIndex + 1;
+            heapIndex = parentHeapIndex;
         }
-        _openList[heapIndex] = nodeIndex;
-        _nodes[nodeIndex].OpenHeapIndex = heapIndex + 1;
+        openSpan[heapIndex] = nodeIndex;
+        node.OpenHeapIndex = heapIndex + 1;
     }
 
     private void PercolateDown(int heapIndex)
     {
-        var nodeIndex = _openList[heapIndex];
-        var maxSize = _openList.Count;
+        var openSpan = _openList.AsSpan();
+        int nodeIndex = openSpan[heapIndex];
+        ref var node = ref _nodes[nodeIndex];
+
+        int maxSize = openSpan.Length;
         while (true)
         {
-            var child1 = (heapIndex << 1) + 1;
-            if (child1 >= maxSize)
-                break;
-            var child2 = child1 + 1;
-            if (child2 == maxSize || HeapLess(_openList[child1], _openList[child2]))
-            {
-                if (HeapLess(_openList[child1], nodeIndex))
-                {
-                    _openList[heapIndex] = _openList[child1];
-                    _nodes[_openList[heapIndex]].OpenHeapIndex = heapIndex + 1;
-                    heapIndex = child1;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            else if (HeapLess(_openList[child2], nodeIndex))
-            {
-                _openList[heapIndex] = _openList[child2];
-                _nodes[_openList[heapIndex]].OpenHeapIndex = heapIndex + 1;
-                heapIndex = child2;
-            }
-            else
-            {
-                break;
-            }
-        }
-        _openList[heapIndex] = nodeIndex;
-        _nodes[nodeIndex].OpenHeapIndex = heapIndex + 1;
-    }
+            // find 'better' child
+            int childHeapIndex = (heapIndex << 1) + 1;
+            if (childHeapIndex >= maxSize)
+                break; // node is already a leaf
 
-    private bool HeapLess(int nodeIndexLeft, int nodeIndexRight)
-    {
-        ref var nodeL = ref _nodes[nodeIndexLeft];
-        ref var nodeR = ref _nodes[nodeIndexRight];
-        var fl = nodeL.GScore + nodeL.HScore;
-        var fr = nodeR.GScore + nodeR.HScore;
-        if (fl + Epsilon < fr)
-            return true;
-        else if (fr + Epsilon < fl)
-            return false;
-        else
-            return nodeL.GScore > nodeR.GScore; // tie-break towards larger g-values
+            int childNodeIndex = openSpan[childHeapIndex];
+            ref var child = ref _nodes[childNodeIndex];
+            int altChildHeapIndex = childHeapIndex + 1;
+            if (altChildHeapIndex < maxSize)
+            {
+                int altChildNodeIndex = openSpan[altChildHeapIndex];
+                ref var altChild = ref _nodes[altChildNodeIndex];
+                if (CompareNodeScores(ref altChild, ref child) < 0)
+                {
+                    childHeapIndex = altChildHeapIndex;
+                    childNodeIndex = altChildNodeIndex;
+                    child = ref altChild;
+                }
+            }
+
+            if (CompareNodeScores(ref node, ref child) < 0)
+                break; // node is better than best child, so should remain on top
+
+            openSpan[heapIndex] = childNodeIndex;
+            child.OpenHeapIndex = heapIndex + 1;
+            heapIndex = childHeapIndex;
+        }
+        openSpan[heapIndex] = nodeIndex;
+        node.OpenHeapIndex = heapIndex + 1;
     }
 }

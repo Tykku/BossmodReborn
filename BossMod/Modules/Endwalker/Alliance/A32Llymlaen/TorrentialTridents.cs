@@ -27,12 +27,12 @@ class TorrentialTridentAOE(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.TorrentialTridentLanding:
-                AOEs.Add(new(_shape, caster.Position, default, WorldState.FutureTime(13.8f)));
+            case (uint)AID.TorrentialTridentLanding:
+                AOEs.Add(new(_shape, caster.Position, default, WorldState.FutureTime(13.8d)));
                 break;
-            case AID.TorrentialTridentAOE:
+            case (uint)AID.TorrentialTridentAOE:
                 ++NumCasts;
                 if (AOEs.Count != 0)
                     AOEs.RemoveAt(0);

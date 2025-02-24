@@ -1,5 +1,6 @@
-﻿using BossMod.AI;
+using BossMod.AI;
 using Dalamud.Game.Config;
+using Dalamud.Plugin;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.System.Input;
@@ -26,15 +27,17 @@ public sealed unsafe class MovementOverride : IDisposable
     public Vector3? DesiredDirection;
     public Angle MisdirectionThreshold;
 
-    public WDir UserMove { get; private set; } // unfiltered movement direction, as read from input
-    public WDir ActualMove { get; private set; } // actual movement direction, as of last input read
+    public WDir UserMove; // unfiltered movement direction, as read from input
+    public WDir ActualMove; // actual movement direction, as of last input read
 
+    private readonly IDalamudPluginInterface _dalamud;
     private readonly ActionTweaksConfig _tweaksConfig = Service.Config.Get<ActionTweaksConfig>();
 #pragma warning disable IDE0032
     private bool _movementBlocked;
 #pragma warning restore IDE0032
     private bool? _forcedControlState;
     private bool _legacyMode;
+    private bool[]? _navmeshPathIsRunning;
 
     public bool IsMoving() => ActualMove != default;
     public bool IsMoveRequested() => UserMove != default;
@@ -70,8 +73,10 @@ public sealed unsafe class MovementOverride : IDisposable
     private delegate byte MoveControlIsInputActiveDelegate(void* self, byte inputSourceFlags);
     private readonly HookAddress<MoveControlIsInputActiveDelegate> _mcIsInputActiveHook;
 
-    public MovementOverride()
+    public MovementOverride(IDalamudPluginInterface dalamud)
     {
+        _dalamud = dalamud;
+
         var rmiWalkIsInputEnabled1Addr = Service.SigScanner.ScanText("E8 ?? ?? ?? ?? 84 C0 75 10 38 43 3C");
         var rmiWalkIsInputEnabled2Addr = Service.SigScanner.ScanText("E8 ?? ?? ?? ?? 84 C0 75 03 88 47 3F");
         Service.Log($"RMIWalkIsInputEnabled1 address: 0x{rmiWalkIsInputEnabled1Addr:X}");
@@ -89,11 +94,20 @@ public sealed unsafe class MovementOverride : IDisposable
 
     public void Dispose()
     {
+        _dalamud.RelinquishData("vnav.PathIsRunning");
         Service.GameConfig.UiControlChanged -= OnConfigChanged;
         _movementBlocked = false;
         _mcIsInputActiveHook.Dispose();
         _rmiWalkHook.Dispose();
         _rmiFlyHook.Dispose();
+    }
+
+    private bool NavmeshActive()
+    {
+        if (_navmeshPathIsRunning == null && _dalamud.TryGetData<bool[]>("vnav.PathIsRunning", out var data))
+            _navmeshPathIsRunning = data;
+
+        return _navmeshPathIsRunning != null && _navmeshPathIsRunning[0];
     }
 
     private void RMIWalkDetour(void* self, float* sumLeft, float* sumForward, float* sumTurnLeft, byte* haveBackwardOrStrafe, byte* a6, byte bAdditiveUnk)
@@ -102,7 +116,7 @@ public sealed unsafe class MovementOverride : IDisposable
         _rmiWalkHook.Original(self, sumLeft, sumForward, sumTurnLeft, haveBackwardOrStrafe, a6, bAdditiveUnk);
 
         // TODO: we really need to introduce some extra checks that PlayerMoveController::readInput does - sometimes it skips reading input, and returning something non-zero breaks stuff...
-        var movementAllowed = bAdditiveUnk == 0 && _rmiWalkIsInputEnabled1(self) && _rmiWalkIsInputEnabled2(self);
+        var movementAllowed = bAdditiveUnk == 0 && _rmiWalkIsInputEnabled1(self) && _rmiWalkIsInputEnabled2(self) && !NavmeshActive();
         var misdirectionMode = PlayerHasMisdirection();
         if (!movementAllowed && misdirectionMode)
         {
@@ -124,7 +138,8 @@ public sealed unsafe class MovementOverride : IDisposable
         // movement override logic
         // note: currently we follow desired direction, only if user does not have any input _or_ if manual movement is blocked
         // this allows AI mode to move even if movement is blocked (TODO: is this the right behavior? AI mode should try to avoid moving while casting anyway...)
-        if ((movementAllowed || misdirectionMode) && ActualMove == default && DirectionToDestination(false) is var relDir && relDir != null)
+        var allowAuto = movementAllowed ? !MovementBlocked : misdirectionMode;
+        if (allowAuto && ActualMove == default && DirectionToDestination(false) is var relDir && relDir != null)
         {
             ActualMove = relDir.Value.h.ToDirection();
         }
@@ -133,7 +148,7 @@ public sealed unsafe class MovementOverride : IDisposable
         if (misdirectionMode)
         {
             var thresholdDeg = UserMove != default ? _tweaksConfig.MisdirectionThreshold : MisdirectionThreshold.Deg;
-            if (thresholdDeg < 180)
+            if (thresholdDeg < 180f)
             {
                 // note: if we are already moving, it doesn't matter what we do here, only whether 'is input active' function returns true or false
                 _forcedControlState = ActualMove != default && (Angle.FromDirection(ActualMove) + ForwardMovementDirection() - ForcedMovementDirection->Radians()).Normalized().Abs().Deg <= thresholdDeg;
@@ -184,7 +199,7 @@ public sealed unsafe class MovementOverride : IDisposable
         return (dirH - ForwardMovementDirection(), dirV);
     }
 
-    private Angle ForwardMovementDirection() => _legacyMode ? Camera.Instance!.CameraAzimuth.Radians() + 180.Degrees() : GameObjectManager.Instance()->Objects.IndexSorted[0].Value->Rotation.Radians();
+    private Angle ForwardMovementDirection() => _legacyMode ? Camera.Instance!.CameraAzimuth.Radians() + 180f.Degrees() : GameObjectManager.Instance()->Objects.IndexSorted[0].Value->Rotation.Radians();
 
     private bool PlayerHasMisdirection()
     {

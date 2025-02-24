@@ -75,7 +75,17 @@ class TheWingedStates : StateMachineBuilder
             .ActivateOnEnter<Hurl>()
             .ActivateOnEnter<RaucousScritch>()
             .ActivateOnEnter<Spin>()
-            .Raw.Update = () => module.Enemies(TheWinged.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(TheWinged.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -94,17 +104,18 @@ public class TheWinged(WorldState ws, Actor primary) : THTemplate(ws, primary)
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.AltarOnion => 6,
-                OID.AltarEgg => 5,
-                OID.AltarGarlic => 4,
-                OID.AltarTomato => 3,
-                OID.AltarQueen or OID.GoldWhisker => 2,
-                OID.AltarMatanga => 1,
+                (uint)OID.AltarOnion => 6,
+                (uint)OID.AltarEgg => 5,
+                (uint)OID.AltarGarlic => 4,
+                (uint)OID.AltarTomato => 3,
+                (uint)OID.AltarQueen or (uint)OID.GoldWhisker => 2,
+                (uint)OID.AltarMatanga => 1,
                 _ => 0
             };
         }

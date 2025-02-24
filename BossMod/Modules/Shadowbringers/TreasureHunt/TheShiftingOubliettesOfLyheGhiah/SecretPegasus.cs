@@ -36,14 +36,14 @@ public enum AID : uint
     Telega = 9630 // KeeperOfKeys->self, no cast, single-target, bonus adds disappear
 }
 
-class BurningBright(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BurningBright), new AOEShapeRect(47, 3));
-class Nicker(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Nicker), 12);
+class BurningBright(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BurningBright), new AOEShapeRect(47f, 3f));
+class Nicker(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Nicker), 12f);
 class CloudCall(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.CloudCall), "Calls thunderclouds");
-class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 8);
+class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 8f);
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
-class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
-class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11f);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13f, 2f));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15f, 60f.Degrees()));
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
@@ -70,7 +70,17 @@ class SecretPegasusStates : StateMachineBuilder
             .ActivateOnEnter<Spin>()
             .ActivateOnEnter<Mash>()
             .ActivateOnEnter<Scoop>()
-            .Raw.Update = () => module.Enemies(SecretPegasus.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(SecretPegasus.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -89,16 +99,17 @@ public class SecretPegasus(WorldState ws, Actor primary) : THTemplate(ws, primar
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.SecretOnion => 5,
-                OID.SecretEgg => 4,
-                OID.SecretGarlic => 3,
-                OID.SecretTomato or OID.FuathTrickster => 2,
-                OID.SecretQueen or OID.KeeperOfKeys => 1,
+                (uint)OID.SecretOnion => 5,
+                (uint)OID.SecretEgg => 4,
+                (uint)OID.SecretGarlic => 3,
+                (uint)OID.SecretTomato or (uint)OID.FuathTrickster => 2,
+                (uint)OID.SecretQueen or (uint)OID.KeeperOfKeys => 1,
                 _ => 0
             };
         }

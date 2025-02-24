@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C012Gladiator;
 
-abstract class SunderedRemains(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10, 8);
+abstract class SunderedRemains(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10f, 8);
 class NSunderedRemains(BossModule module) : SunderedRemains(module, AID.NSunderedRemains);
 class SSunderedRemains(BossModule module) : SunderedRemains(module, AID.SSunderedRemains);
 
-class ScreamOfTheFallen(BossModule module) : Components.UniformStackSpread(module, 0, 15, alwaysShowSpreads: true)
+class ScreamOfTheFallen(BossModule module) : Components.UniformStackSpread(module, default, 15f, alwaysShowSpreads: true)
 {
     public int NumCasts;
     private BitMask _second;
@@ -24,17 +24,17 @@ class ScreamOfTheFallen(BossModule module) : Components.UniformStackSpread(modul
         base.DrawArenaForeground(pcSlot, pc);
         if (!IsSpreadTarget(pc))
             foreach (var t in ActiveTowers(_second[pcSlot]))
-                Arena.AddCircle(t.Position, _towerRadius, Colors.Safe, 2);
+                Arena.AddCircle(t.Position, _towerRadius, Colors.Safe, 2f);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        switch ((SID)status.ID)
+        switch (status.ID)
         {
-            case SID.FirstInLine:
+            case (uint)SID.FirstInLine:
                 AddSpread(actor);
                 break;
-            case SID.SecondInLine:
+            case (uint)SID.SecondInLine:
                 _second.Set(Raid.FindSlot(actor.InstanceID));
                 break;
         }
@@ -42,13 +42,13 @@ class ScreamOfTheFallen(BossModule module) : Components.UniformStackSpread(modul
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.NExplosion or AID.SExplosion)
+        if (spell.Action.ID is (uint)AID.NExplosion or (uint)AID.SExplosion)
             _towers.Add(caster);
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.NExplosion or AID.SExplosion)
+        if (spell.Action.ID is (uint)AID.NExplosion or (uint)AID.SExplosion)
         {
             switch (++NumCasts)
             {

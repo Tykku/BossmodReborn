@@ -23,7 +23,20 @@ class D90RottenResearcherStates : StateMachineBuilder
     public D90RottenResearcherStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .Raw.Update = () => Module.Enemies(D90RottenResearcher.Trash).Where(x => x.Position.AlmostEqual(module.Arena.Center, module.Bounds.Radius)).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D90RottenResearcher.Trash);
+                var center = module.Arena.Center;
+                var radius = module.Bounds.Radius;
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed && enemy.Position.AlmostEqual(center, radius))
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -78,10 +91,34 @@ public class D90RottenResearcher(WorldState ws, Actor primary) : BossModule(ws, 
     public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.RottenResearcher1, (uint)OID.RottenResearcher2, (uint)OID.RottenResearcher3,
     (uint)OID.RottenHound1, (uint)OID.RottenHound2];
 
-    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
+    protected override bool CheckPull()
+    {
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        var center = Arena.Center;
+        var radius = Bounds.Radius;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.InCombat && enemy.Position.AlmostEqual(center, radius))
+                return true;
+        }
+        return false;
+    }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(Trash).Where(x => x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
+        var filteredEnemies = new List<Actor>();
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        var center = Arena.Center;
+        var radius = Bounds.Radius;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.Position.AlmostEqual(center, radius))
+                filteredEnemies.Add(enemy);
+        }
+        Arena.Actors(filteredEnemies);
     }
 }

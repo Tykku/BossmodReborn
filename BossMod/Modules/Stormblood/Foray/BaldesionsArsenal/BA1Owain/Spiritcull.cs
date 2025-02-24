@@ -1,7 +1,7 @@
 namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA1Owain;
 
-class PiercingLight1(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PiercingLight1), 6);
-class PiercingLight2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PiercingLight2), 6);
+class PiercingLight1(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PiercingLight1), 6f);
+class PiercingLight2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PiercingLight2), 6f);
 
 class Spiritcull(BossModule module) : Components.GenericStackSpread(module)
 {
@@ -9,17 +9,17 @@ class Spiritcull(BossModule module) : Components.GenericStackSpread(module)
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
-        if ((IconID)iconID == IconID.DoritoStack)
+        if (iconID == (uint)IconID.DoritoStack)
         {
             targets.Add(actor);
             if (Stacks.Count == 0)
-                Stacks.Add(new(actor, 1.5f, 24, 24, activation: WorldState.FutureTime(5.1f)));
+                Stacks.Add(new(actor, 1.5f, 24, 24, activation: WorldState.FutureTime(5.1d)));
         }
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.BloodSacrifice)
+        if (status.ID == (uint)SID.BloodSacrifice)
         {
             targets.Clear();
             Stacks.Clear();
@@ -45,8 +45,8 @@ class Spiritcull(BossModule module) : Components.GenericStackSpread(module)
 
             Actor? actor = null;
             var minDistanceSq = float.MaxValue;
-
-            for (var i = 0; i < targets.Count; ++i)
+            var count = targets.Count;
+            for (var i = 0; i < count; ++i)
             {
                 var target = targets[i];
                 if (target == pc)

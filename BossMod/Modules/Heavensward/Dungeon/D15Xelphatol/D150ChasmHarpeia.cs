@@ -26,10 +26,10 @@ public enum AID : uint
     WildRattle = 408, // ChasmCobra->player, no cast, single-target
 }
 
-class FlashFlood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlashFlood), new AOEShapeCone(8.16f, 60.Degrees()));
+class FlashFlood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlashFlood), new AOEShapeCone(8.16f, 60f.Degrees()));
 class LaboredLeap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LaboredLeap), 10.32f);
-class FallenRock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FallingRock), 4);
-class WingsOfWoe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingsOfWoe), 6);
+class FallenRock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FallingRock), 4f);
+class WingsOfWoe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingsOfWoe), 6f);
 
 class D150ChasmHarpeiaStates : StateMachineBuilder
 {
@@ -40,15 +40,27 @@ class D150ChasmHarpeiaStates : StateMachineBuilder
             .ActivateOnEnter<FallenRock>()
             .ActivateOnEnter<WingsOfWoe>()
             .ActivateOnEnter<LaboredLeap>()
-            .Raw.Update = () => Module.Enemies(D150ChasmHarpeia.Trash).Where(x => x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
-            .All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D150ChasmHarpeia.Trash);
+                var center = module.Arena.Center;
+                var radius = module.Bounds.Radius;
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed && enemy.Position.AlmostEqual(center, radius))
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 182, NameID = 5253, SortOrder = 1)]
 public class D150ChasmHarpeia(WorldState ws, Actor primary) : BossModule(ws, primary, IsArena1(primary) ? arena1.Center : arena2.Center, IsArena1(primary) ? arena1 : arena2)
 {
-    private static bool IsArena1(Actor primary) => primary.Position.X < -130;
+    private static bool IsArena1(Actor primary) => primary.Position.X < -130f;
     private static readonly WPos[] vertices1 = [new(-116.6f, 153.39f), new(-116.25f, 153.86f), new(-114.35f, 154.36f), new(-113.7f, 154.48f), new(-111.05f, 154.59f),
     new(-110.39f, 154.71f), new(-106.02f, 160.42f), new(-106.51f, 160.64f), new(-106.66f, 161.15f), new(-105.65f, 165.95f),
     new(-105.49f, 166.42f), new(-106.31f, 170.45f), new(-106.4f, 171.14f), new(-106.59f, 171.61f), new(-106.97f, 172.2f),
@@ -194,10 +206,34 @@ public class D150ChasmHarpeia(WorldState ws, Actor primary) : BossModule(ws, pri
     private static readonly ArenaBoundsComplex arena2 = new([new PolygonCustom(vertices2)]);
     public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.ChasmCobra, (uint)OID.VelodynaToad, (uint)OID.AbalathianSlug, (uint)OID.SwiftwaterHakulaq];
 
-    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
+    protected override bool CheckPull()
+    {
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        var center = Arena.Center;
+        var radius = Bounds.Radius;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.InCombat && enemy.Position.AlmostEqual(center, radius))
+                return true;
+        }
+        return false;
+    }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(Trash).Where(x => x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
+        var filteredEnemies = new List<Actor>();
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        var center = Arena.Center;
+        var radius = Bounds.Radius;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.Position.AlmostEqual(center, radius))
+                filteredEnemies.Add(enemy);
+        }
+        Arena.Actors(filteredEnemies);
     }
 }

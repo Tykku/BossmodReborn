@@ -4,8 +4,7 @@ class HailOfFeathers(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
 
-    private static readonly AOEShapeCircle _shape = new(20); // TODO: verify falloff
-    private static readonly HashSet<AID> casts = [AID.HailOfFeathersAOE1, AID.HailOfFeathersAOE2, AID.HailOfFeathersAOE3, AID.HailOfFeathersAOE4, AID.HailOfFeathersAOE5, AID.HailOfFeathersAOE6];
+    private static readonly AOEShapeCircle _shape = new(20f); // TODO: verify falloff
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -13,27 +12,43 @@ class HailOfFeathers(BossModule module) : Components.GenericAOEs(module)
         if (count == 0)
             return [];
         var max = count > 2 ? 2 : count;
-        List<AOEInstance> aoes = new(max);
+        var aoes = new AOEInstance[max];
         for (var i = 0; i < max; ++i)
-            aoes.Add(_aoes[i]);
+            aoes[i] = _aoes[i];
         return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (casts.Contains((AID)spell.Action.ID))
+        switch (spell.Action.ID)
         {
-            _aoes.Add(new(_shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
-            _aoes.SortBy(x => x.Activation);
+            case (uint)AID.HailOfFeathersAOE1:
+            case (uint)AID.HailOfFeathersAOE2:
+            case (uint)AID.HailOfFeathersAOE3:
+            case (uint)AID.HailOfFeathersAOE4:
+            case (uint)AID.HailOfFeathersAOE5:
+            case (uint)AID.HailOfFeathersAOE6:
+                _aoes.Add(new(_shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
+                if (_aoes.Count == 6)
+                    _aoes.SortBy(x => x.Activation);
+                break;
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count != 0 && casts.Contains((AID)spell.Action.ID))
+        switch (spell.Action.ID)
         {
-            _aoes.RemoveAt(0);
-            ++NumCasts;
+            case (uint)AID.HailOfFeathersAOE1:
+            case (uint)AID.HailOfFeathersAOE2:
+            case (uint)AID.HailOfFeathersAOE3:
+            case (uint)AID.HailOfFeathersAOE4:
+            case (uint)AID.HailOfFeathersAOE5:
+            case (uint)AID.HailOfFeathersAOE6:
+                ++NumCasts;
+                if (_aoes.Count != 0)
+                    _aoes.RemoveAt(0);
+                break;
         }
     }
 }

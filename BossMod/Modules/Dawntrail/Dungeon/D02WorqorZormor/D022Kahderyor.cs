@@ -48,18 +48,18 @@ public enum IconID : uint
 class WindEarthShot(BossModule module) : Components.GenericAOEs(module)
 {
     private const string Hint = "Be inside a crystal line!";
-    private static readonly AOEShapeDonut donut = new(8, 50);
-    private static readonly AOEShapeCircle circle = new(15);
+    private static readonly AOEShapeDonut donut = new(8f, 50f);
+    private static readonly AOEShapeCircle circle = new(15f);
     private static readonly Angle[] angles = [-119.997f.Degrees(), -29.996f.Degrees(), 80.001f.Degrees(), -99.996f.Degrees()];
     private static readonly WPos[] positions = [new(-43, -57), new(-63, -57), new(-53, -47), new(-53, -67)];
-    private const int Length = 50;
+    private const float Length = 50f;
     private const uint State = 0x00800040;
     private static readonly AOEShapeCustom ENVC21Inverted = CreateShape(positions[1], positions[2], positions[3], angles[1], angles[0], angles[2], 1, true);
     private static readonly AOEShapeCustom ENVC21 = CreateShape(positions[1], positions[2], positions[3], angles[1], angles[0], angles[2], 7);
     private static readonly AOEShapeCustom ENVC20Inverted = CreateShape(positions[0], positions[2], positions[3], angles[1], angles[3], angles[0], 1, true);
     private static readonly AOEShapeCustom ENVC20 = CreateShape(positions[0], positions[2], positions[3], angles[1], angles[3], angles[0], 7);
     public AOEInstance? AOE;
-    private static readonly WDir am40 = -40.Degrees().ToDirection(), a0 = new(0, 1);
+    private static readonly WDir am40 = -40f.Degrees().ToDirection(), a0 = new(0f, 1f);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(AOE);
 
@@ -73,7 +73,7 @@ class WindEarthShot(BossModule module) : Components.GenericAOEs(module)
 
     private void AddAOE(byte index, uint state, AOEShape shape)
     {
-        var activation = WorldState.FutureTime(5.9f);
+        var activation = WorldState.FutureTime(5.9d);
         var color = state == State ? Colors.SafeFromAOE : 0;
         AOE = index switch
         {
@@ -111,8 +111,8 @@ class WindEarthShot(BossModule module) : Components.GenericAOEs(module)
         if (containsENVC20 || containsENVC21)
         {
             var forbiddenZone = actor.Role != Role.Tank
-                ? ShapeDistance.Rect(Arena.Center, containsENVC20 ? am40 : a0, 20, containsENVC20 ? 1 : 10, 20)
-                : ShapeDistance.InvertedCircle(Arena.Center, 12);
+                ? ShapeDistance.Rect(Arena.Center, containsENVC20 ? am40 : a0, 20f, containsENVC20 ? 1f : 10f, 20f)
+                : ShapeDistance.InvertedCircle(Arena.Center, 12f);
 
             hints.AddForbiddenZone(forbiddenZone, AOE.Value.Activation);
         }
@@ -123,7 +123,7 @@ class WindEarthShot(BossModule module) : Components.GenericAOEs(module)
         InvertForbiddenZone: inverted);
 }
 
-class WindShotStack(BossModule module) : Components.DonutStack(module, ActionID.MakeSpell(AID.WindShot), (uint)IconID.WindShot, 5, 10, 6, 4, 4)
+class WindShotStack(BossModule module) : Components.DonutStack(module, ActionID.MakeSpell(AID.WindShot), (uint)IconID.WindShot, 5f, 10f, 6f, 4, 4)
 {
     private readonly WindEarthShot _aoe = module.FindComponent<WindEarthShot>()!;
 
@@ -159,13 +159,13 @@ class WindShotStack(BossModule module) : Components.DonutStack(module, ActionID.
 }
 
 class WindUnbound(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WindUnbound));
-class CrystallineCrush(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.CrystallineCrush), 6, 4, 4);
-class EarthenShot(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.EarthenShot), 6);
-class StalagmiteCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StalagmiteCircle), 15);
-class CrystallineStorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CrystallineStorm), new AOEShapeRect(50, 1));
-class CyclonicRing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CyclonicRing), new AOEShapeDonut(8, 40));
+class CrystallineCrush(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.CrystallineCrush), 6f, 4, 4);
+class EarthenShot(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.EarthenShot), 6f);
+class StalagmiteCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StalagmiteCircle), 15f);
+class CrystallineStorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CrystallineStorm), new AOEShapeRect(50f, 1f));
+class CyclonicRing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CyclonicRing), new AOEShapeDonut(8f, 40f));
 class EyeOfTheFierce(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EyeOfTheFierce));
-class SeedCrystals(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SeedCrystals), 6);
+class SeedCrystals(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SeedCrystals), 6f);
 
 class D022KahderyorStates : StateMachineBuilder
 {
@@ -188,7 +188,7 @@ class D022KahderyorStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 824, NameID = 12703)]
 public class D022Kahderyor(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultBounds.Center, DefaultBounds)
 {
-    public static readonly ArenaBoundsComplex DefaultBounds = new([new Polygon(new(-53, -57), 19.5f, 40)], [new Rectangle(new(-72.5f, -57), 0.75f, 20), new Rectangle(new(-53, -37), 20, 1.5f)]);
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Polygon(new(-53f, -57f), 19.5f, 40)], [new Rectangle(new(-72.5f, -57f), 0.75f, 20), new Rectangle(new(-53f, -37f), 20f, 1.5f)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

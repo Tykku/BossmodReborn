@@ -42,37 +42,32 @@ class PelagicCleaverRotation(BossModule module) : Components.GenericRotatingAOE(
     private Angle _increment;
     private Angle _rotation;
     private DateTime _activation;
-    private static readonly AOEShapeCone _shape = new(40, 30.Degrees());
+    private static readonly AOEShapeCone _shape = new(40f, 30f.Degrees());
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
-        var increment = (IconID)iconID switch
+        _increment = iconID switch
         {
-            IconID.RotateCW => -60.Degrees(),
-            IconID.RotateCCW => 60.Degrees(),
+            (uint)IconID.RotateCW => -60.Degrees(),
+            (uint)IconID.RotateCCW => 60.Degrees(),
             _ => default
         };
-        if (increment != default)
-        {
-            _increment = increment;
-            InitIfReady(actor);
-        }
+        InitIfReady(actor);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.PelagicCleaverFirst)
+        if (spell.Action.ID == (uint)AID.PelagicCleaverFirst)
         {
             _rotation = spell.Rotation;
             _activation = Module.CastFinishAt(spell);
-        }
-        if (_rotation != default)
             InitIfReady(caster);
+        }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.PelagicCleaverFirst or AID.PelagicCleaverRest)
+        if (spell.Action.ID is (uint)AID.PelagicCleaverFirst or (uint)AID.PelagicCleaverRest)
             AdvanceSequence(0, WorldState.CurrentTime);
     }
 
@@ -80,22 +75,22 @@ class PelagicCleaverRotation(BossModule module) : Components.GenericRotatingAOE(
     {
         if (_rotation != default && _increment != default)
         {
-            Sequences.Add(new(_shape, source.Position, _rotation, _increment, _activation, 2.1f, 6));
+            Sequences.Add(new(_shape, WPos.ClampToGrid(source.Position), _rotation, _increment, _activation, 2.1f, 6));
             _rotation = default;
             _increment = default;
         }
     }
 }
 
-class PelagicCleaver(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PelagicCleaver), new AOEShapeCone(40, 30.Degrees()));
-class TidalGuillotine(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TidalGuillotine), 13);
+class PelagicCleaver(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PelagicCleaver), new AOEShapeCone(40f, 30f.Degrees()));
+class TidalGuillotine(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TidalGuillotine), 13f);
 class ProtolithicPuncture(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ProtolithicPuncture));
 class BiteAndRun(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.BiteAndRun), 2.5f);
-class AquaticLance(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.AquaticLance), 8);
+class AquaticLance(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.AquaticLance), 8f);
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
-class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
-class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11f);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13f, 2f));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15f, 60f.Degrees()));
 
 class SecretCladoselacheStates : StateMachineBuilder
 {
@@ -111,7 +106,17 @@ class SecretCladoselacheStates : StateMachineBuilder
             .ActivateOnEnter<Spin>()
             .ActivateOnEnter<Mash>()
             .ActivateOnEnter<Scoop>()
-            .Raw.Update = () => module.Enemies(SecretCladoselache.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(SecretCladoselache.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -124,20 +129,21 @@ public class SecretCladoselache(WorldState ws, Actor primary) : THTemplate(ws, p
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.SecretShark));
+        Arena.Actors(Enemies((uint)OID.SecretShark));
         Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.FuathTrickster => 3,
-                OID.KeeperOfKeys => 2,
-                OID.SecretShark => 1,
+                (uint)OID.FuathTrickster => 3,
+                (uint)OID.KeeperOfKeys => 2,
+                (uint)OID.SecretShark => 1,
                 _ => 0
             };
         }

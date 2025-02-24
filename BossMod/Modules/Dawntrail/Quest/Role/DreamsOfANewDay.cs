@@ -51,7 +51,7 @@ public enum AID : uint
     PoisonDaggers = 39046 // Helper->player/TentoawaTheWideEye/LoazenikweTheShutEye, no cast, single-target
 }
 
-class Bladestorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Bladestorm), new AOEShapeCone(20, 45.Degrees()));
+class Bladestorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Bladestorm), new AOEShapeCone(20f, 45f.Degrees()));
 class KeenTempest(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.KeenTempest), 8)
 {
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
@@ -63,7 +63,7 @@ class KeenTempest(BossModule module) : Components.SimpleAOEs(module, ActionID.Ma
         for (var i = 0; i < count; ++i)
         {
             var aoe = Casters[i];
-            if ((aoe.Activation - Casters[0].Activation).TotalSeconds <= 1)
+            if ((aoe.Activation - Casters[0].Activation).TotalSeconds <= 1d)
                 list.Add(aoe);
         }
         return list;
@@ -71,8 +71,8 @@ class KeenTempest(BossModule module) : Components.SimpleAOEs(module, ActionID.Ma
 }
 
 class AethericBurst(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.AethericBurstVisual), ActionID.MakeSpell(AID.AethericBurst), 0.9f);
-class AetherialExposure(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.AetherialExposure), 6, 3, 3);
-class Conviction(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.Conviction), 4)
+class AetherialExposure(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.AetherialExposure), 6f, 3, 3);
+class Conviction(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.Conviction), 4f)
 {
     private readonly AetherialExposure _stack = module.FindComponent<AetherialExposure>()!;
 
@@ -90,8 +90,8 @@ class Conviction(BossModule module) : Components.CastTowers(module, ActionID.Mak
     }
 }
 
-class AetherialRay(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherialRay), new AOEShapeRect(40, 2), 10);
-class Aethershot(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Aethershot), 5);
+class AetherialRay(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherialRay), new AOEShapeRect(40f, 2f), 10);
+class Aethershot(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Aethershot), 5f);
 class BloodyTrinity(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.BloodyTrinity));
 class PoisonDaggers(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PoisonDaggersVisual));
 class Daggerflight(BossModule module) : Components.InterceptTether(module, ActionID.MakeSpell(AID.DaggerflightVisual))
@@ -100,7 +100,7 @@ class Daggerflight(BossModule module) : Components.InterceptTether(module, Actio
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         base.OnCastStarted(caster, spell);
-        if ((AID)spell.Action.ID == AID.DaggerflightVisual)
+        if (spell.Action.ID == (uint)AID.DaggerflightVisual)
             _activation = Module.CastFinishAt(spell, 0.2f);
     }
 
@@ -109,8 +109,8 @@ class Daggerflight(BossModule module) : Components.InterceptTether(module, Actio
         if (Active)
         {
             var source = Module.PrimaryActor;
-            var target = Module.Enemies(OID.TentoawaTheWideEye).FirstOrDefault()!;
-            hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.6f), _activation);
+            var target = Module.Enemies(OID.TentoawaTheWideEye)[0];
+            hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.5f), _activation);
         }
     }
 }
@@ -118,17 +118,17 @@ class Daggerflight(BossModule module) : Components.InterceptTether(module, Actio
 class CradleOfTheSleepless(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
-    private const string RiskHint = "Go behind shield or duty fails!";
-    private const string StayHint = "Wait behind shield!";
-    private static readonly AOEShapeCone cone = new(8, 60.Degrees(), InvertForbiddenZone: true);
+    private const string Hint = "Go behind shield or duty fails!";
+
+    private static readonly AOEShapeCone cone = new(8f, 60f.Degrees(), InvertForbiddenZone: true);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.ActivateShield)
-            _aoe = new(cone, caster.Position, caster.Rotation + 180.Degrees(), default, Colors.SafeFromAOE);
-        else if ((AID)spell.Action.ID == AID.CradleOfTheSleepless)
+        if (spell.Action.ID == (uint)AID.ActivateShield)
+            _aoe = new(cone, caster.Position, caster.Rotation + 180f.Degrees(), default, Colors.SafeFromAOE);
+        else if (spell.Action.ID == (uint)AID.CradleOfTheSleepless)
             _aoe = null;
     }
 
@@ -136,10 +136,10 @@ class CradleOfTheSleepless(BossModule module) : Components.GenericAOEs(module)
     {
         if (_aoe == null)
             return;
-        if (ActiveAOEs(slot, actor).Any(c => !c.Check(actor.Position)))
-            hints.Add(RiskHint);
+        if (!_aoe.Value.Check(actor.Position))
+            hints.Add(Hint);
         else
-            hints.Add(StayHint, false);
+            hints.Add(Hint, false);
     }
 }
 
@@ -167,7 +167,7 @@ class DreamsOfANewDayP2States(BossModule module) : DreamsOfANewDayStates(module)
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.Quest, GroupID = 70359, NameID = 13046, SortOrder = 1)]
 public class DreamsOfANewDay(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-757, -719), 19.5f, 20)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-757f, -719f), 19.5f, 20)]);
     private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.UnboundRaider1, (uint)OID.UnboundRaider2, (uint)OID.UnboundRaider3, (uint)OID.UnboundRaider4,
     (uint)OID.UnboundRavager1, (uint)OID.UnboundRavager4, (uint)OID.UnboundRavager6, (uint)OID.UnboundRavager7, (uint)OID.UnboundRavager8, (uint)OID.BossP2];
 

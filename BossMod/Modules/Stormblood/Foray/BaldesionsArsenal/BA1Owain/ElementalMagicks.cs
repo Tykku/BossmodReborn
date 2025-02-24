@@ -2,39 +2,39 @@ namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA1Owain;
 
 class ElementalMagicks(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCircle circle = new(13);
+    private static readonly AOEShapeCircle circle = new(13f);
     public readonly List<AOEInstance> AOEs = new(5);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        void AddAOEs(SID sid)
+        void AddAOEs(uint sid)
         {
-            var mundberg = Module.Enemies(OID.Munderg);
+            var mundberg = Module.Enemies((uint)OID.Munderg);
             var activation = Module.CastFinishAt(spell);
             for (var i = 0; i < mundberg.Count; ++i)
             {
                 var spear = mundberg[i];
                 if (spear.FindStatus(sid) != null)
-                    AOEs.Add(new(circle, spear.Position, default, activation));
+                    AOEs.Add(new(circle, WPos.ClampToGrid(spear.Position), default, activation));
             }
             AOEs.Add(new(circle, spell.LocXZ, default, activation));
         }
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.ElementalMagicksFireBoss:
-                AddAOEs(SID.SoulOfFire);
+            case (uint)AID.ElementalMagicksFireBoss:
+                AddAOEs((uint)SID.SoulOfFire);
                 break;
-            case AID.ElementalMagicksIceBoss:
-                AddAOEs(SID.SoulOfIce);
+            case (uint)AID.ElementalMagicksIceBoss:
+                AddAOEs((uint)SID.SoulOfIce);
                 break;
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (AOEs.Count != 0 && (AID)spell.Action.ID is AID.ElementalMagicksFireBoss or AID.ElementalMagicksFireSpears or AID.ElementalMagicksIceBoss or AID.ElementalMagicksIceSpears)
+        if (AOEs.Count != 0 && spell.Action.ID is (uint)AID.ElementalMagicksFireBoss or (uint)AID.ElementalMagicksFireSpears or (uint)AID.ElementalMagicksIceBoss or (uint)AID.ElementalMagicksIceSpears)
             AOEs.RemoveAt(0);
     }
 }

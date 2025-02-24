@@ -2,32 +2,34 @@ namespace BossMod.Dawntrail.Alliance.A13ArkAngels;
 
 class Rampage(BossModule module) : Components.GenericAOEs(module)
 {
-    public readonly List<AOEInstance> AOEs = [];
+    public readonly List<AOEInstance> AOEs = new(5);
 
-    private static readonly AOEShapeCircle _shapeLast = new(20);
+    private static readonly AOEShapeCircle _shapeLast = new(20f);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = AOEs.Count;
         if (count == 0)
             return [];
-        List<AOEInstance> aoes = new(count);
+        var aoes = new AOEInstance[count];
+        var color = Colors.Danger;
         for (var i = 0; i < count; ++i)
         {
             var aoe = AOEs[i];
-            aoes.Add(i == 0 ? count > 1 ? aoe with { Color = Colors.Danger } : aoe : aoe);
+            aoes[i] = i == 0 ? count > 1 ? aoe with { Color = color } : aoe : aoe;
         }
         return aoes;
     }
+
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.RampagePreviewCharge:
+            case (uint)AID.RampagePreviewCharge:
                 var toDest = spell.LocXZ - caster.Position;
-                AOEs.Add(new(new AOEShapeRect(toDest.Length(), 5), caster.Position, Angle.FromDirection(toDest), Module.CastFinishAt(spell, 5.1f + 0.2f * AOEs.Count)));
+                AOEs.Add(new(new AOEShapeRect(toDest.Length(), 5f), caster.Position, Angle.FromDirection(toDest), Module.CastFinishAt(spell, 5.1f + 0.2f * AOEs.Count)));
                 break;
-            case AID.RampagePreviewLast:
+            case (uint)AID.RampagePreviewLast:
                 AOEs.Add(new(_shapeLast, spell.LocXZ, default, Module.CastFinishAt(spell, 6.3f)));
                 break;
         }
@@ -35,10 +37,10 @@ class Rampage(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.RampageAOECharge or AID.RampageAOELast)
+        if (spell.Action.ID is (uint)AID.RampageAOECharge or (uint)AID.RampageAOELast)
         {
             ++NumCasts;
-            if (AOEs.Count > 0)
+            if (AOEs.Count != 0)
                 AOEs.RemoveAt(0);
         }
     }

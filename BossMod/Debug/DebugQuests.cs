@@ -48,8 +48,8 @@ unsafe class DebugQuests
         foreach (var quests in _dailyQuests.Values)
         {
             quests.AllQuests.SortBy(q => (q.Unknown11 == 3, q.RowId));
-            var rankMin = (int)quests.AllQuests.Select(q => q.BeastReputationRank.RowId).Min();
-            var rankMax = (int)quests.AllQuests.Select(q => q.BeastReputationRank.RowId).Max();
+            var rankMin = (int)quests.AllQuests.Min(q => q.BeastReputationRank.RowId);
+            var rankMax = (int)quests.AllQuests.Max(q => q.BeastReputationRank.RowId);
             var rankCur = RankForQuest(quests.AllQuests[0], out var rankedUp);
             quests.OutrankAll = quests.AllQuests.All(q => RankForQuest(q, out _) > q.BeastReputationRank.RowId);
             quests.AvailableQuests = CalculateAvailable(quests.AllQuests, QuestManager.Instance()->DailyQuestSeed, quests.OutrankAll, rankCur, rankedUp);

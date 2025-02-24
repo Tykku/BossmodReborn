@@ -4,19 +4,19 @@ class HavokSpiral(BossModule module) : Components.GenericRotatingAOE(module)
 {
     private Angle _increment;
     private DateTime _activation;
-    private readonly List<Angle> _rotation = [];
+    private readonly List<Angle> _rotation = new(3);
 
-    private static readonly AOEShapeCone _shape = new(30, 15.Degrees());
+    private static readonly AOEShapeCone _shape = new(30f, 15f.Degrees());
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
-        _increment = (IconID)iconID switch
+        _increment = iconID switch
         {
-            IconID.RotateCW => -30.Degrees(),
-            IconID.RotateCCW => 30.Degrees(),
+            (uint)IconID.RotateCW => -30f.Degrees(),
+            (uint)IconID.RotateCCW => 30f.Degrees(),
             _ => default
         };
-        _activation = WorldState.FutureTime(5.5f);
+        _activation = WorldState.FutureTime(5.5d);
         InitIfReady();
     }
 
@@ -25,7 +25,7 @@ class HavokSpiral(BossModule module) : Components.GenericRotatingAOE(module)
         if (_rotation.Count == 3 && _increment != default)
         {
             for (var i = 0; i < 3; ++i)
-                Sequences.Add(new(_shape, Arena.Center, _rotation[i], _increment, _activation, 1.2f, 8));
+                Sequences.Add(new(_shape, WPos.ClampToGrid(Arena.Center), _rotation[i], _increment, _activation, 1.2f, 8));
             _rotation.Clear();
             _increment = default;
         }
@@ -33,7 +33,7 @@ class HavokSpiral(BossModule module) : Components.GenericRotatingAOE(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.HavocSpiralFirst)
+        if (spell.Action.ID == (uint)AID.HavocSpiralFirst)
         {
             _rotation.Add(spell.Rotation);
             InitIfReady();
@@ -42,16 +42,16 @@ class HavokSpiral(BossModule module) : Components.GenericRotatingAOE(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.HavocSpiralFirst or AID.HavocSpiralRest)
+        if (spell.Action.ID is (uint)AID.HavocSpiralFirst or (uint)AID.HavocSpiralRest)
             AdvanceSequence(caster.Position, spell.Rotation, WorldState.CurrentTime);
     }
 }
 
-class SpiralFinish(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.SpiralFinishAOE), 16)
+class SpiralFinish(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.SpiralFinishAOE), 16f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         if (Casters.Count != 0)
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 9), Module.CastFinishAt(Casters[0].CastInfo));
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 9f), Module.CastFinishAt(Casters[0].CastInfo));
     }
 }

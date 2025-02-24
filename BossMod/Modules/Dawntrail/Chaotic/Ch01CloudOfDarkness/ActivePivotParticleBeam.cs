@@ -6,10 +6,10 @@ class ActivePivotParticleBeam(BossModule module) : Components.GenericRotatingAOE
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        var rotation = (AID)spell.Action.ID switch
+        var rotation = spell.Action.ID switch
         {
-            AID.ActivePivotParticleBeamCW => -22.5f.Degrees(),
-            AID.ActivePivotParticleBeamCCW => 22.5f.Degrees(),
+            (uint)AID.ActivePivotParticleBeamCW => -22.5f.Degrees(),
+            (uint)AID.ActivePivotParticleBeamCCW => 22.5f.Degrees(),
             _ => default
         };
         if (rotation != default)
@@ -18,7 +18,7 @@ class ActivePivotParticleBeam(BossModule module) : Components.GenericRotatingAOE
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.ActivePivotParticleBeamAOE)
+        if (spell.Action.ID == (uint)AID.ActivePivotParticleBeamAOE)
             AdvanceSequence(0, WorldState.CurrentTime);
     }
 }

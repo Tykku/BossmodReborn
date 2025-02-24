@@ -14,7 +14,7 @@ public class PersistentVoidzone(BossModule module, float radius, Func<BossModule
         var aoes = new List<AOEInstance>();
         foreach (var source in Sources(Module))
         {
-            aoes.Add(new(Shape, source.Position, source.Rotation));
+            aoes.Add(new(Shape, WPos.ClampToGrid(source.Position), source.Rotation));
         }
         return aoes;
     }
@@ -25,7 +25,7 @@ public class PersistentVoidzone(BossModule module, float radius, Func<BossModule
             return;
         var forbidden = new List<Func<WPos, float>>();
         foreach (var s in Sources(Module))
-            forbidden.Add(Shape.Distance(s.Position, s.Rotation));
+            forbidden.Add(Shape.Distance(WPos.ClampToGrid(s.Position), s.Rotation));
         hints.AddForbiddenZone(ShapeDistance.Union(forbidden));
     }
 }
@@ -47,11 +47,11 @@ public class PersistentVoidzoneAtCastTarget(BossModule module, float radius, Act
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         foreach (var p in _predictedByEvent)
-            yield return new(Shape, p.pos, default, p.time);
+            yield return new(Shape, WPos.ClampToGrid(p.pos), default, p.time);
         foreach (var p in _predictedByCast)
-            yield return new(Shape, WorldState.Actors.Find(p.caster.CastInfo!.TargetID)?.Position ?? p.caster.CastInfo.LocXZ, default, p.time);
+            yield return new(Shape, p.caster.CastInfo!.LocXZ, default, p.time);
         foreach (var z in Sources(Module))
-            yield return new(Shape, z.Position);
+            yield return new(Shape, WPos.ClampToGrid(z.Position));
     }
 
     public override void Update()
@@ -77,7 +77,7 @@ public class PersistentVoidzoneAtCastTarget(BossModule module, float radius, Act
     {
         base.OnEventCast(caster, spell);
         if (spell.Action == WatchedAction)
-            _predictedByEvent.Add((WorldState.Actors.Find(spell.MainTargetID)?.Position ?? spell.TargetXZ, WorldState.FutureTime(CastEventToSpawn)));
+            _predictedByEvent.Add((spell.TargetXZ, WorldState.FutureTime(CastEventToSpawn)));
     }
 }
 
@@ -107,7 +107,7 @@ public class PersistentInvertibleVoidzone(BossModule module, float radius, Func<
 
         foreach (var source in Sources(Module))
         {
-            var shape = Shape.Distance(source.Position, source.Rotation);
+            var shape = Shape.Distance(WPos.ClampToGrid(source.Position), source.Rotation);
             shapes.Add(shape);
         }
         if (shapes.Count == 0)
@@ -119,7 +119,7 @@ public class PersistentInvertibleVoidzone(BossModule module, float radius, Func<
     // TODO: reconsider - draw foreground circles instead?
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
-        var color = Inverted ? Colors.SafeFromAOE : Colors.AOE;
+        var color = Inverted ? Colors.SafeFromAOE : 0;
         foreach (var s in Sources(Module))
             Shape.Draw(Arena, s.Position, s.Rotation, color);
     }

@@ -48,7 +48,7 @@ public enum AID : uint
 class DoubleHammer(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
-    public static readonly AOEShapeCone Cone = new(30, 90.Degrees());
+    public static readonly AOEShapeCone Cone = new(30f, 90f.Degrees());
     private static readonly Angle[] angles = [89.999f.Degrees(), -90.004f.Degrees()];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
@@ -56,40 +56,39 @@ class DoubleHammer(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        List<AOEInstance> aoes = new(count);
+        var aoes = new AOEInstance[count];
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
             if (i == 0)
-                aoes.Add(count > 1 ? aoe with { Color = Colors.Danger } : aoe);
+                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
             else
-                aoes.Add(aoe with { Risky = false });
+                aoes[i] = aoe with { Risky = false };
         }
         return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        void AddAOEs(Angle[] angles)
         {
-            case AID.DoubleHammerVisualLR:
-                AddAOEs(caster, spell, angles[1], angles[0]);
+            _aoes.Add(new(Cone, spell.LocXZ, angles[0], Module.CastFinishAt(spell, 0.8f)));
+            _aoes.Add(new(Cone, spell.LocXZ, angles[1], Module.CastFinishAt(spell, 3.7f)));
+        }
+        switch (spell.Action.ID)
+        {
+            case (uint)AID.DoubleHammerVisualLR:
+                AddAOEs([angles[1], angles[0]]);
                 break;
-            case AID.DoubleHammerVisualRL:
-                AddAOEs(caster, spell, angles[0], angles[1]);
+            case (uint)AID.DoubleHammerVisualRL:
+                AddAOEs([angles[0], angles[1]]);
                 break;
         }
     }
 
-    private void AddAOEs(Actor caster, ActorCastInfo spell, Angle first, Angle second)
-    {
-        _aoes.Add(new(Cone, spell.LocXZ, first, Module.CastFinishAt(spell, 0.8f)));
-        _aoes.Add(new(Cone, spell.LocXZ, second, Module.CastFinishAt(spell, 3.7f)));
-    }
-
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.LeftHammer or AID.RightHammer or AID.DoubleHammerFirst)
+        if (_aoes.Count != 0 && spell.Action.ID is (uint)AID.LeftHammer or (uint)AID.RightHammer or (uint)AID.DoubleHammerFirst)
             _aoes.RemoveAt(0);
     }
 }
@@ -102,15 +101,15 @@ class QuadrupleHammer(BossModule module) : Components.GenericRotatingAOE(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.QuadrupleHammerVisualCW: // note that boss switches hands, so CW rotation means CCW aoe sequence and vice versa
+            case (uint)AID.QuadrupleHammerVisualCW: // note that boss switches hands, so CW rotation means CCW aoe sequence and vice versa
                 _increment = 90.Degrees();
                 break;
-            case AID.QuadrupleHammerVisualCCW:
+            case (uint)AID.QuadrupleHammerVisualCCW:
                 _increment = -90.Degrees();
                 break;
-            case AID.QuadrupleHammerFirst:
+            case (uint)AID.QuadrupleHammerFirst:
                 _rotation = spell.Rotation;
                 break;
         }
@@ -120,7 +119,7 @@ class QuadrupleHammer(BossModule module) : Components.GenericRotatingAOE(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.QuadrupleHammerFirst or AID.LeftHammer or AID.RightHammer)
+        if (spell.Action.ID is (uint)AID.QuadrupleHammerFirst or (uint)AID.LeftHammer or (uint)AID.RightHammer)
             AdvanceSequence(0, WorldState.CurrentTime);
     }
 
@@ -128,7 +127,7 @@ class QuadrupleHammer(BossModule module) : Components.GenericRotatingAOE(module)
     {
         if (_rotation != default && _increment != default)
         {
-            Sequences.Add(new(DoubleHammer.Cone, source.Position, _rotation, _increment, _activation.AddSeconds(0.8f), 3.3f, 4));
+            Sequences.Add(new(DoubleHammer.Cone, source.Position, _rotation, _increment, _activation.AddSeconds(0.8d), 3.3f, 4));
             _rotation = default;
             _increment = default;
         }
@@ -136,19 +135,19 @@ class QuadrupleHammer(BossModule module) : Components.GenericRotatingAOE(module)
 }
 
 class VolcanicHowl(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.VolcanicHowl));
-class Earthbreak(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Earthbreak), 5);
+class Earthbreak(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Earthbreak), 5f);
 class DeadlyHold(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DeadlyHold));
-class TailSwing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TailSwing), 13);
-class CriticalBite(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CriticalBite), new AOEShapeCone(10, 60.Degrees()));
+class TailSwing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TailSwing), 13f);
+class CriticalBite(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CriticalBite), new AOEShapeCone(10f, 60f.Degrees()));
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
 class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
 class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6f);
 
 class GymnasiouAcheloiosStates : StateMachineBuilder
 {
@@ -168,7 +167,17 @@ class GymnasiouAcheloiosStates : StateMachineBuilder
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
             .ActivateOnEnter<HeavySmash>()
-            .Raw.Update = () => module.Enemies(GymnasiouAcheloios.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(GymnasiouAcheloios.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -182,23 +191,24 @@ public class GymnasiouAcheloios(WorldState ws, Actor primary) : THTemplate(ws, p
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.GymnasiouSouchos));
+        Arena.Actors(Enemies((uint)OID.GymnasiouSouchos));
         Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.GymnasticOnion => 6,
-                OID.GymnasticEggplant => 5,
-                OID.GymnasticGarlic => 4,
-                OID.GymnasticTomato => 3,
-                OID.GymnasticQueen or OID.GymnasiouLyssa or OID.GymnasiouLampas => 2,
-                OID.GymnasiouSouchos => 1,
+                (uint)OID.GymnasticOnion => 6,
+                (uint)OID.GymnasticEggplant => 5,
+                (uint)OID.GymnasticGarlic => 4,
+                (uint)OID.GymnasticTomato => 3,
+                (uint)OID.GymnasticQueen or (uint)OID.GymnasiouLyssa or (uint)OID.GymnasiouLampas => 2,
+                (uint)OID.GymnasiouSouchos => 1,
                 _ => 0
             };
         }

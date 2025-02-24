@@ -37,15 +37,14 @@ public enum TetherID : uint
     BombTether = 17 // TerminusDetonator->Estinien
 }
 
-class DeadlyCharge(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.DeadlyCharge), 5);
+class DeadlyCharge(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.DeadlyCharge), 5f);
 class GriefOfParting(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GriefOfParting));
 class DeadlyTentaclesTB(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DeadlyTentaclesTB));
 
 class TentacleWhip(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = new(2);
-    private static readonly HashSet<AID> casts = [AID.TentacleWhipRFirst, AID.TentacleWhipRSecond, AID.TentacleWhipLFirst, AID.TentacleWhipLSecond];
-    private static readonly AOEShapeCone cone = new(60, 90.Degrees());
+    private static readonly AOEShapeCone cone = new(60f, 90f.Degrees());
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -66,18 +65,31 @@ class TentacleWhip(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (casts.Contains((AID)spell.Action.ID))
+        switch (spell.Action.ID)
         {
-            _aoes.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
-            if (_aoes.Count == 2)
-                _aoes.Sort((x, y) => x.Activation.CompareTo(y.Activation));
+            case (uint)AID.TentacleWhipRFirst:
+            case (uint)AID.TentacleWhipRSecond:
+            case (uint)AID.TentacleWhipLSecond:
+            case (uint)AID.TentacleWhipLFirst:
+                _aoes.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
+                if (_aoes.Count == 2)
+                    _aoes.Sort((x, y) => x.Activation.CompareTo(y.Activation));
+                break;
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count != 0 && casts.Contains((AID)spell.Action.ID))
-            _aoes.RemoveAt(0);
+        if (_aoes.Count != 0)
+            switch (spell.Action.ID)
+            {
+                case (uint)AID.TentacleWhipRFirst:
+                case (uint)AID.TentacleWhipRSecond:
+                case (uint)AID.TentacleWhipLSecond:
+                case (uint)AID.TentacleWhipLFirst:
+                    _aoes.RemoveAt(0);
+                    break;
+            }
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -87,7 +99,7 @@ class TentacleWhip(BossModule module) : Components.GenericAOEs(module)
             return;
         // make ai stay close to boss to ensure successfully dodging the combo
         var aoe = _aoes[0];
-        hints.AddForbiddenZone(ShapeDistance.InvertedRect(Module.PrimaryActor.Position, aoe.Rotation, 2, 2, 20), aoe.Activation);
+        hints.AddForbiddenZone(ShapeDistance.InvertedRect(Module.PrimaryActor.Position, aoe.Rotation, 2f, 2f, 20f), aoe.Activation);
     }
 }
 
@@ -98,12 +110,12 @@ class SelfDestruct(BossModule module) : Components.GenericStackSpread(module)
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
         if (Stacks.Count == 0 && tether.ID == (uint)TetherID.BombTether)
-            Stacks.Add(new(WorldState.Actors.Find(tether.Target)!, 3, 2, 2, activation: WorldState.FutureTime(9.1f)));
+            Stacks.Add(new(WorldState.Actors.Find(tether.Target)!, 3f, 2, 2, activation: WorldState.FutureTime(9.1d)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.SelfDestruct)
+        if (spell.Action.ID == (uint)AID.SelfDestruct)
         {
             if (++numCasts == 6)
                 Stacks.Clear();

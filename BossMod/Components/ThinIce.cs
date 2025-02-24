@@ -6,7 +6,7 @@ public abstract class ThinIce(BossModule module, float distance, bool createforb
 {
     public readonly uint StatusID = statusID;
     public readonly float Distance = distance;
-    private static readonly WDir offset = new(0, 1);
+    private static readonly WDir offset = new(0f, 1f);
     public BitMask Mask;
 
     public override IEnumerable<Source> Sources(int slot, Actor actor)
@@ -45,12 +45,12 @@ public abstract class ThinIce(BossModule module, float distance, bool createforb
         if (createforbiddenzones && Mask[slot] != default)
         {
             var pos = actor.Position;
-            var ddistance = 2 * Distance;
-            var forbidden = new Func<WPos, float>[]
+            var ddistance = 2f * Distance;
+            var forbidden = new Func<WPos, float>[3]
             {
                 ShapeDistance.InvertedDonut(pos, Distance, Distance + 1.2f),
                 ShapeDistance.InvertedDonut(pos, ddistance, ddistance + 1.2f),
-                ShapeDistance.InvertedRect(pos, offset, 0.7f, 0.7f, 0.7f)
+                ShapeDistance.InvertedRect(pos, offset, 0.5f, 0.5f, 0.5f)
             };
             hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), DateTime.MaxValue);
         }

@@ -51,29 +51,29 @@ public enum AID : uint
     Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
-class SwiftwindSerenade(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SwiftwindSerenade), new AOEShapeRect(40, 4));
-class Ovation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Ovation), new AOEShapeRect(14, 2));
-class GravelShower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GravelShower), new AOEShapeRect(10, 2));
-class Flatten(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Flatten), new AOEShapeCone(8, 45.Degrees()));
-class PollenCorona(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PollenCorona), 8);
-class WaterIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaterIII), 8);
+class SwiftwindSerenade(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SwiftwindSerenade), new AOEShapeRect(40f, 4f));
+class Ovation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Ovation), new AOEShapeRect(14f, 2f));
+class GravelShower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GravelShower), new AOEShapeRect(10f, 2f));
+class Flatten(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Flatten), new AOEShapeCone(8f, 45f.Degrees()));
+class PollenCorona(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PollenCorona), 8f);
+class WaterIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaterIII), 8f);
 
-abstract class Cone1045(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(10, 45.Degrees()));
+abstract class Cone1045(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(10f, 45f.Degrees()));
 class Dissever(BossModule module) : Cone1045(module, AID.Dissever);
 class NepenthicPlunge(BossModule module) : Cone1045(module, AID.NepenthicPlunge);
 
-abstract class Cone1060(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(10, 60.Degrees()));
+abstract class Cone1060(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(10f, 60f.Degrees()));
 class DoubleSmash(BossModule module) : Cone1060(module, AID.DoubleSmash);
 class CriticalBite(BossModule module) : Cone1060(module, AID.CriticalBite);
 
-abstract class CircleLoc6(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class CircleLoc6(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
 class Tornado(BossModule module) : CircleLoc6(module, AID.Tornado);
 class TornadicSerenade(BossModule module) : CircleLoc6(module, AID.TornadicSerenade);
 class RottenSpores(BossModule module) : CircleLoc6(module, AID.RottenSpores);
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11f);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
@@ -104,19 +104,29 @@ class Room2States : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(Room2.All).All(x => x.IsDeadOrDestroyed) || module.PrimaryActor.EventState == 7;
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(Room2.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return module.PrimaryActor.EventState == 7;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 993, NameID = 5057)]
 public class Room2(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaBounds.Center, ArenaBounds)
 {
-    private static readonly WPos arenaCenter = new(0, 192);
+    private static readonly WPos arenaCenter = new(default, 192f);
     private static readonly Angle a135 = 135.Degrees();
     private static readonly WDir dir135 = a135.ToDirection(), dirM135 = (-a135).ToDirection();
-    public static readonly ArenaBoundsComplex ArenaBounds = new([new Polygon(arenaCenter, 19.5f * CosPI.Pi36th, 36), new Rectangle(arenaCenter + 8.65f * dir135, 20, 6.15f, a135),
-    new Rectangle(arenaCenter + 8.65f * dirM135, 20, 6.15f, -a135), new Rectangle(arenaCenter + 12 * dir135, 20, 4.3f, a135), new Rectangle(arenaCenter + 12 * dirM135, 20, 4.3f, -a135),
-    new Rectangle(arenaCenter + 14.3f * dir135, 20, 3.5f, a135), new Rectangle(arenaCenter + 14.3f * dirM135, 20, 3.5f, -a135)], [new Rectangle(new(0, 212), 20, 1.7f)]);
+    public static readonly ArenaBoundsComplex ArenaBounds = new([new Polygon(arenaCenter, 19.5f * CosPI.Pi36th, 36), new Rectangle(arenaCenter + 8.65f * dir135, 20f, 6.15f, a135),
+    new Rectangle(arenaCenter + 8.65f * dirM135, 20f, 6.15f, -a135), new Rectangle(arenaCenter + 12f * dir135, 20f, 4.3f, a135), new Rectangle(arenaCenter + 12f * dirM135, 20f, 4.3f, -a135),
+    new Rectangle(arenaCenter + 14.3f * dir135, 20f, 3.5f, a135), new Rectangle(arenaCenter + 14.3f * dirM135, 20f, 3.5f, -a135)], [new Rectangle(new(default, 212f), 20f, 1.7f)]);
     private static readonly uint[] bonusAdds = [(uint)OID.TuligoraQueen, (uint)OID.TuraliTomato, (uint)OID.TuraliOnion, (uint)OID.TuraliEggplant,
     (uint)OID.TuraliGarlic, (uint)OID.UolonOfFortune, (uint)OID.AlpacaOfFortune];
     private static readonly uint[] trash = [(uint)OID.CenoteWoodsman, (uint)OID.CenoteBranchbearer, (uint)OID.CenoteSlammer, (uint)OID.CenoteAlligator, (uint)OID.CenoteMonstera,
@@ -134,17 +144,18 @@ public class Room2(WorldState ws, Actor primary) : BossModule(ws, primary, Arena
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.TuraliOnion => 6,
-                OID.TuraliEggplant => 5,
-                OID.TuraliGarlic => 4,
-                OID.TuraliTomato => 3,
-                OID.TuligoraQueen or OID.AlpacaOfFortune => 2,
-                OID.UolonOfFortune => 1,
+                (uint)OID.TuraliOnion => 6,
+                (uint)OID.TuraliEggplant => 5,
+                (uint)OID.TuraliGarlic => 4,
+                (uint)OID.TuraliTomato => 3,
+                (uint)OID.TuligoraQueen or (uint)OID.AlpacaOfFortune => 2,
+                (uint)OID.UolonOfFortune => 1,
                 _ => 0
             };
         }

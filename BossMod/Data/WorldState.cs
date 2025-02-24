@@ -20,7 +20,7 @@ public sealed class WorldState
     public readonly NetworkState Network = new();
 
     public DateTime CurrentTime => Frame.Timestamp;
-    public DateTime FutureTime(float deltaSeconds) => Frame.Timestamp.AddSeconds(deltaSeconds);
+    public DateTime FutureTime(double deltaSeconds) => Frame.Timestamp.AddSeconds(deltaSeconds);
 
     public WorldState(ulong qpf, string gameVersion)
     {

@@ -54,20 +54,20 @@ public enum SID : uint
 
 class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 {
-    private const float Radius = 0.5f;
-    public static readonly WPos ArenaCenter = new(0, -100);
+    private const float Radius = 0.51f; // small cushion since fences don't seem to be positioned perfectly
+    public static readonly WPos ArenaCenter = new(0f, -100f);
     public static readonly ArenaBoundsRect StartingBounds = new(14.5f, 22.5f);
-    private static readonly ArenaBoundsRect defaultBounds = new(12, 20);
-    private static readonly Rectangle[] startingRect = [new(ArenaCenter, 15, 23)];
-    private static readonly Rectangle[] defaultRect = [new(ArenaCenter, 12, 20)];
+    private static readonly ArenaBoundsRect defaultBounds = new(12f, 20f);
+    private static readonly Rectangle[] startingRect = [new(ArenaCenter, 15f, 23f)];
+    private static readonly Rectangle[] defaultRect = [new(ArenaCenter, 12f, 20f)];
     private static readonly WPos[] circlePositions =
     [
-        new(12, -88), new(8, -92), new(4, -88), new(0, -88), new(-4, -88),
-        new(-12, -88), new(-8, -92), new(0, -92), new(-4, -96), new(0, -96),
-        new(4, -96), new(-4, -104), new(0, -104), new(4, -104), new(-8, -108),
-        new(-12, -112), new(-4, -112), new(0, -108), new(0, -112), new(4, -112),
-        new(8, -108), new(12, -112), new(12, -104), new(12, -96), new(-12, -96),
-        new(-12, -104)
+        new(12f, -88f), new(8f, -92f), new(4f, -88f), new(0f, -88f), new(-4f, -88f),
+        new(-12f, -88f), new(-8f, -92f), new(0f, -92f), new(-4f, -96f), new(0f, -96f),
+        new(4f, -96f), new(-4f, -104f), new(0f, -104f), new(4f, -104f), new(-8f, -108f),
+        new(-12f, -112f), new(-4f, -112f), new(0f, -108f), new(0f, -112f), new(4f, -112f),
+        new(8f, -108f), new(12f, -112f), new(12f, -104f), new(12f, -96f), new(-12f, -96f),
+        new(-12f, -104f)
     ];
 
     private static readonly (int, int)[] rectanglePairs =
@@ -138,7 +138,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Electrowave && Arena.Bounds == StartingBounds)
+        if (spell.Action.ID == (uint)AID.Electrowave && Arena.Bounds == StartingBounds)
             _aoe = new(rectArenaChange, Arena.Center, default, Module.CastFinishAt(spell, 0.4f));
     }
 
@@ -156,10 +156,10 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 
             for (var i = 0; i < 4; ++i)
             {
-                var aoe = aoeChecks[i];
-                if (ActiveAOEs(0, Raid.Player()!).Any(c => c.Shape == aoe.AOE && c.Activation <= WorldState.CurrentTime))
+                var aoeCheck = aoeChecks[i];
+                if (_aoe is AOEInstance aoe && aoe.Shape == aoeCheck.AOE && aoe.Activation <= WorldState.CurrentTime)
                 {
-                    Arena.Bounds = aoe.Bounds;
+                    Arena.Bounds = aoeCheck.Bounds;
                     _aoe = null;
                     break;
                 }
@@ -201,86 +201,63 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 
 class BatteryCircuit(BossModule module) : Components.GenericRotatingAOE(module)
 {
-    private static readonly Angle _increment = -11.Degrees();
-    private static readonly AOEShapeCone _shape = new(30, 15.Degrees());
+    private static readonly Angle _increment = -11f.Degrees();
+    private static readonly AOEShapeCone _shape = new(30f, 15f.Degrees());
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.BatteryCircuitFirst)
+        if (spell.Action.ID == (uint)AID.BatteryCircuitFirst)
             Sequences.Add(new(_shape, spell.LocXZ, spell.Rotation, _increment, Module.CastFinishAt(spell), 0.5f, 34, 9));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.BatteryCircuitFirst or AID.BatteryCircuitRest)
+        if (spell.Action.ID is (uint)AID.BatteryCircuitFirst or (uint)AID.BatteryCircuitRest)
             AdvanceSequence(caster.Position, caster.Rotation, WorldState.CurrentTime);
     }
 }
 
-class HeavyBlastCannon(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.HeavyBlastCannonMarker), ActionID.MakeSpell(AID.HeavyBlastCannon), 8, 36);
+class HeavyBlastCannon(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.HeavyBlastCannonMarker), ActionID.MakeSpell(AID.HeavyBlastCannon), 8f, 36f);
 class RapidThunder(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.RapidThunder));
 class Electrowave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Electrowave));
 
 class BlastCannon : Components.SimpleAOEs
 {
-    public BlastCannon(BossModule module) : base(module, ActionID.MakeSpell(AID.BlastCannon), new AOEShapeRect(26, 2))
+    public BlastCannon(BossModule module) : base(module, ActionID.MakeSpell(AID.BlastCannon), new AOEShapeRect(26f, 2f))
     {
         MaxDangerColor = 2;
         MaxRisky = 2;
     }
 }
-class Shock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shock), 3);
+class Shock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shock), 3f);
 
-class HomingCannon(BossModule module) : Components.GenericAOEs(module)
+class HomingCannon : Components.SimpleAOEs
 {
-    private static readonly AOEShapeRect rect = new(50, 1);
-    private readonly List<AOEInstance> _aoes = [];
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public HomingCannon(BossModule module) : base(module, ActionID.MakeSpell(AID.HomingCannon), new AOEShapeRect(50f, 1f))
     {
-        var count = _aoes.Count;
-        if (count != 0)
-        {
-            for (var i = 0; i < count; ++i)
-            {
-                var aoe = _aoes[i];
-                yield return (aoe.Activation - _aoes[0].Activation).TotalSeconds <= 1 ? aoe with { Color = Colors.Danger } : aoe with { Risky = false };
-            }
-        }
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if ((AID)spell.Action.ID == AID.HomingCannon)
-            _aoes.Add(new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if (_aoes.Count != 0 && (AID)spell.Action.ID == AID.HomingCannon)
-            _aoes.RemoveAt(0);
+        MaxDangerColor = 4;
     }
 }
 
-class Bombardment(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Bombardment), 5);
+class Bombardment(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Bombardment), 5f);
 
-abstract class Electrowhirl(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class Electrowhirl(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
 class Electrowhirl1(BossModule module) : Electrowhirl(module, AID.Electrowhirl1);
 class Electrowhirl2(BossModule module) : Electrowhirl(module, AID.Electrowhirl2);
 
-class TrackingBolt2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.TrackingBolt2), 8);
+class TrackingBolt2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.TrackingBolt2), 8f);
 
-class AccelerationBomb(BossModule module) : Components.StayMove(module, 3)
+class AccelerationBomb(BossModule module) : Components.StayMove(module, 3f)
 {
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID is SID.AccelerationBomb or SID.AccelerationBombNPCs && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
+        if (status.ID is (uint)SID.AccelerationBomb or (uint)SID.AccelerationBombNPCs && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
             PlayerStates[slot] = new(Requirement.Stay, status.ExpireAt);
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID is SID.AccelerationBomb or SID.AccelerationBombNPCs && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
+        if (status.ID is (uint)SID.AccelerationBomb or (uint)SID.AccelerationBombNPCs && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
             PlayerStates[slot] = default;
     }
 }

@@ -6,7 +6,7 @@ class Exodus(BossModule module) : Components.RaidwideInstant(module, ActionID.Ma
 
     public override void OnActorDestroyed(Actor actor)
     {
-        if ((OID)actor.OID == OID.CrystalOfLight)
+        if (actor.OID == (uint)OID.CrystalOfLight)
         {
             ++_numCrystalsDestroyed;
             if (_numCrystalsDestroyed == 6)

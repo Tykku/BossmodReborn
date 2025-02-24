@@ -44,37 +44,37 @@ public enum SID : uint
 
 class PomBom(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCross cross = new(40.5f, 2);
+    private static readonly AOEShapeCross cross = new(40.5f, 2f);
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.DemoniacalMogcane)
-            _aoe = new(cross, actor.Position, default, WorldState.FutureTime(6.3f));
+        if (actor.OID == (uint)OID.DemoniacalMogcane)
+            _aoe = new(cross, WPos.ClampToGrid(actor.Position), default, WorldState.FutureTime(6.3d));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.PomBom)
+        if (spell.Action.ID == (uint)AID.PomBom)
             _aoe = null;
     }
 }
 
-class ThousandKuponzeCharge(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ThousandKuponzeCharge), new AOEShapeCone(9.8f, 60.Degrees()))
+class ThousandKuponzeCharge(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ThousandKuponzeCharge), new AOEShapeCone(9.8f, 60f.Degrees()))
 {
     private bool active = true; // cleave happens near the start of the fight then again after every demoniacal mogcane cast
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.DemoniacalMogcane)
+        if (spell.Action.ID == (uint)AID.DemoniacalMogcane)
             active = true;
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.ThousandKuponzeCharge)
+        if (spell.Action.ID == (uint)AID.ThousandKuponzeCharge)
             active = false;
     }
 
@@ -100,36 +100,61 @@ class ThousandKuponzeCharge(BossModule module) : Components.Cleave(module, Actio
 class PomPraise(BossModule module) : BossComponent(module)
 {
     private readonly List<WPos> positions = [];
-    public IEnumerable<Actor> RelevantMoogles = [];
+    public List<Actor> RelevantMoogles = [];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.PomPraise)
+        if (spell.Action.ID == (uint)AID.PomPraise)
             positions.Add(spell.LocXZ);
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.PomPraiseVisual)
+        if (spell.Action.ID == (uint)AID.PomPraiseVisual)
+        {
             positions.Clear();
+            RelevantMoogles.Clear();
+        }
     }
 
     public override void Update()
     {
-        if (positions.Count != 0) // it is assumed that the moogle hitbox must not intersect the circle, as usual for NPCs
-            RelevantMoogles = Module.Enemies(D131ChieftainMoglin.SmallMoogles).Where(e => e.FindStatus(SID.OffBalance) != null && positions.Any(p => e.Position.InCircle(p, 4.9f)));
+        var countP = positions.Count;
+        if (countP != 0) // it is assumed that the moogle hitbox must not intersect the circle, as usual for NPCs
+        {
+            var smallMoogles = Module.Enemies(D131ChieftainMoglin.SmallMoogles);
+            var count = smallMoogles.Count;
+            var relevantMoogles = new List<Actor>(count);
+            for (var i = 0; i < count; ++i)
+            {
+                var moogle = smallMoogles[i];
+                if (moogle.FindStatus((uint)SID.OffBalance) != null)
+                {
+                    for (var j = 0; j < countP; ++j)
+                    {
+                        if (moogle.Position.InCircle(positions[j], 4.9f))
+                        {
+                            relevantMoogles.Add(moogle);
+                            break;
+                        }
+                    }
+                }
+            }
+            RelevantMoogles = relevantMoogles;
+        }
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (positions.Count != 0)
+        if (RelevantMoogles.Count != 0)
         {
-            foreach (var r in RelevantMoogles)
+            var count = hints.PotentialTargets.Count;
+            for (var i = 0; i < count; ++i)
             {
-                var target = hints.PotentialTargets.FirstOrDefault(x => x.Actor == r);
-                if (target != null)
+                var t = hints.PotentialTargets[i];
+                if (RelevantMoogles.Contains(t.Actor))
                 {
-                    target.Priority = 3;
+                    t.Priority = 3;
                 }
             }
         }
@@ -137,19 +162,22 @@ class PomPraise(BossModule module) : BossComponent(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (RelevantMoogles.Any())
+        if (RelevantMoogles.Count != 0)
             hints.Add("Push defeated moogles out of circles!");
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        if (RelevantMoogles.Any())
-            for (var i = 0; i < positions.Count; ++i)
+        if (RelevantMoogles.Count != 0)
+        {
+            var count = positions.Count;
+            for (var i = 0; i < count; ++i)
                 Arena.AddCircle(positions[i], 4.9f, Colors.Vulnerable);
+        }
     }
 }
 
-class HundredKuponzeSwipe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HundredKuponzeSwipe), new AOEShapeCone(20.9f, 45.Degrees()));
+class HundredKuponzeSwipe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HundredKuponzeSwipe), new AOEShapeCone(20.9f, 45f.Degrees()));
 class PomFlare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PomFlare), 20.9f);
 class PomHoly(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PomHoly));
 class SpinningMogshield(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinningMogshield), 6.9f);
@@ -172,38 +200,53 @@ class D131ChieftainMoglinStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 171, NameID = 4943, SortOrder = 2)]
 public class D131ChieftainMoglin(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-400, -158.04f), 19.5f * CosPI.Pi60th, 64)], [new Rectangle(new(-400, -138), 20, 1.05f),
-    new Rectangle(new(-400, -178), 20, 0.8f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-400f, -158.04f), 19.5f * CosPI.Pi60th, 64)], [new Rectangle(new(-400f, -138f), 20f, 1.05f),
+    new Rectangle(new(-400f, -178f), 20f, 0.8f)]);
 
     public static readonly uint[] SmallMoogles = [(uint)OID.CaptainMogsun, (uint)OID.PomguardPomfluffer, (uint)OID.PomguardPomfryer, (uint)OID.PomguardPompincher,
     (uint)OID.PomguardPomchopper, (uint)OID.PomguardPompiercer, (uint)OID.PomguardPomcrier];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        if (PrimaryActor.FindStatus(SID.Invincibility) == null)
+        if (PrimaryActor.FindStatus((uint)SID.Invincibility) == null)
             Arena.Actor(PrimaryActor);
         var smallmoogles = Enemies(SmallMoogles);
-        Arena.Actors(smallmoogles.Where(x => x.FindStatus(SID.OffBalance) == null));
-        Arena.Actors(smallmoogles.Where(x => x.FindStatus(SID.OffBalance) != null), Colors.Vulnerable);
+        var count = smallmoogles.Count;
+        List<Actor> balancedMoogles = new(count);
+        List<Actor> offBalanceMoogles = new(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var moogle = smallmoogles[i];
+            if (moogle.FindStatus((uint)SID.OffBalance) == null)
+                balancedMoogles.Add(moogle);
+            else
+                offBalanceMoogles.Add(moogle);
+        }
+        Arena.Actors(balancedMoogles);
+        Arena.Actors(offBalanceMoogles, Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!FindComponent<PomPraise>()!.RelevantMoogles.Any())
-            for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        if (FindComponent<PomPraise>()?.RelevantMoogles.Count == 0)
+        {
+            var count = hints.PotentialTargets.Count;
+            for (var i = 0; i < count; ++i)
             {
                 var e = hints.PotentialTargets[i];
-                if (e.Actor.FindStatus(SID.Invincibility) != null)
+                if (e.Actor.FindStatus((uint)SID.Invincibility) != null)
                 {
                     e.Priority = AIHints.Enemy.PriorityInvincible;
                     continue;
                 }
-                e.Priority = (OID)e.Actor.OID switch
+                e.Priority = e.Actor.OID switch
                 {
-                    OID.CaptainMogsun => 2,
-                    OID.PomguardPomfluffer or OID.PomguardPomfryer or OID.PomguardPomcrier or OID.PomguardPompincher or OID.PomguardPompiercer or OID.PomguardPomchopper => 1,
+                    (uint)OID.CaptainMogsun => 2,
+                    (uint)OID.PomguardPomfluffer or (uint)OID.PomguardPomfryer or (uint)OID.PomguardPomcrier or
+                    (uint)OID.PomguardPompincher or (uint)OID.PomguardPompiercer or (uint)OID.PomguardPomchopper => 1,
                     _ => 0
                 };
             }
+        }
     }
 }

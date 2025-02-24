@@ -3,7 +3,7 @@ namespace BossMod.Dawntrail.Alliance.A14ShadowLord;
 class BindingSigil(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
-    private static readonly AOEShapeCircle _shape = new(9);
+    private static readonly AOEShapeCircle _shape = new(9f);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -16,7 +16,7 @@ class BindingSigil(BossModule module) : Components.GenericAOEs(module)
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
-            if ((aoe.Activation - firstactivation).TotalSeconds < 1)
+            if ((aoe.Activation - firstactivation).TotalSeconds < 1d)
                 aoes[index++] = aoe;
         }
         return aoes[..index];
@@ -24,7 +24,7 @@ class BindingSigil(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.BindingSigilPreview)
+        if (spell.Action.ID == (uint)AID.BindingSigilPreview)
         {
             _aoes.Add(new(_shape, spell.LocXZ, default, Module.CastFinishAt(spell, 9.6f)));
         }
@@ -32,7 +32,7 @@ class BindingSigil(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.SoulBinding)
+        if (spell.Action.ID == (uint)AID.SoulBinding)
         {
             ++NumCasts;
             if (_aoes.Count != 0)

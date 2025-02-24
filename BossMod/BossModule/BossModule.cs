@@ -9,10 +9,11 @@ public abstract class BossModule : IDisposable
 {
     public readonly WorldState WorldState;
     public readonly Actor PrimaryActor;
-    public readonly BossModuleConfig WindowConfig = Service.Config.Get<BossModuleConfig>();
+    public static readonly BossModuleConfig WindowConfig = Service.Config.Get<BossModuleConfig>();
     public readonly MiniArena Arena;
     public readonly BossModuleRegistry.Info? Info;
     public readonly StateMachine StateMachine;
+    public readonly Pathfinding.ObstacleMapManager Obstacles;
 
     private readonly EventSubscriptions _subscriptions;
 
@@ -28,24 +29,41 @@ public abstract class BossModule : IDisposable
 
     public List<Actor> Enemies(uint oid)
     {
-        var entry = RelevantEnemies.GetValueOrDefault(oid);
-        entry ??= RelevantEnemies[oid] = [.. WorldState.Actors.Where(actor => actor.OID == oid)];
+        if (!RelevantEnemies.TryGetValue(oid, out var entry))
+        {
+            entry = [];
+            foreach (var actor in WorldState.Actors.Actors.Values)
+            {
+                if (actor.OID == oid)
+                    entry.Add(actor);
+            }
+            RelevantEnemies[oid] = entry;
+        }
         return entry;
     }
 
-    public List<Actor> Enemies(ReadOnlySpan<uint> enemies)
+    public List<Actor> Enemies(uint[] enemies)
     {
-        List<Actor> relevantenemies = [];
+        List<Actor> relevantEnemies = [];
         var len = enemies.Length;
         for (var i = 0; i < len; ++i)
         {
             var enemy = enemies[i];
-            var entry = RelevantEnemies.GetValueOrDefault(enemy);
-            entry ??= RelevantEnemies[enemy] = [.. WorldState.Actors.Where(actor => actor.OID == enemy)];
-            relevantenemies.AddRange(entry);
+            if (!RelevantEnemies.TryGetValue(enemy, out var entry))
+            {
+                entry = [];
+                foreach (var actor in WorldState.Actors.Actors.Values)
+                {
+                    if (actor.OID == enemy)
+                        entry.Add(actor);
+                }
+                RelevantEnemies[enemy] = entry;
+            }
+            relevantEnemies.AddRange(entry);
         }
-        return relevantenemies;
+        return relevantEnemies;
     }
+
     public List<Actor> Enemies<OID>(OID oid) where OID : Enum => Enemies((uint)(object)oid);
 
     // component management: at most one component of any given type can be active at any time
@@ -123,6 +141,7 @@ public abstract class BossModule : IDisposable
 
     protected BossModule(WorldState ws, Actor primary, WPos center, ArenaBounds bounds)
     {
+        Obstacles = new(ws);
         WorldState = ws;
         PrimaryActor = primary;
         Arena = new(WindowConfig, center, bounds);
@@ -165,6 +184,7 @@ public abstract class BossModule : IDisposable
         StateMachine.Reset();
         ClearComponents(_ => true);
         _subscriptions.Dispose();
+        Obstacles.Dispose();
     }
 
     public void Update()
@@ -276,6 +296,19 @@ public abstract class BossModule : IDisposable
     {
         hints.PathfindMapCenter = Center;
         hints.PathfindMapBounds = Bounds;
+
+        if (Arena.Bounds.AllowObstacleMap)
+        {
+            var (entry, bitmap) = Obstacles.Find(new Vector3(Center.X, actor.PosRot.Y, Center.Z));
+            if (entry != null && bitmap != null)
+            {
+                var originCell = (Center - entry.Origin) / bitmap.PixelSize;
+                var originX = (int)originCell.X;
+                var originZ = (int)originCell.Z;
+                var halfSize = (int)(Bounds.Radius / bitmap.PixelSize);
+                hints.PathfindMapObstacles = new(bitmap, new(originX - halfSize, originZ - halfSize, originX + halfSize, originZ + halfSize));
+            }
+        }
         var count = Components.Count;
         for (var i = 0; i < count; ++i)
             Components[i].AddAIHints(slot, actor, assignment, hints);
@@ -292,7 +325,7 @@ public abstract class BossModule : IDisposable
 
     // utility to calculate expected time when cast finishes (plus an optional delay); returns fallback value if argument is null
     // for whatever reason, npc spells have reported remaining cast time consistently 0.3s smaller than reality - this delta is added automatically, in addition to optional delay
-    public DateTime CastFinishAt(ActorCastInfo? cast, float extraDelay = 0, DateTime fallback = default) => cast != null ? WorldState.FutureTime(cast.NPCRemainingTime + extraDelay) : fallback;
+    public DateTime CastFinishAt(ActorCastInfo? cast, float extraDelay = 0f, DateTime fallback = default) => cast != null ? WorldState.FutureTime(cast.NPCRemainingTime + extraDelay) : fallback;
 
     // called during update if module is not yet active, should return true if it is to be activated
     // default implementation activates if primary target is both targetable and in combat
@@ -352,16 +385,22 @@ public abstract class BossModule : IDisposable
         if (pos != null)
         {
             if (WindowConfig.ShowOutlinesAndShadows)
-                Arena.TextWorld(new(pos.Value.XZ()), text, Colors.Shadows, WindowConfig.WaymarkFontSize + 3);
+                Arena.TextWorld(new(pos.Value.XZ()), text, Colors.Shadows, WindowConfig.WaymarkFontSize + 3f);
             Arena.TextWorld(new(pos.Value.XZ()), text, color, WindowConfig.WaymarkFontSize);
         }
     }
 
     private void DrawPartyMembers(int pcSlot, ref Actor pc)
     {
-        foreach (var (slot, player) in Raid.WithSlot().Exclude(pcSlot))
+        var raid = Raid.WithSlot();
+        var count = raid.Length;
+        for (var i = 0; i < count; ++i)
         {
-            var (prio, color) = CalculateHighestPriority(pcSlot, ref pc, slot, player);
+            if (i == pcSlot)
+                continue;
+
+            var player = raid[i].Item2;
+            var (prio, color) = CalculateHighestPriority(pcSlot, ref pc, i, player);
 
             var isFocus = WorldState.Client.FocusTargetId == player.InstanceID;
             if (prio == BossComponent.PlayerPriority.Irrelevant && !WindowConfig.ShowIrrelevantPlayers && !(isFocus && WindowConfig.ShowFocusTargetPlayer))
@@ -398,6 +437,7 @@ public abstract class BossModule : IDisposable
                     }
                 }
             }
+
             Arena.Actor(player, color);
         }
     }

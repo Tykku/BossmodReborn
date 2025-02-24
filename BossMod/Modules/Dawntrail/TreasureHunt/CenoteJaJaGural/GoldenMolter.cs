@@ -86,55 +86,55 @@ class Crypsis(BossModule module) : BossComponent(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.Crypsis1 or AID.Crypsis2)
+        if (spell.Action.ID is (uint)AID.Crypsis1 or (uint)AID.Crypsis2)
             IsConcealed = true;
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.Concealed)
+        if (status.ID == (uint)SID.Concealed)
             IsConcealed = false;
     }
 }
 
-class GoldenGall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldenGall), new AOEShapeCone(40, 90.Degrees()));
-class GoldenRadiance(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldenRadiance), 5);
-class BlindingLight(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BlindingLight), 6);
+class GoldenGall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldenGall), new AOEShapeCone(40f, 90f.Degrees()));
+class GoldenRadiance(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldenRadiance), 5f);
+class BlindingLight(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BlindingLight), 6f);
 
 class AetherialLight : Components.SimpleAOEs
 {
-    public AetherialLight(BossModule module) : base(module, ActionID.MakeSpell(AID.AetherialLight), new AOEShapeCone(40, 30.Degrees()), 4) { MaxDangerColor = 2; }
+    public AetherialLight(BossModule module) : base(module, ActionID.MakeSpell(AID.AetherialLight), new AOEShapeCone(40f, 30f.Degrees()), 4) { MaxDangerColor = 2; }
 }
 
-abstract class Vasoconstrictor(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class Vasoconstrictor(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
 class Vasoconstrictor1(BossModule module) : Vasoconstrictor(module, AID.Vasoconstrictor1);
 class Vasoconstrictor2(BossModule module) : Vasoconstrictor(module, AID.Vasoconstrictor2);
 class Vasoconstrictor3(BossModule module) : Vasoconstrictor(module, AID.Vasoconstrictor3);
 
 class VasoconstrictorPool(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
-    private readonly AOEShapeCircle circle = new(17);
+    private readonly List<AOEInstance> _aoes = new(3);
+    private readonly AOEShapeCircle circle = new(17f);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
 
     public override void OnActorEState(Actor actor, ushort state)
     {
-        if (state == 0x004)
-            _aoes.RemoveAll(x => x.Origin == actor.Position);
+        if (_aoes.Count != 0 && state == 0x004)
+            _aoes.RemoveAt(0);
     }
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.VasoconstrictorPool)
-            _aoes.Add(new(circle, actor.Position));
+        if (actor.OID == (uint)OID.VasoconstrictorPool)
+            _aoes.Add(new(circle, WPos.ClampToGrid(actor.Position)));
     }
 }
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
-class RottenSpores(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RottenSpores), 6);
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11f);
+class RottenSpores(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RottenSpores), 6f);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
@@ -164,7 +164,17 @@ class GoldenMolterStates : StateMachineBuilder
             .ActivateOnEnter<Pollen>()
             .ActivateOnEnter<Spin>()
             .ActivateOnEnter<RottenSpores>()
-            .Raw.Update = () => module.Enemies(GoldenMolter.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(GoldenMolter.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -183,16 +193,18 @@ public class GoldenMolter(WorldState ws, Actor primary) : SharedBoundsBoss(ws, p
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.TuraliOnion => 5,
-                OID.TuraliEggplant => 4,
-                OID.TuraliGarlic => 3,
-                OID.TuraliTomato or OID.AlpacaOfFortune => 2,
-                OID.TuligoraQueen or OID.UolonOfFortune => 1,
+                (uint)OID.TuraliOnion => 6,
+                (uint)OID.TuraliEggplant => 5,
+                (uint)OID.TuraliGarlic => 4,
+                (uint)OID.TuraliTomato => 3,
+                (uint)OID.TuligoraQueen or (uint)OID.AlpacaOfFortune => 2,
+                (uint)OID.UolonOfFortune => 1,
                 _ => 0
             };
         }

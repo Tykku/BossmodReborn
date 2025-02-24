@@ -17,12 +17,12 @@ public enum AID : uint
     IxaliAeroII = 6628 // Boss->self, 3.0s cast, range 40+R width 8 rect
 }
 
-class Tornado(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Tornado), 6);
+class Tornado(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Tornado), 6f);
 class TornadoHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Tornado), true, true, showNameInHint: true);
 class IxaliAeroIII(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.IxaliAeroIII));
 class IxaliAeroIIIHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.IxaliAeroIII), true, true, showNameInHint: true);
-class IxaliAeroII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IxaliAeroII), new AOEShapeRect(41.8f, 4));
-class Gust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Gust), 5);
+class IxaliAeroII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IxaliAeroII), new AOEShapeRect(41.8f, 4f));
+class Gust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Gust), 5f);
 
 class D150XelphatolSkycallerStates : StateMachineBuilder
 {
@@ -35,8 +35,20 @@ class D150XelphatolSkycallerStates : StateMachineBuilder
             .ActivateOnEnter<IxaliAeroIIIHint>()
             .ActivateOnEnter<IxaliAeroII>()
             .ActivateOnEnter<Gust>()
-            .Raw.Update = () => Module.Enemies(D150XelphatolSkycaller.Trash).Where(x => x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
-            .All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D150XelphatolSkycaller.Trash);
+                var center = module.Arena.Center;
+                var radius = module.Bounds.Radius;
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed && enemy.Position.AlmostEqual(center, radius))
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -62,6 +74,17 @@ public class D150XelphatolSkycaller(WorldState ws, Actor primary) : BossModule(w
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(Trash).Where(x => x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
+        var filteredEnemies = new List<Actor>();
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        var center = Arena.Center;
+        var radius = Bounds.Radius;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.Position.AlmostEqual(center, radius))
+                filteredEnemies.Add(enemy);
+        }
+        Arena.Actors(filteredEnemies);
     }
 }

@@ -40,20 +40,21 @@ class ArenaChanges(BossModule module) : BossComponent(module)
 {
     private readonly GallopKB _kb = module.FindComponent<GallopKB>()!;
     private static readonly float[] xPositions = [395.25f, 404.75f];
-    private static readonly WPos[] wallPositions = new WPos[8];
+    private static readonly WPos[] wallPositions = WallPositionz();
     private readonly List<Rectangle> removedWalls = [];
     private static readonly Rectangle[] baseArena = [new(D132Poqhiraj.ArenaCenter, 4.5f, 19.75f)];
-    private static readonly WDir offset = new(0, 0.125f);
+    private static readonly WDir offset = new(default, 0.125f);
 
-    static ArenaChanges()
+    private static WPos[] WallPositionz()
     {
         const float zStart = 89.161f;
         const int zStep = 10;
         var index = 0;
-
+        var walls = new WPos[8];
         for (var i = 0; i < 2; ++i)
             for (var j = 0; j < 4; ++j)
-                wallPositions[index++] = new(xPositions[i], zStart + j * zStep);
+                walls[index++] = new(xPositions[i], zStart + j * zStep);
+        return walls;
     }
 
     public override void OnActorEAnim(Actor actor, uint state)
@@ -61,36 +62,36 @@ class ArenaChanges(BossModule module) : BossComponent(module)
         if (state != 0x00100020)
             return;
 
-        var wallIndex = (OID)actor.OID switch
+        var wallIndex = actor.OID switch
         {
-            OID.WallHelperNW1 => 0,
-            OID.WallHelperNE1 => 4,
-            OID.WallHelperNW2 => 1,
-            OID.WallHelperNE2 => 5,
-            OID.WallHelperSW1 => 2,
-            OID.WallHelperSE1 => 6,
-            OID.WallHelperSW2 => 3,
-            OID.WallHelperSE2 => 7,
+            (uint)OID.WallHelperNW1 => 0,
+            (uint)OID.WallHelperNE1 => 4,
+            (uint)OID.WallHelperNW2 => 1,
+            (uint)OID.WallHelperNE2 => 5,
+            (uint)OID.WallHelperSW1 => 2,
+            (uint)OID.WallHelperSE1 => 6,
+            (uint)OID.WallHelperSW2 => 3,
+            (uint)OID.WallHelperSE2 => 7,
             _ => default
         };
 
         var wallPos = wallPositions[wallIndex];
         var adjustment = wallIndex is 0 or 4 ? offset : wallIndex is 3 or 7 ? -offset : default;
-        removedWalls.Add(new(wallPos + adjustment, 0.25f, adjustment != default ? 4.875f : 5));
-        _kb.safeWalls.RemoveAll(x => x.Vertex1 == new WPos(GallopKB.xPositions[wallIndex / 4], wallPos.Z - 5));
+        removedWalls.Add(new(wallPos + adjustment, 0.25f, adjustment != default ? 4.875f : 5f));
+        _kb.safeWalls.RemoveAll(x => x.Vertex1 == new WPos(GallopKB.xPositions[wallIndex / 4], wallPos.Z - 5f));
         ArenaBoundsComplex arena = new([.. baseArena, .. removedWalls]);
         Arena.Bounds = arena;
         Arena.Center = arena.Center;
     }
 }
 
-class GallopAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GallopAOE), new AOEShapeRect(40.5f, 1));
+class GallopAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GallopAOE), new AOEShapeRect(40.5f, 1f));
 
 class GallopKB(BossModule module) : Components.Knockback(module)
 {
     public static readonly float[] xPositions = [395.5f, 404.5f];
-    private static readonly AOEShapeRect rect = new(4.5f, 20);
-    private readonly List<Source> _sources = [];
+    private static readonly AOEShapeRect rect = new(4.5f, 20f);
+    private readonly List<Source> _sources = new(2);
     public readonly List<SafeWall> safeWalls = GenerateSafeWalls();
 
     private static List<SafeWall> GenerateSafeWalls()
@@ -98,11 +99,11 @@ class GallopKB(BossModule module) : Components.Knockback(module)
         const float zStart = 89.161f;
         const int zStep = 10;
 
-        List<SafeWall> list = [];
+        List<SafeWall> list = new(8);
 
         for (var i = 0; i < 2; ++i)
             for (var j = 0; j < 4; ++j)
-                list.Add(new(new(xPositions[i], zStart + j * zStep - 5), new(xPositions[i], zStart + j * zStep + 5)));
+                list.Add(new(new(xPositions[i], zStart + j * zStep - 5f), new(xPositions[i], zStart + j * zStep + 5f)));
         return list;
     }
 
@@ -110,13 +111,13 @@ class GallopKB(BossModule module) : Components.Knockback(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.GallopKB)
-            _sources.Add(new(spell.LocXZ, 30, Module.CastFinishAt(spell), rect, spell.Rotation, Kind.DirForward, default, safeWalls));
+        if (spell.Action.ID == (uint)AID.GallopKB)
+            _sources.Add(new(spell.LocXZ, 30f, Module.CastFinishAt(spell), rect, spell.Rotation, Kind.DirForward, default, safeWalls));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.GallopKB)
+        if (spell.Action.ID == (uint)AID.GallopKB)
             _sources.Clear();
     }
 }
@@ -124,7 +125,7 @@ class GallopKB(BossModule module) : Components.Knockback(module)
 class GallopKBHint(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly GallopKB _kb = module.FindComponent<GallopKB>()!;
-    private const string Risk2Hint = "Walk into safespot for knockback!";
+    private const string Hint = "Walk into safespot for knockback!";
 
     private static readonly Angle[] angles = [-89.982f.Degrees(), 89.977f.Degrees()];
     private AOEInstance? _aoe;
@@ -133,7 +134,7 @@ class GallopKBHint(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (_aoe == null && (AID)spell.Action.ID == AID.GallopKB)
+        if (_aoe == null && spell.Action.ID == (uint)AID.GallopKB)
         {
             var count = _kb.safeWalls.Count;
             if (count is 0 or 8)
@@ -143,8 +144,8 @@ class GallopKBHint(BossModule module) : Components.GenericAOEs(module)
             {
                 var safeWall = _kb.safeWalls[i].Vertex1;
                 var dir = (safeWall.X == GallopKB.xPositions[0] ? angles[0] : angles[1]).ToDirection();
-                var pos = new WPos(safeWall.X, safeWall.Z + 5);
-                rects.Add(new(pos + dir, pos - 3.5f * dir, 5));
+                var pos = new WPos(safeWall.X, safeWall.Z + 5f);
+                rects.Add(new(pos + dir, pos - 3.5f * dir, 5f));
             }
             AOEShapeCustom aoe = new([.. rects], InvertForbiddenZone: true);
             _aoe = new(aoe, Arena.Center, default, Module.CastFinishAt(spell), Colors.SafeFromAOE, true);
@@ -153,68 +154,74 @@ class GallopKBHint(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.GallopKB)
+        if (spell.Action.ID == (uint)AID.GallopKB)
             _aoe = null;
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (_aoe != null)
+        if (_aoe is AOEInstance aoe)
         {
-            if (!ActiveAOEs(slot, actor).Any(c => c.Check(actor.Position)))
-                hints.Add(Risk2Hint);
+            var check = true;
+            if (aoe.Check(actor.Position))
+                check = false;
+            hints.Add(Hint, check);
         }
     }
 }
 
-class Touchdown(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TouchdownVisual), 25);
+class Touchdown(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TouchdownVisual), 25f);
 
-class BurningBright(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.BurningBright), new AOEShapeRect(28.5f, 3), endsOnCastEvent: true)
+class BurningBright(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.BurningBright), new AOEShapeRect(28.5f, 3f), endsOnCastEvent: true)
 {
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
-        if (!ActiveBaits.Any(x => x.Target == pc))
-            return;
-        var walls = Module.Enemies(OID.PrayerWall);
-        for (var i = 0; i < walls.Count; ++i)
+        if (CurrentBaits.Count != 0 && CurrentBaits[0].Target == pc)
         {
-            var a = walls[i];
-            Arena.AddCircle(a.Position, a.HitboxRadius, Colors.Danger);
+            var walls = Module.Enemies((uint)OID.PrayerWall);
+            var count = walls.Count;
+            for (var i = 0; i < count; ++i)
+            {
+                var a = walls[i];
+                Arena.AddCircle(a.Position, a.HitboxRadius, Colors.Danger);
+            }
         }
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (CurrentBaits.Any(x => x.Target != actor))
+        if (CurrentBaits.Count == 0)
+            return;
+        if (CurrentBaits[0].Target != actor)
             base.AddHints(slot, actor, hints);
-        else if (CurrentBaits.Any(x => x.Target == actor))
+        else
             hints.Add("Bait away, avoid intersecting wall hitboxes!");
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        var bait = ActiveBaitsOn(actor).FirstOrDefault();
-        if (bait == default)
-            return;
-        var walls = Module.Enemies(OID.PrayerWall);
-        var count = walls.Count;
-        if (count <= 4) // don't care if most walls are up plus most of the arena would likely be forbidden anyway depending on player positioning
+        if (CurrentBaits.Count != 0 && CurrentBaits[0] is var bait && bait.Target == actor)
         {
-            var forbidden = new List<Func<WPos, float>>();
-            for (var i = 0; i < count; ++i)
+            var walls = Module.Enemies((uint)OID.PrayerWall);
+            var count = walls.Count;
+            if (count <= 4) // don't care if most walls are up plus most of the arena would likely be forbidden anyway depending on player positioning
             {
-                var a = walls[i];
-                forbidden.Add(ShapeDistance.Cone(bait.Source.Position, 100, bait.Source.AngleTo(a), Angle.Asin(8 / (a.Position - bait.Source.Position).Length())));
+                var forbidden = new Func<WPos, float>[count];
+                for (var i = 0; i < count; ++i)
+                {
+                    var a = walls[i];
+                    forbidden[i] = ShapeDistance.Cone(bait.Source.Position, 100f, bait.Source.AngleTo(a), Angle.Asin(8f / (a.Position - bait.Source.Position).Length()));
+                }
+                if (forbidden.Length != 0)
+                    hints.AddForbiddenZone(ShapeDistance.Union(forbidden), bait.Activation);
             }
-            if (forbidden.Count != 0)
-                hints.AddForbiddenZone(ShapeDistance.Union(forbidden), bait.Activation);
         }
     }
 }
 
-class RearHoof(BossModule module) : Components.SingleTargetInstant(module, ActionID.MakeSpell(AID.RearHoof), 4)
+class RearHoof(BossModule module) : Components.SingleTargetInstant(module, ActionID.MakeSpell(AID.RearHoof), 4f)
 {
     private bool start, firstKB;
 
@@ -222,74 +229,77 @@ class RearHoof(BossModule module) : Components.SingleTargetInstant(module, Actio
     {
         if (!start)
         {
-            Targets.Add((Raid.FindSlot(Module.PrimaryActor.TargetID), WorldState.FutureTime(6.1f))); // its assumed that the tank will aggro the boss first
+            Targets.Add((Raid.FindSlot(Module.PrimaryActor.TargetID), WorldState.FutureTime(6.1d))); // its assumed that the tank will aggro the boss first
             start = true;
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (!firstKB && (AID)spell.Action.ID == AID.GallopKB)
+        if (!firstKB && spell.Action.ID == (uint)AID.GallopKB)
         {
-            Targets.Add((Raid.FindSlot(Module.PrimaryActor.TargetID), WorldState.FutureTime(7)));
+            Targets.Add((Raid.FindSlot(Module.PrimaryActor.TargetID), WorldState.FutureTime(7d)));
             firstKB = true;
         }
     }
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.DarkCloud)
-            Targets.Add((Raid.FindSlot(actor.InstanceID), WorldState.FutureTime(4)));
+        if (actor.OID == (uint)OID.DarkCloud)
+            Targets.Add((Raid.FindSlot(actor.InstanceID), WorldState.FutureTime(4d)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.RearHoof)
+        if (spell.Action.ID == (uint)AID.RearHoof)
             Targets.Clear();
     }
 }
 
 class CloudCall(BossModule module) : Components.GenericBaitAway(module)
 {
-    public static readonly AOEShapeCircle Circle = new(8);
+    public static readonly AOEShapeCircle Circle = new(8f);
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == (uint)IconID.CloudCall)
-            CurrentBaits.Add(new(actor, actor, Circle, WorldState.FutureTime(4.9f)));
+            CurrentBaits.Add(new(actor, actor, Circle, WorldState.FutureTime(4.9d)));
     }
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.DarkCloud)
+        if (actor.OID == (uint)OID.DarkCloud)
             CurrentBaits.Clear();
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (CurrentBaits.Any(x => x.Target == actor))
-            hints.AddForbiddenZone(ShapeDistance.Rect(Arena.Center, new WDir(0, 1), 19, 19, 5));
+        if (CurrentBaits.Count != 0 && CurrentBaits[0].Target == actor)
+            hints.AddForbiddenZone(ShapeDistance.Rect(Arena.Center, new WDir(default, 1f), 19f, 19f, 5f));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (CurrentBaits.Any(x => x.Target != actor))
+        if (CurrentBaits.Count == 0)
+            return;
+        if (CurrentBaits[0].Target != actor)
             base.AddHints(slot, actor, hints);
-        else if (CurrentBaits.Any(x => x.Target == actor))
+        else
             hints.Add("Bait cloud away, avoid intersecting wall hitboxes!");
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
-        if (!ActiveBaits.Any(x => x.Target == pc))
-            return;
-        var walls = Module.Enemies(OID.PrayerWall);
-        for (var i = 0; i < walls.Count; ++i)
+        if (CurrentBaits.Count != 0 && CurrentBaits[0].Target == pc)
         {
-            var a = walls[i];
-            Arena.AddCircle(a.Position, a.HitboxRadius, Colors.Danger);
+            var walls = Module.Enemies((uint)OID.PrayerWall);
+            for (var i = 0; i < walls.Count; ++i)
+            {
+                var a = walls[i];
+                Arena.AddCircle(a.Position, a.HitboxRadius);
+            }
         }
     }
 }
@@ -302,13 +312,13 @@ class LightningBolt(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.DarkCloud)
-            _aoe = new(CloudCall.Circle, actor.Position, default, WorldState.FutureTime(7.8f));
+        if (actor.OID == (uint)OID.DarkCloud)
+            _aoe = new(CloudCall.Circle, actor.Position, default, WorldState.FutureTime(7.8d));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.LightningBolt)
+        if (spell.Action.ID == (uint)AID.LightningBolt)
             _aoe = null;
     }
 }
@@ -333,5 +343,5 @@ class D132PoqhirajStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 171, NameID = 4952, SortOrder = 4)]
 public class D132Poqhiraj(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, new ArenaBoundsRect(4.5f, 19.75f))
 {
-    public static readonly WPos ArenaCenter = new(400, 104.166f);
+    public static readonly WPos ArenaCenter = new(400f, 104.166f);
 }

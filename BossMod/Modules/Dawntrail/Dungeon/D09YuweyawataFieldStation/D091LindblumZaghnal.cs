@@ -137,8 +137,8 @@ class D091LindblumZaghnalStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1008, NameID = 13623, SortOrder = 3)]
 public class D091LindblumZaghnal(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(73, 277), 19.5f, 64)], [new Rectangle(new(72, 297), 20, 1.1f),
-    new Rectangle(new(72, 257), 20, 1.05f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(73f, 277f), 19.5f, 64)], [new Rectangle(new(72f, 297f), 20f, 1.1f),
+    new Rectangle(new(72f, 257f), 20f, 1.05f)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
@@ -151,9 +151,9 @@ public class D091LindblumZaghnal(WorldState ws, Actor primary) : BossModule(ws, 
         for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.RawElectrope => 1,
+                (uint)OID.RawElectrope => 1,
                 _ => 0
             };
         }

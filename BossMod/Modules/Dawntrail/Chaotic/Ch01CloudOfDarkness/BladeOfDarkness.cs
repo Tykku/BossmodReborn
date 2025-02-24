@@ -4,17 +4,17 @@ class BladeOfDarkness(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
 
-    private static readonly AOEShapeDonutSector _shapeIn = new(12, 60, 75.Degrees());
-    private static readonly AOEShapeCone _shapeOut = new(30, 90.Degrees());
+    private static readonly AOEShapeDonutSector _shapeIn = new(12f, 60f, 75f.Degrees());
+    private static readonly AOEShapeCone _shapeOut = new(30f, 90f.Degrees());
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        AOEShape? shape = (AID)spell.Action.ID switch
+        AOEShape? shape = spell.Action.ID switch
         {
-            AID.BladeOfDarknessLAOE or AID.BladeOfDarknessRAOE => _shapeIn,
-            AID.BladeOfDarknessCAOE => _shapeOut,
+            (uint)AID.BladeOfDarknessLAOE or (uint)AID.BladeOfDarknessRAOE => _shapeIn,
+            (uint)AID.BladeOfDarknessCAOE => _shapeOut,
             _ => null
         };
         if (shape != null)
@@ -23,7 +23,7 @@ class BladeOfDarkness(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.BladeOfDarknessLAOE or AID.BladeOfDarknessRAOE or AID.BladeOfDarknessCAOE)
+        if (spell.Action.ID is (uint)AID.BladeOfDarknessLAOE or (uint)AID.BladeOfDarknessRAOE or (uint)AID.BladeOfDarknessCAOE)
         {
             _aoe = null;
             ++NumCasts;

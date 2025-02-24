@@ -30,13 +30,16 @@ public enum AID : uint
     Telega = 9630 // GymnasiouLyssa->self, no cast, single-target, bonus add disappear
 }
 
-class StormWing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StormWing), new AOEShapeCone(40, 45.Degrees()));
+class StormWing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StormWing), new AOEShapeCone(40f, 45f.Degrees()));
 class FlashGale(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlashGale), 6);
-class WindCutter(BossModule module) : Components.PersistentVoidzone(module, 4, m => m.Enemies(OID.StormsGrip));
-class Wingblow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wingblow), 15);
+class WindCutter(BossModule module) : Components.PersistentVoidzone(module, 4f, GetVoidzones)
+{
+    private static List<Actor> GetVoidzones(BossModule module) => module.Enemies((uint)OID.StormsGrip);
+}
+class Wingblow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wingblow), 15f);
 class DreadDive(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DreadDive));
 
-class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6f);
 
 class GymnasiouSatyrosStates : StateMachineBuilder
 {
@@ -49,7 +52,17 @@ class GymnasiouSatyrosStates : StateMachineBuilder
             .ActivateOnEnter<Wingblow>()
             .ActivateOnEnter<DreadDive>()
             .ActivateOnEnter<HeavySmash>()
-            .Raw.Update = () => module.Enemies(GymnasiouSatyros.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(GymnasiouSatyros.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -62,20 +75,21 @@ public class GymnasiouSatyros(WorldState ws, Actor primary) : THTemplate(ws, pri
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.GymnasiouElaphos));
+        Arena.Actors(Enemies((uint)OID.GymnasiouElaphos));
         Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.GymnasiouLampas => 3,
-                OID.GymnasiouLyssa => 2,
-                OID.GymnasiouElaphos => 1,
+                (uint)OID.GymnasiouLampas => 3,
+                (uint)OID.GymnasiouLyssa => 2,
+                (uint)OID.GymnasiouElaphos => 1,
                 _ => 0
             };
         }

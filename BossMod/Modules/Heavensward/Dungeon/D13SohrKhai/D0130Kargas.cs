@@ -5,7 +5,7 @@ public enum OID : uint
     Boss = 0x160E, // R2.875
     SanctuaryTsanahale = 0x160F, // R1.2
     SohrKhaiAnzu = 0x160C, // R3.6
-    SohrKhaiCockerel = 0x160A, // R0.4
+    SohrKhaiCockerel = 0x160A // R0.4
 }
 
 public enum AID : uint
@@ -15,11 +15,11 @@ public enum AID : uint
 
     BreathWing = 6107, // SohrKhaiAnzu->self, 4.0s cast, range 50 circle
     GoldenTalons = 4690, // Boss->player, no cast, single-target
-    WingsOfWoe = 2478, // SanctuaryTsanahale->location, 2.5s cast, range 6 circle
+    WingsOfWoe = 2478 // SanctuaryTsanahale->location, 2.5s cast, range 6 circle
 }
 
 class BreathWing(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BreathWing));
-class WingsOfWoe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingsOfWoe), 6);
+class WingsOfWoe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingsOfWoe), 6f);
 
 class D130KargasStates : StateMachineBuilder
 {
@@ -28,7 +28,18 @@ class D130KargasStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<BreathWing>()
             .ActivateOnEnter<WingsOfWoe>()
-            .Raw.Update = () => module.Enemies(D130Kargas.Trash).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D130Kargas.Trash);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -88,7 +99,20 @@ public class D130Kargas(WorldState ws, Actor primary) : BossModule(ws, primary, 
 
     public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.SohrKhaiAnzu, (uint)OID.SohrKhaiCockerel, (uint)OID.SanctuaryTsanahale];
 
-    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
+    protected override bool CheckPull()
+    {
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        var center = Arena.Center;
+        var radius = Bounds.Radius;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.InCombat && enemy.Position.AlmostEqual(center, radius))
+                return true;
+        }
+        return false;
+    }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

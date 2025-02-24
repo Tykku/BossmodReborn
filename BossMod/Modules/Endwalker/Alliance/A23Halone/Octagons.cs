@@ -9,7 +9,7 @@ class Octagons(BossModule module) : Components.GenericAOEs(module)
     private const float InnerRadius = 11.125f; // radii adjusted for hitbox radius
     private const float OuterRadius = 13.45f;
     private const int Vertices = 8;
-    private static readonly WPos[] spears = [new(-686, 592), new(-700, 616.2f), new(-714, 592)];
+    private static readonly WPos[] spears = [new(-686f, 592), new(-700f, 616.2f), new(-714f, 592)];
     private static readonly Angle[] angle = [-37.5f.Degrees(), 22.5f.Degrees(), 37.5f.Degrees()];
     private static readonly Polygon[] shapes = [new(spears[0], InnerRadius, Vertices, angle[0]),
     new(spears[0], OuterRadius, Vertices, angle[0]), new(spears[1], InnerRadius, Vertices, angle[1]),

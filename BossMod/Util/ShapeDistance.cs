@@ -22,7 +22,7 @@ public static class ShapeDistance
     {
         var originX = origin.X;
         var originZ = origin.Z;
-        return radius <= 0 ? (_ => float.MaxValue) : (p =>
+        return radius <= 0f ? (_ => float.MaxValue) : (p =>
         {
             var pXoriginX = p.X - originX;
             var pZoriginZ = p.Z - originZ;
@@ -34,7 +34,7 @@ public static class ShapeDistance
     {
         var originX = origin.X;
         var originZ = origin.Z;
-        return radius <= 0 ? (_ => float.MinValue) : (p =>
+        return radius <= 0f ? (_ => float.MinValue) : (p =>
         {
             var pXoriginX = p.X - originX;
             var pZoriginZ = p.Z - originZ;
@@ -46,7 +46,7 @@ public static class ShapeDistance
     {
         var originX = origin.X;
         var originZ = origin.Z;
-        return outerRadius <= 0 || innerRadius >= outerRadius ? (_ => float.MaxValue) : innerRadius <= 0 ? Circle(origin, outerRadius) : (p =>
+        return outerRadius <= 0f || innerRadius >= outerRadius ? (_ => float.MaxValue) : innerRadius <= 0f ? Circle(origin, outerRadius) : (p =>
         {
             // intersection of outer circle and inverted inner circle
             var pXoriginX = p.X - originX;
@@ -62,7 +62,7 @@ public static class ShapeDistance
     {
         var originX = origin.X;
         var originZ = origin.Z;
-        return outerRadius <= 0 || innerRadius >= outerRadius ? (_ => float.MaxValue) : innerRadius <= 0 ? Circle(origin, outerRadius) : (p =>
+        return outerRadius <= 0f || innerRadius >= outerRadius ? (_ => float.MaxValue) : innerRadius <= 0f ? Circle(origin, outerRadius) : (p =>
         {
             // intersection of outer circle and inverted inner circle
             var pXoriginX = p.X - originX;
@@ -76,14 +76,14 @@ public static class ShapeDistance
 
     public static Func<WPos, float> Cone(WPos origin, float radius, Angle centerDir, Angle halfAngle)
     {
-        if (halfAngle.Rad <= 0 || radius <= 0)
+        if (halfAngle.Rad <= 0f || radius <= 0f)
             return _ => float.MaxValue;
         if (halfAngle.Rad >= MathF.PI)
             return Circle(origin, radius);
         // for <= 180-degree cone: result = intersection of circle and two half-planes with normals pointing outside cone sides
         // for > 180-degree cone: result = intersection of circle and negated intersection of two half-planes with inverted normals
         // both normals point outside
-        float coneFactor = halfAngle.Rad > Angle.HalfPi ? -1 : 1;
+        var coneFactor = halfAngle.Rad > Angle.HalfPi ? -1f : 1f;
         var nl = coneFactor * (centerDir + halfAngle).ToDirection().OrthoL();
         var nr = coneFactor * (centerDir - halfAngle).ToDirection().OrthoR();
         var originX = origin.X;
@@ -109,14 +109,14 @@ public static class ShapeDistance
 
     public static Func<WPos, float> InvertedCone(WPos origin, float radius, Angle centerDir, Angle halfAngle)
     {
-        if (halfAngle.Rad <= 0 || radius <= 0)
+        if (halfAngle.Rad <= 0f || radius <= 0f)
             return _ => float.MaxValue;
         if (halfAngle.Rad >= MathF.PI)
             return Circle(origin, radius);
         // for <= 180-degree cone: result = intersection of circle and two half-planes with normals pointing outside cone sides
         // for > 180-degree cone: result = intersection of circle and negated intersection of two half-planes with inverted normals
         // both normals point outside
-        float coneFactor = halfAngle.Rad > Angle.HalfPi ? -1 : 1;
+        var coneFactor = halfAngle.Rad > Angle.HalfPi ? -1f : 1f;
         var nl = coneFactor * (centerDir + halfAngle).ToDirection().OrthoL();
         var nr = coneFactor * (centerDir - halfAngle).ToDirection().OrthoR();
         var originX = origin.X;
@@ -142,16 +142,16 @@ public static class ShapeDistance
 
     public static Func<WPos, float> DonutSector(WPos origin, float innerRadius, float outerRadius, Angle centerDir, Angle halfAngle)
     {
-        if (halfAngle.Rad <= 0 || outerRadius <= 0 || innerRadius >= outerRadius)
+        if (halfAngle.Rad <= 0f || outerRadius <= 0f || innerRadius >= outerRadius)
             return _ => float.MaxValue;
 
         if (halfAngle.Rad >= MathF.PI)
             return Donut(origin, innerRadius, outerRadius);
 
-        if (innerRadius <= 0)
+        if (innerRadius <= 0f)
             return Cone(origin, outerRadius, centerDir, halfAngle);
 
-        float coneFactor = halfAngle.Rad > Angle.HalfPi ? -1 : 1;
+        var coneFactor = halfAngle.Rad > Angle.HalfPi ? -1f : 1f;
         var nl = coneFactor * (centerDir + halfAngle + a90).ToDirection();
         var nr = coneFactor * (centerDir - halfAngle - a90).ToDirection();
         var originX = origin.X;
@@ -180,16 +180,16 @@ public static class ShapeDistance
 
     public static Func<WPos, float> InvertedDonutSector(WPos origin, float innerRadius, float outerRadius, Angle centerDir, Angle halfAngle)
     {
-        if (halfAngle.Rad <= 0 || outerRadius <= 0 || innerRadius >= outerRadius)
+        if (halfAngle.Rad <= 0f || outerRadius <= 0f || innerRadius >= outerRadius)
             return _ => float.MaxValue;
 
         if (halfAngle.Rad >= MathF.PI)
             return Donut(origin, innerRadius, outerRadius);
 
-        if (innerRadius <= 0)
+        if (innerRadius <= 0f)
             return Cone(origin, outerRadius, centerDir, halfAngle);
 
-        float coneFactor = halfAngle.Rad > Angle.HalfPi ? -1 : 1;
+        var coneFactor = halfAngle.Rad > Angle.HalfPi ? -1f : 1f;
         var nl = coneFactor * (centerDir + halfAngle + a90).ToDirection();
         var nr = coneFactor * (centerDir - halfAngle - a90).ToDirection();
         var originX = origin.X;
@@ -494,7 +494,7 @@ public static class ShapeDistance
             var pXoriginX = p.X - originX;
             var pZoriginZ = p.Z - originZ;
             var t = pXoriginX * dirX + pZoriginZ * dirZ;
-            t = (t < 0) ? 0 : (t > length ? length : t);
+            t = (t < 0f) ? 0f : (t > length ? length : t);
             var proj = origin + t * dir;
             var pXprojX = p.X - proj.X;
             var pZprojZ = p.Z - proj.Z;
@@ -515,7 +515,7 @@ public static class ShapeDistance
             var pXoriginX = p.X - originX;
             var pZoriginZ = p.Z - originZ;
             var t = pXoriginX * dirX + pZoriginZ * dirZ;
-            t = (t < 0) ? 0 : (t > length ? length : t);
+            t = (t < 0f) ? 0f : (t > length ? length : t);
             var proj = origin + t * dir;
             var pXprojX = p.X - proj.X;
             var pZprojZ = p.Z - proj.Z;
@@ -535,7 +535,7 @@ public static class ShapeDistance
             var pXoriginX = p.X - originX;
             var pZoriginZ = p.Z - originZ;
             var t = pXoriginX * dirX + pZoriginZ * dirZ;
-            t = (t < 0) ? 0 : (t > length ? length : t);
+            t = (t < 0f) ? 0f : (t > length ? length : t);
             var proj = origin + t * dir;
             var pXprojX = p.X - proj.X;
             var pZprojZ = p.Z - proj.Z;
@@ -745,23 +745,22 @@ public static class ShapeDistance
 
     // special distance function for precise positioning, finer than map resolution
     // it's an inverted rect of a size equal to one grid cell, with a special adjustment if starting position is in the same cell, but farther than tolerance
-    public static Func<WPos, float> PrecisePosition(WPos origin, WDir dir, float cellSize, WPos starting, float tolerance = 0)
+    public static Func<WPos, float> PrecisePosition(WPos origin, WDir dir, float cellSize, WPos starting, float tolerance = 0f)
     {
-        var cellSizeAdj = cellSize + cellSize * NavigationDecision.DefaultForbiddenZoneCushion;
         var delta = starting - origin;
         var dparr = delta.Dot(dir);
-        if (dparr > tolerance && dparr <= cellSizeAdj)
-            origin -= cellSizeAdj * dir;
-        else if (dparr < -tolerance && dparr >= -cellSizeAdj)
-            origin += cellSizeAdj * dir;
+        if (dparr > tolerance && dparr <= cellSize)
+            origin -= cellSize * dir;
+        else if (dparr < -tolerance && dparr >= -cellSize)
+            origin += cellSize * dir;
 
         var normal = dir.OrthoL();
         var dortho = delta.Dot(normal);
-        if (dortho > tolerance && dortho <= cellSizeAdj)
-            origin -= cellSizeAdj * normal;
-        else if (dortho < -tolerance && dortho >= -cellSizeAdj)
-            origin += cellSizeAdj * normal;
+        if (dortho > tolerance && dortho <= cellSize)
+            origin -= cellSize * normal;
+        else if (dortho < -tolerance && dortho >= -cellSize)
+            origin += cellSize * normal;
 
-        return InvertedRect(origin, dir, cellSizeAdj, cellSizeAdj, cellSizeAdj);
+        return InvertedRect(origin, dir, cellSize, cellSize, cellSize);
     }
 }

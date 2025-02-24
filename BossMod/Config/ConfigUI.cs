@@ -102,10 +102,8 @@ public sealed class ConfigUI : IDisposable
         { "maxdistancetarget X", "Sets max distance to target. (default = 2.6)" },
         { "maxdistanceslot X", "Sets max distance to slot. (default = 1)" },
         { "movedelay X", "Sets AI movement decision delay. (default = 0)" },
-        { "overrideautorotation", "Toggles the override for autorotation distance and positional values with custom settings." },
-        { "overrideautorotation on/off", "Sets the override for autorotation distance and positional values with custom settings to on or off." },
-        { "outofbounds", "Toggles the allow AI to be out of arena bounds setting." },
-        { "outofbounds on/off", "Sets the allow AI to be out of arena bounds setting to on or off." },
+        { "obstaclemaps", "Toggles loading obstacle maps." },
+        { "obstaclemaps on/off", "Sets the loading of obstacle maps to on or off." },
         { "setpresetname X", "Sets an autorotation preset for the AI, eg. setpresetname vbm default." }
     };
 

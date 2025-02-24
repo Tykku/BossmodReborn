@@ -15,7 +15,7 @@ public enum AID : uint
     AutoAttack3 = 870, // VanguardSentryS7->player, no cast, single-target
 
     Levinbite = 39019, // Boss->player, no cast, single-target
-    SpreadShot = 39017, // VanguardSentryG7->self, 4.0s cast, range 12 90,000-degree cone
+    SpreadShot = 39017, // VanguardSentryG7->self, 4.0s cast, range 12 90-degree cone
 }
 
 class SpreadShot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpreadShot), new AOEShapeCone(12, 45.Degrees()));
@@ -26,7 +26,18 @@ class D040VanguardLeptocyonStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<SpreadShot>()
-            .Raw.Update = () => module.Enemies(D040VanguardLeptocyon.Trash).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D040VanguardLeptocyon.Trash);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 

@@ -7,7 +7,7 @@ class ThirdArtOfDarknessCleave(BossModule module) : Components.GenericAOEs(modul
     public readonly Dictionary<Actor, List<(Mechanic mechanic, DateTime activation)>> Mechanics = [];
     public BitMask PlatformPlayers;
 
-    private static readonly AOEShapeCone _shape = new(15, 90.Degrees());
+    private static readonly AOEShapeCone _shape = new(15f, 90f.Degrees());
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -15,12 +15,12 @@ class ThirdArtOfDarknessCleave(BossModule module) : Components.GenericAOEs(modul
         {
             var dir = m.Count == 0 ? default : m[0].mechanic switch
             {
-                Mechanic.Left => 90.Degrees(),
-                Mechanic.Right => -90.Degrees(),
+                Mechanic.Left => 90f.Degrees(),
+                Mechanic.Right => -90f.Degrees(),
                 _ => default
             };
             if (dir != default)
-                yield return new(_shape, caster.Position, caster.Rotation + dir, m[0].activation);
+                yield return new(_shape, WPos.ClampToGrid(caster.Position), caster.Rotation + dir, m[0].activation);
         }
     }
 
@@ -62,46 +62,46 @@ class ThirdArtOfDarknessCleave(BossModule module) : Components.GenericAOEs(modul
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.OuterDarkness)
+        if (status.ID == (uint)SID.OuterDarkness)
             PlatformPlayers.Set(Raid.FindSlot(actor.InstanceID));
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.OuterDarkness)
+        if (status.ID == (uint)SID.OuterDarkness)
             PlatformPlayers.Clear(Raid.FindSlot(actor.InstanceID));
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
-        if ((OID)actor.OID == OID.StygianShadow)
+        if (actor.OID == (uint)OID.StygianShadow)
         {
-            var mechanic = (IconID)iconID switch
+            var mechanic = iconID switch
             {
-                IconID.ThirdArtOfDarknessLeft => Mechanic.Left,
-                IconID.ThirdArtOfDarknessRight => Mechanic.Right,
-                IconID.ThirdArtOfDarknessStack => Mechanic.Stack,
-                IconID.ThirdArtOfDarknessSpread => Mechanic.Spread,
+                (uint)IconID.ThirdArtOfDarknessLeft => Mechanic.Left,
+                (uint)IconID.ThirdArtOfDarknessRight => Mechanic.Right,
+                (uint)IconID.ThirdArtOfDarknessStack => Mechanic.Stack,
+                (uint)IconID.ThirdArtOfDarknessSpread => Mechanic.Spread,
                 _ => Mechanic.None
             };
             if (mechanic != Mechanic.None)
-                Mechanics.GetOrAdd(actor).Add((mechanic, WorldState.FutureTime(9.5f)));
+                Mechanics.GetOrAdd(actor).Add((mechanic, WorldState.FutureTime(9.5d)));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        var mechanic = (AID)spell.Action.ID switch
+        var mechanic = spell.Action.ID switch
         {
-            AID.ArtOfDarknessAOEL => Mechanic.Left,
-            AID.ArtOfDarknessAOER => Mechanic.Right,
-            AID.HyperFocusedParticleBeamAOE => Mechanic.Spread,
-            AID.MultiProngedParticleBeamAOE => Mechanic.Stack,
+            (uint)AID.ArtOfDarknessAOEL => Mechanic.Left,
+            (uint)AID.ArtOfDarknessAOER => Mechanic.Right,
+            (uint)AID.HyperFocusedParticleBeamAOE => Mechanic.Spread,
+            (uint)AID.MultiProngedParticleBeamAOE => Mechanic.Stack,
             _ => Mechanic.None
         };
         if (mechanic != Mechanic.None)
         {
-            var (a, m) = Mechanics.FirstOrDefault(kv => kv.Key.Position.AlmostEqual(caster.Position, 1) && kv.Value.Count > 0 && kv.Value[0].mechanic == mechanic);
+            var (a, m) = Mechanics.FirstOrDefault(kv => kv.Key.Position.AlmostEqual(caster.Position, 1f) && kv.Value.Count > 0 && kv.Value[0].mechanic == mechanic);
             if (a != null)
             {
                 ++NumCasts;
@@ -130,7 +130,7 @@ class ThirdArtOfDarknessHyperFocusedParticleBeam(BossModule module) : Components
     }
 }
 
-class ThirdArtOfDarknessMultiProngedParticleBeam(BossModule module) : Components.UniformStackSpread(module, 3, 0, 2)
+class ThirdArtOfDarknessMultiProngedParticleBeam(BossModule module) : Components.UniformStackSpread(module, 3f, 0, 2)
 {
     private readonly ThirdArtOfDarknessCleave? _main = module.FindComponent<ThirdArtOfDarknessCleave>();
 

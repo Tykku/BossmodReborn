@@ -18,8 +18,8 @@ public enum AID : uint
     GoblinRush = 41654 // Boss->players, no cast, single-target
 }
 
-class BombToss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BombToss), 3);
-class Seismostomp(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Seismostomp), 5);
+class BombToss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BombToss), 3f);
+class Seismostomp(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Seismostomp), 5f);
 
 public class A10VanguardPathfinderStates : StateMachineBuilder
 {
@@ -28,7 +28,17 @@ public class A10VanguardPathfinderStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<Seismostomp>()
             .ActivateOnEnter<BombToss>()
-            .Raw.Update = () => Module.Enemies(A10VanguardPathfinder.Trash).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(A10VanguardPathfinder.Trash);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 

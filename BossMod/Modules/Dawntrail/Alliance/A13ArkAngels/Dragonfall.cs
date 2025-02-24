@@ -1,18 +1,18 @@
 namespace BossMod.Dawntrail.Alliance.A13ArkAngels;
 
-class Dragonfall(BossModule module) : Components.UniformStackSpread(module, 6, 0, 8, 8)
+class Dragonfall(BossModule module) : Components.UniformStackSpread(module, 6f, 0, 8, 8)
 {
     public int NumCasts;
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
         if (tether.ID == (uint)TetherID.Dragonfall)
-            AddStack(source, WorldState.FutureTime(9.5f));
+            AddStack(source, WorldState.FutureTime(9.5d));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.DragonfallAOE)
+        if (spell.Action.ID == (uint)AID.DragonfallAOE)
         {
             ++NumCasts;
             Stacks.RemoveAll(s => s.Target.InstanceID == spell.MainTargetID);

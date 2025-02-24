@@ -23,10 +23,10 @@ public enum AID : uint
 }
 
 class CroakingChorus(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.CroakingChorus), "Calls adds");
-class FrigidNeedle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrigidNeedle), new AOEShapeCross(40, 2.5f));
-class Spittle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spittle), 8);
+class FrigidNeedle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrigidNeedle), new AOEShapeCross(40f, 2.5f));
+class Spittle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spittle), 8f);
 class ToyHammer(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ToyHammer));
-class Hydrocannon(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Hydrocannon), 6, 8, 8);
+class Hydrocannon(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Hydrocannon), 6f, 8, 8);
 
 class FuathTroublemakerStates : StateMachineBuilder
 {
@@ -38,7 +38,17 @@ class FuathTroublemakerStates : StateMachineBuilder
             .ActivateOnEnter<Spittle>()
             .ActivateOnEnter<Hydrocannon>()
             .ActivateOnEnter<FrigidNeedle>()
-            .Raw.Update = () => module.Enemies(FuathTroublemaker.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(FuathTroublemaker.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -50,17 +60,18 @@ public class FuathTroublemaker(WorldState ws, Actor primary) : THTemplate(ws, pr
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.FuathTrickster), Colors.Vulnerable);
+        Arena.Actors(Enemies((uint)OID.FuathTrickster), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.FuathTrickster => 1,
+                (uint)OID.FuathTrickster => 1,
                 _ => 0
             };
         }

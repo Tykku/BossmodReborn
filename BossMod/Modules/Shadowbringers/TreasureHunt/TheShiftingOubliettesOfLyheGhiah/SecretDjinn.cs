@@ -27,18 +27,16 @@ public enum AID : uint
     Scoop = 21768 // KeeperOfKeys->self, 4.0s cast, range 15 120-degree cone
 }
 
-class Gust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Gust), 6);
-class ChangelessWinds(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ChangelessWinds), new AOEShapeRect(40, 4));
-class ChangelessWindsKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ChangelessWinds), 10, shape: new AOEShapeRect(40, 4), kind: Kind.DirForward, stopAtWall: true);
-class Whipwind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Whipwind), new AOEShapeRect(55, 20));
-class WhipwindKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Whipwind), 25, shape: new AOEShapeRect(55, 20, 0.5f), kind: Kind.DirForward, stopAtWall: true);
-class GentleBreeze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GentleBreeze), new AOEShapeRect(15, 2));
+class Gust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Gust), 6f);
+class ChangelessWinds(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ChangelessWinds), new AOEShapeRect(40f, 4f));
+class Whipwind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Whipwind), new AOEShapeRect(55f, 20f));
+class GentleBreeze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GentleBreeze), new AOEShapeRect(15f, 2f));
 class WhirlingGaol(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WhirlingGaol), "Raidwide + Knockback");
-class WhirlingGaolKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.WhirlingGaol), 25, stopAtWall: true);
+class WhirlingGaolKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.WhirlingGaol), 25f, stopAtWall: true);
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
-class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
-class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11f);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13f, 2f));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15f, 60f.Degrees()));
 
 class SecretDjinnStates : StateMachineBuilder
 {
@@ -47,9 +45,7 @@ class SecretDjinnStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<Gust>()
             .ActivateOnEnter<ChangelessWinds>()
-            .ActivateOnEnter<ChangelessWindsKB>()
             .ActivateOnEnter<Whipwind>()
-            .ActivateOnEnter<WhipwindKB>()
             .ActivateOnEnter<GentleBreeze>()
             .ActivateOnEnter<WhirlingGaol>()
             .ActivateOnEnter<WhirlingGaolKB>()
@@ -59,9 +55,12 @@ class SecretDjinnStates : StateMachineBuilder
             .Raw.Update = () =>
             {
                 var enemies = module.Enemies(SecretDjinn.All);
-                for (var i = 0; i < enemies.Count; ++i)
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
                     if (!enemies[i].IsDeadOrDestroyed)
                         return false;
+                }
                 return true;
             };
     }
@@ -76,20 +75,21 @@ public class SecretDjinn(WorldState ws, Actor primary) : THTemplate(ws, primary)
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.SecretRabbitsTail));
+        Arena.Actors(Enemies((uint)OID.SecretRabbitsTail));
         Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.FuathTrickster => 3,
-                OID.KeeperOfKeys => 2,
-                OID.SecretRabbitsTail => 1,
+                (uint)OID.FuathTrickster => 3,
+                (uint)OID.KeeperOfKeys => 2,
+                (uint)OID.SecretRabbitsTail => 1,
                 _ => 0
             };
         }

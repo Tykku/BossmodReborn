@@ -37,7 +37,7 @@ class Airstone(BossModule module) : BossComponent(module)
     }
 }
 
-class WindBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindBlast), new AOEShapeRect(61.5f, 4));
+class WindBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindBlast), new AOEShapeRect(61.5f, 4f));
 
 class HotBlast(BossModule module) : Components.GenericAOEs(module)
 {
@@ -49,13 +49,13 @@ class HotBlast(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.HotBlast)
-            _aoe = new(circle, Module.PrimaryActor.Position, default, Module.CastFinishAt(spell), Colors.SafeFromAOE);
+        if (spell.Action.ID == (uint)AID.HotBlast)
+            _aoe = new(circle, WPos.ClampToGrid(Module.PrimaryActor.Position), default, Module.CastFinishAt(spell), Colors.SafeFromAOE);
     }
 
     public override void Update()
     {
-        if (_aoe != null && (WorldState.CurrentTime - _aoe.Value.Activation).TotalSeconds >= 1)
+        if (_aoe != null && (WorldState.CurrentTime - _aoe.Value.Activation).TotalSeconds >= 1d)
             _aoe = null;
     }
 
@@ -63,17 +63,7 @@ class HotBlast(BossModule module) : Components.GenericAOEs(module)
     {
         if (_aoe == null)
             return;
-
-        var shouldAddHint = false;
-        foreach (var c in ActiveAOEs(slot, actor))
-        {
-            if (!c.Check(actor.Position))
-            {
-                shouldAddHint = true;
-                break;
-            }
-        }
-        if (shouldAddHint)
+        if (!_aoe.Value.Check(actor.Position))
             hints.Add(Hint);
         else
             hints.Add(Hint, false);
@@ -105,23 +95,33 @@ public class D151NuzalHueloc(WorldState ws, Actor primary) : BossModule(ws, prim
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(opponents).Where(x => x.FindStatus(SID.Invincibility) == null));
+        var allEnemies = Enemies(opponents);
+        var count = allEnemies.Count;
+        List<Actor> filteredEnemies = new(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = allEnemies[i];
+            if (enemy.FindStatus((uint)SID.Invincibility) == null)
+                filteredEnemies.Add(enemy);
+        }
+        Arena.Actors(filteredEnemies);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            if (e.Actor.FindStatus(SID.Invincibility) != null)
+            if (e.Actor.FindStatus((uint)SID.Invincibility) != null)
             {
                 e.Priority = AIHints.Enemy.PriorityInvincible;
                 continue;
             }
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.Airstone => 2,
-                OID.FloatingTurret => 1,
+                (uint)OID.Airstone => 2,
+                (uint)OID.FloatingTurret => 1,
                 _ => 0
             };
         }

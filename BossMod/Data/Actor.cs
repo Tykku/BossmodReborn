@@ -61,7 +61,7 @@ public sealed record class ActorCastEvent(ActionID Action, ulong MainTargetID, f
     public bool IsSpell<AID>(AID aid) where AID : Enum => Action == ActionID.MakeSpell(aid);
 }
 
-public record struct ActorHPMP(uint CurHP, uint MaxHP, uint Shield, uint CurMP);
+public record struct ActorHPMP(uint CurHP, uint MaxHP, uint Shield, uint CurMP, uint MaxMP);
 
 // note on tethers - it is N:1 type of relation, actor can be tethered to 0 or 1 actors, but can itself have multiple actors tethering themselves to itself
 // target is an instance id
@@ -71,13 +71,15 @@ public record struct ActorStatus(uint ID, ushort Extra, DateTime ExpireAt, ulong
 
 public record struct ActorModelState(byte ModelState, byte AnimState1, byte AnimState2);
 
+public record struct ActorForayInfo(byte Level, byte Element);
+
 public readonly record struct ActorIncomingEffect(uint GlobalSequence, int TargetIndex, ulong SourceInstanceId, ActionID Action, ActionEffects Effects);
 public record struct PendingEffect(uint GlobalSequence, int TargetIndex, ulong SourceInstanceId, DateTime Expiration);
 public record struct PendingEffectDelta(PendingEffect Effect, int Value);
 public record struct PendingEffectStatus(PendingEffect Effect, uint StatusId);
 public record struct PendingEffectStatusExtra(PendingEffect Effect, uint StatusId, byte ExtraLo);
 
-public sealed class Actor(ulong instanceID, uint oid, int spawnIndex, string name, uint nameID, ActorType type, Class classID, int level, Vector4 posRot, float hitboxRadius = 1, ActorHPMP hpmp = default, bool targetable = true, bool ally = false, ulong ownerID = 0, uint fateID = 0)
+public sealed class Actor(ulong instanceID, uint oid, int spawnIndex, string name, uint nameID, ActorType type, Class classID, int level, Vector4 posRot, float hitboxRadius = 1f, ActorHPMP hpmp = default, bool targetable = true, bool ally = false, ulong ownerID = 0, uint fateID = 0)
 {
     public ulong InstanceID = instanceID; // 'uuid'
     public uint OID = oid;
@@ -99,6 +101,7 @@ public sealed class Actor(ulong instanceID, uint oid, int spawnIndex, string nam
     public bool InCombat;
     public bool AggroPlayer; // determines whether a given actor shows in the player's UI enemy list
     public ActorModelState ModelState;
+    public ActorForayInfo ForayInfo;
     public byte EventState; // not sure about the field meaning...
     public ulong OwnerID = ownerID; // uuid of owner, for pets and similar
     public ulong TargetID;
@@ -113,7 +116,7 @@ public sealed class Actor(ulong instanceID, uint oid, int spawnIndex, string nam
     public List<PendingEffectDelta> PendingMPDifferences = [];
     public List<PendingEffectStatusExtra> PendingStatuses = [];
     public List<PendingEffectStatus> PendingDispels = [];
-    public int PendingKnockbacks;
+    public List<PendingEffect> PendingKnockbacks = [];
 
     public Role Role => Class.GetRole();
     public ClassCategory ClassCategory => Class.GetClassCategory();
@@ -121,13 +124,14 @@ public sealed class Actor(ulong instanceID, uint oid, int spawnIndex, string nam
     public WPos PrevPosition => new(PrevPosRot.X, PrevPosRot.Z);
     public WDir LastFrameMovement => Position - PrevPosition;
     public Angle Rotation => PosRot.W.Radians();
-    public bool Omnidirectional => Utils.CharacterIsOmnidirectional(OID);
+    public bool Omnidirectional => Utils.CharacterIsOmnidirectional(OID) || FindStatus(3808) != null;
     public bool IsDeadOrDestroyed => IsDead || IsDestroyed;
 
     private static readonly HashSet<uint> ignoreNPC = [0xE19, 0xE18, 0xE1A, 0x2C11, 0x2C0F, 0x2C10, 0x2C0E, 0x2C12, 0x2EFE, 0x418F, 0x464E, 0x4697, 0x35BC, 0x3657, 0x3658]; // friendly NPCs that should not count as party members
     public bool IsFriendlyNPC => Type == ActorType.Enemy && IsAlly && IsTargetable && !ignoreNPC.Contains(OID);
     public bool IsStrikingDummy => NameID == 541; // this is a hack, but striking dummies are special in some ways
     public int CharacterSpawnIndex => SpawnIndex < 200 && (SpawnIndex & 1) == 0 ? (SpawnIndex >> 1) : -1; // [0,100) for 'real' characters, -1 otherwisepublic int PendingHPDiffence
+    public float HPRatio => (float)HPMP.CurHP / HPMP.MaxHP;
     public int PendingHPDiffence
     {
         get
@@ -194,6 +198,7 @@ public sealed class Actor(ulong instanceID, uint oid, int spawnIndex, string nam
     public Angle AngleTo(Actor other) => Angle.FromDirection(other.Position - Position);
 
     public float DistanceToHitbox(Actor? other) => other == null ? float.MaxValue : (other.Position - Position).Length() - other.HitboxRadius - HitboxRadius;
+    public float DistanceToPoint(WPos pos) => (pos - Position).Length();
 
     public override string ToString() => $"{OID:X} '{Name}' <{InstanceID:X}>";
 }

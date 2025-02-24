@@ -23,10 +23,10 @@ public enum AID : uint
     DarkBlizzardIII = 6236, // Boss->location, 3.0s cast, range 5 circle
 }
 
-class RiseAndFall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RiseAndFall), new AOEShapeCone(9, 135.Degrees()));
-class TightTornado(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TightTornado), new AOEShapeRect(18, 2));
-class Venom(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Venom), new AOEShapeCone(10.9f, 60.Degrees()), [(uint)OID.SanctuarySkipper]);
-class DarkBlizzardIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkBlizzardIII), 5);
+class RiseAndFall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RiseAndFall), new AOEShapeCone(9f, 135f.Degrees()));
+class TightTornado(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TightTornado), new AOEShapeRect(18f, 2f));
+class Venom(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Venom), new AOEShapeCone(10.9f, 60f.Degrees()), [(uint)OID.SanctuarySkipper]);
+class DarkBlizzardIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkBlizzardIII), 5f);
 
 class D130CloudGardenerStates : StateMachineBuilder
 {
@@ -37,14 +37,27 @@ class D130CloudGardenerStates : StateMachineBuilder
             .ActivateOnEnter<TightTornado>()
             .ActivateOnEnter<DarkBlizzardIII>()
             .ActivateOnEnter<Venom>()
-            .Raw.Update = () => module.Enemies(D130CloudGardener.Trash).Where(x => x.Position.AlmostEqual(module.Arena.Center, module.Bounds.Radius)).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D130CloudGardener.Trash);
+                var center = module.Arena.Center;
+                var radius = module.Bounds.Radius;
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed && enemy.Position.AlmostEqual(center, radius))
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 171, NameID = 4928, SortOrder = 1)]
 public class D130CloudGardener(WorldState ws, Actor primary) : BossModule(ws, primary, IsArena1(primary) ? arena1.Center : arena2.Center, IsArena1(primary) ? arena1 : arena2)
 {
-    private static bool IsArena1(Actor primary) => primary.Position.Z > 80;
+    private static bool IsArena1(Actor primary) => primary.Position.Z > 80f;
     private static readonly WPos[] vertices1 = [new(-397.21f, 80.53f), new(-396.7f, 80.92f), new(-395.75f, 81.87f), new(-395.65f, 83.98f), new(-395.55f, 84.54f),
     new(-393.56f, 84.66f), new(-392.7f, 84.66f), new(-392.24f, 84.41f), new(-392.2f, 82.13f), new(-384.32f, 81.86f),
     new(-383.38f, 82.76f), new(-383.32f, 83.44f), new(-383.42f, 84.07f), new(-383.54f, 84.69f), new(-383.68f, 85.35f),
@@ -160,15 +173,27 @@ public class D130CloudGardener(WorldState ws, Actor primary) : BossModule(ws, pr
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(Trash).Where(x => x.Position.AlmostEqual(Arena.Center, Bounds.Radius)));
+        var filteredEnemies = new List<Actor>();
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        var center = Arena.Center;
+        var radius = Bounds.Radius;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.Position.AlmostEqual(center, radius))
+                filteredEnemies.Add(enemy);
+        }
+        Arena.Actors(filteredEnemies);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            if ((OID)e.Actor.OID == OID.Boss)
+            if (e.Actor.OID == (uint)OID.Boss)
             {
                 e.Priority = 0;
             }

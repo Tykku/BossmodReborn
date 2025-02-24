@@ -27,7 +27,7 @@ class A14ShadowLordStates : StateMachineBuilder
             [true] = (1, SinglePhaseInitial),
             [false] = (2, SinglePhaseAfterWipe),
         };
-        ConditionFork(id, 10.2f, () => Module.PrimaryActor.CastInfo != null || Module.FindComponent<Teleport>()?.NumCasts > 0, () => (AID)(Module.PrimaryActor.CastInfo?.Action.ID ?? 0) is AID.GigaSlashL or AID.GigaSlashR, dispatch, "First mechanic...")
+        ConditionFork(id, 10.2f, () => Module.PrimaryActor.CastInfo != null || Module.FindComponent<Teleport>()?.NumCasts > 0, () => (Module.PrimaryActor.CastInfo?.Action.ID ?? 0) is (uint)AID.GigaSlashL or (uint)AID.GigaSlashR, dispatch, "First mechanic...")
             .ActivateOnEnter<Teleport>()
             .DeactivateOnExit<Teleport>();
     }

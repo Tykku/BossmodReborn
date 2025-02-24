@@ -2,18 +2,18 @@ namespace BossMod.Dawntrail.Alliance.A14ShadowLord;
 
 class DarkNebula(BossModule module) : Components.Knockback(module)
 {
-    private const int Length = 4;
+    private const float Length = 4f;
     private const float HalfWidth = 1.75f;
 
     public readonly List<Actor> Casters = new(4);
 
-    private static readonly Angle a90 = 90.Degrees();
+    private static readonly Angle a90 = 90f.Degrees();
     private static readonly List<(Predicate<WPos> Matcher, int[] CircleIndices, WDir Directions)> PositionMatchers =
         [
-        (pos => pos == new WPos(142, 792), [3, 1], 45.Degrees().ToDirection()),  // 135°
-        (pos => pos == new WPos(158, 792), [0, 3], -135.Degrees().ToDirection()),  // 45°
-        (pos => pos == new WPos(158, 808), [2, 0], -45.Degrees().ToDirection()),  // -45°
-        (pos => pos.AlmostEqual(new WPos(142, 808), 1), [1, 2], 135.Degrees().ToDirection())  // -135°
+        (pos => pos == new WPos(142f, 792f), [3, 1], 45f.Degrees().ToDirection()),  // 135°
+        (pos => pos == new WPos(158f, 792f), [0, 3], -135f.Degrees().ToDirection()),  // 45°
+        (pos => pos == new WPos(158f, 808f), [2, 0], -45f.Degrees().ToDirection()),  // -45°
+        (pos => pos.AlmostEqual(new WPos(142f, 808f), 1), [1, 2], 135f.Degrees().ToDirection())  // -135°
     ];
 
     public override IEnumerable<Source> Sources(int slot, Actor actor)
@@ -28,20 +28,20 @@ class DarkNebula(BossModule module) : Components.Knockback(module)
             var caster = Casters[i];
             var dir = caster.CastInfo?.Rotation ?? caster.Rotation;
             var kind = dir.ToDirection().OrthoL().Dot(actor.Position - caster.Position) >= 0 ? Kind.DirLeft : Kind.DirRight;
-            sources[i] = new(caster.Position, 20, Module.CastFinishAt(caster.CastInfo), null, dir, kind);
+            sources[i] = new(caster.Position, 20f, Module.CastFinishAt(caster.CastInfo), null, dir, kind);
         }
         return sources;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.DarkNebulaShort or AID.DarkNebulaLong)
+        if (spell.Action.ID is (uint)AID.DarkNebulaShort or (uint)AID.DarkNebulaLong)
             Casters.Add(caster);
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.DarkNebulaShort or AID.DarkNebulaLong)
+        if (spell.Action.ID is (uint)AID.DarkNebulaShort or (uint)AID.DarkNebulaLong)
         {
             ++NumCasts;
             Casters.Remove(caster);
@@ -56,7 +56,7 @@ class DarkNebula(BossModule module) : Components.Knockback(module)
         var forbidden = new List<Func<WPos, float>>(2);
         var caster0 = Casters[0];
         static Func<WPos, float> CreateForbiddenZone(int circleIndex, WDir dir)
-         => ShapeDistance.InvertedRect(A14ShadowLord.Circles[circleIndex].Center, dir, Length, 0, HalfWidth);
+         => ShapeDistance.InvertedRect(A14ShadowLord.Circles[circleIndex].Center, dir, Length, 0f, HalfWidth);
 
         var mapping = PositionMatchers.FirstOrDefault(m => m.Matcher(caster0.Position));
 

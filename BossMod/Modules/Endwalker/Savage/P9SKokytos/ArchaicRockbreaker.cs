@@ -7,13 +7,13 @@ class ArchaicRockbreakerShockwave(BossModule module) : Components.Knockback(modu
     private readonly DateTime _activation = module.WorldState.FutureTime(6.5f);
     private static readonly List<SafeWall> Walls0 = [new(new(93, 117.5f), new(108, 117.5f)), new(new(82.5f, 93), new(82.5f, 108)),
     new(new(117.5f, 93), new(117.5f, 108)), new(new(93, 82.5f), new(108, 82.5f))];
-    private static readonly List<SafeWall> Walls45 = Walls0.Select(wall => RotatedSafeWall(wall.Vertex1, wall.Vertex2)).ToList();
+    private static readonly List<SafeWall> Walls45 = [.. Walls0.Select(wall => RotatedSafeWall(wall.Vertex1, wall.Vertex2))];
 
     public override IEnumerable<Source> Sources(int slot, Actor actor)
     {
         if (Arena.Bounds == P9SKokytos.arenaUplift0)
             yield return new(Arena.Center, 21, _activation, SafeWalls: Walls0);
-        if (Arena.Bounds == P9SKokytos.arenaUplift45)
+        else if (Arena.Bounds == P9SKokytos.arenaUplift45)
             yield return new(Arena.Center, 21, _activation, SafeWalls: Walls45);
     }
 

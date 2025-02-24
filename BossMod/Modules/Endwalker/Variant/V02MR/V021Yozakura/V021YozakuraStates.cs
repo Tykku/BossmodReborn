@@ -14,9 +14,9 @@ class V021YozakuraStates : StateMachineBuilder
             //Left Windy
             .ActivateOnEnter<WindblossomWhirl>()
             .ActivateOnEnter<LevinblossomStrike>()
+            .ActivateOnEnter<Mudrain>()
             .ActivateOnEnter<DriftingPetals>()
             //Left Rainy
-            .ActivateOnEnter<Mudrain>()
             .ActivateOnEnter<Icebloom>()
             .ActivateOnEnter<Shadowflight>()
             .ActivateOnEnter<MudPie>()

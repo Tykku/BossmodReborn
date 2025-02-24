@@ -42,36 +42,45 @@ public enum AID : uint
     TearyTwirl = 6448, // SecretOnion->self, 3.5s cast, range 6+R circle
     HeirloomScream = 6451, // SecretTomato->self, 3.5s cast, range 6+R circle
     PluckAndPrune = 6449, // SecretEgg->self, 3.5s cast, range 6+R circle
-    PungentPirouette = 6450, // SecretGarlic->self, 3.5s cast, range 6+R circle
+    PungentPirouette = 6450 // SecretGarlic->self, 3.5s cast, range 6+R circle
 }
 
-class BrewingStorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BrewingStorm), new AOEShapeCone(5, 30.Degrees()));
-class HarrowingDream(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HarrowingDream), 6);
-class BecloudingDust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BecloudingDust), 6);
+class BrewingStorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BrewingStorm), new AOEShapeCone(5f, 30f.Degrees()));
+class HarrowingDream(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HarrowingDream), 6f);
+class BecloudingDust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BecloudingDust), 6f);
 
-class Sweep(BossModule module) : Components.Exaflare(module, 6)
+class Sweep(BossModule module) : Components.Exaflare(module, 6f)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.SweepStart)
-            Lines.Add(new() { Next = caster.Position, Advance = 12 * spell.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell, 0.9f), TimeToMove = 4.5f, ExplosionsLeft = 4, MaxShownExplosions = 3 });
+        if (spell.Action.ID == (uint)AID.SweepStart)
+            Lines.Add(new() { Next = caster.Position, Advance = 12f * spell.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell, 0.9f), TimeToMove = 4.5f, ExplosionsLeft = 4, MaxShownExplosions = 3 });
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (Lines.Count > 0 && (AID)spell.Action.ID == AID.SweepRest)
+        if (spell.Action.ID == (uint)AID.SweepRest)
         {
-            var index = Lines.FindIndex(item => item.Next.AlmostEqual(caster.Position, 1));
-            AdvanceLine(Lines[index], caster.Position);
-            if (Lines[index].ExplosionsLeft == 0)
-                Lines.RemoveAt(index);
+            var count = Lines.Count;
+            var pos = caster.Position;
+            for (var i = 0; i < count; ++i)
+            {
+                var line = Lines[i];
+                if (line.Next.AlmostEqual(pos, 1f))
+                {
+                    AdvanceLine(line, pos);
+                    if (line.ExplosionsLeft == 0)
+                        Lines.RemoveAt(i);
+                    return;
+                }
+            }
         }
     }
 }
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
-class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13, 2));
-class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11f);
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13f, 2f));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15f, 60f.Degrees()));
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
@@ -97,7 +106,17 @@ class SecretPorxieStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(SecretPorxie.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(SecretPorxie.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -116,16 +135,17 @@ public class SecretPorxie(WorldState ws, Actor primary) : THTemplate(ws, primary
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.SecretOnion => 5,
-                OID.SecretEgg => 4,
-                OID.SecretGarlic => 3,
-                OID.SecretTomato => 2,
-                OID.SecretQueen or OID.KeeperOfKeys => 1,
+                (uint)OID.SecretOnion => 5,
+                (uint)OID.SecretEgg => 4,
+                (uint)OID.SecretGarlic => 3,
+                (uint)OID.SecretTomato => 2,
+                (uint)OID.SecretQueen or (uint)OID.KeeperOfKeys => 1,
                 _ => 0
             };
         }

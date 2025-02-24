@@ -23,17 +23,17 @@ public enum AID : uint
     Spin = 8599, // AltarMatanga->self, no cast, range 6+R 120-degree cone
     RaucousScritch = 8598, // AltarMatanga->self, 2.5s cast, range 5+R 120-degree cone
     Hurl = 5352, // AltarMatanga->location, 3.0s cast, range 6 circle
-    Telega = 963, // AltarMatanga->self, no cast, single-target, bonus adds disappear
+    Telega = 963 // AltarMatanga->self, no cast, single-target, bonus adds disappear
 }
 
 class Chirp(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Chirp), 12.48f);
-class Tornado(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Tornado), 6);
+class Tornado(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Tornado), 6f);
 class VoidCall(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.VoidCall), "Calls adds");
 class RecklessAbandon(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.RecklessAbandon));
 
-class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
-class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), [(uint)OID.AltarMatanga]);
-class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 60.Degrees()));
+class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6f);
+class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60f.Degrees()), [(uint)OID.AltarMatanga]);
+class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 60f.Degrees()));
 
 class AltarSkateneStates : StateMachineBuilder
 {
@@ -47,7 +47,17 @@ class AltarSkateneStates : StateMachineBuilder
             .ActivateOnEnter<Hurl>()
             .ActivateOnEnter<RaucousScritch>()
             .ActivateOnEnter<Spin>()
-            .Raw.Update = () => module.Enemies(AltarSkatene.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(AltarSkatene.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -59,19 +69,20 @@ public class AltarSkatene(WorldState ws, Actor primary) : THTemplate(ws, primary
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.AltarDeepeye));
-        Arena.Actors(Enemies(OID.AltarMatanga), Colors.Vulnerable);
+        Arena.Actors(Enemies((uint)OID.AltarDeepeye));
+        Arena.Actors(Enemies((uint)OID.AltarMatanga), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.AltarMatanga => 2,
-                OID.AltarDeepeye => 1,
+                (uint)OID.AltarMatanga => 2,
+                (uint)OID.AltarDeepeye => 1,
                 _ => 0
             };
         }

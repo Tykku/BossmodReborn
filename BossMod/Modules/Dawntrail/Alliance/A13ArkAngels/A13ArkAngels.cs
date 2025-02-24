@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Alliance.A13ArkAngels;
 
-class Cloudsplitter(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.CloudsplitterAOE), new AOEShapeCircle(6), true)
+class Cloudsplitter(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.CloudsplitterAOE), new AOEShapeCircle(6f), true)
 {
     public override void AddGlobalHints(GlobalHints hints)
     {
@@ -13,8 +13,8 @@ class CriticalReaverRaidwide(BossModule module) : Components.CastCounter(module,
 class CriticalReaverEnrage(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.CriticalReaverEnrage));
 class Meteor(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Meteor));
 class TachiGekko(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.TachiGekko));
-class TachiKasha(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TachiKasha), 20);
-class TachiYukikaze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TachiYukikaze), new AOEShapeRect(50, 2.5f));
+class TachiKasha(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TachiKasha), 20f);
+class TachiYukikaze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TachiYukikaze), new AOEShapeRect(50f, 2.5f));
 class Raiton(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Raiton));
 class Utsusemi(BossModule module) : Components.StretchTetherSingle(module, (uint)TetherID.Utsusemi, 10, needToKite: true);
 
@@ -38,10 +38,10 @@ public class A13ArkAngels(WorldState ws, Actor primary) : BossModule(ws, primary
     {
         // TODO: this is an ugly hack, think how multi-actor fights can be implemented without it...
         // the problem is that on wipe, any actor can be deleted and recreated in the same frame
-        _bossHM ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies(OID.BossHM).FirstOrDefault() : null;
-        _bossEV ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies(OID.BossEV).FirstOrDefault() : null;
-        _bossMR ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies(OID.BossMR).FirstOrDefault() : null;
-        _bossTT ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies(OID.BossTT).FirstOrDefault() : null;
+        _bossHM ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies((uint)OID.BossHM)[0] : null;
+        _bossEV ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies((uint)OID.BossEV)[0] : null;
+        _bossMR ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies((uint)OID.BossMR)[0] : null;
+        _bossTT ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies((uint)OID.BossTT)[0] : null;
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
@@ -53,8 +53,8 @@ public class A13ArkAngels(WorldState ws, Actor primary) : BossModule(ws, primary
             if (slot != null)
                 Arena.Actor(slot);
         }
-        else if (Enemies(OID.ArkShield).Any(x => !x.IsDead))
-            Arena.Actor(Enemies(OID.ArkShield)[0]);
+        else if (Enemies((uint)OID.ArkShield) is var shield && shield.Count != 0 && !shield[0].IsDead)
+            Arena.Actor(shield[0]);
         else
             Arena.Actors(Enemies(Bosses));
     }
@@ -64,7 +64,7 @@ public class A13ArkAngels(WorldState ws, Actor primary) : BossModule(ws, primary
         for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            if (e.Actor.FindStatus(SID.Invincibility) != null)
+            if (e.Actor.FindStatus((uint)SID.Invincibility) != null)
             {
                 e.Priority = AIHints.Enemy.PriorityInvincible;
                 break;

@@ -100,13 +100,15 @@ class Breakthrough(BossModule module) : Components.GenericAOEs(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (_aoes.Count == 0)
+        var count = _aoes.Count;
+        if (count == 0)
             return;
 
         var shouldAddHint = true;
-        foreach (var c in ActiveAOEs(slot, actor))
+        for (var i = 0; i < count; ++i)
         {
-            if (c.Check(actor.Position))
+            var aoe = _aoes[i];
+            if (aoe.Check(actor.Position))
             {
                 shouldAddHint = false;
                 break;
@@ -193,7 +195,7 @@ class BombTether(BossModule module) : Components.InterceptTetherAOE(module, Acti
             {
                 var source = tether.Enemy;
                 var target = Module.Enemies(OID.Alphinaud)[0];
-                hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.6f), Activation);
+                hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.5f), Activation);
             }
         }
     }

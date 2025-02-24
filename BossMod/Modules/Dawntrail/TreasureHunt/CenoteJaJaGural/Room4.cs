@@ -48,25 +48,25 @@ public enum AID : uint
     Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
-abstract class CircleLoc6(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
+abstract class CircleLoc6(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
 class Lumisphere(BossModule module) : CircleLoc6(module, AID.Lumisphere);
 class Tornado(BossModule module) : CircleLoc6(module, AID.Tornado);
 class RootsOfAtopy(BossModule module) : CircleLoc6(module, AID.RootsOfAtopy);
 class RottenSpores(BossModule module) : CircleLoc6(module, AID.RottenSpores);
 
-class AetherialBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherialBlast), new AOEShapeRect(20, 2));
-class SerratedSpin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SerratedSpin), 8);
-class SyrupSpout(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SyrupSpout), new AOEShapeCone(10, 60.Degrees()));
-class SpinningAttack(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinningAttack), new AOEShapeRect(10, 2));
-class OdiousAir(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OdiousAir), new AOEShapeCone(12, 60.Degrees()));
+class AetherialBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherialBlast), new AOEShapeRect(20f, 2f));
+class SerratedSpin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SerratedSpin), 8f);
+class SyrupSpout(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SyrupSpout), new AOEShapeCone(10f, 60f.Degrees()));
+class SpinningAttack(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinningAttack), new AOEShapeRect(10f, 2f));
+class OdiousAir(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OdiousAir), new AOEShapeCone(12f, 60f.Degrees()));
 
-abstract class Wingblade(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(8, 90.Degrees()));
+abstract class Wingblade(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(8f, 90f.Degrees()));
 class LeftWingblade(BossModule module) : Wingblade(module, AID.LeftWingblade);
 class RightWingblade(BossModule module) : Wingblade(module, AID.RightWingblade);
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
+class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11f);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7);
+abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
 class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
 class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
@@ -95,19 +95,29 @@ class Room4States : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(Room4.All).All(x => x.IsDeadOrDestroyed) || module.PrimaryActor.EventState == 7;
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(Room4.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return module.PrimaryActor.EventState == 7;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 993, NameID = 5057)]
 public class Room4(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaBounds.Center, ArenaBounds)
 {
-    private static readonly WPos arenaCenter = new(-197, -145);
+    private static readonly WPos arenaCenter = new(-197f, -145f);
     private static readonly Angle a135 = 135.Degrees();
     private static readonly WDir dir135 = a135.ToDirection(), dirM135 = (-a135).ToDirection();
-    public static readonly ArenaBoundsComplex ArenaBounds = new([new Polygon(arenaCenter, 19.5f * CosPI.Pi36th, 36), new Rectangle(arenaCenter + 8.65f * dir135, 20, 6.15f, a135),
-    new Rectangle(arenaCenter + 8.65f * dirM135, 20, 6.15f, -a135), new Rectangle(arenaCenter + 12 * dir135, 20, 4.3f, a135), new Rectangle(arenaCenter + 12 * dirM135, 20, 4.3f, -a135),
-    new Rectangle(arenaCenter + 14.3f * dir135, 20, 3.5f, a135), new Rectangle(arenaCenter + 14.3f * dirM135, 20, 3.5f, -a135)], [new Rectangle(new(-197, -125), 20, 1.7f)]);
+    public static readonly ArenaBoundsComplex ArenaBounds = new([new Polygon(arenaCenter, 19.5f * CosPI.Pi36th, 36), new Rectangle(arenaCenter + 8.65f * dir135, 20f, 6.15f, a135),
+    new Rectangle(arenaCenter + 8.65f * dirM135, 20f, 6.15f, -a135), new Rectangle(arenaCenter + 12f * dir135, 20f, 4.3f, a135), new Rectangle(arenaCenter + 12f * dirM135, 20f, 4.3f, -a135),
+    new Rectangle(arenaCenter + 14.3f * dir135, 20f, 3.5f, a135), new Rectangle(arenaCenter + 14.3f * dirM135, 20f, 3.5f, -a135)], [new Rectangle(new(-197f, -125f), 20f, 1.7f)]);
     private static readonly uint[] bonusAdds = [(uint)OID.TuligoraQueen, (uint)OID.TuraliTomato, (uint)OID.TuraliOnion, (uint)OID.TuraliEggplant,
     (uint)OID.TuraliGarlic, (uint)OID.UolonOfFortune, (uint)OID.AlpacaOfFortune];
     private static readonly uint[] trash = [(uint)OID.CenoteQeziigural, (uint)OID.CenoteTohsoq, (uint)OID.CenoteMegamaguey, (uint)OID.CenoteTyaitya, (uint)OID.CenoteTulichu,
@@ -125,17 +135,18 @@ public class Room4(WorldState ws, Actor primary) : BossModule(ws, primary, Arena
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.TuraliOnion => 6,
-                OID.TuraliEggplant => 5,
-                OID.TuraliGarlic => 4,
-                OID.TuraliTomato => 3,
-                OID.TuligoraQueen or OID.AlpacaOfFortune => 2,
-                OID.UolonOfFortune => 1,
+                (uint)OID.TuraliOnion => 6,
+                (uint)OID.TuraliEggplant => 5,
+                (uint)OID.TuraliGarlic => 4,
+                (uint)OID.TuraliTomato => 3,
+                (uint)OID.TuligoraQueen or (uint)OID.AlpacaOfFortune => 2,
+                (uint)OID.UolonOfFortune => 1,
                 _ => 0
             };
         }

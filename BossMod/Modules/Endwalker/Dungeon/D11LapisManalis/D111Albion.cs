@@ -37,17 +37,17 @@ public enum AID : uint
 
 class WildlifeCrossing(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeRect rect = new(20, 5, 20);
+    private static readonly AOEShapeRect rect = new(20f, 5f, 20f);
 
     private Queue<Stampede> stampedes = new();
     private static readonly uint[] animals = [(uint)OID.WildBeasts1, (uint)OID.WildBeasts2, (uint)OID.WildBeasts3, (uint)OID.WildBeasts4];
 
     private static readonly WPos[] stampedePositions =
     [
-        new(4, -759), new(44, -759),
-        new(4, -749), new(44, -749),
-        new(4, -739), new(44, -739),
-        new(4, -729), new(44, -729)
+        new(4f, -759f), new(44f, -759f),
+        new(4f, -749f), new(44f, -749f),
+        new(4f, -739f), new(44f, -739f),
+        new(4f, -729f), new(44f, -729f)
     ];
 
     private static Stampede NewStampede(WPos stampede) => new(true, stampede, stampede.X == 4 ? Angle.AnglesCardinals[3] : Angle.AnglesCardinals[0], new(40));
@@ -61,7 +61,7 @@ class WildlifeCrossing(BossModule module) : Components.GenericAOEs(module)
 
     private static AOEInstance CreateAOEInstance(Stampede stampede)
     {
-        return new(new AOEShapeRect(CalculateStampedeLength(stampede.Beasts) + 30, 5), new(stampede.Beasts[^1].Position.X, stampede.Position.Z), stampede.Rotation);
+        return new(new AOEShapeRect(CalculateStampedeLength(stampede.Beasts) + 30f, 5f), new(stampede.Beasts[^1].Position.X, stampede.Position.Z), stampede.Rotation);
     }
 
     private static float CalculateStampedeLength(List<Actor> beasts) => (beasts[0].Position - beasts[^1].Position).Length();
@@ -141,7 +141,7 @@ class WildlifeCrossing(BossModule module) : Components.GenericAOEs(module)
         for (var i = 0; i < beasts.Count; ++i)
         {
             var b = beasts[i];
-            if (b.Position.InRect(stampede.Position, stampede.Rotation, 0, 10, 5) && stampede.Active)
+            if (b.Position.InRect(stampede.Position, stampede.Rotation, default, 10f, 5f) && stampede.Active)
                 updatedBeasts.Add(b);
         }
         stampede.Beasts = [.. updatedBeasts];
@@ -155,7 +155,7 @@ class WildlifeCrossing(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.WildlifeCrossing)
+        if (spell.Action.ID == (uint)AID.WildlifeCrossing)
         {
             var stampedeList = stampedes.ToList();
             for (var i = 0; i < stampedeList.Count; ++i)
@@ -170,11 +170,11 @@ class WildlifeCrossing(BossModule module) : Components.GenericAOEs(module)
 
     private void UpdateStampedeCount(ref Stampede stampede, float casterZ)
     {
-        if (Math.Abs(casterZ - stampede.Position.Z) < 1)
+        if (Math.Abs(casterZ - stampede.Position.Z) < 1f)
             ++stampede.Count;
 
         if (stampede.Count == 30)
-            stampede.Reset = WorldState.FutureTime(0.5f);
+            stampede.Reset = WorldState.FutureTime(0.5d);
     }
 }
 
@@ -185,25 +185,22 @@ public record struct Stampede(bool Active, WPos Position, Angle Rotation, List<A
     public List<Actor> Beasts = Beasts;
 }
 
-class Icebreaker : Components.SimpleAOEs
-{
-    public Icebreaker(BossModule module) : base(module, ActionID.MakeSpell(AID.Icebreaker), 17) { TargetIsLocation = true; }
-}
+class Icebreaker(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Icebreaker), 17);
 
-class IcyThroes(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6);
+class IcyThroes(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
 class IcyThroes1(BossModule module) : IcyThroes(module, AID.IcyThroes1);
 class IcyThroes2(BossModule module) : IcyThroes(module, AID.IcyThroes2);
 
-class IcyThroesSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.IcyThroesSpread), 6);
-class KnockOnIce(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.KnockOnIce), 5);
+class IcyThroesSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.IcyThroesSpread), 6f);
+class KnockOnIce(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.KnockOnIce), 5f);
 
-abstract class Slam(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(80, 10));
+abstract class Slam(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(80f, 10f));
 class RightSlam(BossModule module) : Slam(module, AID.RightSlam);
 class LeftSlam(BossModule module) : Slam(module, AID.LeftSlam);
 
 class AlbionsEmbrace(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.AlbionsEmbrace));
 
-class RoarOfAlbion(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.RoarOfAlbion), 60)
+class RoarOfAlbion(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.RoarOfAlbion), 60f)
 {
     public override IEnumerable<Actor> BlockerActors() => Module.Enemies(OID.IcyCrystal);
 }
@@ -227,4 +224,4 @@ class D111AlbionStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 896, NameID = 11992)]
-public class D111Albion(WorldState ws, Actor primary) : BossModule(ws, primary, new(24, -744), new ArenaBoundsSquare(19.5f));
+public class D111Albion(WorldState ws, Actor primary) : BossModule(ws, primary, new(24f, -744f), new ArenaBoundsSquare(19.5f));

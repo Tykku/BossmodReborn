@@ -2,7 +2,7 @@ namespace BossMod.Endwalker.Alliance.A32Llymlaen;
 
 class ToTheLast(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeRect rect = new(80, 5);
+    private static readonly AOEShapeRect rect = new(80f, 5f);
     private readonly List<AOEInstance> _aoes = new(3);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
@@ -25,13 +25,13 @@ class ToTheLast(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ToTheLastVisual)
-            _aoes.Add(new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell, 5 + 1.9f + _aoes.Count)));
+        if (spell.Action.ID == (uint)AID.ToTheLastVisual)
+            _aoes.Add(new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell, 5f + 1.9f * _aoes.Count)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ToTheLastAOE)
+        if (spell.Action.ID == (uint)AID.ToTheLastAOE)
         {
             ++NumCasts;
             if (_aoes.Count != 0)

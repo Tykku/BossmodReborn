@@ -15,15 +15,13 @@ public enum AID : uint
 
 class Lanterns(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly Circle lantern1 = new(new(723.5f, 57.5f), 1);
-    private static readonly Circle lantern2 = new(new(690.5f, 57.5f), 1);
-    private static readonly Circle lantern3 = new(new(681.2f, 51.6f), 1);
-    private readonly List<Circle> lanterns = [lantern1, lantern2, lantern3];
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        yield return new(new AOEShapeCustom([.. lanterns], InvertForbiddenZone: true), Arena.Center, Color: Colors.SafeFromAOE);
-    }
+    private readonly V026ShishuChochinConfig _config = Service.Config.Get<V026ShishuChochinConfig>();
 
+    private static readonly Circle lantern1 = new(new(723.5f, 57.5f), 1f), lantern2 = new(new(690.5f, 57.5f), 1f), lantern3 = new(new(681.2f, 51.6f), 1f);
+    private readonly List<Circle> lanterns = [lantern1, lantern2, lantern3];
+    private AOEInstance? _aoe;
+
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
     public override void OnEventEnvControl(byte index, uint state)
     {
         if (state == 0x00020001)
@@ -34,32 +32,59 @@ class Lanterns(BossModule module) : Components.GenericAOEs(module)
                 lanterns.Remove(lantern2);
             else if (index == 0x46)
                 lanterns.Remove(lantern3);
+            _aoe = new(new AOEShapeCustom([.. lanterns], InvertForbiddenZone: true), Arena.Center, default, WorldState.FutureTime(99d), Colors.SafeFromAOE);
         }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Illume)
+        if (spell.Action.ID == (uint)AID.Illume)
             ++NumCasts;
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!Service.Config.Get<V026ShishuChochinConfig>().P12LanternAI)
+        if (!_config.P12LanternAI)
             return;
         var count = (3 - NumCasts) == lanterns.Count;
         if (count)
             base.AddAIHints(slot, actor, assignment, hints);
         var lanternPriorityCount = 0;
-        foreach (var e in hints.PotentialTargets)
+
+        var countT = hints.PotentialTargets.Count;
+        for (var i = 0; i < countT; ++i)
+        {
+            var e = hints.PotentialTargets[i];
             if (e.Actor.OID == (uint)OID.Boss)
-                if (lanternPriorityCount == 0 && ActiveAOEs(slot, actor).Any(c => c.Check(actor.Position)) && count && Module.Enemies(OID.Boss).Closest(actor.Position) == e.Actor)
+            {
+                var inAOE = _aoe != null && _aoe.Value.Check(actor.Position);
+                if (lanternPriorityCount == 0 && inAOE && count)
                 {
-                    e.Priority = 1;
-                    lanternPriorityCount++;
+                    Actor? closestBoss = null;
+                    var closestDistance = float.MaxValue;
+                    var boss = Module.Enemies((uint)OID.Boss);
+                    var countBoss = boss.Count;
+                    for (var j = 0; j < countBoss; ++j)
+                    {
+                        var b = boss[i];
+                        var distance = (b.Position - actor.Position).LengthSq();
+                        if (distance < closestDistance)
+                        {
+                            closestDistance = distance;
+                            closestBoss = b;
+                        }
+                    }
+
+                    if (closestBoss == e.Actor)
+                    {
+                        e.Priority = 1;
+                        ++lanternPriorityCount;
+                    }
                 }
                 else
                     e.Priority = AIHints.Enemy.PriorityUndesirable;
+            }
+        }
     }
 
     public override void AddGlobalHints(GlobalHints hints)
@@ -71,12 +96,13 @@ class Lanterns(BossModule module) : Components.GenericAOEs(module)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        foreach (var l in lanterns)
-            Arena.AddCircle(l.Center, 5, Colors.Safe, 5);
+        var count = lanterns.Count;
+        for (var i = 0; i < count; ++i)
+            Arena.AddCircle(lanterns[i].Center, 5f, Colors.Safe, 5f);
     }
 }
 
-class Illume(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Illume), new AOEShapeCone(6, 45.Degrees()));
+class Illume(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Illume), new AOEShapeCone(6f, 45f.Degrees()));
 
 class V026ShishuChochinStates : StateMachineBuilder
 {
@@ -85,8 +111,17 @@ class V026ShishuChochinStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<Lanterns>()
             .ActivateOnEnter<Illume>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDeadOrDestroyed);
-
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies((uint)OID.Boss);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -142,6 +177,6 @@ public class V026ShishuChochin(WorldState ws, Actor primary) : BossModule(ws, pr
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Boss));
+        Arena.Actors(Enemies((uint)OID.Boss));
     }
 }

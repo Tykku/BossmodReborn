@@ -114,7 +114,7 @@ sealed class AIManager : IDisposable
                 ToggleConfig();
                 break;
             case "TARGETMASTER":
-                configModified = ToggleFocusTargetLeader();
+                configModified = ToggleFocusTargetMaster();
                 break;
             case "FOLLOW":
                 var cfgFollowSlot = _config.FollowSlot;
@@ -159,16 +159,12 @@ sealed class AIManager : IDisposable
                 ToggleFollowTarget(messageData);
                 configModified = cfgFollowT != _config.FollowTarget;
                 break;
-            case "OUTOFBOUNDS":
-                var cfgOOB = _config.AllowAIToBeOutsideBounds;
-                ToggleOutOfBounds(messageData);
-                configModified = cfgOOB != _config.AllowAIToBeOutsideBounds;
+            case "OBSTACLEMAPS":
+                var cfgOM = _config.DisableObstacleMaps;
+                ToggleObstacleMaps(messageData);
+                configModified = cfgOM != _config.DisableObstacleMaps;
                 break;
-            case "OVERRIDEAUTOROTATION":
-                var cfgARO = _config.OverrideAutorotation;
-                ToggleAutorotationOverride(messageData);
-                configModified = cfgARO != _config.OverrideAutorotation;
-                break;
+
             case "POSITIONAL":
                 var cfgPositional = _config.DesiredPositional;
                 HandlePositionalCommand(messageData);
@@ -227,54 +223,32 @@ sealed class AIManager : IDisposable
             SwitchToIdle();
     }
 
-    private bool ToggleFocusTargetLeader()
+    private bool ToggleFocusTargetMaster()
     {
-        _config.FocusTargetLeader = !_config.FocusTargetLeader;
+        _config.FocusTargetMaster = !_config.FocusTargetMaster;
         return true;
     }
 
-    private void ToggleAutorotationOverride(string[] messageData)
+    private void ToggleObstacleMaps(string[] messageData)
     {
         if (messageData.Length == 1)
-            _config.OverrideAutorotation = !_config.OverrideAutorotation;
+            _config.DisableObstacleMaps = !_config.DisableObstacleMaps;
         else
         {
             switch (messageData[1].ToUpperInvariant())
             {
                 case "ON":
-                    _config.OverrideAutorotation = true;
+                    _config.DisableObstacleMaps = false;
                     break;
                 case "OFF":
-                    _config.OverrideAutorotation = false;
+                    _config.DisableObstacleMaps = true;
                     break;
                 default:
-                    Service.ChatGui.Print($"[AI] Unknown follow target command: {messageData[1]}");
+                    Service.ChatGui.Print($"[AI] Unknown obstacle map command: {messageData[1]}");
                     return;
             }
         }
-        Service.Log($"[AI] Following targets is now {(_config.OverrideAutorotation ? "enabled" : "disabled")}");
-    }
-
-    private void ToggleOutOfBounds(string[] messageData)
-    {
-        if (messageData.Length == 1)
-            _config.AllowAIToBeOutsideBounds = !_config.AllowAIToBeOutsideBounds;
-        else
-        {
-            switch (messageData[1].ToUpperInvariant())
-            {
-                case "ON":
-                    _config.AllowAIToBeOutsideBounds = true;
-                    break;
-                case "OFF":
-                    _config.AllowAIToBeOutsideBounds = false;
-                    break;
-                default:
-                    Service.ChatGui.Print($"[AI] Unknown follow target command: {messageData[1]}");
-                    return;
-            }
-        }
-        Service.Log($"[AI] Following targets is now {(_config.AllowAIToBeOutsideBounds ? "enabled" : "disabled")}");
+        Service.Log($"[AI] Obstacle maps are now {(_config.DisableObstacleMaps ? "disabled" : "enabled")}");
     }
 
     private void ToggleIdleWhileMounted(string[] messageData)

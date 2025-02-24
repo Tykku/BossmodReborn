@@ -19,7 +19,7 @@ public enum AID : uint
     LightShot = 16251 // Brightsphere->self, 4.0s cast, range 40 width 4 rect
 }
 
-abstract class Palm(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(15, 15));
+abstract class Palm(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(30, 7.5f));
 class LeftPalm(BossModule module) : Palm(module, AID.LeftPalm);
 class RightPalm(BossModule module) : Palm(module, AID.RightPalm);
 

@@ -27,7 +27,7 @@ class FeedingTime(BossModule module) : Components.InterceptTether(module, Action
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         base.OnCastStarted(caster, spell);
-        if ((AID)spell.Action.ID == AID.ToxicSpit)
+        if (spell.Action.ID == (uint)AID.ToxicSpit)
             _activation = Module.CastFinishAt(spell, 1.2f);
     }
 
@@ -35,12 +35,24 @@ class FeedingTime(BossModule module) : Components.InterceptTether(module, Action
     {
         if (Active)
         {
-            var source = Module.Enemies(OID.HornedLizard).FirstOrDefault(x => x.Position.AlmostEqual(new(403, -105), 1)); // NPCs always seem to ignore the middle tether
+            Actor? source = null;
+            var enemies = Module.Enemies((uint)OID.HornedLizard);
+            var sourcePosition = new WPos(403, -105); // NPCs always seem to ignore the middle tether
+            var count = enemies.Count;
+            for (var i = 0; i < count; ++i)
+            {
+                var enemy = enemies[i];
+                if (enemy.Position.AlmostEqual(sourcePosition, 1f))
+                {
+                    source = enemy;
+                    break;
+                }
+            }
             if (source == null)
                 return;
             var target = WorldState.Actors.Find(source.Tether.Target);
             if (target != null)
-                hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.6f), _activation);
+                hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.5f), _activation);
         }
     }
 }

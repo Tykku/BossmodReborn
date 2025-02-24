@@ -41,15 +41,15 @@ public enum AID : uint
     RemoveStatus = 36010, // AsuraImage->self, no cast, single-target, removes status 2552 (unknown effect) from itself
 
     KhadgaTelegraph1 = 36011, // Helper->self, 2.0s cast, range 20 180-degree cone
-    KhadgaTelegraph2 = 36013, // Helper->self, 2.0s cast, range 20 180-degree cone
-    KhadgaTelegraph3 = 36012, // Helper->self, 2.0s cast, range 20 180-degree cone
+    KhadgaTelegraph2 = 36012, // Helper->self, 2.0s cast, range 20 180-degree cone
+    KhadgaTelegraph3 = 36013, // Helper->self, 2.0s cast, range 20 180-degree cone
     SixBladedKhadga = 35976, // Boss->self, 13.0s cast, single-target
     Khadga1 = 35977, // Boss->self, no cast, range 20 180-degree cone
-    Khadga2 = 35981, // Boss->self, no cast, range 20 180-degree cone
-    Khadga3 = 35980, // Boss->self, no cast, range 20 180-degree cone
-    Khadga4 = 35978, // Boss->self, no cast, range 20 180-degree cone
-    Khadga5 = 35982, // Boss->self, no cast, range 20 180-degree cone
-    Khadga6 = 35979, // Boss->self, no cast, range 20 180-degree cone
+    Khadga2 = 35978, // Boss->self, no cast, range 20 180-degree cone
+    Khadga3 = 35979, // Boss->self, no cast, range 20 180-degree cone
+    Khadga4 = 35980, // Boss->self, no cast, range 20 180-degree cone
+    Khadga5 = 35981, // Boss->self, no cast, range 20 180-degree cone
+    Khadga6 = 35982, // Boss->self, no cast, range 20 180-degree cone
 
     ManyFaces1 = 35983, // Boss->self, 4.0s cast, single-target
     ManyFaces2 = 36014, // Boss->self, no cast, single-target

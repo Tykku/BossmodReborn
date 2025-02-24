@@ -24,7 +24,7 @@ class BridgeCreation(BossModule module) : BossComponent(module)
 {
     public override void OnActorEAnim(Actor actor, uint state)
     {
-        if (state == 0x00040008 && (OID)actor.OID == OID.Bridge)
+        if (state == 0x00040008 && actor.OID == (uint)OID.Bridge)
         {
             Arena.Bounds = D130BlizzardDragon.Arena2;
             Arena.Center = D130BlizzardDragon.Arena2.Center;
@@ -34,27 +34,27 @@ class BridgeCreation(BossModule module) : BossComponent(module)
 
 class Touchdown(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCircle circle = new(10);
+    private static readonly AOEShapeCircle circle = new(10f);
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Cauterize)
+        if (spell.Action.ID == (uint)AID.Cauterize)
             _aoe = new(circle, new(364.523f, -225.727f), default, Module.CastFinishAt(spell, 6.7f));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.Touchdown)
+        if (spell.Action.ID == (uint)AID.Touchdown)
             _aoe = null;
     }
 }
 
-class Cauterize(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Cauterize), new AOEShapeRect(53, 10));
-class Fireball(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fireball), 4);
-class SheetOfIce(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SheetOfIce), 5);
+class Cauterize(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Cauterize), new AOEShapeRect(53f, 10f));
+class Fireball(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fireball), 4f);
+class SheetOfIce(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SheetOfIce), 5f);
 
 class D130BlizzardDragonStates : StateMachineBuilder
 {
@@ -66,7 +66,18 @@ class D130BlizzardDragonStates : StateMachineBuilder
             .ActivateOnEnter<Fireball>()
             .ActivateOnEnter<SheetOfIce>()
             .ActivateOnEnter<Touchdown>()
-            .Raw.Update = () => module.Enemies(OID.BlizzardDragon1).Any(x => x.IsDead) || module.PrimaryActor.IsDestroyed;
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies((uint)OID.BlizzardDragon1);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDead)
+                        return false;
+                }
+                return module.PrimaryActor.IsDestroyed;
+            };
     }
 }
 
@@ -131,7 +142,18 @@ public class D130BlizzardDragon(WorldState ws, Actor primary) : BossModule(ws, p
 
     public static readonly uint[] Trash = [(uint)OID.HolyWyvern, (uint)OID.BlizzardDragon1];
 
-    protected override bool CheckPull() => Enemies(Trash).Any(x => x.InCombat);
+    protected override bool CheckPull()
+    {
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.InCombat)
+                return true;
+        }
+        return false;
+    }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

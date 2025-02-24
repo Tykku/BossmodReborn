@@ -9,15 +9,15 @@ class Shingan(BossModule module) : Components.SingleTargetCast(module, ActionID.
 {
     public override bool KeepOnPhaseChange => true;
 }
-class AmeNoSakahoko(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AmeNoSakahoko), 25)
+class AmeNoSakahoko(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AmeNoSakahoko), 25f)
 {
     public override bool KeepOnPhaseChange => true;
 }
-class WhirlingZantetsuken(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WhirlingZantetsuken), new AOEShapeDonut(5, 60))
+class WhirlingZantetsuken(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WhirlingZantetsuken), new AOEShapeDonut(5f, 60f))
 {
     public override bool KeepOnPhaseChange => true;
 }
-class Shock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shock), 8);
+class Shock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shock), 8f);
 class ForHonor(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ForHonor), 11.4f);
 
 abstract class LateralZantetsuken(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(75.4f, 19.5f));
@@ -25,8 +25,8 @@ class LateralZantetsuken1(BossModule module) : LateralZantetsuken(module, AID.La
 class LateralZantetsuken2(BossModule module) : LateralZantetsuken(module, AID.LateralZantetsuken2);
 
 class BitterBarbs(BossModule module) : Components.Chains(module, (uint)TetherID.Chains, ActionID.MakeSpell(AID.BitterBarbs));
-class BoomingLament(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BoomingLament), 10);
-class SilentLevin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SilentLevin), 5);
+class BoomingLament(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BoomingLament), 10f);
+class SilentLevin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SilentLevin), 5f);
 
 class UltimateZantetsuken(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.UltimateZantetsuken), "Enrage, kill the adds!", true);
 
@@ -34,24 +34,25 @@ class UltimateZantetsuken(BossModule module) : Components.CastHint(module, Actio
 public class BA2Raiden(WorldState ws, Actor primary) : BossModule(ws, primary, startingArena.Center, startingArena)
 {
     private static readonly WPos ArenaCenter = new(0, 458);
-    private static readonly ArenaBoundsComplex startingArena = new([new Polygon(ArenaCenter, 34.6f, 80)], [new Rectangle(new(35.3f, 458), 0.99f, 20), new Rectangle(new(-35.4f, 458), 1.65f, 20),
+    private static readonly ArenaBoundsComplex startingArena = new([new Polygon(ArenaCenter, 34.6f, 80)], [new Rectangle(new(35.3f, 458f), 0.99f, 20f), new Rectangle(new(-35.4f, 458f), 1.65f, 20f),
     new Rectangle(new(0, 493), 20, 0.75f)]);
     public static readonly ArenaBoundsComplex DefaultArena = new([new Polygon(ArenaCenter, 29.93f, 64)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.StreakLightning));
+        Arena.Actors(Enemies((uint)OID.StreakLightning));
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.StreakLightning => 1,
+                (uint)OID.StreakLightning => 1,
                 _ => 0
             };
         }

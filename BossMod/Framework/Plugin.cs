@@ -5,6 +5,7 @@ using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using System.IO;
 using System.Reflection;
 
@@ -32,11 +33,13 @@ public sealed class Plugin : IDalamudPlugin
     private readonly DTRProvider _dtr;
     private TimeSpan _prevUpdateTime;
     private DateTime _throttleJump;
+    private DateTime _throttleInteract;
 
     // windows
     private readonly ConfigUI _configUI; // TODO: should be a proper window!
     private readonly BossModuleMainWindow _wndBossmod;
     private readonly BossModuleHintsWindow _wndBossmodHints;
+    private readonly ZoneModuleWindow _wndZone;
     private readonly ReplayManagementWindow _wndReplay;
     private readonly UIRotationWindow _wndRotation;
     private readonly MainDebugWindow _wndDebug;
@@ -81,7 +84,7 @@ public sealed class Plugin : IDalamudPlugin
         _bossmod = new(_ws);
         _zonemod = new(_ws);
         _hintsBuilder = new(_ws, _bossmod, _zonemod);
-        _movementOverride = new();
+        _movementOverride = new(dalamud);
         _amex = new(_ws, _hints, _movementOverride);
         _wsSync = new(_ws, _amex);
         _rotation = new(_rotationDB, _bossmod, _hints);
@@ -90,7 +93,9 @@ public sealed class Plugin : IDalamudPlugin
         _ipc = new(_rotation, _amex, _movementOverride, _ai);
         _dtr = new(_rotation, _ai);
         _wndBossmod = new(_bossmod, _zonemod);
+
         _wndBossmodHints = new(_bossmod, _zonemod);
+        _wndZone = new(_zonemod);
         var config = Service.Config.Get<ReplayManagementConfig>();
         var replayDir = string.IsNullOrEmpty(config.ReplayFolder) ? dalamud.ConfigDirectory.FullName + "/replays" : config.ReplayFolder;
         _wndReplay = new ReplayManagementWindow(_ws, _bossmod, _rotationDB, new DirectoryInfo(replayDir));
@@ -111,6 +116,7 @@ public sealed class Plugin : IDalamudPlugin
         _wndDebug.Dispose();
         _wndRotation.Dispose();
         _wndReplay.Dispose();
+        _wndZone.Dispose();
         _wndBossmodHints.Dispose();
         _wndBossmod.Dispose();
         _configUI.Dispose();
@@ -239,28 +245,27 @@ public sealed class Plugin : IDalamudPlugin
     private void DrawUI()
     {
         var tsStart = DateTime.Now;
-
-        var userPreventingCast = _movementOverride.IsMoveRequested() && !_amex.Config.PreventMovingWhileCasting;
-        var maxCastTime = userPreventingCast ? 0 : _ai.ForceMovementIn;
+        var moveImminent = _movementOverride.IsMoveRequested() && (!_amex.Config.PreventMovingWhileCasting || _movementOverride.IsForceUnblocked());
 
         _dtr.Update();
         Camera.Instance?.Update();
         _wsSync.Update(ref _prevUpdateTime);
         _bossmod.Update();
         _zonemod.ActiveModule?.Update();
-        _hintsBuilder.Update(_hints, PartyState.PlayerSlot, maxCastTime);
+        _hintsBuilder.Update(_hints, PartyState.PlayerSlot, moveImminent);
         _amex.QueueManualActions();
         _rotation.Update(_amex.AnimationLockDelayEstimate, _movementOverride.IsMoving());
         _ai.Update();
         _broadcast.Update();
         _amex.FinishActionGather();
-        ExecuteHints();
 
         var uiHidden = Service.GameGui.GameUiHidden || Service.Condition[ConditionFlag.OccupiedInCutSceneEvent] || Service.Condition[ConditionFlag.WatchingCutscene78] || Service.Condition[ConditionFlag.WatchingCutscene];
         if (!uiHidden)
         {
             Service.WindowSystem?.Draw();
         }
+
+        ExecuteHints();
 
         Camera.Instance?.DrawWorldPrimitives();
         _prevUpdateTime = DateTime.Now - tsStart;
@@ -298,6 +303,44 @@ public sealed class Plugin : IDalamudPlugin
             FFXIVClientStructs.FFXIV.Client.Game.ActionManager.Instance()->UseAction(FFXIVClientStructs.FFXIV.Client.Game.ActionType.GeneralAction, 2);
             _throttleJump = _ws.CurrentTime.AddMilliseconds(100);
         }
+
+        if (CheckInteractRange(_ws.Party.Player(), _hints.InteractWithTarget))
+        {
+            // many eventobj interactions "immediately" start some cast animation (delayed by server roundtrip), and if we keep trying to move toward the target after sending the interact request, it will be canceled and force us to start over
+            _movementOverride.DesiredDirection = default;
+
+            if (_amex.EffectiveAnimationLock == 0 && _ws.CurrentTime >= _throttleInteract)
+            {
+                FFXIVClientStructs.FFXIV.Client.Game.Control.TargetSystem.Instance()->InteractWithObject(GetActorObject(_hints.InteractWithTarget), false);
+                _throttleInteract = _ws.FutureTime(0.1f);
+            }
+        }
+    }
+
+    private unsafe bool CheckInteractRange(Actor? player, Actor? target)
+    {
+        var playerObj = GetActorObject(player);
+        var targetObj = GetActorObject(target);
+        if (playerObj == null || targetObj == null)
+            return false;
+
+        // treasure chests have no client-side interact range check at all; just assume they use the standard "small" range, seems to be accurate from testing
+        if (targetObj->ObjectKind is FFXIVClientStructs.FFXIV.Client.Game.Object.ObjectKind.Treasure)
+            return player?.DistanceToHitbox(target) <= 2.09f;
+
+        return EventFramework.Instance()->CheckInteractRange(playerObj, targetObj, 1, false);
+    }
+
+    private unsafe FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject* GetActorObject(Actor? actor)
+    {
+        if (actor == null)
+            return null;
+
+        var obj = FFXIVClientStructs.FFXIV.Client.Game.Object.GameObjectManager.Instance()->Objects.IndexSorted[actor.SpawnIndex].Value;
+        if (obj == null || obj->GetGameObjectId() != actor.InstanceID)
+            return null;
+
+        return obj;
     }
 
     private void ParseAutorotationCommands(string[] cmd)

@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Chaotic.Ch01CloudOfDarkness;
 
-class UnholyDarkness(BossModule module) : Components.StackWithIcon(module, (uint)IconID.UnholyDarkness, ActionID.MakeSpell(AID.UnholyDarknessAOE), 6, 8.1f, 4)
+class UnholyDarkness(BossModule module) : Components.StackWithIcon(module, (uint)IconID.UnholyDarkness, ActionID.MakeSpell(AID.UnholyDarknessAOE), 6f, 8.1f, 4)
 {
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {

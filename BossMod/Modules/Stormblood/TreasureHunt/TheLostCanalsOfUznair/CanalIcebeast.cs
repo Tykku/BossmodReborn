@@ -29,12 +29,12 @@ public enum AID : uint
 }
 
 class Eyeshine(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.Eyeshine));
-class AbsoluteZero(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbsoluteZero), new AOEShapeCone(45.5f, 45.Degrees()));
-class Freezeover(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Freezeover), 6);
+class AbsoluteZero(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbsoluteZero), new AOEShapeCone(45.5f, 45f.Degrees()));
+class Freezeover(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Freezeover), 6f);
 class PlainPound(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PlainPound), 4.56f);
-class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 60.Degrees()));
-class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
-class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), [(uint)OID.Abharamu]);
+class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 60f.Degrees()));
+class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6f);
+class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60f.Degrees()), [(uint)OID.Abharamu]);
 
 class CanalIcebeastStates : StateMachineBuilder
 {
@@ -48,7 +48,17 @@ class CanalIcebeastStates : StateMachineBuilder
             .ActivateOnEnter<Hurl>()
             .ActivateOnEnter<RaucousScritch>()
             .ActivateOnEnter<Spin>()
-            .Raw.Update = () => module.Enemies(CanalIcebeast.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(CanalIcebeast.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -62,18 +72,19 @@ public class CanalIcebeast(WorldState ws, Actor primary) : FinalRoomArena(ws, pr
     {
         Arena.Actor(PrimaryActor);
         Arena.Actors(Enemies(trash));
-        Arena.Actors(Enemies(OID.Abharamu), Colors.Vulnerable);
+        Arena.Actors(Enemies((uint)OID.Abharamu), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.Abharamu => 2,
-                OID.CanalVindthurs or OID.CanalIceHomunculus => 1,
+                (uint)OID.Abharamu => 2,
+                (uint)OID.CanalVindthurs or (uint)OID.CanalIceHomunculus => 1,
                 _ => 0
             };
         }

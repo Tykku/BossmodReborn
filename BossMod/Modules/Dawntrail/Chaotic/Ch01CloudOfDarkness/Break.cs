@@ -8,21 +8,25 @@ class Break(BossModule module) : Components.GenericGaze(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.BreakBoss or AID.BreakEye)
+        if (spell.Action.ID is (uint)AID.BreakBoss or (uint)AID.BreakEye)
             Eyes.Add(new(spell.LocXZ, Module.CastFinishAt(spell, 0.9f)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.BreakBossAOE or AID.BreakEyeAOE)
-            for (var i = 0; i < Eyes.Count; ++i)
+        if (spell.Action.ID is (uint)AID.BreakBossAOE or (uint)AID.BreakEyeAOE)
+        {
+            var count = Eyes.Count;
+            var pos = caster.Position;
+            for (var i = 0; i < count; ++i)
             {
                 var eye = Eyes[i];
-                if (eye.Position == caster.Position)
+                if (eye.Position == pos)
                 {
                     Eyes.Remove(eye);
                     break;
                 }
             }
+        }
     }
 }

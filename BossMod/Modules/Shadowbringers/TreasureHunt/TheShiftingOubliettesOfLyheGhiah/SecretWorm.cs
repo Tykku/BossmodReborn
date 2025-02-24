@@ -36,15 +36,34 @@ public enum IconID : uint
     Baitaway = 23 // player
 }
 
-class Hydrocannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrocannon), 8);
-class FreshwaterCannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FreshwaterCannon), new AOEShapeRect(46, 2));
-class AquaBurst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AquaBurst), 10);
+class Hydrocannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrocannon), 8f);
+class FreshwaterCannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FreshwaterCannon), new AOEShapeRect(46f, 2f));
+class AquaBurst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AquaBurst), 10f);
 class BrineBreath(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BrineBreath));
-class Hydroburst(BossModule module) : Components.PersistentVoidzone(module, 10, m => m.Enemies(OID.Bubble).Where(x => !x.IsDead && !(x.CastInfo != null && x.CastInfo.IsSpell(AID.AquaBurst))));
+class Hydroburst(BossModule module) : Components.PersistentVoidzone(module, 10f, GetVoidzones)
+{
+    private static Actor[] GetVoidzones(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.Bubble);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
+
+        var voidzones = new Actor[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (!z.IsDead && !(z.CastInfo != null && z.CastInfo.IsSpell(AID.AquaBurst)))
+                voidzones[index++] = z;
+        }
+        return voidzones[..index];
+    }
+}
 
 class Bubble(BossModule module) : Components.GenericBaitAway(module)
 {
-    private static readonly AOEShapeCircle circle = new(10);
+    private static readonly AOEShapeCircle circle = new(10f);
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
@@ -54,21 +73,24 @@ class Bubble(BossModule module) : Components.GenericBaitAway(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Hydrocannon)
+        if (spell.Action.ID == (uint)AID.Hydrocannon)
             CurrentBaits.Clear();
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (CurrentBaits.Any(x => x.Target == actor))
+        if (CurrentBaits.Count != 0 && CurrentBaits[0].Target == actor)
             hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 17.5f));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        base.AddHints(slot, actor, hints);
-        if (CurrentBaits.Any(x => x.Target == actor))
+        if (CurrentBaits.Count == 0)
+            return;
+        if (CurrentBaits[0].Target != actor)
+            base.AddHints(slot, actor, hints);
+        else
             hints.Add("Bait bubble away!");
     }
 }
@@ -96,7 +118,17 @@ class SecretWormStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(SecretWorm.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(SecretWorm.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -115,16 +147,17 @@ public class SecretWorm(WorldState ws, Actor primary) : THTemplate(ws, primary)
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.SecretOnion => 5,
-                OID.SecretEgg => 4,
-                OID.SecretGarlic => 3,
-                OID.SecretTomato => 2,
-                OID.SecretQueen => 1,
+                (uint)OID.SecretOnion => 5,
+                (uint)OID.SecretEgg => 4,
+                (uint)OID.SecretGarlic => 3,
+                (uint)OID.SecretTomato => 2,
+                (uint)OID.SecretQueen => 1,
                 _ => 0
             };
         }

@@ -34,13 +34,13 @@ public enum TetherID : uint
 }
 
 class SelfDetonate(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SelfDetonate));
-class AetherochemicalGrenado(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherochemicalGrenado), 8);
+class AetherochemicalGrenado(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherochemicalGrenado), 8f);
 class AetherochemicalLaser(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(50, 2), (uint)TetherID.BaitAway, ActionID.MakeSpell(AID.AetherochemicalLaser));
-class AetherochemicalLaserAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherochemicalLaser), new AOEShapeRect(50, 2));
+class AetherochemicalLaserAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherochemicalLaser), new AOEShapeRect(50f, 2f));
 
-class JudgmentAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.JudgmentAOE), 8);
-class MagitekSlug(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekSlug), new AOEShapeRect(61.65f, 2));
-class MagitekSpread(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekSpread), new AOEShapeCone(31.65f, 120.Degrees()));
+class JudgmentAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.JudgmentAOE), 8f);
+class MagitekSlug(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekSlug), new AOEShapeRect(61.65f, 2f));
+class MagitekSpread(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekSpread), new AOEShapeCone(31.65f, 120f.Degrees()));
 
 class D061RegulaStates : StateMachineBuilder
 {
@@ -68,6 +68,6 @@ public class D061Regula(WorldState ws, Actor primary) : BossModule(ws, primary, 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.MagitekTurretI));
+        Arena.Actors(Enemies((uint)OID.MagitekTurretI));
     }
 }

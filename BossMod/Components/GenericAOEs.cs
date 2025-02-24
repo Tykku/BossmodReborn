@@ -39,17 +39,16 @@ public abstract class GenericAOEs(BossModule module, ActionID aid = default, str
 }
 
 // For simple AOEs, formerly known as SelfTargetedAOEs and LocationTargetedAOEs, that happens at the end of the cast
-public class SimpleAOEs(BossModule module, ActionID aid, AOEShape shape, int maxCasts = int.MaxValue, float riskyWithSecondsLeft = 0) : GenericAOEs(module, aid)
+public class SimpleAOEs(BossModule module, ActionID aid, AOEShape shape, int maxCasts = int.MaxValue, double riskyWithSecondsLeft = 0d) : GenericAOEs(module, aid)
 {
-    public SimpleAOEs(BossModule module, ActionID aid, float radius, int maxCasts = int.MaxValue, float riskyWithSecondsLeft = 0) : this(module, aid, new AOEShapeCircle(radius), maxCasts, riskyWithSecondsLeft) { }
+    public SimpleAOEs(BossModule module, ActionID aid, float radius, int maxCasts = int.MaxValue, double riskyWithSecondsLeft = 0d) : this(module, aid, new AOEShapeCircle(radius), maxCasts, riskyWithSecondsLeft) { }
     public readonly AOEShape Shape = shape;
     public int MaxCasts = maxCasts; // used for staggered aoes, when showing all active would be pointless
     public uint Color; // can be customized if needed
     public bool Risky = true; // can be customized if needed
-    public bool TargetIsLocation; // can be customized if needed
     public int? MaxDangerColor;
     public int? MaxRisky; // set a maximum amount of AOEs that are considered risky
-    public readonly float RiskyWithSecondsLeft = riskyWithSecondsLeft; // can be used to delay risky status of AOEs, so AI waits longer to dodge, if 0 it will just use the bool Risky
+    public readonly double RiskyWithSecondsLeft = riskyWithSecondsLeft; // can be used to delay risky status of AOEs, so AI waits longer to dodge, if 0 it will just use the bool Risky
 
     public readonly List<AOEInstance> Casters = [];
 
@@ -93,19 +92,20 @@ public class SimpleAOEs(BossModule module, ActionID aid, AOEShape shape, int max
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action == WatchedAction)
-            Casters.Add(new(Shape, (TargetIsLocation ? WorldState.Actors.Find(caster.CastInfo!.TargetID)?.Position : spell.LocXZ) ?? default, spell.Rotation, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
+            Casters.Add(new(Shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action == WatchedAction)
         {
-            for (var i = 0; i < Casters.Count; ++i)
+            var count = Casters.Count;
+            var id = caster.InstanceID;
+            for (var i = 0; i < count; ++i)
             {
-                var aoe = Casters[i];
-                if (aoe.ActorID == caster.InstanceID)
+                if (Casters[i].ActorID == id)
                 {
-                    Casters.Remove(aoe);
+                    Casters.RemoveAt(i);
                     break;
                 }
             }

@@ -4,15 +4,15 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module, ActionID.
 {
     public bool Active => _aoe != null || Arena.Bounds != A11Prishe.DefaultBounds;
     private AOEInstance? _aoe;
-    private static readonly Square[] defaultSquare = [new(A11Prishe.ArenaCenter, 35)];
-    public static readonly Square[] MiddleENVC00020001 = [new(new(795, 405), 10), new(new(805, 395), 10)];
-    private static readonly Shape[] differenceENVC00020001 = [.. MiddleENVC00020001, new Rectangle(new(810, 430), 15, 5),
-    new Rectangle(new(830, 420), 5, 15), new Rectangle(new(790, 370), 15, 5), new Rectangle(new(770, 380), 5, 15)];
+    private static readonly Square[] defaultSquare = [new(A11Prishe.ArenaCenter, 35f)];
+    public static readonly Square[] MiddleENVC00020001 = [new(new(795f, 405f), 10f), new(new(805f, 395f), 10f)];
+    private static readonly Shape[] differenceENVC00020001 = [.. MiddleENVC00020001, new Rectangle(new(810f, 430f), 15f, 5f),
+    new Rectangle(new(830f, 420f), 5f, 15f), new Rectangle(new(790f, 370f), 15f, 5f), new Rectangle(new(770f, 380f), 5f, 15f)];
     private static readonly AOEShapeCustom arenaChangeENVC00020001 = new(defaultSquare, differenceENVC00020001);
     public static readonly ArenaBoundsComplex ArenaENVC00020001 = new(differenceENVC00020001);
-    public static readonly Square[] MiddleENVC02000100 = [new(new(795, 395), 10), new(new(805, 405), 10)];
-    private static readonly Shape[] differenceENVC02000100 = [.. MiddleENVC02000100, new Rectangle(new(820, 370), 15, 5),
-    new Rectangle(new(830, 390), 5, 15), new Rectangle(new(780, 430), 15, 5), new Rectangle(new(770, 410), 5, 15)];
+    public static readonly Square[] MiddleENVC02000100 = [new(new(795f, 395f), 10f), new(new(805f, 405f), 10f)];
+    private static readonly Shape[] differenceENVC02000100 = [.. MiddleENVC02000100, new Rectangle(new(820f, 370f), 15f, 5f),
+    new Rectangle(new(830f, 390f), 5f, 15f), new Rectangle(new(780f, 430f), 15f, 5f), new Rectangle(new(770f, 410f), 5f, 15f)];
     private static readonly AOEShapeCustom arenaChangeENVC02000100 = new(defaultSquare, differenceENVC02000100);
     public static readonly ArenaBoundsComplex ArenaENVC02000100 = new(differenceENVC02000100);
 
@@ -52,7 +52,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module, ActionID.
 
     private void SetAOE(AOEShapeCustom shape)
     {
-        _aoe = new(shape, Arena.Center, default, WorldState.FutureTime(5));
+        _aoe = new(shape, Arena.Center, default, WorldState.FutureTime(5d));
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints) { } // no need to generate a hint here, we generate a special hint in CrystallineThornsHint
@@ -90,12 +90,12 @@ class CrystallineThornsHint(BossModule module) : Components.GenericAOEs(module)
 
     private void SetAOE(AOEShapeCustom shape)
     {
-        _aoe = new(shape, Arena.Center, default, WorldState.FutureTime(5), Colors.SafeFromAOE);
+        _aoe = new(shape, Arena.Center, default, WorldState.FutureTime(5d), Colors.SafeFromAOE);
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (ActiveAOEs(slot, actor).Any(c => !c.Check(actor.Position)))
+        if (_aoe != null && !_aoe.Value.Check(actor.Position))
             hints.Add(RiskHint);
     }
 }

@@ -21,22 +21,22 @@ class Darter(BossModule module) : Components.Adds(module, (uint)OID.Darter, 1)
 {
     public override bool KeepOnPhaseChange => true;
 }
-class Venom(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Venom), new AOEShapeCone(30, 60.Degrees()))
+class Venom(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Venom), new AOEShapeCone(30f, 60f.Degrees()))
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class AbsoluteTerror(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbsoluteTerrorAOE), new AOEShapeRect(70, 10))
+class AbsoluteTerror(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbsoluteTerrorAOE), new AOEShapeRect(70f, 10f))
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class WingedTerror(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingedTerrorAOE), new AOEShapeRect(70, 12.5f))
+class WingedTerror(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingedTerrorAOE), new AOEShapeRect(70f, 12.5f))
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class BalefulBreath(BossModule module) : Components.LineStack(module, (uint)IconID.BalefulBreath, ActionID.MakeSpell(AID.BalefulBreathAOERest), 8.2f, 70, 3, PartyState.MaxAllianceSize, PartyState.MaxAllianceSize, 3, false)
+class BalefulBreath(BossModule module) : Components.LineStack(module, (uint)IconID.BalefulBreath, ActionID.MakeSpell(AID.BalefulBreathAOERest), 8.2f, 70f, 3f, PartyState.MaxAllianceSize, PartyState.MaxAllianceSize, 3, false)
 {
     public override bool KeepOnPhaseChange => true;
 }
@@ -49,7 +49,7 @@ class SharpSpike(BossModule module) : Components.BaitAwayIcon(module, new AOESha
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1015, NameID = 13662, SortOrder = 4, PlanLevel = 100)]
 public class A12Fafnir(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, new ArenaBoundsCircle(34.5f))
 {
-    public static readonly WPos ArenaCenter = new(-500, 600);
-    public static readonly ArenaBoundsCircle DefaultBounds = new(30);
-    public static readonly ArenaBoundsCircle FireArena = new(16);
+    public static readonly WPos ArenaCenter = new(-500f, 600f);
+    public static readonly ArenaBoundsCircle DefaultBounds = new(30f);
+    public static readonly ArenaBoundsCircle FireArena = new(16f);
 }

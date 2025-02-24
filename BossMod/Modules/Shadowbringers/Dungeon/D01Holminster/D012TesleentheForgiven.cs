@@ -38,18 +38,21 @@ class FeveredFlagellation(BossModule module) : Components.GenericBaitAway(module
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (CurrentBaits.Count != 0 && (AID)spell.Action.ID == AID.FeveredFlagellation2)
+        if (CurrentBaits.Count != 0 && spell.Action.ID == (uint)AID.FeveredFlagellation2)
             CurrentBaits.RemoveAt(0);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
-        if ((IconID)iconID is >= IconID.Icon1 and <= IconID.Icon4)
+        if (iconID is >= (uint)IconID.Icon1 and <= (uint)IconID.Icon4)
             CurrentBaits.Add(new(Module.PrimaryActor, actor, rect));
     }
 
     public override void Update()
     {
+        var count = CurrentBaits.Count;
+        if (count == 0)
+            return;
         for (var i = 0; i < CurrentBaits.Count; ++i)
         {
             var b = CurrentBaits[i];
@@ -58,8 +61,27 @@ class FeveredFlagellation(BossModule module) : Components.GenericBaitAway(module
     }
 }
 
-class Exorcise(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ExorciseA), 6, 4, 4);
-class HolyWater(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.HolyWater), m => m.Enemies(OID.HolyWaterVoidzone).Where(z => z.EventState != 7), 0.8f);
+class Exorcise(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ExorciseA), 6f, 4, 4);
+class HolyWater(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.HolyWater), GetVoidzones, 0.8f)
+{
+    private static Actor[] GetVoidzones(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.HolyWaterVoidzone);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
+
+        var voidzones = new Actor[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (z.EventState != 7)
+                voidzones[index++] = z;
+        }
+        return voidzones[..index];
+    }
+}
 
 class D012TesleentheForgivenStates : StateMachineBuilder
 {
@@ -77,5 +99,5 @@ class D012TesleentheForgivenStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "legendoficeman, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 676, NameID = 8300)]
 public class D012TesleentheForgiven(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Circle(new(78, -82), 19.5f)], [new Rectangle(new(78, -62), 20, 1), new Rectangle(new(78, -102), 20, 1)]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(78f, -82f), 19.5f)], [new Rectangle(new(78f, -62f), 20f, 1f), new Rectangle(new(78f, -102f), 20f, 1f)]);
 }

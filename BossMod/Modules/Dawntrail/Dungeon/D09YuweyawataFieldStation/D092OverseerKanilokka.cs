@@ -37,7 +37,7 @@ public enum AID : uint
 
 class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donutSmall = new(5, 15), donutBig = new(15, 20);
+    private static readonly AOEShapeDonut donutSmall = new(5f, 15f), donutBig = new(15f, 20f);
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
@@ -83,7 +83,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 
 class Soulweave(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donut = new(28, 32);
+    private static readonly AOEShapeDonut donut = new(28f, 32f);
     private readonly List<AOEInstance> _aoes = new(10);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
@@ -92,23 +92,25 @@ class Soulweave(BossModule module) : Components.GenericAOEs(module)
         if (count == 0)
             return [];
         var aoes = new AOEInstance[count];
+        var act0 = _aoes[0].Activation;
+        var color = Colors.Danger;
         for (var i = 0; i < count; ++i)
         {
             var aoe = _aoes[i];
-            aoes[i] = (aoe.Activation - _aoes[0].Activation).TotalSeconds <= 1.3f ? aoe with { Color = Colors.Danger } : aoe with { Risky = false };
+            aoes[i] = (aoe.Activation - act0).TotalSeconds <= 1.3d ? aoe with { Color = color } : aoe with { Risky = false };
         }
         return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.Soulweave1 or AID.Soulweave2)
+        if (spell.Action.ID is (uint)AID.Soulweave1 or (uint)AID.Soulweave2)
             _aoes.Add(new(donut, spell.LocXZ, default, Module.CastFinishAt(spell)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.Soulweave1 or AID.Soulweave2)
+        if (_aoes.Count != 0 && spell.Action.ID is (uint)AID.Soulweave1 or (uint)AID.Soulweave2)
             _aoes.RemoveAt(0);
     }
 }
@@ -116,14 +118,14 @@ class Soulweave(BossModule module) : Components.GenericAOEs(module)
 class FreeSpirits(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FreeSpirits));
 class Bloodburst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Bloodburst));
 class DarkSouls(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DarkSouls));
-class TelltaleTears(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.TelltaleTears), 5);
-class SoulDouse(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.SoulDouse), 6, 4, 4);
+class TelltaleTears(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.TelltaleTears), 5f);
+class SoulDouse(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.SoulDouse), 6f, 4, 4);
 class LostHope(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.LostHope));
-class Necrohazard(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Necrohazard), 18);
+class Necrohazard(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Necrohazard), 18f);
 
 class DarkII(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCone cone = new(35, 15.Degrees());
+    private static readonly AOEShapeCone cone = new(35f, 15f.Degrees());
     private readonly List<AOEInstance> _aoes = new(12);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
@@ -140,7 +142,7 @@ class DarkII(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.DarkII1 or AID.DarkII2)
+        if (spell.Action.ID is (uint)AID.DarkII1 or (uint)AID.DarkII2)
         {
             _aoes.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
             if (_aoes.Count == 12)
@@ -150,7 +152,7 @@ class DarkII(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count != 0 && (AID)spell.Action.ID is AID.DarkII1 or AID.DarkII2)
+        if (_aoes.Count != 0 && spell.Action.ID is (uint)AID.DarkII1 or (uint)AID.DarkII2)
             _aoes.RemoveAt(0);
     }
 }
@@ -177,36 +179,41 @@ class D092OverseerKanilokkaStates : StateMachineBuilder
 public class D092OverseerKanilokka(WorldState ws, Actor primary) : BossModule(ws, primary, StartingBounds.Center, StartingBounds)
 {
     private const int Edges = 64;
-    public static readonly WPos ArenaCenter = new(116, -66);
-    public static readonly Polygon[] StartingPolygon = [new Polygon(ArenaCenter, 19.5f * CosPI.Pi60th, Edges)];
-    public static readonly Polygon[] TinyPolygon = [new Polygon(ArenaCenter, 5, Edges)];
-    private static readonly WPos[] vertices02000100West = [new(111.06f, -65.72f), new(110.67f, -65.43f), new(107.318f, -65.444f), new(105.58f, -65.14f), new(104.667f, -64.333f),
-    new(103.67f, -62.384f), new(103.178f, -60.442f), new(103.86f, -59.34f), new(103.95f, -57.884f), new(102.706f, -57.1f), new(100.07f, -58.374f), new(98.053f, -57.253f),
-    new(99.5f, -54.79f), new(100.76f, -55.59f), new(103.6f, -54.06f), new(105.967f, -55.71f), new(106.658f, -56.668f), new(106.886f, -59.705f), new(107.185f, -61.381f),
-    new(108.828f, -62.385f), new(110.195f, -62.339f), new(111.853f, -61.94f), new(112.56f, -61.859f), new(113.26f, -61.845f)];
-    private static readonly WPos[] vertices02000100North = [new(118.766f, -70.106f), new(118.784f, -70.473f), new(118.395f, -72.065f), new(114.281f, -74.929f), new(114.281f, -76.494f),
-    new(114.916f, -77.026f), new(115.96f, -77.269f), new(117.036f, -77.379f), new(118.31f, -77.806f), new(119.238f, -78.268f), new(120.02f, -78.853f), new(120.581f, -80.649f),
-    new(120.215f, -83.173f), new(119.498f, -83.807f), new(117.335f, -85.069f), new(117.422f, -85.957f), new(114.534f, -86.06f), new(114.917f, -84.171f), new(116, -83.361f),
-    new(117.7f, -82.228f), new(117.576f, -80.921f), new(117.118f, -80.047f), new(116, -79.764f), new(114.6f, -79.644f), new(112.1f, -78.814f), new(111.198f, -77.547f),
-    new(110.9f, -76.129f), new(110.936f, -74.878f), new(113.477f, -72.316f), new(113.307f, -70.185f)];
-    private static readonly WPos[] vertices02000100East = [new(118.87f, -61.951f), new(119.5f, -61.2f), new(119.5f, -58.872f), new(119.8f, -57.9f), new(123.96f, -55.915f),
-    new(124.767f, -55.898f), new(126.807f, -56.914f), new(127.894f, -57.773f), new(128.759f, -59.09f), new(131.165f, -58.697f), new(131.542f, -57.7f), new(131.489f, -55.889f),
-    new(131.625f, -55.403f), new(131.5f, -54.809f), new(133.929f, -57.215f), new(133.676f, -57.343f), new(133.483f, -60.665f), new(131.628f, -62.529f), new(129.073f, -62.57f),
-    new(126.344f, -60.348f), new(124.493f, -59.185f), new(122.206f, -60.479f), new(122.439f, -61.998f), new(121.883f, -63.458f), new(120.931f, -65.486f)];
-    private static readonly WPos[] vertices00800040North = [new(119.67f, -69.1f), new(119.72f, -72.25f), new(117.4f, -76.6f), new(116, -78.4f), new(117.5f, -79.8f), new(121, -81.2f),
-    new(123.3f, -85.5f), new(119.9f, -85.5f), new(117, -83.8f), new(113.667f, -80.854f), new(113, -77.5f), new(115.883f, -72.848f), new(114, -70.5f)];
-    private static readonly WPos[] vertices00800040East = [new(119.89f, -63), new(122.887f, -63.63f), new(126.394f, -65.31f), new(127.887f, -67.5f), new(129.465f, -67.817f),
-    new(131.81f, -64.4f), new(136.6f, -62.82f), new(135.9f, -65.945f), new(133.18f, -66.62f), new(131.69f, -70.87f), new(127.1f, -71.56f), new(124.32f, -68.3f),
-     new(122.6f, -67.54f), new(120.32f, -68.186f)];
-    private static readonly WPos[] vertices00800040South = [new(112.684f, -62.388f), new(112.2f, -60.07f), new(107.836f, -57.852f), new(107.12f, -53.635f), new(111.456f, -49.98f),
-    new(110.765f, -46.659f), new(113.8f, -46.079f), new(115.03f, -51.19f), new(111.5f, -53.67f), new(111.4f, -55.61f), new(116.356f, -58.773f), new(117.67f, -61.434f)];
-    private static readonly WPos[] vertices00800040West = [new(112.793f, -69.754f), new(110.552f, -70.2f), new(108.04f, -73.04f), new(103.3f, -72.96f), new(100.9f, -70.243f),
-    new(98.644f, -70.563f), new(97.194f, -72.67f), new(96.467f, -69.863f), new(98.48f, -67.5f), new(101.8f, -67), new(104.645f, -69.163f), new(106.676f, -69.848f),
-     new(108.837f, -66.57f), new(111.04f, -65.8f)];
-    public static readonly ArenaBoundsComplex StartingBounds = new(StartingPolygon, [new Rectangle(new(116, -46), 20, 1.25f), new Rectangle(new(116, -86), 20, 1.25f)]);
-    public static readonly ArenaBoundsComplex DefaultArena = new([new Polygon(ArenaCenter, 15, Edges)]);
+    public static readonly WPos ArenaCenter = new(116f, -66f);
+    public static readonly Polygon[] StartingPolygon = [new Polygon(ArenaCenter, 19.5f, Edges)];
+    public static readonly Polygon[] TinyPolygon = [new Polygon(ArenaCenter, 5f, Edges)];
+    private static readonly WPos[] vertices02000100West = [new(111.116f, -65.833f), new(110.654f, -65.493f), new(107.256f, -65.506f), new(105.557f, -65.231f), new(104.614f, -64.362f),
+    new(103.623f, -62.397f), new(103.125f, -60.408f), new(103.742f, -59.448f), new(103.925f, -57.932f), new(102.756f, -57.151f), new(100.074f, -58.462f), new(98.007f, -57.349f),
+    new(98.367f, -56.588f), new(99.369f, -54.89f), new(99.472f, -54.752f), new(100.749f, -55.538f), new(103.599f, -53.968f), new(104.63f, -54.63f), new(106.026f, -55.591f),
+    new(106.706f, -56.606f), new(106.861f, -58.172f), new(106.885f, -58.519f), new(107.005f, -59.99f), new(107.231f, -61.292f), new(108.879f, -62.314f), new(110.425f, -62.275f),
+    new(111.901f, -61.901f), new(113.179f, -61.779f), new(113.27f, -61.814f)];
+    private static readonly WPos[] vertices02000100North = [new(118.832f, -69.987f), new(118.838f, -70.248f), new(118.475f, -72.109f), new(117.978f, -72.52f), new(114.363f, -74.935f),
+    new(114.086f, -75.623f), new(114.363f, -76.492f), new(114.925f, -76.961f), new(116f, -77.189f), new(117.126f, -77.333f), new(118.369f, -77.708f), new(119.344f, -78.285f),
+    new(120.082f, -78.855f), new(120.657f, -80.633f), new(120.255f, -83.257f), new(119.559f, -83.894f), new(117.427f, -85.064f), new(117.477f, -85.922f), new(116f, -86f),
+    new(114.535f, -85.923f), new(114.873f, -84.137f), new(116f, -83.292f), new(117.605f, -82.243f), new(117.465f, -80.887f), new(117.088f, -80.113f), new(116f, -79.851f),
+    new(114.658f, -79.729f), new(113.371f, -79.419f), new(112.084f, -78.91f), new(111.137f, -77.537f), new(110.837f, -76.159f), new(110.837f, -74.844f), new(113.357f, -72.382f),
+    new(113.314f, -71.026f), new(113.162f, -70.247f), new(112.787f, -69.83f)];
+    private static readonly WPos[] vertices02000100East = [new(118.833f, -61.921f), new(119.469f, -61.185f), new(119.413f, -60.144f), new(119.473f, -58.867f), new(119.791f, -57.88f),
+    new(120.141f, -57.679f), new(122.108f, -56.658f), new(123.843f, -55.884f), new(124.737f, -55.841f), new(125.679f, -56.271f), new(126.875f, -56.885f), new(127.948f, -57.751f),
+    new(128.788f, -59.071f), new(131.158f, -58.659f), new(131.481f, -57.725f), new(131.425f, -55.926f), new(131.531f, -55.377f), new(132.491f, -54.745f), new(132.629f, -54.889f),
+    new(133.638f, -56.572f), new(133.955f, -57.21f), new(133.725f, -57.423f), new(133.559f, -60.674f), new(131.641f, -62.617f), new(129.075f, -62.622f), new(126.341f, -60.472f),
+    new(124.5f, -59.225f), new(122.207f, -60.495f), new(122.479f, -61.989f), new(122.001f, -63.285f), new(121.616f, -64.139f), new(121.34f, -64.649f), new(120.889f, -65.637f)];
+    private static readonly WPos[] vertices00800040North = [new(119.75f, -69.197f), new(119.8f, -72.259f), new(117.464f, -76.648f), new(116.16f, -78.381f), new(117.654f, -79.69f),
+    new(121.004f, -81.108f), new(123.091f, -84.666f), new(121.806f, -85.139f), new(119.902f, -85.616f), new(119.865f, -85.432f), new(117.019f, -83.869f), new(113.634f, -80.926f),
+    new(112.872f, -77.57f), new(115.792f, -72.885f), new(113.913f, -70.537f)];
+    private static readonly WPos[] vertices00800040East = [new(119.843f, -62.908f), new(122.912f, -63.585f), new(126.417f, -65.231f), new(127.875f, -67.423f), new(129.415f, -67.738f),
+    new(131.682f, -64.324f), new(135.734f, -62.999f), new(135.904f, -64.04f), new(136f, -66f), new(133.316f, -66.632f), new(131.885f, -70.919f), new(127.118f, -71.718f),
+    new(124.3f, -68.396f), new(122.692f, -67.635f), new(120.364f, -68.278f)];
+    private static readonly WPos[] vertices00800040South = [new(112.599f, -62.343f), new(112.144f, -60.134f), new(107.746f, -57.919f), new(106.949f, -53.585f), new(111.361f, -49.956f),
+    new(110.741f, -46.737f), new(112.098f, -46.384f), new(113.836f, -46.127f), new(114.178f, -47.5f), new(115.156f, -51.21f), new(111.583f, -53.679f), new(111.439f, -55.538f),
+    new(116.423f, -58.691f), new(117.812f, -61.417f)];
+    private static readonly WPos[] vertices00800040West = [new(112.885f, -69.813f), new(110.681f, -70.201f), new(108.074f, -73.1f), new(103.282f, -73.098f), new(100.933f, -70.326f),
+    new(98.686f, -70.669f), new(98.201f, -71.399f), new(97.212f, -72.791f), new(96.861f, -71.806f), new(96.384f, -69.902f), new(98.13f, -67.76f), new(98.394f, -67.416f),
+    new(101.8f, -66.852f), new(104.669f, -69.078f), new(106.579f, -69.753f), new(108.694f, -66.477f), new(111.106f, -65.727f)];
+    public static readonly ArenaBoundsComplex StartingBounds = new(StartingPolygon, [new Rectangle(new(116f, -46f), 20f, 1.25f), new Rectangle(new(116f, -86f), 20f, 1.25f)]);
+    public static readonly ArenaBoundsComplex DefaultArena = new([new Polygon(ArenaCenter, 15f, Edges)]);
     public static readonly ArenaBoundsComplex TinyArena = new(TinyPolygon, MapResolution: 0.1f);
-    private static readonly DonutV[] difference = [new DonutV(ArenaCenter, 19.5f, 22, Edges)];
+    private static readonly DonutV[] difference = [new DonutV(ArenaCenter, 19.5f, 22f, Edges)];
     public static readonly ArenaBoundsComplex ArenaENVC00800040 = new([new PolygonCustom(vertices00800040North), new PolygonCustom(vertices00800040East),
     new PolygonCustom(vertices00800040South), new PolygonCustom(vertices00800040West), ..TinyPolygon], difference);
     public static readonly ArenaBoundsComplex ArenaENVC02000100 = new([new PolygonCustom(vertices02000100East), new PolygonCustom(vertices02000100North),

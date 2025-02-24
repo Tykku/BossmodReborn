@@ -45,13 +45,13 @@ public enum AID : uint
 
 class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCustom square = new([new Square(D023Gurfurlur.ArenaCenter, 25)], [new Square(D023Gurfurlur.ArenaCenter, 20)]);
+    private static readonly AOEShapeCustom square = new([new Square(D023Gurfurlur.ArenaCenter, 25f)], [new Square(D023Gurfurlur.ArenaCenter, 20f)]);
     private AOEInstance? _aoe;
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.HeavingHaymaker && Arena.Bounds == D023Gurfurlur.StartingBounds)
+        if (spell.Action.ID == (uint)AID.HeavingHaymaker && Arena.Bounds == D023Gurfurlur.StartingBounds)
             _aoe = new(square, Arena.Center, default, Module.CastFinishAt(spell, 0.6f));
     }
 
@@ -86,25 +86,25 @@ class AuraSphere(BossModule module) : BossComponent(module)
             for (var i = 0; i < len; ++i)
             {
                 var o = orbz[i];
-                orbs[i] = ShapeDistance.InvertedRect(o.Position + 0.5f * o.Rotation.ToDirection(), new WDir(0, 1), 0.7f, 0.7f, 0.7f);
+                orbs[i] = ShapeDistance.InvertedRect(o.Position + 0.5f * o.Rotation.ToDirection(), new WDir(0f, 1f), 0.5f, 0.5f, 0.5f);
             }
-            hints.AddForbiddenZone(ShapeDistance.Intersection(orbs));
+            hints.AddForbiddenZone(ShapeDistance.Intersection(orbs), DateTime.MaxValue);
         }
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var orb in _orbs)
-            Arena.AddCircle(orb.Position, 1, Colors.Safe);
+            Arena.AddCircle(orb.Position, 1f, Colors.Safe);
     }
 }
 
 class SledgeHammer(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.SledgeHammerMarker), ActionID.MakeSpell(AID.Sledgehammer3), 4.9f);
 class HeavingHaymaker(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HeavingHaymaker));
-class LithicImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LithicImpact), new AOEShapeRect(4, 2));
-class Whirlwind(BossModule module) : Components.PersistentVoidzone(module, 5, m => m.Enemies(OID.BitingWind), 7);
+class LithicImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LithicImpact), new AOEShapeRect(4f, 2f));
+class Whirlwind(BossModule module) : Components.PersistentVoidzone(module, 5f, m => m.Enemies(OID.BitingWind), 7);
 
-class GreatFlood(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.GreatFlood), 25, kind: Kind.DirForward)
+class GreatFlood(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.GreatFlood), 25f, kind: Kind.DirForward)
 {
     private readonly Allfire _aoe = module.FindComponent<Allfire>()!;
 
@@ -123,7 +123,7 @@ class GreatFlood(BossModule module) : Components.KnockbackFromCastTarget(module,
 
         var component = _aoe.AOEs;
         if (_aoe.AOEs.Count == 0 && source != default)
-            hints.AddForbiddenZone(ShapeDistance.InvertedRect(source.Origin, source.Direction, 15, 0, 20), source.Activation);
+            hints.AddForbiddenZone(ShapeDistance.InvertedRect(source.Origin, source.Direction, 15f, default, 20f), source.Activation);
 
     }
 }
@@ -131,9 +131,9 @@ class GreatFlood(BossModule module) : Components.KnockbackFromCastTarget(module,
 class Allfire(BossModule module) : Components.GenericAOEs(module)
 {
     private const string Hint = "Be inside safespot for knockback!";
-    private static readonly AOEShapeRect rect = new(10, 5);
+    private static readonly AOEShapeRect rect = new(10f, 5f);
     public readonly List<AOEInstance> AOEs = new(16);
-    private static readonly AOEShapeRect safespot = new(15, 10, InvertForbiddenZone: true);
+    private static readonly AOEShapeRect safespot = new(15f, 10f, InvertForbiddenZone: true);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -153,10 +153,11 @@ class Allfire(BossModule module) : Components.GenericAOEs(module)
         {
             var max = count >= 12 ? 12 : count == 8 ? 8 : 4;
             var aoes = new AOEInstance[max];
+            var act0 = AOEs[0].Activation;
             for (var i = 0; i < max; ++i)
             {
                 var aoe = AOEs[i];
-                aoes[i] = (aoe.Activation - AOEs[0].Activation).TotalSeconds < 1 ? aoe with { Color = count > 4 ? Colors.Danger : 0 } : aoe with { Risky = false };
+                aoes[i] = (aoe.Activation - act0).TotalSeconds < 1d ? aoe with { Color = count > 4 ? Colors.Danger : 0 } : aoe with { Risky = false };
             }
             return aoes;
         }
@@ -164,7 +165,7 @@ class Allfire(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.Allfire1 or AID.Allfire2 or AID.Allfire3)
+        if (spell.Action.ID is (uint)AID.Allfire1 or (uint)AID.Allfire2 or (uint)AID.Allfire3)
         {
             AOEs.Add(new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
             if (AOEs.Count == 16)
@@ -174,7 +175,7 @@ class Allfire(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (AOEs.Count != 0 && (AID)spell.Action.ID is AID.Allfire1 or AID.Allfire2 or AID.Allfire3)
+        if (AOEs.Count != 0 && spell.Action.ID is (uint)AID.Allfire1 or (uint)AID.Allfire2 or (uint)AID.Allfire3)
             AOEs.RemoveAt(0);
     }
 
@@ -211,13 +212,13 @@ class Allfire(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class VolcanicDrop(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.VolcanicDrop), 6);
+class VolcanicDrop(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.VolcanicDrop), 6f);
 class EnduringGlory(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.EnduringGlory));
 class Windswrath1Raidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Windswrath1));
 class Windswrath2Raidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Windswrath2));
 class GreatFloodRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GreatFlood));
 
-class Windswrath(BossModule module, AID aid) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(aid), 15);
+class Windswrath(BossModule module, AID aid) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(aid), 15f);
 class Windswrath1(BossModule module) : Windswrath(module, AID.Windswrath1)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -232,7 +233,7 @@ class Windswrath1(BossModule module) : Windswrath(module, AID.Windswrath1)
             break;
         }
         if (source != default)
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(source.Origin, 5), source.Activation);
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(source.Origin, 5f), source.Activation);
     }
 }
 
@@ -240,16 +241,16 @@ class Windswrath2(BossModule module) : Windswrath(module, AID.Windswrath2)
 {
     private enum Pattern { None, EWEW, WEWE }
     private Pattern CurrentPattern;
-    private static readonly Angle a15 = 15.Degrees(), a165 = 165.Degrees(), a105 = 105.Degrees(), a75 = 75.Degrees();
+    private static readonly Angle a15 = 15f.Degrees(), a165 = 165f.Degrees(), a105 = 105f.Degrees(), a75 = 75f.Degrees();
     private readonly Whirlwind _aoe = module.FindComponent<Whirlwind>()!;
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.BitingWind)
+        if (actor.OID == (uint)OID.BitingWind)
         {
-            if (actor.Position == new WPos(-74, -180))
+            if (actor.Position == new WPos(-74f, -180f))
                 CurrentPattern = Pattern.EWEW;
-            else if (actor.Position == new WPos(-74, -210))
+            else if (actor.Position == new WPos(-74f, -210f))
                 CurrentPattern = Pattern.WEWE;
         }
     }
@@ -272,18 +273,18 @@ class Windswrath2(BossModule module) : Windswrath(module, AID.Windswrath2)
         if (component.Length != 0 && source != default)
         {
             base.AddAIHints(slot, actor, assignment, hints);
-            var timespan = (float)(source.Activation - WorldState.CurrentTime).TotalSeconds;
-            if (timespan <= 3)
+            var timespan = (source.Activation - WorldState.CurrentTime).TotalSeconds;
+            if (timespan <= 3d)
             {
                 var patternWEWE = CurrentPattern == Pattern.WEWE;
                 var origin = source.Origin;
-                forbidden.Add(ShapeDistance.InvertedCone(origin, 5, patternWEWE ? a15 : -a15, a15));
-                forbidden.Add(ShapeDistance.InvertedCone(origin, 5, patternWEWE ? -a165 : a165, a15));
-                forbidden.Add(ShapeDistance.InvertedCone(origin, 5, patternWEWE ? a105 : -a105, a15));
-                forbidden.Add(ShapeDistance.InvertedCone(origin, 5, patternWEWE ? -a75 : a75, a15));
+                forbidden.Add(ShapeDistance.InvertedCone(origin, 5f, patternWEWE ? a15 : -a15, a15));
+                forbidden.Add(ShapeDistance.InvertedCone(origin, 5f, patternWEWE ? -a165 : a165, a15));
+                forbidden.Add(ShapeDistance.InvertedCone(origin, 5f, patternWEWE ? a105 : -a105, a15));
+                forbidden.Add(ShapeDistance.InvertedCone(origin, 5f, patternWEWE ? -a75 : a75, a15));
             }
             else
-                forbidden.Add(ShapeDistance.InvertedCircle(source.Origin, 8));
+                forbidden.Add(ShapeDistance.InvertedCircle(source.Origin, 8f));
             hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), source.Activation);
         }
     }
@@ -315,7 +316,7 @@ class D023GurfurlurStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 824, NameID = 12705)]
 public class D023Gurfurlur(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, StartingBounds)
 {
-    public static readonly WPos ArenaCenter = new(-54, -195);
+    public static readonly WPos ArenaCenter = new(-54f, -195f);
     public static readonly ArenaBoundsSquare StartingBounds = new(24.5f);
-    public static readonly ArenaBoundsSquare DefaultBounds = new(20);
+    public static readonly ArenaBoundsSquare DefaultBounds = new(20f);
 }

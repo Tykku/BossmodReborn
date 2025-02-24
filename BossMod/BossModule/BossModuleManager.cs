@@ -5,7 +5,7 @@ public sealed class BossModuleManager : IDisposable
 {
     public readonly WorldState WorldState;
     public readonly RaidCooldowns RaidCooldowns;
-    public readonly BossModuleConfig Config = Service.Config.Get<BossModuleConfig>();
+    public static readonly BossModuleConfig Config = Service.Config.Get<BossModuleConfig>();
     private readonly EventSubscriptions _subsciptions;
 
     public List<BossModule> LoadedModules { get; } = [];

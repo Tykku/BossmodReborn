@@ -9,7 +9,7 @@ class Phase2InnerCells(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly Ch01CloudOfDarknessConfig _config = Service.Config.Get<Ch01CloudOfDarknessConfig>();
     private readonly DateTime[] _breakTime = new DateTime[28];
-    private static readonly AOEShapeRect square = new(3, 3, 3);
+    private static readonly AOEShapeRect square = new(3f, 3f, 3f);
     private static readonly Dictionary<int, (int x, int y)> _cellIndexToCoordinates = GenerateCellIndexToCoordinates();
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
@@ -26,7 +26,7 @@ class Phase2InnerCells(BossModule module) : Components.GenericAOEs(module)
             {
                 if (i == cell)
                 {
-                    if ((breaktime - WorldState.CurrentTime).TotalSeconds < 6)
+                    if ((breaktime - WorldState.CurrentTime).TotalSeconds < 6d)
                     {
                         tiles[index++] = new(square, CellCenter(i));
                     }
@@ -44,8 +44,8 @@ class Phase2InnerCells(BossModule module) : Components.GenericAOEs(module)
         var breakTime = cell >= 0 && cell < _breakTime.Length ? _breakTime[cell] : default;
         if (breakTime != default)
         {
-            var remaining = Math.Max(0, (breakTime - WorldState.CurrentTime).TotalSeconds);
-            hints.Add($"Cell breaks in {remaining:f1}s", remaining < 10);
+            var remaining = Math.Max(0d, (breakTime - WorldState.CurrentTime).TotalSeconds);
+            hints.Add($"Cell breaks in {remaining:f1}s", remaining < 10d);
         }
     }
 
@@ -71,8 +71,8 @@ class Phase2InnerCells(BossModule module) : Components.GenericAOEs(module)
             return;
         _breakTime[index - 3] = state switch
         {
-            0x00200010 => WorldState.FutureTime(44),
-            0x00800040 => WorldState.FutureTime(6),
+            0x00200010 => WorldState.FutureTime(44d),
+            0x00800040 => WorldState.FutureTime(6d),
             0x00080004 => WorldState.CurrentTime,
             _ => default,
         };
@@ -133,8 +133,8 @@ class Phase2InnerCells(BossModule module) : Components.GenericAOEs(module)
         var cellIndex = breakTimeIndex + 3;
         if (_cellIndexToCoordinates.TryGetValue(cellIndex, out var coordinates))
         {
-            var worldX = (coordinates.x + 0.5f) * 6;
-            var worldZ = (coordinates.y + 0.5f) * 6;
+            var worldX = (coordinates.x + 0.5f) * 6f;
+            var worldZ = (coordinates.y + 0.5f) * 6f;
             return Ch01CloudOfDarkness.DefaultCenter + new WDir(worldX, worldZ);
         }
         else

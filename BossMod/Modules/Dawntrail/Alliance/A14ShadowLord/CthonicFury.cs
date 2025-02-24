@@ -4,26 +4,26 @@ class CthonicFury(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
     public bool Active => _aoe != null || Arena.Bounds != A14ShadowLord.DefaultBounds;
-    private static readonly Square[] def = [new Square(A14ShadowLord.ArenaCenter, 30)]; // using a square for the difference instead of a circle since less vertices will result in slightly better performance
-    public static readonly AOEShapeCustom AOEBurningBattlements = new(def, [new Square(A14ShadowLord.ArenaCenter, 11.5f, 45.Degrees())]);
+    private static readonly Square[] def = [new Square(A14ShadowLord.ArenaCenter, 30f)]; // using a square for the difference instead of a circle since less vertices will result in slightly better performance
+    public static readonly AOEShapeCustom AOEBurningBattlements = new(def, [new Square(A14ShadowLord.ArenaCenter, 11.5f, 45f.Degrees())]);
     private static readonly AOEShapeCustom aoeCthonicFury = new(def, A14ShadowLord.Combined);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.CthonicFuryStart)
+        if (spell.Action.ID == (uint)AID.CthonicFuryStart)
             _aoe = new(aoeCthonicFury, Arena.Center, default, Module.CastFinishAt(spell));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.CthonicFuryStart:
+            case (uint)AID.CthonicFuryStart:
                 _aoe = null;
                 SetArena(A14ShadowLord.ComplexBounds, A14ShadowLord.ComplexBounds.Center);
                 break;
-            case AID.CthonicFuryEnd:
+            case (uint)AID.CthonicFuryEnd:
                 SetArena(A14ShadowLord.DefaultBounds, A14ShadowLord.ArenaCenter);
                 break;
         }
@@ -38,11 +38,11 @@ class CthonicFury(BossModule module) : Components.GenericAOEs(module)
 
 class BurningCourtMoatKeepBattlements(BossModule module) : Components.GenericAOEs(module)
 {
-    public readonly List<AOEInstance> AOEs = [];
+    public readonly List<AOEInstance> AOEs = new(5);
 
-    private static readonly AOEShape _shapeC = new AOEShapeCircle(8);
-    private static readonly AOEShape _shapeM = new AOEShapeDonut(5, 15);
-    private static readonly AOEShape _shapeK = new AOEShapeRect(23, 11.5f);
+    private static readonly AOEShape _shapeC = new AOEShapeCircle(8f);
+    private static readonly AOEShape _shapeM = new AOEShapeDonut(5f, 15f);
+    private static readonly AOEShape _shapeK = new AOEShapeRect(23f, 11.5f);
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs;
 
@@ -59,33 +59,33 @@ class BurningCourtMoatKeepBattlements(BossModule module) : Components.GenericAOE
         if (shape != null)
         {
             ++NumCasts;
-            for (var i = 0; i < AOEs.Count; ++i)
+            var count = AOEs.Count;
+            for (var i = 0; i < count; ++i)
             {
-                var aoe = AOEs[i];
-                if (aoe.ActorID == caster.InstanceID)
+                if (AOEs[i].ActorID == caster.InstanceID)
                 {
-                    AOEs.Remove(aoe);
+                    AOEs.RemoveAt(i);
                     break;
                 }
             }
         }
     }
 
-    private static AOEShape? ShapeForAction(ActionID aid) => (AID)aid.ID switch
+    private static AOEShape? ShapeForAction(ActionID aid) => aid.ID switch
     {
-        AID.BurningCourt => _shapeC,
-        AID.BurningMoat => _shapeM,
-        AID.BurningKeep => _shapeK,
-        AID.BurningBattlements => CthonicFury.AOEBurningBattlements,
+        (uint)AID.BurningCourt => _shapeC,
+        (uint)AID.BurningMoat => _shapeM,
+        (uint)AID.BurningKeep => _shapeK,
+        (uint)AID.BurningBattlements => CthonicFury.AOEBurningBattlements,
         _ => null
     };
 }
 
-class EchoesOfAgony(BossModule module) : Components.StackWithIcon(module, (uint)IconID.EchoesOfAgony, ActionID.MakeSpell(AID.EchoesOfAgonyAOE), 5, 9.2f, PartyState.MaxAllianceSize, PartyState.MaxAllianceSize)
+class EchoesOfAgony(BossModule module) : Components.StackWithIcon(module, (uint)IconID.EchoesOfAgony, ActionID.MakeSpell(AID.EchoesOfAgonyAOE), 5f, 9.2f, PartyState.MaxAllianceSize, PartyState.MaxAllianceSize)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.EchoesOfAgony)
+        if (spell.Action.ID == (uint)AID.EchoesOfAgony)
             NumFinishedStacks = 0;
     }
 

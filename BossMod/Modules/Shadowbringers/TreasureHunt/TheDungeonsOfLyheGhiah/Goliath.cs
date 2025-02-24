@@ -37,17 +37,17 @@ public enum AID : uint
     Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
-class Wellbore(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wellbore), 15);
+class Wellbore(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wellbore), 15f);
 class Compress1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Compress1), new AOEShapeCross(100, 3.5f));
 class Compress2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Compress2), new AOEShapeRect(102.1f, 3.5f));
-class Accelerate(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Accelerate), 6, 8, 8);
+class Accelerate(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Accelerate), 6f, 8, 8);
 class Incinerate(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Incinerate));
-class Fount(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fount), 4);
+class Fount(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fount), 4f);
 class MechanicalBlow(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.MechanicalBlow));
 
 class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
-class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(15.23f, 2));
-class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15, 60.Degrees()));
+class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(15.23f, 2f));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15f, 60f.Degrees()));
 
 class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
 class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
@@ -72,7 +72,17 @@ class GoliathStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(Goliath.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(Goliath.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -114,23 +124,24 @@ public class Goliath(WorldState ws, Actor primary) : BossModule(ws, primary, are
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.GoliathsJavelin));
+        Arena.Actors(Enemies((uint)OID.GoliathsJavelin));
         Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.DungeonOnion => 6,
-                OID.DungeonEgg => 5,
-                OID.DungeonGarlic => 4,
-                OID.DungeonTomato => 3,
-                OID.DungeonQueen or OID.KeeperOfKeys => 2,
-                OID.GoliathsJavelin => 1,
+                (uint)OID.DungeonOnion => 6,
+                (uint)OID.DungeonEgg => 5,
+                (uint)OID.DungeonGarlic => 4,
+                (uint)OID.DungeonTomato => 3,
+                (uint)OID.DungeonQueen or (uint)OID.KeeperOfKeys => 2,
+                (uint)OID.GoliathsJavelin => 1,
                 _ => 0
             };
         }

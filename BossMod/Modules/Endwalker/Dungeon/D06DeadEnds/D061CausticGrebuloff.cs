@@ -36,13 +36,13 @@ class CertainSolitude(BossModule module) : Components.GenericStackSpread(module)
 {
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.CravenCompanionship && Stacks.Count == 0)
-            Stacks.Add(new(actor, 1.5f, 4, 4, activation: WorldState.FutureTime(5)));
+        if (status.ID == (uint)SID.CravenCompanionship && Stacks.Count == 0)
+            Stacks.Add(new(actor, 1.5f, 4, 4, activation: WorldState.FutureTime(5d)));
     }
 
     public override void Update()
     {
-        if (Stacks.Count != 0 && Raid.WithoutSlot(false, true, true).All(x => x.FindStatus(SID.CravenCompanionship) == null))
+        if (Stacks.Count != 0 && Raid.WithoutSlot(false, true, true).All(x => x.FindStatus((uint)SID.CravenCompanionship) == null))
             Stacks.Clear();
     }
 }
@@ -53,13 +53,13 @@ class Necrosis(BossModule module) : BossComponent(module)
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.Necrosis)
+        if (status.ID == (uint)SID.Necrosis)
             _doomed.Add(actor);
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.Necrosis)
+        if (status.ID == (uint)SID.Necrosis)
             _doomed.Remove(actor);
     }
 
@@ -112,18 +112,16 @@ class NecroticFluidMist(BossModule module) : Components.Exaflare(module, 6)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        static WPos RoundPosition(WPos position) => new(MathF.Round(position.X * 10) * 0.1f, MathF.Round(position.Z * 10) * 0.1f);
-        if ((AID)spell.Action.ID == AID.NecroticFluid)
+        if (spell.Action.ID == (uint)AID.NecroticFluid)
         {
-            var roundedPos = RoundPosition(spell.LocXZ);
             var numExplosions = CurrentWind switch
             {
-                Pattern.Southward => GetSouthwardExplosions(roundedPos, Arena.Center),
-                Pattern.Northward => GetNorthwardExplosions(roundedPos, Arena.Center),
+                Pattern.Southward => GetSouthwardExplosions(caster.Position, Arena.Center),
+                Pattern.Northward => GetNorthwardExplosions(caster.Position, Arena.Center),
                 _ => 0
             };
-            var advance = 6 * (CurrentWind == Pattern.Southward ? new WDir(0, 1) : new(0, -1));
-            Lines.Add(new() { Next = spell.LocXZ, Advance = advance, NextExplosion = Module.CastFinishAt(spell), TimeToMove = 2, ExplosionsLeft = numExplosions, MaxShownExplosions = 5 });
+            var advance = 6 * (CurrentWind == Pattern.Southward ? new WDir(default, 1f) : new(default, -1f));
+            Lines.Add(new() { Next = caster.Position, Advance = advance, NextExplosion = Module.CastFinishAt(spell), TimeToMove = 2, ExplosionsLeft = numExplosions, MaxShownExplosions = 5 });
         }
     }
 
@@ -136,7 +134,7 @@ class NecroticFluidMist(BossModule module) : Components.Exaflare(module, 6)
             -191.4f => 5,
             -194.5f => 6,
             -196.9f => 7,
-            _ => position.Z > -178 ? 1 : ((position - center).LengthSq() > 100 && position.Z == -178) ? 3 : 4,
+            _ => position.Z > -178f ? 1 : ((position - center).LengthSq() > 100f && position.Z == -178f) ? 3 : 4,
         };
     }
 
@@ -149,80 +147,77 @@ class NecroticFluidMist(BossModule module) : Components.Exaflare(module, 6)
             -164.6f => 5,
             -161.5f => 6,
             -159.1f => 7,
-            _ => position.Z < -178 ? 1 : ((position - center).LengthSq() > 100 && position.Z == -178) ? 3 : 4,
+            _ => position.Z < -178f ? 1 : ((position - center).LengthSq() > 100f && position.Z == -178f) ? 3 : 4,
         };
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.NecroticFluid or AID.NecroticMist)
+        if (spell.Action.ID is (uint)AID.NecroticFluid or (uint)AID.NecroticMist)
         {
-            Advance(spell.LocXZ);
-            ++NumCasts;
-        }
-    }
-
-    private void Advance(WPos position)
-    {
-        var index = Lines.FindIndex(item => item.Next.AlmostEqual(position, 1));
-        if (index != -1)
-        {
-            AdvanceLine(Lines[index], position);
-            if (Lines[index].ExplosionsLeft == 0)
-                Lines.RemoveAt(index);
-            if (Lines.Count == 0)
-                CurrentWind = Pattern.None;
+            var count = Lines.Count;
+            var pos = caster.Position;
+            for (var i = 0; i < count; ++i)
+            {
+                var line = Lines[i];
+                if (line.Next.AlmostEqual(pos, 1f))
+                {
+                    AdvanceLine(line, pos);
+                    if (line.ExplosionsLeft == 0)
+                        Lines.RemoveAt(i);
+                    if (Lines.Count == 0)
+                        CurrentWind = Pattern.None;
+                    return;
+                }
+            }
         }
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (Module.FindComponent<WaveOfNausea>()!.ActiveAOEs(slot, actor).Any())
+        if (Module.FindComponent<WaveOfNausea>()?.AOEs.Count != 0)
         { }
         else
             base.AddAIHints(slot, actor, assignment, hints);
     }
 }
 
-class Befoulment(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Befoulment), 6);
-class BlightedWater(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BlightedWater), 6, 4, 4);
+class Befoulment(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Befoulment), 6f);
+class BlightedWater(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BlightedWater), 6f, 4, 4);
 class CoughUpAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CoughUpAOE), 6);
 
 class WaveOfNausea(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly NecroticFluidMist _exa = module.FindComponent<NecroticFluidMist>()!;
-    private readonly List<AOEInstance> _aoes = new(2);
+    public readonly List<AOEInstance> AOEs = new(2);
     private static readonly AOEShapeDonut donut = new(6, 40);
-    private static readonly Shape[] differenceShapes = [new Circle(new(271.473f, -178.027f), 6), new Circle(new(261.494f, -178.027f), 6)];
+    private static readonly Shape[] differenceShapes = [new Circle(new(271.473f, -178.027f), 6f), new Circle(new(261.494f, -178.027f), 6f)];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
+    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         void AddAOE(Angle start, Angle end)
-                => _aoes.Add(new(new AOEShapeCustom([new ConeHA(spell.LocXZ, 6, start, end)], differenceShapes, InvertForbiddenZone: true), Arena.Center, default, Module.CastFinishAt(spell), Colors.SafeFromAOE));
+                => AOEs.Add(new(new AOEShapeCustom([new ConeHA(spell.LocXZ, 6f, start, end)], differenceShapes, InvertForbiddenZone: true), Arena.Center, default, Module.CastFinishAt(spell), Colors.SafeFromAOE));
         if ((AID)spell.Action.ID == AID.WaveOfNausea)
         {
-            _aoes.Add(new(donut, spell.LocXZ, default, Module.CastFinishAt(spell)));
+            AOEs.Add(new(donut, spell.LocXZ, default, Module.CastFinishAt(spell)));
             if (_exa.CurrentWind == NecroticFluidMist.Pattern.Southward)
-                AddAOE(180.Degrees(), 90.Degrees());
+                AddAOE(180f.Degrees(), 90f.Degrees());
             else if (_exa.CurrentWind == NecroticFluidMist.Pattern.Northward)
-                AddAOE(default, 90.Degrees());
+                AddAOE(default, 90f.Degrees());
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.WaveOfNausea)
-        {
-            ++NumCasts;
-            _aoes.Clear();
-        }
+        if (spell.Action.ID == (uint)AID.WaveOfNausea)
+            AOEs.Clear();
     }
 
     public override void AddGlobalHints(GlobalHints hints)
     {
-        if (ActiveAOEs(default, default!).Any() && Module.FindComponent<NecroticFluidMist>()!.ActiveAOEs(default, default!).Any())
+        if (AOEs.Count != 0 && _exa.Lines.Count != 0)
             hints.Add("Wait in marked safespot for donut resolve!");
     }
 }
@@ -250,6 +245,6 @@ class D061CausticGrebuloffStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 792, NameID = 10313)]
 public class D061CausticGrebuloff(WorldState ws, Actor primary) : BossModule(ws, primary, defaultBounds.Center, defaultBounds)
 {
-    private static readonly ArenaBoundsComplex defaultBounds = new([new Polygon(new(266.5f, -178), 19.5f * CosPI.Pi32th, 32)],
-    [new Rectangle(new(266.5f, -198.75f), 20, 2), new Rectangle(new(266.5f, -157), 20, 2)]);
+    private static readonly ArenaBoundsComplex defaultBounds = new([new Polygon(new(266.5f, -178f), 19.5f * CosPI.Pi32th, 32)],
+    [new Rectangle(new(266.5f, -198.75f), 20f, 2f), new Rectangle(new(266.5f, -157f), 20f, 2f)]);
 }

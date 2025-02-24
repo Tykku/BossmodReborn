@@ -134,7 +134,7 @@ public static class ConcaveHull
     }
 
     private static Path64 ConvertToPath64(List<WPos> points) => [.. points.Select(p => new Point64((long)(p.X * PolygonClipper.Scale), (long)(p.Z * PolygonClipper.Scale))).ToList()];
-    private static List<WPos> ConvertToPoints(Path64 path) => path.Select(p => new WPos((float)(p.X * PolygonClipper.InvScale), (float)(p.Y * PolygonClipper.InvScale))).ToList();
+    private static List<WPos> ConvertToPoints(Path64 path) => [.. path.Select(p => new WPos((float)(p.X * PolygonClipper.InvScale), (float)(p.Y * PolygonClipper.InvScale)))];
 
     public static List<WPos> GenerateConcaveHull(List<WPos> points, float alpha, float epsilon)
     {

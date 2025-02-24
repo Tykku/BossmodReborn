@@ -33,10 +33,10 @@ public enum AID : uint
     Telega = 9630 // Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
-class PolarRoar(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PolarRoar), new AOEShapeDonut(9, 40));
-class Hellstorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hellstorm2), 10);
-class Netherwind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Netherwind), new AOEShapeRect(18, 2));
-class GlassyNova(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GlassyNova), new AOEShapeRect(45.4f, 4));
+class PolarRoar(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PolarRoar), new AOEShapeDonut(9f, 40f));
+class Hellstorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hellstorm2), 10f);
+class Netherwind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Netherwind), new AOEShapeRect(18f, 2f));
+class GlassyNova(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GlassyNova), new AOEShapeRect(45.4f, 4f));
 class BrainFreeze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BrainFreeze), 15.4f);
 
 abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
@@ -61,7 +61,17 @@ class HatiStates : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(Hati.All).All(x => x.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(Hati.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
@@ -75,23 +85,24 @@ public class Hati(WorldState ws, Actor primary) : THTemplate(ws, primary)
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.AltarKatasharin));
+        Arena.Actors(Enemies((uint)OID.AltarKatasharin));
         Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.AltarOnion => 6,
-                OID.AltarEgg => 5,
-                OID.AltarGarlic => 4,
-                OID.AltarTomato => 3,
-                OID.AltarQueen => 2,
-                OID.AltarKatasharin => 1,
+                (uint)OID.AltarOnion => 6,
+                (uint)OID.AltarEgg => 5,
+                (uint)OID.AltarGarlic => 4,
+                (uint)OID.AltarTomato => 3,
+                (uint)OID.AltarQueen => 2,
+                (uint)OID.AltarKatasharin => 1,
                 _ => 0
             };
         }
