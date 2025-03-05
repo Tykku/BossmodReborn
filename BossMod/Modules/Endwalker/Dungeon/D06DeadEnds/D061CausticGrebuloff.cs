@@ -42,8 +42,17 @@ class CertainSolitude(BossModule module) : Components.GenericStackSpread(module)
 
     public override void Update()
     {
-        if (Stacks.Count != 0 && Raid.WithoutSlot(false, true, true).All(x => x.FindStatus((uint)SID.CravenCompanionship) == null))
+        if (Stacks.Count != 0)
+        {
+            var party = Raid.WithoutSlot(false, true, true);
+            var len = party.Length;
+            for (var i = 0; i < len; ++i)
+            {
+                if (party[i].FindStatus((uint)SID.CravenCompanionship) != null)
+                    return;
+            }
             Stacks.Clear();
+        }
     }
 }
 
@@ -65,22 +74,25 @@ class Necrosis(BossModule module) : BossComponent(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (_doomed.Count != 0)
+        var count = _doomed.Count;
+        if (count != 0)
             if (_doomed.Contains(actor))
                 if (!(actor.Role == Role.Healer || actor.Class == Class.BRD))
                     hints.Add("You were doomed! Get cleansed fast.");
                 else
                     hints.Add("Cleanse yourself! (Doom).");
             else if (actor.Role == Role.Healer || actor.Class == Class.BRD)
-                foreach (var c in _doomed)
-                    hints.Add($"Cleanse {c.Name}! (Doom)");
+                for (var i = 0; i < count; ++i)
+                    hints.Add($"Cleanse {_doomed[i].Name}! (Doom)");
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (_doomed.Count != 0)
-            foreach (var c in _doomed)
+        var count = _doomed.Count;
+        if (count != 0)
+            for (var i = 0; i < count; ++i)
             {
+                var c = _doomed[i];
                 if (actor.Role == Role.Healer)
                     hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Esuna), c, ActionQueue.Priority.High);
                 else if (actor.Class == Class.BRD)
@@ -156,7 +168,7 @@ class NecroticFluidMist(BossModule module) : Components.Exaflare(module, 6)
         if (spell.Action.ID is (uint)AID.NecroticFluid or (uint)AID.NecroticMist)
         {
             var count = Lines.Count;
-            var pos = caster.Position;
+            var pos = spell.LocXZ;
             for (var i = 0; i < count; ++i)
             {
                 var line = Lines[i];
@@ -184,13 +196,13 @@ class NecroticFluidMist(BossModule module) : Components.Exaflare(module, 6)
 
 class Befoulment(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Befoulment), 6f);
 class BlightedWater(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BlightedWater), 6f, 4, 4);
-class CoughUpAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CoughUpAOE), 6);
+class CoughUpAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CoughUpAOE), 6f);
 
 class WaveOfNausea(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly NecroticFluidMist _exa = module.FindComponent<NecroticFluidMist>()!;
     public readonly List<AOEInstance> AOEs = new(2);
-    private static readonly AOEShapeDonut donut = new(6, 40);
+    private static readonly AOEShapeDonut donut = new(6f, 40f);
     private static readonly Shape[] differenceShapes = [new Circle(new(271.473f, -178.027f), 6f), new Circle(new(261.494f, -178.027f), 6f)];
 
     public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs;

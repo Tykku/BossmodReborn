@@ -99,17 +99,7 @@ class Room1States : StateMachineBuilder
             .ActivateOnEnter<HeirloomScream>()
             .ActivateOnEnter<PungentPirouette>()
             .ActivateOnEnter<Pollen>()
-            .Raw.Update = () =>
-            {
-                var enemies = module.Enemies(Room1.All);
-                var count = enemies.Count;
-                for (var i = 0; i < count; ++i)
-                {
-                    if (!enemies[i].IsDeadOrDestroyed)
-                        return false;
-                }
-                return module.PrimaryActor.EventState == 7;
-            };
+            .Raw.Update = () => module.PrimaryActor.IsDestroyed || module.PrimaryActor.EventState == 7;
     }
 }
 
@@ -119,23 +109,21 @@ public class Room1(WorldState ws, Actor primary) : BossModule(ws, primary, Arena
     private static readonly WPos arenaCenter = new(default, 377f);
     private static readonly Angle a135 = 135.Degrees();
     private static readonly WDir dir135 = a135.ToDirection(), dirM135 = (-a135).ToDirection();
-    public static readonly ArenaBoundsComplex ArenaBounds = new([new Polygon(arenaCenter, 19.5f * CosPI.Pi36th, 36), new Rectangle(arenaCenter + 8.65f * dir135, 20f, 6.15f, a135),
-    new Rectangle(arenaCenter + 8.65f * dirM135, 20f, 6.15f, -a135), new Rectangle(arenaCenter + 12f * dir135, 20f, 4.3f, a135), new Rectangle(arenaCenter + 12f * dirM135, 20f, 4.3f, -a135),
-    new Rectangle(arenaCenter + 14.3f * dir135, 20f, 3.5f, a135), new Rectangle(arenaCenter + 14.3f * dirM135, 20f, 3.5f, -a135)], [new Rectangle(new(default, 397f), 20f, 1.4f)]);
+    public static readonly ArenaBoundsComplex ArenaBounds = new([new Polygon(arenaCenter, 19.5f * CosPI.Pi36th, 36), new Rectangle(arenaCenter + 8.65f * dir135, 20f, 6.15f, -a135),
+    new Rectangle(arenaCenter + 8.65f * dirM135, 20f, 6.15f, a135), new Rectangle(arenaCenter + 12f * dir135, 20f, 4.3f, -a135), new Rectangle(arenaCenter + 12f * dirM135, 20f, 4.3f, a135),
+    new Rectangle(arenaCenter + 14.3f * dir135, 20f, 3.5f, -a135), new Rectangle(arenaCenter + 14.3f * dirM135, 20f, 3.5f, a135)], [new Rectangle(new(default, 397f), 20f, 1.4f)]);
     private static readonly uint[] bonusAdds = [(uint)OID.TuligoraQueen, (uint)OID.TuraliTomato, (uint)OID.TuraliOnion, (uint)OID.TuraliEggplant,
     (uint)OID.TuraliGarlic, (uint)OID.UolonOfFortune, (uint)OID.AlpacaOfFortune];
     private static readonly uint[] trash = [(uint)OID.CenoteNetzach, (uint)OID.CenotePitcherWeed, (uint)OID.CenoteWoodsman, (uint)OID.CenoteSilverLobo, (uint)OID.CenoteGedan,
     (uint)OID.CenoteBandercoeurl, (uint)OID.CenoteTohsoq, (uint)OID.Cenotekeeper, (uint)OID.CenoteTohtson, (uint)OID.CenoteTomatuxmool, (uint)OID.CenoteTomaton, (uint)OID.CenoteNecrosis];
-    public static readonly uint[] All = [(uint)OID.Boss, .. trash, .. bonusAdds];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, Colors.Object);
         Arena.Actors(Enemies(trash));
         Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
-    protected override bool CheckPull() => !PrimaryActor.IsTargetable;
+    protected override bool CheckPull() => Enemies(trash).Count != 0;
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

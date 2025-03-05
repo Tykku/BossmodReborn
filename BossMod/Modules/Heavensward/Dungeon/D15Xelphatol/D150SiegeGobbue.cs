@@ -32,7 +32,7 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
     new(63.214f, -63.273f), new(63.267f, -67.123f)]);
     private static readonly PolygonCustom verticesDiff2 = new([new(181.034f, -18.5f), new(175.119f, -18.5f), new(175.522f, -17.112f),
     new(178.095f, -14.489f), new(180.889f, -17.318f)]);
-    private static readonly Shape[] difference1 = [new Polygon(arena1center, InnerRadius, Vertices, a225), verticesDiff1, new Rectangle(new(59f, -67.5f), 10f, 2.1f, 135f.Degrees())];
+    private static readonly Shape[] difference1 = [new Polygon(arena1center, InnerRadius, Vertices, a225), verticesDiff1, new Rectangle(new(59f, -67.5f), 10f, 2.1f, -135f.Degrees())];
     private static readonly Shape[] difference2 = [new Polygon(arena2center, InnerRadius, Vertices, a225), verticesDiff2];
     private static readonly AOEShapeCustom poly1 = new([new Polygon(arena1center, OuterRadius, Vertices, a225)], difference1);
     private static readonly AOEShapeCustom poly2 = new([new Polygon(arena2center, OuterRadius, Vertices, a225)], difference2);
@@ -144,7 +144,6 @@ public class D150SiegeGobbue(WorldState ws, Actor primary) : BossModule(ws, prim
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        var filteredEnemies = new List<Actor>();
         var enemies = Enemies(Trash);
         var count = enemies.Count;
         var center = Arena.Center;
@@ -153,8 +152,14 @@ public class D150SiegeGobbue(WorldState ws, Actor primary) : BossModule(ws, prim
         {
             var enemy = enemies[i];
             if (enemy.Position.AlmostEqual(center, radius))
-                filteredEnemies.Add(enemy);
+                Arena.Actor(enemy);
         }
-        Arena.Actors(filteredEnemies);
+    }
+
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
+            hints.PotentialTargets[i].Priority = 0;
     }
 }

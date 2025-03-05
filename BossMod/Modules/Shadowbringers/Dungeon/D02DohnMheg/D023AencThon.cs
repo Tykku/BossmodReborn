@@ -56,7 +56,7 @@ class FunambulistsFantasia(BossModule module) : BossComponent(module)
         if (Arena.Bounds == D033AencThon.ChasmArena && Module.Enemies(OID.LiarsLyre) is var lyre && lyre.Count != 0)
         {
             hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Sprint), actor, ActionQueue.Priority.High);
-            hints.GoalZones.Add(hints.GoalSingleTarget(lyre[0], 1.4f, 5));
+            hints.GoalZones.Add(hints.GoalSingleTarget(lyre[0], 1f, 5f));
         }
     }
 }
@@ -165,6 +165,6 @@ public class D033AencThon(WorldState ws, Actor primary) : BossModule(ws, primary
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.LiarsLyre), Colors.Object);
+        Arena.Actors(Enemies((uint)OID.LiarsLyre), Colors.Object);
     }
 }

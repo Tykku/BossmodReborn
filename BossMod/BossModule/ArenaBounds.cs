@@ -45,7 +45,7 @@ public abstract record class ArenaBounds(float Radius, float MapResolution, floa
     public List<RelTriangle> ClipAndTriangulateCone(WDir centerOffset, float innerRadius, float outerRadius, Angle centerDirection, Angle halfAngle)
     {
         // TODO: think of a better way to do that (analytical clipping?)
-        if (innerRadius >= outerRadius || innerRadius < 0 || halfAngle.Rad <= 0)
+        if (innerRadius >= outerRadius || innerRadius < 0f || halfAngle.Rad <= 0f)
             return [];
 
         var fullCircle = halfAngle.Rad >= MathF.PI;
@@ -92,7 +92,7 @@ public abstract record class ArenaBounds(float Radius, float MapResolution, floa
 
     public List<RelTriangle> ClipAndTriangulateDonut(WDir centerOffset, float innerRadius, float outerRadius)
     {
-        if (innerRadius < outerRadius && innerRadius >= 0)
+        if (innerRadius < outerRadius && innerRadius >= 0f)
         {
             var points = CurveApprox.Donut(innerRadius, outerRadius, MaxApproxError);
             var len = points.Length;
@@ -169,7 +169,7 @@ public sealed record class ArenaBoundsCircle(float Radius, float MapResolution =
     private Pathfinding.Map BuildMap()
     {
         var map = new Pathfinding.Map(MapResolution, default, Radius, Radius);
-        map.BlockPixelsInside2(ShapeDistance.InvertedCircle(default, Radius), -1);
+        map.BlockPixelsInside2(ShapeDistance.InvertedCircle(default, Radius), -1f);
         return map;
     }
 }
@@ -193,7 +193,7 @@ public record class ArenaBoundsRect(float HalfWidth, float HalfHeight, Angle Rot
         var halfHeight = HalfHeight;
         var rotation = Rotation;
         var map = new Pathfinding.Map(MapResolution, default, halfWidth, halfHeight, rotation);
-        map.BlockPixelsInside2(ShapeDistance.InvertedRect(default, rotation, halfHeight, halfHeight, halfWidth), -1);
+        map.BlockPixelsInside2(ShapeDistance.InvertedRect(default, rotation, halfHeight, halfHeight, halfWidth), -1f);
         return map;
     }
 
@@ -280,7 +280,7 @@ public record class ArenaBoundsCustom : ArenaBounds
             ref var edge = ref edges[i];
             var edge1 = edge.Item1;
             var segmentVector = edge.Item2 - edge1;
-            var t = Math.Max(0, Math.Min(1, (offset - edge1).Dot(segmentVector) / segmentVector.LengthSq()));
+            var t = Math.Max(0, Math.Min(1f, (offset - edge1).Dot(segmentVector) / segmentVector.LengthSq()));
             var nearest = edge1 + t * segmentVector;
             var distance = (nearest - offset).LengthSq();
 
@@ -329,7 +329,7 @@ public record class ArenaBoundsCustom : ArenaBounds
         var width = map.Width;
         var height = map.Height;
         var resolution = map.Resolution;
-        map.BlockPixelsInside(new PolygonWithHolesDistanceFunction(default, poly).InvertedDistance, -1, 0.49999f * resolution); // check inner circle of the pixel
+        map.BlockPixelsInside(new PolygonWithHolesDistanceFunction(default, poly).InvertedDistance, -1f, 0.49999f * resolution); // check inner circle of the pixel
         // now check the corners
         var halfSample = resolution * 0.49999f; // tiny offset to account for floating point inaccuracies
 
@@ -352,7 +352,7 @@ public record class ArenaBoundsCustom : ArenaBounds
             for (var x = 0; x < width; ++x)
             {
                 ref var pixel = ref pixels[rowOffset + x];
-                if (pixel == -1)
+                if (pixel == -1f)
                     continue;
                 var pos = posY + x * dx;
 
