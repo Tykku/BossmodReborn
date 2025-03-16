@@ -38,15 +38,15 @@ public enum AID : uint
     Telega = 9630 // AltarMatanga/Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
-class Innocence(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Innocence), 5);
-class HydroPush(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HydroPush), new AOEShapeRect(49.4f, 22));
+class Innocence(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Innocence), 5f);
+class HydroPush(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HydroPush), new AOEShapeRect(49.4f, 22f));
 
 class BloodyPuddle(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCircle circle = new(11.2f);
     public readonly List<AOEInstance> AOEs = new(3);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs;
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(AOEs);
 
     public override void OnActorCreated(Actor actor)
     {
@@ -64,7 +64,7 @@ class BloodyPuddle(BossModule module) : Components.GenericAOEs(module)
 class Torpedo(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.Torpedo));
 class RisingSeas(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RisingSeas));
 
-class RisingSeasKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.RisingSeas), 20f, stopAtWall: true)
+class RisingSeasKB(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.RisingSeas), 20f, stopAtWall: true)
 {
     private readonly BloodyPuddle _aoe = module.FindComponent<BloodyPuddle>()!;
     private static readonly Angle cone = 37.5f.Degrees();

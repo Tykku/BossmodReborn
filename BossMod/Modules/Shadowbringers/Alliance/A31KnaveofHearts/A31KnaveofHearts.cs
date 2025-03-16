@@ -15,8 +15,8 @@ class MagicArtilleryAlpha(BossModule module) : Components.SpreadFromCastTargets(
 class LightLeap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightLeap), 25);
 class BoxSpawn(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BoxSpawn), new AOEShapeRect(8, 4));
 class MagicBarrage(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagicBarrage), new AOEShapeRect(61, 2.5f));
-class Lunge(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Lunge), 60, stopAtWall: true, kind: Kind.DirForward);
-class Energy(BossModule module) : Components.PersistentVoidzone(module, 1, m => m.Enemies(OID.Energy).Where(z => z.EventState != 7));
+class Lunge(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Lunge), 60, stopAtWall: true, kind: Kind.DirForward);
+class Energy(BossModule module) : Components.Voidzone(module, 1, m => m.Enemies(OID.Energy).Where(z => z.EventState != 7));
 
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 779, NameID = 9955)]
 public class A31KnaveofHearts(WorldState ws, Actor primary) : BossModule(ws, primary, new(-800, -724.4f), new ArenaBoundsSquare(29.5f));

@@ -10,7 +10,7 @@ class P4UltimatePredation(BossModule module) : BossComponent(module)
     private readonly ArcList _first = new(new(), _dodgeRadius);
     private readonly ArcList _second = new(new(), _dodgeRadius);
 
-    private const float _dodgeRadius = 19;
+    private const float _dodgeRadius = 19f;
     private static readonly Angle _dodgeCushion = 2.5f.Degrees();
 
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
@@ -36,15 +36,15 @@ class P4UltimatePredation(BossModule module) : BossComponent(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (CurState == State.Predicted && (AID)spell.Action.ID == AID.CrimsonCyclone)
+        if (CurState == State.Predicted && spell.Action.ID == (uint)AID.CrimsonCyclone)
             CurState = State.First;
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.CrimsonCyclone:
+            case (uint)AID.CrimsonCyclone:
                 if (CurState == State.First)
                 {
                     CurState = State.Second;
@@ -52,7 +52,7 @@ class P4UltimatePredation(BossModule module) : BossComponent(module)
                         _hints.RemoveAt(0);
                 }
                 break;
-            case AID.CrimsonCycloneCross:
+            case (uint)AID.CrimsonCycloneCross:
                 if (CurState == State.Second)
                 {
                     CurState = State.Done;
@@ -75,7 +75,7 @@ class P4UltimatePredation(BossModule module) : BossComponent(module)
 
     private void RecalculateHints()
     {
-        _first.Center = _second.Center = Module.Center;
+        _first.Center = _second.Center = Arena.Center;
         _first.Forbidden.Clear();
         _second.Forbidden.Clear();
         _hints.Clear();
@@ -88,18 +88,18 @@ class P4UltimatePredation(BossModule module) : BossComponent(module)
         if (garuda == null || titan == null || ifrit == null || ultima == null)
             return;
 
-        _first.ForbidInfiniteRect(titan.Position, titan.Rotation, 3);
-        _first.ForbidInfiniteRect(titan.Position, titan.Rotation + 45.Degrees(), 3);
-        _first.ForbidInfiniteRect(titan.Position, titan.Rotation - 45.Degrees(), 3);
-        _second.ForbidInfiniteRect(titan.Position, titan.Rotation + 22.5f.Degrees(), 3);
-        _second.ForbidInfiniteRect(titan.Position, titan.Rotation - 22.5f.Degrees(), 3);
-        _second.ForbidInfiniteRect(titan.Position, titan.Rotation + 90.Degrees(), 3);
-        _first.ForbidInfiniteRect(ifrit.Position, ifrit.Rotation, 9);
-        _second.ForbidInfiniteRect(Module.Center - new WDir(Module.Bounds.Radius, 0), 90.Degrees(), 5);
-        _second.ForbidInfiniteRect(Module.Center - new WDir(0, Module.Bounds.Radius), 0.Degrees(), 5);
-        _first.ForbidCircle(garuda.Position, 20);
-        _second.ForbidCircle(garuda.Position, 20);
-        _second.ForbidCircle(ultima.Position, 14);
+        _first.ForbidInfiniteRect(titan.Position, titan.Rotation, 3f);
+        _first.ForbidInfiniteRect(titan.Position, titan.Rotation + 45f.Degrees(), 3f);
+        _first.ForbidInfiniteRect(titan.Position, titan.Rotation - 45f.Degrees(), 3f);
+        _second.ForbidInfiniteRect(titan.Position, titan.Rotation + 22.5f.Degrees(), 3f);
+        _second.ForbidInfiniteRect(titan.Position, titan.Rotation - 22.5f.Degrees(), 3f);
+        _second.ForbidInfiniteRect(titan.Position, titan.Rotation + 90f.Degrees(), 3f);
+        _first.ForbidInfiniteRect(ifrit.Position, ifrit.Rotation, 9f);
+        _second.ForbidInfiniteRect(Arena.Center - new WDir(Arena.Bounds.Radius, default), 90f.Degrees(), 5f);
+        _second.ForbidInfiniteRect(Arena.Center - new WDir(default, Arena.Bounds.Radius), default, 5f);
+        _first.ForbidCircle(garuda.Position, 20f);
+        _second.ForbidCircle(garuda.Position, 20f);
+        _second.ForbidCircle(ultima.Position, 14f);
 
         var safespots = EnumeratePotentialSafespots();
         var (a1, a2) = safespots.MinBy(AngularDistance);
@@ -107,7 +107,7 @@ class P4UltimatePredation(BossModule module) : BossComponent(module)
         _hints.Add(GetSafePositionAtAngle(a2));
     }
 
-    private WPos GetSafePositionAtAngle(Angle angle) => Module.Center + _dodgeRadius * angle.ToDirection();
+    private WPos GetSafePositionAtAngle(Angle angle) => Arena.Center + _dodgeRadius * angle.ToDirection();
 
     private IEnumerable<(Angle, Angle)> EnumeratePotentialSafespots()
     {

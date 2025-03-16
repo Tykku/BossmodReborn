@@ -21,7 +21,7 @@ public enum SID : uint
     Heavy = 14
 }
 
-class Douse(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 8f, ActionID.MakeSpell(AID.Douse), GetVoidzones, 0.8f)
+class Douse(BossModule module) : Components.VoidzoneAtCastTarget(module, 8f, ActionID.MakeSpell(AID.Douse), GetVoidzones, 0.8f)
 {
     public static Actor[] GetVoidzones(BossModule module)
     {

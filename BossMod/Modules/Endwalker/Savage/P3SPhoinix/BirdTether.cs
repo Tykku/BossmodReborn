@@ -61,7 +61,7 @@ class BirdTether(BossModule module) : BossComponent(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        var birdsLarge = Module.Enemies(OID.SunbirdLarge);
+        var birdsLarge = Module.Enemies((uint)OID.SunbirdLarge);
         foreach ((var bird, (var p1, var p2, var numCharges)) in birdsLarge.Zip(_chains))
         {
             if (numCharges == 2)
@@ -88,7 +88,7 @@ class BirdTether(BossModule module) : BossComponent(module)
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         // draw aoe zones for imminent charges, except one towards player
-        var birdsLarge = Module.Enemies(OID.SunbirdLarge);
+        var birdsLarge = Module.Enemies((uint)OID.SunbirdLarge);
         foreach ((var bird, (var p1, var p2, var numCharges)) in birdsLarge.Zip(_chains))
         {
             if (numCharges == 2)

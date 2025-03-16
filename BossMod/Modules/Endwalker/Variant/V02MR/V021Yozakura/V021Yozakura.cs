@@ -6,7 +6,7 @@ class ArtOfTheWindblossom(BossModule module) : Components.SimpleAOEs(module, Act
 class KugeRantsui(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.KugeRantsui));
 class OkaRanman(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.OkaRanman));
 class LevinblossomStrike(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LevinblossomStrike), 3f);
-class DriftingPetals(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.DriftingPetals), 15, ignoreImmunes: true)
+class DriftingPetals(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.DriftingPetals), 15, ignoreImmunes: true)
 {
     private readonly Mudrain _aoe1 = module.FindComponent<Mudrain>()!;
     private readonly Witherwind _aoe2 = module.FindComponent<Witherwind>()!;
@@ -44,7 +44,7 @@ class DriftingPetals(BossModule module) : Components.KnockbackFromCastTarget(mod
     }
 }
 
-class Mudrain(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 5f, ActionID.MakeSpell(AID.Mudrain), module => module.Enemies((uint)OID.MudVoidzone).Where(z => z.EventState != 7), 0.7f);
+class Mudrain(BossModule module) : Components.VoidzoneAtCastTarget(module, 5f, ActionID.MakeSpell(AID.Mudrain), module => module.Enemies((uint)OID.MudVoidzone).Where(z => z.EventState != 7), 0.7f);
 class Icebloom(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Icebloom), 6);
 class Shadowflight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shadowflight), new AOEShapeRect(10f, 3f));
 class MudPie(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MudPie), new AOEShapeRect(60f, 3f));
@@ -52,7 +52,7 @@ class FireblossomFlare(BossModule module) : Components.SimpleAOEs(module, Action
 class ArtOfTheFluff1(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.ArtOfTheFluff1));
 class ArtOfTheFluff2(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.ArtOfTheFluff2));
 class TatamiGaeshi(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TatamiGaeshi), new AOEShapeRect(40f, 5f));
-class AccursedSeedling(BossModule module) : Components.PersistentVoidzone(module, 4f, m => m.Enemies((uint)OID.AccursedSeedling));
+class AccursedSeedling(BossModule module) : Components.Voidzone(module, 4f, m => m.Enemies((uint)OID.AccursedSeedling));
 
 class RootArrangement(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(4f), ActionID.MakeSpell(AID.RockRootArrangementFirst), ActionID.MakeSpell(AID.RockRootArrangementRest), 4, 1, 4, true, (uint)IconID.ChasingAOE)
 {
@@ -64,7 +64,7 @@ class RootArrangement(BossModule module) : Components.StandardChasingAOEs(module
     }
 }
 
-class Witherwind(BossModule module) : Components.PersistentVoidzone(module, 3f, m => m.Enemies((uint)OID.AutumnalTempest), 20f);
+class Witherwind(BossModule module) : Components.Voidzone(module, 3f, m => m.Enemies((uint)OID.AutumnalTempest), 20f);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 945, NameID = 12325, SortOrder = 1)]
 public class V021Yozakura(WorldState ws, Actor primary) : BossModule(ws, primary, primary.Position.X < -700 ? ArenaCenter1 : primary.Position.X > 700 ? ArenaCenter2 : ArenaCenter3, primary.Position.X < -700 ? StartingBounds : primary.Position.X > 700 ? DefaultBounds2 : StartingBounds)

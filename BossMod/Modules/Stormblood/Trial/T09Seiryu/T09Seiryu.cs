@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Stormblood.Trial.T09Seiryu;
 
 class HundredTonzeSwing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HundredTonzeSwing), 16f);
-class CoursingRiver(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.CoursingRiverAOE), 25f, true, kind: Kind.DirForward)
+class CoursingRiver(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.CoursingRiverAOE), 25f, true, kind: Kind.DirForward)
 {
     private readonly Handprint _aoe = module.FindComponent<Handprint>()!;
 
@@ -19,20 +19,13 @@ class DragonsWake(BossModule module) : Components.RaidwideCast(module, ActionID.
 class FifthElement(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FifthElement));
 class FortuneBladeSigil(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FortuneBladeSigil), new AOEShapeRect(100f, 2f));
 
-class InfirmSoul(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.InfirmSoul), new AOEShapeCircle(4f), true)
-{
-    public override void AddGlobalHints(GlobalHints hints)
-    {
-        if (CurrentBaits.Count > 0)
-            hints.Add("Tankbuster cleave");
-    }
-}
+class InfirmSoul(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.InfirmSoul), new AOEShapeCircle(4f), true, tankbuster: true);
 
 class SerpentDescending(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.SerpentDescending), 5f, 6f);
 class YamaKagura(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.YamaKagura), new AOEShapeRect(60f, 3f));
 class Handprint(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Handprint2), new AOEShapeCone(40f, 90f.Degrees()));
 
-class ForceOfNature1(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ForceOfNature1), 10f)
+class ForceOfNature1(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.ForceOfNature1), 10f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

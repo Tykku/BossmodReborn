@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Alliance.A14ShadowLord;
 
-class DarkNebula(BossModule module) : Components.Knockback(module)
+class DarkNebula(BossModule module) : Components.GenericKnockback(module)
 {
     private const float Length = 4f;
     private const float HalfWidth = 1.75f;
@@ -8,21 +8,15 @@ class DarkNebula(BossModule module) : Components.Knockback(module)
     public readonly List<Actor> Casters = new(4);
 
     private static readonly Angle a90 = 90f.Degrees();
-    private static readonly List<(Predicate<WPos> Matcher, int[] CircleIndices, WDir Directions)> PositionMatchers =
-        [
-        (pos => pos == new WPos(142f, 792f), [3, 1], 45f.Degrees().ToDirection()),  // 135°
-        (pos => pos == new WPos(158f, 792f), [0, 3], -135f.Degrees().ToDirection()),  // 45°
-        (pos => pos == new WPos(158f, 808f), [2, 0], -45f.Degrees().ToDirection()),  // -45°
-        (pos => pos.AlmostEqual(new WPos(142f, 808f), 1), [1, 2], 135f.Degrees().ToDirection())  // -135°
-    ];
+    private static readonly WDir[] directions = [45f.Degrees().ToDirection(), -135f.Degrees().ToDirection(), -45f.Degrees().ToDirection(), 135f.Degrees().ToDirection()];
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
         var count = Casters.Count;
         if (count == 0)
             return [];
         var max = count > 2 ? 2 : count;
-        var sources = new Source[max];
+        var sources = new Knockback[max];
         for (var i = 0; i < max; ++i)
         {
             var caster = Casters[i];
@@ -58,21 +52,29 @@ class DarkNebula(BossModule module) : Components.Knockback(module)
         static Func<WPos, float> CreateForbiddenZone(int circleIndex, WDir dir)
          => ShapeDistance.InvertedRect(A14ShadowLord.Circles[circleIndex].Center, dir, Length, 0f, HalfWidth);
 
-        var mapping = PositionMatchers.FirstOrDefault(m => m.Matcher(caster0.Position));
-
+        var rot = (int)caster0.Rotation.Deg;
+        (int[], WDir) indices = rot switch
+        {
+            -45 => ([2, 0], directions[2]),
+            -135 => ([1, 2], directions[3]),
+            134 => ([3, 1], directions[0]),
+            44 => ([0, 3], directions[1]),
+            _ => default
+        };
+        var act = Module.CastFinishAt(Casters[0].CastInfo);
         if (Casters.Count == 1)
         {
-            for (var i = 0; i < 2; ++i)
-                forbidden.Add(CreateForbiddenZone(mapping.CircleIndices[i], mapping.Directions));
+            if (indices != default)
+                for (var i = 0; i < 2; ++i)
+                    forbidden.Add(CreateForbiddenZone(indices.Item1[i], indices.Item2));
+            hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), act);
         }
         else
         {
             var caster1 = Casters[1];
             var rotationMatch = caster0.Rotation.AlmostEqual(caster1.Rotation + a90, Angle.DegToRad);
-            var circleIndex = rotationMatch ? mapping.CircleIndices[0] : mapping.CircleIndices[1];
-            forbidden.Add(CreateForbiddenZone(circleIndex, mapping.Directions));
+            var circleIndex = rotationMatch ? indices.Item1[0] : indices.Item1[1];
+            hints.AddForbiddenZone(CreateForbiddenZone(circleIndex, indices.Item2), act);
         }
-
-        hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), Sources(slot, actor).FirstOrDefault().Activation);
     }
 }

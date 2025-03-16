@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Alliance.A13Azeyma;
 
-class WildfireWard(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.IlluminatingGlimpse), 15, false, 1, kind: Kind.DirLeft);
+class WildfireWard(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.IlluminatingGlimpse), 15, false, 1, kind: Kind.DirLeft);
 class ArenaBounds(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly Polygon[] triangle = [new(A13Azeyma.NormalCenter, 13.279f, 3, 180f.Degrees())];
@@ -9,7 +9,7 @@ class ArenaBounds(BossModule module) : Components.GenericAOEs(module)
 
     private AOEInstance? _aoe;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnEventEnvControl(byte index, uint state)
     {

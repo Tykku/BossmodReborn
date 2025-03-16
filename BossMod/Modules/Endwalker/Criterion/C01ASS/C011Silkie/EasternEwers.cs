@@ -15,13 +15,13 @@ class EasternEwers(BossModule module) : Components.Exaflare(module, 4f)
         if (spell.Action.ID is (uint)AID.NBrimOver or (uint)AID.SBrimOver or (uint)AID.NRinse or (uint)AID.SRinse)
         {
             var count = Lines.Count;
-            var pos = caster.Position;
+            var pos = caster.Position.X;
             for (var i = 0; i < count; ++i)
             {
                 var line = Lines[i];
-                if (line.Next.AlmostEqual(pos, 1f))
+                if (Math.Abs(line.Next.X - pos) < 1f)
                 {
-                    AdvanceLine(line, pos);
+                    AdvanceLine(line, caster.Position);
                     if (line.ExplosionsLeft == 0)
                         Lines.RemoveAt(i);
                     return;

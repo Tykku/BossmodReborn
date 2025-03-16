@@ -104,16 +104,16 @@ class CagedHeartOfNature(BossModule module) : Components.SimpleAOEs(module, Acti
 
 class WindsPeak(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindsPeak1), 5f);
 
-class WindsPeakKB(BossModule module) : Components.Knockback(module)
+class WindsPeakKB(BossModule module) : Components.GenericKnockback(module)
 {
     private DateTime _time;
     private bool _watched;
     private DateTime _activation;
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
         if (_watched && WorldState.CurrentTime < _time.AddSeconds(4.4d))
-            return [new(Module.PrimaryActor.Position, 15f, _activation)];
+            return new Knockback[1] { new(Module.PrimaryActor.Position, 15f, _activation) };
         else
             return [];
     }

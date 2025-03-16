@@ -6,12 +6,18 @@ class PomMeteor(BossModule module) : BossComponent(module)
     private BitMask _soakedTowers;
     private DateTime _towerActivation;
     private int _cometsLeft;
-    private float _activationDelay = 8; // 8s for first set of towers, then 16s for others
+    private float _activationDelay = 8f; // 8s for first set of towers, then 16s for others
 
-    private const float _towerRadius = 5;
-    private const float _cometAvoidRadius = 6;
-    private static readonly Angle[] _towerAngles = [180.Degrees(), 90.Degrees(), 0.Degrees(), -90.Degrees(), 135.Degrees(), 45.Degrees(), -45.Degrees(), -135.Degrees()];
-    private static readonly WDir[] _towerOffsets = [.. _towerAngles.Select(a => 10 * a.ToDirection())];
+    private const float _towerRadius = 5f;
+    private const float _cometAvoidRadius = 6f;
+    private static readonly WDir[] _towerOffsets = GetTowerOffsets();
+    private static WDir[] GetTowerOffsets()
+    {
+        var towerOffsets = new WDir[8];
+        for (var i = 0; i < 8; ++i)
+            _towerOffsets[i] = 10f * (45f * i).Degrees().ToDirection();
+        return towerOffsets;
+    }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -21,7 +27,7 @@ class PomMeteor(BossModule module) : BossComponent(module)
         if (_cometsLeft > 0)
         {
             foreach (var i in _activeTowers.SetBits())
-                hints.AddForbiddenZone(ShapeDistance.Circle(Module.Center + _towerOffsets[i], _cometAvoidRadius));
+                hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center + _towerOffsets[i], _cometAvoidRadius));
         }
         else
         {
@@ -38,12 +44,12 @@ class PomMeteor(BossModule module) : BossComponent(module)
             {
                 if (!_activeTowers[soakedTower])
                     soakedTower += 4;
-                hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center + _towerOffsets[soakedTower], _towerRadius), _towerActivation);
+                hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center + _towerOffsets[soakedTower], _towerRadius), _towerActivation);
             }
             else
             {
                 foreach (var i in _activeTowers.SetBits())
-                    hints.AddForbiddenZone(ShapeDistance.Circle(Module.Center + _towerOffsets[i], _towerRadius), _towerActivation);
+                    hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center + _towerOffsets[i], _towerRadius), _towerActivation);
             }
         }
     }
@@ -51,18 +57,18 @@ class PomMeteor(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var i in _activeTowers.SetBits())
-            Arena.AddCircle(Module.Center + _towerOffsets[i], _towerRadius, _soakedTowers[i] ? Colors.Safe : Colors.Danger);
+            Arena.AddCircle(Arena.Center + _towerOffsets[i], _towerRadius, _soakedTowers[i] ? Colors.Safe : 0);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.GoodKingsDecree3:
+            case (uint)AID.GoodKingsDecree3:
                 _activationDelay = 16;
                 _cometsLeft = 3;
                 break;
-            case AID.MogCometAOE:
+            case (uint)AID.MogCometAOE:
                 --_cometsLeft;
                 break;
         }

@@ -58,7 +58,7 @@ class PageTear(BossModule module) : Components.Cleave(module, ActionID.MakeSpell
 
 class HeadDown(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.HeadDown), 4f);
 class DeathRay(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeathRay), new AOEShapeRect(24.2f, 1.5f));
-class Tomewind(BossModule module) : Components.PersistentVoidzone(module, 3f, GetVoidzones)
+class Tomewind(BossModule module) : Components.Voidzone(module, 3f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

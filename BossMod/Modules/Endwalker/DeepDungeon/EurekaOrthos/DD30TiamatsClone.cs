@@ -34,7 +34,7 @@ class DarkMegaflare(BossModule module) : Components.SimpleAOEs(module, ActionID.
 class DarkWyrm(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40f, 8f));
 class DarkWyrmwing(BossModule module) : DarkWyrm(module, AID.DarkWyrmwing);
 class DarkWyrmtail(BossModule module) : DarkWyrm(module, AID.DarkWyrmtail);
-class CreatureOfDarkness(BossModule module) : Components.PersistentVoidzone(module, 2f, GetVoidzones, 6f)
+class CreatureOfDarkness(BossModule module) : Components.Voidzone(module, 2f, GetVoidzones, 6f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

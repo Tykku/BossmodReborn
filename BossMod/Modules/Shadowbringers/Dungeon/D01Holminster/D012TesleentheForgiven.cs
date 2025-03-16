@@ -62,7 +62,7 @@ class FeveredFlagellation(BossModule module) : Components.GenericBaitAway(module
 }
 
 class Exorcise(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ExorciseA), 6f, 4, 4);
-class HolyWater(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.HolyWater), GetVoidzones, 0.8f)
+class HolyWater(BossModule module) : Components.VoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.HolyWater), GetVoidzones, 0.8f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

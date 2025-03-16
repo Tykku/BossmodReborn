@@ -9,7 +9,7 @@ class ForbiddenFruit4(BossModule module) : ForbiddenFruitCommon(module, ActionID
         base.DrawArenaForeground(pcSlot, pc);
         if (NumAssignedTethers > 0 && !MinotaursBaited && TetherSources[pcSlot] == null)
         {
-            Arena.AddCircle(Module.Center - 2 * PlatformDirection(_bullPlatform).ToDirection(), 2, Colors.Safe);
+            Arena.AddCircle(Arena.Center - 2 * PlatformDirection(_bullPlatform).ToDirection(), 2, Colors.Safe);
         }
     }
 
@@ -18,16 +18,16 @@ class ForbiddenFruit4(BossModule module) : ForbiddenFruitCommon(module, ActionID
         var slot = TryAssignTether(source, tether);
         if (slot < 0)
             return;
-        switch ((TetherID)tether.ID)
+        switch (tether.ID)
         {
-            case TetherID.Bull:
+            case (uint)TetherID.Bull:
                 SafePlatforms[slot].Set(_bullPlatform);
                 break;
-            case TetherID.MinotaurFar:
-            case TetherID.MinotaurClose:
+            case (uint)TetherID.MinotaurFar:
+            case (uint)TetherID.MinotaurClose:
                 var safePlatforms = ValidPlatformsMask;
                 safePlatforms.Clear(_bullPlatform);
-                safePlatforms.Clear(PlatformIDFromOffset(source.Position - Module.Center));
+                safePlatforms.Clear(PlatformIDFromOffset(source.Position - Arena.Center));
                 SafePlatforms[slot] = safePlatforms;
                 break;
         }
@@ -35,8 +35,8 @@ class ForbiddenFruit4(BossModule module) : ForbiddenFruitCommon(module, ActionID
 
     protected override DateTime? PredictUntetheredCastStart(Actor fruit)
     {
-        if ((OID)fruit.OID == OID.ForbiddenFruitBull)
-            _bullPlatform = PlatformIDFromOffset(fruit.Position - Module.Center);
+        if (fruit.OID == (uint)OID.ForbiddenFruitBull)
+            _bullPlatform = PlatformIDFromOffset(fruit.Position - Arena.Center);
         return null;
     }
 }

@@ -2,7 +2,7 @@
 
 class EnergyBurst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.EnergyBurst));
 class ArmShot(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ArmShot));
-class LegShot(BossModule module) : Components.PersistentVoidzone(module, 3f, GetVoidzones)
+class LegShot(BossModule module) : Components.Voidzone(module, 3f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

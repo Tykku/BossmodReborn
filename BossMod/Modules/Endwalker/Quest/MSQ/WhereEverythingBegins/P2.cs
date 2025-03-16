@@ -103,7 +103,7 @@ class VoidSlash : Components.SimpleAOEs
     }
 }
 
-class VacuumWave(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.VacuumWave), 5)
+class VacuumWave(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.VacuumWave), 5)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -120,7 +120,7 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
     private AOEInstance? _aoe;
     private static readonly AOEShapeDonut donut = new(18, 20);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -146,7 +146,7 @@ class Shield(BossModule module) : Components.GenericAOEs(module)
     private AOEInstance? _aoe;
     private const string Hint = "Go under shield!";
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnActorCreated(Actor actor)
     {

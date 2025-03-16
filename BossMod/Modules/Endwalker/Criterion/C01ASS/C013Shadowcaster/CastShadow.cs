@@ -2,43 +2,33 @@
 
 class CastShadow(BossModule module) : Components.GenericAOEs(module)
 {
-    public List<Actor> FirstAOECasters = [];
-    public List<Actor> SecondAOECasters = [];
+    private static readonly AOEShapeCone cone = new(65f, 15f.Degrees());
+    public readonly List<AOEInstance> AOEs = new(8);
 
-    private static readonly AOEShape _shape = new AOEShapeCone(65f, 15f.Degrees());
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        var countFirst = FirstAOECasters.Count;
-        var countSecond = SecondAOECasters.Count;
-        var total = countFirst + countSecond;
-        if (total == 0)
+        var count = AOEs.Count;
+        if (count == 0)
             return [];
-        var casters = countFirst != 0 ? FirstAOECasters : SecondAOECasters;
-        var current = countFirst != 0 ? countFirst : countSecond;
-        var aoes = new AOEInstance[current];
-        for (var i = 0; i < current; ++i)
-        {
-            var caster = casters[i];
-            aoes[i] = new AOEInstance(_shape, caster.Position, caster.CastInfo!.Rotation, Module.CastFinishAt(caster.CastInfo));
-        }
-        return aoes;
+        var max = count > 6 ? 6 : count;
+        return CollectionsMarshal.AsSpan(AOEs).Slice(NumCasts, max);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        ListForAction(spell.Action)?.Add(caster);
+        if (spell.Action.ID is (uint)AID.NCastShadowAOE1 or (uint)AID.SCastShadowAOE1 or (uint)AID.NCastShadowAOE2 or (uint)AID.SCastShadowAOE2)
+        {
+            AOEs.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
+            if (AOEs.Count == 12)
+                AOEs.SortBy(x => x.Activation);
+        }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        ListForAction(spell.Action)?.Remove(caster);
+        if (AOEs.Count != 0 && spell.Action.ID is (uint)AID.NCastShadowAOE1 or (uint)AID.SCastShadowAOE1 or (uint)AID.NCastShadowAOE2 or (uint)AID.SCastShadowAOE2)
+        {
+            ++NumCasts;
+        }
     }
-
-    private List<Actor>? ListForAction(ActionID action) => action.ID switch
-    {
-        (uint)AID.NCastShadowAOE1 or (uint)AID.SCastShadowAOE1 => FirstAOECasters,
-        (uint)AID.NCastShadowAOE2 or (uint)AID.SCastShadowAOE2 => SecondAOECasters,
-        _ => null
-    };
 }

@@ -49,7 +49,7 @@ class WhelmingLoss(BossModule module) : Components.Exaflare(module, 5f)
 class Adds(BossModule module) : Components.Adds(module, (uint)OID.ShadowySpume);
 class Anguish(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Anguish), 6f);
 
-class ForebodingAura(BossModule module) : Components.PersistentVoidzone(module, 8f, GetVoidzones)
+class ForebodingAura(BossModule module) : Components.Voidzone(module, 8f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

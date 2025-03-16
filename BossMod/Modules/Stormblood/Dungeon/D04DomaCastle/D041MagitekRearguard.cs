@@ -25,7 +25,7 @@ abstract class Circle6(BossModule module, AID aid) : Components.SimpleAOEs(modul
 class GarleanFire(BossModule module) : Circle6(module, AID.GarleanFire);
 class SelfDetonate(BossModule module) : Circle6(module, AID.SelfDetonate);
 
-class RearguardMine(BossModule module) : Components.PersistentVoidzone(module, 0.9f, m => m.Enemies(OID.RearguardMine).Where(x => !x.IsDead), 10);
+class RearguardMine(BossModule module) : Components.Voidzone(module, 0.9f, m => m.Enemies(OID.RearguardMine).Where(x => !x.IsDead), 10);
 
 class D041MagitekRearguardStates : StateMachineBuilder
 {

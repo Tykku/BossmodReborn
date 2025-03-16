@@ -104,7 +104,7 @@ class Mouser(BossModule module) : Components.GenericAOEs(module)
     private bool enrage;
     private static readonly AOEShapeRect rect = new(10f, 5f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
         if (count == 0)
@@ -147,7 +147,7 @@ class Mouser(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class GrimalkinGaleShockwave(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.GrimalkinGaleShockwaveAOE), 21f, true, stopAfterWall: true);
+class GrimalkinGaleShockwave(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.GrimalkinGaleShockwaveAOE), 21f, true, stopAfterWall: true);
 class GrimalkinGaleSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.GrimalkinGaleSpreadAOE), 5f);
 
 class SplinteringNails(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.SplinteringNailsAOE))

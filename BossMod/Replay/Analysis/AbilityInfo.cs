@@ -204,7 +204,7 @@ class AbilityInfo : CommonEnumInfo
         private record struct Point(Instance Inst, Replay.ActionTarget Target);
 
         private readonly Dictionary<int, List<Point>> _byDistance = [];
-        private readonly Dictionary<Knockback.Kind, List<Point>> _byKind = [];
+        private readonly Dictionary<GenericKnockback.Kind, List<Point>> _byKind = [];
         private readonly List<Point> _immuneIgnores = [];
         private readonly List<Point> _immuneMisses = [];
         private readonly List<Point> _transcendentIgnores = [];
@@ -226,13 +226,13 @@ class AbilityInfo : CommonEnumInfo
                                 var kbData = Service.LuminaRow<Lumina.Excel.Sheets.Knockback>(eff.Value);
                                 var kind = kbData != null ? (KnockbackDirection)kbData.Value.Direction switch
                                 {
-                                    KnockbackDirection.AwayFromSource => Knockback.Kind.AwayFromOrigin,
-                                    KnockbackDirection.SourceForward => Knockback.Kind.DirForward,
-                                    KnockbackDirection.SourceRight => Knockback.Kind.DirRight,
-                                    KnockbackDirection.SourceLeft => Knockback.Kind.DirLeft,
-                                    KnockbackDirection.AwayFromSource2 => Knockback.Kind.AwayFromOrigin,
-                                    _ => Knockback.Kind.None
-                                } : Knockback.Kind.None;
+                                    KnockbackDirection.AwayFromSource => GenericKnockback.Kind.AwayFromOrigin,
+                                    KnockbackDirection.SourceForward => GenericKnockback.Kind.DirForward,
+                                    KnockbackDirection.SourceRight => GenericKnockback.Kind.DirRight,
+                                    KnockbackDirection.SourceLeft => GenericKnockback.Kind.DirLeft,
+                                    KnockbackDirection.AwayFromSource2 => GenericKnockback.Kind.AwayFromOrigin,
+                                    _ => GenericKnockback.Kind.None
+                                } : GenericKnockback.Kind.None;
                                 AddPoint(i, target, (kbData?.Distance ?? 0) + eff.Param0, kind);
                                 hasKnockbacks = true;
                                 break;
@@ -240,13 +240,13 @@ class AbilityInfo : CommonEnumInfo
                             case ActionEffectType.Attract2:
 
                                 var attrData = Service.LuminaRow<Lumina.Excel.Sheets.Attract>(eff.Value);
-                                AddPoint(i, target, attrData?.MaxDistance ?? 0, Knockback.Kind.TowardsOrigin);
+                                AddPoint(i, target, attrData?.MaxDistance ?? 0, GenericKnockback.Kind.TowardsOrigin);
                                 hasKnockbacks = true;
                                 break;
                             case ActionEffectType.AttractCustom1:
                             case ActionEffectType.AttractCustom2:
                             case ActionEffectType.AttractCustom3:
-                                AddPoint(i, target, eff.Value, Knockback.Kind.TowardsOrigin);
+                                AddPoint(i, target, eff.Value, GenericKnockback.Kind.TowardsOrigin);
                                 hasKnockbacks = true;
                                 break;
                         }
@@ -278,7 +278,7 @@ class AbilityInfo : CommonEnumInfo
             DrawPoints(tree, "Misses in other states", _otherMisses);
         }
 
-        private void AddPoint(Instance inst, Replay.ActionTarget target, int distance, Knockback.Kind kind)
+        private void AddPoint(Instance inst, Replay.ActionTarget target, int distance, GenericKnockback.Kind kind)
         {
             _byDistance.GetOrAdd(distance).Add(new(inst, target));
             _byKind.GetOrAdd(kind).Add(new(inst, target));

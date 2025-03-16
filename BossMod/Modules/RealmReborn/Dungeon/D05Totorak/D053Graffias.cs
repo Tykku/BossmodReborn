@@ -24,7 +24,7 @@ class Silkscreen(BossModule module) : Components.SimpleAOEs(module, ActionID.Mak
 class StickyWeb(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.StickyWeb), "Delayed AOE at target");
 class PodBurst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PodBurst), 7.05f);
 class DeadlyThrust(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.DeadlyThrust), "Persistent voidzone at target");
-class PollenZone(BossModule module) : Components.PersistentVoidzone(module, 10, m => m.Enemies(OID.PollenZone));
+class PollenZone(BossModule module) : Components.Voidzone(module, 10, m => m.Enemies(OID.PollenZone));
 
 class D053GraffiasStates : StateMachineBuilder
 {

@@ -69,7 +69,7 @@ class Reflection(BossModule module) : Components.GenericAOEs(module)
         { 0x00044000, Angle.AnglesCardinals[1] }
     };
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
@@ -107,7 +107,13 @@ class D101UnknownStates : StateMachineBuilder
             .ActivateOnEnter<Reflection>()
             .ActivateOnEnter<EctoplasmicRay1>()
             .ActivateOnEnter<EctoplasmicRay2>()
-            .Raw.Update = () => module.Enemies(OID.Unknown).Concat([module.PrimaryActor]).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var unknown = module.Enemies((uint)OID.Unknown);
+                var count = unknown.Count;
+                var isDeadOrDestroyed = count != 0 && unknown[0].IsDeadOrDestroyed || count == 0;
+                return isDeadOrDestroyed && module.PrimaryActor.IsDeadOrDestroyed;
+            };
     }
 }
 

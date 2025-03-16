@@ -19,9 +19,9 @@ public enum AID : uint
 
 class AncientAero(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AncientAero), new AOEShapeRect(52.4f, 4f));
 class AncientAeroII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AncientAeroII), 6f);
-class AncientAeroIII(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.AncientAeroIII), 23.5f, true, stopAtWall: true);
+class AncientAeroIII(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.AncientAeroIII), 23.5f, true, stopAtWall: true);
 class Tornado(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Tornado), 6f);
-class Windage(BossModule module) : Components.PersistentVoidzone(module, 6f, GetVoidzones)
+class Windage(BossModule module) : Components.Voidzone(module, 6f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

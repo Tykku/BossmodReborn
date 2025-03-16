@@ -28,9 +28,9 @@ public enum AID : uint
 
 class Buffet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Buffet), new AOEShapeCone(11f, 60f.Degrees()));
 class Inhale(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.InhaleBoss), new AOEShapeCone(20f, 60f.Degrees()));
-class InhalePull(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.InhaleBoss), 20f, false, 1, new AOEShapeCone(20f, 60f.Degrees()), Kind.TowardsOrigin, default, true);
+class InhalePull(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.InhaleBoss), 20f, false, 1, new AOEShapeCone(20f, 60f.Degrees()), Kind.TowardsOrigin, default, true);
 class HeavyScrapline(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavyScrapline), 11f);
-class MoldyPhlegm(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.MoldyPhlegm), GetVoidzones, 1.4f)
+class MoldyPhlegm(BossModule module) : Components.VoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.MoldyPhlegm), GetVoidzones, 1.4f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

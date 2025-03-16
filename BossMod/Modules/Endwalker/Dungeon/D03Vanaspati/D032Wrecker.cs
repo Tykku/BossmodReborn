@@ -28,7 +28,7 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeDonut donut = new(20f, 30f);
     private AOEInstance? _aoe;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -52,7 +52,7 @@ class QueerBubble(BossModule module) : Components.GenericAOEs(module)
     public readonly List<Actor> AOEs = [];
     private static readonly AOEShapeCircle circle = new(2.5f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = AOEs.Count;
         if (count == 0)
@@ -66,7 +66,7 @@ class QueerBubble(BossModule module) : Components.GenericAOEs(module)
             if (!b.IsDead)
                 aoes[index++] = new(circle, b.Position, Color: _aoe.Active ? color : 0);
         }
-        return aoes[..index];
+        return aoes.AsSpan()[..index];
     }
 
     public override void OnActorCreated(Actor actor)
@@ -109,7 +109,7 @@ class TotalWreck(BossModule module) : Components.SingleTargetCast(module, Action
 class AetherSprayWater(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AetherSprayWater));
 class AetherSprayFire(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AetherSprayFire), "Go into a bubble! (Raidwide)");
 
-class AetherSprayWaterKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.AetherSprayWater), 13f)
+class AetherSprayWaterKB(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.AetherSprayWater), 13f)
 {
     private readonly QueerBubble _aoe = module.FindComponent<QueerBubble>()!;
     private static readonly Angle a60 = 60f.Degrees(), a10 = 10f.Degrees();

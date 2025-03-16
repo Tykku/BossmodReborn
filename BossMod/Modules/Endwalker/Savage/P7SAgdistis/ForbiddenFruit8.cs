@@ -10,16 +10,16 @@ class ForbiddenFruit8(BossModule module) : ForbiddenFruitCommon(module, ActionID
         if (slot < 0)
             return;
         var safe = ValidPlatformsMask & ~_noBirdsPlatforms;
-        safe.Clear(PlatformIDFromOffset(source.Position - Module.Center));
+        safe.Clear(PlatformIDFromOffset(source.Position - Arena.Center));
         SafePlatforms[slot] = safe;
     }
 
     protected override DateTime? PredictUntetheredCastStart(Actor fruit)
     {
-        if ((OID)fruit.OID != OID.ForbiddenFruitBird)
+        if (fruit.OID != (uint)OID.ForbiddenFruitBird)
             return null;
 
-        _noBirdsPlatforms.Clear(PlatformIDFromOffset(fruit.Position - Module.Center));
+        _noBirdsPlatforms.Clear(PlatformIDFromOffset(fruit.Position - Arena.Center));
         Array.Fill(SafePlatforms, _noBirdsPlatforms);
         return WorldState.FutureTime(12.5f);
     }

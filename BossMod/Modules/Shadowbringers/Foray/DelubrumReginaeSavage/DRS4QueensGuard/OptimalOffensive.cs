@@ -4,24 +4,24 @@ class OptimalOffensiveSword(BossModule module) : Components.ChargeAOEs(module, A
 class OptimalOffensiveShield(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.OptimalOffensiveShield), 2.5f);
 
 // note: there are two casters (as usual in bozja content for raidwides)
-class OptimalOffensiveShieldKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.OptimalOffensiveShieldKnockback), 10, true, 1);
+class OptimalOffensiveShieldKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.OptimalOffensiveShieldKnockback), 10, true, 1);
 
 class UnluckyLot(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCircle circle = new(20);
-    private AOEInstance? _aoe = new(circle, module.Center, default, module.WorldState.FutureTime(7.6f));
+    private static readonly AOEShapeCircle circle = new(20f);
+    private AOEInstance? _aoe = new(circle, module.Center, default, module.WorldState.FutureTime(7.6d));
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.OptimalOffensiveShieldMoveSphere)
+        if (spell.Action.ID == (uint)AID.OptimalOffensiveShieldMoveSphere)
             _aoe = new(circle, caster.Position, default, WorldState.FutureTime(8.6f));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.UnluckyLot)
+        if (spell.Action.ID == (uint)AID.UnluckyLot)
             _aoe = null;
     }
 }

@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.Alliance.A31Thaliak;
 
-class RheognosisKnockback(BossModule module) : Components.Knockback(module)
+class RheognosisKnockback(BossModule module) : Components.GenericKnockback(module)
 {
-    private Source? _knockback;
+    private Knockback? _knockback;
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor) => Utils.ZeroOrOne(_knockback);
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor) => Utils.ZeroOrOne(ref _knockback);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

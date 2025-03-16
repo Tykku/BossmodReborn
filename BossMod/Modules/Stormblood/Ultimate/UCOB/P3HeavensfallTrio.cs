@@ -23,17 +23,17 @@ class P3HeavensfallTrio(BossModule module) : BossComponent(module)
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if ((OID)actor.OID == OID.NaelDeusDarnus && id == 0x1E43)
+        if (actor.OID == (uint)OID.NaelDeusDarnus && id == 0x1E43)
         {
             _nael = actor;
             InitIfReady();
         }
-        else if ((OID)actor.OID == OID.Twintania && id == 0x1E44)
+        else if (actor.OID == (uint)OID.Twintania && id == 0x1E44)
         {
             _twin = actor;
             InitIfReady();
         }
-        else if ((OID)actor.OID == OID.BahamutPrime && id == 0x1E43)
+        else if (actor.OID == (uint)OID.BahamutPrime && id == 0x1E43)
         {
             _baha = actor;
             InitIfReady();
@@ -100,4 +100,4 @@ class P3HeavensfallTowers(BossModule module) : Components.CastTowers(module, Act
     }
 }
 
-class P3HeavensfallFireball(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Fireball, ActionID.MakeSpell(AID.Fireball), 4, 5.3f, 8, 8);
+class P3HeavensfallFireball(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Fireball, ActionID.MakeSpell(AID.Fireball), 4f, 5.3f, 8, 8);

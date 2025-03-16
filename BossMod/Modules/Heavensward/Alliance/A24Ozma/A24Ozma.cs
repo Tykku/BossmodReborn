@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Heavensward.Alliance.A24Ozma;
 
 class MeteorImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MeteorImpact), 20);
-class HolyKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Holy), 3);
+class HolyKB(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Holy), 3);
 class Holy(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Holy));
 class ExecrationAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ExecrationAOE), new AOEShapeRect(40.5f, 5));
 

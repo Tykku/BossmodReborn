@@ -28,9 +28,9 @@ class SettingTheScene(BossModule module) : BossComponent(module)
 
     public Corner FromPos(WPos pos)
     {
-        return pos.X > Module.Center.X
-            ? (pos.Z > Module.Center.Z ? Corner.SE : Corner.NE)
-            : (pos.Z > Module.Center.Z ? Corner.SW : Corner.NW);
+        return pos.X > Arena.Center.X
+            ? (pos.Z > Arena.Center.Z ? Corner.SE : Corner.NE)
+            : (pos.Z > Arena.Center.Z ? Corner.SW : Corner.NW);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

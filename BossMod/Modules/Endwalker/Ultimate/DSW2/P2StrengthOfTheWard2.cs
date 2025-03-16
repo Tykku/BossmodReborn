@@ -90,7 +90,7 @@ class P2StrengthOfTheWard2SpreadStack : Components.UniformStackSpread
         }
     }
 
-    private WPos SafeSpotAt(Angle dir) => Module.Center + 20 * dir.ToDirection();
+    private WPos SafeSpotAt(Angle dir) => Arena.Center + 20 * dir.ToDirection();
 }
 
 // growing voidzones

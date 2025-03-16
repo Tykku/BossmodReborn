@@ -19,8 +19,8 @@ class SurgingWaveCorridor(BossModule module) : BossComponent(module)
 }
 
 class SurgingWaveAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SurgingWaveAOE), 6f);
-class SurgingWaveShockwave(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.SurgingWaveShockwave), 68f, true);
-class SurgingWaveSeaFoam(BossModule module) : Components.PersistentVoidzone(module, 1.5f, GetVoidzones)
+class SurgingWaveShockwave(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.SurgingWaveShockwave), 68f, true);
+class SurgingWaveSeaFoam(BossModule module) : Components.Voidzone(module, 1.5f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

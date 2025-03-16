@@ -52,7 +52,7 @@ class SoakingSplatter(BossModule module) : Components.SimpleAOEs(module, ActionI
 class FallingWater(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FallingWater), 8f);
 class ThunderIII(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ThunderIII));
 
-class WaveOfTurmoil(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.WaveOfTurmoil), 20f, stopAtWall: true)
+class WaveOfTurmoil(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.WaveOfTurmoil), 20f, stopAtWall: true)
 {
     private readonly SoakingSplatter _aoe = module.FindComponent<SoakingSplatter>()!;
     private static readonly Angle cone = 30f.Degrees();

@@ -4,7 +4,7 @@ abstract class FizzlingDuster(BossModule module, AID aid) : Components.SimpleAOE
 class NFizzlingDuster(BossModule module) : FizzlingDuster(module, AID.NFizzlingDusterAOE);
 class SFizzlingDuster(BossModule module) : FizzlingDuster(module, AID.SFizzlingDusterAOE);
 
-abstract class DustBluster(BossModule module, AID aid) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(aid), 16f);
+abstract class DustBluster(BossModule module, AID aid) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(aid), 16f);
 class NDustBluster(BossModule module) : DustBluster(module, AID.NDustBluster);
 class SDustBluster(BossModule module) : DustBluster(module, AID.SDustBluster);
 

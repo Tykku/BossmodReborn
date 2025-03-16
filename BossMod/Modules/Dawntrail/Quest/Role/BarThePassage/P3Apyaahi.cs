@@ -46,7 +46,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeDonut donut = new(20f, 25f);
     private AOEInstance? _aoe;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -89,7 +89,7 @@ class PathogenicPowerAOE(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCircle circle = new(6f);
     private readonly List<AOEInstance> _aoes = new(20);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
         if (count == 0)
@@ -118,7 +118,7 @@ class PathogenicPowerAOE(BossModule module) : Components.GenericAOEs(module)
             _aoes.RemoveAt(0);
     }
 }
-class PathogenicPowerKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.PathogenicPowerKB), 13f)
+class PathogenicPowerKB(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.PathogenicPowerKB), 13f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

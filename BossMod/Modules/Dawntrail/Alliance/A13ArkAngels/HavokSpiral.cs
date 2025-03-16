@@ -47,7 +47,7 @@ class HavokSpiral(BossModule module) : Components.GenericRotatingAOE(module)
     }
 }
 
-class SpiralFinish(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.SpiralFinishAOE), 16f)
+class SpiralFinish(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.SpiralFinishAOE), 16f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

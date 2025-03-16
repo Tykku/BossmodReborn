@@ -18,7 +18,7 @@ class WickedBlaze(BossModule module) : Components.StackWithIcon(module, (uint)Ic
         if (spell.Action == StackAction && WorldState.CurrentTime > _nextNonDuplicate)
         {
             ++NumFinishedStacks;
-            _nextNonDuplicate = WorldState.FutureTime(0.5f);
+            _nextNonDuplicate = WorldState.FutureTime(0.5d);
         }
     }
 }

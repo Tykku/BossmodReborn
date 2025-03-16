@@ -33,29 +33,29 @@ public enum IconID : uint
     Wingbeat = 16 // player
 }
 
-class Flutterfall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Flutterfall), 6);
-class Pinion(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Pinion), new AOEShapeRect(40.5f, 1));
+class Flutterfall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Flutterfall), 6f);
+class Pinion(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Pinion), new AOEShapeRect(40.5f, 1f));
 class EyeOfTheFierce(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EyeOfTheFierce));
 class WindUnbound(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WindUnbound));
-class Wingbeat(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(42.8f, 45.Degrees()), (uint)IconID.Wingbeat, ActionID.MakeSpell(AID.Wingbeat));
-class FlutterfallSpread(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Flutterfall, ActionID.MakeSpell(AID.FlutterfallSpread), 6, 5.4f);
+class Wingbeat(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(42.8f, 45f.Degrees()), (uint)IconID.Wingbeat, ActionID.MakeSpell(AID.Wingbeat));
+class FlutterfallSpread(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Flutterfall, ActionID.MakeSpell(AID.FlutterfallSpread), 6f, 5.4f);
 
 class FeatherSquall(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
-    private static readonly AOEShapeRect rect = new(42.8f, 3);
+    private static readonly AOEShapeRect rect = new(42.8f, 3f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if (id == 0x1E43 && actor == Module.PrimaryActor && !actor.Position.AlmostEqual(new(24, -475.5f), 1))
-            _aoe = new(rect, actor.Position, actor.Rotation, WorldState.FutureTime(6.7f));
+        if (id == 0x1E43 && actor == Module.PrimaryActor && !actor.Position.AlmostEqual(new(24f, -475.5f), 1f))
+            _aoe = new(rect, WPos.ClampToGrid(actor.Position), actor.Rotation, WorldState.FutureTime(6.7d));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.FeatherSquall)
+        if (spell.Action.ID == (uint)AID.FeatherSquall)
             _aoe = null;
     }
 }
@@ -100,22 +100,25 @@ public class D033Yol(WorldState ws, Actor primary) : BossModule(ws, primary, are
     new(14.83f, -491.96f), new(15.35f, -492.1f), new(17.65f, -493.47f), new(18.15f, -493.73f), new(20.83f, -494.52f),
     new(21.4f, -494.52f), new(22.55f, -494.49f), new(23.63f, -494.68f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
+    private static readonly uint[] adds = [(uint)OID.LeftWing, (uint)OID.RightWing, (uint)OID.CorpsecleanerEagle];
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
-            e.Priority = (OID)e.Actor.OID switch
+            var e = hints.PotentialTargets[i];
+            e.Priority = e.Actor.OID switch
             {
-                OID.LeftWing or OID.RightWing or OID.CorpsecleanerEagle => 2,
-                OID.Boss => 1,
-                _ => 0
+                (uint)OID.Boss => 0,
+                _ => 1
             };
         }
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.LeftWing).Concat(Enemies(OID.RightWing)).Concat(Enemies(OID.CorpsecleanerEagle)).Concat([PrimaryActor]));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(adds));
     }
 }

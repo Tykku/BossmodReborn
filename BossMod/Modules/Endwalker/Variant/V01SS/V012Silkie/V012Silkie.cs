@@ -2,8 +2,8 @@ namespace BossMod.Endwalker.VariantCriterion.V01SS.V012Silkie;
 
 class CarpetBeater(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CarpetBeater));
 class TotalWash(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.TotalWash));
-class DustBlusterKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.DustBlusterKnockback), 16, shape: new AOEShapeCircle(60));
-class WashOutKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.WashOutKnockback), 35, shape: new AOEShapeRect(60, 60), kind: Kind.DirForward);
+class DustBlusterKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.DustBlusterKnockback), 16, shape: new AOEShapeCircle(60));
+class WashOutKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.WashOutKnockback), 35, shape: new AOEShapeRect(60, 60), kind: Kind.DirForward);
 
 class BracingDuster1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BracingDuster1), new AOEShapeDonut(5, 60));
 class BracingDuster2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BracingDuster2), new AOEShapeDonut(5, 60));

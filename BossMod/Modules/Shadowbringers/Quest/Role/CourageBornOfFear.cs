@@ -28,7 +28,7 @@ class BodkinVolley(BossModule module) : Components.StackWithCastTargets(module, 
 class RainOfLight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RainOfLight), 4);
 class ThePathOfLight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThePathOfLight), 15);
 class InquisitorsBlade(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.InquisitorsBlade), new AOEShapeCone(40, 90.Degrees()));
-class MythrilCycloneKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.MythrilCyclone1), 18, stopAtWall: true);
+class MythrilCycloneKB(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.MythrilCyclone1), 18, stopAtWall: true);
 class MythrilCycloneDonut(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MythrilCyclone2), new AOEShapeDonut(8, 20));
 class SanctifiedMeltdown(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SanctifiedMeltdown), 6);
 class UncloudedAscension(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.UncloudedAscension1), 10);
@@ -66,7 +66,7 @@ class SanctifiedFireII(BossModule module) : Components.BaitAwayIcon(module, new 
     }
 }
 
-class FireVoidzone(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.SanctifiedFireII1), m => m.Enemies(0x29E5).Where(e => e.EventState != 7), 0.25f);
+class FireVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.SanctifiedFireII1), m => m.Enemies(0x29E5).Where(e => e.EventState != 7), 0.25f);
 
 class ImmaculateWarriorStates : StateMachineBuilder
 {

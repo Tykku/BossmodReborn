@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Heavensward.Alliance.A33ProtoUltima;
 
-class AetherialPool(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.AetherialPool), 40, kind: Kind.TowardsOrigin, stopAtWall: true);
+class AetherialPool(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.AetherialPool), 40, kind: Kind.TowardsOrigin, stopAtWall: true);
 class AetherochemicalFlare(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AetherochemicalFlare));
 
 abstract class AetherochemicalLaser(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(71, 4));
@@ -21,7 +21,7 @@ public class A33ProtoUltima(WorldState ws, Actor primary) : BossModule(ws, prima
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.AllaganDreadnaught));
-        Arena.Actors(Enemies(OID.AetherCollector));
+        Arena.Actors(Enemies((uint)OID.AllaganDreadnaught));
+        Arena.Actors(Enemies((uint)OID.AetherCollector));
     }
 }

@@ -120,10 +120,10 @@ class P4DarklitDragonsongBrightHunger(BossModule module) : Components.GenericTow
             return; // we only provide hints for soakers
 
         // stay on the far side of assigned tower, on the correct E/W side
-        var towerPos = Module.Center + new WDir(0, _darklit.AssignS[slot] ? +TowerOffset : -TowerOffset);
+        var towerPos = Arena.Center + new WDir(0, _darklit.AssignS[slot] ? +TowerOffset : -TowerOffset);
         hints.AddForbiddenZone(ShapeDistance.InvertedCircle(towerPos, 3), Towers[0].Activation);
-        hints.AddForbiddenZone(ShapeDistance.Circle(Module.Center, TowerOffset), Towers[0].Activation);
-        hints.AddForbiddenZone(ShapeDistance.HalfPlane(Module.Center, new(_darklit.AssignE[slot] ? +1 : -1, 0)), Towers[0].Activation);
+        hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, TowerOffset), Towers[0].Activation);
+        hints.AddForbiddenZone(ShapeDistance.HalfPlane(Arena.Center, new(_darklit.AssignE[slot] ? +1 : -1, 0)), Towers[0].Activation);
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
@@ -216,7 +216,7 @@ class P4DarklitDragonsongSpiritTaker(BossModule module) : SpiritTaker(module)
         //if (_darklit != null && _darklit.AssignS.Any() && Spreads.Count > 0 && Spreads[0].Activation > WorldState.FutureTime(1))
         //{
         //    // preposition
-        //    hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Module.Center + PrepositionOffset(_darklit, slot, actor), 1), Spreads[0].Activation);
+        //    hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center + PrepositionOffset(_darklit, slot, actor), 1), Spreads[0].Activation);
         //}
         //else
         {
@@ -334,7 +334,7 @@ class P4SomberDance(BossModule module) : Components.GenericBaitAway(module, cent
         if (assignment == (_config.P4SomberDanceOTBait ? PartyRolesConfig.Assignment.OT : PartyRolesConfig.Assignment.MT))
         {
             // go far east/west
-            var pos = Module.Center + new WDir(actor.Position.X > Module.Center.X ? 19 : -19, 0);
+            var pos = Arena.Center + new WDir(actor.Position.X > Arena.Center.X ? 19 : -19, 0);
             hints.AddForbiddenZone(ShapeDistance.InvertedCircle(pos, 1), _activation);
         }
         else

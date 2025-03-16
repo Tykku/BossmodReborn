@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Savage.P12S1Athena;
 
-class EngravementOfSouls1Spread(BossModule module) : Components.UniformStackSpread(module, 0, 3, alwaysShowSpreads: true, raidwideOnResolve: false, includeDeadTargets: true)
+class EngravementOfSouls1Spread(BossModule module) : Components.UniformStackSpread(module, default, 3f, alwaysShowSpreads: true, raidwideOnResolve: false, includeDeadTargets: true)
 {
     public enum DebuffType { None, Light, Dark }
 
@@ -20,7 +20,7 @@ class EngravementOfSouls1Spread(BossModule module) : Components.UniformStackSpre
 
         var safespot = CalculateSafeSpot(pcSlot);
         if (safespot != default)
-            Arena.AddCircle(safespot, 1, Colors.Safe);
+            Arena.AddCircle(safespot, 1f, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -34,13 +34,13 @@ class EngravementOfSouls1Spread(BossModule module) : Components.UniformStackSpre
         if (type != DebuffType.None && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
         {
             _states[slot].Debuff = type;
-            AddSpread(actor, WorldState.FutureTime(10.1f));
+            AddSpread(actor, WorldState.FutureTime(10.1d));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.UmbralGlow or AID.AstralGlow)
+        if (spell.Action.ID is (uint)AID.UmbralGlow or (uint)AID.AstralGlow)
             Spreads.Clear();
     }
 

@@ -5,7 +5,7 @@ class BodySlam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeS
 class Immersion(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Immersion));
 class ElectricWhorl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ElectricWhorl), new AOEShapeDonut(7, 60));
 class ExpulsionAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Expulsion), 14);
-class ExpulsionKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Expulsion), 30, stopAtWall: true);
+class ExpulsionKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Expulsion), 30, stopAtWall: true);
 class BiteAndRun(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.BiteAndRun), 2.5f);
 
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 120, NameID = 4613)]

@@ -43,7 +43,7 @@ public enum AID : uint
 
 class Ceras(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Ceras));
 
-class WaveOfTurmoil(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.WaveOfTurmoil), 20f, stopAtWall: true)
+class WaveOfTurmoil(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.WaveOfTurmoil), 20f, stopAtWall: true)
 {
     private readonly Hydrobomb _aoe = module.FindComponent<Hydrobomb>()!;
     private static readonly Angle cone = 30f.Degrees();

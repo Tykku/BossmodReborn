@@ -6,29 +6,30 @@ class P2LightRampant(BossModule module) : BossComponent(module)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        for (int i = 0; i < _tetherTargets.Length; ++i)
+        var len = _tetherTargets.Length;
+        for (var i = 0; i < len; ++i)
         {
             var source = Raid[i];
             var target = _tetherTargets[i];
             if (source != null && target != null)
-                Arena.AddLine(source.Position, target.Position, (source.Position - target.Position).LengthSq() < 625 ? Colors.Danger : Colors.Safe);
+                Arena.AddLine(source.Position, target.Position, (source.Position - target.Position).LengthSq() < 625f ? 0 : Colors.Safe);
         }
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
-        if ((TetherID)tether.ID is TetherID.LightRampantChains or TetherID.LightRampantCurse && Raid.FindSlot(source.InstanceID) is var slot && slot >= 0)
+        if (tether.ID is (uint)TetherID.LightRampantChains or (uint)TetherID.LightRampantCurse && Raid.FindSlot(source.InstanceID) is var slot && slot >= 0)
             _tetherTargets[slot] = WorldState.Actors.Find(tether.Target);
     }
 
     public override void OnUntethered(Actor source, ActorTetherInfo tether)
     {
-        if ((TetherID)tether.ID is TetherID.LightRampantChains or TetherID.LightRampantCurse && Raid.FindSlot(source.InstanceID) is var slot && slot >= 0)
+        if (tether.ID is (uint)TetherID.LightRampantChains or (uint)TetherID.LightRampantCurse && Raid.FindSlot(source.InstanceID) is var slot && slot >= 0)
             _tetherTargets[slot] = null;
     }
 }
 
-class P2LuminousHammer(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(6), (uint)IconID.LuminousHammer, ActionID.MakeSpell(AID.LuminousHammer), 7.1f, true)
+class P2LuminousHammer(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(6f), (uint)IconID.LuminousHammer, ActionID.MakeSpell(AID.LuminousHammer), 7.1f, true)
 {
     public readonly int[] BaitsPerPlayer = new int[PartyState.MaxPartySize];
     public readonly WDir[] PrevBaitOffset = new WDir[PartyState.MaxPartySize];
@@ -38,7 +39,7 @@ class P2LuminousHammer(BossModule module) : Components.BaitAwayIcon(module, new 
         // note: movement hints are provided by dedicated components; this only marks targeted players as expecting to be damaged
         BitMask predictedDamage = default;
         foreach (var b in CurrentBaits)
-            predictedDamage.Set(Raid.FindSlot(b.Target.InstanceID));
+            predictedDamage[Raid.FindSlot(b.Target.InstanceID)] = true;
         if (predictedDamage.Any())
             hints.PredictedDamage.Add((predictedDamage, CurrentBaits[0].Activation));
     }
@@ -48,7 +49,7 @@ class P2LuminousHammer(BossModule module) : Components.BaitAwayIcon(module, new 
         if (spell.Action == WatchedAction && Raid.FindSlot(spell.MainTargetID) is var slot && slot >= 0)
         {
             ++NumCasts;
-            PrevBaitOffset[slot] = (Raid[slot]?.Position ?? Module.Center) - Module.Center;
+            PrevBaitOffset[slot] = (Raid[slot]?.Position ?? Arena.Center) - Arena.Center;
             if (++BaitsPerPlayer[slot] == 5)
                 CurrentBaits.RemoveAll(b => b.Target == Raid[slot]); // last bait
         }
@@ -110,7 +111,7 @@ class P2BrightHunger1(BossModule module) : Components.GenericTowers(module, Acti
         {
             var dir = (240 - i * 60).Degrees();
             var forbidden = conga.Count == 6 ? BitMask.Build(conga[i].slot) ^ new BitMask(0xFF) : _forbidden;
-            Towers.Add(new(Module.Center + 16 * dir.ToDirection(), 4, 1, 1, forbidden, WorldState.FutureTime(10.3f)));
+            Towers.Add(new(Arena.Center + 16 * dir.ToDirection(), 4, 1, 1, forbidden, WorldState.FutureTime(10.3f)));
         }
     }
 }
@@ -154,7 +155,7 @@ class P2BrightHunger2(BossModule module) : Components.GenericTowers(module, Acti
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if (Towers.Count == 0 && (AID)spell.Action.ID == AID.HolyLightBurst)
-            Towers.Add(new(Module.Center, 4, 1, 8, _forbidden, WorldState.FutureTime(6.5f)));
+            Towers.Add(new(Arena.Center, 4, 1, 8, _forbidden, WorldState.FutureTime(6.5f)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -191,7 +192,7 @@ class P2LightRampantBanish(BossModule module) : P2Banish(module)
                     // we know the mechanic, so preposition immediately
                     // there might be puddles covering prepos spot, so add extra rougher hint
                     hints.AddForbiddenZone(ShapeDistance.InvertedCircle(prepos.Value, 1), DateTime.MaxValue);
-                    hints.AddForbiddenZone(ShapeDistance.InvertedCone(Module.Center, 50, Angle.FromDirection(prepos.Value - Module.Center), 15.Degrees()), WorldState.FutureTime(60));
+                    hints.AddForbiddenZone(ShapeDistance.InvertedCone(Arena.Center, 50, Angle.FromDirection(prepos.Value - Arena.Center), 15.Degrees()), WorldState.FutureTime(60));
                 }
             }
             else
@@ -231,11 +232,11 @@ class P2LightRampantBanish(BossModule module) : P2Banish(module)
             var isSupport = assignment is PartyRolesConfig.Assignment.MT or PartyRolesConfig.Assignment.OT or PartyRolesConfig.Assignment.H1 or PartyRolesConfig.Assignment.H2;
             if (_config.P2Banish2SupportsMoveToStack == isSupport)
                 assignedDirection += (_config.P2Banish2MoveCCWToStack ? 45 : -45).Degrees();
-            return Module.Center + 10 * assignedDirection.ToDirection();
+            return Arena.Center + 10 * assignedDirection.ToDirection();
         }
         else if (Spreads.Count > 0 && Spreads[0].Activation > WorldState.FutureTime(1))
         {
-            return Module.Center + 13 * assignedDirection.ToDirection();
+            return Arena.Center + 13 * assignedDirection.ToDirection();
         }
         return null;
     }
@@ -289,7 +290,7 @@ class P2LightRampantAITowers(BossModule module) : BossComponent(module)
                     north ^= moreCW;
                 }
 
-                var preposSpot = Module.Center + new WDir(0, north ? -BaitOffset : BaitOffset);
+                var preposSpot = Arena.Center + new WDir(0, north ? -BaitOffset : BaitOffset);
                 hints.AddForbiddenZone(ShapeDistance.InvertedCircle(preposSpot, 1), bait.Activation);
             }
             else
@@ -324,8 +325,8 @@ class P2LightRampantAIStackPrepos(BossModule module) : BossComponent(module)
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         var isPuddleBaiter = _puddles?.ActiveBaitsOn(actor).Count != 0;
-        var northCamp = isPuddleBaiter ? actor.Position.X < Arena.Center.X : actor.Position.Z < Module.Center.Z; // this assumes CW movement for baiter
-        var dest = Module.Center + new WDir(0, northCamp ? -18 : 18);
+        var northCamp = isPuddleBaiter ? actor.Position.X < Arena.Center.X : actor.Position.Z < Arena.Center.Z; // this assumes CW movement for baiter
+        var dest = Arena.Center + new WDir(0, northCamp ? -18 : 18);
         if (isPuddleBaiter)
         {
             var maxDist = _puddles?.BaitsPerPlayer[slot] == 4 ? 7 : 13;
@@ -350,8 +351,20 @@ class P2LightRampantAIStackResolve(BossModule module) : BossComponent(module)
             return;
 
         var northCamp = IsNorthCamp(actor);
-        var centerDangerous = _orbs.ActiveCasters.Any(c => c.Origin.Z - Arena.Center.Z is var off && (northCamp ? off < -15 : off > 15));
-        var destDir = (northCamp ? 180 : 0).Degrees() - (centerDangerous ? 40 : 20).Degrees();
+        var centerDangerous = false;
+        var len = _orbs.ActiveCasters.Length;
+
+        for (var i = 0; i < len; ++i)
+        {
+            var offset = _orbs.ActiveCasters[i].Origin.Z - Arena.Center.Z;
+            if (northCamp && offset < -15f || !northCamp && offset > 15f)
+            {
+                centerDangerous = true;
+                break;
+            }
+        }
+
+        var destDir = (northCamp ? 180f : default).Degrees() - (centerDangerous ? 40f : 20f).Degrees();
         var destPos = Arena.Center + Radius * destDir.ToDirection();
         if (_stack.IsStackTarget(actor))
         {
@@ -379,7 +392,7 @@ class P2LightRampantAIStackResolve(BossModule module) : BossComponent(module)
         }
     }
 
-    private bool IsNorthCamp(Actor actor) => actor.Position.Z < Module.Center.Z;
+    private bool IsNorthCamp(Actor actor) => actor.Position.Z < Arena.Center.Z;
 }
 
 // movement to dodge orbs after resolving stack
@@ -394,31 +407,31 @@ class P2LightRampantAIOrbs(BossModule module) : BossComponent(module)
 
         // actual orb aoes; use slightly bigger radius to make dodges less sus
         foreach (var c in _orbs.ActiveCasters)
-            hints.AddForbiddenZone(ShapeDistance.Circle(c.Origin, 12), c.Activation);
+            hints.AddForbiddenZone(ShapeDistance.Circle(c.Origin, 12f), c.Activation);
 
         if (_orbs.NumCasts == 0)
         {
             // dodge first orbs, while staying near edge
-            hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 16));
+            hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 16f));
             // ... and close to the aoes
-            var count = _orbs.ActiveCasters.Count;
-            var orbs = new Func<WPos, float>[count];
-            for (var i = 0; i < count; ++i)
+            var len = _orbs.ActiveCasters.Length;
+            var orbs = new Func<WPos, float>[len];
+            for (var i = 0; i < len; ++i)
                 orbs[i] = ShapeDistance.Circle(_orbs.ActiveCasters[i].Origin, 13.5f);
             hints.AddForbiddenZone(ShapeDistance.InvertedUnion(orbs), DateTime.MaxValue);
         }
         else if (_orbs.Casters.Any(c => _orbs.Shape.Check(actor.Position, c.Origin, default)))
         {
             // dodge second orbs while staying near edge (tethers are still up for a bit after first dodge)
-            hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 16));
+            hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 16f));
         }
         else
         {
             // now that we're safe, move closer to the center (this is a bit sus, but whatever...)
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 16), WorldState.FutureTime(30));
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 13), WorldState.FutureTime(40));
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 10), WorldState.FutureTime(50));
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 7), DateTime.MaxValue);
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 16f), WorldState.FutureTime(30d));
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 13f), WorldState.FutureTime(40d));
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 10f), WorldState.FutureTime(50d));
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 7f), DateTime.MaxValue);
         }
     }
 }

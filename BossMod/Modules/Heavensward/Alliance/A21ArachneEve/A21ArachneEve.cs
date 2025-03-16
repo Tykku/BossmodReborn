@@ -8,8 +8,8 @@ class Tremblor1(BossModule module) : Components.SimpleAOEs(module, ActionID.Make
 class Tremblor2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Tremblor2), 20.5f);
 class Tremblor3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Tremblor3), 30.5f);
 class FrondAffeared(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.FrondAffeared));
-class TheWidowsEmbrace(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.TheWidowsEmbrace), 18, kind: Kind.TowardsOrigin, stopAtWall: true);
-class TheWidowsKiss(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.TheWidowsKiss), 4, kind: Kind.TowardsOrigin, stopAtWall: true);
+class TheWidowsEmbrace(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.TheWidowsEmbrace), 18, kind: Kind.TowardsOrigin, stopAtWall: true);
+class TheWidowsKiss(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.TheWidowsKiss), 4, kind: Kind.TowardsOrigin, stopAtWall: true);
 
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 168, NameID = 4871)]
 public class A21ArachneEve(WorldState ws, Actor primary) : BossModule(ws, primary, new(20, -60), new ArenaBoundsCircle(30))

@@ -1,6 +1,25 @@
 ﻿namespace BossMod.Dawntrail.Unreal.Un1Byakko;
 
-class UnrelentingAnguish(BossModule module) : Components.PersistentVoidzone(module, 2, m => m.Enemies(OID.AratamaForce).Where(z => !z.IsDead), 2);
+class UnrelentingAnguish(BossModule module) : Components.Voidzone(module, 2f, GetVoidzones, 2)
+{
+    private static Actor[] GetVoidzones(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.AratamaForce);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
+
+        var voidzones = new Actor[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (!z.IsDead)
+                voidzones[index++] = z;
+        }
+        return voidzones[..index];
+    }
+}
 
 class OminousWind(BossModule module) : BossComponent(module)
 {
@@ -36,5 +55,5 @@ class OminousWind(BossModule module) : BossComponent(module)
 
 class GaleForce(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(6), (uint)IconID.Bombogenesis, ActionID.MakeSpell(AID.GaleForce), 8.1f, true);
 
-class VacuumClaw(BossModule module) : Components.PersistentVoidzone(module, 12, m => m.Enemies(OID.VacuumClaw).Where(z => !z.IsDead));
+class VacuumClaw(BossModule module) : Components.Voidzone(module, 12, m => m.Enemies(OID.VacuumClaw).Where(z => !z.IsDead));
 class VacuumBlade(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.VacuumBlade));

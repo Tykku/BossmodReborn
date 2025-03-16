@@ -17,7 +17,7 @@ class ForgedTrack(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeRect _shape = new(10f, 2.5f, 10f);
     private static readonly AOEShapeRect _shapeWide = new(10f, 7.5f, 10f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => [.. NarrowAOEs, .. WideAOEs, .. KnockbackAOEs];
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan([.. NarrowAOEs, .. WideAOEs, .. KnockbackAOEs]);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -118,23 +118,24 @@ class ForgedTrack(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class ForgedTrackKnockback(BossModule module) : Components.Knockback(module, ActionID.MakeSpell(AID.StormyEdgeKnockback))
+class ForgedTrackKnockback(BossModule module) : Components.GenericKnockback(module, ActionID.MakeSpell(AID.StormyEdgeKnockback))
 {
     private readonly ForgedTrack? _main = module.FindComponent<ForgedTrack>();
 
     private static readonly AOEShapeRect _shape = new(20f, 10f);
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
         if (_main == null)
             return [];
         var count = _main.KnockbackAOEs.Count;
-        var sources = new List<Source>();
+        var sources = new Knockback[count * 2];
+        var index = 0;
         for (var i = 0; i < count; ++i)
         {
             var aoe = _main.KnockbackAOEs[i];
-            sources.Add(new(aoe.Origin, 7f, aoe.Activation, _shape, aoe.Rotation + 90f.Degrees(), Kind.DirForward));
-            sources.Add(new(aoe.Origin, 7, aoe.Activation, _shape, aoe.Rotation - 90f.Degrees(), Kind.DirForward));
+            sources[index++] = new(aoe.Origin, 7f, aoe.Activation, _shape, aoe.Rotation + 90f.Degrees(), Kind.DirForward);
+            sources[index++] = new(aoe.Origin, 7f, aoe.Activation, _shape, aoe.Rotation - 90f.Degrees(), Kind.DirForward);
         }
         return sources;
     }

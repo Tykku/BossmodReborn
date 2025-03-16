@@ -9,11 +9,11 @@ public class Ex3QueenEternal(WorldState ws, Actor primary) : BossModule(ws, prim
 {
     public static readonly WPos ArenaCenter = Trial.T03QueenEternal.T03QueenEternal.ArenaCenter, HalfBoundsCenter = new(100, 110);
     public static readonly ArenaBoundsSquare NormalBounds = Trial.T03QueenEternal.T03QueenEternal.DefaultBounds;
-    public static readonly ArenaBoundsRect HalfBounds = new(20, 10);
+    public static readonly ArenaBoundsRect HalfBounds = new(20f, 10f);
     public static readonly ArenaBoundsComplex WindBounds = Trial.T03QueenEternal.T03QueenEternal.XArena;
     public static readonly ArenaBoundsComplex EarthBounds = Trial.T03QueenEternal.T03QueenEternal.SplitArena;
-    private static readonly Rectangle[] iceRects = [new(new(112, 95), 4, 15), new(new(88, 95), 4, 15), new(ArenaCenter, 2, 10)];
-    public static readonly Rectangle[] IceRectsAll = [.. iceRects, new(new(100, 96), 8, 2), new(new(100, 104), 8, 2)];
+    private static readonly Rectangle[] iceRects = [new(new(112f, 95f), 4f, 15f), new(new(88f, 95f), 4f, 15f), new(ArenaCenter, 2f, 10f)];
+    public static readonly Rectangle[] IceRectsAll = [.. iceRects, new(new(100f, 96f), 8f, 2f), new(new(100f, 104f), 8f, 2f)];
     public static readonly ArenaBoundsComplex IceBounds = new(iceRects);
 
     private Actor? _bossP2;
@@ -24,7 +24,11 @@ public class Ex3QueenEternal(WorldState ws, Actor primary) : BossModule(ws, prim
     {
         // TODO: this is an ugly hack, think how multi-actor fights can be implemented without it...
         // the problem is that on wipe, any actor can be deleted and recreated in the same frame
-        _bossP2 ??= StateMachine.ActivePhaseIndex > 0 ? Enemies(OID.BossP2).FirstOrDefault() : null;
+        if (_bossP2 == null)
+        {
+            var b = Enemies((uint)OID.BossP2);
+            _bossP2 = b.Count != 0 ? b[0] : null;
+        }
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)

@@ -21,7 +21,7 @@ public enum AID : uint
 class EyeoftheFire(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EyeOfTheFire));
 class RustingClaw(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RustingClaw), new AOEShapeCone(11.45f, 60f.Degrees()));
 class TheSpin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheSpin), 20f);
-class VoidSpark(BossModule module) : Components.PersistentVoidzone(module, 8f, GetVoidzones)
+class VoidSpark(BossModule module) : Components.Voidzone(module, 8f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

@@ -36,7 +36,7 @@ class SpinBoss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeS
 class BarbarousScream(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BarbarousScream), 13f);
 class Huff(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.Huff));
 
-class Buffet(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Buffet), 20f, kind: Kind.DirForward, stopAtWall: true)
+class Buffet(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Buffet), 20f, kind: Kind.DirForward, stopAtWall: true)
 {
     private bool targeted;
     private Actor? target;
@@ -50,7 +50,7 @@ class Buffet(BossModule module) : Components.KnockbackFromCastTarget(module, Act
         }
     }
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor) => target == actor ? base.Sources(slot, actor) : [];
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor) => target == actor ? base.ActiveKnockbacks(slot, actor) : [];
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {

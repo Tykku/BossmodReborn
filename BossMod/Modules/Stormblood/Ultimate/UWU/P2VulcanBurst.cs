@@ -1,13 +1,14 @@
 ﻿namespace BossMod.Stormblood.Ultimate.UWU;
 
-class VulcanBurst(BossModule module, AID aid, Actor? source) : Components.Knockback(module, ActionID.MakeSpell(aid))
+class VulcanBurst(BossModule module, AID aid, Actor? source) : Components.GenericKnockback(module, ActionID.MakeSpell(aid))
 {
     protected Actor? SourceActor = source;
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
         if (SourceActor != null)
-            yield return new(SourceActor.Position, 15); // TODO: activation
+            return new Knockback[1] { new(SourceActor.Position, 15f) }; // TODO: activation
+        return [];
     }
 }
 

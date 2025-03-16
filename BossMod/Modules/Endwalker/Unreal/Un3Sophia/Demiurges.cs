@@ -31,7 +31,7 @@ class Demiurges(BossModule module) : Components.DirectionalParry(module, [(uint)
 class DivineSpark(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.DivineSpark));
 class GnosticRant(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GnosticRant), new AOEShapeCone(40, 135.Degrees()));
 class GnosticSpear(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GnosticSpear), new AOEShapeRect(20.75f, 2));
-class RingOfPain(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.RingOfPain), m => m.Enemies(OID.RingOfPain).Where(z => z.EventState != 7), 1.7f);
+class RingOfPain(BossModule module) : Components.VoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.RingOfPain), m => m.Enemies(OID.RingOfPain).Where(z => z.EventState != 7), 1.7f);
 
 class Infusion(BossModule module) : Components.GenericWildCharge(module, 5, ActionID.MakeSpell(AID.Infusion))
 {

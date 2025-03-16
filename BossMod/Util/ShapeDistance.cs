@@ -1,13 +1,11 @@
-﻿using BossMod.Pathfinding;
-
-namespace BossMod;
+﻿namespace BossMod;
 
 // shapes can be defined by distance from point to shape's border; distance is positive for points outside shape and negative for points inside shape
 // union is min, intersection is max
 
 public static class ShapeDistance
 {
-    private static readonly Angle a90 = 90.Degrees();
+    private static readonly Angle a90 = 90f.Degrees();
 
     public static Func<WPos, float> HalfPlane(WPos point, WDir normal)
     {

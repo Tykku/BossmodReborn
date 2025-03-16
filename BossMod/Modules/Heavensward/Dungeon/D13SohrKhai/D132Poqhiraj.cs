@@ -87,11 +87,11 @@ class ArenaChanges(BossModule module) : BossComponent(module)
 
 class GallopAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GallopAOE), new AOEShapeRect(40.5f, 1f));
 
-class GallopKB(BossModule module) : Components.Knockback(module)
+class GallopKB(BossModule module) : Components.GenericKnockback(module)
 {
     public static readonly float[] xPositions = [395.5f, 404.5f];
     private static readonly AOEShapeRect rect = new(4.5f, 20f);
-    private readonly List<Source> _sources = new(2);
+    private readonly List<Knockback> _sources = new(2);
     public readonly List<SafeWall> safeWalls = GenerateSafeWalls();
 
     private static List<SafeWall> GenerateSafeWalls()
@@ -107,7 +107,7 @@ class GallopKB(BossModule module) : Components.Knockback(module)
         return list;
     }
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor) => _sources;
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor) => CollectionsMarshal.AsSpan(_sources);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -130,7 +130,7 @@ class GallopKBHint(BossModule module) : Components.GenericAOEs(module)
     private static readonly Angle[] angles = [-89.982f.Degrees(), 89.977f.Degrees()];
     private AOEInstance? _aoe;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -313,7 +313,7 @@ class LightningBolt(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnActorCreated(Actor actor)
     {

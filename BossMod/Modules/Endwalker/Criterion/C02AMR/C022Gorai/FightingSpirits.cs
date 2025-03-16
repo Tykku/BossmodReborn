@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C022Gorai;
 
-abstract class FightingSpirits(BossModule module, AID aid) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(aid), 16f);
+abstract class FightingSpirits(BossModule module, AID aid) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(aid), 16f);
 class NFightingSpirits(BossModule module) : FightingSpirits(module, AID.NFightingSpiritsAOE);
 class SFightingSpirits(BossModule module) : FightingSpirits(module, AID.SFightingSpiritsAOE);
 
@@ -64,9 +64,9 @@ class WorldlyPursuitLast(BossModule module) : Components.GenericAOEs(module)
 
     private static readonly AOEShapeCross _shape = new(60f, 10f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        return [new(_shape, Arena.Center, Angle.FromDirection(Arena.Center - Module.PrimaryActor.Position), _activation)];
+        return new AOEInstance[1] { new(_shape, Arena.Center, Angle.FromDirection(Arena.Center - Module.PrimaryActor.Position), _activation) };
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

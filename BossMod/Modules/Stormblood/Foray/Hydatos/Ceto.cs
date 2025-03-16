@@ -44,13 +44,13 @@ class TailSlap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeS
 class GrimFate(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrimFate), new AOEShapeCone(8f, 60f.Degrees()));
 class Desolation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Desolation), new AOEShapeRect(12f, 4f));
 
-class Petrattraction(BossModule module) : Components.Knockback(module)
+class Petrattraction(BossModule module) : Components.GenericKnockback(module)
 {
-    public Source? _source;
+    public Knockback? _source;
 
     private static readonly AOEShapeCircle circle = new(50f);
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor) => Utils.ZeroOrOne(_source);
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor) => Utils.ZeroOrOne(ref _source);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

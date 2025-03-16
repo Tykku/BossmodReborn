@@ -123,7 +123,7 @@ class OvercomeAllOdds(BossModule module) : Components.SimpleAOEs(module, ActionI
     }
 }
 class Soulflash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Soulflash1), 4f);
-class EtesianAxe(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.EtesianAxe), 15f, kind: Kind.DirForward);
+class EtesianAxe(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.EtesianAxe), 15f, kind: Kind.DirForward);
 class Soulflash2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Soulflash2), 8f);
 
 class GroundbreakerExaflares(BossModule module) : Components.Exaflare(module, 6f)

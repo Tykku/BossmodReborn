@@ -13,10 +13,10 @@ class SunriseSabbath(BossModule module) : BossComponent(module)
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID is SID.Positron or SID.Negatron && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
+        if (status.ID is (uint)SID.Positron or (uint)SID.Negatron && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
         {
-            Positron[slot] = (SID)status.ID == SID.Positron;
-            BaitOrder[slot] = (status.ExpireAt - WorldState.CurrentTime).TotalSeconds < 30 ? 1 : 2;
+            Positron[slot] = status.ID == (uint)SID.Positron;
+            BaitOrder[slot] = (status.ExpireAt - WorldState.CurrentTime).TotalSeconds < 30d ? 1 : 2;
         }
     }
 }
@@ -28,7 +28,7 @@ class SunriseSabbathSoaringSoulpress(BossModule module) : Components.GenericTowe
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if ((OID)actor.OID == OID.WickedReplica && id == 0x11D5)
+        if (actor.OID == (uint)OID.WickedReplica && id == 0x11D5)
         {
             _birds.Add(actor);
             AddTower(actor, 1);
@@ -37,15 +37,15 @@ class SunriseSabbathSoaringSoulpress(BossModule module) : Components.GenericTowe
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.SoaringSoulpress1:
-            case AID.SoaringSoulpress2:
+            case (uint)AID.SoaringSoulpress1:
+            case (uint)AID.SoaringSoulpress2:
                 ++NumCasts;
                 Towers.Clear();
                 break;
-            case AID.WickedSpecialCenterAOE:
-            case AID.WickedSpecialSidesAOE:
+            case (uint)AID.WickedSpecialCenterAOE:
+            case (uint)AID.WickedSpecialSidesAOE:
                 foreach (var b in _birds)
                     AddTower(b, 2);
                 break;
@@ -55,9 +55,9 @@ class SunriseSabbathSoaringSoulpress(BossModule module) : Components.GenericTowe
     private void AddTower(Actor bird, int forbiddenOrder)
     {
         var intercard = ((int)Math.Round(bird.Rotation.Deg / 45) & 1) != 0;
-        var pos = bird.Position + bird.Rotation.ToDirection() * (intercard ? 21.21320344f : 30);
+        var pos = bird.Position + bird.Rotation.ToDirection() * (intercard ? 21.21320344f : 30f);
         var forbidden = _sabbath != null ? Raid.WithSlot(true, true, true).WhereSlot(i => _sabbath.BaitOrder[i] == forbiddenOrder).Mask() : default;
-        Towers.Add(new(pos, 3, 2, 2, forbiddenSoakers: forbidden));
+        Towers.Add(new(pos, 3.6f, 2, 2, forbiddenSoakers: forbidden));
     }
 }
 
@@ -66,7 +66,7 @@ class SunriseSabbathElectronStream(BossModule module) : Components.GenericBaitAw
     public readonly List<(Actor cannon, bool positron)> Cannons = [];
     private readonly SunriseSabbath? _sabbath = module.FindComponent<SunriseSabbath>();
 
-    private static readonly AOEShapeRect _shape = new(40, 6);
+    private static readonly AOEShapeRect _shape = new(40f, 6f);
 
     public override void Update()
     {
@@ -93,7 +93,7 @@ class SunriseSabbathElectronStream(BossModule module) : Components.GenericBaitAw
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((OID)actor.OID == OID.WickedReplica && (SID)status.ID == SID.Marker)
+        if (actor.OID == (uint)OID.WickedReplica && status.ID == (uint)SID.Marker)
         {
             Cannons.Add((actor, status.Extra == 0x2F5));
             var baitOrder = NumCasts == 0 ? 1 : 2;
@@ -103,7 +103,7 @@ class SunriseSabbathElectronStream(BossModule module) : Components.GenericBaitAw
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.SunriseSabbathPositronStream1 or AID.SunriseSabbathNegatronStream1 or AID.SunriseSabbathPositronStream2 or AID.SunriseSabbathNegatronStream2)
+        if (spell.Action.ID is (uint)AID.SunriseSabbathPositronStream1 or (uint)AID.SunriseSabbathNegatronStream1 or (uint)AID.SunriseSabbathPositronStream2 or (uint)AID.SunriseSabbathNegatronStream2)
         {
             ++NumCasts;
             Cannons.Clear();

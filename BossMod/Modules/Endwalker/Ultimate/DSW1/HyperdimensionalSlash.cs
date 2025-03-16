@@ -34,8 +34,8 @@ class HyperdimensionalSlash(BossModule module) : BossComponent(module)
         }
 
         // TODO: proper targeting (seems to be predefined, charibert's target for first?..)
-        var coneTarget = Raid.WithSlot(false, true, true).ExcludedFromMask(_laserTargets).Actors().Closest(Module.Center);
-        _coneDir = coneTarget != null ? Angle.FromDirection(coneTarget.Position - Module.Center) : 0.Degrees();
+        var coneTarget = Raid.WithSlot(false, true, true).ExcludedFromMask(_laserTargets).Actors().Closest(Arena.Center);
+        _coneDir = coneTarget != null ? Angle.FromDirection(coneTarget.Position - Arena.Center) : 0.Degrees();
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -57,11 +57,11 @@ class HyperdimensionalSlash(BossModule module) : BossComponent(module)
         // make sure actor is not clipped by any lasers
         var otherLasers = _laserTargets;
         otherLasers.Clear(slot);
-        if (Raid.WithSlot(false, true, true).IncludedInMask(otherLasers).WhereActor(target => _aoeLaser.Check(actor.Position, Module.Center, Angle.FromDirection(target.Position - Module.Center))).Any())
+        if (Raid.WithSlot(false, true, true).IncludedInMask(otherLasers).WhereActor(target => _aoeLaser.Check(actor.Position, Arena.Center, Angle.FromDirection(target.Position - Arena.Center))).Any())
             hints.Add("GTFO from laser aoe!");
 
         // make sure actor is either not hit by cone (if is target of a laser) or is hit by a cone (otherwise)
-        var hitByCone = _aoeCone.Check(actor.Position, Module.Center, _coneDir);
+        var hitByCone = _aoeCone.Check(actor.Position, Arena.Center, _coneDir);
         if (tearIndex >= 0 && hitByCone)
             hints.Add("GTFO from cone aoe!");
         else if (tearIndex < 0 && !hitByCone)
@@ -74,7 +74,7 @@ class HyperdimensionalSlash(BossModule module) : BossComponent(module)
             return;
 
         foreach (var t in Raid.WithSlot(false, true, true).IncludedInMask(_laserTargets).Actors())
-            _aoeLaser.Draw(Arena, Arena.Center, Angle.FromDirection(t.Position - Module.Center));
+            _aoeLaser.Draw(Arena, Arena.Center, Angle.FromDirection(t.Position - Arena.Center));
         _aoeCone.Draw(Arena, Arena.Center, _coneDir);
     }
 

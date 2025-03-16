@@ -42,7 +42,7 @@ class TailSmash(BossModule module) : Components.SimpleAOEs(module, ActionID.Make
 class RagingInferno(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RagingInferno));
 class Comet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Comet), 4f);
 class HardStomp(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HardStomp), 10f);
-class Fireball(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.Fireball), GetVoidzones, 0.7f)
+class Fireball(BossModule module) : Components.VoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.Fireball), GetVoidzones, 0.7f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

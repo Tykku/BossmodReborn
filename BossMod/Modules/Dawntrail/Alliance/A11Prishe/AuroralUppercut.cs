@@ -1,10 +1,10 @@
 namespace BossMod.Dawntrail.Alliance.A11Prishe;
 
-class AuroralUppercut(BossModule module) : Components.Knockback(module, ignoreImmunes: true)
+class AuroralUppercut(BossModule module) : Components.GenericKnockback(module, ignoreImmunes: true)
 {
-    private Source? _source;
+    private Knockback? _source;
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor) => _source != null && actor.FindStatus(SID.Knockback) == null ? Utils.ZeroOrOne(_source) : [];
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor) => _source != null && actor.FindStatus(SID.Knockback) == null ? Utils.ZeroOrOne(ref _source) : [];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -49,7 +49,7 @@ class AuroralUppercutHint(BossModule module) : Components.GenericAOEs(module)
     new ConeV(ArenaChanges.MiddleENVC02000100[1].Center + new WDir(-9f, 9f), 3, a135, a45, 3),
     new Rectangle(center + new WDir(-15f, 3f), 1f, 5f), new Rectangle(center + new WDir(15f, -3f), 1f, 5f)], InvertForbiddenZone: true);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

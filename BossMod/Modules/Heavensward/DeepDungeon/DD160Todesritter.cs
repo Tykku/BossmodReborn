@@ -18,7 +18,7 @@ public enum AID : uint
 }
 
 class CleaveAuto(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.AutoAttack), new AOEShapeCone(11.92f, 45f.Degrees()), activeWhileCasting: false);
-class HallOfSorrow(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 9f, ActionID.MakeSpell(AID.HallOfSorrow), GetVoidzones, 1.3f)
+class HallOfSorrow(BossModule module) : Components.VoidzoneAtCastTarget(module, 9f, ActionID.MakeSpell(AID.HallOfSorrow), GetVoidzones, 1.3f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {
@@ -41,16 +41,16 @@ class HallOfSorrow(BossModule module) : Components.PersistentVoidzoneAtCastTarge
 
 class Infatuation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Infatuation), 7f);
 class Valfodr(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.Valfodr), 3f);
-class ValfodrKB(BossModule module) : Components.Knockback(module, ActionID.MakeSpell(AID.Valfodr), stopAtWall: true) // note actual knockback is delayed by upto 1.2s in replay
+class ValfodrKB(BossModule module) : Components.GenericKnockback(module, ActionID.MakeSpell(AID.Valfodr), stopAtWall: true) // note actual knockback is delayed by upto 1.2s in replay
 {
     private int _target;
-    private Source? _source;
+    private Knockback? _source;
     private readonly Infatuation _aoe = module.FindComponent<Infatuation>()!;
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
         if (_target == slot && _source != null)
-            return [_source.Value];
+            return new Knockback[1] { _source.Value };
         else
             return [];
     }

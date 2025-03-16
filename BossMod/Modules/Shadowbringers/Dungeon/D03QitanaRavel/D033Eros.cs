@@ -36,7 +36,7 @@ public enum AID : uint
 }
 
 class HoundOutOfHeaven(BossModule module) : Components.StretchTetherDuo(module, 19f, 5.2f);
-class ViperPoisonVoidzone(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.ViperPoisonPatterns), GetVoidzones, 0.8f)
+class ViperPoisonVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.ViperPoisonPatterns), GetVoidzones, 0.8f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {
@@ -74,7 +74,7 @@ class ViperPoisonBait(BossModule module) : Components.BaitAwayCast(module, Actio
     }
 }
 
-class Inhale(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Inhale), 50f, kind: Kind.TowardsOrigin)
+class Inhale(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Inhale), 50f, kind: Kind.TowardsOrigin)
 {
     private readonly ViperPoisonVoidzone _aoe = module.FindComponent<ViperPoisonVoidzone>()!;
 
@@ -104,7 +104,7 @@ class Inhale(BossModule module) : Components.KnockbackFromCastTarget(module, Act
     }
 }
 
-class HeavingBreath(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.HeavingBreath), 35f, kind: Kind.DirForward, stopAtWall: true)
+class HeavingBreath(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.HeavingBreath), 35f, kind: Kind.DirForward, stopAtWall: true)
 {
     private readonly ViperPoisonVoidzone _aoe = module.FindComponent<ViperPoisonVoidzone>()!;
 

@@ -12,7 +12,7 @@ class OptimalOffensive(BossModule module) : Components.ChargeAOEs(module, Action
 
 // note: there are two casters (as usual in bozja content for raidwides)
 // TODO: not sure whether it ignores immunes, I assume so...
-class OptimalOffensiveKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.OptimalOffensiveKnockback), 10, true, 1);
+class OptimalOffensiveKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.OptimalOffensiveKnockback), 10, true, 1);
 
 class OptimalPlaySword(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OptimalPlaySword), 10);
 class OptimalPlayShield(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OptimalPlayShield), new AOEShapeDonut(5, 60));

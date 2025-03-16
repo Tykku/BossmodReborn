@@ -1,13 +1,14 @@
 ﻿namespace BossMod.Endwalker.Unreal.Un3Sophia;
 
-class ArmsOfWisdom(BossModule module) : Components.Knockback(module, ActionID.MakeSpell(AID.ArmsOfWisdom))
+class ArmsOfWisdom(BossModule module) : Components.GenericKnockback(module, ActionID.MakeSpell(AID.ArmsOfWisdom))
 {
     private Actor? _caster;
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
         if (_caster?.CastInfo?.TargetID == actor.InstanceID)
-            yield return new(_caster.Position, 5, Module.CastFinishAt(_caster.CastInfo));
+            return new Knockback[1] { new(_caster.Position, 5, Module.CastFinishAt(_caster.CastInfo)) };
+        return [];
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)

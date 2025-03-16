@@ -76,8 +76,8 @@ class C013ShadowcasterStates : StateMachineBuilder
         ComponentCondition<BlazingBenifice>(id + 0x21, 4.1f, comp => comp.NumCasts > 0, "Mirrors 1")
             .ActivateOnEnter<CastShadow>(); // all cast-shadow casts start at the same time
         CastEnd(id + 0x22, 0.6f);
-        ComponentCondition<CastShadow>(id + 0x23, 0.7f, comp => comp.FirstAOECasters.Count == 0, "Pizzas 1");
-        ComponentCondition<CastShadow>(id + 0x24, 2, comp => comp.SecondAOECasters.Count == 0, "Pizzas 2")
+        ComponentCondition<CastShadow>(id + 0x23, 0.7f, comp => comp.NumCasts == 6, "Pizzas 1");
+        ComponentCondition<CastShadow>(id + 0x24, 2, comp => comp.NumCasts == 12, "Pizzas 2")
             .DeactivateOnExit<CastShadow>();
 
         CastStart(id + 0x30, _savage ? AID.SFiresteelFracture : AID.NFiresteelFracture, 7.7f);
@@ -156,8 +156,8 @@ class C013ShadowcasterStates : StateMachineBuilder
         ComponentCondition<InfernWave>(id + 0x61, 0.4f, comp => comp.NumCasts > 4, "Wave 3")
             .ActivateOnEnter<CastShadow>();
         CastEnd(id + 0x62, 4.4f);
-        ComponentCondition<CastShadow>(id + 0x63, 0.7f, comp => comp.FirstAOECasters.Count == 0, "Pizzas 1");
-        ComponentCondition<CastShadow>(id + 0x64, 2, comp => comp.SecondAOECasters.Count == 0, "Pizzas 2")
+        ComponentCondition<CastShadow>(id + 0x63, 0.7f, comp => comp.NumCasts == 6, "Pizzas 1");
+        ComponentCondition<CastShadow>(id + 0x64, 2, comp => comp.NumCasts == 12, "Pizzas 2")
             .DeactivateOnExit<CastShadow>();
         ComponentCondition<InfernWave>(id + 0x65, 3, comp => comp.NumCasts > 6, "Wave 4")
             .DeactivateOnExit<InfernWave>()

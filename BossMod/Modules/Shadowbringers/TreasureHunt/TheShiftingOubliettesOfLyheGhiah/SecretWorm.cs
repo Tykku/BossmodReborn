@@ -40,7 +40,7 @@ class Hydrocannon(BossModule module) : Components.SimpleAOEs(module, ActionID.Ma
 class FreshwaterCannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FreshwaterCannon), new AOEShapeRect(46f, 2f));
 class AquaBurst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AquaBurst), 10f);
 class BrineBreath(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BrineBreath));
-class Hydroburst(BossModule module) : Components.PersistentVoidzone(module, 10f, GetVoidzones)
+class Hydroburst(BossModule module) : Components.Voidzone(module, 10f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

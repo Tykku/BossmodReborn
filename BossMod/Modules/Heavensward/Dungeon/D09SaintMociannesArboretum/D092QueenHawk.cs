@@ -53,7 +53,7 @@ class StingerCell(BossModule module) : Components.Cleave(module, ActionID.MakeSp
     }
 }
 
-class Apitoxin(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.Apitoxin), GetVoidzones, 0.7f)
+class Apitoxin(BossModule module) : Components.VoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.Apitoxin), GetVoidzones, 0.7f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

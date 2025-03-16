@@ -68,7 +68,7 @@ class Hatch(BossModule module) : Components.CastCounter(module, ActionID.MakeSpe
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if ((OID)actor.OID == OID.Twintania && id == 0x94)
+        if (actor.OID == (uint)OID.Twintania && id == 0x94)
             ++NumNeurolinkSpawns;
     }
 }

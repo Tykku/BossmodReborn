@@ -9,7 +9,7 @@ public class WickedCannon(BossModule module) : Components.GenericAOEs(module)
     private static readonly float[] delays5fold = [14.5f, 13.4f, 12.8f, 12.2f, 11.6f];
     private float[] currentDelays = [];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
         if (count == 0)
@@ -45,7 +45,7 @@ public class WickedCannon(BossModule module) : Components.GenericAOEs(module)
             var rotation = extra switch
             {
                 0x2D3 => 180f.Degrees(),
-                0x2D4 => default,
+                0x2D4 => Angle.AnglesCardinals[1],
                 _ => default
             };
             _aoes.Add(new(rect, Module.PrimaryActor.Position, rotation, WorldState.FutureTime(currentDelays[_aoes.Count])));

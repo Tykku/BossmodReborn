@@ -28,48 +28,48 @@ public enum IconID : uint
     DigestiveFluid = 14, // player
 }
 
-class DigestiveFluid(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.Digest), m => m.Enemies(OID.WaterVoidzone).Where(z => z.EventState != 7), 0.7f);
-class BindVoidzone(BossModule module) : Components.PersistentVoidzone(module, 3, m => m.Enemies(OID.BindVoidzone).Where(z => z.EventState != 7));
+class DigestiveFluid(BossModule module) : Components.VoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.Digest), m => m.Enemies(OID.WaterVoidzone).Where(z => z.EventState != 7), 0.7f);
+class BindVoidzone(BossModule module) : Components.Voidzone(module, 3, m => m.Enemies(OID.BindVoidzone).Where(z => z.EventState != 7));
 
 class DigestiveFluidBait(BossModule module) : Components.GenericBaitAway(module)
 {
-    private static readonly AOEShapeCircle circle = new(5);
+    private static readonly AOEShapeCircle circle = new(5f);
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == (uint)IconID.DigestiveFluid)
-            CurrentBaits.Add(new(actor, actor, circle, WorldState.FutureTime(7.2f)));
+            CurrentBaits.Add(new(actor, actor, circle, WorldState.FutureTime(7.2d)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.Digest)
+        if (spell.Action.ID == (uint)AID.Digest)
             CurrentBaits.RemoveAll(x => x.Target == WorldState.Actors.Find(spell.MainTargetID));
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (CurrentBaits.Any(x => x.Target == actor))
+        if (ActiveBaitsOn(actor).Count != 0)
             hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 17.5f));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (CurrentBaits.Any(x => x.Target == actor))
+        if (ActiveBaitsOn(actor).Count != 0)
             hints.Add("Bait away!");
     }
 
     public override void Update()
     {
-        if (CurrentBaits.Count > 0 && Module.Enemies(OID.Kamikiri).All(x => x.IsDead)) // if adds die baits get cancelled
+        if (CurrentBaits.Count > 0 && Module.Enemies((uint)OID.Kamikiri).All(x => x.IsDead)) // if adds die baits get cancelled
             CurrentBaits.Clear();
     }
 }
 
 class BindBait(BossModule module) : Components.GenericBaitAway(module)
 {
-    private static readonly AOEShapeCircle circle = new(3);
+    private static readonly AOEShapeCircle circle = new(3f);
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
@@ -79,7 +79,7 @@ class BindBait(BossModule module) : Components.GenericBaitAway(module)
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.BindVoidzone)
+        if (actor.OID == (uint)OID.BindVoidzone)
             CurrentBaits.Clear();
     }
 }
@@ -103,18 +103,21 @@ public class D021Amikiri(WorldState ws, Actor primary) : BossModule(ws, primary,
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Kamikiri).Concat([PrimaryActor]).Concat(Enemies(OID.AmikiriLeg)));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies((uint)OID.Kamikiri));
+        Arena.Actors(Enemies((uint)OID.AmikiriLeg));
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
-            e.Priority = (OID)e.Actor.OID switch
+            var e = hints.PotentialTargets[i];
+            e.Priority = e.Actor.OID switch
             {
-                OID.AmikiriLeg => 3,
-                OID.Kamikiri => 2,
-                OID.Boss => 1,
+                (uint)OID.AmikiriLeg => 2,
+                (uint)OID.Kamikiri => 1,
                 _ => 0
             };
         }

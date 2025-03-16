@@ -19,22 +19,22 @@ public enum AID : uint
 }
 
 class Levinfang(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Levinfang));
-class Electrify(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Electrify), 6);
+class Electrify(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Electrify), 6f);
 class HydroelectricShock(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.HydroelectricShock)
+        if (spell.Action.ID == (uint)AID.HydroelectricShock)
             _aoe = new(D042ThunderclapGuivre.Shock, Arena.Center, default, Module.CastFinishAt(spell));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.HydroelectricShock)
+        if (spell.Action.ID == (uint)AID.HydroelectricShock)
             _aoe = null;
     }
 }
@@ -82,15 +82,10 @@ public class D042ThunderclapGuivre(WorldState ws, Actor primary) : BossModule(ws
     new(-184.36f, -163.42f), new(-183.75f, -163.80f), new(-183.25f, -163.72f), new(-182.87f, -163.36f), new(-182.40f, -162.81f),
     new(-181.87f, -162.35f), new(-181.23f, -162.01f), new(-180.55f, -161.73f), new(-179.85f, -161.66f), new(-178.65f, -161.43f),
     new(-178.12f, -161.82f), new(-177.76f, -162.17f), new(-177.33f, -162.71f), new(-177.00f, -166.15f), new(-176.69f, -166.59f)])];
-    private static readonly WPos[] verticesAOE1 = [new(-180.30f, -112.42f), new(-181.36f, -110.99f), new(-180.50f, -110.18f), new(-177.01f, -108.33f), new(-173.94f, -107.18f),
-    new(-173.38f, -107.23f), new(-172.75f, -107.45f), new(-172.45f, -106.98f), new(-172.53f, -106.28f), new(-172.66f, -105.77f),
-    new(-176.16f, -99.44f), new(-176.68f, -99.49f), new(-178.22f, -100.25f), new(-182.14f, -101.62f), new(-182.74f, -101.96f),
-    new(-184.52f, -102.79f), new(-185.12f, -102.75f), new(-186.28f, -103.06f), new(-186.90f, -103.32f), new(-187.05f, -103.99f),
-    new(-187.02f, -104.70f), new(-186.89f, -105.20f), new(-185.72f, -108.77f), new(-185.37f, -112.05f), new(-185.17f, -112.55f),
-    new(-184.50f, -112.77f)];
-    private static readonly WPos[] verticesAOE2 = [new(-174.86f, -165.67f), new(-172.10f, -165.39f), new(-171.91f, -154.43f), new(-172.29f, -155.13f), new(-172.86f, -155.34f),
-    new(-173.40f, -155.79f), new(-174.18f, -157.53f), new(-174.35f, -158.14f), new(-174.85f, -161.10f), new(-174.79f, -161.65f),
-    new(-175.22f, -164.70f), new(-175.24f, -165.42f)];
+    private static readonly WPos[] verticesAOE1 = [new(-188.248f, -101.035f), new(-187.247f, -107.031f), new(-186.281f, -111.518f),
+    new(-184.045f, -113.744f), new(-178.523f, -112.543f), new(-173.155f, -107.977f), new(-175.178f, -97.181f)];
+    private static readonly WPos[] verticesAOE2 = [new(-177.532f, -166.762f), new(-177.432f, -162.877f), new(-175.846f, -159.154f),
+    new(-174.737f, -155.21f), new(-173.449f, -154.881f), new(-167.214f, -153.974f), new(-167.644f, -172.626f)];
     public static readonly ArenaBoundsComplex arena = new(vertices);
     public static readonly AOEShapeCustom Shock = new(vertices, [new PolygonCustom(verticesAOE1), new PolygonCustom(verticesAOE2)]);
 }

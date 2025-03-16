@@ -35,7 +35,7 @@ public enum AID : uint
 }
 
 class PelagicCleaver(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PelagicCleaver), new AOEShapeCone(40f, 30f.Degrees()));
-class FoulWaters(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 5f, ActionID.MakeSpell(AID.FoulWaters), GetVoidzones, 1.4f)
+class FoulWaters(BossModule module) : Components.VoidzoneAtCastTarget(module, 5f, ActionID.MakeSpell(AID.FoulWaters), GetVoidzones, 1.4f)
 {
     private static List<Actor> GetVoidzones(BossModule module) => module.Enemies((uint)OID.Bubble);
 }

@@ -131,7 +131,7 @@ class AreaBombardment(BossModule module) : Bombardment(module, AID.AreaBombardme
 
 class RagingArtillery(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RagingArtilleryFirst));
 class MagitekCannon(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.MagitekCannon), 6f);
-class MagitekMissile(BossModule module) : Components.PersistentVoidzone(module, 3f, GetVoidzones, 5f)
+class MagitekMissile(BossModule module) : Components.Voidzone(module, 3f, GetVoidzones, 5f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {
@@ -158,7 +158,7 @@ class NeedleGunOilShower(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCone cone1 = new(40f, 135f.Degrees());
     private static readonly AOEShapeCone cone2 = new(40f, 45f.Degrees());
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
         if (count == 0)
@@ -216,7 +216,7 @@ class HeavySurfaceMissiles(BossModule module) : Components.GenericAOEs(module)
     private readonly List<AOEInstance> _aoes = [];
     private static readonly AOEShapeCircle circle = new(14);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
         if (count == 0)

@@ -5,7 +5,7 @@ class IceSpiral(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCircle circle = new(2f);
     public readonly List<AOEInstance> _aoes = new(228);
     private static readonly WPos[] coordinates =
-    [   // Note: the spiral coordinates are slightly different (different from quantization normal error) each replay i looked at, i assume they somehow get 
+    [   // Note: the spiral coordinates are slightly different (different from normal quantization  errors) in each replay I looked at. I assume they somehow get 
         // generated on the fly based on the actor movement along the spiral, which would have variations depending on the server tick
         // there seem to be exactly 228 hits
         new(-319.708f, 241.343f), new(-319.485f, 242.37f), new(-319.568f, 243.553f), new(-320.035f, 244.154f), new(-321.17f, 244.346f),
@@ -56,7 +56,7 @@ class IceSpiral(BossModule module) : Components.GenericAOEs(module)
         new(-299.522f, 221.373f), new(-296.836f, 224.166f), new(-296.249f, 224.892f)
     ];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
         if (count == 0)

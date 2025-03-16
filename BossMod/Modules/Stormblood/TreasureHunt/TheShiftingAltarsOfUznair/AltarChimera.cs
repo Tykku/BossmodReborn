@@ -41,7 +41,7 @@ class TheLionsBreath(BossModule module) : Components.SimpleAOEs(module, ActionID
 class LanguorousGaze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LanguorousGaze), new AOEShapeCone(8.07f, 45f.Degrees()));
 class TheDragonsVoice(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheDragonsVoice), new AOEShapeDonut(8f, 30f));
 class TheDragonsVoiceHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.TheDragonsVoice));
-class TheRamsKeeper(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.TheRamsKeeper), GetVoidzones, 0.9f)
+class TheRamsKeeper(BossModule module) : Components.VoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.TheRamsKeeper), GetVoidzones, 0.9f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

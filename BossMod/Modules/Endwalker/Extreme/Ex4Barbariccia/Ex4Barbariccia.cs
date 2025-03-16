@@ -20,7 +20,7 @@ class KnuckleDrumLast(BossModule module) : Components.CastCounter(module, Action
 class BlowAwayRaidwide(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.BlowAwayRaidwide));
 class BlowAwayPuddle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlowAwayPuddle), 6);
 class ImpactAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ImpactAOE), 6);
-class ImpactKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ImpactKnockback), 6);
+class ImpactKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.ImpactKnockback), 6);
 class BlusteryRuler(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlusteryRuler), 6);
 class DryBlowsRaidwide(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.DryBlowsRaidwide));
 class DryBlowsPuddle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DryBlowsPuddle), 3);

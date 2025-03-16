@@ -9,7 +9,7 @@ class ExecuteCone(BossModule module) : Components.SimpleAOEs(module, ActionID.Ma
 class LightDewShort(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightDewShort), new AOEShapeRect(55, 9));
 class LightDewLong(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightDewLong), new AOEShapeRect(55, 9));
 class Onrush(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Onrush), new AOEShapeRect(55, 8));
-class Gnosis(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Gnosis), 25);
+class Gnosis(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Gnosis), 25);
 class Cintamani(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Cintamani)); // note: ~4.2s before first cast boss gets model state 5
 class QuasarProximity1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.QuasarProximity1), 15);
 class QuasarProximity2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.QuasarProximity2), 15); // TODO: reconsider distance

@@ -70,7 +70,7 @@ class MistralShriek(BossModule module) : Components.SimpleAOEs(module, ActionID.
 class Hellfire(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HellfireAOE));
 class RadiantPlume(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RadiantPlumeAOE), 8);
 
-class VulcanBurst(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.VulcanBurst), 15, stopAtWall: true)
+class VulcanBurst(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.VulcanBurst), 15, stopAtWall: true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

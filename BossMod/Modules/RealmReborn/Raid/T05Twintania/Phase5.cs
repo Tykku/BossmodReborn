@@ -1,19 +1,19 @@
 ﻿namespace BossMod.RealmReborn.Raid.T05Twintania;
 
 // what happens here is marker appears -> 5 liquid hells drop at (0.6 + 1.7*N)s; each liquid hell cast does small damage and spawns voidzone 1.2s later
-class P5LiquidHell(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.LiquidHellBoss), m => m.Enemies(OID.LiquidHell).Where(z => z.EventState != 7), 1.5f)
+class P5LiquidHell(BossModule module) : Components.VoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.LiquidHellBoss), m => m.Enemies(OID.LiquidHell).Where(z => z.EventState != 7), 1.5f)
 {
-    public Actor? Target { get; private set; }
+    public Actor? Target;
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         base.OnEventCast(caster, spell);
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.LiquidHellMarker:
+            case (uint)AID.LiquidHellMarker:
                 Target = WorldState.Actors.Find(spell.MainTargetID);
                 break;
-            case AID.LiquidHellBoss:
+            case (uint)AID.LiquidHellBoss:
                 if (NumCasts % 5 == 0)
                     Target = null;
                 break;
@@ -24,8 +24,8 @@ class P5LiquidHell(BossModule module) : Components.PersistentVoidzoneAtCastTarge
 class P5Hatch(BossModule module) : BossComponent(module)
 {
     public Actor? Target;
-    public readonly List<Actor> Orbs = module.Enemies(OID.Oviform);
-    public readonly List<Actor> Neurolinks = module.Enemies(OID.Neurolink);
+    public readonly List<Actor> Orbs = module.Enemies((uint)OID.Oviform);
+    public readonly List<Actor> Neurolinks = module.Enemies((uint)OID.Neurolink);
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
@@ -49,12 +49,12 @@ class P5Hatch(BossModule module) : BossComponent(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.HatchMarker:
+            case (uint)AID.HatchMarker:
                 Target = WorldState.Actors.Find(spell.MainTargetID);
                 break;
-            case AID.Hatch:
+            case (uint)AID.Hatch:
                 Target = null;
                 break;
         }

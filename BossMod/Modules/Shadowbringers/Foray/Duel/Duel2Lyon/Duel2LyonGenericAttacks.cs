@@ -73,15 +73,21 @@ class RavenousGale(BossModule module) : Components.GenericAOEs(module)
     private readonly List<AOEInstance> _aoes = [];
     private bool casting;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        var count = _aoes.Count;
-        if (!casting && count == 0)
+        var count = _aoes.Count + (casting ? 1 : 0);
+        if (count == 0)
             return [];
-        List<AOEInstance> aoes = new(count + 1);
+
+        var aoes = new AOEInstance[count];
+        var index = 0;
+
         if (casting)
-            aoes.Add(new(circle, actor.Position, default));
-        aoes.AddRange(_aoes);
+            aoes[index++] = new AOEInstance(circle, actor.Position, default);
+
+        for (var i = 0; i < _aoes.Count; ++i)
+            aoes[index++] = _aoes[i];
+
         return aoes;
     }
 
@@ -120,16 +126,16 @@ class RavenousGale(BossModule module) : Components.GenericAOEs(module)
 class TwinAgonies(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.TwinAgonies), "Heavy Tankbuster, use Manawall or tank mitigations");
 class WindsPeak(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindsPeak1), 5f);
 
-class WindsPeakKB(BossModule module) : Components.Knockback(module)
+class WindsPeakKB(BossModule module) : Components.GenericKnockback(module)
 {
     private DateTime Time;
     private bool watched;
     private DateTime _activation;
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
         if (watched && WorldState.CurrentTime < Time.AddSeconds(4.4d))
-            return [new(Module.PrimaryActor.Position, 15f, _activation)];
+            return new Knockback[1] { new(Module.PrimaryActor.Position, 15f, _activation) };
         else
             return [];
     }
@@ -184,7 +190,7 @@ class SpitefulFlameCircleVoidzone(BossModule module) : Components.GenericAOEs(mo
     private static readonly AOEShapeCircle circle = new(10f);
     private readonly List<AOEInstance> _aoes = [];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);
 
     public override void OnActorCreated(Actor actor)
     {

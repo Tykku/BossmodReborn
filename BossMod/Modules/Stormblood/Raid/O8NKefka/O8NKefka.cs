@@ -64,21 +64,21 @@ class ThrummingThunder2(BossModule module) : ThrummingThunder(module, AID.Thrumm
 
 class UltimaUpsurge(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.UltimaUpsurge));
 
-class AeroAssault(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.AeroAssault), 10)
+class AeroAssault(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.AeroAssault), 10)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         foreach (var c in Casters)
-            hints.AddForbiddenZone(ShapeDistance.InvertedCone(c.Position, 15, Angle.FromDirection(Arena.Center - c.Position).Normalized(), 45.Degrees()), Module.CastFinishAt(c.CastInfo));
+            hints.AddForbiddenZone(ShapeDistance.InvertedCone(c.Position, 15f, Angle.FromDirection(Arena.Center - c.Position).Normalized(), 45.Degrees()), Module.CastFinishAt(c.CastInfo));
     }
 }
 
-class Shockwave(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Shockwave), 15, kind: Kind.DirForward)
+class Shockwave(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Shockwave), 15, kind: Kind.DirForward)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         foreach (var c in Casters)
-            hints.AddForbiddenZone(ShapeDistance.Cone(c.CastInfo!.Rotation.AlmostEqual(90.Degrees(), Angle.DegToRad) ? c.Position - new WDir(-33, 0) : c.Position - new WDir(33, 0), 40, c.Rotation, 135.Degrees()), Module.CastFinishAt(c.CastInfo));
+            hints.AddForbiddenZone(ShapeDistance.Cone(c.CastInfo!.Rotation.AlmostEqual(90f.Degrees(), Angle.DegToRad) ? c.Position - new WDir(-33, 0) : c.Position - new WDir(33, 0), 40, c.Rotation, 135f.Degrees()), Module.CastFinishAt(c.CastInfo));
     }
 }
 
@@ -94,21 +94,21 @@ class IndolentWill(BossModule module) : Components.CastGaze(module, ActionID.Mak
 class RevoltingRuin(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
-    private static readonly AOEShapeCone cone = new(102.7f, 60.Degrees());
+    private static readonly AOEShapeCone cone = new(102.7f, 60f.Degrees());
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.TimelyTeleportVisual2 && !caster.Position.AlmostEqual(Module.PrimaryActor.Position, 1))
+        if (spell.Action.ID == (uint)AID.TimelyTeleportVisual2 && !caster.Position.AlmostEqual(Module.PrimaryActor.Position, 1))
             _aoe = new(cone, caster.Position, spell.Rotation, Module.CastFinishAt(spell, 3.1f));
-        else if ((AID)spell.Action.ID == AID.AeroAssault) // sometimes it does AeroAssault directly and skipping Revolting Ruin
+        else if (spell.Action.ID == (uint)AID.AeroAssault) // sometimes it does AeroAssault directly and skipping Revolting Ruin
             _aoe = null;
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.RevoltingRuin)
+        if (spell.Action.ID == (uint)AID.RevoltingRuin)
             _aoe = null;
     }
 }

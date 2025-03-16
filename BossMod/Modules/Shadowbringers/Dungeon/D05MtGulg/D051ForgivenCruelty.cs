@@ -26,10 +26,10 @@ public enum AID : uint
 
 class Rake(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.Rake));
 class CycloneWing(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CycloneWing));
-class LumenInfinitum(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LumenInfinitum), new AOEShapeRect(40, 2.5f));
-class HurricaneWing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HurricaneWing), 10);
+class LumenInfinitum(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LumenInfinitum), new AOEShapeRect(40f, 2.5f));
+class HurricaneWing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HurricaneWing), 10f);
 
-class TyphoonWing(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(25, 30.Degrees()));
+class TyphoonWing(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(25f, 30f.Degrees()));
 class TyphoonWing1(BossModule module) : TyphoonWing(module, AID.TyphoonWing1);
 class TyphoonWing2(BossModule module) : TyphoonWing(module, AID.TyphoonWing2);
 
@@ -50,5 +50,6 @@ class D051ForgivenCrueltyStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 659, NameID = 8260)]
 public class D051ForgivenCruelty(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Circle(new(188, -170), 19.5f)], [new Rectangle(new(168.25f, -170), 1f, 20f), new Rectangle(new(207.75f, -170), 1f, 20f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(188, -170), 19.5f, 36)], [new Rectangle(new(168, -170), 1.25f, 20f, 0.02f.Degrees()),
+    new Rectangle(new(208f, -170f), 1.25f, 20f, 0.02f.Degrees())]);
 }

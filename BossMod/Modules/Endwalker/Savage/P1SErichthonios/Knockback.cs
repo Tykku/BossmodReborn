@@ -28,7 +28,7 @@ class Knockback : BossComponent
             _knockbackPos = _knockbackTarget.Position;
             if (Module.PrimaryActor.CastInfo != null)
             {
-                _knockbackPos = Components.Knockback.AwayFromSource(_knockbackPos, Module.PrimaryActor, _kbDistance);
+                _knockbackPos = Components.GenericKnockback.AwayFromSource(_knockbackPos, Module.PrimaryActor, _kbDistance);
             }
         }
     }

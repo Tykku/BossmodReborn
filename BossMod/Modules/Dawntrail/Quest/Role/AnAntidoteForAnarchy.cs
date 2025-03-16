@@ -111,7 +111,7 @@ class TriDisaster(BossModule module) : Components.StackWithCastTargets(module, A
     }
 }
 
-class SuffocatingCloud(BossModule module) : Components.PersistentVoidzone(module, 9f, GetVoidzone)
+class SuffocatingCloud(BossModule module) : Components.Voidzone(module, 9f, GetVoidzone)
 {
     private static List<Actor> GetVoidzone(BossModule module) => module.Enemies((uint)OID.PoisonVoidzone);
 }

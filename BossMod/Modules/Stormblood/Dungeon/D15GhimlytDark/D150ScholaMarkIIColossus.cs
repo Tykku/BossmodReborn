@@ -21,9 +21,9 @@ public enum AID : uint
     SelfDetonate = 14574 // ScholaColossusRubricatus->self, 35.0s cast, range 30 circle, enrage
 }
 
-class MagitekMissile(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekMissile), 15);
-class Exhaust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Exhaust), new AOEShapeRect(43.2f, 5));
-class GrandSword(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrandSword), new AOEShapeCone(18.4f, 60.Degrees()));
+class MagitekMissile(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekMissile), 15f);
+class Exhaust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Exhaust), new AOEShapeRect(43.2f, 5f));
+class GrandSword(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrandSword), new AOEShapeCone(18.4f, 60f.Degrees()));
 class SelfDetonate(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.SelfDetonate), "Enrage!", true);
 
 class UnbreakableCermetBlade(BossModule module) : Components.GenericAOEs(module)
@@ -33,24 +33,20 @@ class UnbreakableCermetBlade(BossModule module) : Components.GenericAOEs(module)
 
     private static readonly AOEShapeCircle circle = new(4.5f, true);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.ElementalBlessing)
+        if (spell.Action.ID == (uint)AID.ElementalBlessing)
             _aoe = new(circle, caster.Position, default, default, Colors.SafeFromAOE);
-        else if ((AID)spell.Action.ID == AID.UnbreakableCermetBlade)
+        else if (spell.Action.ID == (uint)AID.UnbreakableCermetBlade)
             _aoe = null;
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (_aoe == null)
-            return;
-        if (!_aoe.Value.Check(actor.Position))
-            hints.Add(Hint);
-        else
-            hints.Add(Hint, false);
+        if (_aoe is AOEInstance aoe)
+            hints.Add(Hint, !aoe.Check(actor.Position));
     }
 }
 
@@ -64,7 +60,13 @@ class D0150ScholaMarkIIColossusStates : StateMachineBuilder
             .ActivateOnEnter<GrandSword>()
             .ActivateOnEnter<SelfDetonate>()
             .ActivateOnEnter<UnbreakableCermetBlade>()
-            .Raw.Update = () => module.Enemies(OID.ScholaColossusRubricatus).All(e => e.IsDeadOrDestroyed) && module.PrimaryActor.IsDestroyed;
+            .Raw.Update = () =>
+            {
+                var rubricatus = module.Enemies((uint)OID.ScholaColossusRubricatus);
+                var count = rubricatus.Count;
+                var isDeadOrDestroyed = count != 0 && rubricatus[0].IsDeadOrDestroyed || count == 0;
+                return isDeadOrDestroyed && module.PrimaryActor.IsDestroyed;
+            };
     }
 }
 
@@ -97,6 +99,7 @@ public class D0150ScholaMarkIIColossus(WorldState ws, Actor primary) : BossModul
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.ScholaColossusRubricatus).Concat([PrimaryActor]));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies((uint)OID.ScholaColossusRubricatus));
     }
 }

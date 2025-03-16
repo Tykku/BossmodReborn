@@ -1,14 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Alliance.A13ArkAngels;
 
-class Cloudsplitter(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.CloudsplitterAOE), new AOEShapeCircle(6f), true)
-{
-    public override void AddGlobalHints(GlobalHints hints)
-    {
-        if (CurrentBaits.Count != 0)
-            hints.Add("Tankbuster cleave");
-    }
-}
-
+class Cloudsplitter(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.CloudsplitterAOE), new AOEShapeCircle(6f), true, tankbuster: true);
 class CriticalReaverRaidwide(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.CriticalReaverRaidwide));
 class CriticalReaverEnrage(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.CriticalReaverEnrage));
 class Meteor(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Meteor));
@@ -19,9 +11,9 @@ class Raiton(BossModule module) : Components.RaidwideCast(module, ActionID.MakeS
 class Utsusemi(BossModule module) : Components.StretchTetherSingle(module, (uint)TetherID.Utsusemi, 10, needToKite: true);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.BossGK, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1015, NameID = 13640, SortOrder = 7, PlanLevel = 100)]
-public class A13ArkAngels(WorldState ws, Actor primary) : BossModule(ws, primary, new(865, -820), new ArenaBoundsCircle(34.5f))
+public class A13ArkAngels(WorldState ws, Actor primary) : BossModule(ws, primary, new(865f, -820f), new ArenaBoundsCircle(34.5f))
 {
-    public static readonly ArenaBoundsCircle DefaultBounds = new(25);
+    public static readonly ArenaBoundsCircle DefaultBounds = new(25f);
     public static readonly uint[] Bosses = [(uint)OID.BossHM, (uint)OID.BossEV, (uint)OID.BossTT, (uint)OID.BossMR, (uint)OID.BossGK];
 
     private Actor? _bossHM;
@@ -38,10 +30,10 @@ public class A13ArkAngels(WorldState ws, Actor primary) : BossModule(ws, primary
     {
         // TODO: this is an ugly hack, think how multi-actor fights can be implemented without it...
         // the problem is that on wipe, any actor can be deleted and recreated in the same frame
-        _bossHM ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies((uint)OID.BossHM)[0] : null;
-        _bossEV ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies((uint)OID.BossEV)[0] : null;
-        _bossMR ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies((uint)OID.BossMR)[0] : null;
-        _bossTT ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies((uint)OID.BossTT)[0] : null;
+        _bossHM ??= Enemies((uint)OID.BossHM)[0];
+        _bossEV ??= Enemies((uint)OID.BossEV)[0];
+        _bossMR ??= Enemies((uint)OID.BossMR)[0];
+        _bossTT ??= Enemies((uint)OID.BossTT)[0];
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)

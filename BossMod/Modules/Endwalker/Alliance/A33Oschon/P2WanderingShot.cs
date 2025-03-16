@@ -5,14 +5,14 @@ class P2WanderingShot(BossModule module) : Components.GenericAOEs(module, Action
     private AOEInstance? _aoe;
     private static readonly AOEShapeCircle _shape = new(23f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         var coords = spell.Action.ID switch
         {
-            (uint)AID.WanderingShotN or (uint)AID.WanderingVolleyN => WPos.ClampToGrid(new(0f, 740f)),
-            (uint)AID.WanderingShotS or (uint)AID.WanderingVolleyS => WPos.ClampToGrid(new(0f, 760f)),
+            (uint)AID.WanderingShotN or (uint)AID.WanderingVolleyN => WPos.ClampToGrid(new(default, 740f)),
+            (uint)AID.WanderingShotS or (uint)AID.WanderingVolleyS => WPos.ClampToGrid(new(default, 760f)),
             _ => default
         };
         if (coords != default)

@@ -32,7 +32,7 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
     private AOEInstance? _aoe;
     private bool begin;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
@@ -52,7 +52,7 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 }
 
 class DarkWings(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.DarkWings), 6f, 5.1f);
-class Whirlwind(BossModule module) : Components.PersistentVoidzone(module, 6f, GetWhirlwinds)
+class Whirlwind(BossModule module) : Components.Voidzone(module, 6f, GetWhirlwinds)
 {
     private static List<Actor> GetWhirlwinds(BossModule module) => module.Enemies((uint)OID.Whirlwind);
 }
@@ -90,9 +90,9 @@ class OnLowHaste(BossModule module) : Components.Cleave(module, ActionID.MakeSpe
     }
 }
 
-class OnHigh(BossModule module) : Components.Knockback(module)
+class OnHigh(BossModule module) : Components.GenericKnockback(module)
 {
-    private Source? _source;
+    private Knockback? _source;
     private static readonly SafeWall[] safeWallsW = [new(new(227.487f, 16.825f), new(226.567f, 13.39f)), new(new(226.567f, 13.39f), new(227.392f, 10.301f))];
     private static readonly SafeWall[] safeWallsN = GenerateRotatedSafeWalls(ref safeWallsW, 90f);
     private static readonly SafeWall[] safeWallsE = GenerateRotatedSafeWalls(ref safeWallsW, 180f);
@@ -127,7 +127,7 @@ class OnHigh(BossModule module) : Components.Knockback(module)
 
     private static WPos GenerateRotatedVertice(WPos vertex, float rotationAngle) => WPos.RotateAroundOrigin(rotationAngle, D152DotoliCiloc.ArenaCenter, vertex);
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor) => Utils.ZeroOrOne(_source);
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor) => Utils.ZeroOrOne(ref _source);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -150,7 +150,7 @@ class OnHighHint(BossModule module) : Components.GenericAOEs(module)
     private static readonly Angle angle = 11.25f.Degrees();
     private DateTime activation;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

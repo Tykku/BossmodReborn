@@ -26,7 +26,7 @@ class IsleDrop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeS
 class WingCutter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingCutter), new AOEShapeCone(6f, 60f.Degrees()));
 class PanzerfaustHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Panzerfaust), showNameInHint: true);
 class Panzerfaust(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Panzerfaust));
-class ScraplineStorm(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ScraplineStorm), 10f, kind: Kind.TowardsOrigin)
+class ScraplineStorm(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.ScraplineStorm), 10f, kind: Kind.TowardsOrigin)
 {
     private readonly ScraplineTyphoon _aoe = module.FindComponent<ScraplineTyphoon>()!;
 
@@ -50,7 +50,7 @@ class ScraplineTyphoon(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCircle circle = new(10f);
     private static readonly AOEShapeDonut donut = new(8f, 40f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs.Count != 0 ? [AOEs[0]] : [];
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs.Count != 0 ? CollectionsMarshal.AsSpan(AOEs)[..1] : [];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

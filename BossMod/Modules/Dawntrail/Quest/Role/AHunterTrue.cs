@@ -96,7 +96,7 @@ class FallingDusk(BossModule module) : Components.SimpleAOEs(module, ActionID.Ma
     }
 }
 
-class DancingWind(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.DancingWind), 8f, kind: Kind.TowardsOrigin)
+class DancingWind(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.DancingWind), 8f, kind: Kind.TowardsOrigin)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -111,7 +111,7 @@ class DawnlitBolt(BossModule module) : Components.GenericAOEs(module)
     private readonly List<AOEInstance> _aoes = [];
     private static readonly AOEShapeCircle circle = new(6);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -122,7 +122,18 @@ class DawnlitBolt(BossModule module) : Components.GenericAOEs(module)
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if (spell.Action.ID == (uint)AID.DawnlitBolt)
-            _aoes.RemoveAll(x => x.Origin.AlmostEqual(spell.TargetXZ, 1));
+        {
+            var count = _aoes.Count;
+            var pos = spell.TargetXZ;
+            for (var i = 0; i < count; ++i)
+            {
+                if (_aoes[i].Origin.AlmostEqual(pos, 1f))
+                {
+                    _aoes.RemoveAt(i);
+                    return;
+                }
+            }
+        }
     }
 }
 

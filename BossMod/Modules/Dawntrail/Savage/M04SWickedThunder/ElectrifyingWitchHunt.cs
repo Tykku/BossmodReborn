@@ -1,18 +1,18 @@
 namespace BossMod.Dawntrail.Savage.M04SWickedThunder;
 
-class ElectrifyingWitchHuntBurst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ElectrifyingWitchHuntBurst), new AOEShapeRect(40, 8));
+class ElectrifyingWitchHuntBurst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ElectrifyingWitchHuntBurst), new AOEShapeRect(40f, 8f));
 
-class ElectrifyingWitchHuntSpread(BossModule module) : Components.UniformStackSpread(module, 0, 6)
+class ElectrifyingWitchHuntSpread(BossModule module) : Components.UniformStackSpread(module, default, 6f)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ElectrifyingWitchHunt)
+        if (spell.Action.ID == (uint)AID.ElectrifyingWitchHunt)
             AddSpreads(Raid.WithoutSlot(true, true, true), Module.CastFinishAt(spell, 0.1f));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.ElectrifyingWitchHuntAOE)
+        if (spell.Action.ID == (uint)AID.ElectrifyingWitchHuntAOE)
             Spreads.Clear();
     }
 }
@@ -60,12 +60,12 @@ class ElectrifyingWitchHuntResolve(BossModule module) : Components.GenericStackS
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        switch ((SID)status.ID)
+        switch (status.ID)
         {
-            case SID.ForkedLightning:
+            case (uint)SID.ForkedLightning:
                 ForbidBait.Set(Raid.FindSlot(actor.InstanceID));
                 break;
-            case SID.Marker:
+            case (uint)SID.Marker:
                 CurMechanic = status.Extra switch
                 {
                     0x2F6 => Mechanic.Near,
@@ -79,13 +79,13 @@ class ElectrifyingWitchHuntResolve(BossModule module) : Components.GenericStackS
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.ElectrifyingWitchHuntBait:
+            case (uint)AID.ElectrifyingWitchHuntBait:
                 CurMechanic = Mechanic.None;
                 break;
-            case AID.ForkedLightning:
-                ForbidBait.Reset();
+            case (uint)AID.ForkedLightning:
+                ForbidBait = default;
                 break;
         }
     }

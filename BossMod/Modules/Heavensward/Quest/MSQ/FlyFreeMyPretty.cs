@@ -24,7 +24,7 @@ public enum AID : uint
 
 class MagitekMissiles(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekMissiles), 15);
 class ShrapnelShell(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ShrapnelShell), 6);
-class Firebomb(BossModule module) : Components.PersistentVoidzone(module, 4, m => m.Enemies(0x1E86DF).Where(e => e.EventState != 7));
+class Firebomb(BossModule module) : Components.Voidzone(module, 4, m => m.Enemies(0x1E86DF).Where(e => e.EventState != 7));
 
 class AugmentedUprising(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AugmentedUprising), new AOEShapeCone(8.5f, 60.Degrees()));
 class AugmentedSuffering(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AugmentedSuffering), 6.5f);

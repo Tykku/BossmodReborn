@@ -1,11 +1,11 @@
 ﻿namespace BossMod.Endwalker.Ultimate.DSW1;
 
-class EmptyDimension(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EmptyDimension), new AOEShapeDonut(6, 70));
-class FullDimension(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FullDimension), 6);
+class EmptyDimension(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EmptyDimension), new AOEShapeDonut(6f, 70f));
+class FullDimension(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FullDimension), 6f);
 class HoliestHallowing(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.HoliestHallowing), "Interrupt!");
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.SerAdelphel, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 788, PlanLevel = 90)]
-public class DSW1(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsSquare(22))
+public class DSW1(WorldState ws, Actor primary) : BossModule(ws, primary, new(100f, 100f), new ArenaBoundsSquare(22f))
 {
     private Actor? _grinnaux;
     private Actor? _charibert;
@@ -17,8 +17,8 @@ public class DSW1(WorldState ws, Actor primary) : BossModule(ws, primary, new(10
     {
         // TODO: this is an ugly hack, think how multi-actor fights can be implemented without it...
         // the problem is that on wipe, any actor can be deleted and recreated in the same frame
-        _grinnaux ??= Enemies(OID.SerGrinnaux).FirstOrDefault();
-        _charibert ??= Enemies(OID.SerCharibert).FirstOrDefault();
+        _grinnaux ??= Enemies((uint)OID.SerGrinnaux)[0];
+        _charibert ??= Enemies((uint)OID.SerCharibert)[0];
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)

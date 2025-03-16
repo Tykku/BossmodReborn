@@ -43,7 +43,7 @@ class MustardBomb(BossModule module) : Components.UniformStackSpread(module, 0, 
 
         if (CurMechanic == Mechanic.Tethers && _tetherTarget != null)
             foreach (var (_, p) in Raid.WithSlot(false, true, true).IncludedInMask(_bombTargets))
-                Arena.AddLine(_tetherTarget.Position, p.Position, Colors.Danger);
+                Arena.AddLine(_tetherTarget.Position, p.Position);
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
@@ -55,7 +55,7 @@ class MustardBomb(BossModule module) : Components.UniformStackSpread(module, 0, 
             {
                 CurMechanic = Mechanic.Tethers;
                 _tetherTarget = WorldState.Actors.Find(tether.Target);
-                AddSpreads(Raid.WithoutSlot(true, true, true), WorldState.FutureTime(8.8f));
+                AddSpreads(Raid.WithoutSlot(true, true, true), WorldState.FutureTime(8.8d));
             }
         }
     }
@@ -63,38 +63,46 @@ class MustardBomb(BossModule module) : Components.UniformStackSpread(module, 0, 
     public override void OnUntethered(Actor source, ActorTetherInfo tether)
     {
         if (tether.ID == (uint)TetherID.MustardBomb)
-            _bombTargets.Clear(Raid.FindSlot(source.InstanceID));
+            _bombTargets[Raid.FindSlot(source.InstanceID)] = true;
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.MustardBomb)
+        if (status.ID == (uint)SID.MustardBomb)
         {
-            _bombTargets.Set(Raid.FindSlot(actor.InstanceID));
+            _bombTargets[Raid.FindSlot(actor.InstanceID)] = true;
             AddSpread(actor, status.ExpireAt);
         }
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.MustardBomb)
+        if (status.ID == (uint)SID.MustardBomb)
         {
-            _bombTargets.Clear(Raid.FindSlot(actor.InstanceID));
-            Spreads.RemoveAll(s => s.Target == actor);
+            _bombTargets[Raid.FindSlot(actor.InstanceID)] = false;
+            var count = Spreads.Count;
+            for (var i = 0; i < count; ++i)
+            {
+                if (Spreads[i].Target == actor)
+                {
+                    Spreads.RemoveAt(i);
+                    return;
+                }
+            }
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.MustardBombFirst:
-            case AID.KindlingCauldron:
+            case (uint)AID.MustardBombFirst:
+            case (uint)AID.KindlingCauldron:
                 CurMechanic = Mechanic.Nisi;
                 Spreads.Clear();
-                _forbidden.Set(Raid.FindSlot(spell.MainTargetID));
+                _forbidden[Raid.FindSlot(spell.MainTargetID)] = true;
                 break;
-            case AID.MustardBombSecond:
+            case (uint)AID.MustardBombSecond:
                 CurMechanic = Mechanic.Done;
                 Spreads.Clear();
                 break;

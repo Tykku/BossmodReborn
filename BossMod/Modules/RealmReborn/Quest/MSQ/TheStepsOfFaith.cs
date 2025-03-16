@@ -136,14 +136,14 @@ class FireballSpread(BossModule module) : Components.SpreadFromCastTargets(modul
 class FireballAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireballAOE), 6f);
 class Flamisphere(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Flamisphere), 10f);
 
-class BodySlam(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.BodySlam), 20f, kind: Kind.DirForward, stopAtWall: true);
+class BodySlam(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.BodySlam), 20f, kind: Kind.DirForward, stopAtWall: true);
 
 class FlameBreath(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.FlameBreathChannel))
 {
     private AOEInstance? _aoe;
     private static readonly AOEShapeRect rect = new(500f, 10f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -167,7 +167,7 @@ class FlameBreath2(BossModule module) : Components.GenericAOEs(module, ActionID.
     private AOEInstance? _aoe;
     private static readonly AOEShapeRect rect = new(60f, 10f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -194,15 +194,15 @@ class Cauterize(BossModule module) : Components.GenericAOEs(module, ActionID.Mak
     private static readonly AOEShapeRect rect = new(160f, 22f);
     private static readonly AOEShapeRect MoveIt = new(40f, 22f, 38f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (Source == null)
             return [];
 
         if (Arena.Center.Z > 218f)
-            return [new(MoveIt, Arena.Center)];
+            return new AOEInstance[1] { new(MoveIt, Arena.Center) };
         else
-            return [new(rect, Source.Position, 180f.Degrees(), Module.CastFinishAt(Source.CastInfo))];
+            return new AOEInstance[1] { new(rect, Source.Position, 180f.Degrees(), Module.CastFinishAt(Source.CastInfo)) };
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -218,7 +218,7 @@ class Cauterize(BossModule module) : Components.GenericAOEs(module, ActionID.Mak
     }
 }
 
-class Touchdown(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Touchdown), 10f, stopAtWall: true);
+class Touchdown(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Touchdown), 10f, stopAtWall: true);
 
 class ScorchingBreath(BossModule module) : Components.GenericAOEs(module)
 {
@@ -230,10 +230,10 @@ class ScorchingBreath(BossModule module) : Components.GenericAOEs(module)
             ++NumCasts;
     }
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (NumCasts != 0)
-            return [new(rect, Module.PrimaryActor.Position, Module.PrimaryActor.Rotation, Module.CastFinishAt(Module.PrimaryActor.CastInfo))];
+            return new AOEInstance[1] { new(rect, Module.PrimaryActor.Position, Module.PrimaryActor.Rotation, Module.CastFinishAt(Module.PrimaryActor.CastInfo)) };
         else
             return [];
     }

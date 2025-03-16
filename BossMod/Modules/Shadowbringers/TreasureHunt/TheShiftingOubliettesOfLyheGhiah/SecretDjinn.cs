@@ -32,7 +32,7 @@ class ChangelessWinds(BossModule module) : Components.SimpleAOEs(module, ActionI
 class Whipwind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Whipwind), new AOEShapeRect(55f, 20f));
 class GentleBreeze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GentleBreeze), new AOEShapeRect(15f, 2f));
 class WhirlingGaol(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WhirlingGaol), "Raidwide + Knockback");
-class WhirlingGaolKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.WhirlingGaol), 25f, stopAtWall: true);
+class WhirlingGaolKB(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.WhirlingGaol), 25f, stopAtWall: true);
 
 class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11f);
 class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(13f, 2f));

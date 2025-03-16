@@ -109,7 +109,7 @@ class OneOneOneOneTonzeSwing(BossModule module) : BossComponent(module)
     }
 }
 
-class DisorientingGroan(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.DisorientingGroan), 20f, stopAtWall: true);
+class DisorientingGroan(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.DisorientingGroan), 20f, stopAtWall: true);
 
 class D082MinotaurStates : StateMachineBuilder
 {

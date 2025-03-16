@@ -6,7 +6,7 @@ class P5Teraflare(BossModule module) : Components.CastCounter(module, ActionID.M
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.DownForTheCount)
+        if (status.ID == (uint)SID.DownForTheCount)
             DownForTheCountAssigned = true;
     }
 }

@@ -64,7 +64,7 @@ class RahuComet1(BossModule module) : RahuComet(module, AID.RahuComet1);
 class RahuComet2(BossModule module) : RahuComet(module, AID.RahuComet2);
 class RahuComet3(BossModule module) : RahuComet(module, AID.RahuComet3);
 
-class RahuCometKB(BossModule module, AID aid, float distance) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(aid), distance, stopAtWall: true)
+class RahuCometKB(BossModule module, AID aid, float distance) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(aid), distance, stopAtWall: true)
 {
     private readonly KetuWave _aoe1 = module.FindComponent<KetuWave>()!;
     private readonly KetuCutter _aoe2 = module.FindComponent<KetuCutter>()!;

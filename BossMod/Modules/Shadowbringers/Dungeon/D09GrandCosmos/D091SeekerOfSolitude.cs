@@ -31,7 +31,7 @@ public enum AID : uint
 
 class ImmortalAnathema(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ImmortalAnathema));
 class Shadowbolt(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Shadowbolt));
-class Tribulation(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.Tribulation), GetVoidzones, 0.1f)
+class Tribulation(BossModule module) : Components.VoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.Tribulation), GetVoidzones, 0.1f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {
@@ -55,7 +55,7 @@ class Tribulation(BossModule module) : Components.PersistentVoidzoneAtCastTarget
 class DarkPulse(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.DarkPulse), 6f, 4, 4);
 class DarkWell(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.DarkWell), 5f);
 class DarkShock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkShock), 6f);
-class MagickedBroom(BossModule module) : Components.PersistentVoidzone(module, 3.125f, GetVoidzones, 10f)
+class MagickedBroom(BossModule module) : Components.Voidzone(module, 3.125f, GetVoidzones, 10f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

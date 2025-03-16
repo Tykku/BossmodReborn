@@ -38,12 +38,12 @@ class FloodOfDarkness(BossModule module) : Components.SimpleAOEs(module, ActionI
 class VeinSplitter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VeinSplitter), 10f);
 class LightlessSpark(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightlessSpark), new AOEShapeCone(40f, 45f.Degrees()));
 class SwellUnbound(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheSwellUnbound), new AOEShapeDonut(8f, 20f));
-class Swell(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ArtOfTheSwell), 8f)
+class Swell(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.ArtOfTheSwell), 8f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         if (Casters.Count != 0)
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 8));
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Arena.Center, 8f));
     }
 }
 
@@ -52,7 +52,7 @@ class ArtOfTheSword1(BossModule module) : ArtOfTheSword(module, AID.ArtOfTheSwor
 class ArtOfTheSword2(BossModule module) : ArtOfTheSword(module, AID.ArtOfTheSword2);
 class ArtOfTheSword3(BossModule module) : ArtOfTheSword(module, AID.ArtOfTheSword3);
 
-class DarkAether(BossModule module) : Components.PersistentVoidzone(module, 1.5f, GetVoidzones, 3)
+class DarkAether(BossModule module) : Components.Voidzone(module, 1.5f, GetVoidzones, 3f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

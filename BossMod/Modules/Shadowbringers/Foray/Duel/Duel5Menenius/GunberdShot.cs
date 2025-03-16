@@ -64,8 +64,8 @@ class GunberdShot(BossModule module) : BossComponent(module)
     {
         if (Gunberding && WindslicerLoaded)
         {
-            var adjPos = Components.Knockback.AwayFromSource(pc.Position, _gunberdCaster, 10);
-            Components.Knockback.DrawKnockback(pc, adjPos, Arena);
+            var adjPos = Components.GenericKnockback.AwayFromSource(pc.Position, _gunberdCaster, 10);
+            Components.GenericKnockback.DrawKnockback(pc, adjPos, Arena);
         }
     }
 }

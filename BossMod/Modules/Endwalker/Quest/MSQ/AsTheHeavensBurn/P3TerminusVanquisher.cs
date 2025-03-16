@@ -46,7 +46,7 @@ class DeadlyImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.M
 class BlackStar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BlackStar));
 
 class ForcefulImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ForcefulImpactAOE), 7);
-class ForcefulImpactKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ForcefulImpactKB), 10, stopAtWall: true)
+class ForcefulImpactKB(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.ForcefulImpactKB), 10, stopAtWall: true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

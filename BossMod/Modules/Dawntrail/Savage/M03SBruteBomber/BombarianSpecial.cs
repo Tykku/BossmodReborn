@@ -64,5 +64,5 @@ class BombarianSpecialIn(BossModule module) : SpecialIn(module, AID.BombarianSpe
 class SpecialBombarianSpecialIn(BossModule module) : SpecialIn(module, AID.SpecialBombarianSpecialIn);
 
 class BombarianSpecialAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BombarianSpecialAOE), 8);
-class BombarianSpecialKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.BombarianSpecialKnockback), 10);
+class BombarianSpecialKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.BombarianSpecialKnockback), 10);
 

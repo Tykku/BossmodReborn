@@ -1,9 +1,9 @@
 ﻿namespace BossMod.Endwalker.Savage.P8S1Hephaistos;
 
-class Footprint(BossModule module) : Components.Knockback(module, ActionID.MakeSpell(AID.Footprint))
+class Footprint(BossModule module) : Components.GenericKnockback(module, ActionID.MakeSpell(AID.Footprint))
 {
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
-        yield return new(Module.PrimaryActor.Position, 20); // TODO: activation
+        return new Knockback[1] { new(Module.PrimaryActor.Position, 20f) }; // TODO: activation
     }
 }

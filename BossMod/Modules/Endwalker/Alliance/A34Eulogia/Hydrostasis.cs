@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.Alliance.A34Eulogia;
 
-class Hydrostasis(BossModule module) : Components.Knockback(module)
+class Hydrostasis(BossModule module) : Components.GenericKnockback(module)
 {
-    private readonly List<Source> _sources = new(3);
+    private readonly List<Knockback> _sources = new(3);
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor) => _sources;
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor) => CollectionsMarshal.AsSpan(_sources);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

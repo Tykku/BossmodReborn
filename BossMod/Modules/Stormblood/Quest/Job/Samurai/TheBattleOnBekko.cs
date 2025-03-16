@@ -29,27 +29,27 @@ class KuruiYukikaze(BossModule module) : Components.SimpleAOEs(module, ActionID.
 class HissatsuKyuten(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HissatsuKyuten), 5.5f);
 class TenkaGoken(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TenkaGoken), new AOEShapeCone(8.5f, 60.Degrees()));
 class ShinGetsubaku(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ShinGetsubaku), 6);
-class ShinGetsubakuVoidzone(BossModule module) : Components.PersistentVoidzone(module, 4, m => m.Enemies(OID.Voidzone).Where(e => e.EventState != 7));
+class ShinGetsubakuVoidzone(BossModule module) : Components.Voidzone(module, 4, m => m.Enemies(OID.Voidzone).Where(e => e.EventState != 7));
 class MijinGiri(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MijinGiri), new AOEShapeRect(80.5f, 5));
 
 class Ugetsuzan(BossModule module) : Components.ConcentricAOEs(module, sectors)
 {
-    private static readonly Angle a90 = 90.Degrees();
+    private static readonly Angle a90 = 90f.Degrees();
     private static readonly AOEShapeDonutSector[] sectors = [new(2, 7, a90), new(7, 12, a90), new(12, 17, a90), new(17, 22, a90)];
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Ugetsuzan1)
+        if (spell.Action.ID == (uint)AID.Ugetsuzan1)
             AddSequence(spell.LocXZ, Module.CastFinishAt(spell), spell.Rotation);
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        var order = (AID)spell.Action.ID switch
+        var order = spell.Action.ID switch
         {
-            AID.Ugetsuzan1 => 0,
-            AID.Ugetsuzan2 => 1,
-            AID.Ugetsuzan3 => 2,
-            AID.Ugetsuzan4 => 3,
+            (uint)AID.Ugetsuzan1 => 0,
+            (uint)AID.Ugetsuzan2 => 1,
+            (uint)AID.Ugetsuzan3 => 2,
+            (uint)AID.Ugetsuzan4 => 3,
             _ => -1
         };
         AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(2.5f), spell.Rotation);

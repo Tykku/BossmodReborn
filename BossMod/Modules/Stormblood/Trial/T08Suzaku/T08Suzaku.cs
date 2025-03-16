@@ -4,7 +4,7 @@ class ScarletFever(BossModule module) : BossComponent(module)
 {
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ScarletFever)
+        if (spell.Action.ID == (uint)AID.ScarletFever)
             Arena.Bounds = T08Suzaku.Phase2Arena;
     }
 }
@@ -14,7 +14,7 @@ class SouthronStar(BossModule module) : Components.RaidwideCast(module, ActionID
 class AshesToAshes(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AshesToAshes));
 class ScarletFeverAOE(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ScarletFever));
 
-class RuthlessRefrain(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.RuthlessRefrain), 8);
+class RuthlessRefrain(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.RuthlessRefrain), 8);
 class Cremate(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Cremate));
 class PhantomFlurryTankbuster(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.PhantomFlurryTankbuster));
 class PhantomFlurryAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PhantomFlurryAOE), new AOEShapeCone(41, 90.Degrees()));

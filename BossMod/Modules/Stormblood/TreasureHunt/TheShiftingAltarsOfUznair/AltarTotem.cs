@@ -37,7 +37,7 @@ class FlurryOfRage(BossModule module) : Components.SimpleAOEs(module, ActionID.M
 class WaveOfMalice(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaveOfMalice), 5f);
 class WhorlOfFrenzy(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WhorlOfFrenzy), 11.06f);
 class TheWardensVerdict(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheWardensVerdict), new AOEShapeRect(45.06f, 2f));
-class FlamesOfFury(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 10f, ActionID.MakeSpell(AID.FlamesOfFury), GetVoidzones, 1.2f)
+class FlamesOfFury(BossModule module) : Components.VoidzoneAtCastTarget(module, 10f, ActionID.MakeSpell(AID.FlamesOfFury), GetVoidzones, 1.2f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

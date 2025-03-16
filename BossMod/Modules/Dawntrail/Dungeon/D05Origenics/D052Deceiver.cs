@@ -77,7 +77,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 
     private AOEInstance? _aoe;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -109,9 +109,9 @@ class InitializeTurrets(BossModule module) : Components.SimpleAOEs(module, Actio
 class LaserLash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LaserLashReal), new AOEShapeRect(40f, 5f));
 class Electray(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Electray), 5f);
 
-class Surge(BossModule module) : Components.Knockback(module)
+class Surge(BossModule module) : Components.GenericKnockback(module)
 {
-    public readonly List<Source> SourcesList = new(2);
+    public readonly List<Knockback> SourcesList = new(2);
     private const float XWest = -187.5f, XEast = -156.5f;
     private const float ZRow1 = -122f, ZRow2 = -132f, ZRow3 = -142f, ZRow4 = -152f, ZRow5 = -162f;
     private static readonly WDir offset = new(4f, 0f);
@@ -125,7 +125,7 @@ class Surge(BossModule module) : Components.Knockback(module)
     new(new(XEast, ZRow3), new(XEast, ZRow4)), new(new(XEast, ZRow1), new(XEast, ZRow2))];
     private static readonly AOEShapeCone _shape = new(60f, 90f.Degrees());
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor) => SourcesList;
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor) => CollectionsMarshal.AsSpan(SourcesList);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -189,7 +189,7 @@ class SurgeHint(BossModule module) : Components.GenericAOEs(module)
     private readonly List<AOEInstance> _hints = new(4);
     private readonly Surge _kb = module.FindComponent<Surge>()!;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _hints;
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_hints);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

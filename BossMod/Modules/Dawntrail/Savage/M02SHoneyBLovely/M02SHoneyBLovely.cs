@@ -13,7 +13,7 @@ class BlindingLoveCharge1(BossModule module) : BlindingLoveCharge(module, AID.Bl
 class BlindingLoveCharge2(BossModule module) : BlindingLoveCharge(module, AID.BlindingLoveCharge2AOE);
 
 class PoisonStingBait(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.PoisonStingAOE), new AOEShapeCircle(6), true);
-class PoisonStingVoidzone(BossModule module) : Components.PersistentVoidzone(module, 6, m => m.Enemies(OID.PoisonStingVoidzone).Where(z => z.EventState != 7));
+class PoisonStingVoidzone(BossModule module) : Components.Voidzone(module, 6, m => m.Enemies(OID.PoisonStingVoidzone).Where(z => z.EventState != 7));
 class BeeSting(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BeeStingAOE), 6, 4, 4);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 988, NameID = 12685, PlanLevel = 100)]

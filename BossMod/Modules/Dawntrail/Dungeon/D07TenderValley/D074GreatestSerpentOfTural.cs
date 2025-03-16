@@ -60,7 +60,7 @@ class DubiousTulidisasterArenaChange(BossModule module) : Components.GenericAOEs
     private static readonly AOEShapeCustom square = new([new Square(D074GreatestSerpentOfTural.ArenaCenter, 15f)], [new Square(D074GreatestSerpentOfTural.ArenaCenter, 12f)]);
     private AOEInstance? _aoe;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action.ID == (uint)AID.DubiousTulidisaster && Arena.Bounds == D074GreatestSerpentOfTural.StartingBounds)
@@ -77,16 +77,9 @@ class DubiousTulidisasterArenaChange(BossModule module) : Components.GenericAOEs
     }
 }
 
-class ScreesOfFury(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(3), (uint)IconID.Tankbuster, ActionID.MakeSpell(AID.ScreesOfFury), 5.3f, true)
-{
-    public override void AddGlobalHints(GlobalHints hints)
-    {
-        if (CurrentBaits.Count > 0)
-            hints.Add("Tankbuster cleave");
-    }
-}
+class ScreesOfFury(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(3), (uint)IconID.Tankbuster, ActionID.MakeSpell(AID.ScreesOfFury), 5.3f, true, tankbuster: true);
 
-class GreatestFlood(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.GreatestFlood), 15f)
+class GreatestFlood(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.GreatestFlood), 15f)
 {
     private static readonly Angle a45 = 45f.Degrees();
 
@@ -127,7 +120,7 @@ class GreatestLabyrinth(BossModule module) : Components.GenericAOEs(module)
         return shapes;
     }
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);
 
     public override void OnEventEnvControl(byte index, uint state)
     {
@@ -175,7 +168,7 @@ class MightyBlorp1(BossModule module) : MightyBlorp(module, IconID.Stackmarker1,
 class MightyBlorp2(BossModule module) : MightyBlorp(module, IconID.Stackmarker2, AID.MightyBlorp2, 5f);
 class MightyBlorp3(BossModule module) : MightyBlorp(module, IconID.Stackmarker3, AID.MightyBlorp3, 4f);
 
-class SludgeVoidzone(BossModule module, float radius, OID oid) : Components.PersistentVoidzone(module, radius, m => m.Enemies(oid).Where(z => z.EventState != 7));
+class SludgeVoidzone(BossModule module, float radius, OID oid) : Components.Voidzone(module, radius, m => m.Enemies(oid).Where(z => z.EventState != 7));
 class SludgeVoidzone1(BossModule module) : SludgeVoidzone(module, 6f, OID.SludgeVoidzone1);
 class SludgeVoidzone2(BossModule module) : SludgeVoidzone(module, 5f, OID.SludgeVoidzone2);
 class SludgeVoidzone3(BossModule module) : SludgeVoidzone(module, 4f, OID.SludgeVoidzone3);

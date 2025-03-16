@@ -52,7 +52,7 @@ class P1FallOfFaith(BossModule module) : Components.CastCounter(module, default)
         var dest = TetherSpot(baitOrder);
         if (_playerOrder[slot] != baitOrder)
             dest += BaitOffset(_playerOrder[slot], _fireTethers[baitOrder - 1]);
-        hints.AddForbiddenZone(ShapeDistance.PrecisePosition(dest, new(0, 1), Module.Bounds.MapResolution, actor.Position, 0.1f));
+        hints.AddForbiddenZone(ShapeDistance.PrecisePosition(dest, new(0, 1), Arena.Bounds.MapResolution, actor.Position, 0.1f));
     }
 
     public override PlayerPriority CalcPriority(int pcSlot, Actor pc, int playerSlot, Actor player, ref uint customColor)
@@ -165,7 +165,7 @@ class P1FallOfFaith(BossModule module) : Components.CastCounter(module, default)
     }
 
     // note: if target is fettered, it can no longer move
-    private WPos TetherSpot(int order) => order <= _numFetters ? _tetherTargets[order - 1].Position : Module.Center + 5.5f * GroupDirection(order);
+    private WPos TetherSpot(int order) => order <= _numFetters ? _tetherTargets[order - 1].Position : Arena.Center + 5.5f * GroupDirection(order);
 
     private WDir CenterBaitOffset(int order) => GroupDirection(order) * 2;
 

@@ -7,7 +7,7 @@ class SickleSlash1(BossModule module) : SickleSlash(module, AID.SickleSlash1);
 class SickleSlash2(BossModule module) : SickleSlash(module, AID.SickleSlash2);
 
 class AbyssalReaper(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbyssalReaper), 14);
-class AbyssalReaperKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.AbyssalReaper), 5, stopAtWall: true);
+class AbyssalReaperKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.AbyssalReaper), 5, stopAtWall: true);
 class Petrifaction1(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.Petrifaction1));
 class Petrifaction2(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.Petrifaction2));
 class Gehenna(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Gehenna));

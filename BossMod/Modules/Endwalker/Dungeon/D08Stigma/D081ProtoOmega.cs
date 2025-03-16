@@ -21,7 +21,7 @@ public enum AID : uint
     SideCannons2 = 25377 // Boss->self, 7.0s cast, range 60 180-degree cone
 }
 
-class ElectricSlideKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.ElectricSlide), 15, stopAtWall: true);
+class ElectricSlideKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.ElectricSlide), 15, stopAtWall: true);
 class ElectricSlide(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ElectricSlide), 6, 4, 4);
 class IronKiss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IronKiss), 3);
 

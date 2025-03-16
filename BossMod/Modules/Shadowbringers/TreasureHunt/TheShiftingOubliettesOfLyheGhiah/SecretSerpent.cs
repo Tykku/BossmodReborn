@@ -37,7 +37,7 @@ public enum AID : uint
     Telega = 9630 // Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
-class DouseVoidzone(BossModule module) : Components.PersistentVoidzone(module, 7.5f, GetVoidzones)
+class DouseVoidzone(BossModule module) : Components.Voidzone(module, 7.5f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

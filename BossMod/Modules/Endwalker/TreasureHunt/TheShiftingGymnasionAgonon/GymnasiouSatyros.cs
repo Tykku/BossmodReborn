@@ -32,7 +32,7 @@ public enum AID : uint
 
 class StormWing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StormWing), new AOEShapeCone(40f, 45f.Degrees()));
 class FlashGale(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlashGale), 6);
-class WindCutter(BossModule module) : Components.PersistentVoidzone(module, 4f, GetVoidzones)
+class WindCutter(BossModule module) : Components.Voidzone(module, 4f, GetVoidzones)
 {
     private static List<Actor> GetVoidzones(BossModule module) => module.Enemies((uint)OID.StormsGrip);
 }

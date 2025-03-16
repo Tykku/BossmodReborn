@@ -2,17 +2,18 @@ namespace BossMod.Components;
 
 // component for ThinIce mechanic
 // observation: for SID 911 the distance is 0.1 * status extra
-public abstract class ThinIce(BossModule module, float distance, bool createforbiddenzones = false, uint statusID = 911, bool stopAtWall = false, bool stopAfterWall = false) : Knockback(module, stopAtWall: stopAtWall, stopAfterWall: stopAfterWall)
+public abstract class ThinIce(BossModule module, float distance, bool createforbiddenzones = false, uint statusID = 911, bool stopAtWall = false, bool stopAfterWall = false) : GenericKnockback(module, stopAtWall: stopAtWall, stopAfterWall: stopAfterWall)
 {
     public readonly uint StatusID = statusID;
     public readonly float Distance = distance;
-    private static readonly WDir offset = new(0f, 1f);
+    private static readonly WDir offset = new(default, 1f);
     public BitMask Mask;
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
         if (Mask[slot] != default)
-            yield return new(actor.Position, Distance, default, default, actor.Rotation, Kind.DirForward);
+            return new Knockback[1] { new(actor.Position, Distance, default, default, actor.Rotation, Kind.DirForward) };
+        return [];
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

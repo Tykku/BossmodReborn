@@ -55,22 +55,99 @@ public class DSW2(WorldState ws, Actor primary) : BossModule(ws, primary, new(10
     {
         // TODO: this is an ugly hack, think how multi-actor fights can be implemented without it...
         // the problem is that on wipe, any actor can be deleted and recreated in the same frame
-        ArenaFeatures ??= StateMachine.ActivePhaseIndex == 0 ? Enemies(OID.ArenaFeatures).FirstOrDefault() : null;
-        _bossP3 ??= StateMachine.ActivePhaseIndex == 1 ? Enemies(OID.BossP3).FirstOrDefault() : null;
-        _leftEyeP4 ??= StateMachine.ActivePhaseIndex == 2 ? Enemies(OID.LeftEye).FirstOrDefault() : null;
-        _rightEyeP4 ??= StateMachine.ActivePhaseIndex == 2 ? Enemies(OID.RightEye).FirstOrDefault() : null;
-        _nidhoggP4 ??= StateMachine.ActivePhaseIndex == 2 ? Enemies(OID.NidhoggP4).FirstOrDefault() : null;
-        _serCharibert ??= StateMachine.ActivePhaseIndex == 3 ? Enemies(OID.SerCharibert).FirstOrDefault() : null;
-        _spear ??= StateMachine.ActivePhaseIndex == 3 ? Enemies(OID.SpearOfTheFury).FirstOrDefault() : null;
-        _bossP5 ??= StateMachine.ActivePhaseIndex == 4 ? Enemies(OID.BossP5).FirstOrDefault() : null;
-        _nidhoggP6 ??= StateMachine.ActivePhaseIndex == 5 ? Enemies(OID.NidhoggP6).FirstOrDefault() : null;
-        _hraesvelgrP6 ??= StateMachine.ActivePhaseIndex == 5 ? Enemies(OID.HraesvelgrP6).FirstOrDefault() : null;
-        _bossP7 ??= StateMachine.ActivePhaseIndex == 6 ? Enemies(OID.DragonKingThordan).FirstOrDefault() : null;
+        if (ArenaFeatures == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 0)
+            {
+                var b = Enemies((uint)OID.ArenaFeatures);
+                ArenaFeatures = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_bossP3 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 1)
+            {
+                var b = Enemies((uint)OID.BossP3);
+                _bossP3 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_leftEyeP4 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 2)
+            {
+                var b = Enemies((uint)OID.LeftEye);
+                _leftEyeP4 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_rightEyeP4 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 2)
+            {
+                var b = Enemies((uint)OID.RightEye);
+                _rightEyeP4 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_nidhoggP4 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 2)
+            {
+                var b = Enemies((uint)OID.NidhoggP4);
+                _nidhoggP4 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_serCharibert == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 3)
+            {
+                var b = Enemies((uint)OID.SerCharibert);
+                _serCharibert = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_spear == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 3)
+            {
+                var b = Enemies((uint)OID.SpearOfTheFury);
+                _spear = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_bossP5 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 4)
+            {
+                var b = Enemies((uint)OID.BossP5);
+                _bossP5 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_nidhoggP6 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 5)
+            {
+                var b = Enemies((uint)OID.NidhoggP6);
+                _nidhoggP6 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_hraesvelgrP6 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 5)
+            {
+                var b = Enemies((uint)OID.HraesvelgrP6);
+                _hraesvelgrP6 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_bossP7 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 6)
+            {
+                var b = Enemies((uint)OID.DragonKingThordan);
+                _bossP7 = b.Count != 0 ? b[0] : null;
+            }
+        }
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, Colors.Enemy, true);
+        Arena.Actor(PrimaryActor, allowDeadAndUntargetable: true);
         Arena.Actor(_bossP3);
         Arena.Actor(_leftEyeP4);
         Arena.Actor(_rightEyeP4);

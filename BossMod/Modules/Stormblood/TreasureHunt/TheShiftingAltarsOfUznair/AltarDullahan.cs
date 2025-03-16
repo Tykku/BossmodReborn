@@ -42,7 +42,7 @@ class Cloudcover(BossModule module) : Components.SimpleAOEs(module, ActionID.Mak
 class TerrorEye(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TerrorEye), 6f);
 class VillainousRebuke(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VillainousRebuke), 6f, 8, 8);
 class StygianRelease(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.StygianRelease));
-class StygianReleaseKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.StygianRelease), 20f, stopAtWall: true)
+class StygianReleaseKB(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.StygianRelease), 20f, stopAtWall: true)
 {
     private readonly TerrorEye _aoe = module.FindComponent<TerrorEye>()!;
 

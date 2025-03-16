@@ -25,7 +25,7 @@ public enum AID : uint
 class IronUprising(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IronUprising), new AOEShapeCone(7, 60.Degrees()));
 class SpineShatter(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SpineShatter));
 
-class AugmentedSuffering(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.AugmentedSuffering), 12)
+class AugmentedSuffering(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.AugmentedSuffering), 12)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -44,7 +44,7 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
     private AOEInstance? _aoe;
     private bool begin;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnEventEnvControl(byte index, uint state)
     {

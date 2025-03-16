@@ -7,8 +7,8 @@ class P2GenesisBinah(BossModule module) : Components.CastCounter(module, ActionI
 class P3EinSofOhr(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.EinSofOhrAOE));
 class P3Yesod(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Yesod), 4);
 class P3PillarOfMercyAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PillarOfMercyAOE), 5);
-class P3PillarOfMercyKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.PillarOfMercyAOE), 17);
-class P3Malkuth(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Malkuth), 25);
+class P3PillarOfMercyKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.PillarOfMercyAOE), 17);
+class P3Malkuth(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Malkuth), 25);
 class P3Ascension(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Ascension)); // TODO: show safe spot?..
 class P3PillarOfSeverity(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.PillarOfSeverityAOE));
 

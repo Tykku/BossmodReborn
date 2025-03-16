@@ -1,18 +1,19 @@
 ﻿namespace BossMod.Endwalker.Savage.P8S1Hephaistos;
 
-class QuadrupedalImpact(BossModule module) : Components.Knockback(module, ActionID.MakeSpell(AID.QuadrupedalImpactAOE), true)
+class QuadrupedalImpact(BossModule module) : Components.GenericKnockback(module, ActionID.MakeSpell(AID.QuadrupedalImpactAOE), true)
 {
     private WPos? _source;
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
         if (_source != null)
-            yield return new(_source.Value, 30); // TODO: activation
+            return new Knockback[1] { new(_source.Value, 30f) }; // TODO: activation
+        return [];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.QuadrupedalImpact)
+        if (spell.Action.ID == (uint)AID.QuadrupedalImpact)
             _source = spell.LocXZ;
     }
 }
@@ -22,17 +23,18 @@ class QuadrupedalCrush(BossModule module) : Components.GenericAOEs(module, Actio
     private WPos? _source;
     private DateTime _activation;
 
-    private static readonly AOEShapeCircle _shape = new(30);
+    private static readonly AOEShapeCircle _shape = new(30f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_source != null)
-            yield return new(_shape, _source.Value, new(), _activation);
+            return new AOEInstance[1] { new(_shape, _source.Value, new(), _activation) };
+        return [];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.QuadrupedalCrush)
+        if (spell.Action.ID == (uint)AID.QuadrupedalCrush)
         {
             _source = spell.LocXZ;
             _activation = Module.CastFinishAt(spell, 0.9f);
@@ -44,22 +46,22 @@ class CentaurTetraflare(BossModule module) : TetraOctaFlareCommon(module)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ConceptualTetraflareCentaur)
+        if (spell.Action.ID == (uint)AID.ConceptualTetraflareCentaur)
             SetupMasks(Concept.Tetra);
     }
 }
 
-class CentaurDiflare(BossModule module) : Components.UniformStackSpread(module, 6, 0, 4, 4)
+class CentaurDiflare(BossModule module) : Components.UniformStackSpread(module, 6f, default, 4, 4)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ConceptualDiflare)
+        if (spell.Action.ID == (uint)AID.ConceptualDiflare)
             AddStacks(Raid.WithoutSlot(false, true, true).Where(a => a.Role == Role.Healer));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.EmergentDiflare)
+        if (spell.Action.ID == (uint)AID.EmergentDiflare)
             Stacks.Clear();
     }
 }
@@ -122,34 +124,34 @@ class BlazingFootfalls(BossModule module) : BossComponent(module)
         {
             // draw knockback from first trailblaze
             var adjPos = pc.Position + _trailblazeKnockbackDistance * new WDir(pc.Position.X < Arena.Center.X ? -1 : 1, 0);
-            Components.Knockback.DrawKnockback(pc, adjPos, Arena);
+            Components.GenericKnockback.DrawKnockback(pc, adjPos, Arena);
         }
         if (NumMechanicsDone == 2)
         {
             // draw knockback from second trailblaze
             var adjPos = pc.Position + _trailblazeKnockbackDistance * new WDir(0, pc.Position.Z < Arena.Center.Z ? -1 : 1);
-            Components.Knockback.DrawKnockback(pc, adjPos, Arena);
+            Components.GenericKnockback.DrawKnockback(pc, adjPos, Arena);
         }
 
         if (!_firstCrush && NumMechanicsDone == 1)
         {
             // draw knockback from first impact
-            var adjPos = Components.Knockback.AwayFromSource(pc.Position, Arena.Center + Arena.Bounds.Radius * new WDir(_firstSafeLeft ? -1 : 1, 0), _impactKnockbackRadius);
-            Components.Knockback.DrawKnockback(pc, adjPos, Arena);
+            var adjPos = Components.GenericKnockback.AwayFromSource(pc.Position, Arena.Center + Arena.Bounds.Radius * new WDir(_firstSafeLeft ? -1 : 1, 0), _impactKnockbackRadius);
+            Components.GenericKnockback.DrawKnockback(pc, adjPos, Arena);
         }
         if (_firstCrush && NumMechanicsDone == 3)
         {
             // draw knockback from second impact
-            var adjPos = Components.Knockback.AwayFromSource(pc.Position, Arena.Center + Arena.Bounds.Radius * new WDir(0, _secondSafeTop ? -1 : 1), _impactKnockbackRadius);
-            Components.Knockback.DrawKnockback(pc, adjPos, Arena);
+            var adjPos = Components.GenericKnockback.AwayFromSource(pc.Position, Arena.Center + Arena.Bounds.Radius * new WDir(0, _secondSafeTop ? -1 : 1), _impactKnockbackRadius);
+            Components.GenericKnockback.DrawKnockback(pc, adjPos, Arena);
         }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.BlazingFootfallsImpactVisual:
+            case (uint)AID.BlazingFootfallsImpactVisual:
                 if (_seenVisuals > 0)
                 {
                     _secondSafeTop = spell.LocXZ.Z < Arena.Center.Z;
@@ -160,7 +162,7 @@ class BlazingFootfalls(BossModule module) : BossComponent(module)
                 }
                 ++_seenVisuals;
                 break;
-            case AID.BlazingFootfallsCrushVisual:
+            case (uint)AID.BlazingFootfallsCrushVisual:
                 if (_seenVisuals > 0)
                 {
                     _secondSafeTop = spell.LocXZ.Z > Arena.Center.Z;
@@ -177,7 +179,7 @@ class BlazingFootfalls(BossModule module) : BossComponent(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.BlazingFootfallsTrailblaze or AID.BlazingFootfallsImpact or AID.BlazingFootfallsCrush)
+        if (spell.Action.ID is (uint)AID.BlazingFootfallsTrailblaze or (uint)AID.BlazingFootfallsImpact or (uint)AID.BlazingFootfallsCrush)
             ++NumMechanicsDone;
     }
 }

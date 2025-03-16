@@ -51,7 +51,7 @@ class NexusOfThunder1(BossModule module) : NoT(module, AID.NexusOfThunder1);
 class NexusOfThunder2(BossModule module) : NoT(module, AID.NexusOfThunder2);
 
 class Burn(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Burn), 8, 5);
-class Spiritcall(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.Spiritcall), 20, stopAtWall: true);
+class Spiritcall(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Spiritcall), 20, stopAtWall: true);
 
 class Electrocution(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Electrocution), 6)
 {

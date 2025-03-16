@@ -18,7 +18,7 @@ class P3QuickmarchTrio(BossModule module) : BossComponent(module)
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if ((OID)actor.OID == OID.BahamutPrime && id == 0x1E43)
+        if (actor.OID == (uint)OID.BahamutPrime && id == 0x1E43)
         {
             _relNorth = actor;
             var dirToNorth = Angle.FromDirection(actor.Position - Arena.Center);
@@ -34,18 +34,18 @@ class P3QuickmarchTrio(BossModule module) : BossComponent(module)
     }
 }
 
-class P3TwistingDive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TwistingDive), new AOEShapeRect(63.96f, 4));
-class P3LunarDive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LunarDive), new AOEShapeRect(62.55f, 4));
-class P3MegaflareDive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MegaflareDive), new AOEShapeRect(64.2f, 6));
+class P3TwistingDive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TwistingDive), new AOEShapeRect(63.96f, 4f));
+class P3LunarDive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LunarDive), new AOEShapeRect(62.55f, 4f));
+class P3MegaflareDive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MegaflareDive), new AOEShapeRect(64.2f, 6f));
 class P3Twister(BossModule module) : Components.ImmediateTwister(module, 2, (uint)OID.VoidzoneTwister, 1.4f); // TODO: verify radius
 
 class P3MegaflareSpreadStack : Components.UniformStackSpread
 {
     private BitMask _stackTargets;
 
-    public P3MegaflareSpreadStack(BossModule module) : base(module, 5, 5, 3, 3, alwaysShowSpreads: true)
+    public P3MegaflareSpreadStack(BossModule module) : base(module, 5f, 5f, 3, 3, alwaysShowSpreads: true)
     {
-        AddSpreads(Raid.WithoutSlot(true, true, true), WorldState.FutureTime(2.6f));
+        AddSpreads(Raid.WithoutSlot(true, true, true), WorldState.FutureTime(2.6d));
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
@@ -56,15 +56,15 @@ class P3MegaflareSpreadStack : Components.UniformStackSpread
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.MegaflareSpread:
+            case (uint)AID.MegaflareSpread:
                 Spreads.Clear();
                 var stackTarget = Raid.WithSlot(false, true, true).IncludedInMask(_stackTargets).FirstOrDefault().Item2; // random target
                 if (stackTarget != null)
                     AddStack(stackTarget, WorldState.FutureTime(4), ~_stackTargets);
                 break;
-            case AID.MegaflareStack:
+            case (uint)AID.MegaflareStack:
                 Stacks.Clear();
                 break;
         }

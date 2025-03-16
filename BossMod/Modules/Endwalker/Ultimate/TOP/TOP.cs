@@ -1,12 +1,12 @@
 ﻿namespace BossMod.Endwalker.Ultimate.TOP;
 
-class SolarRayM(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.SolarRayM), new AOEShapeCircle(5), true);
-class SolarRayF(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.SolarRayF), new AOEShapeCircle(5), true);
+class SolarRayM(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.SolarRayM), new AOEShapeCircle(5f), true);
+class SolarRayF(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.SolarRayF), new AOEShapeCircle(5f), true);
 class P4BlueScreen(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.BlueScreenAOE));
 class P5BlindFaith(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.BlindFaithSuccess), "Intermission");
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 908, PlanLevel = 90)]
-public class TOP(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(20))
+public class TOP(WorldState ws, Actor primary) : BossModule(ws, primary, new(100f, 100f), new ArenaBoundsCircle(20f))
 {
     private Actor? _opticalUnit;
     private Actor? _omegaM;
@@ -26,12 +26,54 @@ public class TOP(WorldState ws, Actor primary) : BossModule(ws, primary, new(100
     {
         // TODO: this is an ugly hack, think how multi-actor fights can be implemented without it...
         // the problem is that on wipe, any actor can be deleted and recreated in the same frame
-        _opticalUnit ??= StateMachine.ActivePhaseIndex == 0 ? Enemies(OID.OpticalUnit).FirstOrDefault() : null;
-        _omegaM ??= StateMachine.ActivePhaseIndex == 1 ? Enemies(OID.OmegaM).FirstOrDefault() : null;
-        _omegaF ??= StateMachine.ActivePhaseIndex == 1 ? Enemies(OID.OmegaF).FirstOrDefault() : null;
-        _bossP3 ??= StateMachine.ActivePhaseIndex == 2 ? Enemies(OID.BossP3).FirstOrDefault() : null;
-        _bossP5 ??= StateMachine.ActivePhaseIndex == 4 ? Enemies(OID.BossP5).FirstOrDefault() : null;
-        _bossP6 ??= StateMachine.ActivePhaseIndex >= 4 ? Enemies(OID.BossP6).FirstOrDefault() : null;
+        if (_opticalUnit == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 0)
+            {
+                var b = Enemies((uint)OID.OpticalUnit);
+                _opticalUnit = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_omegaM == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 1)
+            {
+                var b = Enemies((uint)OID.OmegaM);
+                _omegaM = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_omegaF == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 1)
+            {
+                var b = Enemies((uint)OID.OmegaF);
+                _omegaF = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_bossP3 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 2)
+            {
+                var b = Enemies((uint)OID.BossP3);
+                _bossP3 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_bossP5 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 4)
+            {
+                var b = Enemies((uint)OID.BossP5);
+                _bossP5 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_bossP6 == null)
+        {
+            if (StateMachine.ActivePhaseIndex >= 4)
+            {
+                var b = Enemies((uint)OID.BossP6);
+                _bossP6 = b.Count != 0 ? b[0] : null;
+            }
+        }
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)

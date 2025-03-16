@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C033Statice;
 
-abstract class SurpriseBalloon(BossModule module, AID aid) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(aid), 13);
+abstract class SurpriseBalloon(BossModule module, AID aid) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(aid), 13);
 class NSurpriseBalloon(BossModule module) : SurpriseBalloon(module, AID.NPop);
 class SSurpriseBalloon(BossModule module) : SurpriseBalloon(module, AID.SPop);
 

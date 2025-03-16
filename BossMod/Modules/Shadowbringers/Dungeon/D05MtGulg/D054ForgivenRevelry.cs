@@ -19,11 +19,11 @@ public enum AID : uint
     LightShot = 16251 // Brightsphere->self, 4.0s cast, range 40 width 4 rect
 }
 
-abstract class Palm(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(30, 7.5f));
+abstract class Palm(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(30f, 7.5f));
 class LeftPalm(BossModule module) : Palm(module, AID.LeftPalm);
 class RightPalm(BossModule module) : Palm(module, AID.RightPalm);
 
-class LightShot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightShot), new AOEShapeRect(40, 2));
+class LightShot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightShot), new AOEShapeRect(40f, 2f));
 
 class D054ForgivenRevelryStates : StateMachineBuilder
 {
@@ -37,4 +37,4 @@ class D054ForgivenRevelryStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 659, NameID = 8270)]
-public class D054ForgivenRevelry(WorldState ws, Actor primary) : BossModule(ws, primary, new(-240, 176.3f), new ArenaBoundsRect(14.65f, 14.4f));
+public class D054ForgivenRevelry(WorldState ws, Actor primary) : BossModule(ws, primary, new(-240f, 176.3f), new ArenaBoundsRect(14.65f, 14.4f));

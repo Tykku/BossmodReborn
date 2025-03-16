@@ -36,7 +36,7 @@ public enum AID : uint
 }
 
 class VoidMortar(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VoidMortar1), 13);
-class FocusInferi(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.FocusInferi), m => m.Enemies(OID.Voidzone).Where(x => x.EventState != 7), 0);
+class FocusInferi(BossModule module) : Components.VoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.FocusInferi), m => m.Enemies(OID.Voidzone).Where(x => x.EventState != 7), 0);
 class CarnemLevareCross(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CarnemLevare1), new AOEShapeCross(40, 4));
 
 class CarnemLevareDonut(BossModule module) : Components.GenericAOEs(module)
@@ -45,7 +45,7 @@ class CarnemLevareDonut(BossModule module) : Components.GenericAOEs(module)
     private static readonly Angle a90 = 90.Degrees();
     private static readonly AOEShapeDonutSector[] sectors = [new(12, 17, a90), new(2, 7, a90), new(17, 22, a90), new(7, 12, a90)];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
         if (count == 0)

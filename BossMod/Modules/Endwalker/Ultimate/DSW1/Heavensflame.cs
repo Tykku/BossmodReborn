@@ -2,7 +2,7 @@
 
 class HeavensflameAOE(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.HeavensflameAOE));
 
-class HeavensflameKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.FaithUnmoving), 16)
+class HeavensflameKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.FaithUnmoving), 16)
 {
     private readonly WPos[] _playerAdjustedPositions = new WPos[PartyState.MaxPartySize];
     private readonly int[] _playerIcons = new int[PartyState.MaxPartySize]; // 0 = unassigned, 1 = circle/red, 2 = triangle/green, 3 = cross/blue, 4 = square/purple
@@ -54,7 +54,7 @@ class HeavensflameKnockback(BossModule module) : Components.KnockbackFromCastTar
             Arena.AddCircle(hint, 1, Colors.Safe);
             //var dir = Vector3.Normalize(pos.Value - _knockbackSource.Position);
             //var adjPos = Arena.ClampToBounds(_knockbackSource.Position + 50 * dir);
-            //Arena.AddLine(Module.Center, adjPos, Colors.Safe);
+            //Arena.AddLine(Arena.Center, adjPos, Colors.Safe);
         }
 
         var partner = FindTetheredPartner(pcSlot);

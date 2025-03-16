@@ -112,7 +112,7 @@ abstract class Twister(BossModule module, AID aid) : Components.StackWithCastTar
 class NTwister(BossModule module) : Twister(module, AID.NTwister);
 class STwister(BossModule module) : Twister(module, AID.STwister);
 
-abstract class Crosswind(BossModule module, AID aid) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(aid), 25f)
+abstract class Crosswind(BossModule module, AID aid) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(aid), 25f)
 {
     public override bool KeepOnPhaseChange => true;
 }

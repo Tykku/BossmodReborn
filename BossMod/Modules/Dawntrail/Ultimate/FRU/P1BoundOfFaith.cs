@@ -35,7 +35,7 @@ class P1BoundOfFaith(BossModule module) : Components.UniformStackSpread(module, 
         base.DrawArenaForeground(pcSlot, pc);
         if (AssignedGroups[pcSlot] != 0 && SafeSide.X != 0)
         {
-            Arena.AddCircle(Module.Center + SafeSide * 18.2f + AssignedLane(pcSlot), 1, Colors.Safe);
+            Arena.AddCircle(Arena.Center + SafeSide * 18.2f + AssignedLane(pcSlot), 1, Colors.Safe);
         }
     }
 
@@ -118,12 +118,12 @@ class P1BoundOfFaithAIKnockback(BossModule module) : BossComponent(module)
             return;
 
         var sideOffset = _horizDone ? 0 : 7; // before horizonal aoes are done, we don't show knockback, so adjust the unsafe zone
-        hints.AddForbiddenZone(ShapeDistance.HalfPlane(Module.Center + sideOffset * _comp.SafeSide, _comp.SafeSide), _comp.Activation);
+        hints.AddForbiddenZone(ShapeDistance.HalfPlane(Arena.Center + sideOffset * _comp.SafeSide, _comp.SafeSide), _comp.Activation);
 
         var lane = _comp.AssignedLane(slot);
         if (_horizDone && lane.Z != 0)
         {
-            hints.AddForbiddenZone(ShapeDistance.InvertedRect(Module.Center + lane, new WDir(1, 0), 20, 20, 0.7f), _comp.Activation);
+            hints.AddForbiddenZone(ShapeDistance.InvertedRect(Arena.Center + lane, new WDir(1, 0), 20, 20, 0.7f), _comp.Activation);
         }
     }
 
@@ -158,12 +158,12 @@ class P1BoundOfFaithAIStack(BossModule module) : BossComponent(module)
             }
 
             // all else being equal, try staying closer to center
-            hints.GoalZones.Add(hints.GoalSingleTarget(Module.Center, 7.5f, 0.5f));
+            hints.GoalZones.Add(hints.GoalSingleTarget(Arena.Center, 7.5f, 0.5f));
         }
         else
         {
             // just go to center
-            hints.AddForbiddenZone(ShapeDistance.InvertedRect(Module.Center, new WDir(1, 0), 1, 1, 20), DateTime.MaxValue);
+            hints.AddForbiddenZone(ShapeDistance.InvertedRect(Arena.Center, new WDir(1, 0), 1, 1, 20), DateTime.MaxValue);
         }
     }
 

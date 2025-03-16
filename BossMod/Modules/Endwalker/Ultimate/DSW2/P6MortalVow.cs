@@ -34,7 +34,7 @@ class P6MortalVow : Components.UniformStackSpread
     {
         base.DrawArenaForeground(pcSlot, pc);
         if (_vow != null && _target != null && (pc == _vow || pc == _target))
-            Arena.AddCircle(Module.Center, 1, Colors.Safe);
+            Arena.AddCircle(Arena.Center, 1, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

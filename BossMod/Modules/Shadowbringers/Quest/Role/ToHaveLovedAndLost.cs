@@ -76,7 +76,7 @@ class Fracture(BossModule module) : Components.GenericTowers(module)
     }
 }
 class Bloodstain(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Bloodstain), 5f);
-class BrandOfSin(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.BrandOfSin), 10f);
+class BrandOfSin(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.BrandOfSin), 10f);
 class BladeOfJustice(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BladeOfJustice), 6f, minStackSize: 1);
 class SanctifiedHolyII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SanctifiedHolyII), 5f);
 class SanctifiedHolyIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SanctifiedHolyIII), 6f);

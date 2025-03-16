@@ -48,7 +48,7 @@ class AltarPyre(BossModule module) : Components.RaidwideCast(module, ActionID.Ma
 
 class HeavensflameAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavensflameAOE), 5f);
 class HolyChain(BossModule module) : Components.Chains(module, (uint)TetherID.HolyChain, ActionID.MakeSpell(AID.HolyChainPlayerTether));
-class TurretTour(BossModule module) : Components.PersistentVoidzone(module, 2f, GetVoidzones, 10f)
+class TurretTour(BossModule module) : Components.Voidzone(module, 2f, GetVoidzones, 10f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {
@@ -68,7 +68,7 @@ class TurretTour(BossModule module) : Components.PersistentVoidzone(module, 2f, 
         return voidzones[..index];
     }
 }
-class TurretTourHint(BossModule module) : Components.PersistentVoidzone(module, 2f, GetVoidzones, 3f)
+class TurretTourHint(BossModule module) : Components.Voidzone(module, 2f, GetVoidzones, 3f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

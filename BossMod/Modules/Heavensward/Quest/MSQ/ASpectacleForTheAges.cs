@@ -15,7 +15,7 @@ public enum AID : uint
 class FlamingTizona(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlamingTizona), 6);
 class TheCurse(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheCurse), new AOEShapeDonutSector(2, 7, 90.Degrees()));
 
-class Demoralize(BossModule module) : Components.PersistentVoidzone(module, 4, m => m.Enemies(0x1E9FA8).Where(e => e.EventState != 7));
+class Demoralize(BossModule module) : Components.Voidzone(module, 4, m => m.Enemies(0x1E9FA8).Where(e => e.EventState != 7));
 class Tizona(BossModule module) : Components.Adds(module, (uint)OID.Tizona, 5);
 
 class FlameGeneralAldynnStates : StateMachineBuilder

@@ -22,7 +22,7 @@ class NexusOfThunder1(BossModule module) : NoT(module, AID.NexusOfThunder1);
 class NexusOfThunder2(BossModule module) : NoT(module, AID.NexusOfThunder2);
 
 class Burn(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Burn), 8, 8);
-class UnbridledWrath(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.UnbridledWrath), 20, kind: Kind.DirForward, stopAtWall: true);
+class UnbridledWrath(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.UnbridledWrath), 20, kind: Kind.DirForward, stopAtWall: true);
 
 class RanjitStates : StateMachineBuilder
 {

@@ -29,7 +29,7 @@ public enum IconID : uint
     IonShower = 111 // player->self
 }
 
-class PullOfTheVoid(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.PullOfTheVoid), 30f, kind: Kind.TowardsOrigin, minDistanceBetweenHitboxes: true);
+class PullOfTheVoid(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.PullOfTheVoid), 30f, kind: Kind.TowardsOrigin, minDistanceBetweenHitboxes: true);
 class Megastorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Megastorm), new AOEShapeDonut(5f, 40f));
 class ConcussiveOscillation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ConcussiveOscillation), 24f);
 class VitriolicBarrage(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.VitriolicBarrage));

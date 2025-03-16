@@ -29,7 +29,7 @@ class HighVoltage(BossModule module) : Components.CastHint(module, ActionID.Make
 class RepellingCannons(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RepellingCannons), 8.3f);
 class PiercingLaser(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PiercingLaser), new AOEShapeRect(32.3f, 3));
 class DirtyCannons(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DirtyCannons), 5.15f);
-class GravityField(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.GravityField), m => m.Enemies(OID.GravityField), 1);
+class GravityField(BossModule module) : Components.VoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.GravityField), m => m.Enemies(OID.GravityField), 1);
 
 // TODO: chain lightning?..
 

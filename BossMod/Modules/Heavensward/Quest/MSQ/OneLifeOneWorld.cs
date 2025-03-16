@@ -28,7 +28,7 @@ class UnlitCyclone(BossModule module) : Components.SimpleAOEs(module, ActionID.M
 class UnlitCycloneAdds(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.UnlitCycloneAdds), 9);
 
 class Skydrive(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(5), 23, ActionID.MakeSpell(AID.Skydrive), centerAtTarget: true);
-class SkydrivePuddle(BossModule module) : Components.PersistentVoidzone(module, 5, m => m.Enemies(0x1EA19C).Where(x => x.EventState != 7));
+class SkydrivePuddle(BossModule module) : Components.Voidzone(module, 5, m => m.Enemies(0x1EA19C).Where(x => x.EventState != 7));
 class RollingBlade(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RollingBladeCircle), 7);
 class RollingBladeCone(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RollingBladeCone), new AOEShapeCone(60, 15.Degrees()));
 

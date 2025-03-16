@@ -22,7 +22,7 @@ class P3WormholeRepentance(BossModule module) : BossComponent(module)
         if (order == 0)
             return;
 
-        var dirToAlex = (alex.Position - Module.Center).Normalized();
+        var dirToAlex = (alex.Position - Arena.Center).Normalized();
         var dirToSide = SelectSide(order, dirToAlex);
         var shouldSoak = ShouldSoakWormhole(order);
 
@@ -47,9 +47,9 @@ class P3WormholeRepentance(BossModule module) : BossComponent(module)
 
         if (!ShouldSoakWormhole(order) || !_chakramsDone)
         {
-            var dirToAlex = (alex.Position - Module.Center).Normalized();
+            var dirToAlex = (alex.Position - Arena.Center).Normalized();
             var dirToSide = SelectSide(order, dirToAlex);
-            movementHints.Add(actor.Position, Module.Center + SafeSpotOffset(order, dirToAlex, dirToSide), Colors.Safe);
+            movementHints.Add(actor.Position, Arena.Center + SafeSpotOffset(order, dirToAlex, dirToSide), Colors.Safe);
         }
     }
 
@@ -63,15 +63,15 @@ class P3WormholeRepentance(BossModule module) : BossComponent(module)
         if (pcOrder == 0)
             return;
 
-        var dirToAlex = (alex.Position - Module.Center).Normalized();
+        var dirToAlex = (alex.Position - Arena.Center).Normalized();
         var dirToSide = SelectSide(pcOrder, dirToAlex);
         var shouldSoak = ShouldSoakWormhole(pcOrder);
 
         foreach (var w in _wormholes)
-            Arena.AddCircle(w, _radiuses[NumSoaks], shouldSoak && dirToSide.Dot(w - Module.Center) > 0 ? Colors.Safe : Colors.Danger);
+            Arena.AddCircle(w, _radiuses[NumSoaks], shouldSoak && dirToSide.Dot(w - Arena.Center) > 0 ? Colors.Safe : Colors.Danger);
 
         if (!shouldSoak || !_chakramsDone)
-            Arena.AddCircle(Module.Center + SafeSpotOffset(pcOrder, dirToAlex, dirToSide), 1, Colors.Safe);
+            Arena.AddCircle(Arena.Center + SafeSpotOffset(pcOrder, dirToAlex, dirToSide), 1, Colors.Safe);
     }
 
     public override void OnActorCreated(Actor actor)

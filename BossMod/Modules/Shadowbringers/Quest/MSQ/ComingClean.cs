@@ -58,7 +58,7 @@ class UnceremoniousBeheading(BossModule module) : Components.SimpleAOEs(module, 
 class HotPursuit(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HotPursuit1), 5);
 class NexusOfThunder(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.NexusOfThunder), new AOEShapeRect(60, 2.5f));
 class CoiledLevin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CoiledLevin1), 6);
-class LightningVoidzone(BossModule module) : Components.PersistentVoidzone(module, 6, m => m.Enemies(OID.LightningVoidzone).Where(x => x.EventState != 7));
+class LightningVoidzone(BossModule module) : Components.Voidzone(module, 6, m => m.Enemies(OID.LightningVoidzone).Where(x => x.EventState != 7));
 
 class ThancredAI(BossModule module) : RotationModule<AutoThancred>(module);
 
