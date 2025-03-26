@@ -62,8 +62,8 @@ class HydrowaveBait(BossModule module) : Components.BaitAwayTethers(module, new 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (CurrentBaits.Any(x => x.Target == actor))
-            hints.AddForbiddenZone(ShapeDistance.Rect(Arena.Center - new WDir(0f, -18f), Arena.Center - new WDir(0f, 18f), 18), WorldState.FutureTime(ActivationDelay));
+        if (ActiveBaitsOn(actor).Count != 0)
+            hints.AddForbiddenZone(ShapeDistance.Rect(Arena.Center - new WDir(default, -18f), Arena.Center - new WDir(default, 18f), 18f), WorldState.FutureTime(ActivationDelay));
     }
 
     public override void OnUntethered(Actor source, ActorTetherInfo tether) { } // snapshot is ~0.6s after tether disappears

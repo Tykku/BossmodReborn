@@ -2,7 +2,7 @@
 
 class ArenaBounds(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donut = new(28, 34);
+    private static readonly AOEShapeDonut donut = new(28f, 34f);
     private AOEInstance? _aoe;
 
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
@@ -11,15 +11,21 @@ class ArenaBounds(BossModule module) : Components.GenericAOEs(module)
     {
         if (index == 0x39)
         {
-            if (state == 0x02000200)
-                _aoe = new(donut, Arena.Center, default, WorldState.FutureTime(5.8f));
-            if (state is 0x00200010 or 0x00020001)
+            switch (state)
             {
-                Arena.Bounds = A21Nophica.SmallerBounds;
-                _aoe = null;
+                case 0x02000200u:
+                    _aoe = new(donut, Arena.Center, default, WorldState.FutureTime(5.8d));
+                    break;
+                case 0x00200010u:
+                case 0x00020001u:
+                    Arena.Bounds = A21Nophica.SmallerBounds;
+                    _aoe = null;
+                    break;
+                case 0x00080004u:
+                case 0x00400004u:
+                    Arena.Bounds = A21Nophica.DefaultBounds;
+                    break;
             }
-            if (state is 0x00080004 or 0x00400004)
-                Arena.Bounds = A21Nophica.DefaultBounds;
         }
     }
 }

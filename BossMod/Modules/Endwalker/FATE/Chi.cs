@@ -30,8 +30,8 @@ public enum AID : uint
     RearGuns2 = 26524, // Boss->self, 6.0s cast, range 45 180-degree cone
     RearGunsForeArms2dot0 = 25963, // Boss->self, 6.0s cast, range 45 180-degree cone
     ForeArmsRearGuns2dot0 = 25960, // Boss->self, 6.0s cast, range 45 180-degree cone
-    Hellburner = 25971, // Boss->self, no cast, single-target, circle tankbuster
-    Hellburner2 = 25972, // Helper1->players, 5.0s cast, range 5 circle
+    HellburnerVisual = 25971, // Boss->self, no cast, single-target, circle tankbuster
+    Hellburner = 25972, // Helper1->players, 5.0s cast, range 5 circle
     FreeFallBombsVisual = 25967, // Boss->self, no cast, single-target
     FreeFallBombs = 25968, // Helper1->location, 3.0s cast, range 6 circle
     MissileShowerVisual = 25969, // Boss->self, 4.0s cast, single-target
@@ -60,17 +60,29 @@ class Bunkerbuster(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        var max = count > 6 ? 6 : count;
-        var aoes = new AOEInstance[max];
-        for (var i = 0; i < max; ++i)
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
+        var act0 = aoes[0].Activation;
+        var deadline1 = act0.AddSeconds(1d);
+        var deadline2 = act0.AddSeconds(2.5d);
+        var isNotLastSet = aoes[^1].Activation > deadline1;
+        var color = Colors.Danger;
+        var index = 0;
+        for (var i = 0; i < count; ++i)
         {
-            var aoe = _aoes[i];
-            if ((aoe.Activation - _aoes[0].Activation).TotalSeconds < 1d)
-                aoes[i] = count > 3 ? aoe with { Color = Colors.Danger } : aoe;
+            ref var aoe = ref aoes[i];
+            if (aoe.Activation > deadline2)
+                break;
+            if (aoe.Activation < deadline1)
+            {
+                if (isNotLastSet)
+                    aoe.Color = color;
+                aoe.Risky = true;
+            }
             else
-                aoes[i] = aoe;
+                aoe.Risky = false;
+            ++index;
         }
-        return aoes;
+        return aoes[..index];
     }
 
     public override void OnActorCreated(Actor actor)
@@ -104,19 +116,29 @@ class BouncingBomb(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        var max = count is <= 8 or > 9 and not 15 ? count : count == 9 ? 4 : 7;
-        var firstact = _aoes[0].Activation;
-        var lastact = _aoes[count - 1].Activation;
-        var aoes = new AOEInstance[max];
-        for (var i = 0; i < max; ++i)
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
+        var act0 = aoes[0].Activation;
+        var deadline1 = act0.AddSeconds(1d);
+        var deadline2 = act0.AddSeconds(3.5d);
+        var isNotLastSet = aoes[^1].Activation > deadline1;
+        var color = Colors.Danger;
+        var index = 0;
+        for (var i = 0; i < count; ++i)
         {
-            var aoe = _aoes[i];
-            if ((aoe.Activation - firstact).TotalSeconds < 1d)
-                aoes[i] = (lastact - aoe.Activation).TotalSeconds > 1d ? aoe with { Color = Colors.Danger } : aoe;
+            ref var aoe = ref aoes[i];
+            if (aoe.Activation > deadline2)
+                break;
+            if (aoe.Activation < deadline1)
+            {
+                if (isNotLastSet)
+                    aoe.Color = color;
+                aoe.Risky = true;
+            }
             else
-                aoes[i] = aoe with { Risky = false };
+                aoe.Risky = false;
+            ++index;
         }
-        return aoes;
+        return aoes[..index];
     }
 
     public override void OnActorCreated(Actor actor)
@@ -150,14 +172,18 @@ class Combos(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        var aoes = new AOEInstance[count];
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
         for (var i = 0; i < count; ++i)
         {
-            var aoe = _aoes[i];
+            ref var aoe = ref aoes[i];
             if (i == 0)
-                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
+            {
+                if (count > 1)
+                    aoe.Color = Colors.Danger;
+                aoe.Risky = true;
+            }
             else
-                aoes[i] = aoe with { Risky = false };
+                aoe.Risky = false;
         }
         return aoes;
     }
@@ -220,7 +246,7 @@ class Combos(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Hellburner(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.Hellburner2), new AOEShapeCircle(5f), true, tankbuster: true);
+class Hellburner(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.Hellburner), new AOEShapeCircle(5f), true, tankbuster: true);
 
 class MissileShower(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MissileShowerVisual), "Raidwide x2");
 class ThermobaricExplosive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThermobaricExplosive2), 25f);

@@ -50,11 +50,11 @@ class Hotspot(BossModule module) : Components.GenericAOEs(module)
             var helper = Module.Enemies((uint)OID.Helper2);
             var rot = helper.Count != 0 ? Angle.FromDirection(helper[0].Position - Ex7Suzaku.ArenaCenter) : default;
             var roundedrot = (MathF.Round(rot.Deg / 12f) * 12f).Degrees();
-            GetAOES(roundedrot, 5.2d);
+            GetAOES(roundedrot);
         }
     }
 
-    private void GetAOES(Angle startrot, double delay)
+    private void GetAOES(Angle startrot, double delay = default)
     {
         var songs = Module.Enemies(_songs);
         var count = songs.Count;
@@ -64,7 +64,7 @@ class Hotspot(BossModule module) : Components.GenericAOEs(module)
         {
             var song = songs[i];
             var relativeAngle = Angle.FromDirection(song.Position - Ex7Suzaku.ArenaCenter);
-            var index = ((int)MathF.Round((startrot - relativeAngle).Deg / 12) + 30) % 30;
+            var index = ((int)MathF.Round((startrot - relativeAngle).Deg / 12f) + 30) % 30;
             var rot = song.OID switch
             {
                 (uint)OID.SongOfDurance => Angle.AnglesIntercardinals[3],
@@ -83,7 +83,7 @@ class Hotspot(BossModule module) : Components.GenericAOEs(module)
     {
         base.AddAIHints(slot, actor, assignment, hints);
         var count = AOEs.Count;
-        if (count == 16 && NumCasts >= 15 || count == 8 && NumCasts >= 7)
+        if (count == 0 || count == 16 && NumCasts >= 15 || count == 8 && NumCasts >= 7)
             return;
         // force ai to stay close to the borders of the 4 panels since there is usually just 1.2s between hits
         hints.AddForbiddenZone(ShapeDistance.InvertedCross(Ex7Suzaku.ArenaCenter, default, 20f, 1f), DateTime.MaxValue);

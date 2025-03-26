@@ -25,7 +25,7 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
     private readonly DebugTiming _debugTiming = new();
     private readonly DebugTeleport _debugTeleport = new();
     private readonly DebugCollision _debugCollision = new();
-    private readonly DebugQuests _debugQuests = new();
+    // private readonly DebugQuests _debugQuests = new();
 
     protected override void Dispose(bool disposing)
     {
@@ -41,7 +41,7 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
         var playerCID = UIState.Instance()->PlayerState.ContentId;
         var player = Service.ClientState.LocalPlayer;
         ImGui.TextUnformatted($"Current zone: {ws.CurrentZone}, player=0x{(ulong)Utils.GameObjectInternal(player):X}, playerCID={playerCID:X}, pos = {Utils.Vec3String(player?.Position ?? new Vector3())}");
-        ImGui.TextUnformatted($"ID scramble: {Network.IDScramble.Delta} = {*Network.IDScramble.OffsetAdjusted} - {*Network.IDScramble.OffsetBaseFixed} - {*Network.IDScramble.OffsetBaseChanging}");
+        // ImGui.TextUnformatted($"ID scramble: {Network.IDScramble.Delta} = {*Network.IDScramble.OffsetAdjusted} - {*Network.IDScramble.OffsetBaseFixed} - {*Network.IDScramble.OffsetBaseChanging}");
         ImGui.TextUnformatted($"Player mode: {Utils.CharacterInternal(player)->Mode}");
 
         var eventFwk = FFXIVClientStructs.FFXIV.Client.Game.Event.EventFramework.Instance();
@@ -171,10 +171,10 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
         {
             DrawLimitBreak();
         }
-        if (ImGui.CollapsingHeader("Quests"))
-        {
-            _debugQuests.Draw();
-        }
+        // if (ImGui.CollapsingHeader("Quests"))
+        // {
+        //     _debugQuests.Draw();
+        // }
         if (ImGui.CollapsingHeader("Teleport"))
         {
             _debugTeleport.Draw();
@@ -197,6 +197,8 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
             player->GetStatusManager()->SetStatus(20, 911, 20.0f, 50, 0xE0000000, true); // param = distance * 10
         }
 
+        ImGui.TextUnformatted($"Player move speed: {ws.Client.MoveSpeed:f2}");
+
         foreach (var elem in ws.Actors)
         {
             var obj = (elem.InstanceID >> 32) == 0 ? Service.ObjectTable.SearchById((uint)elem.InstanceID) : null;
@@ -207,7 +209,7 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
                     foreach (var status in chara.StatusList)
                     {
                         var src = status.SourceObject != null ? Utils.ObjectString(status.SourceObject) : "none";
-                        ImGui.TextUnformatted($"{status.StatusId} '{status.GameData.Value.Name}': param={status.Param}, stacks={status.StackCount}, time={status.RemainingTime:f2}, source={src}");
+                        ImGui.TextUnformatted($"{status.StatusId} '{status.GameData.Value.Name}': param={status.Param}, stacks={status.Param}, time={status.RemainingTime:f2}, source={src}");
                     }
                 }
                 ImGui.TreePop();

@@ -11,6 +11,7 @@ sealed class AIManagementWindow : UIWindow
     private readonly EventSubscriptions _subscriptions;
     private const string _title = $"AI: off{_windowID}";
     private const string _windowID = "###AI debug window";
+    private static readonly string[] positionals = Enum.GetNames<Positional>();
 
     public AIManagementWindow(AIManager manager) : base(_windowID, false, new(100, 100))
     {
@@ -85,9 +86,8 @@ sealed class AIManagementWindow : UIWindow
         ImGui.Text("Desired positional");
         ImGui.SameLine();
         ImGui.SetNextItemWidth(100);
-        var positionalOptions = Enum.GetNames(typeof(Positional));
         var positionalIndex = (int)_config.DesiredPositional;
-        if (ImGui.Combo("##DesiredPositional", ref positionalIndex, positionalOptions, 4))
+        if (ImGui.Combo("##DesiredPositional", ref positionalIndex, positionals, 4))
         {
             _config.DesiredPositional = (Positional)positionalIndex;
             configModified = true;

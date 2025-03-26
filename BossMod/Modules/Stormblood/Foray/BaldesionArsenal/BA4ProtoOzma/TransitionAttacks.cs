@@ -13,14 +13,14 @@ class TransitionAttacks(BossModule module) : Components.GenericAOEs(module)
         var count = AOEs.Count;
         if (count == 0)
             return [];
-
-        var deadline = AOEs[0].Activation.AddSeconds(1d);
+        var aoes = CollectionsMarshal.AsSpan(AOEs);
+        var deadline = aoes[0].Activation.AddSeconds(1d);
 
         var index = 0;
-        while (index < count && AOEs[index].Activation < deadline)
+        while (index < count && aoes[index].Activation < deadline)
             ++index;
 
-        return CollectionsMarshal.AsSpan(AOEs)[..index];
+        return aoes[..index];
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

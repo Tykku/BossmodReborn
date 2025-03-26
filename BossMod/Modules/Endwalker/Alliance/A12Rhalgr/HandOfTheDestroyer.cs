@@ -3,7 +3,6 @@
 class HandOfTheDestroyer(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
-
     private static readonly AOEShapeRect _shape = new(90f, 20f);
 
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);

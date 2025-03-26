@@ -7,15 +7,20 @@ using System.Threading;
 namespace BossMod;
 
 // a triangle; as basic as it gets
-public readonly record struct RelTriangle(WDir A, WDir B, WDir C);
+public readonly struct RelTriangle(WDir a, WDir b, WDir c)
+{
+    public readonly WDir A = a;
+    public readonly WDir B = b;
+    public readonly WDir C = c;
+}
 
 // a complex polygon that is a single simple-polygon exterior minus 0 or more simple-polygon holes; all edges are assumed to be non intersecting
 // hole-starts list contains starting index of each hole
-public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStarts)
+public class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStarts)
 {
     // constructor for simple polygon
     public RelPolygonWithHoles(List<WDir> simpleVertices) : this(simpleVertices, []) { }
-    public ReadOnlySpan<WDir> AllVertices => Vertices.AsSpan();
+    public ReadOnlySpan<WDir> AllVertices => CollectionsMarshal.AsSpan(Vertices);
     public ReadOnlySpan<WDir> Exterior => AllVertices[..ExteriorEnd];
     public ReadOnlySpan<WDir> Interior(int index) => AllVertices[HoleStarts[index]..HoleEnd(index)];
     public ReadOnlySpan<int> Holes
@@ -23,15 +28,15 @@ public record class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
         get
         {
             var count = HoleStarts.Count;
-            List<int> result = new(count);
+            var result = new int[count];
             for (var i = 0; i < count; ++i)
-                result.Add(i);
-            return result.AsSpan();
+                result[i] = i;
+            return result;
         }
     }
 
-    public List<(WDir, WDir)> ExteriorEdges => PolygonUtil.EnumerateEdges(Exterior);
-    public List<(WDir, WDir)> InteriorEdges(int index) => PolygonUtil.EnumerateEdges(Interior(index));
+    public ReadOnlySpan<(WDir, WDir)> ExteriorEdges => PolygonUtil.EnumerateEdges(Exterior);
+    public ReadOnlySpan<(WDir, WDir)> InteriorEdges(int index) => PolygonUtil.EnumerateEdges(Interior(index));
 
     private EdgeBuckets? _edgeBuckets;
     private const int BucketCount = 20;
@@ -240,7 +245,6 @@ public record class RelSimplifiedComplexPolygon(List<RelPolygonWithHoles> Parts)
 
     // constructors for simple polygon
     public RelSimplifiedComplexPolygon(List<WDir> simpleVertices) : this([new RelPolygonWithHoles(simpleVertices)]) { }
-    public RelSimplifiedComplexPolygon(IEnumerable<WDir> simpleVertices) : this([new RelPolygonWithHoles([.. simpleVertices])]) { }
 
     // build a triangulation of the polygon
     public List<RelTriangle> Triangulate()
@@ -342,14 +346,17 @@ public class PolygonClipper
 
     public static void BuildResult(RelSimplifiedComplexPolygon result, PolyPath64 parent)
     {
-        for (var i = 0; i < parent.Count; ++i)
+        var countP = parent.Count;
+        for (var i = 0; i < countP; ++i)
         {
             var exterior = parent[i];
             if (exterior.Polygon == null || exterior.Polygon.Count == 0)
                 continue;
-            var polygonPoints = new List<WDir>(exterior.Polygon.Count);
+
             var extPolygon = exterior.Polygon;
-            for (var j = 0; j < extPolygon.Count; ++j)
+            var countExt = exterior.Polygon.Count;
+            var polygonPoints = new List<WDir>(countExt);
+            for (var j = 0; j < countExt; ++j)
                 polygonPoints.Add(ConvertPoint(extPolygon[j]));
 
             var poly = new RelPolygonWithHoles(polygonPoints);
@@ -377,18 +384,20 @@ public class PolygonClipper
 
 public static class PolygonUtil
 {
-    public static List<(T, T)> EnumerateEdges<T>(ReadOnlySpan<T> contour) where T : struct, IEquatable<T>
+    public static ReadOnlySpan<(WDir, WDir)> EnumerateEdges(ReadOnlySpan<WDir> contour)
     {
         var count = contour.Length;
-        var result = new List<(T, T)>(count);
         if (count == 0)
-            return result;
+            return [];
 
+        var result = new (WDir, WDir)[count];
         var prev = contour[count - 1];
+
         for (var i = 0; i < count; ++i)
         {
-            result.Add((prev, contour[i]));
-            prev = contour[i];
+            ref readonly var contourI = ref contour[i];
+            result[i] = (prev, contourI);
+            prev = contourI;
         }
         return result;
     }
@@ -510,10 +519,10 @@ public readonly struct PolygonWithHolesDistanceFunction
         for (var i = 0; i < countPolygonParts; ++i)
         {
             var part = polygon.Parts[i];
-            edgeCount += part.ExteriorEdges.Count;
+            edgeCount += part.ExteriorEdges.Length;
             var lenPolygonHoles = part.Holes.Length;
             for (var j = 0; j < lenPolygonHoles; ++j)
-                edgeCount += part.InteriorEdges(j).Count;
+                edgeCount += part.InteriorEdges(j).Length;
         }
         _edges = new Edge[edgeCount];
         var edgeIndex = 0;

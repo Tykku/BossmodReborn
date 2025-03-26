@@ -80,7 +80,7 @@ class TwistingDive(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Turbine(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Turbine), 15f)
+class Turbine(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Turbine), 15f, true)
 {
     private readonly BitingWind _aoe = module.FindComponent<BitingWind>()!;
     private static readonly Angle a20 = 20f.Degrees();

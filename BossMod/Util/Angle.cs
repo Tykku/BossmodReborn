@@ -92,4 +92,5 @@ public static class CosPI
     public const float Pi48th = 1.0021457f; // 1 / Math.Cos(Math.PI / 48)
     public const float Pi60th = 1.0013723f; // 1 / Math.Cos(Math.PI / 60)
     public const float Pi64th = 1.001206f; // 1 / Math.Cos(Math.PI / 64)
+    public const float Pi148th = 1.000225f; // 1 / Math.Cos(Math.PI / 148)
 }

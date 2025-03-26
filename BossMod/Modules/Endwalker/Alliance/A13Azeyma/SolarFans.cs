@@ -13,16 +13,13 @@ class RadiantRhythm(BossModule module) : Components.GenericAOEs(module, ActionID
         if (count == 0)
             return [];
         var max = count > 4 ? 4 : count;
-        var aoes = new AOEInstance[max];
-        for (var i = 0; i < max; ++i)
-        {
-            var aoe = _aoes[i];
-            if (i < 2)
-                aoes[i] = count > 2 ? aoe with { Color = Colors.Danger } : aoe;
-            else
-                aoes[i] = aoe;
-        }
-        return aoes;
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
+        if (count > 2)
+            for (var i = 0; i < 2; ++i)
+            {
+                aoes[i].Color = Colors.Danger;
+            }
+        return aoes[..max];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -46,9 +43,10 @@ class RadiantRhythm(BossModule module) : Components.GenericAOEs(module, ActionID
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
+        base.OnEventCast(caster, spell);
         if (spell.Action.ID == (uint)AID.RadiantFinish)
             _aoes.Clear();
-        else if (_aoes.Count != 0 && spell.Action.ID == (uint)AID.RadiantFlight)
+        else if (_aoes.Count != 0 && spell.Action == WatchedAction)
             _aoes.RemoveAt(0);
     }
 }
@@ -85,7 +83,7 @@ class RadiantFlourish(BossModule module) : Components.GenericAOEs(module)
                 AddAOE(_aoes[1].Origin);
                 _aoes.RemoveRange(0, 2);
 
-                void AddAOE(WPos origin) => _aoes.Add(new(circle, WPos.ClampToGrid(WPos.RotateAroundOrigin(90f, Arena.Center, origin)), default, activation));
+                void AddAOE(WPos origin) => _aoes.Add(new(circle, WPos.ClampToGrid(WPos.RotateAroundOrigin(90f, A13Azeyma.NormalCenter, origin)), default, activation));
             }
         }
     }

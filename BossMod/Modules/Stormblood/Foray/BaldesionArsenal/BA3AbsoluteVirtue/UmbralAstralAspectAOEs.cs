@@ -19,7 +19,6 @@ class BrightDarkAurora(BossModule module) : Components.GenericAOEs(module)
                 break;
             case (uint)AID.BrightAurora1:
             case (uint)AID.BrightAurora2:
-
                 if (caster.FindStatus((uint)SID.AstralEssence) != null)
                     AddAOE();
                 break;

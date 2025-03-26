@@ -115,16 +115,6 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
         return ScreenHalfSize * RotatedCoords(new(worldOffset.X, worldOffset.Z)) / _bounds.Radius;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Vector2 TransformCoords(WDir worldOffset, float screenHalfSize, float cosAzimuth, float sinAzimuth, float invRadius)
-    {
-        var x0 = worldOffset.X;
-        var z0 = worldOffset.Z;
-        var x = x0 * cosAzimuth - z0 * sinAzimuth;
-        var z = z0 * cosAzimuth + x0 * sinAzimuth;
-        return screenHalfSize * new Vector2(x, z) * invRadius;
-    }
-
     // unclipped primitive rendering that accept world-space positions; thin convenience wrappers around drawlist api
     public void AddLine(WPos a, WPos b, uint color = 0, float thickness = 1)
     {
@@ -307,8 +297,8 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
         var drawlist = ImGui.GetWindowDrawList();
         var restoreFlags = drawlist.Flags;
         drawlist.Flags &= ~ImDrawListFlags.AntiAliasedFill;
-
-        var count = triangulation.Count;
+        var triangles = CollectionsMarshal.AsSpan(triangulation);
+        var len = triangles.Length;
         var col = color != 0 ? color : Colors.AOE;
         var center = ScreenCenter;
 
@@ -317,16 +307,25 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
         var screenHalfSize = ScreenHalfSize;
         var invRadius = 1f / _bounds.Radius;
 
-        for (var i = 0; i < count; ++i)
+        for (var i = 0; i < len; ++i)
         {
-            var tri = triangulation[i];
-            var a = TransformCoords(tri.A, screenHalfSize, cosAzimuth, sinAzimuth, invRadius);
-            var b = TransformCoords(tri.B, screenHalfSize, cosAzimuth, sinAzimuth, invRadius);
-            var c = TransformCoords(tri.C, screenHalfSize, cosAzimuth, sinAzimuth, invRadius);
+            ref readonly var tri = ref triangles[i];
+            var a = TransformCoords(tri.A);
+            var b = TransformCoords(tri.B);
+            var c = TransformCoords(tri.C);
             drawlist.AddTriangleFilled(center + a, center + b, center + c, col);
         }
 
         drawlist.Flags = restoreFlags;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        Vector2 TransformCoords(WDir worldOffset)
+        {
+            var x0 = worldOffset.X;
+            var z0 = worldOffset.Z;
+            var x = x0 * cosAzimuth - z0 * sinAzimuth;
+            var z = z0 * cosAzimuth + x0 * sinAzimuth;
+            return screenHalfSize * new Vector2(x, z) * invRadius;
+        }
     }
 
     // draw zones - these are filled primitives clipped to arena border; note that triangulation is cached
@@ -390,15 +389,17 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
     public void Border(uint color)
     {
         var dl = ImGui.GetWindowDrawList();
-        var count = _bounds.ShapeSimplified.Parts.Count;
+        var parts = _bounds.ShapeSimplified.Parts;
+        var count = parts.Count;
         for (var i = 0; i < count; ++i)
         {
-            var part = _bounds.ShapeSimplified.Parts[i];
+            var part = parts[i];
             Vector2? lastPoint = null;
-            var exteriorLen = part.Exterior.Length;
+            var partExt = part.Exterior;
+            var exteriorLen = partExt.Length;
             for (var j = 0; j < exteriorLen; ++j)
             {
-                var offset = part.Exterior[j];
+                var offset = partExt[j];
                 var currentPoint = ScreenCenter + WorldOffsetToScreenOffset(offset);
                 if (lastPoint != currentPoint)
                     dl.PathLineTo(currentPoint);
@@ -406,13 +407,13 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
             }
 
             dl.PathStroke(color, ImDrawFlags.Closed, 2);
-
-            var lenHoles = part.Holes.Length;
+            var holes = part.Holes;
+            var lenHoles = holes.Length;
             for (var l = 0; l < lenHoles; ++l)
             {
                 lastPoint = null;
 
-                var holeInteriorPoints = part.Interior(part.Holes[l]);
+                var holeInteriorPoints = part.Interior(holes[l]);
                 var interiorLen = holeInteriorPoints.Length;
                 for (var k = 0; k < interiorLen; ++k)
                 {

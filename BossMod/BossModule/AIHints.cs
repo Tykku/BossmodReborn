@@ -416,6 +416,7 @@ public sealed class AIHints
             return maxWeight * weight;
         };
     }
+    public Func<WPos, float> GoalProximity(Actor target, float range, float weight = 1f) => GoalProximity(target.Position, range + target.HitboxRadius, weight);
 
     public Func<WPos, float> PullTargetToLocation(Actor target, WPos destination, float destRadius = 2)
     {

@@ -91,7 +91,20 @@ public static class Intersect
         var u = lineDir.Dot(p - oa);
         return u >= 0 && u <= lineDir.LengthSq() ? t : float.MaxValue;
     }
-    public static float RaySegments(WDir rayOriginOffset, WDir rayDir, IEnumerable<(WDir, WDir)> edges) => edges.Min(e => RaySegment(rayOriginOffset, rayDir, e.Item1, e.Item2));
+
+    public static float RaySegments(WDir rayOriginOffset, WDir rayDir, ReadOnlySpan<(WDir, WDir)> edges)
+    {
+        var minValue = float.MaxValue;
+        var len = edges.Length;
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var edge = ref edges[i];
+            var result = RaySegment(rayOriginOffset, rayDir, edge.Item1, edge.Item2);
+            if (result < minValue)
+                minValue = result;
+        }
+        return minValue;
+    }
 
     public static float RaySegment(WPos rayOrigin, WDir rayDir, WPos vertexA, WPos vertexB)
     {
@@ -104,14 +117,33 @@ public static class Intersect
         var u = lineDir.Dot(p - vertexA);
         return u >= 0 && u <= lineDir.LengthSq() ? t : float.MaxValue;
     }
+
     public static float RayPolygon(WDir rayOriginOffset, WDir rayDir, RelPolygonWithHoles poly)
     {
         var dist = RaySegments(rayOriginOffset, rayDir, poly.ExteriorEdges);
-        foreach (var h in poly.Holes)
-            dist = Math.Min(dist, RaySegments(rayOriginOffset, rayDir, poly.InteriorEdges(h)));
+        var len = poly.Holes.Length;
+        for (var i = 0; i < len; ++i)
+        {
+            dist = Math.Min(dist, RaySegments(rayOriginOffset, rayDir, poly.InteriorEdges(poly.Holes[i])));
+        }
         return dist;
     }
-    public static float RayPolygon(WDir rayOriginOffset, WDir rayDir, RelSimplifiedComplexPolygon poly) => poly.Parts.Min(part => RayPolygon(rayOriginOffset, rayDir, part));
+
+    public static float RayPolygon(WDir rayOriginOffset, WDir rayDir, RelSimplifiedComplexPolygon poly)
+    {
+        var minDistance = float.MaxValue;
+        var parts = poly.Parts;
+        var count = parts.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var distance = RayPolygon(rayOriginOffset, rayDir, parts[i]);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+            }
+        }
+        return minDistance;
+    }
 
     // circle-shape intersections; they return true if shapes intersect or touch, false otherwise
     // these are used e.g. for player-initiated aoes

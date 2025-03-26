@@ -58,9 +58,9 @@ public sealed class WorldState
         var actors = Actors.CompareToInitial();
         var party = Party.CompareToInitial();
         var client = Client.CompareToInitial();
-        var network = Network.CompareToInitial();
+        // var network = Network.CompareToInitial();
         var deepdungeon = DeepDungeon.CompareToInitial();
-        List<Operation> ops = new(RSVEntries.Count + waymarks.Count + actors.Count + party.Count + client.Count + network.Count + deepdungeon.Count + 2);
+        List<Operation> ops = new(RSVEntries.Count + waymarks.Count + actors.Count + party.Count + client.Count + deepdungeon.Count + 2); // todo add network back
 
         if (CurrentTime != default)
             ops.Add(new OpFrameStart(Frame, default, Client.GaugePayload, Client.CameraAzimuth));
@@ -72,7 +72,7 @@ public sealed class WorldState
         ops.AddRange(actors);
         ops.AddRange(party);
         ops.AddRange(client);
-        ops.AddRange(network);
+        // ops.AddRange(network);
         ops.AddRange(deepdungeon);
         return ops;
     }

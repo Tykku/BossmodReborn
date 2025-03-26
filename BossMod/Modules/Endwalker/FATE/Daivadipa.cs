@@ -60,16 +60,14 @@ class LitPath(BossModule module) : Components.GenericAOEs(module)
         var count = AOEs.Count;
         if (count == 0)
             return [];
-        var max = count > 3 ? 3 : count;
-        var firstact = AOEs[0].Activation;
-        List<AOEInstance> aoes = new(max);
-        for (var i = 0; i < max; ++i) // either 2 or 3 AOEs in a wave, no need to iterate on all 5
-        {
-            var aoe = AOEs[i];
-            if ((aoe.Activation - firstact).TotalSeconds < 1d)
-                aoes.Add(aoe);
-        }
-        return CollectionsMarshal.AsSpan(aoes);
+        var aoes = CollectionsMarshal.AsSpan(AOEs);
+        var deadline = aoes[0].Activation.AddSeconds(1d);
+
+        var index = 0;
+        while (index < count && aoes[index].Activation < deadline)
+            ++index;
+
+        return aoes[..index];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

@@ -13,7 +13,6 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.Interop;
-using System.Text;
 
 namespace BossMod;
 
@@ -72,6 +71,8 @@ sealed class WorldStateGameSync : IDisposable
     private unsafe delegate void* ProcessPacketFateInfoDelegate(ulong fateId, long startTimestamp, ulong durationSecs);
     private readonly Hook<ProcessPacketFateInfoDelegate> _processPacketFateInfoHook;
 
+    private readonly unsafe delegate* unmanaged<ContainerInterface*, float> _calculateMoveSpeedMulti;
+
     public unsafe WorldStateGameSync(WorldState ws, ActionManagerEx amex)
     {
         _ws = ws;
@@ -121,7 +122,7 @@ sealed class WorldStateGameSync : IDisposable
         _processPacketRSVDataHook.Enable();
         Service.Log($"[WSG] ProcessPacketRSVData address = 0x{_processPacketRSVDataHook.Address:X}");
 
-        _processSystemLogMessageHook = Service.Hook.HookFromSignature<ProcessSystemLogMessageDelegate>("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 0F B6 43 28", ProcessSystemLogMessageDetour);
+        _processSystemLogMessageHook = Service.Hook.HookFromSignature<ProcessSystemLogMessageDelegate>("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 0F B6 46 28", ProcessSystemLogMessageDetour);
         _processSystemLogMessageHook.Enable();
         Service.Log($"[WSG] ProcessSystemLogMessage address = 0x{_processSystemLogMessageHook.Address:X}");
 
@@ -129,9 +130,12 @@ sealed class WorldStateGameSync : IDisposable
         _processPacketOpenTreasureHook.Enable();
         Service.Log($"[WSG] ProcessPacketOpenTreasure address = 0x{_processPacketOpenTreasureHook.Address:X}");
 
-        _processPacketFateInfoHook = Service.Hook.HookFromSignature<ProcessPacketFateInfoDelegate>("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 0F B7 4B 10 48 8D 53 12 41 B8 ?? ?? ?? ??", ProcessPacketFateInfoDetour);
+        _processPacketFateInfoHook = Service.Hook.HookFromSignature<ProcessPacketFateInfoDelegate>("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 0F B7 4E 10 48 8D 56 12 41 B8 ?? ?? ?? ??", ProcessPacketFateInfoDetour);
         _processPacketFateInfoHook.Enable();
         Service.Log($"[WSG] ProcessPacketFateInfo address = 0x{_processPacketFateInfoHook.Address:X}");
+
+        _calculateMoveSpeedMulti = (delegate* unmanaged<ContainerInterface*, float>)Service.SigScanner.ScanText("E8 ?? ?? ?? ?? 44 0F 28 D8 45 0F 57 D2");
+        Service.Log($"[WSG] CalculateMovementSpeedMultiplier address = 0x{(nint)_calculateMoveSpeedMulti:X}");
     }
 
     public void Dispose()
@@ -172,10 +176,10 @@ sealed class WorldStateGameSync : IDisposable
         {
             _ws.Execute(new WorldState.OpZoneChange(Service.ClientState.TerritoryType, GameMain.Instance()->CurrentContentFinderConditionId));
         }
-        if (_ws.Network.IDScramble != Network.IDScramble.Delta)
-        {
-            _ws.Execute(new NetworkState.OpIDScramble(Network.IDScramble.Delta));
-        }
+        // if (_ws.Network.IDScramble != Network.IDScramble.Delta)
+        // {
+        //     _ws.Execute(new NetworkState.OpIDScramble(Network.IDScramble.Delta));
+        // }
 
         for (var i = 0; i < _globalOps.Count; ++i)
         {
@@ -615,6 +619,12 @@ sealed class WorldStateGameSync : IDisposable
             _ws.Execute(new PartyState.OpModify(slot, m));
     }
 
+    [StructLayout(LayoutKind.Explicit)]
+    private unsafe struct CharacterContainer
+    {
+        [FieldOffset(0x8)] public Character* Character;
+    }
+
     private unsafe void UpdateClient()
     {
         var countdownAgent = AgentCountDownSettingDialog.Instance();
@@ -634,6 +644,17 @@ sealed class WorldStateGameSync : IDisposable
         var stats = new ClientState.Stats(uiState->PlayerState.Attributes[45], uiState->PlayerState.Attributes[46], uiState->PlayerState.Attributes[47]);
         if (_ws.Client.PlayerStats != stats)
             _ws.Execute(new ClientState.OpPlayerStatsChange(stats));
+
+        var pc = (Character*)GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
+        if (pc != null)
+        {
+            var baseSpeed = *(float*)((nint)Control.Instance() + 0x7108);
+            var c8 = new CharacterContainer() { Character = pc };
+            var factor = _calculateMoveSpeedMulti((ContainerInterface*)&c8);
+            var speed = baseSpeed * factor;
+            if (_ws.Client.MoveSpeed != speed)
+                _ws.Execute(new ClientState.OpMoveSpeedChange(speed));
+        }
 
         Span<Cooldown> cooldowns = stackalloc Cooldown[_ws.Client.Cooldowns.Length];
         _amex.GetCooldowns(cooldowns);

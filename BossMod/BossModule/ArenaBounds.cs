@@ -231,14 +231,13 @@ public record class ArenaBoundsCustom : ArenaBounds
         poly = Poly;
 
         var edgeList = new List<(WDir, WDir)>();
-        var count = Poly.Parts.Count;
+        var parts = Poly.Parts;
+        var count = parts.Count;
         for (var i = 0; i < count; ++i)
         {
-            var part = Poly.Parts[i];
+            var part = parts[i];
             edgeList.AddRange(part.ExteriorEdges);
             var len = part.Holes.Length;
-            if (len == 0)
-                continue;
             for (var j = 0; j < len; ++j)
             {
                 edgeList.AddRange(part.InteriorEdges(j));
@@ -301,14 +300,16 @@ public record class ArenaBoundsCustom : ArenaBounds
         if (HalfHeight == default) // calculate bounding box if not already done by ArenaBoundsComplex to reduce amount of point in polygon tests
         {
             float minX = float.MaxValue, maxX = float.MinValue, minZ = float.MaxValue, maxZ = float.MinValue;
-            var count = polygon.Parts.Count;
+            var parts = polygon.Parts;
+            var count = parts.Count;
             for (var i = 0; i < count; ++i)
             {
-                var part = polygon.Parts[i];
-                var len = part.Exterior.Length;
+                var part = parts[i];
+                var exterior = part.Exterior;
+                var len = exterior.Length;
                 for (var j = 0; j < len; ++j)
                 {
-                    var vertex = part.Exterior[j];
+                    var vertex = exterior[j];
                     var vertexX = vertex.X;
                     var vertexZ = vertex.Z;
                     if (vertex.X < minX)
@@ -329,7 +330,9 @@ public record class ArenaBoundsCustom : ArenaBounds
         var width = map.Width;
         var height = map.Height;
         var resolution = map.Resolution;
-        map.BlockPixelsInside(new PolygonWithHolesDistanceFunction(default, poly).InvertedDistance, -1f, 0.49999f * resolution); // check inner circle of the pixel
+        var shapeDistance = new PolygonWithHolesDistanceFunction(default, poly);
+        ref readonly var distance = ref shapeDistance;
+        map.BlockPixelsInside(distance.InvertedDistance, -1f, 0.49999f * resolution); // check inner circle of the pixel
         // now check the corners
         var halfSample = resolution * 0.49999f; // tiny offset to account for floating point inaccuracies
 
@@ -409,27 +412,33 @@ public sealed record class ArenaBoundsComplex : ArenaBoundsCustom
         var combinedPoly = CombinePolygons(unionPolygons, differencePolygons, additionalPolygons);
 
         float minX = float.MaxValue, maxX = float.MinValue, minZ = float.MaxValue, maxZ = float.MinValue;
-
-        for (var i = 0; i < combinedPoly.Parts.Count; ++i)
+        var combined = combinedPoly.Parts;
+        var countCombined = combined.Count;
+        for (var i = 0; i < countCombined; ++i)
         {
-            var part = combinedPoly.Parts[i];
-            for (var j = 0; j < part.Exterior.Length; ++j)
+            var parts = combined[i].Exterior;
+            var len = parts.Length;
+            for (var j = 0; j < len; ++j)
             {
-                var vertex = part.Exterior[j];
-                if (vertex.X < minX)
-                    minX = vertex.X;
-                if (vertex.X > maxX)
-                    maxX = vertex.X;
-                if (vertex.Z < minZ)
-                    minZ = vertex.Z;
-                if (vertex.Z > maxZ)
-                    maxZ = vertex.Z;
+                var vertex = parts[j];
+                var vX = vertex.X;
+                var vZ = vertex.Z;
+                if (vX < minX)
+                    minX = vX;
+                if (vX > maxX)
+                    maxX = vX;
+                if (vZ < minZ)
+                    minZ = vZ;
+                if (vZ > maxZ)
+                    maxZ = vZ;
             }
         }
 
         var center = new WPos((minX + maxX) * 0.5f, (minZ + maxZ) * 0.5f);
-        var maxDistX = Math.Max(Math.Abs(maxX - center.X), Math.Abs(minX - center.X));
-        var maxDistZ = Math.Max(Math.Abs(maxZ - center.Z), Math.Abs(minZ - center.Z));
+        var centerX = center.X;
+        var centerZ = center.Z;
+        var maxDistX = Math.Max(Math.Abs(maxX - centerX), Math.Abs(minX - centerX));
+        var maxDistZ = Math.Max(Math.Abs(maxZ - centerZ), Math.Abs(minZ - centerZ));
         var halfWidth = (maxX - minX) * 0.5f;
         var halfHeight = (maxZ - minZ) * 0.5f;
 
@@ -444,15 +453,18 @@ public sealed record class ArenaBoundsComplex : ArenaBoundsCustom
         var operandDifference = new PolygonClipper.Operand();
         var operandSecondUnion = new PolygonClipper.Operand();
 
-        for (var i = 0; i < unionPolygons.Length; ++i)
+        var unionLen = unionPolygons.Length;
+        for (var i = 0; i < unionLen; ++i)
             operandUnion.AddPolygon(unionPolygons[i]);
-        for (var i = 0; i < differencePolygons.Length; ++i)
+        var differenceLen = differencePolygons.Length;
+        for (var i = 0; i < differenceLen; ++i)
             operandDifference.AddPolygon(differencePolygons[i]);
-        for (var i = 0; i < secondUnionPolygons.Length; ++i)
+        var secUnionLen = secondUnionPolygons.Length;
+        for (var i = 0; i < secUnionLen; ++i)
             operandSecondUnion.AddPolygon(secondUnionPolygons[i]);
 
         var combinedShape = clipper.Difference(operandUnion, operandDifference);
-        if (secondUnionPolygons.Length != 0)
+        if (secUnionLen != 0)
             combinedShape = clipper.Union(new PolygonClipper.Operand(combinedShape), operandSecondUnion);
 
         return combinedShape;

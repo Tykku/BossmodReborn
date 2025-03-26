@@ -158,19 +158,24 @@ class FlameBlast(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        var compare = count > 5 && _aoes[0].Rotation.AlmostEqual(_aoes[5].Rotation, Angle.DegToRad);
         var max = count > 10 ? 10 : count;
-        var aoes = new AOEInstance[max];
-
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
         for (var i = 0; i < max; ++i)
         {
-            var aoe = _aoes[i];
+            ref var aoe = ref aoes[i];
             if (i < 5)
-                aoes[i] = count > 5 ? aoe with { Color = Colors.Danger } : aoe;
+            {
+                if (count > 5)
+                    aoe.Color = Colors.Danger;
+                aoe.Risky = true;
+            }
             else
-                aoes[i] = compare ? aoe with { Risky = false } : aoe;
+            {
+                if (aoes[0].Rotation.AlmostEqual(aoes[5].Rotation, Angle.DegToRad))
+                    aoe.Risky = false;
+            }
         }
-        return aoes;
+        return aoes[..max];
     }
 
     public override void OnActorCreated(Actor actor)
@@ -196,14 +201,14 @@ class Firestorm(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         if (count == 0)
             return [];
-
-        var deadline = _aoes[0].Activation.AddSeconds(1d);
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
+        var deadline = aoes[0].Activation.AddSeconds(1d);
 
         var index = 0;
-        while (index < count && _aoes[index].Activation < deadline)
+        while (index < count && aoes[index].Activation < deadline)
             ++index;
 
-        return CollectionsMarshal.AsSpan(_aoes)[..index];
+        return aoes[..index];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

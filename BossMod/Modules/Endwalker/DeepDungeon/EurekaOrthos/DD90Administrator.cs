@@ -56,21 +56,29 @@ class AetheroChemicalLaserCombo(BossModule module) : Components.GenericAOEs(modu
         var count = AOEs.Count;
         if (count == 0)
             return [];
-        var aoes = new AOEInstance[count];
-        var act0 = AOEs[0].Activation;
+        var aoes = CollectionsMarshal.AsSpan(AOEs);
+        var act0 = aoes[0].Activation;
+        var deadline1 = act0.AddSeconds(1d);
+        var deadline2 = act0.AddSeconds(5d);
+        var isNotLastSet = aoes[^1].Activation > deadline1;
         var color = Colors.Danger;
         var index = 0;
         for (var i = 0; i < count; ++i)
         {
-            var aoe = AOEs[i];
-            var act = aoe.Activation;
-            var total = (act - act0).TotalSeconds;
-            var comp = total < 1d;
-            if (total > 5d)
+            ref var aoe = ref aoes[i];
+            if (aoe.Activation > deadline2)
                 break;
-            aoes[index++] = aoe with { Color = comp ? color : 0, Risky = comp };
+            if (aoe.Activation < deadline1)
+            {
+                if (isNotLastSet)
+                    aoe.Color = color;
+                aoe.Risky = true;
+            }
+            else
+                aoe.Risky = false;
+            ++index;
         }
-        return aoes.AsSpan()[..index];
+        return aoes[..index];
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)

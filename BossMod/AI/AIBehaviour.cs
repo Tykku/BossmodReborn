@@ -153,20 +153,22 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
             return new() { LeewaySeconds = float.MaxValue };
 
         Actor? forceDestination = null;
-        var forceDestinationRange = _config.MaxDistanceToSlot;
         var interactTarget = autorot.Hints.InteractWithTarget;
         if (_followMaster)
             forceDestination = master;
         else if (interactTarget != null)
         {
             forceDestination = interactTarget;
-            forceDestinationRange = 3.5f;
         }
 
         _followMaster = interactTarget == null && (_config.FollowDuringCombat || !master.InCombat || (_masterPrevPos - _masterMovementStart).LengthSq() > 100f) && (_config.FollowDuringActiveBossModule || autorot.Bossmods.ActiveModule?.StateMachine.ActiveState == null) && (_config.FollowOutOfCombat || master.InCombat);
 
         if (_followMaster && AIPreset == null)
         {
+            if (forceDestination != null && forceDestination.OID != 0u && autorot.Hints.PathfindMapBounds.Contains(forceDestination.Position - autorot.Hints.PathfindMapCenter))
+            {
+                autorot.Hints.GoalZones.Add(autorot.Hints.GoalProximity(forceDestination, 3.5f, 100f));
+            }
             var target = autorot.WorldState.Actors.Find(player.TargetID);
             if (!_config.FollowTarget || _config.FollowTarget && target == null)
                 autorot.Hints.GoalZones.Add(autorot.Hints.GoalSingleTarget(master, Positional.Any, _config.MaxDistanceToSlot - 0.5f));
@@ -181,8 +183,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         }
         if (forceDestination != null && autorot.Hints.PathfindMapBounds.Contains(forceDestination.Position - autorot.Hints.PathfindMapCenter))
         {
-            autorot.Hints.GoalZones.Clear();
-            autorot.Hints.GoalZones.Add(autorot.Hints.GoalSingleTarget(forceDestination, forceDestinationRange));
+            autorot.Hints.GoalZones.Add(autorot.Hints.GoalProximity(forceDestination, 3.5f, 100f));
             return await Task.Run(() => NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player)).ConfigureAwait(false);
         }
 
@@ -248,16 +249,23 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
             float CalculateUnobstructedPathLength(Angle dir)
             {
                 var start = _naviCtx.Map.WorldToGrid(player.Position);
-                if (!_naviCtx.Map.InBounds(start.x, start.y))
-                    return 0;
+                var startx = start.x;
+                var starty = start.y;
+                if (!_naviCtx.Map.InBounds(startx, starty))
+                    return 0f;
 
                 var end = _naviCtx.Map.WorldToGrid(player.Position + 100f * dir.ToDirection());
-                var startG = _naviCtx.Map.PixelMaxG[_naviCtx.Map.GridToIndex(start.x, start.y)];
-                foreach (var p in _naviCtx.Map.EnumeratePixelsInLine(start.x, start.y, end.x, end.y))
+                var startG = _naviCtx.Map.PixelMaxG[_naviCtx.Map.GridToIndex(startx, starty)];
+                var pixels = _naviCtx.Map.EnumeratePixelsInLine(startx, starty, end.x, end.y);
+                var len = pixels.Length;
+                for (var i = 0; i < len; ++i)
                 {
-                    if (!_naviCtx.Map.InBounds(p.x, p.y) || _naviCtx.Map.PixelMaxG[_naviCtx.Map.GridToIndex(p.x, p.y)] < startG)
+                    ref readonly var p = ref pixels[i];
+                    var px = p.x;
+                    var py = p.y;
+                    if (!_naviCtx.Map.InBounds(px, py) || _naviCtx.Map.PixelMaxG[_naviCtx.Map.GridToIndex(px, py)] < startG)
                     {
-                        var dest = _naviCtx.Map.GridToWorld(p.x, p.y, 0.5f, 0.5f);
+                        var dest = _naviCtx.Map.GridToWorld(px, py, 0.5f, 0.5f);
                         return (dest - player.Position).LengthSq();
                     }
                 }

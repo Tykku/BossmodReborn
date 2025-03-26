@@ -125,26 +125,11 @@ class SummoningNodeStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, GroupType = BossModuleInfo.GroupType.Quest, GroupID = 68165, NameID = 6695)]
-public class SummoningNode(WorldState ws, Actor primary) : BossModule(ws, primary, new(-111, -295), ArenaBounds)
+public class SummoningNode(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WDir> vertices = [
-        new(-4.5f, 22.66f),
-        new(4.5f, 22.66f),
-        new(18f, 14.75f),
-        new(22.2f, 7.4f),
-        new(22.7f, 7.4f),
-        new(22.7f, -7.4f),
-        new(22.2f, -7.4f),
-        new(18.15f, -15.77f),
-        new(4.5f, -23.68f),
-        new(-4.5f, -23.68f),
-        new(-18.15f, -15.77f),
-        new(-22.2f, -7.4f),
-        new(-22.7f, -7.4f),
-        new(-22.7f, 6.4f),
-        new(-22.2f, 6.4f),
-        new(-18f, 14.75f)
-    ];
-
-    public static readonly ArenaBoundsCustom ArenaBounds = new(30, new(vertices));
+    private static readonly WPos[] vertices = [new(-115.5f, -272.34f), new(-106.5f, -272.34f), new(-93f, -280.25f),
+    new(-88.8f, -287.6f), new(-88.3f, -287.6f), new(-88.3f, -302.4f), new(-88.8f, -302.4f), new(-92.85f, -310.77f),
+    new(-106.5f, -318.68f), new(-115.5f, -318.68f), new(-129.15f, -310.77f), new(-133.2f, -302.4f), new(-133.7f, -302.4f),
+    new(-133.7f, -288.6f), new(-133.2f, -288.6f), new(-129f, -280.25f)];
+    private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
 }

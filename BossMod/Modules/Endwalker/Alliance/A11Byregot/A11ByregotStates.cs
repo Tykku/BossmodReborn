@@ -65,9 +65,9 @@ class A11ByregotStates : StateMachineBuilder
     {
         Cast(id, AID.BuilderBuild, delay, 3f);
         Cast(id + 0x10, AID.ByregotStrikeJumpCone, 2.6f, 6f);
-        ComponentCondition<ByregotStrikeCone>(id + 0x20u, 0.9f, comp => comp.NumCasts != 0, "Cones")
-            .ResetComp<ByregotStrikeCone>();
+        ComponentCondition<ByregotStrikeCone>(id + 0x20u, 0.9f, comp => comp.NumCasts != 0, "Cones");
         ComponentCondition<ByregotStrikeKnockback>(id + 0x21u, 0.1f, comp => comp.NumCasts != 0, "Knockback")
+            .ResetComp<ByregotStrikeCone>()
             .ResetComp<ByregotStrikeKnockback>();
     }
 

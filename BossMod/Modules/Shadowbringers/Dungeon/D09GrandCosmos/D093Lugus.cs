@@ -239,10 +239,11 @@ class FiresDomain(BossModule module) : Components.GenericBaitAway(module)
         var count = CurrentBaits.Count;
         if (count == 0)
             return;
+        var baits = CollectionsMarshal.AsSpan(CurrentBaits);
         for (var i = 0; i < count; ++i)
         {
-            var b = CurrentBaits[i];
-            CurrentBaits[i] = b with { Shape = rect with { LengthFront = (b.Target.Position - b.Source.Position).Length() } };
+            ref var b = ref baits[i];
+            b.Shape = rect with { LengthFront = (b.Target.Position - b.Source.Position).Length() };
         }
     }
 }

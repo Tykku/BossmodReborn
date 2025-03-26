@@ -49,6 +49,7 @@ public sealed class ClientState
     public float AnimationLock;
     public Combo ComboState;
     public Stats PlayerStats;
+    public float MoveSpeed = 6f;
     public readonly Cooldown[] Cooldowns = new Cooldown[NumCooldownGroups];
     public readonly DutyAction[] DutyActions = new DutyAction[2];
     public readonly byte[] BozjaHolster = new byte[(int)BozjaHolsterID.Count]; // number of copies in holster per item
@@ -91,7 +92,7 @@ public sealed class ClientState
 
     public List<WorldState.Operation> CompareToInitial()
     {
-        List<WorldState.Operation> ops = new(13);
+        List<WorldState.Operation> ops = new(14);
         if (CountdownRemaining != null)
             ops.Add(new OpCountdownChange(CountdownRemaining));
 
@@ -103,6 +104,9 @@ public sealed class ClientState
 
         if (PlayerStats != default)
             ops.Add(new OpPlayerStatsChange(PlayerStats));
+
+        if (MoveSpeed != 6f)
+            ops.Add(new OpMoveSpeedChange(MoveSpeed));
 
         var cdlen = Cooldowns.Length;
         if (cdlen != 0)
@@ -280,6 +284,17 @@ public sealed class ClientState
             ws.Client.PlayerStatsChanged.Fire(this);
         }
         public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("CLST"u8).Emit(Value.SkillSpeed).Emit(Value.SpellSpeed).Emit(Value.Haste);
+    }
+
+    public Event<OpMoveSpeedChange> MoveSpeedChanged = new();
+    public sealed record class OpMoveSpeedChange(float Speed) : WorldState.Operation
+    {
+        protected override void Exec(ref WorldState ws)
+        {
+            ws.Client.MoveSpeed = Speed;
+            ws.Client.MoveSpeedChanged.Fire(this);
+        }
+        public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("CLMV"u8).Emit(Speed);
     }
 
     public Event<OpCooldown> CooldownsChanged = new();

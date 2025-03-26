@@ -7,13 +7,13 @@ class Phaser(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpe
         var count = Casters.Count;
         if (count == 0)
             return [];
-
-        var deadline = Casters[0].Activation.AddSeconds(1d);
+        var aoes = CollectionsMarshal.AsSpan(Casters);
+        var deadline = aoes[0].Activation.AddSeconds(1d);
 
         var index = 0;
-        while (index < count && Casters[index].Activation < deadline)
+        while (index < count && aoes[index].Activation < deadline)
             ++index;
 
-        return CollectionsMarshal.AsSpan(Casters)[..index];
+        return aoes[..index];
     }
 }

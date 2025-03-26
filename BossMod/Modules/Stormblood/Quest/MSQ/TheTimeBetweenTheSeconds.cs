@@ -77,8 +77,8 @@ class P2Boss(BossModule module) : BossComponent(module)
 {
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actors(Module.Enemies(OID.ZenosYaeGalvus1));
-        Arena.Actors(Module.Enemies(OID.DarkReflection));
+        Arena.Actors(Module.Enemies((uint)OID.ZenosYaeGalvus1));
+        Arena.Actors(Module.Enemies((uint)OID.DarkReflection));
     }
 }
 
@@ -89,7 +89,7 @@ class ZenosYaeGalvusStates : StateMachineBuilder
         SimplePhase(0, id => BuildState(id, ""), "P1")
             .Raw.Update = () => !Module.PrimaryActor.IsTargetable;
         SimplePhase(1, id => BuildState(id, "").ActivateOnEnter<ArtOfTheSword>().ActivateOnEnter<P2Boss>(), "P2")
-            .Raw.Update = () => Module.Enemies(OID.ZenosYaeGalvus1).Count == 0;
+            .Raw.Update = () => Module.Enemies((uint)OID.ZenosYaeGalvus1).Count == 0;
     }
 
     private State BuildState(uint id, string name, float duration = 10000)
@@ -103,12 +103,8 @@ class ZenosYaeGalvusStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, GroupType = BossModuleInfo.GroupType.Quest, GroupID = 68034, NameID = 5954)]
-public class ZenosYaeGalvus(WorldState ws, Actor primary) : BossModule(ws, primary, new(-247, 546.5f), CustomBounds)
+public class ZenosYaeGalvus(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly List<WDir> vertices = [
-        new(-226.91f, 523.65f), new(-254.46f, 524.46f), new(-254.66f, 541.06f), new(-269.99f, 544.12f), new(-269.58f, 565.97f), new(-254.58f, 565.89f), new(-249.05f, 554.06f), new(-229.18f, 562.35f)
-];
-
-    public static readonly ArenaBoundsCustom CustomBounds = new(25, new(vertices.Select(v => v - new WDir(-247, 546.5f))));
+    private static readonly ArenaBoundsComplex arena = new([new PolygonCustom([new(-226.91f, 523.65f), new(-254.46f, 524.46f), new(-254.66f, 541.06f), new(-269.99f, 544.12f),
+    new(-269.58f, 565.97f), new(-254.58f, 565.89f), new(-249.05f, 554.06f), new(-229.18f, 562.35f)])]);
 }
-

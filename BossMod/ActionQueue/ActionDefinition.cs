@@ -382,7 +382,7 @@ public sealed class ActionDefinitions : IDisposable
         _ => 5,
     };
 
-    public ActionAspect SpellAspect(Lumina.Excel.Sheets.Action data) => (ActionAspect)data.Aspect;
+    public ActionAspect SpellAspect(Lumina.Excel.Sheets.Action data) => BossMod.ActionAspect.None;
     public ActionAspect SpellAspect(uint spellId) => SpellAspect(ActionData(spellId));
     public ActionAspect ActionAspect(ActionID aid) => aid.Type switch
     {

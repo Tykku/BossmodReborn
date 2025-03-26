@@ -1,7 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
-namespace BossMod.Network.ServerIPC;
+﻿namespace BossMod.Network.ServerIPC;
 
 // taken from Machina, FFXIVPacketDissector, XIVAlexander, FFXIVOpcodes and custom research
 // alternative names:
