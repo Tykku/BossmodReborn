@@ -1,4 +1,4 @@
-namespace BossMod.Stormblood.Extreme.Ex7Suzaku;
+namespace BossMod.Dawntrail.Unreal.UnSuzaku;
 
 class Hotspot(BossModule module) : Components.GenericAOEs(module)
 {
@@ -50,7 +50,7 @@ class Hotspot(BossModule module) : Components.GenericAOEs(module)
             AOEs.Clear();
             NumCasts = 0;
             var helper = Module.Enemies((uint)OID.Helper2);
-            var rot = helper.Count != 0 ? Angle.FromDirection(helper[0].Position - Ex7Suzaku.ArenaCenter) : default;
+            var rot = helper.Count != 0 ? Angle.FromDirection(helper[0].Position - UnSuzaku.ArenaCenter) : default;
             var roundedrot = (MathF.Round(rot.Deg / 12f) * 12f).Degrees();
             GetAOES(roundedrot + 180f.Degrees(), -2.2d);
         }
@@ -60,12 +60,12 @@ class Hotspot(BossModule module) : Components.GenericAOEs(module)
     {
         var songs = Module.Enemies(_songs);
         var count = songs.Count;
-        var pos = WPos.ClampToGrid(Ex7Suzaku.ArenaCenter);
+        var pos = WPos.ClampToGrid(UnSuzaku.ArenaCenter);
 
         for (var i = 0; i < count; ++i)
         {
             var song = songs[i];
-            var relativeAngle = Angle.FromDirection(song.Position - Ex7Suzaku.ArenaCenter);
+            var relativeAngle = Angle.FromDirection(song.Position - UnSuzaku.ArenaCenter);
             var index = ((int)MathF.Round((startrot - relativeAngle).Deg / 12f) + 30) % 30;
             var rot = song.OID switch
             {
@@ -88,6 +88,6 @@ class Hotspot(BossModule module) : Components.GenericAOEs(module)
         if (count == 0 || count == 16 && NumCasts >= 15 || count == 8 && NumCasts >= 7 || _kb != null && _kb.State.Count != 0)
             return;
         // force ai to stay close to the borders of the 4 panels since there is usually just 1.2s between hits
-        hints.AddForbiddenZone(ShapeDistance.InvertedCross(Ex7Suzaku.ArenaCenter, default, 20f, 1f), DateTime.MaxValue);
+        hints.AddForbiddenZone(ShapeDistance.InvertedCross(UnSuzaku.ArenaCenter, default, 20f, 1f), DateTime.MaxValue);
     }
 }

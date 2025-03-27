@@ -3,7 +3,7 @@
 // generic component dealing with 'forced march' mechanics
 // these mechanics typically feature 'march left/right/forward/backward' debuffs, which rotate player and apply 'forced march' on expiration
 // if there are several active march debuffs, we assume they are chained together
-public class GenericForcedMarch(BossModule module, float activationLimit = float.MaxValue) : BossComponent(module)
+public class GenericForcedMarch(BossModule module, float activationLimit = float.MaxValue, bool stopAfterWall = false) : BossComponent(module)
 {
     public class PlayerState
     {
@@ -18,6 +18,8 @@ public class GenericForcedMarch(BossModule module, float activationLimit = float
     public readonly Dictionary<ulong, PlayerState> State = []; // key = instance ID
     public float MovementSpeed = 6; // default movement speed, can be overridden if necessary
     public readonly float ActivationLimit = activationLimit; // do not show pending moves that activate later than this limit
+    private const float approxHitBoxRadius = 0.499f; // calculated because due to floating point errors this does not result in 0.001
+    private const float maxIntersectionError = 0.5f - approxHitBoxRadius; // calculated because due to floating point errors this does not result in 0.001
 
     // called to determine whether we need to show hint
     public virtual bool DestinationUnsafe(int slot, Actor actor, WPos pos) => !Module.InBounds(pos);
@@ -81,7 +83,16 @@ public class GenericForcedMarch(BossModule module, float activationLimit = float
             // note: as soon as player starts marching, he turns to desired direction
             // TODO: would be nice to use non-interpolated rotation here...
             dir = player.Rotation;
-            var to = from + MovementSpeed * (float)(state.ForcedEnd - WorldState.CurrentTime).TotalSeconds * dir.ToDirection();
+            var movementDistance = MovementSpeed * (float)(state.ForcedEnd - WorldState.CurrentTime).TotalSeconds;
+            var wdir = dir.ToDirection();
+
+            if (stopAfterWall)
+            {
+                var maxDistance = Arena.IntersectRayBounds(from, wdir) + maxIntersectionError;
+                movementDistance = Math.Min(movementDistance, maxDistance);
+            }
+
+            var to = from + movementDistance * wdir;
             movements.Add((from, to, dir));
             from = to;
         }
@@ -96,11 +107,19 @@ public class GenericForcedMarch(BossModule module, float activationLimit = float
                 break;
 
             dir += move.dir;
-            var to = from + MovementSpeed * move.duration * dir.ToDirection();
+            var movementDistance = MovementSpeed * move.duration;
+            var wdir = dir.ToDirection();
+
+            if (stopAfterWall)
+            {
+                var maxDistance = Arena.IntersectRayBounds(from, wdir) + maxIntersectionError;
+                movementDistance = Math.Min(movementDistance, maxDistance);
+            }
+
+            var to = from + movementDistance * wdir;
             movements.Add((from, to, dir));
             from = to;
         }
-
         return movements;
     }
 }

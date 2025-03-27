@@ -261,7 +261,7 @@ public sealed class AkechiBLM(RotationModuleManager manager, Actor player) : Ake
         AstralSoulStacks = gauge.AstralSoulStacks; //Stacks for Flare Star (Lv100)
         ParadoxActive = gauge.ParadoxActive; //Paradox is active
         EnochianTimer = gauge.EnochianTimer; //Enochian timer
-        ElementTimer = gauge.ElementTimeRemaining / 1000f; //Time remaining on current element
+        ElementTimer = 1f; //Time remaining on current element
         MaxPolyglots = Unlocked(TraitID.EnhancedPolyglotII) ? 3 : Unlocked(TraitID.EnhancedPolyglot) ? 2 : 1;
         canFoul = Unlocked(AID.Foul) && Polyglots > 0; //Can use Foul
         canXeno = Unlocked(AID.Xenoglossy) && Polyglots > 0; //Can use Xenoglossy

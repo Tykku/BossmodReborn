@@ -83,7 +83,7 @@ public sealed class BLM(RotationModuleManager manager, Actor player) : Castxan<A
         var gauge = World.Client.GetGauge<BlackMageGauge>();
 
         Element = gauge.ElementStance;
-        ElementLeft = gauge.ElementTimeRemaining * 0.001f;
+        ElementLeft = 1f * 0.001f;
         NextPolyglot = gauge.EnochianTimer * 0.001f;
         Hearts = gauge.UmbralHearts;
         Polyglot = gauge.PolyglotStacks;

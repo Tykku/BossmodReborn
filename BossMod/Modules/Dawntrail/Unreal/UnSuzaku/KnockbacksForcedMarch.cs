@@ -1,4 +1,4 @@
-namespace BossMod.Stormblood.Extreme.Ex7Suzaku;
+namespace BossMod.Dawntrail.Unreal.UnSuzaku;
 
 class MesmerizingMelody(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.MesmerizingMelody), 11f, kind: Kind.TowardsOrigin, stopAfterWall: true)
 {
@@ -80,8 +80,8 @@ abstract class PayThePiper : Components.GenericForcedMarch
         var move0 = state.PendingMoves[0];
         var dir = move0.dir.ToDirection();
         var forbidden = new Func<WPos, float>[2];
-        forbidden[0] = ShapeDistance.InvertedCircle(Ex7Suzaku.ArenaCenter - _offset * dir, 19f);
-        forbidden[1] = ShapeDistance.Rect(Ex7Suzaku.ArenaCenter, -dir, 20f, default, 4.5f);
+        forbidden[0] = ShapeDistance.InvertedCircle(UnSuzaku.ArenaCenter - _offset * dir, 19f);
+        forbidden[1] = ShapeDistance.Rect(UnSuzaku.ArenaCenter, -dir, 20f, default, 4.5f);
         hints.AddForbiddenZone(ShapeDistance.Union(forbidden), move0.activation);
     }
 }

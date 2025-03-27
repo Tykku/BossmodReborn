@@ -1,10 +1,9 @@
-namespace BossMod.Stormblood.Extreme.Ex7Suzaku;
+namespace BossMod.Dawntrail.Unreal.UnSuzaku;
 
 class IncandescentInterlude(BossModule module) : Components.GenericTowers(module)
 {
     private BitMask _forbidden;
     public readonly List<Tower> TowerCache = new(4);
-    private readonly int party = module.Raid.WithoutSlot(true, false, false).Length;
     private readonly RuthlessRefrain _kb = module.FindComponent<RuthlessRefrain>()!;
 
     public override void OnActorCreated(Actor actor)
@@ -26,16 +25,12 @@ class IncandescentInterlude(BossModule module) : Components.GenericTowers(module
             _forbidden[slot] = true;
             if (Towers.Count == 0)
                 Towers = TowerCache;
-
-            if (party == 8) // don't affect unsync farming
+            var count = Towers.Count;
+            var towers = CollectionsMarshal.AsSpan(Towers);
+            for (var i = 0; i < count; ++i)
             {
-                var count = Towers.Count;
-                var towers = CollectionsMarshal.AsSpan(Towers);
-                for (var i = 0; i < count; ++i)
-                {
-                    ref var t = ref towers[i];
-                    t.ForbiddenSoakers = _forbidden;
-                }
+                ref var t = ref towers[i];
+                t.ForbiddenSoakers = _forbidden;
             }
         }
     }
@@ -43,12 +38,12 @@ class IncandescentInterlude(BossModule module) : Components.GenericTowers(module
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (_kb.Casters.Count != 0 && party == 8) // don't affect unsync farming
+        if (_kb.Casters.Count != 0)
         {
             var towers = Module.Enemies((uint)OID.Towers);
             var forbidden = new Func<WPos, float>[4];
             for (var i = 0; i < 4; ++i)
-                forbidden[i] = ShapeDistance.Cone(Ex7Suzaku.ArenaCenter, 20f, _forbidden[slot] ? Angle.AnglesCardinals[i] : Angle.AnglesIntercardinals[i], 35f.Degrees());
+                forbidden[i] = ShapeDistance.Cone(UnSuzaku.ArenaCenter, 20f, _forbidden[slot] ? Angle.AnglesCardinals[i] : Angle.AnglesIntercardinals[i], 35f.Degrees());
             hints.AddForbiddenZone(ShapeDistance.Union(forbidden), Module.CastFinishAt(_kb.Casters[0].CastInfo));
         }
     }

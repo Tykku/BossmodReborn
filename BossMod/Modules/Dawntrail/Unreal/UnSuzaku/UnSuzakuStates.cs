@@ -1,8 +1,8 @@
-namespace BossMod.Stormblood.Extreme.Ex7Suzaku;
+namespace BossMod.Dawntrail.Unreal.UnSuzaku;
 
-class Ex7SuzakuStates : StateMachineBuilder
+class UnSuzakuStates : StateMachineBuilder
 {
-    public Ex7SuzakuStates(BossModule module) : base(module)
+    public UnSuzakuStates(BossModule module) : base(module)
     {
         DeathPhase(default, SinglePhase);
     }
@@ -105,7 +105,7 @@ class Ex7SuzakuStates : StateMachineBuilder
             }
             return null;
         }
-        Condition(id + 0x40u, 0.7f, () => Module.Arena.Bounds == Ex7Suzaku.Phase2Bounds, "Arena changes")
+        Condition(id + 0x40u, 0.7f, () => Module.Arena.Bounds == UnSuzaku.Phase2Bounds, "Arena changes")
             .DeactivateOnExit<ArenaChange>();
         Targetable(id + 0x50u, true, 4f)
             .SetHint(StateMachine.StateHint.DowntimeEnd);

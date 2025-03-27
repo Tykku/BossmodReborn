@@ -1,4 +1,4 @@
-namespace BossMod.Stormblood.Extreme.Ex7Suzaku;
+namespace BossMod.Dawntrail.Unreal.UnSuzaku;
 
 abstract class Rekindle(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.Rekindle), 6f, 5.1f);
 
