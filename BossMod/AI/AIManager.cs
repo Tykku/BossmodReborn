@@ -33,6 +33,7 @@ sealed class AIManager : IDisposable
     public void SetAIPreset(Preset? p)
     {
         AiPreset = p;
+        _config.AIAutorotPresetName = p?.Name;
         if (Beh != null)
             Beh.AIPreset = p;
     }
@@ -560,7 +561,6 @@ sealed class AIManager : IDisposable
         {
             SetAIPreset(null);
             Autorot.Preset = null;
-            _config.AIAutorotPresetName = null;
             Service.Log("Disabled AI autorotation preset.");
             return;
         }
@@ -574,7 +574,6 @@ sealed class AIManager : IDisposable
         {
             Service.Log($"Console: Changed preset from '{Beh?.AIPreset?.Name ?? "<n/a>"}' to '{preset?.Name ?? "<n/a>"}'");
             SetAIPreset(preset);
-            _config.AIAutorotPresetName = preset?.Name;
         }
         else
         {

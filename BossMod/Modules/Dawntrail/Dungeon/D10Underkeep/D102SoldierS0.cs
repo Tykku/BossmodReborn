@@ -54,11 +54,15 @@ class StaticForce(BossModule module) : Components.BaitAwayIcon(module, new AOESh
 
 class SectorBisector(BossModule module) : Components.GenericAOEs(module)
 {
+    // this solution looks a bit complex and confusing, but that is because the pretty and easy solution of just using the tether order only works with good ping + fps
+    // at higher latencies the time stamps merge together and tethers start to appear in random order in the logs...
     private static readonly AOEShapeCone cone = new(45f, 90f.Degrees());
     private AOEInstance? _aoe;
+    private readonly List<(Actor source, Actor target)> tethers = new(8);
     private int cloneCount;
-    private int tetherCount;
     private bool direction; // false = left, true = right
+    private bool active;
+    private Actor? firstClone;
 
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
@@ -76,14 +80,27 @@ class SectorBisector(BossModule module) : Components.GenericAOEs(module)
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
         if (tether.ID == (uint)TetherID.BisectorInitial)
+        {
             ++cloneCount;
+        }
         else if (tether.ID == (uint)TetherID.BisectorEnd)
         {
-            if (++tetherCount == cloneCount)
+            tethers.Add((source, WorldState.Actors.Find(tether.Target)!));
+        }
+    }
+
+    public override void OnUntethered(Actor source, ActorTetherInfo tether)
+    {
+        if (active && tether.ID == (uint)TetherID.BisectorEnd)
+        {
+            var count = tethers.Count;
+            for (var i = 0; i < count; ++i)
             {
-                _aoe = new(cone, WPos.ClampToGrid(source.Position), source.Rotation + (direction ? -1f : 1f) * 90f.Degrees(), WorldState.FutureTime(5.1d));
-                cloneCount = 0;
-                tetherCount = 0;
+                if (tethers[i].source == source)
+                {
+                    tethers.RemoveAt(i);
+                    break;
+                }
             }
         }
     }
@@ -91,7 +108,39 @@ class SectorBisector(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action.ID is (uint)AID.SectorBisector1 or (uint)AID.SectorBisector2)
+        {
             _aoe = null;
+            cloneCount = 0;
+            tethers.Clear();
+            firstClone = null;
+        }
+    }
+
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    {
+        if (firstClone == null && spell.Action.ID is (uint)AID.SectorBisectorVisualClone2 or (uint)AID.SectorBisectorVisualClone5)
+        {
+            active = true;
+            firstClone = caster;
+        }
+    }
+
+    public override void Update()
+    {
+        if (firstClone != null && _aoe == null && active && tethers.Count < cloneCount)
+        {
+            var count = tethers.Count;
+            for (var i = 0; i < count; ++i)
+            {
+                var tether = tethers[i];
+                if (tether.source == firstClone)
+                {
+                    active = false;
+                    _aoe = new(cone, WPos.ClampToGrid(tether.target.Position), tether.target.Rotation + (direction ? -1f : 1f) * 90f.Degrees(), WorldState.FutureTime(cloneCount == 6 ? 4.2d : 5.9d));
+                    return;
+                }
+            }
+        }
     }
 }
 

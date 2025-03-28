@@ -159,7 +159,6 @@ sealed class AIManagementWindow : UIWindow
             if (selectedIndex == countnames - 1 && aipreset != null)
             {
                 _manager.SetAIPreset(null);
-                _config.AIAutorotPresetName = null;
                 configModified = true;
                 selectedIndex = -1;
             }
@@ -167,7 +166,6 @@ sealed class AIManagementWindow : UIWindow
             {
                 var selectedPreset = presets[selectedIndex];
                 _manager.SetAIPreset(selectedPreset);
-                _config.AIAutorotPresetName = selectedPreset.Name;
                 configModified = true;
             }
         }
