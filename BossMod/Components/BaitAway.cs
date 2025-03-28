@@ -292,7 +292,9 @@ public class BaitAwayIcon(BossModule module, AOEShape shape, uint iconID, Action
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == IID && BaitSource(actor) is var source && source != null)
-            CurrentBaits.Add(new(source, actor, Shape, WorldState.FutureTime(ActivationDelay)));
+        {
+            CurrentBaits.Add(new(source, WorldState.Actors.Find(targetID) ?? actor, Shape, WorldState.FutureTime(ActivationDelay)));
+        }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -351,10 +353,11 @@ public class BaitAwayChargeCast(BossModule module, ActionID aid, float halfWidth
         var count = CurrentBaits.Count;
         if (count == 0)
             return;
+        var baits = CollectionsMarshal.AsSpan(CurrentBaits);
         for (var i = 0; i < count; ++i)
         {
-            var b = CurrentBaits[i];
-            CurrentBaits[i] = b with { Shape = rect with { LengthFront = (b.Target.Position - b.Source.Position).Length() } };
+            ref var b = ref baits[i];
+            b.Shape = rect with { LengthFront = (b.Target.Position - b.Source.Position).Length() };
         }
     }
 }
@@ -372,8 +375,13 @@ public class BaitAwayChargeTether(BossModule module, float halfWidth, float acti
     public override void Update()
     {
         base.Update();
-        foreach (ref var b in CurrentBaits.AsSpan())
+        var count = CurrentBaits.Count;
+        if (count == 0)
+            return;
+        var baits = CollectionsMarshal.AsSpan(CurrentBaits);
+        for (var i = 0; i < count; ++i)
         {
+            ref var b = ref baits[i];
             if (b.Shape is AOEShapeRect shape)
             {
                 var length = (b.Target.Position - b.Source.Position).Length();

@@ -100,46 +100,49 @@ abstract class LineVoltage(BossModule module, uint narrow, double delay, uint? w
 class LineVoltage1(BossModule module) : LineVoltage(module, (uint)AID.LineVoltageNarrow1, 1.5d);
 class LineVoltage2(BossModule module) : LineVoltage(module, (uint)AID.LineVoltageNarrow2, 2d, (uint)AID.LineVoltageWide1, (uint)AID.LineVoltageWide2);
 
-class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 6);
-class LightningStorm(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.LightningStorm), 5);
+class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 6f);
+class LightningStorm(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.LightningStorm), 5f);
 class ElectricalOverload(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ElectricalOverload));
 class SparkingFissure(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SparkingFissure));
 class SparkingFissureFirst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SparkingFissureFirst));
 
 class CellShock(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCircle circle = new(26);
+    private static readonly AOEShapeCircle circle = new(26f);
     private AOEInstance? _aoe;
     private readonly LineVoltage1 _aoes = module.FindComponent<LineVoltage1>()!;
-
-    private static readonly Dictionary<byte, WPos> initialPositions = new()
-    {
-        { 0x0D, new(81.132f, 268.868f) }, { 0x0E, new(81.132f, 285.132f) },
-        { 0x0F, new(64.868f, 268.868f) }, { 0x10, new(64.868f, 285.132f) }
-    };
-
-    private static readonly Dictionary<byte, byte> pairsWithSamePositions = new()
-    {
-        { 0x0D, 0x10 }, { 0x0E, 0x0F }, { 0x0F, 0x0E }, { 0x10, 0x0D }
-    };
 
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.AOEs.Count == 0 ? Utils.ZeroOrOne(ref _aoe) : [];
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state is 0x00020001 or 0x00200010)
+        if (state is 0x00020001u or 0x00200010u)
         {
-            if (state == 0x00200010 && pairsWithSamePositions.TryGetValue(index, out var remappedIndex))
-                index = remappedIndex;
+            if (state == 0x00200010u)
+                index = index switch
+                {
+                    0x0D => 0x10,
+                    0x0E => 0x0F,
+                    0x0F => 0x0E,
+                    0x10 => 0x0D,
+                    _ => index
+                };
 
-            if (initialPositions.TryGetValue(index, out var position))
-                _aoe = new(circle, position, default, WorldState.FutureTime(8));
+            WPos position = index switch
+            {
+                0x0D => new(81.132f, 268.868f),
+                0x0E => new(81.132f, 285.132f),
+                0x0F => new(64.868f, 268.868f),
+                0x10 => new(64.868f, 285.132f),
+                _ => default
+            };
+            _aoe = new(circle, WPos.ClampToGrid(position), default, WorldState.FutureTime(8d));
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.CellShock)
+        if (spell.Action.ID == (uint)AID.CellShock)
             _aoe = null;
     }
 }
@@ -169,7 +172,7 @@ public class D091LindblumZaghnal(WorldState ws, Actor primary) : BossModule(ws, 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.RawElectrope));
+        Arena.Actors(Enemies((uint)OID.RawElectrope));
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

@@ -339,11 +339,11 @@ public class IconStackSpread(BossModule module, uint stackIcon, uint spreadIcon,
     {
         if (iconID == StackIcon)
         {
-            AddStack(actor, WorldState.FutureTime(ActivationDelay));
+            AddStack(WorldState.Actors.Find(targetID) ?? actor, WorldState.FutureTime(ActivationDelay));
         }
         else if (iconID == SpreadIcon)
         {
-            AddSpread(actor, WorldState.FutureTime(ActivationDelay));
+            AddSpread(WorldState.Actors.Find(targetID) ?? actor, WorldState.FutureTime(ActivationDelay));
         }
     }
 

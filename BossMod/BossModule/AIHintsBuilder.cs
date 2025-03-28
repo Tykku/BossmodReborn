@@ -155,7 +155,7 @@ public sealed class AIHintsBuilder : IDisposable
             var rot = caster.Rotation;
             var finishAt = _ws.FutureTime(caster.NPCRemainingTime);
             if (aoe.IsCharge)
-                hints.AddForbiddenZone(aoe.Shape, WPos.ClampToGrid(aoe.Caster.Position), rot, finishAt);
+                hints.AddForbiddenZone(ShapeDistance.Rect(WPos.ClampToGrid(aoe.Caster.Position), target, ((AOEShapeRect)aoe.Shape).HalfWidth), finishAt, aoe.Caster.InstanceID);
             else
                 hints.AddForbiddenZone(aoe.Shape, target, rot, finishAt);
         }
@@ -235,7 +235,7 @@ public sealed class AIHintsBuilder : IDisposable
         5 => new AOEShapeCircle(data.EffectRange + actor.HitboxRadius),
         //6 => custom shapes
         //7 => new AOEShapeCircle(data.EffectRange), - used for player ground-targeted circles a-la asylum
-        8 => new AOEShapeRect((actor.CastInfo!.LocXZ - actor.Position).Length(), data.XAxisModifier * HalfWidth),
+        8 => new AOEShapeRect(default, data.XAxisModifier * HalfWidth), // charges
         10 => new AOEShapeDonut(3, data.EffectRange),
         11 => new AOEShapeCross(data.EffectRange, data.XAxisModifier * HalfWidth),
         12 => new AOEShapeRect(data.EffectRange, data.XAxisModifier * HalfWidth),
