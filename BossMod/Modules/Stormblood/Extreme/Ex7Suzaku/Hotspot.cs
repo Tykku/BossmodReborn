@@ -6,6 +6,7 @@ class Hotspot(BossModule module) : Components.GenericAOEs(module)
     public readonly List<AOEInstance> AOEs = new(16);
     private readonly PayThePiper _kb = module.FindComponent<PayThePiper>()!;
     private static readonly uint[] _songs = [(uint)OID.SongOfDurance, (uint)OID.SongOfOblivion, (uint)OID.SongOfSorrow, (uint)OID.SongOfFire];
+    private Angle startrotation;
 
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -38,7 +39,10 @@ class Hotspot(BossModule module) : Components.GenericAOEs(module)
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
         if (id == 0x1E43 && actor.OID == (uint)OID.Helper2)
+        {
             GetAOES(actor.Rotation + 180f.Degrees(), 6.7d);
+            startrotation = actor.Rotation;
+        }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
@@ -52,7 +56,7 @@ class Hotspot(BossModule module) : Components.GenericAOEs(module)
             var helper = Module.Enemies((uint)OID.Helper2);
             var rot = helper.Count != 0 ? Angle.FromDirection(helper[0].Position - Ex7Suzaku.ArenaCenter) : default;
             var roundedrot = (MathF.Round(rot.Deg / 12f) * 12f).Degrees();
-            GetAOES(roundedrot + 180f.Degrees(), -2.2d);
+            GetAOES(roundedrot + (startrotation.AlmostEqual(default, Angle.DegToRad) ? default : 180f.Degrees()), -2.2d);
         }
     }
 
