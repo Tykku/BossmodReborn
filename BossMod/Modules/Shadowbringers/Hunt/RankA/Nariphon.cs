@@ -41,6 +41,7 @@ class RootsOfAtopy(BossModule module) : Components.GenericStackSpread(module)
         if (spell.Action.ID == (uint)AID.RootsOfAtopy)
             Stacks.Add(new(WorldState.Actors.Find(spell.TargetID)!, 6, 8, 8, activation: Module.CastFinishAt(spell), forbiddenPlayers: _forbidden));
     }
+
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
         if (status.ID == (uint)SID.PiercingResistanceDownII)

@@ -62,7 +62,7 @@ class AbilityInfo : CommonEnumInfo
             foreach (var i in infos)
             {
                 var cast = i.Action.Source.Casts.LastOrDefault(c => c.ID == i.Action.ID && c.Time.Start < i.Action.Timestamp);
-                var sourcePosRot = i.Action.Source.PosRotAt(i.Action.Timestamp);
+                var sourcePosRot = cast == null ? i.Action.Source.PosRotAt(i.Action.Timestamp) : new Vector4(cast.Location, cast.Rotation.Rad);
                 var sourcePos = new WPos(sourcePosRot.XZ());
                 var targetPos = new WPos((cast?.Location ?? i.Action.TargetPos).XZ());
                 if (targetPos == sourcePos && i.Action.Targets.Count > 0)
@@ -503,8 +503,8 @@ class AbilityInfo : CommonEnumInfo
         if (ImGui.MenuItem("Generate enum for boss module"))
         {
             var sb = new StringBuilder("public enum AID : uint\n{\n");
-            foreach (var (aid, data) in _data)
-                sb.Append($"    {EnumMemberString(aid, data)}\n");
+            foreach (var (key, value) in Utils.DedupKeys(_data.Select(d => EnumMemberString(d.Key, d.Value))))
+                sb.Append($"    {key} = {value}\n");
             sb.Append("}\n");
             ImGui.SetClipboardText(sb.ToString());
         }
@@ -512,8 +512,8 @@ class AbilityInfo : CommonEnumInfo
         if (ImGui.MenuItem("Generate missing enum values for boss module"))
         {
             var sb = new StringBuilder();
-            foreach (var (aid, data) in _data.Where(kv => kv.Key.Type != ActionType.Spell || _aidType?.GetEnumName(kv.Key.ID) == null))
-                sb.AppendLine(EnumMemberString(aid, data));
+            foreach (var (key, value) in Utils.DedupKeys(_data.Where(kv => kv.Key.Type != ActionType.Spell || _aidType?.GetEnumName(kv.Key.ID) == null).Select(d => EnumMemberString(d.Key, d.Value))))
+                sb.AppendLine($"    {key} = {value}\n");
             ImGui.SetClipboardText(sb.ToString());
         }
     }
@@ -576,11 +576,11 @@ class AbilityInfo : CommonEnumInfo
     private static string CastTimeString(ActionData data, Lumina.Excel.Sheets.Action? ldata)
         => data.CastTime > 0 ? string.Create(CultureInfo.InvariantCulture, $"{data.CastTime:f1}{(ldata?.ExtraCastTime100ms > 0 ? $"+{ldata?.ExtraCastTime100ms * 0.1f:f1}" : "")}s cast") : "no cast";
 
-    private string EnumMemberString(ActionID aid, ActionData data)
+    private (string Name, string Value) EnumMemberString(ActionID aid, ActionData data)
     {
         var ldata = aid.Type == ActionType.Spell ? Service.LuminaRow<Lumina.Excel.Sheets.Action>(aid.ID) : null;
-        var name = aid.Type != ActionType.Spell ? $"// {aid}" : _aidType?.GetEnumName(aid.ID) ?? $"_{Utils.StringToIdentifier(ldata?.ActionCategory.ValueNullable?.Name.ToString() ?? "")}_{Utils.StringToIdentifier(ldata?.Name.ToString() ?? $"Ability{aid.ID}")}";
-        return $"{name} = {aid.ID}, // {OIDListString(data.CasterOIDs)}->{JoinStrings(ActionTargetStrings(data))}, {CastTimeString(data, ldata)}, {(ldata != null ? DescribeShape(ldata.Value) : "????")}";
+        string name = aid.Type != ActionType.Spell ? $"// {aid}" : _aidType?.GetEnumName(aid.ID) ?? $"_{Utils.StringToIdentifier(ldata?.ActionCategory.ValueNullable?.Name.ToString() ?? "")}_{Utils.StringToIdentifier(ldata?.Name.ToString() ?? $"Ability{aid.ID}")}";
+        return (name, $"{aid.ID}, // {OIDListString(data.CasterOIDs)}->{JoinStrings(ActionTargetStrings(data))}, {CastTimeString(data, ldata)}, {(ldata != null ? DescribeShape(ldata.Value) : "????")}");
     }
 
     private static string DescribeShape(Lumina.Excel.Sheets.Action data) => data.CastType switch

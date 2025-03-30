@@ -298,6 +298,23 @@ public static partial class Utils
     [GeneratedRegex("[^a-zA-Z0-9]")]
     private static partial Regex NonAlphaNumRegex();
 
+    public static IEnumerable<(string, T)> DedupKeys<T>(IEnumerable<(string, T)> items)
+    {
+        var keys = new HashSet<string>();
+
+        foreach (var (k, v) in items)
+        {
+            var i = 0;
+            var key = k;
+            while (!keys.Add(key))
+                key = $"{k}{++i}";
+
+            yield return (key, v);
+        }
+    }
+
+    public static IEnumerable<(string, T)> DedupKeys<T>(Dictionary<string, T> items) => DedupKeys(items.Select(i => (i.Key, i.Value)));
+
 #pragma warning disable
     /// <summary>
     /// Sets whether <see cref="User32.GetKeyState"/> or <see cref="User32.GetAsyncKeyState"/> will be used when calling <see cref="IsKeyPressed(Keys)"/> or <see cref="IsKeyPressed(LimitedKeys)"/>

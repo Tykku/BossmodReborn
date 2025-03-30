@@ -67,17 +67,15 @@ public sealed class NIN(RotationModuleManager manager, Actor player) : Attackxan
         [AID.Suiton] = (3, 3)
     };
 
-    private AID CurrentNinjutsu => (Mudras[0], Mudras[1], Mudras[2]) switch
+    private AID CurrentNinjutsu => Mudras switch
     {
-        (1 or 2 or 3, 0, 0) => AID.FumaShuriken,
-        (_, 1, 0) when Kassatsu > GCD => AID.GokaMekkyaku,
-        (_, 1, 0) => AID.Katon,
-        (_, 2, 0) => AID.Raiton,
-        (_, 3, 0) when Kassatsu > GCD => AID.Hyoton,
-        (_, 3, 0) => AID.HyoshoRanryu,
-        (_, _, 1) => AID.Huton,
-        (_, _, 2) => AID.Doton,
-        (_, _, 3) => AID.Suiton,
+        [1 or 2 or 3, 0, 0] => AID.FumaShuriken,
+        [_, 1, 0] => Kassatsu > GCD ? AID.GokaMekkyaku : AID.Katon,
+        [_, 2, 0] => AID.Raiton,
+        [_, 3, 0] => Kassatsu > GCD ? AID.Hyoton : AID.HyoshoRanryu,
+        [_, _, 1] => AID.Huton,
+        [_, _, 2] => AID.Doton,
+        [_, _, 3] => AID.Suiton,
         _ => AID.Ninjutsu
     };
 
