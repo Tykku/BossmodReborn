@@ -34,7 +34,7 @@ public enum IconID : uint
 
 class Throttle(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(5);
     private static readonly AOEShapeRect rectSmall = new(50f, 1.5f);
     private static readonly AOEShapeRect rectBig = new(50f, 2.5f);
 
@@ -51,7 +51,7 @@ class Throttle(BossModule module) : Components.GenericAOEs(module)
             for (var i = 0; i < count; ++i)
             {
                 var e = enemies[i];
-                if (e.EventState != 1)
+                if (e.ModelState.AnimState1 != 1)
                     _aoes.Add(new(rectSmall, WPos.ClampToGrid(e.Position), e.Rotation, activation));
             }
             var offset = _aoes[0].Origin.X < 0 ? -1 : 1;
