@@ -41,7 +41,6 @@ class ArenaChange(BossModule module) : BossComponent(module)
 class IceAegis(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
-    private const string Hint = "Go behind shield!";
 
     private static readonly AOEShapeCone cone = new(5f, 60f.Degrees(), InvertForbiddenZone: true);
 
@@ -62,10 +61,7 @@ class IceAegis(BossModule module) : Components.GenericAOEs(module)
     {
         if (_aoe == null)
             return;
-        if (!_aoe.Value.Check(actor.Position))
-            hints.Add(Hint);
-        else
-            hints.Add(Hint, false);
+        hints.Add("Go behind shield!", !_aoe.Value.Check(actor.Position));
     }
 }
 

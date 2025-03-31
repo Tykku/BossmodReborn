@@ -118,7 +118,6 @@ class Daggerflight(BossModule module) : Components.InterceptTether(module, Actio
 class CradleOfTheSleepless(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
-    private const string Hint = "Go behind shield or duty fails!";
 
     private static readonly AOEShapeCone cone = new(8f, 60f.Degrees(), InvertForbiddenZone: true);
 
@@ -136,7 +135,7 @@ class CradleOfTheSleepless(BossModule module) : Components.GenericAOEs(module)
     {
         if (_aoe == null)
             return;
-        hints.Add(Hint, !_aoe.Value.Check(actor.Position));
+        hints.Add("Go behind shield or duty fails!", !_aoe.Value.Check(actor.Position));
     }
 }
 
