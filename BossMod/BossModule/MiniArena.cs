@@ -113,37 +113,37 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
     }
 
     // unclipped primitive rendering that accept world-space positions; thin convenience wrappers around drawlist api
-    public void AddLine(WPos a, WPos b, uint color = 0, float thickness = 1)
+    public void AddLine(WPos a, WPos b, uint color = default, float thickness = 1f)
     {
         thickness *= Config.ThicknessScale;
         if (Config.ShowOutlinesAndShadows)
             ImGui.GetWindowDrawList().AddLine(WorldPositionToScreenPosition(a), WorldPositionToScreenPosition(b), Colors.Shadows, thickness + 1);
-        ImGui.GetWindowDrawList().AddLine(WorldPositionToScreenPosition(a), WorldPositionToScreenPosition(b), color != 0 ? color : Colors.Danger, thickness);
+        ImGui.GetWindowDrawList().AddLine(WorldPositionToScreenPosition(a), WorldPositionToScreenPosition(b), color != default ? color : Colors.Danger, thickness);
     }
 
-    public void AddTriangle(WPos p1, WPos p2, WPos p3, uint color = 0, float thickness = 1)
+    public void AddTriangle(WPos p1, WPos p2, WPos p3, uint color = default, float thickness = 1)
     {
         thickness *= Config.ThicknessScale;
         ImGui.GetWindowDrawList().AddTriangle(WorldPositionToScreenPosition(p1), WorldPositionToScreenPosition(p2), WorldPositionToScreenPosition(p3), color != 0 ? color : Colors.Danger, thickness);
     }
 
-    public void AddTriangleFilled(WPos p1, WPos p2, WPos p3, uint color = 0)
+    public void AddTriangleFilled(WPos p1, WPos p2, WPos p3, uint color = default)
     {
-        ImGui.GetWindowDrawList().AddTriangleFilled(WorldPositionToScreenPosition(p1), WorldPositionToScreenPosition(p2), WorldPositionToScreenPosition(p3), color != 0 ? color : Colors.Danger);
+        ImGui.GetWindowDrawList().AddTriangleFilled(WorldPositionToScreenPosition(p1), WorldPositionToScreenPosition(p2), WorldPositionToScreenPosition(p3), color != default ? color : Colors.Danger);
     }
 
-    public void AddQuad(WPos p1, WPos p2, WPos p3, WPos p4, uint color = 0, float thickness = 1)
+    public void AddQuad(WPos p1, WPos p2, WPos p3, WPos p4, uint color = default, float thickness = 1)
     {
         thickness *= Config.ThicknessScale;
-        ImGui.GetWindowDrawList().AddQuad(WorldPositionToScreenPosition(p1), WorldPositionToScreenPosition(p2), WorldPositionToScreenPosition(p3), WorldPositionToScreenPosition(p4), color != 0 ? color : Colors.Danger, thickness);
+        ImGui.GetWindowDrawList().AddQuad(WorldPositionToScreenPosition(p1), WorldPositionToScreenPosition(p2), WorldPositionToScreenPosition(p3), WorldPositionToScreenPosition(p4), color != default ? color : Colors.Danger, thickness);
     }
 
-    public void AddQuadFilled(WPos p1, WPos p2, WPos p3, WPos p4, uint color = 0)
+    public void AddQuadFilled(WPos p1, WPos p2, WPos p3, WPos p4, uint color = default)
     {
-        ImGui.GetWindowDrawList().AddQuadFilled(WorldPositionToScreenPosition(p1), WorldPositionToScreenPosition(p2), WorldPositionToScreenPosition(p3), WorldPositionToScreenPosition(p4), color != 0 ? color : Colors.Danger);
+        ImGui.GetWindowDrawList().AddQuadFilled(WorldPositionToScreenPosition(p1), WorldPositionToScreenPosition(p2), WorldPositionToScreenPosition(p3), WorldPositionToScreenPosition(p4), color != default ? color : Colors.Danger);
     }
 
-    public void AddRect(WPos origin, WDir direction, float lenFront, float lenBack, float halfWidth, uint color, float thickness = 1)
+    public void AddRect(WPos origin, WDir direction, float lenFront, float lenBack, float halfWidth, uint color, float thickness = 1f)
     {
         thickness *= Config.ThicknessScale;
         var side = halfWidth * direction.OrthoR();
@@ -152,21 +152,21 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
         AddQuad(front + side, front - side, back - side, back + side, color, thickness);
     }
 
-    public void AddCircle(WPos center, float radius, uint color = 0, float thickness = 1)
+    public void AddCircle(WPos center, float radius, uint color = default, float thickness = 1f)
     {
         var radiusscreenhalfsize = radius / Bounds.Radius * ScreenHalfSize;
         thickness *= Config.ThicknessScale;
         if (Config.ShowOutlinesAndShadows)
-            ImGui.GetWindowDrawList().AddCircle(WorldPositionToScreenPosition(center), radiusscreenhalfsize, Colors.Shadows, 0, thickness + 1);
-        ImGui.GetWindowDrawList().AddCircle(WorldPositionToScreenPosition(center), radiusscreenhalfsize, color != 0 ? color : Colors.Danger, 0, thickness);
+            ImGui.GetWindowDrawList().AddCircle(WorldPositionToScreenPosition(center), radiusscreenhalfsize, Colors.Shadows, default, thickness + 1);
+        ImGui.GetWindowDrawList().AddCircle(WorldPositionToScreenPosition(center), radiusscreenhalfsize, color != default ? color : Colors.Danger, default, thickness);
     }
 
-    public void AddCircleFilled(WPos center, float radius, uint color = 0)
+    public void AddCircleFilled(WPos center, float radius, uint color = default)
     {
-        ImGui.GetWindowDrawList().AddCircleFilled(WorldPositionToScreenPosition(center), radius / Bounds.Radius * ScreenHalfSize, color != 0 ? color : Colors.Danger);
+        ImGui.GetWindowDrawList().AddCircleFilled(WorldPositionToScreenPosition(center), radius / Bounds.Radius * ScreenHalfSize, color != default ? color : Colors.Danger);
     }
 
-    public void AddCone(WPos center, float radius, Angle centerDirection, Angle halfAngle, uint color = 0, float thickness = 1)
+    public void AddCone(WPos center, float radius, Angle centerDirection, Angle halfAngle, uint color = default, float thickness = 1f)
     {
         thickness *= Config.ThicknessScale;
         var sCenter = WorldPositionToScreenPosition(center);
@@ -174,10 +174,10 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
         var drawlist = ImGui.GetWindowDrawList();
         drawlist.PathLineTo(sCenter);
         drawlist.PathArcTo(sCenter, radius / Bounds.Radius * ScreenHalfSize, sDir - halfAngle.Rad, sDir + halfAngle.Rad);
-        drawlist.PathStroke(color != 0 ? color : Colors.Danger, ImDrawFlags.Closed, thickness);
+        drawlist.PathStroke(color != default ? color : Colors.Danger, ImDrawFlags.Closed, thickness);
     }
 
-    public void AddDonutCone(WPos center, float innerRadius, float outerRadius, Angle centerDirection, Angle halfAngle, uint color = 0, float thickness = 1)
+    public void AddDonutCone(WPos center, float innerRadius, float outerRadius, Angle centerDirection, Angle halfAngle, uint color = default, float thickness = 1f)
     {
         thickness *= Config.ThicknessScale;
         var sCenter = WorldPositionToScreenPosition(center);
@@ -187,10 +187,10 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
         var sDirN = sDir - halfAngle.Rad;
         drawlist.PathArcTo(sCenter, innerRadius / Bounds.Radius * ScreenHalfSize, sDirP, sDirN);
         drawlist.PathArcTo(sCenter, outerRadius / Bounds.Radius * ScreenHalfSize, sDirN, sDirP);
-        drawlist.PathStroke(color != 0 ? color : Colors.Danger, ImDrawFlags.Closed, thickness);
+        drawlist.PathStroke(color != default ? color : Colors.Danger, ImDrawFlags.Closed, thickness);
     }
 
-    public void AddCapsule(WPos start, WDir direction, float radius, float length, uint color = 0, float thickness = 1)
+    public void AddCapsule(WPos start, WDir direction, float radius, float length, uint color = default, float thickness = 1f)
     {
         var dirNorm = direction.Normalized();
         var halfLengthdirNorm = dirNorm * length * 0.5f;
@@ -225,35 +225,35 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
         // Arc around capsuleStart from sDirAngle + π/2 to sDirAngle - π/2
         drawList.PathArcTo(screenCapsuleStart, screenRadius, dirPHalfPI, dirMHalfPI);
 
-        drawList.PathStroke(color != 0 ? color : Colors.Danger, ImDrawFlags.Closed, thickness);
+        drawList.PathStroke(color != default ? color : Colors.Danger, ImDrawFlags.Closed, thickness);
     }
 
-    public void AddPolygon(ReadOnlySpan<WPos> vertices, uint color = 0, float thickness = 1)
+    public void AddPolygon(ReadOnlySpan<WPos> vertices, uint color = default, float thickness = 1f)
     {
         thickness *= Config.ThicknessScale;
         var len = vertices.Length;
         for (var i = 0; i < len; ++i)
             PathLineTo(vertices[i]);
-        PathStroke(true, color != 0 ? color : Colors.Danger, thickness);
+        PathStroke(true, color != default ? color : Colors.Danger, thickness);
     }
 
-    public void AddPolygon(IEnumerable<WPos> vertices, uint color = 0, float thickness = 1)
+    public void AddPolygon(IEnumerable<WPos> vertices, uint color = default, float thickness = 1f)
     {
         thickness *= Config.ThicknessScale;
         foreach (var p in vertices)
             PathLineTo(p);
-        PathStroke(true, color != 0 ? color : Colors.Danger, thickness);
+        PathStroke(true, color != default ? color : Colors.Danger, thickness);
     }
 
-    public void AddPolygonTransformed(WPos center, WDir rotation, ReadOnlySpan<WDir> vertices, uint color, float thickness = 1)
+    public void AddPolygonTransformed(WPos center, WDir rotation, ReadOnlySpan<WDir> vertices, uint color, float thickness = 1f)
     {
         thickness *= Config.ThicknessScale;
         foreach (var p in vertices)
             PathLineTo(center + p.Rotate(rotation));
-        PathStroke(true, color != 0 ? color : Colors.Danger, thickness);
+        PathStroke(true, color != default ? color : Colors.Danger, thickness);
     }
 
-    public void AddComplexPolygon(WPos center, WDir rotation, RelSimplifiedComplexPolygon poly, uint color, float thickness = 1)
+    public void AddComplexPolygon(WPos center, WDir rotation, RelSimplifiedComplexPolygon poly, uint color, float thickness = 1f)
     {
         thickness *= Config.ThicknessScale;
 
@@ -277,19 +277,19 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
         ImGui.GetWindowDrawList().PathArcTo(WorldPositionToScreenPosition(center), radius / Bounds.Radius * ScreenHalfSize, Angle.HalfPi - amin + _cameraAzimuth.Rad, Angle.HalfPi - amax + _cameraAzimuth.Rad);
     }
 
-    public static void PathStroke(bool closed, uint color = 0, float thickness = 1)
+    public static void PathStroke(bool closed, uint color = default, float thickness = 1f)
     {
         thickness *= Config.ThicknessScale;
-        ImGui.GetWindowDrawList().PathStroke(color != 0 ? color : Colors.Danger, closed ? ImDrawFlags.Closed : ImDrawFlags.None, thickness);
+        ImGui.GetWindowDrawList().PathStroke(color != default ? color : Colors.Danger, closed ? ImDrawFlags.Closed : ImDrawFlags.None, thickness);
     }
 
-    public static void PathFillConvex(uint color = 0)
+    public static void PathFillConvex(uint color = default)
     {
-        ImGui.GetWindowDrawList().PathFillConvex(color != 0 ? color : Colors.Danger);
+        ImGui.GetWindowDrawList().PathFillConvex(color != default ? color : Colors.Danger);
     }
 
     // draw clipped & triangulated zone
-    public void Zone(List<RelTriangle> triangulation, uint color = 0)
+    public void Zone(List<RelTriangle> triangulation, uint color = default)
     {
         var drawlist = ImGui.GetWindowDrawList();
         var restoreFlags = drawlist.Flags;
@@ -370,13 +370,13 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
     public void ZoneCapsule(WPos start, WDir direction, float radius, float length, uint color)
         => Zone(_triCache[TriangulationCache.GetKeyHash(12, start, direction, radius, length)] ??= Bounds.ClipAndTriangulateCapsule(start - Center, direction, radius, length), color);
 
-    public void TextScreen(Vector2 center, string text, uint color, float fontSize = 17)
+    public void TextScreen(Vector2 center, string text, uint color, float fontSize = 17f)
     {
         var size = ImGui.CalcTextSize(text) * Config.ArenaScale;
         ImGui.GetWindowDrawList().AddText(ImGui.GetFont(), fontSize * Config.ArenaScale, center - size * 0.5f, color, text);
     }
 
-    public void TextWorld(WPos center, string text, uint color, float fontSize = 17)
+    public void TextWorld(WPos center, string text, uint color, float fontSize = 17f)
     {
         TextScreen(WorldPositionToScreenPosition(center), text, color, fontSize);
     }

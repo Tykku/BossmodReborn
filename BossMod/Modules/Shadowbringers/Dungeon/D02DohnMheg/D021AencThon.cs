@@ -37,6 +37,9 @@ class Geyser(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCircle circle = new(6f);
     private readonly List<AOEInstance> _aoes = new(14);
 
+    private readonly WDir[] geysers1 = [new(-9f, 15f), new(default, -16f)];
+    private readonly WDir[] geysers2 = [new(-9f, -15f), new(default, 5f), new(7f, -7f)];
+
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
@@ -65,37 +68,20 @@ class Geyser(BossModule module) : Components.GenericAOEs(module)
     {
         if (state == 0x00100020)
         {
-            var rotation = (int)actor.Rotation.Deg;
-            if (actor.OID == (uint)OID.GeyserHelper1)
+            var positions = actor.OID switch
             {
-                WPos[] positions = rotation switch
-                {
-                    0 => [new(default, 14.16f), new(-9f, 45.16f)],
-                    -180 => [new(9f, 15.16f), new(default, 46.16f)],
-                    -90 => [new(-15f, 21.16f), new(16f, 30.16f)],
-                    89 => [new(-16f, 30.16f), new(15f, 39.16f)],
-                    _ => []
-                };
-                AddAOEs(positions);
-            }
-            else if (actor.OID == (uint)OID.GeyserHelper2)
+                (uint)OID.GeyserHelper1 => geysers1,
+                (uint)OID.GeyserHelper2 => geysers2,
+                _ => []
+            };
+            var len = positions.Length;
+            var rot = actor.Rotation;
+            var origin = actor.Position;
+            var activation = WorldState.FutureTime(5.1d);
+            for (var i = 0; i < len; ++i)
             {
-                WPos[] positions = rotation switch
-                {
-                    0 => [new(default, 35.16f), new(-9f, 15.16f), new(7f, 23.16f)],
-                    -180 => [new(-15f, 39.16f), new(-7f, 23.16f), new(5f, 30.16f)],
-                    -90 => [new(9f, 45.16f), new(-7f, 37.16f), new(default, 25.16f)],
-                    89 => [new(7f, 37.16f), new(15f, 21.16f), new(-5f, 30.16f)],
-                    _ => []
-                };
-                AddAOEs(positions);
-            }
-            void AddAOEs(WPos[] positions)
-            {
-                var len = positions.Length;
-                var activation = WorldState.FutureTime(5.1d);
-                for (var i = 0; i < len; ++i)
-                    _aoes.Add(new(circle, WPos.ClampToGrid(positions[i]), default, activation));
+                var pos = positions[i].Rotate(rot) + origin;
+                _aoes.Add(new(circle, WPos.ClampToGrid(pos), default, activation));
             }
         }
     }

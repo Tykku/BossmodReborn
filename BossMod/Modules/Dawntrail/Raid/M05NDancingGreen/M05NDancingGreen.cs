@@ -4,7 +4,7 @@ abstract class DoTheHustle(BossModule module, AID aid) : Components.SimpleAOEs(m
 class DoTheHustle1(BossModule module) : DoTheHustle(module, AID.DoTheHustle1);
 class DoTheHustle2(BossModule module) : DoTheHustle(module, AID.DoTheHustle2);
 
-class DeepCut(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(60, 25f.Degrees()), (uint)IconID.DeepCut, ActionID.MakeSpell(AID.DeepCut), 5f, tankbuster: true);
+class DeepCut(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(60, 22.5f.Degrees()), (uint)IconID.DeepCut, ActionID.MakeSpell(AID.DeepCut), 5f, tankbuster: true);
 class FullBeat(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.FullBeat), 6f, 8, 8);
 class CelebrateGoodTimes(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CelebrateGoodTimes));
 class DiscoInfernal(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DiscoInfernal));

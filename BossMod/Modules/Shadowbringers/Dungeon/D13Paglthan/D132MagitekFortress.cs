@@ -56,9 +56,9 @@ class StableCannon(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state == 0x00200010 && index is >= 0x08 and <= 0x0A)
-            _aoes.Add(new(rect, WPos.ClampToGrid(new(-185f + (index - 0x08), 28.3f)), Angle.AnglesCardinals[1], WorldState.FutureTime(12.1d)));
-        else if (index == 0x0D && state == 0x00020001)
+        if (state == 0x00200010u && index is >= 0x08 and <= 0x0A)
+            _aoes.Add(new(rect, WPos.ClampToGrid(new(-185f - 10f * (0x08 - index) * 10f, 28.3f)), Angle.AnglesCardinals[1], WorldState.FutureTime(12.1d)));
+        else if (index == 0x0D && state == 0x00020001u)
             _aoes.Clear();
     }
 
@@ -141,9 +141,9 @@ class CorePlatform(BossModule module) : Components.GenericAOEs(module)
     {
         if (index == 0x0D)
         {
-            if (state == 0x00020001)
+            if (state == 0x00020001u)
                 _aoe = new(circle, new(-175f, 30f), default, DateTime.MaxValue, Colors.SafeFromAOE);
-            else if (state == 0x00080004)
+            else if (state == 0x00080004u)
                 _aoe = null;
         }
     }

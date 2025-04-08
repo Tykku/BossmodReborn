@@ -20,11 +20,10 @@ class WideningNarrowingWitchHunt(BossModule module) : Components.GenericAOEs(mod
         if (first != null && second != null)
         {
             var pos = spell.LocXZ;
-            var rot = spell.Rotation;
-            AOEs.Add(new(first, pos, rot, Module.CastFinishAt(spell, 1.1f)));
-            AOEs.Add(new(second, pos, rot, Module.CastFinishAt(spell, 4.6f)));
-            AOEs.Add(new(first, pos, rot, Module.CastFinishAt(spell, 8.1f)));
-            AOEs.Add(new(second, pos, rot, Module.CastFinishAt(spell, 11.6f)));
+            AOEs.Add(new(first, pos, default, Module.CastFinishAt(spell, 1.1f)));
+            AOEs.Add(new(second, pos, default, Module.CastFinishAt(spell, 4.6f)));
+            AOEs.Add(new(first, pos, default, Module.CastFinishAt(spell, 8.1f)));
+            AOEs.Add(new(second, pos, default, Module.CastFinishAt(spell, 11.6f)));
         }
     }
 

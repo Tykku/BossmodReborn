@@ -156,7 +156,7 @@ class UntamedCurrentAOEs(BossModule module) : Components.GenericAOEs(module)
             case (uint)AID.UntamedCurrentAOE8:
             case (uint)AID.UntamedCurrentAOE9:
             case (uint)AID.UntamedCurrentAOE10:
-                _aoes.Add(new(circle, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
+                _aoes.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
                 break;
         }
     }

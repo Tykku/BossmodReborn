@@ -121,7 +121,26 @@ class AuraSphere(BossModule module) : BossComponent(module)
 class SledgeHammer(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.SledgeHammerMarker), ActionID.MakeSpell(AID.Sledgehammer3), 4.9f);
 class HeavingHaymaker(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HeavingHaymaker));
 class LithicImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LithicImpact), new AOEShapeRect(4f, 2f));
-class Whirlwind(BossModule module) : Components.Voidzone(module, 5f, m => m.Enemies(OID.BitingWind), 7);
+class Whirlwind(BossModule module) : Components.Voidzone(module, 5f, GetVoidzones, 7f)
+{
+    private static Actor[] GetVoidzones(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.BitingWind);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
+
+        var voidzones = new Actor[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (z.EventState != 7)
+                voidzones[index++] = z;
+        }
+        return voidzones[..index];
+    }
+}
 
 class GreatFlood(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.GreatFlood), 25f, kind: Kind.DirForward)
 {

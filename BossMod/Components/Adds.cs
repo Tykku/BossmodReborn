@@ -50,7 +50,24 @@ public class AddsMulti(BossModule module, uint[] oids, int priority = 0) : BossC
 {
     public readonly uint[] OIDs = oids;
     public readonly List<Actor> Actors = module.Enemies(oids);
-    public IEnumerable<Actor> ActiveActors => Actors.Where(a => a.IsTargetable && !a.IsDead);
+    public List<Actor> ActiveActors
+    {
+        get
+        {
+            var enemies = Module.Enemies(OIDs);
+            var count = enemies.Count;
+            List<Actor> activeActors = new(count);
+            for (var i = 0; i < count; ++i)
+            {
+                var actor = enemies[i];
+                if (actor.IsTargetable && !actor.IsDead)
+                {
+                    activeActors.Add(actor);
+                }
+            }
+            return activeActors;
+        }
+    }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

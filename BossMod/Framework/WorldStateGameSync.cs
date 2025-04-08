@@ -579,7 +579,7 @@ sealed class WorldStateGameSync : IDisposable
                 if (slot > 0)
                     UpdatePartySlot(slot, new PartyState.Member(0, actor.InstanceID, false, actor.Name));
                 // else
-                //     Service.Log($"[WorldState] Failed to find empty slot for allied NPC {actor.InstanceID:X}");
+                //     Service.Log($"[WorldState]  slot for allied NPC {actor.InstanceID:X}");
             }
         }
     }
@@ -609,8 +609,8 @@ sealed class WorldStateGameSync : IDisposable
         var freeSlot = FindFreePartySlot(1, PartyState.MaxPartySize);
         if (freeSlot >= 0)
             _ws.Execute(new PartyState.OpModify(freeSlot, m));
-        else
-            Service.Log($"[WorldState] Failed to find empty slot for party member {m.ContentId:X}:{m.InstanceId:X}");
+        // else
+        //     Service.Log($"[WorldState] Failed to find empty slot for party member {m.ContentId:X}:{m.InstanceId:X}");
     }
 
     private void UpdatePartySlot(int slot, PartyState.Member m)

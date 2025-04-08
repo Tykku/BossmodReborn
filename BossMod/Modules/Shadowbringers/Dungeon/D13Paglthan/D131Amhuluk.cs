@@ -49,7 +49,7 @@ class LightningBolt(BossModule module) : Components.GenericBaitAway(module, Acti
         for (var i = 0; i < count; ++i)
         {
             var z = rods[i];
-            if (z.FindStatus(SID.LightningRod) == null)
+            if (z.FindStatus((uint)SID.LightningRod) == null)
                 filteredrods.Add(z);
         }
         return filteredrods;
@@ -67,7 +67,7 @@ class LightningBolt(BossModule module) : Components.GenericBaitAway(module, Acti
         if (status.ID == (uint)SID.LightningRod)
         {
             if (activation == default)
-                activation = WorldState.FutureTime(10.8f);
+                activation = WorldState.FutureTime(10.8d);
             CurrentBaits.Add(new(actor, actor, circle, activation));
         }
     }
@@ -167,14 +167,18 @@ class WideBlasterSpikeFlail(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        var aoes = new AOEInstance[count];
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
         for (var i = 0; i < count; ++i)
         {
-            var aoe = _aoes[i];
+            ref var aoe = ref aoes[i];
             if (i == 0)
-                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
+            {
+                if (count > 1)
+                    aoe.Color = Colors.Danger;
+                aoe.Risky = true;
+            }
             else
-                aoes[i] = aoe with { Risky = false };
+                aoe.Risky = false;
         }
         return aoes;
     }

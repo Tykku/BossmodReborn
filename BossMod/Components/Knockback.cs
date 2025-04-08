@@ -71,8 +71,17 @@ public abstract class GenericKnockback(BossModule module, ActionID aid = new(), 
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (CalculateMovements(slot, actor).Any(e => DestinationUnsafe(slot, actor, e.to)))
-            hints.Add("About to be knocked into danger!");
+        var movements = CalculateMovements(slot, actor);
+        var count = movements.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var movement = movements[i];
+            if (DestinationUnsafe(slot, actor, movement.to))
+            {
+                hints.Add("About to be knocked into danger!");
+                break;
+            }
+        }
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)

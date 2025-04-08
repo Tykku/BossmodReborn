@@ -60,7 +60,7 @@ class DRS4States : StateMachineBuilder
     private void Phase3(uint id)
     {
         ActorCast(id, _module.Knight, AID.StrongpointDefense, 3.4f, 5); // warrior also casts spiteful spirit at the same time
-        ComponentCondition<CoatOfArms>(id + 0x10, 1.2f, comp => comp.ActiveActors.Any(), "Wards + spheres 1");
+        ComponentCondition<CoatOfArms>(id + 0x10, 1.2f, comp => comp.ActiveActors.Count != 0, "Wards + spheres 1");
         // +1.8s: enrage casts start
         // +2.0s: spiritual spheres become targetable (don't really care...)
         // +4.7s: sprite check & coat of arms cast start

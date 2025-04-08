@@ -6,7 +6,7 @@ class Demiurges(BossModule module) : Components.DirectionalParry(module, [(uint)
     private readonly List<Actor> _second = module.Enemies(OID.Demiurge2);
     private readonly List<Actor> _third = module.Enemies(OID.Demiurge3);
 
-    public bool AddsActive => ActiveActors.Any() || _second.Any(a => a.IsTargetable && !a.IsDead) || _third.Any(a => a.IsTargetable && !a.IsDead);
+    public bool AddsActive => ActiveActors.Count != 0 || _second.Any(a => a.IsTargetable && !a.IsDead) || _third.Any(a => a.IsTargetable && !a.IsDead);
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {

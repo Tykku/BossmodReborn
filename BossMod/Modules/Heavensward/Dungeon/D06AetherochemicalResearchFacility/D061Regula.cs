@@ -35,7 +35,7 @@ public enum TetherID : uint
 
 class SelfDetonate(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SelfDetonate));
 class AetherochemicalGrenado(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherochemicalGrenado), 8f);
-class AetherochemicalLaser(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(50, 2), (uint)TetherID.BaitAway, ActionID.MakeSpell(AID.AetherochemicalLaser));
+class AetherochemicalLaser(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(50f, 2f), (uint)TetherID.BaitAway, ActionID.MakeSpell(AID.AetherochemicalLaser));
 class AetherochemicalLaserAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherochemicalLaser), new AOEShapeRect(50f, 2f));
 
 class JudgmentAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.JudgmentAOE), 8f);

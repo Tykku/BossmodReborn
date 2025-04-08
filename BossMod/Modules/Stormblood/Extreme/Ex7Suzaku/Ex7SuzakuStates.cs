@@ -90,7 +90,7 @@ class Ex7SuzakuStates : StateMachineBuilder
         ComponentCondition<RapturousEchoTowers>(id + 0x20u, 31.2f, comp => comp.Towers.Count == 0, "DDR end")
             .DeactivateOnExit<RapturousEchoTowers>()
             .DeactivateOnExit<ScarletMelody>();
-        ActorCast(id + 0x30u, () => Helper(Module), AID.ScarletFever, 4.9f, 7f, true)
+        ActorCast(id + 0x30u, () => Helper(Module), AID.ScarletFever, 4.9f, 7f, true, "Raidwide")
             .ActivateOnEnter<ArenaChange>()
             .SetHint(StateMachine.StateHint.Raidwide);
         static Actor? Helper(BossModule module)
@@ -105,7 +105,7 @@ class Ex7SuzakuStates : StateMachineBuilder
             }
             return null;
         }
-        Condition(id + 0x40u, 0.7f, () => Module.Arena.Bounds == Ex7Suzaku.Phase2Bounds, "Arena changes")
+        Condition(id + 0x40u, 0.7f, () => Module.Arena.Bounds == Ex7Suzaku.Phase2Bounds, "Donut arena")
             .DeactivateOnExit<ArenaChange>();
         Targetable(id + 0x50u, true, 4f)
             .SetHint(StateMachine.StateHint.DowntimeEnd);

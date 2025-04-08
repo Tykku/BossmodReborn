@@ -28,12 +28,12 @@ class FlameSlash(BossModule module) : Components.GenericAOEs(module, ActionID.Ma
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index == 17 && state == 0x00400001)
+        if (index == 17 && state == 0x00400001u)
             SmallArena = false;
     }
 }
 
-class RainingSwords(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.RainingSwordsAOE), 3);
+class RainingSwords(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.RainingSwordsAOE), 3f);
 
 class ChainLightning(BossModule module) : Components.GenericAOEs(module)
 {

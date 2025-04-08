@@ -21,7 +21,19 @@ public class GenericSharedTankbuster(BossModule module, ActionID aid, AOEShape s
             return;
         if (Target == actor)
         {
-            hints.Add("Stack with other tanks or press invuln!", !Raid.WithoutSlot().Any(a => a != actor && a.Role == Role.Tank && InAOE(a)));
+            var otherTanksInAOE = false;
+            var party = Raid.WithoutSlot();
+            var len = party.Length;
+            for (var i = 0; i < len; ++i)
+            {
+                ref readonly var a = ref party[i];
+                if (a != actor && a.Role == Role.Tank && InAOE(a))
+                {
+                    otherTanksInAOE = true;
+                    break;
+                }
+            }
+            hints.Add("Stack with other tanks or press invuln!", !otherTanksInAOE);
         }
         else if (actor.Role == Role.Tank)
         {

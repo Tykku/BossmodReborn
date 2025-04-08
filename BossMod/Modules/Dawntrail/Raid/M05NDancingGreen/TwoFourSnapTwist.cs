@@ -40,6 +40,7 @@ class TwoFourSnapTwist(BossModule module) : Components.GenericAOEs(module)
             case (uint)AID.TwoSnapTwistFirst5:
             case (uint)AID.TwoSnapTwistFirst6:
             case (uint)AID.TwoSnapTwistFirst7:
+            case (uint)AID.TwoSnapTwistFirst8:
             case (uint)AID.FourSnapTwistFirst1:
             case (uint)AID.FourSnapTwistFirst2:
             case (uint)AID.FourSnapTwistFirst3:

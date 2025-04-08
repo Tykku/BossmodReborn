@@ -5,7 +5,6 @@ public enum OID : uint
     Boss = 0x47B6, // R4.998
     Frogtourage = 0x47B7, // R3.142
     Spotlight = 0x47B8, // R1.0
-    Helper2 = 0x100F8C, // R0.5
     Helper = 0x233C
 }
 
@@ -24,6 +23,7 @@ public enum AID : uint
     TwoSnapTwistFirst5 = 42197, // Boss->self, 5.0s cast, range 20 width 40 rect
     TwoSnapTwistFirst6 = 42700, // Boss->self, 5.0s cast, range 20 width 40 rect
     TwoSnapTwistFirst7 = 42703, // Boss->self, 5.0s cast, range 20 width 40 rect
+    TwoSnapTwistFirst8 = 42198, // Boss->self, 5.0s cast, range 20 width 40 rect
     TwoSnapTwist2 = 42705, // Helper->self, 1.5s cast, range 25 width 50 rect
     TwoSnapTwist3 = 42706, // Helper->self, 3.5s cast, range 25 width 50 rect
     FourSnapTwistFirst1 = 42719, // Boss->self, 5.0s cast, range 20 width 40 rect
@@ -40,7 +40,7 @@ public enum AID : uint
     FourSnapTwist5 = 42725, // Helper->self, 3.5s cast, range 25 width 50 rect
 
     DeepCutVisual = 42694, // Boss->self, 5.0s cast, single-target, tankbuster
-    DeepCut = 42695, // Helper->self, no cast, range 60 50-degree cone
+    DeepCut = 42695, // Helper->self, no cast, range 60 45-degree cone
 
     FunkyFloorVisual = 42741, // Boss->self, 2.5+0,5s cast, single-target, checkerboard
     FunkyFloor = 42742, // Helper->self, no cast, ???
@@ -85,6 +85,7 @@ public enum AID : uint
     MoonburnVisualEnd = 42782, // Frogtourage->self, 1.0s cast, single-target
     Moonburn1 = 42784, // Helper->self, 10.5s cast, range 40 width 15 rect
     Moonburn2 = 42783, // Helper->self, 10.5s cast, range 40 width 15 rect
+
     EighthBeatsVisual = 42754, // Boss->self, 5.0s cast, single-target
     EighthBeats = 42755 // Helper->player, 5.0s cast, range 5 circle, spread
 }

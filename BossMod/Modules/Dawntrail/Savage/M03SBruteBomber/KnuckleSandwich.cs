@@ -4,7 +4,7 @@ class KnuckleSandwich(BossModule module) : Components.GenericSharedTankbuster(mo
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.KnuckleSandwich)
+        if (spell.Action.ID == (uint)AID.KnuckleSandwich)
         {
             Source = caster;
             Target = WorldState.Actors.Find(spell.TargetID);
@@ -14,7 +14,7 @@ class KnuckleSandwich(BossModule module) : Components.GenericSharedTankbuster(mo
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.KnuckleSandwich or AID.KnuckleSandwichAOE)
+        if (spell.Action.ID is (uint)AID.KnuckleSandwich or (uint)AID.KnuckleSandwichAOE)
         {
             ++NumCasts;
         }
