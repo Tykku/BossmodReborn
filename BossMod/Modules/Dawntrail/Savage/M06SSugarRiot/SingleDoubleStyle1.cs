@@ -31,6 +31,7 @@ class SingleDoubleStyle1(BossModule module) : Components.GenericAOEs(module)
                     break;
             }
         }
+        void AddAOE(AOEShape shape, WPos position, double time, Angle rotation = default) => AOEs.Add(new(shape, WPos.ClampToGrid(position), rotation, WorldState.FutureTime(time)));
     }
 
     private void HandleSweetShot(Actor source, double time)
@@ -39,11 +40,6 @@ class SingleDoubleStyle1(BossModule module) : Components.GenericAOEs(module)
         var direction = source.Rotation.ToDirection();
         var dirVector = WPos.ClampToGrid(sourceP + 60f * direction) - sourceP;
         AOEs.Add(new(new AOEShapeRect(dirVector.Length(), 3.5f), WPos.ClampToGrid(sourceP), Angle.FromDirection(dirVector), WorldState.FutureTime(time)));
-    }
-
-    private void AddAOE(AOEShape shape, WPos position, double time, Angle rotation = default)
-    {
-        AOEs.Add(new(shape, WPos.ClampToGrid(position), rotation, WorldState.FutureTime(time)));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)

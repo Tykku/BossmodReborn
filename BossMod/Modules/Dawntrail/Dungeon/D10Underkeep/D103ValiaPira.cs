@@ -104,21 +104,23 @@ class EnforcementRay(BossModule module) : Components.GenericAOEs(module)
     private void SortAOEs()
     {
         _aoes.Sort((a, b) =>
-            {
-                var distA = (a.Origin - center).LengthSq();
-                var distB = (b.Origin - center).LengthSq();
-                return distA.CompareTo(distB);
-            });
+        {
+            var distA = (a.Origin - center).LengthSq();
+            var distB = (b.Origin - center).LengthSq();
+            return distA.CompareTo(distB);
+        });
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
-        if (tether.ID == (uint)TetherID.OrbTeleport)
+        if (source.OID == (uint)OID.CoordinateBit2 && tether.ID == (uint)TetherID.OrbTeleport)
         {
             teleported = true;
             var aoes = CollectionsMarshal.AsSpan(_aoes);
             var len = aoes.Length;
-            var pos = WorldState.Actors.Find(tether.Target)!.Position;
+            var position = WorldState.Actors.Find(tether.Target)?.Position;
+            if (position is not WPos pos)
+                return;
             for (var i = 0; i < len; ++i)
             {
                 ref var aoe = ref aoes[i];

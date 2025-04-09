@@ -93,7 +93,7 @@ class TrashSpawning(BossModule module) : BossComponent(module)
                 WPos finalPosition = new(offsetPosition.X, offsetPosition.Y);
 
                 // Draw the ripple shape at the adjusted position
-                _rippleShape.Draw(Arena, finalPosition, _rippleDirectionOffset, Colors.SafeFromAOE);
+                _rippleShape.Outline(Arena, finalPosition, _rippleDirectionOffset, Colors.PlayerInteresting);
             }
         }
     }
@@ -152,11 +152,14 @@ public class D013DennTheOrcatoothed(WorldState ws, Actor primary) : BossModule(w
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
-            e.Priority = (OID)e.Actor.OID switch
+            var e = hints.PotentialTargets[i];
+            e.Priority = e.Actor.OID switch
             {
-                OID.Boss => 1,
+                (uint)OID.BaleenGuard => 2,
+                (uint)OID.Boss => 1,
                 _ => 0
             };
         }

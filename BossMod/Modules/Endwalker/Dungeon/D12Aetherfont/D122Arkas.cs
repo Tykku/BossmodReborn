@@ -155,13 +155,16 @@ class ForkedFissures(BossModule module) : Components.GenericAOEs(module)
                 0x04 => pattern0x04,
                 _ => default
             };
-            var starts = pattern.Start;
-            var ends = pattern.End;
-            for (var i = 15; i >= 0; --i)
+            if (pattern != default)
             {
-                ref readonly var start = ref starts[i];
-                ref readonly var end = ref ends[i];
-                _aoes.Add(new(new AOEShapeRect((start - end).Length(), 2f), start, Angle.FromDirection(end - start), WorldState.FutureTime(6d)));
+                var starts = pattern.Start;
+                var ends = pattern.End;
+                for (var i = 15; i >= 0; --i)
+                {
+                    ref readonly var start = ref starts[i];
+                    ref readonly var end = ref ends[i];
+                    _aoes.Add(new(new AOEShapeRect((start - end).Length(), 2f), start, Angle.FromDirection(end - start), WorldState.FutureTime(6d)));
+                }
             }
         }
     }
