@@ -9,6 +9,8 @@ public sealed class ActorState : IEnumerable<Actor>
     public IEnumerator<Actor> GetEnumerator() => Actors.Values.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => Actors.Values.GetEnumerator();
 
+    public const uint StatusIDDirectionalDisregard = 3808u;
+
     public Actor? Find(ulong instanceID) => instanceID is not 0 and not 0xE0000000 ? Actors.GetValueOrDefault(instanceID) : null;
 
     // all actor-related operations have instance ID to which they are applied
@@ -465,11 +467,19 @@ public sealed class ActorState : IEnumerable<Actor>
             ref var prev = ref actor.Statuses[Index];
             var wsactors = ws.Actors;
             if (prev.ID != 0 && (prev.ID != Value.ID || prev.SourceID != Value.SourceID))
-                wsactors.StatusLose.Fire(actor, Index);
+            {
+                ws.Actors.StatusLose.Fire(actor, Index);
+                if (prev.ID == StatusIDDirectionalDisregard)
+                    actor.Omnidirectional = false;
+            }
             actor.Statuses[Index] = Value;
             actor.PendingStatuses.RemoveAll(s => s.StatusId == Value.ID && s.Effect.SourceInstanceId == Value.SourceID);
             if (Value.ID != 0)
-                wsactors.StatusGain.Fire(actor, Index);
+            {
+                ws.Actors.StatusGain.Fire(actor, Index);
+                if (Value.ID == StatusIDDirectionalDisregard)
+                    actor.Omnidirectional = true;
+            }
         }
         public override void Write(ReplayRecorder.Output output)
         {

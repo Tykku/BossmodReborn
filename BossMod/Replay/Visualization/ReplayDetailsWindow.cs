@@ -100,11 +100,21 @@ class ReplayDetailsWindow : UIWindow
             _mgr.ActiveModule.Draw(_azimuthOverride ? _azimuth.Degrees() : _mgr.WorldState.Client.CameraAzimuth, _povSlot, true, true);
             var drawTimerPost = DateTime.Now;
 
-            if (_showDebug && _hints.ForcedMovement != null && _mgr.ActiveModule.Raid[_povSlot] is var pc && pc != null)
+            if (_showDebug && _mgr.ActiveModule.Raid[_povSlot] is var pc && pc != null)
             {
-                var movementDest = pc.Position + new WDir(_hints.ForcedMovement.Value.XZ());
-                _mgr.ActiveModule.Arena.AddLine(pc.Position, movementDest, Colors.FutureVulnerable);
-                _mgr.ActiveModule.Arena.AddCircle(movementDest, 0.5f, Colors.FutureVulnerable);
+                if (_hints.ForcedMovement != null)
+                {
+                    var movementDest = pc.Position + new WDir(_hints.ForcedMovement.Value.XZ());
+                    _mgr.ActiveModule.Arena.AddLine(pc.Position, movementDest, Colors.FutureVulnerable);
+                    _mgr.ActiveModule.Arena.AddCircle(movementDest, 0.5f, Colors.FutureVulnerable);
+                }
+
+                var movement = _mgr.ActiveModule.CalculateMovementHintsForRaidMember(_povSlot, ref pc);
+                foreach (var (from, to, col) in movement)
+                {
+                    _mgr.ActiveModule.Arena.AddLine(from, to, (col & 0xffffff) | 0x80000000);
+                    _mgr.ActiveModule.Arena.AddCircle(to, 0.5f, (col & 0xffffff) | 0x80000000);
+                }
             }
 
             var compList = string.Join(", ", _mgr.ActiveModule.Components.Select(c => c.GetType().Name));

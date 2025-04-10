@@ -103,6 +103,8 @@ public abstract class BossModule : IDisposable
                 if (castinfo?.IsSpell() ?? false)
                     comp.OnCastStarted(actor, castinfo);
             }
+            if (actor.IsTargetable)
+                comp.OnTargetable(actor);
             ref var tether = ref actor.Tether;
             if (tether.ID != 0)
                 comp.OnTethered(actor, tether);
@@ -154,6 +156,7 @@ public abstract class BossModule : IDisposable
             WorldState.Actors.Removed.Subscribe(OnActorDestroyed),
             WorldState.Actors.CastStarted.Subscribe(OnActorCastStarted),
             WorldState.Actors.CastFinished.Subscribe(OnActorCastFinished),
+            WorldState.Actors.IsTargetableChanged.Subscribe(OnIsTargetableChanged),
             WorldState.Actors.Tethered.Subscribe(OnActorTethered),
             WorldState.Actors.Untethered.Subscribe(OnActorUntethered),
             WorldState.Actors.StatusGain.Subscribe(OnActorStatusGain),
@@ -499,6 +502,22 @@ public abstract class BossModule : IDisposable
             var count = Components.Count;
             for (var i = 0; i < count; ++i)
                 Components[i].OnCastFinished(actor, actor.CastInfo);
+        }
+    }
+
+    private void OnIsTargetableChanged(Actor actor)
+    {
+        if (actor.IsTargetable)
+        {
+            var count = Components.Count;
+            for (var i = 0; i < count; ++i)
+                Components[i].OnTargetable(actor);
+        }
+        else
+        {
+            var count = Components.Count;
+            for (var i = 0; i < count; ++i)
+                Components[i].OnUntargetable(actor);
         }
     }
 

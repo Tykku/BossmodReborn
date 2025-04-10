@@ -82,6 +82,49 @@ class GetDownBait(BossModule module) : Components.GenericBaitAway(module)
     {
         if (spell.Action.ID == (uint)AID.GetDownBait)
         {
+            var targets = spell.Targets;
+            var countT = targets.Count;
+            var countB = CurrentBaits.Count;
+            if (countT == 1)
+            {
+                for (var i = 0; i < countB; ++i)
+                {
+                    if (CurrentBaits[i].Target.InstanceID == targets[0].ID)
+                    {
+                        CurrentBaits.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                var closestDiff = new Angle(MathF.PI);
+                Actor? closestActor = null;
+
+                for (var i = 0; i < countT; ++i)
+                {
+                    var actor = WorldState.Actors.Find(targets[i].ID);
+                    if (actor == null)
+                        continue;
+                    var angleToActor = Angle.FromDirection(actor.Position - Arena.Center);
+                    var diff = (angleToActor - spell.Rotation).Normalized();
+
+                    if (Math.Abs(diff.Deg) < Math.Abs(closestDiff.Deg))
+                    {
+                        closestDiff = diff;
+                        closestActor = actor;
+                    }
+                }
+
+                for (var i = 0; i < countB; ++i)
+                {
+                    if (CurrentBaits[i].Target == closestActor)
+                    {
+                        CurrentBaits.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
             if (++NumCasts == 8) // not sure yet what happens if a player dies before baiting, so this is a failsafe
                 CurrentBaits.Clear();
         }

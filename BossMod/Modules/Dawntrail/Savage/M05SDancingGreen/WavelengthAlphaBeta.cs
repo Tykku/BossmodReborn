@@ -38,6 +38,24 @@ class WavelengthAlphaBeta(BossModule module) : BossComponent(module)
         }
     }
 
+    public override PlayerPriority CalcPriority(int pcSlot, Actor pc, int playerSlot, Actor player, ref uint customColor)
+    {
+        if (numCasts == 8)
+        {
+            ref readonly var pcOrder = ref expirationBySlot[pcSlot].Order;
+            ref readonly var playerOrder = ref expirationBySlot[playerSlot].Order;
+            if (pcOrder != default && pcOrder == playerOrder)
+            {
+                return PlayerPriority.Critical;
+            }
+            else if (playerOrder != default)
+            {
+                return PlayerPriority.Danger;
+            }
+        }
+        return PlayerPriority.Irrelevant;
+    }
+
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (numCasts == 8)

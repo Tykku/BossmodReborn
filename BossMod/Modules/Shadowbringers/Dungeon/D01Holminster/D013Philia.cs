@@ -304,7 +304,9 @@ class FierceBeating(BossModule module) : Components.Exaflare(module, 4f)
         if (_aoes.Count != 0 && NumCasts > 2)
             _aoes.RemoveAt(0);
         if (NumCasts <= 14)
-            _aoes.Add(new(circle, WPos.ClampToGrid(WPos.RotateAroundOrigin(45, D013Philia.ArenaCenter, caster.Position + adv)), default, WorldState.FutureTime(3.7d)));
+        {
+            _aoes.Add(new(circle, WPos.ClampToGrid(WPos.RotateAroundOrigin(45, D013Philia.ArenaCenter, caster.Position)), default, WorldState.FutureTime(3.7d)));
+        }
         if (NumCasts == 16)
             NumCasts = 0;
     }
