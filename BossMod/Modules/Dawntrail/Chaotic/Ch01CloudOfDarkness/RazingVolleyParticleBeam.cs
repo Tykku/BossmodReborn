@@ -10,7 +10,7 @@ class RazingVolleyParticleBeam(BossModule module) : Components.SimpleAOEs(module
         if (count == 0)
             return [];
         var aoes = CollectionsMarshal.AsSpan(Casters);
-        var deadline = aoes[0].Activation.AddSeconds(1d);
+        var deadline = aoes[0].Activation.AddSeconds(3d);
 
         var index = 0;
         while (index < count && aoes[index].Activation < deadline)
