@@ -214,7 +214,7 @@ public sealed class ClientState
     public Event<OpActionRequest> ActionRequested = new();
     public sealed record class OpActionRequest(ClientActionRequest Request) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws) => ws.Client.ActionRequested.Fire(this);
+        protected override void Exec(WorldState ws) => ws.Client.ActionRequested.Fire(this);
         public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("CLAR"u8)
             .Emit(Request.Action)
             .EmitActor(Request.TargetID)
@@ -228,7 +228,7 @@ public sealed class ClientState
     public Event<OpActionReject> ActionRejected = new();
     public sealed record class OpActionReject(ClientActionReject Value) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws) => ws.Client.ActionRejected.Fire(this);
+        protected override void Exec(WorldState ws) => ws.Client.ActionRejected.Fire(this);
         public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("CLRJ"u8)
             .Emit(Value.Action)
             .Emit(Value.SourceSequence)
@@ -239,7 +239,7 @@ public sealed class ClientState
     public Event<OpCountdownChange> CountdownChanged = new();
     public sealed record class OpCountdownChange(float? Value) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             ws.Client.CountdownRemaining = Value;
             ws.Client.CountdownChanged.Fire(this);
@@ -256,7 +256,7 @@ public sealed class ClientState
     public Event<OpAnimationLockChange> AnimationLockChanged = new();
     public sealed record class OpAnimationLockChange(float Value) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             ws.Client.AnimationLock = Value;
             ws.Client.AnimationLockChanged.Fire(this);
@@ -267,7 +267,7 @@ public sealed class ClientState
     public Event<OpComboChange> ComboChanged = new();
     public sealed record class OpComboChange(Combo Value) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             ws.Client.ComboState = Value;
             ws.Client.ComboChanged.Fire(this);
@@ -278,7 +278,7 @@ public sealed class ClientState
     public Event<OpPlayerStatsChange> PlayerStatsChanged = new();
     public sealed record class OpPlayerStatsChange(Stats Value) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             ws.Client.PlayerStats = Value;
             ws.Client.PlayerStatsChanged.Fire(this);
@@ -289,7 +289,7 @@ public sealed class ClientState
     public Event<OpMoveSpeedChange> MoveSpeedChanged = new();
     public sealed record class OpMoveSpeedChange(float Speed) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             ws.Client.MoveSpeed = Speed;
             ws.Client.MoveSpeedChanged.Fire(this);
@@ -300,7 +300,7 @@ public sealed class ClientState
     public Event<OpCooldown> CooldownsChanged = new();
     public sealed record class OpCooldown(bool Reset, List<(int group, Cooldown value)> Cooldowns) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             if (Reset)
                 Array.Fill(ws.Client.Cooldowns, default);
@@ -329,7 +329,7 @@ public sealed class ClientState
     public Event<OpDutyActionsChange> DutyActionsChanged = new();
     public sealed record class OpDutyActionsChange(DutyAction Slot0, DutyAction Slot1) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             ws.Client.DutyActions[0] = Slot0;
             ws.Client.DutyActions[1] = Slot1;
@@ -341,7 +341,7 @@ public sealed class ClientState
     public Event<OpBozjaHolsterChange> BozjaHolsterChanged = new();
     public sealed record class OpBozjaHolsterChange(List<(BozjaHolsterID entry, byte count)> Contents) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             Array.Fill(ws.Client.BozjaHolster, (byte)0);
             for (var i = 0; i < Contents.Count; ++i)
@@ -369,7 +369,7 @@ public sealed class ClientState
     {
         public readonly uint[] Values = Values;
 
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             Array.Copy(Values, ws.Client.BlueMageSpells, NumBlueMageSpells);
             ws.Client.BlueMageSpellsChanged.Fire(this);
@@ -391,7 +391,7 @@ public sealed class ClientState
     {
         public readonly short[] Values = Values;
 
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             Array.Fill(ws.Client.ClassJobLevels, (short)0);
             for (var i = 0; i < Values.Length; ++i)
@@ -413,7 +413,7 @@ public sealed class ClientState
     public Event<OpActiveFateChange> ActiveFateChanged = new();
     public sealed record class OpActiveFateChange(Fate Value) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             ws.Client.ActiveFate = Value;
             ws.Client.ActiveFateChanged.Fire(this);
@@ -424,7 +424,7 @@ public sealed class ClientState
     public Event<OpActivePetChange> ActivePetChanged = new();
     public sealed record class OpActivePetChange(Pet Value) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             ws.Client.ActivePet = Value;
             ws.Client.ActivePetChanged.Fire(this);
@@ -435,7 +435,7 @@ public sealed class ClientState
     public Event<OpFocusTargetChange> FocusTargetChanged = new();
     public sealed record class OpFocusTargetChange(ulong Value) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             ws.Client.FocusTargetId = Value;
             ws.Client.FocusTargetChanged.Fire(this);
@@ -446,7 +446,7 @@ public sealed class ClientState
     public Event<OpForcedMovementDirectionChange> ForcedMovementDirectionChanged = new();
     public sealed record class OpForcedMovementDirectionChange(Angle Value) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             ws.Client.ForcedMovementDirection = Value;
             ws.Client.ForcedMovementDirectionChanged.Fire(this);
@@ -458,7 +458,7 @@ public sealed class ClientState
     public sealed record class OpContentKVDataChange(uint[] Value) : WorldState.Operation
     {
         public readonly uint[] Value = Value;
-        protected override void Exec(ref WorldState ws)
+        protected override void Exec(WorldState ws)
         {
             ws.Client.ContentKeyValueData = Value;
             ws.Client.ContentKVDataChanged.Fire(this);
@@ -475,7 +475,7 @@ public sealed class ClientState
     public Event<OpFateInfo> FateInfo = new();
     public sealed record class OpFateInfo(uint FateId, DateTime StartTime) : WorldState.Operation
     {
-        protected override void Exec(ref WorldState ws) => ws.Client.FateInfo.Fire(this);
+        protected override void Exec(WorldState ws) => ws.Client.FateInfo.Fire(this);
         public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("FATE"u8).Emit(FateId).Emit(StartTime.Ticks);
     }
 }

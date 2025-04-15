@@ -50,8 +50,8 @@ class M06SSugarRiotStates : StateMachineBuilder
             .ActivateOnEnter<ColorClash>();
         ComponentCondition<SingleDoubleStyle1>(id + 0x20u, 7.2f, comp => comp.AOEs.Count != 0, "Double Style starts")
             .ActivateOnEnter<SingleDoubleStyle1>();
-        ComponentCondition<Wingmark>(id + 0x30u, 8.6f, comp => comp.StunStatus.Any(), "Stun");
-        ComponentCondition<Wingmark>(id + 0x40u, 3f, comp => !comp.StunStatus.Any(), "Knockback resolves");
+        ComponentCondition<Wingmark>(id + 0x30u, 8.6f, comp => comp.StunStatus != default, "Stun");
+        ComponentCondition<Wingmark>(id + 0x40u, 3f, comp => comp.StunStatus == default, "Knockback resolves");
         ComponentCondition<SingleDoubleStyle1>(id + 0x50u, 1.5f, comp => comp.NumCasts != 0, "Double Style resolves")
             .DeactivateOnExit<Wingmark>()
             .DeactivateOnExit<SingleDoubleStyle1>();
@@ -74,7 +74,7 @@ class M06SSugarRiotStates : StateMachineBuilder
             .ActivateOnEnter<Sweltering>()
             .ActivateOnEnter<HeatingBurningUp>()
             .ActivateOnEnter<SprayPain1>();
-        ComponentCondition<Sweltering>(id + 0x10u, 7f, comp => comp.SwelteringStatus.Any(), "Bleed starts + defamation debuffs");
+        ComponentCondition<Sweltering>(id + 0x10u, 7f, comp => comp.SwelteringStatus != default, "Bleed starts + defamation debuffs");
         for (var i = 1; i <= 6; ++i)
         {
             var offset = id + 0x20u + (uint)((i - 1) * 0x10u);
@@ -102,11 +102,11 @@ class M06SSugarRiotStates : StateMachineBuilder
             .DeactivateOnExit<HeatingBurningUp>();
         ComponentCondition<SprayPain2>(id + 0xF0u, 0.7f, comp => comp.NumCasts != 0, "Circle AOEs")
             .DeactivateOnExit<SprayPain2>();
-        ComponentCondition<QuicksandDoubleStylePaintBomb>(id + 0x100u, 10.9f, comp => comp.Targets.Any(), "Bomb baits start")
+        ComponentCondition<QuicksandDoubleStylePaintBomb>(id + 0x100u, 10.9f, comp => comp.Targets != default, "Bomb baits start")
             .ActivateOnExit<PuddingGraf>();
         ComponentCondition<PuddingGraf>(id + 0x110u, 6f, comp => comp.NumFinishedSpreads != 0, "Spreads resolve")
             .DeactivateOnExit<PuddingGraf>();
-        ComponentCondition<QuicksandDoubleStylePaintBomb>(id + 0x120u, 0.1f, comp => !comp.Targets.Any(), "Bomb baits resolve");
+        ComponentCondition<QuicksandDoubleStylePaintBomb>(id + 0x120u, 0.1f, comp => comp.Targets == default, "Bomb baits resolve");
         Cast(id + 0x130u, AID.MousseMural, 4.1f, 5f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide)
             .DeactivateOnExit<QuicksandDoubleStyleHeavenBomb>()
@@ -114,7 +114,7 @@ class M06SSugarRiotStates : StateMachineBuilder
             .DeactivateOnExit<PaintBomb>()
             .DeactivateOnExit<HeavenBomb>()
             .DeactivateOnExit<Quicksand>();
-        ComponentCondition<Sweltering>(id + 0x140u, 0.7f, comp => !comp.SwelteringStatus.Any(), "Bleed ends")
+        ComponentCondition<Sweltering>(id + 0x140u, 0.7f, comp => comp.SwelteringStatus == default, "Bleed ends")
             .DeactivateOnExit<Sweltering>();
     }
 
@@ -217,8 +217,8 @@ class M06SSugarRiotStates : StateMachineBuilder
             .ActivateOnEnter<Wingmark>();
         ComponentCondition<MousseDripTowers>(id + 0xA0u, 3.1f, comp => comp.Towers.Count != 0, "Towers 2 appear")
             .DeactivateOnEnter<MousseDripVoidzone>();
-        ComponentCondition<Wingmark>(id + 0xB0u, 8f, comp => comp.StunStatus.Any(), "Stun");
-        ComponentCondition<Wingmark>(id + 0xC0u, 3f, comp => !comp.StunStatus.Any(), "Knockback resolves")
+        ComponentCondition<Wingmark>(id + 0xB0u, 8f, comp => comp.StunStatus != default, "Stun");
+        ComponentCondition<Wingmark>(id + 0xC0u, 3f, comp => comp.StunStatus == default, "Knockback resolves")
             .DeactivateOnExit<Wingmark>();
         ComponentCondition<TasteOfThunderAOE>(id + 0xD0u, 6.2f, comp => comp.NumCasts != 0, "Small circle AOEs 2")
             .ActivateOnEnter<TasteOfThunderAOE>()

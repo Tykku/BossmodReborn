@@ -277,6 +277,7 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
         ImGui.GetWindowDrawList().PathArcTo(WorldPositionToScreenPosition(center), radius / Bounds.Radius * ScreenHalfSize, Angle.HalfPi - amin + _cameraAzimuth.Rad, Angle.HalfPi - amax + _cameraAzimuth.Rad);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void PathStroke(bool closed, uint color = default, float thickness = 1f)
     {
         thickness *= Config.ThicknessScale;

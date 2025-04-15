@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Dawntrail.Savage.M03SBruteBomber;
 
-abstract class LariatOut(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10);
+abstract class LariatOut(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10f);
 class OctupleLariatOut(BossModule module) : LariatOut(module, AID.OctupleLariatOutAOE);
 class QuadrupleLariatOut(BossModule module) : LariatOut(module, AID.QuadrupleLariatOutAOE);
 
-abstract class LariatIn(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(10, 60));
+abstract class LariatIn(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(10f, 60f));
 class OctupleLariatIn(BossModule module) : LariatIn(module, AID.OctupleLariatInAOE);
 class QuadrupleLariatIn(BossModule module) : LariatIn(module, AID.QuadrupleLariatInAOE);
 

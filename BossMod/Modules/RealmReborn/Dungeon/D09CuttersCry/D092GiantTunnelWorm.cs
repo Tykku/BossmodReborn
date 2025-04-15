@@ -1,5 +1,5 @@
 ﻿namespace BossMod.RealmReborn.Dungeon.D09CuttersCry.D092GiantTunnelWorm;
-
+// TODO: Revist when it gets duty support to finish.
 public enum OID : uint
 {
     Boss = 0x536, // x1
@@ -45,4 +45,4 @@ class D092GiantTunnelWormStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 12, NameID = 1589)]
-public class D092GiantTunnelWorm(WorldState ws, Actor primary) : BossModule(ws, primary, new(-140f, 150f), new ArenaBoundsCircle(20f));
+public class D092GiantTunnelWorm(WorldState ws, Actor primary) : BossModule(ws, primary, new(-140f, 150f), new ArenaBoundsCircle(35f));

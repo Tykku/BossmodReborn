@@ -3,16 +3,21 @@
 // generic component for mechanics that require baiting some aoe (by proximity, by tether, etc) away from raid
 // some players can be marked as 'forbidden' - if any of them is baiting, they are warned
 // otherwise we show own bait as as outline (and warn if player is clipping someone) and other baits as filled (and warn if player is being clipped)
-public class GenericBaitAway(BossModule module, ActionID aid = default, bool alwaysDrawOtherBaits = true, bool centerAtTarget = false, bool tankbuster = false) : CastCounter(module, aid)
+public class GenericBaitAway(BossModule module, ActionID aid = default, bool alwaysDrawOtherBaits = true, bool centerAtTarget = false, bool tankbuster = false, bool onlyShowOutlines = false) : CastCounter(module, aid)
 {
-    public record struct Bait(Actor Source, Actor Target, AOEShape Shape, DateTime Activation = default)
+    public struct Bait(Actor source, Actor target, AOEShape shape, DateTime activation = default, BitMask forbidden = default)
     {
         public Angle? CustomRotation;
+        public AOEShape Shape = shape;
+        public Actor Source = source;
+        public Actor Target = target;
+        public DateTime Activation = activation;
+        public BitMask Forbidden = forbidden;
 
         public readonly Angle Rotation => CustomRotation ?? (Source != Target ? Angle.FromDirection(Target.Position - Source.Position) : Source.Rotation);
 
-        public Bait(Actor source, Actor target, AOEShape shape, DateTime activation, Angle customRotation)
-            : this(source, target, shape, activation)
+        public Bait(Actor source, Actor target, AOEShape shape, DateTime activation, Angle customRotation, BitMask forbidden = default)
+            : this(source, target, shape, activation, forbidden)
         {
             CustomRotation = customRotation;
         }
@@ -20,6 +25,7 @@ public class GenericBaitAway(BossModule module, ActionID aid = default, bool alw
 
     public readonly bool AlwaysDrawOtherBaits = alwaysDrawOtherBaits; // if false, other baits are drawn only if they are clipping a player
     public readonly bool CenterAtTarget = centerAtTarget; // if true, aoe source is at target
+    public readonly bool OnlyShowOutlines = onlyShowOutlines; // if true only show outlines
     public bool AllowDeadTargets = true; // if false, baits with dead targets are ignored
     public bool EnableHints = true;
     public bool IgnoreOtherBaits; // if true, don't show hints/aoes for baits by others
@@ -88,7 +94,7 @@ public class GenericBaitAway(BossModule module, ActionID aid = default, bool alw
         List<Actor> result = new(len);
         for (var i = 0; i < len; ++i)
         {
-            var actor = actors[i];
+            ref readonly var actor = ref actors[i];
             if (actor != bait.Target && bait.Shape.Check(actor.Position, BaitOrigin(bait), bait.Rotation))
                 result.Add(actor);
         }
@@ -192,17 +198,28 @@ public class GenericBaitAway(BossModule module, ActionID aid = default, bool alw
 
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
-        if (!IgnoreOtherBaits)
-            foreach (var bait in ActiveBaitsNotOn(pc))
-                if (AlwaysDrawOtherBaits || IsClippedBy(pc, bait))
-                    bait.Shape.Draw(Arena, BaitOrigin(bait), bait.Rotation);
+        if (OnlyShowOutlines || IgnoreOtherBaits)
+            return;
+
+        var baits = CollectionsMarshal.AsSpan(CurrentBaits);
+        var len = baits.Length;
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var b = ref baits[i];
+            if (!b.Source.IsDead && b.Target != pc && (AlwaysDrawOtherBaits || IsClippedBy(pc, b)))
+                b.Shape.Draw(Arena, BaitOrigin(b), b.Rotation);
+        }
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        foreach (var bait in ActiveBaitsOn(pc))
+        var baits = CollectionsMarshal.AsSpan(CurrentBaits);
+        var len = baits.Length;
+        for (var i = 0; i < len; ++i)
         {
-            bait.Shape.Outline(Arena, BaitOrigin(bait), bait.Rotation);
+            ref readonly var b = ref baits[i];
+            if (!b.Source.IsDead && (OnlyShowOutlines || !OnlyShowOutlines && b.Target == pc))
+                b.Shape.Outline(Arena, BaitOrigin(b), b.Rotation);
         }
     }
 

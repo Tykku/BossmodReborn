@@ -3,7 +3,7 @@ namespace BossMod.Dawntrail.Savage.M05SDancingGreen;
 class FunkyFloor(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeRect square = new(2.5f, 2.5f, 2.5f);
-    public readonly List<AOEInstance> AOEs = new(64);
+    private readonly List<AOEInstance> _aoes = new(64);
     private static readonly WPos[] ENVC20001 = GenerateCheckerboard(0); // 03.20001 top left active
     private static readonly WPos[] ENVC200010 = GenerateCheckerboard(1); // 03.200010 top left inactive
     private bool? _activeSet;
@@ -11,7 +11,7 @@ class FunkyFloor(BossModule module) : Components.GenericAOEs(module)
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_activeSet is bool set)
-            return CollectionsMarshal.AsSpan(AOEs)[set ? ..32 : 32..];
+            return CollectionsMarshal.AsSpan(_aoes)[set ? ..32 : 32..];
         return [];
     }
 
@@ -50,7 +50,7 @@ class FunkyFloor(BossModule module) : Components.GenericAOEs(module)
         {
             for (var i = 0; i < 32; ++i)
             {
-                AOEs.Add(new(square, positions[i], default, activation));
+                _aoes.Add(new(square, positions[i], default, activation));
             }
         }
     }
@@ -62,7 +62,7 @@ class FunkyFloor(BossModule module) : Components.GenericAOEs(module)
 
         _activeSet = !_activeSet;
         var act = WorldState.FutureTime(4d);
-        var aoes = CollectionsMarshal.AsSpan(AOEs);
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
 
         var start = _activeSet == true ? 0 : 32;
         for (var i = 0; i < 32; ++i)

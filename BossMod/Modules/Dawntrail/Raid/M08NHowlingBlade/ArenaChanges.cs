@@ -11,7 +11,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
     [
         new(pillarPositions[0], 3.5f, 20), // north, ENVC 0x08
         new(pillarPositions[0], 3.5f, 20, -55f.Degrees()), // north, ENVC 0x09
-        new(pillarPositions[0], 3.5f, 20, -30f.Degrees()), // north,  ENVC 0x0A
+        new(pillarPositions[0], 3.5f, 20, -30f.Degrees()), // north, ENVC 0x0A
         new(pillarPositions[2], 3.5f, 20, -175f.Degrees()), // southeast, ENVC 0x0B
         new(pillarPositions[2], 3.5f, 20, -150f.Degrees()), // southeast, ENVC 0x0C
         new(pillarPositions[2], 3.5f, 20, -120f.Degrees()), // southeast, ENVC 0x0D
@@ -50,7 +50,9 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
                 pillars.Add(pillarPolygons[index - 0x08]);
                 if (pillars.Count == 3)
                 {
-                    Arena.Bounds = new ArenaBoundsComplex(M08NHowlingBlade.EndArenaPolygon, [.. pillars]);
+                    var arena = new ArenaBoundsComplex(M08NHowlingBlade.EndArenaPolygon, [.. pillars]);
+                    Arena.Bounds = arena;
+                    Arena.Center = arena.Center;
                 }
             }
             else if (state == 0x00200004u && Arena.Bounds != M08NHowlingBlade.EndArena)

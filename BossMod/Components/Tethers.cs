@@ -9,7 +9,7 @@ public class TankbusterTether(BossModule module, ActionID aid, uint tetherID, fl
     private BitMask _tetheredPlayers;
     private BitMask _inAnyAOE; // players hit by aoe, excluding selves
 
-    public bool Active => _tetheredPlayers.Any();
+    public bool Active => _tetheredPlayers != default;
 
     public override void Update()
     {
@@ -32,10 +32,20 @@ public class TankbusterTether(BossModule module, ActionID aid, uint tetherID, fl
             if (!_tetheredPlayers[slot])
             {
                 hints.Add("Grab the tether!");
+                return;
             }
-            else if (Raid.WithoutSlot().InRadiusExcluding(actor, Radius).Any())
+            var party = Raid.WithoutSlot();
+            var len = party.Length;
+            for (var i = 0; i < len; ++i)
             {
-                hints.Add("GTFO from raid!");
+                ref readonly var p = ref party[i];
+                if (p == actor)
+                    continue;
+                if (p.Position.InCircle(actor.Position, Radius))
+                {
+                    hints.Add("GTFO from raid!");
+                    return;
+                }
             }
         }
         else
@@ -70,7 +80,7 @@ public class TankbusterTether(BossModule module, ActionID aid, uint tetherID, fl
         for (var i = 0; i < _tethers.Count; ++i)
         {
             var side = _tethers[i];
-            Arena.AddLine(side.Enemy.Position, side.Player.Position, side.Player.Role == Role.Tank ? Colors.Safe : 0);
+            Arena.AddLine(side.Enemy.Position, side.Player.Position, side.Player.Role == Role.Tank ? Colors.Safe : default);
             Arena.AddCircle(side.Player.Position, Radius);
         }
     }
@@ -142,21 +152,29 @@ public class InterceptTetherAOE(BossModule module, ActionID aid, uint tetherID, 
         if (!_tetheredPlayers[slot])
         {
             hints.Add("Grab the tether!");
+            return;
         }
-        else if (Raid.WithoutSlot().InRadiusExcluding(actor, Radius).Any())
+        var party = Raid.WithoutSlot();
+        var len = party.Length;
+        for (var i = 0; i < len; ++i)
         {
-            hints.Add("GTFO from raid!");
+            ref readonly var p = ref party[i];
+            if (p == actor)
+                continue;
+            if (p.Position.InCircle(actor.Position, Radius))
+            {
+                hints.Add("GTFO from raid!");
+                break;
+            }
         }
-        else
+
+        if (_tetheredPlayers[slot])
         {
-            if (_tetheredPlayers[slot])
-            {
-                hints.Add("Hit by baited AOE");
-            }
-            if (_inAnyAOE[slot])
-            {
-                hints.Add("GTFO from baited AOE!");
-            }
+            hints.Add("Hit by baited AOE");
+        }
+        if (_inAnyAOE[slot])
+        {
+            hints.Add("GTFO from baited AOE!");
         }
     }
 

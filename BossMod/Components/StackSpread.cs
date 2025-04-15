@@ -333,17 +333,17 @@ public class IconStackSpread(BossModule module, uint stackIcon, uint spreadIcon,
     public int NumFinishedStacks;
     public int NumFinishedSpreads;
     public readonly int MaxCasts = maxCasts; // for stacks where the final AID hits multiple times
-    private int castCounter;
+    public int CastCounter;
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == StackIcon)
         {
-            AddStack(WorldState.Actors.Find(targetID) ?? actor, WorldState.FutureTime(ActivationDelay));
+            AddStack(actor, WorldState.FutureTime(ActivationDelay));
         }
         else if (iconID == SpreadIcon)
         {
-            AddSpread(WorldState.Actors.Find(targetID) ?? actor, WorldState.FutureTime(ActivationDelay));
+            AddSpread(actor, WorldState.FutureTime(ActivationDelay));
         }
     }
 
@@ -353,11 +353,11 @@ public class IconStackSpread(BossModule module, uint stackIcon, uint spreadIcon,
         {
             if (Stacks.Count == 1 && Stacks.Any(x => x.Target.InstanceID != spell.MainTargetID))
                 Stacks[0] = Stacks[0] with { Target = WorldState.Actors.Find(spell.MainTargetID)! };
-            if (++castCounter == MaxCasts)
+            if (++CastCounter == MaxCasts)
             {
                 Stacks.RemoveAll(s => s.Target.InstanceID == spell.MainTargetID);
                 ++NumFinishedStacks;
-                castCounter = 0;
+                CastCounter = 0;
             }
         }
         else if (spell.Action == SpreadAction)
@@ -548,7 +548,7 @@ public class LineStack(BossModule module, ActionID? aidMarker, ActionID aidResol
 
         foreach (var bait in ActiveBaits)
         {
-            var color = isBaitTarget && bait.Target == pc || !isBaitTarget && bait.Target != pc ? Colors.SafeFromAOE : Colors.AOE;
+            var color = isBaitTarget && bait.Target == pc || !isBaitTarget && bait.Target != pc ? Colors.SafeFromAOE : default;
             bait.Shape.Draw(Arena, BaitOrigin(bait), bait.Rotation, color);
         }
     }
@@ -592,8 +592,177 @@ public class DonutStack(BossModule module, ActionID aid, uint icon, float innerR
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         foreach (var c in ActiveStacks)
-            Donut.Draw(Arena, c.Target.Position, default, Colors.AOE);
+            Donut.Draw(Arena, c.Target.Position);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc) { }
+}
+
+// generic single hit "line stack" component, usually do not have an iconID, instead players get marked by cast event
+// usually these have 50 range and 4 halfWidth, but it can be modified
+public class GenericBaitStack(BossModule module, ActionID aid = default, bool onlyShowOutlines = false) : GenericBaitAway(module, aid)
+{
+    // TODO: add logic for min and max stack size
+    public const string HintStack = "Stack!";
+    public const string HintAvoidOther = "GTFO from other stacks!";
+    public const string HintAvoid = "GTFO from stack!";
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        var baits = CollectionsMarshal.AsSpan(ActiveBaits);
+        var len = baits.Length;
+        if (len == 0)
+            return;
+        var isBaitTarget = false; // determine if target of any stack
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var b = ref baits[i];
+            if (b.Target == actor)
+            {
+                isBaitTarget = true;
+                break;
+            }
+        }
+        var forbiddenInverted = new List<Func<WPos, float>>();
+        var forbidden = new List<Func<WPos, float>>();
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var b = ref baits[i];
+            var origin = BaitOrigin(b);
+            var angle = Angle.FromDirection(b.Target.Position - origin);
+            if (b.Target != actor && !isBaitTarget)
+            {
+                if (!b.Forbidden[slot])
+                {
+                    forbiddenInverted.Add(b.Shape.InvertedDistance(origin, angle));
+                }
+                else
+                {
+                    forbidden.Add(b.Shape.Distance(origin, angle));
+                }
+            }
+            else if (b.Target != actor && isBaitTarget)
+            {   // prevent overlapping if there are multiple stacks
+                if (b.Shape is AOEShapeCone cone)
+                    forbidden.Add(ShapeDistance.Cone(origin, cone.Radius, angle, cone.HalfAngle * 2f));
+                else if (b.Shape is AOEShapeRect rect)
+                    forbidden.Add(ShapeDistance.Rect(origin, angle, rect.LengthFront, rect.LengthBack, rect.HalfWidth * 2f));
+                else if (b.Shape is AOEShapeCircle circle)
+                    forbiddenInverted.Add(ShapeDistance.Circle(origin, circle.Radius * 2f));
+            }
+        }
+
+        if (forbiddenInverted.Count != 0)
+            hints.AddForbiddenZone(ShapeDistance.Intersection(forbiddenInverted), ActiveBaits[0].Activation);
+        if (forbidden.Count != 0)
+            hints.AddForbiddenZone(ShapeDistance.Union(forbidden), ActiveBaits[0].Activation);
+    }
+
+    public override void AddHints(int slot, Actor actor, TextHints hints)
+    {
+        var baits = CollectionsMarshal.AsSpan(ActiveBaits);
+        var len = baits.Length;
+        if (len == 0)
+            return;
+        var isBaitTarget = false; // determine if target of any stack
+        var isInBaitShape = false; // determine if inside of any stack
+        var isInWrongBait = false; // determine if inside of any forbidden stack
+        var allForbidden = true; // determine if all stacks are forbidden
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var b = ref baits[i];
+            if (!b.Forbidden[slot])
+            {
+                allForbidden = false;
+            }
+            if (b.Target == actor)
+            {
+                isBaitTarget = true;
+                continue;
+            }
+            if (b.Shape.Check(actor.Position, BaitOrigin(b), b.Rotation))
+            {
+                isInBaitShape = true;
+                if (b.Forbidden[slot])
+                    isInWrongBait = true;
+            }
+        }
+        var isBaitTargetAndInExtraStack = false;
+        if (isBaitTarget)
+        {
+            for (var i = 0; i < len; ++i)
+            {
+                ref readonly var b = ref baits[i];
+                if (b.Target == actor)
+                    continue;
+                if (b.Shape.Check(actor.Position, BaitOrigin(b), b.Rotation))
+                {
+                    isBaitTargetAndInExtraStack = true;
+                    break;
+                }
+            }
+        }
+        if (isInWrongBait || allForbidden)
+        {
+            hints.Add(HintAvoid, isInWrongBait);
+            return;
+        }
+        if (!isBaitTarget && !isInBaitShape)
+            hints.Add(HintStack);
+        else if (isBaitTarget || !isBaitTarget && isInBaitShape)
+            hints.Add(HintStack, false);
+
+        if (isBaitTarget && isBaitTargetAndInExtraStack)
+        {
+            hints.Add(HintAvoidOther);
+        }
+    }
+
+    public override void DrawArenaBackground(int pcSlot, Actor pc)
+    {
+        var baits = CollectionsMarshal.AsSpan(ActiveBaits);
+        var len = baits.Length;
+        if (len == 0 || onlyShowOutlines)
+            return;
+        var isBaitTarget = false; // determine if target of any stack
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var b = ref baits[i];
+            if (b.Target == pc)
+            {
+                isBaitTarget = true;
+                break;
+            }
+        }
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var b = ref baits[i];
+            var color = !b.Forbidden[pcSlot] && (isBaitTarget && b.Target == pc || !isBaitTarget && b.Target != pc) ? Colors.SafeFromAOE : default;
+            b.Shape.Draw(Arena, BaitOrigin(b), b.Rotation, color);
+        }
+    }
+
+    public override void DrawArenaForeground(int pcSlot, Actor pc)
+    {
+        var baits = CollectionsMarshal.AsSpan(ActiveBaits);
+        var len = baits.Length;
+        if (len == 0 || !onlyShowOutlines)
+            return;
+        var isBaitTarget = false; // determine if target of any stack
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var b = ref baits[i];
+            if (b.Target == pc)
+            {
+                isBaitTarget = true;
+                break;
+            }
+        }
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var b = ref baits[i];
+            var color = !b.Forbidden[pcSlot] && (isBaitTarget && b.Target == pc || !isBaitTarget && b.Target != pc) ? Colors.Safe : default;
+            b.Shape.Outline(Arena, BaitOrigin(b), b.Rotation, color);
+        }
+    }
 }

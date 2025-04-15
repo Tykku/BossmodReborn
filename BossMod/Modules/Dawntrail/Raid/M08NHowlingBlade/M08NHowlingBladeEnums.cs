@@ -3,7 +3,7 @@ namespace BossMod.Dawntrail.Raid.M08NHowlingBlade;
 public enum OID : uint
 {
     Boss = 0x4722, // R5.005
-    MoonlitShadow = 0x4724, // R5.0
+    MoonlitShadow = 0x4724, // R5.005
     GleamingFang = 0x4726, // R1.4
     HowlingBladeShadow = 0x4723, // R4.235
     WolfOfStone1 = 0x47B1, // R1.5

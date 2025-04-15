@@ -55,33 +55,33 @@ class ParticleConcentration(BossModule module) : Components.GenericTowers(module
         var activation = Towers.Count != 0 ? Towers[0].Activation : default;
         for (var i = 0; i < _outerTowers.Count; ++i)
         {
-            var newTower = new Tower(_outerTowers[i], 3, 3, 3, _innerPlayers, activation);
+            var newTower = new Tower(_outerTowers[i], 3f, 3, 3, _innerPlayers, activation);
             Towers.Add(newTower);
         }
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        switch ((SID)status.ID)
+        switch (status.ID)
         {
-            case SID.InnerDarkness:
-                _innerPlayers.Set(Raid.FindSlot(actor.InstanceID));
+            case (uint)SID.InnerDarkness:
+                _innerPlayers[Raid.FindSlot(actor.InstanceID)] = true;
                 break;
-            case SID.OuterDarkness:
-                _outerPlayers.Set(Raid.FindSlot(actor.InstanceID));
+            case (uint)SID.OuterDarkness:
+                _outerPlayers[Raid.FindSlot(actor.InstanceID)] = true;
                 break;
         }
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        switch ((SID)status.ID)
+        switch (status.ID)
         {
-            case SID.InnerDarkness:
-                _innerPlayers.Clear(Raid.FindSlot(actor.InstanceID));
+            case (uint)SID.InnerDarkness:
+                _innerPlayers[Raid.FindSlot(actor.InstanceID)] = false;
                 break;
-            case SID.OuterDarkness:
-                _outerPlayers.Clear(Raid.FindSlot(actor.InstanceID));
+            case (uint)SID.OuterDarkness:
+                _outerPlayers[Raid.FindSlot(actor.InstanceID)] = false;
                 break;
         }
     }

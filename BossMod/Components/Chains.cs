@@ -35,7 +35,7 @@ public class Chains(BossModule module, uint tetherID, ActionID aid = default, fl
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (_partner[pcSlot] is var partner && partner != null)
-            Arena.AddLine(pc.Position, partner.Position, spreadChains ? 0 : Colors.Safe);
+            Arena.AddLine(pc.Position, partner.Position, spreadChains ? default : Colors.Safe);
     }
 
     public override void OnUntethered(Actor source, ActorTetherInfo tether)
@@ -57,6 +57,6 @@ public class Chains(BossModule module, uint tetherID, ActionID aid = default, fl
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         if (_partner[slot] is var partner && partner != null)
-            hints.AddForbiddenZone(spreadChains ? ShapeDistance.Circle(partner.Position, (partner.Position - actor.Position).Length() + 1) : ShapeDistance.InvertedCircle(partner.Position, chainLength));
+            hints.AddForbiddenZone(spreadChains ? ShapeDistance.Circle(partner.Position, (partner.Position - actor.Position).Length() + 1f) : ShapeDistance.InvertedCircle(partner.Position, chainLength));
     }
 }

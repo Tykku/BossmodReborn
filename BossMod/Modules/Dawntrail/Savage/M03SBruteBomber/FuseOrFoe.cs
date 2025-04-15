@@ -44,7 +44,7 @@ class ExplosiveRain(BossModule module) : Components.ConcentricAOEs(module, _shap
             (uint)AID.ExplosiveRain13 or (uint)AID.ExplosiveRain23 => 2,
             _ => -1
         };
-        if (!AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(4)))
+        if (!AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(4d)))
             ReportError($"Unexpected ring {order}");
     }
 }

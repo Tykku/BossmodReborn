@@ -37,7 +37,7 @@ class Adds(BossModule module) : Components.AddsMulti(module, [(uint)OID.Mu, (uin
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if (id == 0x11D1)
+        if (id == 0x11D1u)
         {
             switch (actor.OID)
             {

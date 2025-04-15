@@ -17,7 +17,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index != 0x01)
+        if (index != 0x01u)
             return;
         switch (state)
         {

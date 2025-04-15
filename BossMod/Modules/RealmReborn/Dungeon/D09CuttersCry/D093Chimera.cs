@@ -1,5 +1,5 @@
 ﻿namespace BossMod.RealmReborn.Dungeon.D09CuttersCry.D093Chimera;
-
+// TODO: Revist when it gets duty support to finish.
 public enum OID : uint
 {
     Boss = 0x64C, // R=3.7

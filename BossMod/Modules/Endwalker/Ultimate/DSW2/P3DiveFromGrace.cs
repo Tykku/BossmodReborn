@@ -131,8 +131,12 @@ class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionI
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
-        foreach (var t in _predictedTowers)
-            DrawTower(Arena, t.Position, t.Radius, !t.ForbiddenSoakers[pcSlot]);
+        var count = _predictedTowers.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var t = _predictedTowers[i];
+            DrawTower(Arena, ref t, !t.ForbiddenSoakers[pcSlot]);
+        }
 
         // draw baited jumps
         var baitOrder = CurrentBaitOrder();

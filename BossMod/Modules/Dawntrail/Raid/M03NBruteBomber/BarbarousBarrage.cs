@@ -1,5 +1,3 @@
-using BossMod.Shadowbringers.Foray.CriticalEngagement.CE14VigilForLost;
-
 namespace BossMod.Dawntrail.Raid.M03NBruteBomber;
 
 class BarbarousBarrageTower(BossModule module) : Components.GenericTowers(module)

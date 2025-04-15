@@ -27,15 +27,43 @@ class Cauterize(BossModule module) : Components.SimpleAOEs(module, ActionID.Make
 
 class Touchdown(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.Touchdown))
 {
-    private readonly Cauterize _aoe = module.FindComponent<Cauterize>()!;
     private readonly AOEShapeCircle _shape = new(5f);
+    private readonly List<AOEInstance> _aoes = [];
+    private int _cauterizeCount;
+    private bool _isPhase2;
 
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);
+
+    public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        // TODO: proper timings...
-        if (!Module.PrimaryActor.IsTargetable && _aoe.Casters.Count == 0)
-            return new AOEInstance[1] { new(_shape, WPos.ClampToGrid(D103Isgebind.ArenaCenter)) };
-        return [];
+        if (actor.OID == (uint)OID.Boss && id == 0x8E)
+        {
+            ++_cauterizeCount;
+
+            // Show aoe if phase1 or phase2 of moveset's
+            if (!_isPhase2 || _cauterizeCount == 2)
+            {
+                var activation = WorldState.FutureTime(7.8);
+                var origin = WPos.ClampToGrid(Arena.Center);
+                _aoes.Add(new(_shape, origin, default, activation));
+            }
+        }
+    }
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if (!_isPhase2 && caster.OID == (uint)OID.Helper && spell.Action.ID == (uint)AID.SheetOfIce2)
+            _isPhase2 = true;
+    }
+
+    public override void OnTargetable(Actor actor)
+    {
+        if (actor.OID == (uint)OID.Boss)
+        {
+            _aoes.Clear();
+            _cauterizeCount = 0;
+            _isPhase2 = false;
+        }
     }
 }
 
@@ -54,7 +82,7 @@ class D103IsgebindStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 11, NameID = 1680)]
+[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "Malediktus, Chuggalo", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 11, NameID = 1680)]
 public class D103Isgebind(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     public static readonly WPos ArenaCenter = new(default, -248f);

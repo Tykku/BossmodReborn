@@ -171,7 +171,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
             }
             var target = autorot.WorldState.Actors.Find(player.TargetID);
             if (!_config.FollowTarget || _config.FollowTarget && target == null)
-                autorot.Hints.GoalZones.Add(autorot.Hints.GoalSingleTarget(master, Positional.Any, _config.MaxDistanceToSlot - 0.5f));
+                autorot.Hints.GoalZones.Add(autorot.Hints.GoalSingleTarget(master, Positional.Any, _config.FollowTarget && player.InCombat ? _config.MaxDistanceToTarget : _config.MaxDistanceToSlot));
             else if (_config.FollowTarget && target != null)
             {
                 var positional = _config.DesiredPositional;

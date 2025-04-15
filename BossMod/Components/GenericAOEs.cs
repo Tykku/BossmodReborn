@@ -46,7 +46,7 @@ public abstract class GenericAOEs(BossModule module, ActionID aid = default, str
         for (var i = 0; i < len; ++i)
         {
             ref readonly var c = ref aoes[i];
-            c.Shape.Draw(Arena, c.Origin, c.Rotation, c.Color == 0u ? Colors.AOE : c.Color);
+            c.Shape.Draw(Arena, c.Origin, c.Rotation, c.Color == default ? default : c.Color);
         }
     }
 }

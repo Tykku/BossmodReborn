@@ -32,8 +32,7 @@ class MoonbeamsBite(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        var count = _aoes.Count;
-        if (count != 0)
+        if (_aoes.Count != 0)
             switch (spell.Action.ID)
             {
                 case (uint)AID.MoonbeamsBite1:

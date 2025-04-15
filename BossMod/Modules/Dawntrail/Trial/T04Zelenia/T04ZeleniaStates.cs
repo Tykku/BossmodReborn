@@ -7,9 +7,7 @@ class T04ZeleniaStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<ArenaChanges>()
             .ActivateOnEnter<AlexandrianThunderIV>()
-            .ActivateOnEnter<AlexandrianThunderIIICircle1>()
-            .ActivateOnEnter<AlexandrianThunderIIICircle2>()
-            .ActivateOnEnter<AlexandrianThunderIIICones>()
+            .ActivateOnEnter<AlexandrianThunderIII>()
             .ActivateOnEnter<ShockSpread>()
             .ActivateOnEnter<ShockAOE>()
             .ActivateOnEnter<PowerBreak1>()
@@ -22,7 +20,6 @@ class T04ZeleniaStates : StateMachineBuilder
             .ActivateOnEnter<ValorousAscension>()
             .ActivateOnEnter<ThornedCatharsis>()
             .ActivateOnEnter<StockBreak>()
-            .ActivateOnEnter<ValorousAscensionRect>()
-        ;
+            .ActivateOnEnter<ValorousAscensionRect>();
     }
 }

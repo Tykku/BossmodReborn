@@ -1,51 +1,61 @@
 namespace BossMod.Dawntrail.Trial.T04Zelenia;
 
-abstract class AlexandrianThunderIIICircle(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 4f);
-class AlexandrianThunderIIICircle1(BossModule module) : AlexandrianThunderIIICircle(module, AID.AlexandrianThunderIII1);
-class AlexandrianThunderIIICircle2(BossModule module) : AlexandrianThunderIIICircle(module, AID.AlexandrianThunderIII2);
-
-class AlexandrianThunderIIICones(BossModule module) : Components.GenericAOEs(module)
+class AlexandrianThunderIII(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCone cone = new(16f, 30f.Degrees()), coneBig = new(16f, 90f.Degrees());
+    private static readonly AOEShapeCone cone = new(16f, 30f.Degrees());
+    private static readonly AOEShapeCircle circle = new(4f);
     private readonly List<AOEInstance> _aoes = new(4);
-    private enum Pattern { None, A, B, C, D1, D2, E, F, G, H }
-    private Pattern CurrentPattern;
-    private AOEInstance? cachedAOE;
-    // TODO: rework all of this, its unreliable since no information boss mod replays contain accurately reflect the pattern changes correctly
-    // both ENVCs and DIRUs are reused between different patterns
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);
+    private readonly bool[] activeTiles = new bool[6];
+
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
+        Span<AOEInstance> result = new AOEInstance[count];
+        Span<bool> visited = stackalloc bool[6];
+        const float slice = 1f / 60f;
+
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            ref readonly var aoe = ref aoes[i];
+            if (aoe.Shape == circle)
+            {
+                result[index++] = aoe;
+            }
+            else // filter aoes that hit the same spot more than once since that looks ugly and wastes many cpu cycles
+            {
+                var sliceIdx = (int)MathF.Round((180f - aoe.Rotation.Deg) * slice);
+                if (!visited[sliceIdx])
+                {
+                    visited[sliceIdx] = true;
+                    result[index++] = aoe;
+                }
+            }
+        }
+        return result[..index];
+    }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index == 0x01 && state == 0x00080004u)
-            CurrentPattern = Pattern.None;
-    }
-
-    public override void OnEventDirectorUpdate(uint updateID, uint param1, uint param2, uint param3, uint param4)
-    {
-        if (updateID != 0x80000027u)
-            return;
-        switch (param1)
+        // arena slices:
+        // 0x04: 180°  → index 0
+        // 0x05: 120°  → index 1
+        // 0x06: 60°   → index 2
+        // 0x07: 0°    → index 3
+        // 0x08: -60°  → index 4
+        // 0x09: -120° → index 5
+        if (index is >= 0x04 and <= 0x09)
         {
-            case 0x19u:
-                CurrentPattern = Pattern.A;
-                break;
-            case 0x16u:
-                CurrentPattern = Pattern.B;
-                break;
-            case 0x17u:
-                CurrentPattern = Pattern.C;
-                break;
-            case 0x24u:
-                CurrentPattern = Pattern.D1;
-                break;
-            case 0x25u:
-                CurrentPattern = Pattern.E;
-                break;
-            case 0x18u:
-                if (CurrentPattern != Pattern.C)
-                    CurrentPattern = Pattern.F;
-                break;
+            switch (state)
+            {
+                case 0x00400100u:
+                    activeTiles[index - 0x04u] = true;
+                    break;
+                case 0x00040020u:
+                    activeTiles[index - 0x04u] = false;
+                    break;
+            }
         }
     }
 
@@ -53,197 +63,145 @@ class AlexandrianThunderIIICones(BossModule module) : Components.GenericAOEs(mod
     {
         if (spell.Action.ID is (uint)AID.AlexandrianThunderIII1 or (uint)AID.AlexandrianThunderIII2)
         {
-            Angle? rotation = null;
-            var pos = caster.Position;
-            var spellPosition = (int)(pos.X + pos.Z);
-            if (CurrentPattern == Pattern.A)
+            Span<bool> visited = stackalloc bool[6];
+            var pos = Arena.Center;
+            var loc = spell.LocXZ;
+            var rot = 30f.Degrees();
+            var id = caster.InstanceID;
+            var act = Module.CastFinishAt(spell);
+
+            _aoes.Add(new(circle, loc, default, act, ActorID: id));
+
+            for (var i = 0; i < 6; ++i)
             {
-                switch (spellPosition)
+                if (!activeTiles[i] || visited[i])
+                    continue;
+
+                var intersects = Intersect.CircleCone(loc, 4f, pos, 16f, (180f - 60f * i).Degrees().ToDirection(), rot);
+
+                if (!intersects)
+                    continue;
+
+                var left = i;
+                while (true)
                 {
-                    case 183: // 94, 89.608
-                        rotation = 180f.Degrees();
+                    var prev = (left - 1 + 6) % 6;
+                    if (!activeTiles[prev] || visited[prev])
                         break;
-                    case 216: // 106, 110.392
-                        rotation = new Angle();
+                    left = prev;
+                }
+
+                var right = i;
+                while (true)
+                {
+                    var next = (right + 1) % 6;
+                    if (!activeTiles[next] || visited[next])
                         break;
+                    right = next;
                 }
-            }
-            else if (CurrentPattern == Pattern.B)
-            {
-                switch (spellPosition)
+
+                var j = left;
+                while (true)
                 {
-                    case 183: // 94, 89.608
-                        rotation = 180f.Degrees();
+                    if (!visited[j])
+                    {
+                        visited[j] = true;
+                        _aoes.Add(new(cone, pos, (180f - 60f * j).Degrees(), act, ActorID: id));
+                    }
+
+                    if (j == right)
                         break;
-                    case 216: // 106, 110.392
-                        rotation = new Angle();
-                        break;
-                    case 195: // 89.608, 106
-                        rotation = -60f.Degrees();
-                        break;
-                    case 204: // 110.392, 94
-                        rotation = 120f.Degrees();
-                        break;
+
+                    j = (j + 1) % 6;
                 }
+                break;
             }
-            else if (CurrentPattern == Pattern.C && _aoes.Count == 0)
-            {
-                _aoes.Add(new(cone, WPos.ClampToGrid(Arena.Center), 120f.Degrees(), Module.CastFinishAt(spell)));
-                _aoes.Add(new(cone, WPos.ClampToGrid(Arena.Center), -120f.Degrees(), Module.CastFinishAt(spell)));
-                rotation = new Angle();
-                if (cachedAOE is AOEInstance aoe)
-                {
-                    aoe.Activation = Module.CastFinishAt(spell);
-                    _aoes.Add(aoe);
-                }
-            }
-            else if (CurrentPattern == Pattern.G && _aoes.Count == 0)
-            {
-                _aoes.Add(new(cone, WPos.ClampToGrid(Arena.Center), -60f.Degrees(), Module.CastFinishAt(spell)));
-                _aoes.Add(new(cone, WPos.ClampToGrid(Arena.Center), 120f.Degrees(), Module.CastFinishAt(spell)));
-                if (cachedAOE is AOEInstance aoe)
-                {
-                    aoe.Activation = Module.CastFinishAt(spell);
-                    _aoes.Add(aoe);
-                }
-            }
-            else if (CurrentPattern == Pattern.E && _aoes.Count == 0)
-            {
-                _aoes.Add(new(cone, WPos.ClampToGrid(Arena.Center), 60f.Degrees(), Module.CastFinishAt(spell)));
-                _aoes.Add(new(cone, WPos.ClampToGrid(Arena.Center), -120f.Degrees(), Module.CastFinishAt(spell)));
-                if (cachedAOE is AOEInstance aoe)
-                {
-                    aoe.Activation = Module.CastFinishAt(spell);
-                    _aoes.Add(aoe);
-                }
-            }
-            else if (CurrentPattern == Pattern.D1 && _aoes.Count == 0)
-            {
-                if (cachedAOE is AOEInstance aoe)
-                {
-                    aoe.Shape = coneBig;
-                    _aoes.Add(aoe);
-                }
-            }
-            else if (CurrentPattern == Pattern.D2 && _aoes.Count == 0)
-            {
-                if (cachedAOE is AOEInstance aoe1)
-                {
-                    aoe1.Rotation += 180f.Degrees();
-                    _aoes.Add(aoe1);
-                }
-                if (cachedAOE is AOEInstance aoe2)
-                {
-                    aoe2.Shape = coneBig;
-                    _aoes.Add(aoe2);
-                }
-            }
-            if (rotation is Angle rot)
-                _aoes.Add(new(cone, WPos.ClampToGrid(Arena.Center), rot, Module.CastFinishAt(spell)));
         }
         else if (spell.Action.ID is (uint)AID.AlexandrianThunderIVCircle2 or (uint)AID.AlexandrianThunderIVDonut2 && _aoes.Count == 0)
         {
-            if (CurrentPattern == Pattern.C)
+            var pos = Arena.Center;
+            var act = Module.CastFinishAt(spell);
+            for (var i = 0; i < 6; ++i)
             {
-                _aoes.Add(new(cone, WPos.ClampToGrid(Arena.Center), 120f.Degrees(), Module.CastFinishAt(spell)));
-                _aoes.Add(new(cone, WPos.ClampToGrid(Arena.Center), -120f.Degrees(), Module.CastFinishAt(spell)));
-                _aoes.Add(new(cone, WPos.ClampToGrid(Arena.Center), default, Module.CastFinishAt(spell)));
-                CurrentPattern = Pattern.D1;
-            }
-            else if (CurrentPattern == Pattern.F)
-            {
-                _aoes.Add(new(cone, WPos.ClampToGrid(Arena.Center), 60f.Degrees(), Module.CastFinishAt(spell)));
-                _aoes.Add(new(cone, WPos.ClampToGrid(Arena.Center), -60f.Degrees(), Module.CastFinishAt(spell)));
-                _aoes.Add(new(cone, WPos.ClampToGrid(Arena.Center), 180f.Degrees(), Module.CastFinishAt(spell)));
-                CurrentPattern = Pattern.D2;
-            }
-            if (cachedAOE is AOEInstance aoe)
-            {
-                aoe.Activation = Module.CastFinishAt(spell);
-                _aoes.Add(aoe);
+                if (activeTiles[i])
+                {
+                    _aoes.Add(new(cone, pos, (180f - 60f * i).Degrees(), act));
+                }
             }
         }
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if (id == 0x1E46)
+        if (id == 0x1E46u)
         {
-            var rotrounded = (int)actor.Rotation.Deg;
-            Angle? rotation = null;
-            switch (rotrounded)
+            var rotRounded = (int)actor.Rotation.Deg;
+            var index = -1;
+            switch (rotRounded)
             {
-                case -96: // 117.321, 110
-                    rotation = -60f.Degrees();
-                    CurrentPattern = Pattern.C;
-                    break;
-                case 96: // 82.679, 110
-                    rotation = 60f.Degrees();
-                    CurrentPattern = Pattern.C;
-                    break;
-                case -23: // 100, 80
-                    rotation = -60f.Degrees();
-                    break;
-                case 23: // 100, 80
-                    rotation = 60f.Degrees();
-                    CurrentPattern = Pattern.G;
+                case 143: // 82.679, 110
+                case -143: // 117.321, 110
+                case 180: // 100, 120
+                    index = 0;
                     break;
                 case 83: // 82.679, 90
-                    rotation = 120f.Degrees();
-                    CurrentPattern = Pattern.E;
+                case 156: // 100, 120
+                case 119: // 82.679, 110
+                    index = 1;
                     break;
-                case 143: // 82.679, 110
-                    CurrentPattern = Pattern.C;
-                    rotation = 180f.Degrees();
-                    break;
-                case -143: // 117.321, 110
-                    rotation = 180f.Degrees();
-                    break;
-                case -120: // 117.321, 110
-                    rotation = -120f.Degrees();
-                    CurrentPattern = Pattern.F;
+                case 96: // 82.679, 110
+                case 23: // 100, 80
+                case 59: // 82.679, 90
+                    index = 2;
                     break;
                 case 0: // 100, 80
                 case -36: // 117.321, 90
-                    rotation = new Angle();
+                case 36: // 82.679, 90
+                    index = 3;
                     break;
+                case -96: // 117.321, 110
+                case -23: // 100, 80
+                case -60: // 117.321, 90
+                    index = 4;
+                    break;
+                case -120: // 117.321, 110
+                case -156: // 100, 120
+                case -83: // 117.321, 90
+                    index = 5;
+                    break;
+
             }
-            if (rotation is Angle rot)
-                cachedAOE = new(cone, WPos.ClampToGrid(Arena.Center), rot);
+            if (index >= 0)
+            {
+                activeTiles[index] = true;
+            }
         }
     }
-    // arena slices 10000040:
-    // 0x04: 180°
-    // 0x05: 120°
-    // 0x06: 60°
-    // 0x07: 0°
-    // 0x08: -60°
-    // 0x08: -120°
+
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count != 0)
-            switch (spell.Action.ID)
-            {
-                case (uint)AID.AlexandrianThunderIII1:
-                case (uint)AID.AlexandrianThunderIII2:
-                    ++NumCasts;
-                    if (CurrentPattern == Pattern.A && NumCasts is 1 or 3)
-                        _aoes.RemoveAt(0);
-                    else if (CurrentPattern == Pattern.B && NumCasts is 2 or 4)
-                        _aoes.RemoveRange(0, 2);
-                    else if (CurrentPattern == Pattern.C && NumCasts == 3 || CurrentPattern is Pattern.D1 or Pattern.D2 or Pattern.E or Pattern.G)
-                        _aoes.Clear();
-                    if (_aoes.Count == 0)
-                        NumCasts = 0;
-                    break;
-                case (uint)AID.AlexandrianThunderIVCircle2:
-                case (uint)AID.AlexandrianThunderIVDonut2:
-                    if (++NumCasts == 2)
+        switch (spell.Action.ID)
+        {
+            case (uint)AID.AlexandrianThunderIII1:
+            case (uint)AID.AlexandrianThunderIII2:
+                var count = _aoes.Count - 1;
+                var id = caster.InstanceID;
+                for (var i = count; i >= 0; --i)
+                {
+                    if (_aoes[i].ActorID == id)
                     {
-                        _aoes.Clear();
-                        NumCasts = 0;
+                        _aoes.RemoveAt(i);
                     }
-                    break;
-            }
+                }
+                break;
+            case (uint)AID.AlexandrianThunderIVCircle2:
+            case (uint)AID.AlexandrianThunderIVDonut2:
+                if (++NumCasts == 2)
+                {
+                    _aoes.Clear();
+                    NumCasts = 0;
+                }
+                break;
+        }
     }
 }

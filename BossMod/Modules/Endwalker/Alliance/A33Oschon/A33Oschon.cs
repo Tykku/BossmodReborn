@@ -33,7 +33,7 @@ public class A33Oschon(WorldState ws, Actor primary) : BossModule(ws, primary, n
     {
         // TODO: this is an ugly hack, think how multi-actor fights can be implemented without it...
         // the problem is that on wipe, any actor can be deleted and recreated in the same frame
-        _bossP2 ??= StateMachine.ActivePhaseIndex == 1 ? Enemies(OID.BossP2)[0] : null;
+        _bossP2 ??= StateMachine.ActivePhaseIndex == 1 ? Enemies((uint)OID.BossP2)[0] : null;
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)

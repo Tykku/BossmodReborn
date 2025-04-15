@@ -209,6 +209,7 @@ class M05SDancingGreenStates : StateMachineBuilder
         ComponentCondition<GetDownOutIn>(id + 0x10u, 8.4f, comp => comp.NumCasts != 0, "Circle AOE")
             .ActivateOnEnter<GetDownOutIn>()
             .ActivateOnEnter<GetDownBait>()
+            .ExecOnEnter<GetDownBait>(comp => comp.First = false)
             .ActivateOnEnter<GetDownCone>()
             .ActivateOnEnter<LetsDanceRemix>();
         for (var i = 1; i <= 8; ++i)
@@ -253,7 +254,7 @@ class M05SDancingGreenStates : StateMachineBuilder
         ComponentCondition<Moonburn>(id + 0x60u, 5.5f, comp => comp.AOEs.Count != 0, "Line AOEs 2 appear");
         ComponentCondition<Moonburn>(id + 0x70u, 10.5f, comp => comp.AOEs.Count == 0, "Line AOEs 2 resolve")
             .DeactivateOnExit<Moonburn>();
-        ComponentCondition<BackUpDance>(id + 0x80u, 0.1f, comp => comp.NumCasts > 4, "Baits 21 resolve")
+        ComponentCondition<BackUpDance>(id + 0x80u, 0.1f, comp => comp.NumCasts > 4, "Baits 2 resolve")
             .ActivateOnExit<DoTheHustle>()
             .DeactivateOnExit<BackUpDance>();
         ComponentCondition<DoTheHustle>(id + 0x90u, 9.5f, comp => comp.NumCasts == 3, "Cleaves 3")

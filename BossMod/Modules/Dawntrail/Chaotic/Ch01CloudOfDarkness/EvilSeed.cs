@@ -7,7 +7,7 @@ class EvilSeedBait(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         foreach (var p in Raid.WithSlot(false, false, true).IncludedInMask(Baiters).Actors())
-            Arena.AddCircle(p.Position, 5f, Colors.Danger);
+            Arena.AddCircle(p.Position, 5f);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
@@ -19,15 +19,15 @@ class EvilSeedBait(BossModule module) : BossComponent(module)
 
 class EvilSeedAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EvilSeedAOE), 5f);
 
-class EvilSeedVoidzone(BossModule module) : Components.Voidzone(module, 5, module => module.Enemies(OID.EvilSeed).Where(z => z.EventState != 7));
+class EvilSeedVoidzone(BossModule module) : Components.Voidzone(module, 5, module => module.Enemies((uint)OID.EvilSeed).Where(z => z.EventState != 7));
 
-class ThornyVine(BossModule module) : Components.Chains(module, (uint)TetherID.ThornyVine, default, 25)
+class ThornyVine(BossModule module) : Components.Chains(module, (uint)TetherID.ThornyVine, default, 25f)
 {
     public BitMask Targets;
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == (uint)IconID.ThornyVineBait)
-            Targets.Set(Raid.FindSlot(actor.InstanceID));
+            Targets[Raid.FindSlot(actor.InstanceID)] = true;
     }
 }

@@ -71,9 +71,9 @@ class Phase2InnerCells(BossModule module) : Components.GenericAOEs(module)
             return;
         _breakTime[index - 3] = state switch
         {
-            0x00200010 => WorldState.FutureTime(44d),
-            0x00800040 => WorldState.FutureTime(6d),
-            0x00080004 => WorldState.CurrentTime,
+            0x00200010u => WorldState.FutureTime(44d),
+            0x00800040u => WorldState.FutureTime(6d),
+            0x00080004u => WorldState.CurrentTime,
             _ => default,
         };
     }
