@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.Normal.DRN1TrinitySeeker;
 
-class MercyFourfold(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.MercyFourfoldAOE))
+class MercyFourfold(BossModule module) : Components.GenericAOEs(module, (uint)AID.MercyFourfoldAOE)
 {
     public readonly List<AOEInstance> AOEs = [];
     private readonly List<AOEInstance?> _safezones = [];
@@ -50,7 +50,7 @@ class MercyFourfold(BossModule module) : Components.GenericAOEs(module, ActionID
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         base.OnEventCast(caster, spell);
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             if (AOEs.Count > 0)
                 AOEs.RemoveAt(0);

@@ -66,9 +66,9 @@ class OldMagicArenaChange(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class OldMagic(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.OldMagic));
-class ArcaneEdge(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ArcaneEdge));
-class Contrapasso(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Contrapasso));
+class OldMagic(BossModule module) : Components.RaidwideCast(module, (uint)AID.OldMagic);
+class ArcaneEdge(BossModule module) : Components.RaidwideCast(module, (uint)AID.ArcaneEdge);
+class Contrapasso(BossModule module) : Components.RaidwideCast(module, (uint)AID.Contrapasso);
 
 class DuplicitousBattery(BossModule module) : Components.GenericAOEs(module)
 {
@@ -105,15 +105,15 @@ class DuplicitousBattery(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Explosion1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Explosion1), 11f);
-class Explosion2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Explosion2), 9f);
-class FallenGrace(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FallenGrace), 6f);
-class AntipodalAssault(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.AntipodalAssaultMarker), ActionID.MakeSpell(AID.AntipodalAssault), 5.4f, markerIsFinalTarget: false);
-class HardSlash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HardSlash), new AOEShapeCone(50f, 45f.Degrees()));
-class TwilightPhase(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TwilightPhase), new AOEShapeRect(60f, 10f));
-class DarkImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkImpact), 25f);
-class DeathsJourneyCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeathsJourneyCircle), 8f);
-class DeathsJourneyCone(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeathsJourneyCone), new AOEShapeCone(30f, 15f.Degrees()));
+class Explosion1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Explosion1, 11f);
+class Explosion2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Explosion2, 9f);
+class FallenGrace(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.FallenGrace, 6f);
+class AntipodalAssault(BossModule module) : Components.LineStack(module, (uint)AID.AntipodalAssaultMarker, (uint)AID.AntipodalAssault, 5.4f, markerIsFinalTarget: false);
+class HardSlash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HardSlash, new AOEShapeCone(50f, 45f.Degrees()));
+class TwilightPhase(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TwilightPhase, new AOEShapeRect(60f, 10f));
+class DarkImpact(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DarkImpact, 25f);
+class DeathsJourneyCircle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DeathsJourneyCircle, 8f);
+class DeathsJourneyCone(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DeathsJourneyCone, new AOEShapeCone(30f, 15f.Degrees()));
 
 class D133DuranteStates : StateMachineBuilder
 {

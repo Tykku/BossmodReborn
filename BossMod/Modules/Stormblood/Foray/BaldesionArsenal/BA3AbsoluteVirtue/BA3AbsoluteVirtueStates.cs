@@ -62,13 +62,13 @@ class BA3AbsoluteVirtueStates : StateMachineBuilder
 
     private void Meteor(uint id, float delay)
     {
-        Cast(id, AID.Meteor, delay, 4, "Raidwide")
+        Cast(id, (uint)AID.Meteor, delay, 4, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 
     private void MeteorEnrage(uint id)
     {
-        Cast(id, AID.MeteorEnrage, 3.1f, 10, "Enrage")
+        Cast(id, (uint)AID.MeteorEnrage, 3.1f, 10, "Enrage")
             .ActivateOnEnter<MeteorEnrageCounter>();
         ComponentCondition<MeteorEnrageCounter>(id + 0x10, 3, comp => comp.NumCasts == 1, "Enrage repeat 1");
         ComponentCondition<MeteorEnrageCounter>(id + 0x20, 5, comp => comp.NumCasts == 2, "Enrage repeat 2");
@@ -76,22 +76,22 @@ class BA3AbsoluteVirtueStates : StateMachineBuilder
 
     private void Eidos(uint id, float delay)
     {
-        CastMulti(id, [AID.EidosAstral, AID.EidosUmbral], delay, 2, "Change element");
+        CastMulti(id, [(uint)AID.EidosAstral, (uint)AID.EidosUmbral], delay, 2, "Change element");
     }
 
     private void HostileAspect1(uint id, float delay)
     {
-        Cast(id, AID.HostileAspect, delay, 8, "Circle AOEs");
+        Cast(id, (uint)AID.HostileAspect, delay, 8, "Circle AOEs");
     }
 
     private void HostileAspect2(uint id, float delay)
     {
-        CastStart(id, AID.HostileAspect, delay, "Circle AOEs appear");
+        CastStart(id, (uint)AID.HostileAspect, delay, "Circle AOEs appear");
         ComponentCondition<ExplosiveImpulse1>(id + 0x10, 7.4f, comp => comp.Casters.Count != 0, "Proximity AOE appears")
             .ActivateOnEnter<BrightDarkAuroraCounter>();
         CastEnd(id + 0x20, 2, "Circle AOEs resolve");
         ComponentCondition<ExplosiveImpulse1>(id + 0x30, 4.4f, comp => comp.Casters.Count == 0, "Proximity AOE resolves");
-        CastMulti(id + 0x40, [AID.EidosAstral, AID.EidosUmbral], 6.3f, 2, "Change element");
+        CastMulti(id + 0x40, [(uint)AID.EidosAstral, (uint)AID.EidosUmbral], 6.3f, 2, "Change element");
         ComponentCondition<BrightDarkAuroraCounter>(id + 0x50, 1.9f, comp => comp.NumCasts == 2, "Half room cleaves 1");
         ComponentCondition<BrightDarkAuroraCounter>(id + 0x60, 4.8f, comp => comp.NumCasts == 4, "Half room cleaves 2")
             .DeactivateOnExit<BrightDarkAuroraCounter>();
@@ -99,18 +99,18 @@ class BA3AbsoluteVirtueStates : StateMachineBuilder
 
     private void MedusaJavelin(uint id, float delay)
     {
-        Cast(id, AID.MedusaJavelin, delay, 3, "Cone AOE");
+        Cast(id, (uint)AID.MedusaJavelin, delay, 3, "Cone AOE");
     }
 
     private void AuroralWind(uint id, float delay)
     {
-        Cast(id, AID.AuroralWind, delay, 5, "Tankbuster")
+        Cast(id, (uint)AID.AuroralWind, delay, 5, "Tankbuster")
             .SetHint(StateMachine.StateHint.Tankbuster);
     }
 
     private void ImpactStreamBoss(uint id, float delay)
     {
-        Cast(id, AID.ImpactStream1, delay, 3, "Half room cleaves");
+        Cast(id, (uint)AID.ImpactStream1, delay, 3, "Half room cleaves");
     }
 
     private void DarkBrightAuroraTowers(uint id, float delay)
@@ -127,12 +127,12 @@ class BA3AbsoluteVirtueStates : StateMachineBuilder
         ComponentCondition<BrightDarkAuroraCounter>(id + 0x30, 5.6f, comp => comp.NumCasts == 4, "Half room cleaves 2");
         ComponentCondition<BrightDarkAuroraCounter>(id + 0x40, 4.4f, comp => comp.NumCasts == 6, "Half room cleaves 3")
             .DeactivateOnExit<BrightDarkAuroraCounter>();
-        CastStart(id + 0x50, AID.ExplosiveImpulse2, 1.3f, "Proximity AOE appears");
+        CastStart(id + 0x50, (uint)AID.ExplosiveImpulse2, 1.3f, "Proximity AOE appears");
         CastEnd(id + 0x60, 5, "Proximity AOE resolves");
     }
 
     private void CallWyvern(uint id, float delay)
     {
-        Cast(id, AID.CallWyvern, delay, 3, "Adds spawn");
+        Cast(id, (uint)AID.CallWyvern, delay, 3, "Adds spawn");
     }
 }

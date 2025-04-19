@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Ultimate.FRU;
 
-class P5ParadiseRegainedTowers(BossModule module) : Components.GenericTowers(module, ActionID.MakeSpell(AID.WingsDarkAndLightExplosion))
+class P5ParadiseRegainedTowers(BossModule module) : Components.GenericTowers(module, (uint)AID.WingsDarkAndLightExplosion)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -24,7 +24,7 @@ class P5ParadiseRegainedTowers(BossModule module) : Components.GenericTowers(mod
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             ++NumCasts;
             if (Towers.Count == 0)

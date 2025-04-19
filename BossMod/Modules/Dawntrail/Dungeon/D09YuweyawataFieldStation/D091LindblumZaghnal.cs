@@ -100,11 +100,11 @@ abstract class LineVoltage(BossModule module, uint narrow, double delay, uint? w
 class LineVoltage1(BossModule module) : LineVoltage(module, (uint)AID.LineVoltageNarrow1, 1.5d);
 class LineVoltage2(BossModule module) : LineVoltage(module, (uint)AID.LineVoltageNarrow2, 2d, (uint)AID.LineVoltageWide1, (uint)AID.LineVoltageWide2);
 
-class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 6f);
-class LightningStorm(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.LightningStorm), 5f);
-class ElectricalOverload(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ElectricalOverload));
-class SparkingFissure(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SparkingFissure));
-class SparkingFissureFirst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SparkingFissureFirst));
+class LightningBolt(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LightningBolt, 6f);
+class LightningStorm(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.LightningStorm, 5f);
+class ElectricalOverload(BossModule module) : Components.RaidwideCast(module, (uint)AID.ElectricalOverload);
+class SparkingFissure(BossModule module) : Components.RaidwideCast(module, (uint)AID.SparkingFissure);
+class SparkingFissureFirst(BossModule module) : Components.RaidwideCast(module, (uint)AID.SparkingFissureFirst);
 
 class CellShock(BossModule module) : Components.GenericAOEs(module)
 {

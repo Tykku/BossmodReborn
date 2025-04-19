@@ -54,30 +54,30 @@ public enum AID : uint
     Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
-class Wingbeat(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wingbeat), new AOEShapeCone(18f, 30f.Degrees()));
-class Feathercut(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Feathercut), new AOEShapeRect(40f, 4f));
-class GoldDust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldDust), 8f);
-class BloodyCaress(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BloodyCaress), new AOEShapeCone(12f, 60f.Degrees()));
-class SwiftSough(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SwiftSough), new AOEShapeCone(13f, 30f.Degrees()));
-class FireBreak(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireBreak), new AOEShapeCone(8f, 45f.Degrees()));
+class Wingbeat(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Wingbeat, new AOEShapeCone(18f, 30f.Degrees()));
+class Feathercut(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Feathercut, new AOEShapeRect(40f, 4f));
+class GoldDust(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GoldDust, 8f);
+class BloodyCaress(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BloodyCaress, new AOEShapeCone(12f, 60f.Degrees()));
+class SwiftSough(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SwiftSough, new AOEShapeCone(13f, 30f.Degrees()));
+class FireBreak(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FireBreak, new AOEShapeCone(8f, 45f.Degrees()));
 
-abstract class CircleLoc6(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
-class Tornado(BossModule module) : CircleLoc6(module, AID.Tornado);
-class Incubus(BossModule module) : CircleLoc6(module, AID.Incubus);
-class RottenSpores(BossModule module) : CircleLoc6(module, AID.RottenSpores);
+abstract class CircleLoc6(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
+class Tornado(BossModule module) : CircleLoc6(module, (uint)AID.Tornado);
+class Incubus(BossModule module) : CircleLoc6(module, (uint)AID.Incubus);
+class RottenSpores(BossModule module) : CircleLoc6(module, (uint)AID.RottenSpores);
 
-abstract class CircleLoc5(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 5f);
-class FireII(BossModule module) : CircleLoc5(module, AID.FireII);
-class BitterNectar(BossModule module) : CircleLoc5(module, AID.BitterNectar);
+abstract class CircleLoc5(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 5f);
+class FireII(BossModule module) : CircleLoc5(module, (uint)AID.FireII);
+class BitterNectar(BossModule module) : CircleLoc5(module, (uint)AID.BitterNectar);
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
+class Spin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spin, 11);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
+class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
 
 class Room3States : StateMachineBuilder
 {

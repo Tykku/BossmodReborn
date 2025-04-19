@@ -35,7 +35,7 @@ class M07SBruteAbombinatorStates : StateMachineBuilder
 
     private void BrutalImpact(uint id, float delay1, float delay2, int numcasts)
     {
-        Cast(id, AID.BrutalImpactVisual, delay1, 5f, $"Raidwide x{numcasts}")
+        Cast(id, (uint)AID.BrutalImpactVisual, delay1, 5f, $"Raidwide x{numcasts}")
             .ActivateOnEnter<BrutalImpact>()
             .SetHint(StateMachine.StateHint.Raidwide);
         ComponentCondition<BrutalImpact>(id + 0x10u, delay2, comp => comp.NumCasts == numcasts, $"Raidwide hit {numcasts}")
@@ -52,8 +52,8 @@ class M07SBruteAbombinatorStates : StateMachineBuilder
 
     private void StoneRingerBrutalSmash(uint id, float delay)
     {
-        CastMulti(id, [AID.Stoneringer1, AID.Stoneringer3, AID.Stoneringer4], delay, 2f, "Select AOE shape");
-        CastMulti(id + 0x10u, [AID.SmashHere, AID.SmashThere], 5.9f, 3f, "Proximity tankbuster appears")
+        CastMulti(id, [(uint)AID.Stoneringer1, (uint)AID.Stoneringer3, (uint)AID.Stoneringer4], delay, 2f, "Select AOE shape");
+        CastMulti(id + 0x10u, [(uint)AID.SmashHere, (uint)AID.SmashThere], 5.9f, 3f, "Proximity tankbuster appears")
             .SetHint(StateMachine.StateHint.Tankbuster)
             .ActivateOnEnter<BrutalSwing>()
             .ActivateOnEnter<BrutalSmash>();
@@ -65,7 +65,7 @@ class M07SBruteAbombinatorStates : StateMachineBuilder
 
     private void AddPhase1(uint id, float delay)
     {
-        Cast(id, AID.SporeSacVisual, delay, 3f, $"Add phase 1");
+        Cast(id, (uint)AID.SporeSacVisual, delay, 3f, $"Add phase 1");
         ComponentCondition<SporeSac>(id + 0x10u, 5.1f, comp => comp.NumCasts != 0, $"Circle AOEs 1")
             .ActivateOnEnter<SporeSac>()
             .ActivateOnExit<Pollen>()
@@ -113,14 +113,14 @@ class M07SBruteAbombinatorStates : StateMachineBuilder
         ComponentCondition<Explosion>(id, delay, comp => comp.NumCasts != 0, "Proximity AOE 1")
             .SetHint(StateMachine.StateHint.Raidwide)
             .ActivateOnEnter<Explosion>();
-        CastStartMulti(id + 0x10u, [AID.Stoneringer1, AID.Stoneringer3, AID.Stoneringer4], 1.2f, "Select AOE shape")
+        CastStartMulti(id + 0x10u, [(uint)AID.Stoneringer1, (uint)AID.Stoneringer3, (uint)AID.Stoneringer4], 1.2f, "Select AOE shape")
             .SetHint(StateMachine.StateHint.Tankbuster);
         ComponentCondition<Explosion>(id + 0x20u, 1.4f, comp => comp.NumCasts == 2, "Proximity AOE 2")
             .SetHint(StateMachine.StateHint.Raidwide);
         ComponentCondition<Explosion>(id + 0x30u, 2.5f, comp => comp.NumCasts == 3, "Proximity AOE 3")
             .DeactivateOnExit<Explosion>()
             .SetHint(StateMachine.StateHint.Raidwide);
-        CastMulti(id + 0x40u, [AID.SmashHere, AID.SmashThere], 4f, 3f, "Proximity tankbuster appears")
+        CastMulti(id + 0x40u, [(uint)AID.SmashHere, (uint)AID.SmashThere], 4f, 3f, "Proximity tankbuster appears")
             .SetHint(StateMachine.StateHint.Tankbuster)
             .ActivateOnEnter<BrutalSwing>()
             .ActivateOnEnter<BrutalSmash>();
@@ -145,7 +145,7 @@ class M07SBruteAbombinatorStates : StateMachineBuilder
 
     private void NeoBombarianSpecial(uint id)
     {
-        Cast(id, AID.NeoBombarianSpecial, 10.8f, 8f, "Raidwide")
+        Cast(id, (uint)AID.NeoBombarianSpecial, 10.8f, 8f, "Raidwide")
             .ActivateOnEnter<ArenaChanges>()
             .ActivateOnEnter<NeoBombarianSpecialKB>()
             .DeactivateOnExit<NeoBombarianSpecialKB>()
@@ -154,7 +154,7 @@ class M07SBruteAbombinatorStates : StateMachineBuilder
 
     private void StoneRingerGlowerPower(uint id, float delay)
     {
-        CastMulti(id, [AID.Stoneringer2, AID.Stoneringer4], delay, 2f, "Select AOE shape")
+        CastMulti(id, [(uint)AID.Stoneringer2, (uint)AID.Stoneringer4], delay, 2f, "Select AOE shape")
             .DeactivateOnEnter<ArenaChanges>()
             .ActivateOnExit<BrutalSwing>();
         ComponentCondition<BrutalSwing>(id + 0x10u, 14f, comp => comp.NumCasts != 0, "Stoneringer resolves")
@@ -165,15 +165,15 @@ class M07SBruteAbombinatorStates : StateMachineBuilder
             .DeactivateOnExit<ElectrogeneticForce>();
         ComponentCondition<GlowerPower>(id + 0x30u, 0.1f, comp => comp.AOE == null, "Line AOE resolves")
             .DeactivateOnExit<GlowerPower>();
-        Cast(id + 0x40, AID.RevengeOfTheVines1, 0.9f, 5f, "Raidwide")
+        Cast(id + 0x40, (uint)AID.RevengeOfTheVines1, 0.9f, 5f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 
     private void ThornyDeathmatch(uint id, float delay)
     {
-        Cast(id, AID.ThornyDeathmatch, delay, 3f, "Thorny Deathmatch")
+        Cast(id, (uint)AID.ThornyDeathmatch, delay, 3f, "Thorny Deathmatch")
             .ActivateOnExit<ThornsOfDeath>();
-        CastMulti(id + 0x10u, [AID.Stoneringer2, AID.Stoneringer4], 2.1f, 2f, "Select AOE shape")
+        CastMulti(id + 0x10u, [(uint)AID.Stoneringer2, (uint)AID.Stoneringer4], 2.1f, 2f, "Select AOE shape")
             .ActivateOnExit<AbominableBlink>();
         ComponentCondition<AbominableBlink>(id + 0x20u, 12.2f, comp => comp.NumCasts != 0, "Flare resolves")
             .SetHint(StateMachine.StateHint.Raidwide)
@@ -198,22 +198,22 @@ class M07SBruteAbombinatorStates : StateMachineBuilder
             .DeactivateOnExit<ElectrogeneticForce>();
         ComponentCondition<GlowerPower>(id + 0x80u, 0.2f, comp => comp.AOE == null, "Line AOE resolves")
             .DeactivateOnExit<GlowerPower>();
-        Cast(id + 0x90, AID.RevengeOfTheVines1, 0.8f, 5f, "Raidwide")
+        Cast(id + 0x90, (uint)AID.RevengeOfTheVines1, 0.8f, 5f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 
     private void DemolitionDeathmatch(uint id, float delay)
     {
-        Cast(id, AID.DemolitionDeathmatch, delay, 3f, "Demolition Deathmatch")
+        Cast(id, (uint)AID.DemolitionDeathmatch, delay, 3f, "Demolition Deathmatch")
             .ActivateOnExit<AbominableBlink>();
         ComponentCondition<AbominableBlink>(id + 0x10u, 14.5f, comp => comp.NumCasts != 0, "Flare resolves")
             .SetHint(StateMachine.StateHint.Raidwide)
             .DeactivateOnExit<AbominableBlink>();
-        Cast(id + 0x20u, AID.StrangeSeedsVisual1, 3.1f, 4f)
+        Cast(id + 0x20u, (uint)AID.StrangeSeedsVisual1, 3.1f, 4f)
             .ActivateOnEnter<StrangeSeeds>()
             .ActivateOnExit<TendrilsOfTerrorPrediction>()
             .ActivateOnEnter<TendrilsOfTerrorBait>();
-        CastStartMulti(id + 0x30u, [AID.Stoneringer2, AID.Stoneringer4], 5.2f, "Select AOE shape");
+        CastStartMulti(id + 0x30u, [(uint)AID.Stoneringer2, (uint)AID.Stoneringer4], 5.2f, "Select AOE shape");
         ComponentCondition<StrangeSeeds>(id + 0x40u, 1f, comp => comp.NumFinishedSpreads != 0, "Spreads 1 resolve");
         ComponentCondition<TendrilsOfTerror>(id + 0x50u, 1.6f, comp => comp.AOEs.Count != 0, $"Tendrils 1 appear")
             .ActivateOnEnter<TendrilsOfTerror>();
@@ -246,16 +246,16 @@ class M07SBruteAbombinatorStates : StateMachineBuilder
             .DeactivateOnExit<ElectrogeneticForce>();
         ComponentCondition<GlowerPower>(id + 0x150u, 0.2f, comp => comp.AOE == null, "Line AOE resolves")
             .DeactivateOnExit<GlowerPower>();
-        Cast(id + 0x160, AID.RevengeOfTheVines1, 0.9f, 5f, "Raidwide")
+        Cast(id + 0x160, (uint)AID.RevengeOfTheVines1, 0.9f, 5f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide);
-        Cast(id + 0x170, AID.Powerslam, 6.2f, 6f, "Raidwide")
+        Cast(id + 0x170, (uint)AID.Powerslam, 6.2f, 6f, "Raidwide")
             .ActivateOnEnter<ArenaChanges>()
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 
     private void StoneRinger2GlowerPower(uint id, float delay)
     {
-        CastMulti(id, [AID.Stoneringer2Stoneringers1, AID.Stoneringer2Stoneringers2], delay, 2f, "Select AOE shapes")
+        CastMulti(id, [(uint)AID.Stoneringer2Stoneringers1, (uint)AID.Stoneringer2Stoneringers2], delay, 2f, "Select AOE shapes")
             .DeactivateOnEnter<ArenaChanges>()
             .ActivateOnExit<BrutalSwing>();
         ComponentCondition<BrutalSwing>(id + 0x10u, 12.6f, comp => comp.NumCasts != 0, "Stoneringer 1 resolves")
@@ -278,7 +278,7 @@ class M07SBruteAbombinatorStates : StateMachineBuilder
 
     private void DebrisDeathmatch(uint id, float delay)
     {
-        Cast(id, AID.DebrisDeathmatch, delay, 3f, "Demolition Deathmatch")
+        Cast(id, (uint)AID.DebrisDeathmatch, delay, 3f, "Demolition Deathmatch")
             .ActivateOnExit<ThornsOfDeath>();
         ComponentCondition<SporeSac>(id + 0x10u, 10.3f, comp => comp.NumCasts != 0, "Circle AOEs 1")
             .ActivateOnEnter<SporeSac>()
@@ -319,7 +319,7 @@ class M07SBruteAbombinatorStates : StateMachineBuilder
 
     private void StoneRinger2Tendrils(uint id, float delay)
     {
-        CastMulti(id, [AID.Stoneringer2Stoneringers1, AID.Stoneringer2Stoneringers2], delay, 2f, "Select AOE shapes")
+        CastMulti(id, [(uint)AID.Stoneringer2Stoneringers1, (uint)AID.Stoneringer2Stoneringers2], delay, 2f, "Select AOE shapes")
             .ActivateOnEnter<StrangeSeeds>()
             .ActivateOnEnter<TendrilsOfTerrorBait>()
             .ActivateOnExit<TendrilsOfTerrorPrediction>()

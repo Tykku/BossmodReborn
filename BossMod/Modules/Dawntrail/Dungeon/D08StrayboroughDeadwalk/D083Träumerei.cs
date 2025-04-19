@@ -137,7 +137,7 @@ class GhostlyGuise(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class MaliciousMistRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MaliciousMistRaidwide));
+class MaliciousMistRaidwide(BossModule module) : Components.RaidwideCast(module, (uint)AID.MaliciousMistRaidwide);
 class IllIntentMaliciousMist(BossModule module) : Components.StretchTetherDuo(module, 20f, 10f)
 {
     // ill intent seems to break after 17, malicious mist after 20, not worth the effort to differentiate
@@ -148,12 +148,12 @@ class IllIntentMaliciousMist(BossModule module) : Components.StretchTetherDuo(mo
     }
 }
 
-class BitterRegret1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BitterRegret1), new AOEShapeRect(50f, 8f));
-class BitterRegret2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BitterRegret2), new AOEShapeRect(50f, 6f));
-class BitterRegret3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BitterRegret3), new AOEShapeRect(40f, 2f), 5);
-class Impact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Impact), new AOEShapeRect(40f, 2f));
-class Ghostcrusher(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.GhostcrusherMarker), ActionID.MakeSpell(AID.Ghostcrusher), 5f, 80f, maxStackSize: 4);
-class Ghostduster(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Ghostduster), 8f)
+class BitterRegret1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BitterRegret1, new AOEShapeRect(50f, 8f));
+class BitterRegret2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BitterRegret2, new AOEShapeRect(50f, 6f));
+class BitterRegret3(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BitterRegret3, new AOEShapeRect(40f, 2f), 5);
+class Impact(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Impact, new AOEShapeRect(40f, 2f));
+class Ghostcrusher(BossModule module) : Components.LineStack(module, (uint)AID.GhostcrusherMarker, (uint)AID.Ghostcrusher, 5f, 80f, maxStackSize: 4);
+class Ghostduster(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Ghostduster, 8f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

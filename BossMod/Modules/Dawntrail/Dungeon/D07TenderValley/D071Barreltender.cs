@@ -52,7 +52,7 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class HeavyweightNeedles(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavyweightNeedles), new AOEShapeCone(36f, 25f.Degrees()))
+class HeavyweightNeedles(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HeavyweightNeedles, new AOEShapeCone(36f, 25f.Degrees()))
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -137,12 +137,12 @@ class NeedleStormSuperstorm(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Prickly(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(36f, 165f.Degrees()));
-class PricklyRight(BossModule module) : Prickly(module, AID.PricklyRight);
-class PricklyLeft(BossModule module) : Prickly(module, AID.PricklyLeft);
+class Prickly(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(36f, 165f.Degrees()));
+class PricklyRight(BossModule module) : Prickly(module, (uint)AID.PricklyRight);
+class PricklyLeft(BossModule module) : Prickly(module, (uint)AID.PricklyLeft);
 
-class SucculentStomp(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.SucculentStomp), 6f, 4, 4);
-class BarrelBreaker(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.BarrelBreaker), 20f)
+class SucculentStomp(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.SucculentStomp, 6f, 4, 4);
+class BarrelBreaker(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.BarrelBreaker, 20f)
 {
     private static readonly Angle a10 = 10f.Degrees(), a135 = 135f.Degrees(), a45 = 45f.Degrees();
     private enum Pattern { None, NESW, NWSE }
@@ -150,7 +150,7 @@ class BarrelBreaker(BossModule module) : Components.SimpleKnockbacks(module, Act
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
-        if (actor.OID == (uint)OID.CactusSmall && state == 0x00010002)
+        if (actor.OID == (uint)OID.CactusSmall && state == 0x00010002u)
         {
             var add = actor.Position.X + actor.Position.Z;
             if (add == 400f) // new WPos(-55f, 455f)
@@ -202,8 +202,8 @@ class BarrelBreaker(BossModule module) : Components.SimpleKnockbacks(module, Act
     }
 }
 
-class TenderFury(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.TenderFury));
-class BarbedBellow(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BarbedBellow));
+class TenderFury(BossModule module) : Components.SingleTargetCast(module, (uint)AID.TenderFury);
+class BarbedBellow(BossModule module) : Components.RaidwideCast(module, (uint)AID.BarbedBellow);
 
 class D071BarreltenderStates : StateMachineBuilder
 {

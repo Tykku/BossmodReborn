@@ -23,7 +23,7 @@ public enum AID : uint
     ReverseCodeCircleFirst = 38459 // Boss->self, 5.0s cast, range 10 circle
 }
 
-class TargetedAdvance(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TargetedAdvance), 18f);
+class TargetedAdvance(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TargetedAdvance, 18f);
 
 class ExecutionModel(BossModule module) : Components.GenericAOEs(module)
 {

@@ -2,7 +2,7 @@
 
 // these two abilities are very similar, only differ by activation delay and action id
 // TODO: not all the wall is safe...
-abstract class FeralHowlHystericAssault(BossModule module, uint aidCast, AID aidAOE, float delay) : Components.GenericKnockback(module, ActionID.MakeSpell(aidAOE), true, stopAtWall: true)
+abstract class FeralHowlHystericAssault(BossModule module, uint aidCast, uint aidAOE, float delay) : Components.GenericKnockback(module, aidAOE, true, stopAtWall: true)
 {
     private Knockback? _source;
 
@@ -15,5 +15,5 @@ abstract class FeralHowlHystericAssault(BossModule module, uint aidCast, AID aid
     }
 }
 
-class FeralHowl(BossModule module) : FeralHowlHystericAssault(module, (uint)AID.FeralHowl, AID.FeralHowlAOE, 2.1f);
-class HystericAssault(BossModule module) : FeralHowlHystericAssault(module, (uint)AID.HystericAssault, AID.HystericAssaultAOE, 0.9f);
+class FeralHowl(BossModule module) : FeralHowlHystericAssault(module, (uint)AID.FeralHowl, (uint)AID.FeralHowlAOE, 2.1f);
+class HystericAssault(BossModule module) : FeralHowlHystericAssault(module, (uint)AID.HystericAssault, (uint)AID.HystericAssaultAOE, 0.9f);

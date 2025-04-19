@@ -47,17 +47,17 @@ public enum SID : uint
     DownForTheCount = 783 // 295E->player, extra=0xEC7
 }
 
-class KatunCycle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.KatunCycle), new AOEShapeDonut(5, 40));
+class KatunCycle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.KatunCycle, new AOEShapeDonut(5, 40));
 
-abstract class Cleaves(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 60.Degrees()));
-class MercilessLeft(BossModule module) : Cleaves(module, AID.MercilessLeft);
-class MercilessRight(BossModule module) : Cleaves(module, AID.MercilessRight);
-class Evisceration(BossModule module) : Cleaves(module, AID.Evisceration);
+abstract class Cleaves(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(40, 60.Degrees()));
+class MercilessLeft(BossModule module) : Cleaves(module, (uint)AID.MercilessLeft);
+class MercilessRight(BossModule module) : Cleaves(module, (uint)AID.MercilessRight);
+class Evisceration(BossModule module) : Cleaves(module, (uint)AID.Evisceration);
 
-class UnceremoniousBeheading(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.UnceremoniousBeheading), 10);
-class HotPursuit(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HotPursuit1), 5);
-class NexusOfThunder(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.NexusOfThunder), new AOEShapeRect(60, 2.5f));
-class CoiledLevin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CoiledLevin1), 6);
+class UnceremoniousBeheading(BossModule module) : Components.SimpleAOEs(module, (uint)AID.UnceremoniousBeheading, 10);
+class HotPursuit(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HotPursuit1, 5);
+class NexusOfThunder(BossModule module) : Components.SimpleAOEs(module, (uint)AID.NexusOfThunder, new AOEShapeRect(60, 2.5f));
+class CoiledLevin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CoiledLevin1, 6);
 class LightningVoidzone(BossModule module) : Components.Voidzone(module, 6, m => m.Enemies(OID.LightningVoidzone).Where(x => x.EventState != 7));
 
 class ThancredAI(BossModule module) : RotationModule<AutoThancred>(module);

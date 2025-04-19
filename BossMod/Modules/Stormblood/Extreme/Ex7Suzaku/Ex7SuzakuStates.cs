@@ -24,7 +24,7 @@ class Ex7SuzakuStates : StateMachineBuilder
 
     private void ScreamsOfTheDamned(uint id, float delay)
     {
-        Cast(id, AID.ScreamsOfTheDamned, delay, 3f, "Raidwide")
+        Cast(id, (uint)AID.ScreamsOfTheDamned, delay, 3f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide)
             .ActivateOnEnter<Rout>()
             .ActivateOnEnter<RekindleP1>();
@@ -36,13 +36,13 @@ class Ex7SuzakuStates : StateMachineBuilder
             .DeactivateOnExit<RekindleP1>();
         ComponentCondition<FleetingSummer>(id + 0x40u, 8.9f, comp => comp.NumCasts != 0, "Cone AOE")
             .DeactivateOnExit<FleetingSummer>();
-        Cast(id + 0x50u, AID.Cremate, 4.6f, 3f, "Tankbuster")
+        Cast(id + 0x50u, (uint)AID.Cremate, 4.6f, 3f, "Tankbuster")
             .SetHint(StateMachine.StateHint.Tankbuster);
     }
 
     private void PhoenixDown(uint id, float delay)
     {
-        Cast(id, AID.PhoenixDown, delay, 3f, "Feathers spawn");
+        Cast(id, (uint)AID.PhoenixDown, delay, 3f, "Feathers spawn");
         Condition(id + 0x10u, 1f, () =>
         {
             var feathers = Module.Enemies((uint)OID.ScarletPlume);
@@ -59,11 +59,11 @@ class Ex7SuzakuStates : StateMachineBuilder
         ComponentCondition<RekindleP1>(id + 0x20u, 7.4f, comp => comp.Spreads.Count != 0, "Spreadmarkers appear");
         ComponentCondition<RekindleP1>(id + 0x30u, 5.1f, comp => comp.Spreads.Count == 0, "Spreads resolve")
             .DeactivateOnExit<RekindleP1>();
-        Cast(id + 0x40u, AID.Cremate, 7.9f, 10.9f, "Tankbuster")
+        Cast(id + 0x40u, (uint)AID.Cremate, 7.9f, 10.9f, "Tankbuster")
             .SetHint(StateMachine.StateHint.Tankbuster);
         ComponentCondition<ScarletPlumeTailFeather>(id + 0x50u, 1.1f, comp => comp.AOEs.Count == 0, "Feathers resolve")
             .DeactivateOnExit<ScarletPlumeTailFeather>();
-        Cast(id + 0x60u, AID.ScreamsOfTheDamned, 9.4f, 3f, "Raidwide")
+        Cast(id + 0x60u, (uint)AID.ScreamsOfTheDamned, 9.4f, 3f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide);
         Condition(id + 0x70u, 10.1f, () =>
         {
@@ -90,7 +90,7 @@ class Ex7SuzakuStates : StateMachineBuilder
         ComponentCondition<RapturousEchoTowers>(id + 0x20u, 31.2f, comp => comp.Towers.Count == 0, "DDR end")
             .DeactivateOnExit<RapturousEchoTowers>()
             .DeactivateOnExit<ScarletMelody>();
-        ActorCast(id + 0x30u, () => Helper(Module), AID.ScarletFever, 4.9f, 7f, true, "Raidwide")
+        ActorCast(id + 0x30u, () => Helper(Module), (uint)AID.ScarletFever, 4.9f, 7f, true, "Raidwide")
             .ActivateOnEnter<ArenaChange>()
             .SetHint(StateMachine.StateHint.Raidwide);
         static Actor? Helper(BossModule module)
@@ -149,7 +149,7 @@ class Ex7SuzakuStates : StateMachineBuilder
             var casts = i + 1;
             ComponentCondition<Hotspot>(id + 0x10u + (uint)(casts * 0x10u), delays[i], comp => comp.NumCasts == casts, $"Hotspot {casts}");
         }
-        Cast(id + 0xA0u, AID.SouthronStar, 1.4f, 4f, "Raidwide")
+        Cast(id + 0xA0u, (uint)AID.SouthronStar, 1.4f, 4f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide);
         for (var i = 8; i < 16; ++i)
         {
@@ -211,7 +211,7 @@ class Ex7SuzakuStates : StateMachineBuilder
     private void Phase2AfterHotspot1(uint id, float delay)
     {
         MesmerizingMelodyRuthlessRefrain(id, delay);
-        Cast(id + 0x10u, AID.CloseQuarterCrescendo, 7.2f, 4f)
+        Cast(id + 0x10u, (uint)AID.CloseQuarterCrescendo, 7.2f, 4f)
             .ActivateOnEnter<PayThePiperRegular>();
         ComponentCondition<PayThePiperRegular>(id + 0x20u, 2.5f, comp => comp.State.Count != 0, "Forced march tethers");
         ComponentCondition<PayThePiperRegular>(id + 0x30u, 10.3f, comp => comp.NumActiveForcedMarches != 0, "Forced march starts");
@@ -261,7 +261,7 @@ class Ex7SuzakuStates : StateMachineBuilder
 
     private State PhantomFlurry(uint id, float delay, float delay2 = 1.6f)
     {
-        Cast(id, AID.PhantomFlurryVisual, delay, 4f)
+        Cast(id, (uint)AID.PhantomFlurryVisual, delay, 4f)
                 .ActivateOnEnter<PhantomFlurryAOE>()
                 .ActivateOnEnter<PhantomFlurryTB>();
         ComponentCondition<PhantomFlurryTB>(id + 0x10u, 0.1f, comp => comp.NumCasts == 1, "Tank swap")
@@ -274,7 +274,7 @@ class Ex7SuzakuStates : StateMachineBuilder
 
     private State MesmerizingMelodyRuthlessRefrain(uint id, float delay)
     {
-        return CastMulti(id, [AID.MesmerizingMelody, AID.RuthlessRefrain], delay, 4f, "Knockback OR Pull")
+        return CastMulti(id, [(uint)AID.MesmerizingMelody, (uint)AID.RuthlessRefrain], delay, 4f, "Knockback OR Pull")
             .SetHint(StateMachine.StateHint.Knockback)
             .ActivateOnEnter<MesmerizingMelody>()
             .ActivateOnEnter<RuthlessRefrain>()
@@ -284,7 +284,7 @@ class Ex7SuzakuStates : StateMachineBuilder
 
     private State SouthronStar(uint id, float delay)
     {
-        return Cast(id, AID.SouthronStar, delay, 4f, "Raidwide")
+        return Cast(id, (uint)AID.SouthronStar, delay, 4f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 

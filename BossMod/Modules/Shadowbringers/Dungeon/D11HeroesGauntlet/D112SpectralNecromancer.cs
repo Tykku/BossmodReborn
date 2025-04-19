@@ -65,8 +65,8 @@ public enum TetherID : uint
     CrawlingNecrobombs = 79 // Necrobomb7/Necrobomb8/Necrobomb5/Necrobomb6->player/2753/2757/2752
 }
 
-class AbsoluteDarkII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbsoluteDarkII), new AOEShapeCone(40f, 60f.Degrees()));
-class PainMire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PainMire), 9f)
+class AbsoluteDarkII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AbsoluteDarkII, new AOEShapeCone(40f, 60f.Degrees()));
+class PainMire(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PainMire, 9f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -78,10 +78,10 @@ class PainMire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeS
 }
 
 class BleedVoidzone(BossModule module) : Components.Voidzone(module, 8f, m => m.Enemies(OID.BleedVoidzone).Where(x => x.EventState != 7));
-class TwistedTouch(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.TwistedTouch));
-class ChaosStorm(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ChaosStorm));
-class DarkDeluge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkDeluge), 5f);
-class NecrobombBaitAway(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(9.25f), (uint)IconID.Baitaway, ActionID.MakeSpell(AID.DeathThroes), centerAtTarget: true); // note: explosion is not always exactly the position of player, if zombie teleports to player it is player + zombie hitboxradius = 1.25 away
+class TwistedTouch(BossModule module) : Components.SingleTargetCast(module, (uint)AID.TwistedTouch);
+class ChaosStorm(BossModule module) : Components.RaidwideCast(module, (uint)AID.ChaosStorm);
+class DarkDeluge(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DarkDeluge, 5f);
+class NecrobombBaitAway(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(9.25f), (uint)IconID.Baitaway, (uint)AID.DeathThroes, centerAtTarget: true); // note: explosion is not always exactly the position of player, if zombie teleports to player it is player + zombie hitboxradius = 1.25 away
 
 class Necrobombs(BossModule module) : BossComponent(module)
 {

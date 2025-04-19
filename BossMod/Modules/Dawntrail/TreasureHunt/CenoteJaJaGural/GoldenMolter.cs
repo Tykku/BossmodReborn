@@ -62,8 +62,8 @@ public enum SID : uint
     Slime = 569 // Boss->player, extra=0x0
 }
 
-class Lap(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Lap));
-class Lightburst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Lightburst));
+class Lap(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Lap);
+class Lightburst(BossModule module) : Components.RaidwideCast(module, (uint)AID.Lightburst);
 
 class Crypsis(BossModule module) : BossComponent(module)
 {
@@ -97,19 +97,19 @@ class Crypsis(BossModule module) : BossComponent(module)
     }
 }
 
-class GoldenGall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldenGall), new AOEShapeCone(40f, 90f.Degrees()));
-class GoldenRadiance(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldenRadiance), 5f);
-class BlindingLight(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BlindingLight), 6f);
+class GoldenGall(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GoldenGall, new AOEShapeCone(40f, 90f.Degrees()));
+class GoldenRadiance(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GoldenRadiance, 5f);
+class BlindingLight(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.BlindingLight, 6f);
 
 class AetherialLight : Components.SimpleAOEs
 {
-    public AetherialLight(BossModule module) : base(module, ActionID.MakeSpell(AID.AetherialLight), new AOEShapeCone(40f, 30f.Degrees()), 4) { MaxDangerColor = 2; }
+    public AetherialLight(BossModule module) : base(module, (uint)AID.AetherialLight, new AOEShapeCone(40f, 30f.Degrees()), 4) { MaxDangerColor = 2; }
 }
 
-abstract class Vasoconstrictor(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
-class Vasoconstrictor1(BossModule module) : Vasoconstrictor(module, AID.Vasoconstrictor1);
-class Vasoconstrictor2(BossModule module) : Vasoconstrictor(module, AID.Vasoconstrictor2);
-class Vasoconstrictor3(BossModule module) : Vasoconstrictor(module, AID.Vasoconstrictor3);
+abstract class Vasoconstrictor(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
+class Vasoconstrictor1(BossModule module) : Vasoconstrictor(module, (uint)AID.Vasoconstrictor1);
+class Vasoconstrictor2(BossModule module) : Vasoconstrictor(module, (uint)AID.Vasoconstrictor2);
+class Vasoconstrictor3(BossModule module) : Vasoconstrictor(module, (uint)AID.Vasoconstrictor3);
 
 class VasoconstrictorPool(BossModule module) : Components.GenericAOEs(module)
 {
@@ -131,15 +131,15 @@ class VasoconstrictorPool(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11f);
-class RottenSpores(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RottenSpores), 6f);
+class Spin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spin, 11f);
+class RottenSpores(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RottenSpores, 6f);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
+class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
 
 class GoldenMolterStates : StateMachineBuilder
 {

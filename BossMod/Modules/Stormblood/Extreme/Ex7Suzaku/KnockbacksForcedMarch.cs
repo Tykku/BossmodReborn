@@ -1,6 +1,6 @@
 namespace BossMod.Stormblood.Extreme.Ex7Suzaku;
 
-class MesmerizingMelody(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.MesmerizingMelody), 11f, kind: Kind.TowardsOrigin, stopAfterWall: true)
+class MesmerizingMelody(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.MesmerizingMelody, 11f, kind: Kind.TowardsOrigin, stopAfterWall: true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -14,7 +14,7 @@ class MesmerizingMelody(BossModule module) : Components.SimpleKnockbacks(module,
     }
 }
 
-class RuthlessRefrain(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.RuthlessRefrain), 11f, stopAfterWall: true)
+class RuthlessRefrain(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.RuthlessRefrain, 11f, stopAfterWall: true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

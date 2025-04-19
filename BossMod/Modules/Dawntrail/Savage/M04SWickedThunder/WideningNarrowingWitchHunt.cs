@@ -38,7 +38,7 @@ class WideningNarrowingWitchHunt(BossModule module) : Components.GenericAOEs(mod
     }
 }
 
-class WideningNarrowingWitchHuntBait(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.WitchHuntAOE), centerAtTarget: true)
+class WideningNarrowingWitchHuntBait(BossModule module) : Components.GenericBaitAway(module, (uint)AID.WitchHuntAOE, centerAtTarget: true)
 {
     public enum Mechanic { None, Near, Far }
 
@@ -49,26 +49,45 @@ class WideningNarrowingWitchHuntBait(BossModule module) : Components.GenericBait
 
     public override void Update()
     {
-        CurrentBaits.Clear();
-        if (CurMechanic != Mechanic.None)
-        {
-            var party = Raid.WithoutSlot(false, true, true);
-            Array.Sort(party, (a, b) =>
-                {
-                    var distA = (a.Position - Arena.Center).LengthSq();
-                    var distB = (b.Position - Arena.Center).LengthSq();
-                    return distA.CompareTo(distB);
-                });
-            var len = party.Length;
-            var isNear = CurMechanic == Mechanic.Near;
-            var startIndex = isNear ? 0 : Math.Max(0, len - 2);
-            var endIndex = isNear ? Math.Min(2, len) : len;
+        if (CurMechanic == Mechanic.None)
+            return;
 
-            for (var i = startIndex; i < endIndex; ++i)
+        CurrentBaits.Clear();
+
+        var party = Raid.WithoutSlot(false, true, true);
+        var len = party.Length;
+
+        Span<(Actor actor, float distSq)> distances = new (Actor, float)[len];
+        var center = Arena.Center;
+
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var p = ref party[i];
+            var distSq = (p.Position - center).LengthSq();
+            distances[i] = (p, distSq);
+        }
+
+        var isNear = CurMechanic == Mechanic.Near;
+
+        var targets = Math.Min(2, len);
+        for (var i = 0; i < targets; ++i)
+        {
+            var selIdx = i;
+            for (var j = i + 1; j < len; ++j)
             {
-                ref readonly var p = ref party[i];
-                CurrentBaits.Add(new(Module.PrimaryActor, p, _shape, _activation));
+                var distJSq = distances[j].distSq;
+                var distSelIdx = distances[selIdx].distSq;
+                var isBetter = isNear ? distJSq < distSelIdx : distJSq > distSelIdx;
+                if (isBetter)
+                    selIdx = j;
             }
+
+            if (selIdx != i)
+            {
+                (distances[selIdx], distances[i]) = (distances[i], distances[selIdx]);
+            }
+
+            CurrentBaits.Add(new(Module.PrimaryActor, distances[i].actor, _shape, _activation));
         }
     }
 
@@ -94,7 +113,7 @@ class WideningNarrowingWitchHuntBait(BossModule module) : Components.GenericBait
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             ++NumCasts;
             ForbiddenPlayers[Raid.FindSlot(spell.MainTargetID)] = true;

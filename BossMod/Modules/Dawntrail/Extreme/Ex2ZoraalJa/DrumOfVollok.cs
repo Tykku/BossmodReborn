@@ -25,7 +25,7 @@ class DrumOfVollokPlatforms(BossModule module) : BossComponent(module)
     }
 }
 
-class DrumOfVollok(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.DrumOfVollokAOE), 4f, 2, 2);
+class DrumOfVollok(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.DrumOfVollokAOE, 4f, 2, 2);
 
 class DrumOfVollokKnockback(BossModule module) : Components.GenericKnockback(module, ignoreImmunes: true)
 {

@@ -37,11 +37,11 @@ public enum AID : uint
     ClimateChangeStatusEffect = 39133 // Boss->self, no cast, single-target
 }
 
-class FloodConditions(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FloodConditions), 6f);
-class GaleForceWinds(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GaleForceWinds), new AOEShapeRect(40f, 20f));
-class Hyperelectricity(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hyperelectricity), 10f);
-class WildfireConditions(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WildfireConditions), new AOEShapeDonut(5f, 40f));
-class BlizzardConditions(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlizzardConditions), new AOEShapeCross(40f, 2.5f));
+class FloodConditions(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FloodConditions, 6f);
+class GaleForceWinds(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GaleForceWinds, new AOEShapeRect(40f, 20f));
+class Hyperelectricity(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Hyperelectricity, 10f);
+class WildfireConditions(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WildfireConditions, new AOEShapeDonut(5f, 40f));
+class BlizzardConditions(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlizzardConditions, new AOEShapeCross(40f, 2.5f));
 
 class ForecastClimateChange(BossModule module) : Components.GenericAOEs(module)
 {

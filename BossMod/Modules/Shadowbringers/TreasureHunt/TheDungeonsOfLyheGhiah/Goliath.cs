@@ -37,24 +37,24 @@ public enum AID : uint
     Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
-class Wellbore(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wellbore), 15f);
-class Compress1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Compress1), new AOEShapeCross(100, 3.5f));
-class Compress2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Compress2), new AOEShapeRect(102.1f, 3.5f));
-class Accelerate(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Accelerate), 6f, 8, 8);
-class Incinerate(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Incinerate));
-class Fount(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fount), 4f);
-class MechanicalBlow(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.MechanicalBlow));
+class Wellbore(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Wellbore, 15f);
+class Compress1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Compress1, new AOEShapeCross(100, 3.5f));
+class Compress2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Compress2, new AOEShapeRect(102.1f, 3.5f));
+class Accelerate(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.Accelerate, 6f, 8, 8);
+class Incinerate(BossModule module) : Components.RaidwideCast(module, (uint)AID.Incinerate);
+class Fount(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Fount, 4f);
+class MechanicalBlow(BossModule module) : Components.SingleTargetCast(module, (uint)AID.MechanicalBlow);
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11);
-class Mash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mash), new AOEShapeRect(15.23f, 2f));
-class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15f, 60f.Degrees()));
+class Spin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spin, 11);
+class Mash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Mash, new AOEShapeRect(15.23f, 2f));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Scoop, new AOEShapeCone(15f, 60f.Degrees()));
 
-class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6.84f);
+class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
 
 class GoliathStates : StateMachineBuilder
 {

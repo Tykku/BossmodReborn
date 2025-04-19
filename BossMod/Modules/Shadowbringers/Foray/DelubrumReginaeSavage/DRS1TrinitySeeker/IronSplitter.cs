@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.DRS1TrinitySeeker;
 
-class IronSplitter(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.IronSplitter))
+class IronSplitter(BossModule module) : Components.GenericAOEs(module, (uint)AID.IronSplitter)
 {
     private readonly List<AOEInstance> _aoes = new(3);
     private static readonly AOEShape[] _shapes = [new AOEShapeCircle(4f), new AOEShapeDonut(8f, 12f), new AOEShapeDonut(16f, 20f),
@@ -10,7 +10,7 @@ class IronSplitter(BossModule module) : Components.GenericAOEs(module, ActionID.
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             var distance = (caster.Position - Arena.Center).Length();
             var activation = Module.CastFinishAt(spell);
@@ -32,7 +32,7 @@ class IronSplitter(BossModule module) : Components.GenericAOEs(module, ActionID.
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             _aoes.Clear();
     }
 }

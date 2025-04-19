@@ -30,11 +30,11 @@ public enum AID : uint
     ExplosionEnrage = 15919, // Boss->self, no cast, range 50 circle, enrage
 }
 
-class ShrillShriek(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ShrillShriek));
-class Aetherspike(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Aetherspike), new AOEShapeRect(40, 4));
-class Comet(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Comet), 4);
-class SicklyInferno(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SicklyInferno), 5);
-class Burst(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.BurstEnrage), "Enrage!", true);
+class ShrillShriek(BossModule module) : Components.RaidwideCast(module, (uint)AID.ShrillShriek);
+class Aetherspike(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Aetherspike, new AOEShapeRect(40, 4));
+class Comet(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Comet, 4);
+class SicklyInferno(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SicklyInferno, 5);
+class Burst(BossModule module) : Components.CastHint(module, (uint)AID.BurstEnrage, "Enrage!", true);
 
 class D062BellwetherStates : StateMachineBuilder
 {

@@ -92,17 +92,17 @@ class DisruptionArenaChange(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Disruption(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Disruption));
+class Disruption(BossModule module) : Components.RaidwideCast(module, (uint)AID.Disruption);
 
-abstract class Partition(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40f, 90f.Degrees()));
-class Partition1(BossModule module) : Partition(module, AID.Partition1);
-class Partition2(BossModule module) : Partition(module, AID.Partition2);
-class Partition3(BossModule module) : Partition(module, AID.Partition3);
+abstract class Partition(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(40f, 90f.Degrees()));
+class Partition1(BossModule module) : Partition(module, (uint)AID.Partition1);
+class Partition2(BossModule module) : Partition(module, (uint)AID.Partition2);
+class Partition3(BossModule module) : Partition(module, (uint)AID.Partition3);
 
-class Terminate(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Terminate), new AOEShapeRect(40f, 5f));
-class HaloOfDestruction(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HaloOfDestruction), new AOEShapeDonut(6f, 40f));
+class Terminate(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Terminate, new AOEShapeRect(40f, 5f));
+class HaloOfDestruction(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HaloOfDestruction, new AOEShapeDonut(6f, 40f));
 
-class Electray(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Electray), 6f)
+class Electray(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Electray, 6f)
 {
     private readonly HaloOfDestruction _aoe1 = module.FindComponent<HaloOfDestruction>()!;
     private readonly Partition2 _aoe2 = module.FindComponent<Partition2>()!;
@@ -122,14 +122,14 @@ class Electray(BossModule module) : Components.SpreadFromCastTargets(module, Act
 
 class Explosion : Components.SimpleAOEs
 {
-    public Explosion(BossModule module) : base(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeRect(50f, 4f))
+    public Explosion(BossModule module) : base(module, (uint)AID.Explosion, new AOEShapeRect(50f, 4f))
     {
         MaxDangerColor = 2;
         MaxRisky = 4;
     }
 }
 
-class Impact(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Impact), 15f)
+class Impact(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.Impact, 15f)
 {
     private static readonly Angle halfAngle = 45f.Degrees();
 
@@ -143,10 +143,10 @@ class Impact(BossModule module) : Components.SimpleKnockbacks(module, ActionID.M
     }
 }
 
-class Compression(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Compression), 6f);
+class Compression(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Compression, 6f);
 
-class Overexposure(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.OverexposureMarker), ActionID.MakeSpell(AID.Overexposure), 5f, 40f, 3f);
-class LightOfDevotion(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.LightOfDevotionMarker), ActionID.MakeSpell(AID.LightOfDevotion), 5.5f, 40f, 3f)
+class Overexposure(BossModule module) : Components.LineStack(module, (uint)AID.OverexposureMarker, (uint)AID.Overexposure, 5f, 40f, 3f);
+class LightOfDevotion(BossModule module) : Components.LineStack(module, (uint)AID.LightOfDevotionMarker, (uint)AID.LightOfDevotion, 5.5f, 40f, 3f)
 {
     public override void OnEventEnvControl(byte index, uint state)
     {

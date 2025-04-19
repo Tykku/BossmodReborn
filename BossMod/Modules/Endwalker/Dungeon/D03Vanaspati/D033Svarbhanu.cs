@@ -141,8 +141,8 @@ class ChaoticUndercurrent(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class CosmicKissSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.CosmicKissSpread), 6f);
-class CosmicKissCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CosmicKissCircle), 6f);
+class CosmicKissSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.CosmicKissSpread, 6f);
+class CosmicKissCircle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CosmicKissCircle, 6f);
 
 class CosmicKissRect(BossModule module) : Components.GenericAOEs(module)
 {
@@ -194,9 +194,9 @@ class CosmicKissRect(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class CosmicKissRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CosmicKiss));
+class CosmicKissRaidwide(BossModule module) : Components.RaidwideCast(module, (uint)AID.CosmicKiss);
 
-class CosmicKissKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.CosmicKiss), 13f)
+class CosmicKissKnockback(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.CosmicKiss, 13f)
 {
     private static readonly Angle a90 = 90f.Degrees(), a45 = 45f.Degrees(), a180 = 180f.Degrees();
     private readonly ChaoticUndercurrent _aoe = module.FindComponent<ChaoticUndercurrent>()!;
@@ -270,8 +270,8 @@ class CosmicKissKnockback(BossModule module) : Components.SimpleKnockbacks(modul
     }
 }
 
-class FlamesOfDecay(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FlamesOfDecay));
-class GnashingOfTeeth(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.GnashingOfTeeth));
+class FlamesOfDecay(BossModule module) : Components.RaidwideCast(module, (uint)AID.FlamesOfDecay);
+class GnashingOfTeeth(BossModule module) : Components.SingleTargetCast(module, (uint)AID.GnashingOfTeeth);
 
 class D033SvarbhanuStates : StateMachineBuilder
 {

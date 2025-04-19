@@ -1,8 +1,8 @@
 ﻿namespace BossMod.Stormblood.Alliance.A22Belias;
 
-class FireIV(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FireIV));
-class Eruption(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Eruption), 8f);
-class TimeBomb2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TimeBomb2), new AOEShapeCone(60f, 45f.Degrees()));
+class FireIV(BossModule module) : Components.RaidwideCast(module, (uint)AID.FireIV);
+class Eruption(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Eruption, 8f);
+class TimeBomb2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TimeBomb2, new AOEShapeCone(60f, 45f.Degrees()));
 
 class TimeEruption(BossModule module) : Components.GenericAOEs(module)
 {

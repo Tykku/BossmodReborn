@@ -70,14 +70,14 @@ public enum AID : uint
     ImperialAuthorityAnnia = 14130, // Boss->self, 40.0s cast, range 80 circle, enrage
 }
 
-class Innocence(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.Innocence));
-class DeltaTrance(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.DeltaTrance));
-class Heirsbane(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Heirsbane), "Single target damage");
+class Innocence(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.Innocence);
+class DeltaTrance(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.DeltaTrance);
+class Heirsbane(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Heirsbane, "Single target damage");
 
-class ArtificialPlasmaAnnia(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ArtificialPlasmaAnnia));
-class ArtificialPlasmaJulia(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ArtificialPlasmaJulia));
+class ArtificialPlasmaAnnia(BossModule module) : Components.RaidwideCast(module, (uint)AID.ArtificialPlasmaAnnia);
+class ArtificialPlasmaJulia(BossModule module) : Components.RaidwideCast(module, (uint)AID.ArtificialPlasmaJulia);
 
-class Crossbones(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.Crossbones), 2f);
+class Crossbones(BossModule module) : Components.BaitAwayChargeCast(module, (uint)AID.Crossbones, 2f);
 
 class CrossbonesKB(BossModule module) : Components.GenericKnockback(module, stopAtWall: true)
 {
@@ -115,13 +115,13 @@ class CrossbonesKB(BossModule module) : Components.GenericKnockback(module, stop
     }
 }
 
-class AngrySalamander(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AngrySalamander), new AOEShapeRect(45.6f, 3f));
-class Quaternity1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Quaternity1), new AOEShapeRect(41f, 2f));
-class Quaternity2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Quaternity2), new AOEShapeRect(26f, 2f));
-class StunningSweep(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StunningSweep), 6.6f);
-class Bombardment(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Bombardment), 10f);
-class MagitekMissile(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MissileImpact), 6f);
-class CoveringFire(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.CoveringFire), 8f);
+class AngrySalamander(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AngrySalamander, new AOEShapeRect(45.6f, 3f));
+class Quaternity1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Quaternity1, new AOEShapeRect(41f, 2f));
+class Quaternity2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Quaternity2, new AOEShapeRect(26f, 2f));
+class StunningSweep(BossModule module) : Components.SimpleAOEs(module, (uint)AID.StunningSweep, 6.6f);
+class Bombardment(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Bombardment, 10f);
+class MagitekMissile(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MissileImpact, 6f);
+class CoveringFire(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.CoveringFire, 8f);
 
 class CeruleumTanks(BossModule module) : Components.GenericAOEs(module)
 {
@@ -225,9 +225,9 @@ class Crosshatch(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-abstract class ImperialAuthority(BossModule module, AID aid) : Components.CastHint(module, ActionID.MakeSpell(aid), "Enrage!", true);
-class ImperialAuthorityAnnia(BossModule module) : ImperialAuthority(module, AID.ImperialAuthorityAnnia);
-class ImperialAuthorityJulia(BossModule module) : ImperialAuthority(module, AID.ImperialAuthorityJulia);
+abstract class ImperialAuthority(BossModule module, uint aid) : Components.CastHint(module, aid, "Enrage!", true);
+class ImperialAuthorityAnnia(BossModule module) : ImperialAuthority(module, (uint)AID.ImperialAuthorityAnnia);
+class ImperialAuthorityJulia(BossModule module) : ImperialAuthority(module, (uint)AID.ImperialAuthorityJulia);
 
 class D153SoranusDuoStates : StateMachineBuilder
 {

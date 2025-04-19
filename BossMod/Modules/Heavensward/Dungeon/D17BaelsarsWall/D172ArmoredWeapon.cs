@@ -34,12 +34,12 @@ public enum SID : uint
     ExtremeCaution = 1132 // none->player, extra=0x0
 }
 
-class Launcher(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Launcher));
-class AssaultCannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AssaultCannon), new AOEShapeRect(40.94f, 1f));
+class Launcher(BossModule module) : Components.RaidwideCast(module, (uint)AID.Launcher);
+class AssaultCannon(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AssaultCannon, new AOEShapeRect(40.94f, 1f));
 
-abstract class DiffractiveLaser(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 5f);
-class DiffractiveLaser1(BossModule module) : DiffractiveLaser(module, AID.DiffractiveLaser1);
-class DiffractiveLaser2(BossModule module) : DiffractiveLaser(module, AID.DiffractiveLaser2);
+abstract class DiffractiveLaser(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 5f);
+class DiffractiveLaser1(BossModule module) : DiffractiveLaser(module, (uint)AID.DiffractiveLaser1);
+class DiffractiveLaser2(BossModule module) : DiffractiveLaser(module, (uint)AID.DiffractiveLaser2);
 
 class DynamicSensoryJammer(BossModule module) : Components.StayMove(module, 3f)
 {

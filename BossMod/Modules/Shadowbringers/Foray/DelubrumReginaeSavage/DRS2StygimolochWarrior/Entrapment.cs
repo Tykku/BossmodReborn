@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.DRS2StygimolochWarrior;
 
-class EntrapmentAttract(BossModule module) : Components.GenericKnockback(module, ActionID.MakeSpell(AID.EntrapmentAttract), true)
+class EntrapmentAttract(BossModule module) : Components.GenericKnockback(module, (uint)AID.EntrapmentAttract, true)
 {
     private DateTime _activation;
 
@@ -38,7 +38,7 @@ class Entrapment : Components.CastCounter
     private Pattern _potentiallyUnsafe;
     private bool _possiblePatternsDirty;
 
-    public Entrapment(BossModule module, Pattern[] allowedPatterns) : base(module, ActionID.MakeSpell(AID.MassiveExplosion))
+    public Entrapment(BossModule module, Pattern[] allowedPatterns) : base(module, (uint)AID.MassiveExplosion)
     {
         _allowedPatterns = allowedPatterns;
         _possiblePatterns = new((1u << allowedPatterns.Length) - 1);
@@ -248,6 +248,6 @@ class EntrapmentInescapable(BossModule module) : Entrapment(module, _allowedPatt
     }
 }
 
-class LethalBlow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LethalBlow), new AOEShapeRect(44f, 24f));
-class LeapingSpark(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.LeapingSparkAOE));
-class Devour(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Devour), new AOEShapeCone(6f, 60f.Degrees()));
+class LethalBlow(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LethalBlow, new AOEShapeRect(44f, 24f));
+class LeapingSpark(BossModule module) : Components.CastCounter(module, (uint)AID.LeapingSparkAOE);
+class Devour(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Devour, new AOEShapeCone(6f, 60f.Degrees()));

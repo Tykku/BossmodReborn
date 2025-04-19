@@ -26,4 +26,4 @@ class ExplosiveRainConcentric(BossModule module) : Components.ConcentricAOEs(mod
     }
 }
 
-class ExplosiveRainCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ExplosiveRain4), 6);
+class ExplosiveRainCircle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ExplosiveRain4, 6);

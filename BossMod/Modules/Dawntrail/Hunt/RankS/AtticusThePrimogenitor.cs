@@ -59,9 +59,9 @@ public enum NPCYell : ushort
     LeftHead10 = 16899
 }
 
-class PyricBlast(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.PyricBlast), 6f, 8);
-class Intimidation(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Intimidation));
-class Brutality(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Brutality), "Applies Haste");
+class PyricBlast(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.PyricBlast, 6f, 8);
+class Intimidation(BossModule module) : Components.RaidwideCast(module, (uint)AID.Intimidation);
+class Brutality(BossModule module) : Components.CastHint(module, (uint)AID.Brutality, "Applies Haste");
 
 class BreathSequence(BossModule module) : Components.GenericAOEs(module)
 {

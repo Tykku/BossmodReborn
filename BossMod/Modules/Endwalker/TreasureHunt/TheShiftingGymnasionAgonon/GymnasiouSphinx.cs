@@ -41,23 +41,23 @@ public enum AID : uint
     Telega = 9630 // Mandragoras/Lampas/Lyssa->self, no cast, single-target, bonus add disappear
 }
 
-class Scratch(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Scratch));
-class Explosion(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeDonut(3f, 12f));
-class FrigidPulse(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrigidPulse), new AOEShapeDonut(12f, 60f));
-class FervidPulse(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FervidPulse), new AOEShapeCross(50f, 7f));
-class MoltingPlumage(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MoltingPlumage));
-class AlpineDraft(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AlpineDraft), new AOEShapeRect(45f, 2.5f));
-class FeatherRain(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FeatherRain), 6f);
-class AeroII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AeroII), 4f);
+class Scratch(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Scratch);
+class Explosion(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Explosion, new AOEShapeDonut(3f, 12f));
+class FrigidPulse(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FrigidPulse, new AOEShapeDonut(12f, 60f));
+class FervidPulse(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FervidPulse, new AOEShapeCross(50f, 7f));
+class MoltingPlumage(BossModule module) : Components.RaidwideCast(module, (uint)AID.MoltingPlumage);
+class AlpineDraft(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AlpineDraft, new AOEShapeRect(45f, 2.5f));
+class FeatherRain(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.FeatherRain, 6f);
+class AeroII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AeroII, 4f);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
+class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6f);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HeavySmash, 6f);
 
 class GymnasiouSphinxStates : StateMachineBuilder
 {

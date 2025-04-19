@@ -26,11 +26,11 @@ public enum IconID : uint
     Stackmarker = 62 // player
 }
 
-class Landsblood(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.LandsbloodFirst), "Raidwides + Geysers");
-class CandyCane(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CandyCane));
-class Hydrofall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrofall), 6f);
-class LaughingLeap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LaughingLeapAOE), 4f);
-class LaughingLeapStack(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.LaughingLeapStack), 4f, 5.1f, 4, 4);
+class Landsblood(BossModule module) : Components.RaidwideCast(module, (uint)AID.LandsbloodFirst, "Raidwides + Geysers");
+class CandyCane(BossModule module) : Components.SingleTargetCast(module, (uint)AID.CandyCane);
+class Hydrofall(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Hydrofall, 6f);
+class LaughingLeap(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LaughingLeapAOE, 4f);
+class LaughingLeapStack(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, (uint)AID.LaughingLeapStack, 4f, 5.1f, 4, 4);
 
 class Geyser(BossModule module) : Components.GenericAOEs(module)
 {

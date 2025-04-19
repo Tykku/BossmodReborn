@@ -33,9 +33,9 @@ public enum SID : uint
     Doom = 1970 // Boss->player, extra=0x0
 }
 
-class Triclip(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Triclip));
-class Mow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mow), new AOEShapeCone(8.25f, 60f.Degrees()));
-class FrightfulRoar(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrightfulRoar), 6.0f);
+class Triclip(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Triclip);
+class Mow(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Mow, new AOEShapeCone(8.25f, 60f.Degrees()));
+class FrightfulRoar(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FrightfulRoar, 6.0f);
 
 class MortalRay(BossModule module) : BossComponent(module)
 {

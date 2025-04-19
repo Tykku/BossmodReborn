@@ -118,7 +118,7 @@ class ForgedTrack(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class ForgedTrackKnockback(BossModule module) : Components.GenericKnockback(module, ActionID.MakeSpell(AID.StormyEdgeKnockback))
+class ForgedTrackKnockback(BossModule module) : Components.GenericKnockback(module, (uint)AID.StormyEdgeKnockback)
 {
     private readonly ForgedTrack? _main = module.FindComponent<ForgedTrack>();
 

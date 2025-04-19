@@ -17,9 +17,9 @@ public enum AID : uint
     DarkArrivisme = 30213 // Boss->location, 3.0s cast, range 5 circle
 }
 
-class Condemnation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Condemnation), new AOEShapeCone(6f, 45f.Degrees()));
-class EvilPhlegm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EvilPhlegm), 5f);
-class DarkArrivisme(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkArrivisme), 5f);
+class Condemnation(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Condemnation, new AOEShapeCone(6f, 45f.Degrees()));
+class EvilPhlegm(BossModule module) : Components.SimpleAOEs(module, (uint)AID.EvilPhlegm, 5f);
+class DarkArrivisme(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DarkArrivisme, 5f);
 
 class D100TroianScavangerStates : StateMachineBuilder
 {

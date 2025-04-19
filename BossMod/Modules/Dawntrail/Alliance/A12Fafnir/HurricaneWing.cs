@@ -1,8 +1,8 @@
 namespace BossMod.Dawntrail.Alliance.A12Fafnir;
 
-class HurricaneWingRaidwide(BossModule module) : Components.CastCounterMulti(module, [ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE1), ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE2), ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE3),
-    ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE4), ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE5), ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE6),
-    ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE7), ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE8), ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE9)]);
+class HurricaneWingRaidwide(BossModule module) : Components.CastCounterMulti(module, [(uint)AID.HurricaneWingRaidwideAOE1, (uint)AID.HurricaneWingRaidwideAOE2, (uint)AID.HurricaneWingRaidwideAOE3,
+    (uint)AID.HurricaneWingRaidwideAOE4, (uint)AID.HurricaneWingRaidwideAOE5, (uint)AID.HurricaneWingRaidwideAOE6,
+    (uint)AID.HurricaneWingRaidwideAOE7, (uint)AID.HurricaneWingRaidwideAOE8, (uint)AID.HurricaneWingRaidwideAOE9]);
 
 class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
 {
@@ -52,12 +52,12 @@ class HurricaneWingAOE(BossModule module) : Components.GenericAOEs(module)
     };
 }
 
-class GreatWhirlwindLarge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindLarge), 10f)
+class GreatWhirlwindLarge(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GreatWhirlwindLarge, 10f)
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class GreatWhirlwindSmall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GreatWhirlwindSmall), 3f)
+class GreatWhirlwindSmall(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GreatWhirlwindSmall, 3f)
 {
     public override bool KeepOnPhaseChange => true;
 }
@@ -149,12 +149,12 @@ class Whirlwinds(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class HorridRoarPuddle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HorridRoarPuddle), 4f)
+class HorridRoarPuddle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HorridRoarPuddle, 4f)
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class HorridRoarSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HorridRoarSpread), 8f)
+class HorridRoarSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.HorridRoarSpread, 8f)
 {
     public override bool KeepOnPhaseChange => true;
 }

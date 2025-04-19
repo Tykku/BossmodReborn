@@ -1,6 +1,12 @@
 namespace BossMod.Dawntrail.Savage.M05SDancingGreen;
 
-class GetDownCone(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GetDownCone), GetDownBait.Cone);
+class GetDownCone : Components.SimpleAOEs
+{
+    public GetDownCone(BossModule module) : base(module, (uint)AID.GetDownCone, GetDownBait.Cone)
+    {
+        Color = Colors.Danger;
+    }
+}
 
 class GetDownOutIn(BossModule module) : Components.GenericAOEs(module)
 {

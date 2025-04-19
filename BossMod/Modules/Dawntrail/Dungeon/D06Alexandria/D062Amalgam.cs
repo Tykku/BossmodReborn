@@ -60,20 +60,20 @@ class ElectrowaveArenaChange(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Electrowave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Electrowave));
-class Disassembly(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Disassembly));
-class CentralizedCurrent(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CentralizedCurrent), new AOEShapeRect(90f, 7.5f));
+class Electrowave(BossModule module) : Components.RaidwideCast(module, (uint)AID.Electrowave);
+class Disassembly(BossModule module) : Components.RaidwideCast(module, (uint)AID.Disassembly);
+class CentralizedCurrent(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CentralizedCurrent, new AOEShapeRect(90f, 7.5f));
 
-abstract class SplitCurrent(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(90f, 12.5f));
-class SplitCurrent1(BossModule module) : SplitCurrent(module, AID.SplitCurrent1);
-class SplitCurrent2(BossModule module) : SplitCurrent(module, AID.SplitCurrent2);
+abstract class SplitCurrent(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(90f, 12.5f));
+class SplitCurrent1(BossModule module) : SplitCurrent(module, (uint)AID.SplitCurrent1);
+class SplitCurrent2(BossModule module) : SplitCurrent(module, (uint)AID.SplitCurrent2);
 
-class SupercellMatrix1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SupercellMatrix1), new AOEShapeTriCone(40f, 45.Degrees()));
-class SupercellMatrix2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SupercellMatrix2), new AOEShapeRect(55f, 4f));
-class StaticSpark(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.StaticSpark), 6f);
-class Amalgamight(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Amalgamight));
-class Voltburst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Voltburst), 6f);
-class Superbolt(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Superbolt), 6f, 4, 4);
+class SupercellMatrix1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SupercellMatrix1, new AOEShapeTriCone(40f, 45.Degrees()));
+class SupercellMatrix2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SupercellMatrix2, new AOEShapeRect(55f, 4f));
+class StaticSpark(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.StaticSpark, 6f);
+class Amalgamight(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Amalgamight);
+class Voltburst(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Voltburst, 6f);
+class Superbolt(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.Superbolt, 6f, 4, 4);
 
 class TernaryCharge(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 {

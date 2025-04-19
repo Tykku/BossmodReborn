@@ -46,12 +46,12 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class ProximityPyre(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ProximityPyre), 12f);
-class Burst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Burst), 10f);
-class CripplingBlow(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CripplingBlow));
-class DeafeningBellow(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DeafeningBellow));
-class AshenOuroboros(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AshenOuroboros), new AOEShapeDonut(11f, 20f));
-class BodySlam(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.BodySlam), 10f)
+class ProximityPyre(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ProximityPyre, 12f);
+class Burst(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Burst, 10f);
+class CripplingBlow(BossModule module) : Components.SingleTargetCast(module, (uint)AID.CripplingBlow);
+class DeafeningBellow(BossModule module) : Components.RaidwideCast(module, (uint)AID.DeafeningBellow);
+class AshenOuroboros(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AshenOuroboros, new AOEShapeDonut(11f, 20f));
+class BodySlam(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.BodySlam, 10f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

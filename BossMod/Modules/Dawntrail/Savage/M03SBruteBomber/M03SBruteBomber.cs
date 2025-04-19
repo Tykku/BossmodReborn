@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Savage.M03SBruteBomber;
 
-class BrutalImpact(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.BrutalImpactAOE));
+class BrutalImpact(BossModule module) : Components.CastCounter(module, (uint)AID.BrutalImpactAOE);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 990, NameID = 13356, PlanLevel = 100)]
 public class M03SBruteBomber(WorldState ws, Actor primary) : BossModule(ws, primary, arenaCenter, DefaultBounds)

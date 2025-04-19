@@ -42,7 +42,7 @@ class M05SDancingGreenStates : StateMachineBuilder
 
     private void CelebrateGoodTimes(uint id, float delay)
     {
-        Cast(id, AID.CelebrateGoodTimes, delay, 5f, "Raidwide")
+        Cast(id, (uint)AID.CelebrateGoodTimes, delay, 5f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 
@@ -66,7 +66,7 @@ class M05SDancingGreenStates : StateMachineBuilder
 
     private void DiscoInfernal1(uint id, float delay)
     {
-        Cast(id, AID.DiscoInfernal, delay, 4f, "Raidwide")
+        Cast(id, (uint)AID.DiscoInfernal, delay, 4f, "Raidwide")
             .ActivateOnEnter<FunkyFloor>()
             .ActivateOnEnter<Spotlights1>()
             .SetHint(StateMachine.StateHint.Raidwide);
@@ -100,7 +100,7 @@ class M05SDancingGreenStates : StateMachineBuilder
 
     private void GetDownLetsDance(uint id, float delay)
     {
-        Cast(id, AID.EnsembleAssemble, delay, 3f, "Spawn dancers");
+        Cast(id, (uint)AID.EnsembleAssemble, delay, 3f, "Spawn dancers");
         ComponentCondition<GetDownOutIn>(id + 0x10u, 8.4f, comp => comp.NumCasts != 0, "Circle AOE")
             .ActivateOnEnter<GetDownOutIn>()
             .ActivateOnEnter<GetDownBait>()
@@ -133,7 +133,7 @@ class M05SDancingGreenStates : StateMachineBuilder
             ComponentCondition<LetsDance>(offset, time, comp => comp.NumCasts == casts, desc);
         }
 
-        Cast(id + 0x120u, AID.LetsPose, 3.2f, 5f, "Raidwide")
+        Cast(id + 0x120u, (uint)AID.LetsPose, 3.2f, 5f, "Raidwide")
             .DeactivateOnExit<LetsDance>()
             .DeactivateOnExit<WavelengthAlphaBeta>();
     }
@@ -183,7 +183,7 @@ class M05SDancingGreenStates : StateMachineBuilder
 
     private void DiscoInfernal2(uint id, float delay)
     {
-        Cast(id, AID.DiscoInfernal, delay, 4f, "Raidwide")
+        Cast(id, (uint)AID.DiscoInfernal, delay, 4f, "Raidwide")
             .ActivateOnEnter<BackUpDance>()
             .ActivateOnEnter<Spotlights2>()
             .SetHint(StateMachine.StateHint.Raidwide);
@@ -205,7 +205,7 @@ class M05SDancingGreenStates : StateMachineBuilder
 
     private void GetDownLetsDanceRemix(uint id, float delay)
     {
-        Cast(id, AID.EnsembleAssemble, delay, 3f, "Spawn dancers");
+        Cast(id, (uint)AID.EnsembleAssemble, delay, 3f, "Spawn dancers");
         ComponentCondition<GetDownOutIn>(id + 0x10u, 8.4f, comp => comp.NumCasts != 0, "Circle AOE")
             .ActivateOnEnter<GetDownOutIn>()
             .ActivateOnEnter<GetDownBait>()
@@ -235,7 +235,7 @@ class M05SDancingGreenStates : StateMachineBuilder
             var desc = $"Halfroom cleave {i}";
             ComponentCondition<LetsDanceRemix>(offset, i == 1 ? 8.4f : 1.5f, comp => comp.NumCasts == casts, desc);
         }
-        Cast(id + 0x120u, AID.LetsPoseRemix, 2.2f, 5f, "Raidwide")
+        Cast(id + 0x120u, (uint)AID.LetsPoseRemix, 2.2f, 5f, "Raidwide")
             .DeactivateOnExit<LetsDanceRemix>();
     }
 

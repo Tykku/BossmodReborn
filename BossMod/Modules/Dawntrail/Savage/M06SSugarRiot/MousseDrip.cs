@@ -32,7 +32,7 @@ class MousseDripStack(BossModule module) : Components.UniformStackSpread(module,
     }
 }
 
-class MousseDripVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(module, 5f, ActionID.MakeSpell(AID.MousseDrip), GetVoidzones, 1.4f)
+class MousseDripVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(module, 5f, (uint)AID.MousseDrip, GetVoidzones, 1.4f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {
@@ -57,7 +57,7 @@ class MousseDripTowers(BossModule module) : Components.GenericTowers(module)
 {
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state != 0x00020001)
+        if (state != 0x00020001u)
             return;
         WPos? pos = index switch
         {

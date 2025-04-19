@@ -30,10 +30,10 @@ public enum SID : uint
     LightningRod = 2574 // none->player/LightningRod, extra=0x114
 }
 
-class ElectricBurst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ElectricBurst));
-class CriticalRip(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CriticalRip));
+class ElectricBurst(BossModule module) : Components.RaidwideCast(module, (uint)AID.ElectricBurst);
+class CriticalRip(BossModule module) : Components.SingleTargetCast(module, (uint)AID.CriticalRip);
 
-class LightningBolt(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.LightningBolt), centerAtTarget: true)
+class LightningBolt(BossModule module) : Components.GenericBaitAway(module, (uint)AID.LightningBolt, centerAtTarget: true)
 {
     private static readonly AOEShapeCircle circle = new(10f);
     private DateTime activation;

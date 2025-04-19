@@ -24,8 +24,8 @@ public enum AID : uint
     EndlessNightmareRepeat = 29728 // Boss->self, no cast, range 20 circle
 }
 
-class UniteMare1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.UniteMare1), 6f, riskyWithSecondsLeft: 2.5d); // delay to improve melee greeding during enrage
-class UniteMare2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.UniteMare2), 18f, riskyWithSecondsLeft: 5d);
+class UniteMare1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.UniteMare1, 6f, riskyWithSecondsLeft: 2.5d); // delay to improve melee greeding during enrage
+class UniteMare2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.UniteMare2, 18f, riskyWithSecondsLeft: 5d);
 
 class UniteMare3(BossModule module) : Components.GenericAOEs(module)
 {
@@ -69,10 +69,10 @@ class UniteMare3(BossModule module) : Components.GenericAOEs(module)
         }
     }
 }
-class DarkVision1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkVision1), new AOEShapeRect(40f, 2.5f));
-class DarkVision2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkVision2), new AOEShapeRect(41f, 2.5f));
-class VoidGravity(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.VoidGravity), 6f);
-class EndlessNightmare(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.EndlessNightmare), "Enrage!", true);
+class DarkVision1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DarkVision1, new AOEShapeRect(40f, 2.5f));
+class DarkVision2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DarkVision2, new AOEShapeRect(41f, 2.5f));
+class VoidGravity(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.VoidGravity, 6f);
+class EndlessNightmare(BossModule module) : Components.CastHint(module, (uint)AID.EndlessNightmare, "Enrage!", true);
 
 class D101EvilDreamersStates : StateMachineBuilder
 {

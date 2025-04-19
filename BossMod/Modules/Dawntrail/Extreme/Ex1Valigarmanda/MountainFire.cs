@@ -1,25 +1,25 @@
 ﻿namespace BossMod.Dawntrail.Extreme.Ex1Valigarmanda;
 
-class MountainFire(BossModule module) : Components.GenericTowers(module, ActionID.MakeSpell(AID.MountainFireTower))
+class MountainFire(BossModule module) : Components.GenericTowers(module, (uint)AID.MountainFireTower)
 {
     private BitMask _nonTanks = module.Raid.WithSlot(true, true, true).WhereActor(p => p.Role != Role.Tank).Mask();
     private BitMask _lastSoakers;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             Towers.Add(new(caster.Position, 3f, forbiddenSoakers: _nonTanks | _lastSoakers));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             Towers.Clear();
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             ++NumCasts;
             _lastSoakers.Reset();

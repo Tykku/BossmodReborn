@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
-class DivideAndConquerBait(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.DivideAndConquerBait))
+class DivideAndConquerBait(BossModule module) : Components.GenericBaitAway(module, (uint)AID.DivideAndConquerBait)
 {
     private static readonly AOEShapeRect _shape = new(60, 2.5f);
 
@@ -12,7 +12,7 @@ class DivideAndConquerBait(BossModule module) : Components.GenericBaitAway(modul
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             ++NumCasts;
             if (CurrentBaits.Count != 0)
@@ -21,7 +21,7 @@ class DivideAndConquerBait(BossModule module) : Components.GenericBaitAway(modul
     }
 }
 
-class DivideAndConquerAOE(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.DivideAndConquerBait))
+class DivideAndConquerAOE(BossModule module) : Components.GenericAOEs(module, (uint)AID.DivideAndConquerBait)
 {
     private static readonly AOEShapeRect rect = new(60f, 2.5f);
     public readonly List<AOEInstance> AOEs = new(8);
@@ -30,7 +30,7 @@ class DivideAndConquerAOE(BossModule module) : Components.GenericAOEs(module, Ac
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             AOEs.Add(new(rect, caster.Position, caster.Rotation, WorldState.FutureTime(11 - AOEs.Count)));
     }
 

@@ -19,8 +19,8 @@ public enum AID : uint
     Catapult = 40672 // GiantCorse->location, 4.0s cast, range 6 circle
 }
 
-class GlassPunch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GlassPunch), new AOEShapeCone(7f, 60f.Degrees()));
-class Catapult(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Catapult), 6f);
+class GlassPunch(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GlassPunch, new AOEShapeCone(7f, 60f.Degrees()));
+class Catapult(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Catapult, 6f);
 
 class D90StationSpecterStates : StateMachineBuilder
 {

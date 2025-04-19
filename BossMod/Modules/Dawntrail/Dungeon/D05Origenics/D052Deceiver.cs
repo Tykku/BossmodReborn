@@ -102,12 +102,12 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Electrowave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Electrowave));
-class BionicThrash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BionicThrash), new AOEShapeCone(30f, 45f.Degrees()));
-class Synchroshot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SynchroshotReal), new AOEShapeRect(40f, 2f));
-class InitializeTurrets(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.InitializeTurretsReal), new AOEShapeRect(4f, 5f));
-class LaserLash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LaserLashReal), new AOEShapeRect(40f, 5f));
-class Electray(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Electray), 5f);
+class Electrowave(BossModule module) : Components.RaidwideCast(module, (uint)AID.Electrowave);
+class BionicThrash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BionicThrash, new AOEShapeCone(30f, 45f.Degrees()));
+class Synchroshot(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SynchroshotReal, new AOEShapeRect(40f, 2f));
+class InitializeTurrets(BossModule module) : Components.SimpleAOEs(module, (uint)AID.InitializeTurretsReal, new AOEShapeRect(4f, 5f));
+class LaserLash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LaserLashReal, new AOEShapeRect(40f, 5f));
+class Electray(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Electray, 5f);
 
 class Surge(BossModule module) : Components.GenericKnockback(module)
 {

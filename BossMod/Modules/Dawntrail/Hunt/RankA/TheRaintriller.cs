@@ -128,7 +128,7 @@ class DoReMisery(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class DropOfVenom(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.DropOfVenom), 6f);
+class DropOfVenom(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.DropOfVenom, 6f);
 
 class TheRaintrillerStates : StateMachineBuilder
 {

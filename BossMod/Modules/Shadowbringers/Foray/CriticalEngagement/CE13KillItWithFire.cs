@@ -104,11 +104,11 @@ class DeadLeaves(BossModule module) : Components.GenericAOEs(module, default, "G
     };
 }
 
-class AnaphylacticShock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AnaphylacticShock), new AOEShapeRect(30f, 1f));
-class SplashBomb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SplashBombAOE), 6f);
-class SplashGrenade(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.SplashGrenadeAOE), 6f, 8, 24);
-class PlayfulBreeze(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PlayfulBreeze));
-class Budbutt(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Budbutt));
+class AnaphylacticShock(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AnaphylacticShock, new AOEShapeRect(30f, 1f));
+class SplashBomb(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SplashBombAOE, 6f);
+class SplashGrenade(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.SplashGrenadeAOE, 6f, 8, 24);
+class PlayfulBreeze(BossModule module) : Components.RaidwideCast(module, (uint)AID.PlayfulBreeze);
+class Budbutt(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Budbutt);
 
 class CE13KillItWithFireStates : StateMachineBuilder
 {

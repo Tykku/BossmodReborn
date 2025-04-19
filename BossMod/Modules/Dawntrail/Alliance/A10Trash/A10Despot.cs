@@ -22,11 +22,11 @@ public enum AID : uint
     PanzerfaustRepeats = 41353 // Boss->player, no cast, single-target, knockback 10, apply concussion
 }
 
-class IsleDrop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IsleDrop), 6f);
-class WingCutter(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingCutter), new AOEShapeCone(6f, 60f.Degrees()));
-class PanzerfaustHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Panzerfaust), showNameInHint: true);
-class Panzerfaust(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Panzerfaust));
-class ScraplineStorm(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.ScraplineStorm), 10f, kind: Kind.TowardsOrigin)
+class IsleDrop(BossModule module) : Components.SimpleAOEs(module, (uint)AID.IsleDrop, 6f);
+class WingCutter(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WingCutter, new AOEShapeCone(6f, 60f.Degrees()));
+class PanzerfaustHint(BossModule module) : Components.CastInterruptHint(module, (uint)AID.Panzerfaust, showNameInHint: true);
+class Panzerfaust(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Panzerfaust);
+class ScraplineStorm(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.ScraplineStorm, 10f, kind: Kind.TowardsOrigin)
 {
     private readonly ScraplineTyphoon _aoe = module.FindComponent<ScraplineTyphoon>()!;
 

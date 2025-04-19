@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
-class TyrannysGraspAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TyrannysGraspAOE), new AOEShapeRect(20, 20));
+class TyrannysGraspAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TyrannysGraspAOE, new AOEShapeRect(20, 20));
 
 class TyrannysGraspTowers(BossModule module) : Components.GenericTowers(module)
 {

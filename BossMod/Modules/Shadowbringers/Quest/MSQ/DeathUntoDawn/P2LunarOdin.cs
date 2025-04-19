@@ -122,15 +122,15 @@ class GunmetalSoul(BossModule module) : Components.GenericAOEs(module)
         return aoes;
     }
 }
-class LunarGungnir1(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.LunarGungnir), 6f);
-class LunarGungnir2(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.LunarGungnir1), 6f);
-class Gungnir(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GungnirAOE), 10f);
-class Gagnrath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Gagnrath), new AOEShapeRect(50f, 2f));
-class GungnirSpread(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(10f), 189, ActionID.MakeSpell(AID.GungnirSpread), 5.3f, centerAtTarget: true);
+class LunarGungnir1(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.LunarGungnir, 6f);
+class LunarGungnir2(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.LunarGungnir1, 6f);
+class Gungnir(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GungnirAOE, 10f);
+class Gagnrath(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Gagnrath, new AOEShapeRect(50f, 2f));
+class GungnirSpread(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(10f), 189, (uint)AID.GungnirSpread, 5.3f, centerAtTarget: true);
 
-abstract class Zantetsuken(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(70f, 19.5f));
-class RightZantetsuken(BossModule module) : Zantetsuken(module, AID.RightZantetsuken);
-class LeftZantetsuken(BossModule module) : Zantetsuken(module, AID.LeftZantetsuken);
+abstract class Zantetsuken(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(70f, 19.5f));
+class RightZantetsuken(BossModule module) : Zantetsuken(module, (uint)AID.RightZantetsuken);
+class LeftZantetsuken(BossModule module) : Zantetsuken(module, (uint)AID.LeftZantetsuken);
 
 public class LunarOdinStates : StateMachineBuilder
 {

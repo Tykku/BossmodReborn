@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.Normal.DRN5TrinityAvowed;
 
 // aoe starts at cast and ends with envcontrol; it's not considered 'risky' when paired with quick march
-class FlamesOfBozja(BossModule module, bool risky) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.FlamesOfBozjaAOE))
+class FlamesOfBozja(BossModule module, bool risky) : Components.GenericAOEs(module, (uint)AID.FlamesOfBozjaAOE)
 {
     public AOEInstance? AOE;
     private readonly bool _risky = risky;
@@ -11,7 +11,7 @@ class FlamesOfBozja(BossModule module, bool risky) : Components.GenericAOEs(modu
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             AOE = new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell), Risky: _risky);
     }
 

@@ -155,4 +155,4 @@ class P2BahamutsFavorDeathstorm(BossModule module) : BossComponent(module)
     }
 }
 
-class P2BahamutsFavorWingsOfSalvation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingsOfSalvation), 4f);
+class P2BahamutsFavorWingsOfSalvation(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WingsOfSalvation, 4f);

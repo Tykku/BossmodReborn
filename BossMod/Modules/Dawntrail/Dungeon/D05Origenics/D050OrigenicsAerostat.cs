@@ -20,8 +20,8 @@ public enum AID : uint
     GrenadoShot = 35428, // OrigenicsSentryG10->location, 3.0s cast, range 5 circle
 }
 
-class IncendiaryCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IncendiaryCircle), new AOEShapeDonut(3f, 12f));
-class GrenadoShot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrenadoShot), 5f);
+class IncendiaryCircle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.IncendiaryCircle, new AOEShapeDonut(3f, 12f));
+class GrenadoShot(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GrenadoShot, 5f);
 
 class D050OrigenicsAerostatStates : StateMachineBuilder
 {

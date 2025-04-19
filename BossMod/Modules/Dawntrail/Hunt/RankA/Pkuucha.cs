@@ -20,8 +20,8 @@ public enum AID : uint
     DeadlySwoop = 39799 // Boss->player, no cast, single-target, deadly ability if caught in samba mechanic
 }
 
-class GlidingSwoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GlidingSwoop), new AOEShapeRect(18f, 8f));
-class PeckingFlurry(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PeckingFlurryFirst), "Raidwide (3x)");
+class GlidingSwoop(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GlidingSwoop, new AOEShapeRect(18f, 8f));
+class PeckingFlurry(BossModule module) : Components.RaidwideCast(module, (uint)AID.PeckingFlurryFirst, "Raidwide (3x)");
 
 class MesmerizingMarchStirringSamba(BossModule module) : Components.GenericAOEs(module)
 {

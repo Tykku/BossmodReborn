@@ -1,7 +1,7 @@
 namespace BossMod.Dawntrail.Savage.M08SHowlingBlade;
 
-class SuspendedStone(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.SuspendedStone, ActionID.MakeSpell(AID.SuspendedStone), 6f, 5.1f);
-class Heavensearth(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Heavensearth, ActionID.MakeSpell(AID.Heavensearth), 6f, 5.1f, 4, 4)
+class SuspendedStone(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.SuspendedStone, (uint)AID.SuspendedStone, 6f, 5.1f);
+class Heavensearth(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Heavensearth, (uint)AID.Heavensearth, 6f, 5.1f, 4, 4)
 {
     private BitMask forbidden;
 

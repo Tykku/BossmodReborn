@@ -22,9 +22,9 @@ public enum AID : uint
     AllaganThunder = 15855, // Helper->player, 5.0s cast, range 5 circle
 }
 
-class ThunderBeam(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ThunderBeam));
-class Laserblade(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Laserblade), new AOEShapeRect(50f, 4f));
-class AllaganThunder(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.AllaganThunder), 5f);
+class ThunderBeam(BossModule module) : Components.SingleTargetCast(module, (uint)AID.ThunderBeam);
+class Laserblade(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Laserblade, new AOEShapeRect(50f, 4f));
+class AllaganThunder(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.AllaganThunder, 5f);
 
 class Shock(BossModule module) : Components.GenericAOEs(module)
 {

@@ -50,8 +50,8 @@ class PerfectContrition(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Catechism(BossModule module) : Components.SingleTargetCastDelay(module, ActionID.MakeSpell(AID.Catechism), ActionID.MakeSpell(AID.Catechism2), 0.5f);
-class SacramentOfPenance(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.SacramentOfPenanceVisual), ActionID.MakeSpell(AID.SacramentOfPenance), 0.5f);
+class Catechism(BossModule module) : Components.SingleTargetCastDelay(module, (uint)AID.Catechism, (uint)AID.Catechism2, 0.5f);
+class SacramentOfPenance(BossModule module) : Components.RaidwideCastDelay(module, (uint)AID.SacramentOfPenanceVisual, (uint)AID.SacramentOfPenance, 0.5f);
 
 class JudgmentDay(BossModule module) : Components.GenericTowers(module)
 {

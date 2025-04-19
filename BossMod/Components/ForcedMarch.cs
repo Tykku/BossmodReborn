@@ -16,7 +16,7 @@ public class GenericForcedMarch(BossModule module, float activationLimit = float
     public bool OverrideDirection;
     public int NumActiveForcedMarches;
     public readonly Dictionary<ulong, PlayerState> State = []; // key = instance ID
-    public float MovementSpeed = 6; // default movement speed, can be overridden if necessary
+    public float MovementSpeed = 6f; // default movement speed, can be overridden if necessary
     public readonly float ActivationLimit = activationLimit; // do not show pending moves that activate later than this limit
     private const float approxHitBoxRadius = 0.499f; // calculated because due to floating point errors this does not result in 0.001
     private const float maxIntersectionError = 0.5f - approxHitBoxRadius; // calculated because due to floating point errors this does not result in 0.001
@@ -125,7 +125,7 @@ public class GenericForcedMarch(BossModule module, float activationLimit = float
 }
 
 // typical forced march is driven by statuses
-public class StatusDrivenForcedMarch(BossModule module, float duration, uint statusForward, uint statusBackward, uint statusLeft, uint statusRight, uint statusForced = 1257, uint statusForcedNPCs = 3629, float activationLimit = float.MaxValue) : GenericForcedMarch(module, activationLimit)
+public class StatusDrivenForcedMarch(BossModule module, float duration, uint statusForward, uint statusBackward, uint statusLeft, uint statusRight, uint statusForced = 1257u, uint statusForcedNPCs = 3629u, float activationLimit = float.MaxValue) : GenericForcedMarch(module, activationLimit)
 {
     public float Duration = duration;
     public readonly uint[] Statuses = [statusForward, statusLeft, statusBackward, statusRight, statusForced, statusForcedNPCs]; // 5 elements: fwd, left, back, right, forced, forcedNPCs
@@ -168,14 +168,14 @@ public class StatusDrivenForcedMarch(BossModule module, float duration, uint sta
 }
 
 // action driven forced march
-public class ActionDrivenForcedMarch(BossModule module, ActionID aid, float duration, Angle rotation, float actioneffectdelay, uint statusForced = 1257, uint statusForcedNPCs = 3629, float activationLimit = float.MaxValue) : GenericForcedMarch(module, activationLimit)
+public class ActionDrivenForcedMarch(BossModule module, uint aid, float duration, Angle rotation, float actioneffectdelay, uint statusForced = 1257u, uint statusForcedNPCs = 3629u, float activationLimit = float.MaxValue) : GenericForcedMarch(module, activationLimit)
 {
     public readonly float Duration = duration;
     public readonly float Actioneffectdelay = actioneffectdelay;
     public readonly Angle Rotation = rotation;
     public readonly uint StatusForced = statusForced;
     public readonly uint StatusForcedNPCs = statusForcedNPCs;
-    public readonly ActionID Aid = aid;
+    public readonly uint Aid = aid;
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
@@ -203,7 +203,7 @@ public class ActionDrivenForcedMarch(BossModule module, ActionID aid, float dura
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == Aid)
+        if (spell.Action.ID == Aid)
         {
             var party = Module.Raid.WithoutSlot();
             var len = party.Length;

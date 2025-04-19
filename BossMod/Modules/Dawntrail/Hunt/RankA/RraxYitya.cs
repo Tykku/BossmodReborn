@@ -19,7 +19,7 @@ public enum AID : uint
     LeftWingbladeRepeat = 37172 // Boss->self, no cast, range 25 90 degree cone
 }
 
-class LaughingLeap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LaughingLeap), new AOEShapeRect(15f, 2.5f));
+class LaughingLeap(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LaughingLeap, new AOEShapeRect(15f, 2.5f));
 
 class Wingblade(BossModule module) : Components.GenericAOEs(module)
 {

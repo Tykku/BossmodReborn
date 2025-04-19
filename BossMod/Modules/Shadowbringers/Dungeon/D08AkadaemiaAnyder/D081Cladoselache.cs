@@ -23,13 +23,13 @@ public enum AID : uint
     CarcharianVerve = 15879 // Boss/Doliodus->self, 2.0s cast, single-target, damage up after partner dies
 }
 
-class MarineMayhem(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MarineMayhem));
-class ProtolithicPuncture(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.ProtolithicPuncture));
-class PelagicCleaver1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PelagicCleaver1), new AOEShapeCone(40f, 30f.Degrees()));
-class PelagicCleaver2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PelagicCleaver2), new AOEShapeCone(50f, 30f.Degrees()));
-class TidalGuillotine1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TidalGuillotine1), 13f);
-class TidalGuillotine2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TidalGuillotine2), 13f);
-class AquaticLance(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.AquaticLance), 8f);
+class MarineMayhem(BossModule module) : Components.RaidwideCast(module, (uint)AID.MarineMayhem);
+class ProtolithicPuncture(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.ProtolithicPuncture);
+class PelagicCleaver1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PelagicCleaver1, new AOEShapeCone(40f, 30f.Degrees()));
+class PelagicCleaver2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PelagicCleaver2, new AOEShapeCone(50f, 30f.Degrees()));
+class TidalGuillotine1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TidalGuillotine1, 13f);
+class TidalGuillotine2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TidalGuillotine2, 13f);
+class AquaticLance(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.AquaticLance, 8f);
 class AquaticLanceVoidzone(BossModule module) : Components.Voidzone(module, 8f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)

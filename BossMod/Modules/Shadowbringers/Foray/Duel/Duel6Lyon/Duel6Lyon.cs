@@ -22,7 +22,7 @@ class Duel6LyonStates : StateMachineBuilder
 
 class FlamesMeet : Components.SimpleAOEs
 {
-    public FlamesMeet(BossModule module) : base(module, ActionID.MakeSpell(AID.FlamesMeet), new AOEShapeCross(40f, 7f), 2)
+    public FlamesMeet(BossModule module) : base(module, (uint)AID.FlamesMeet, new AOEShapeCross(40f, 7f), 2)
     {
         MaxDangerColor = 1;
     }

@@ -57,24 +57,24 @@ class DynamicDominanceArenaChange(BossModule module) : Components.GenericAOEs(mo
     }
 }
 
-class DynamicDominance(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DynamicDominance));
+class DynamicDominance(BossModule module) : Components.RaidwideCast(module, (uint)AID.DynamicDominance);
 
-class ThunderlightBurstAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThunderlightBurstAOE), 35f);
+class ThunderlightBurstAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ThunderlightBurstAOE, 35f);
 
-abstract class ThunderlightBurst(BossModule module, AID aid, float length) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(length, 4f));
-class ThunderlightBurst1(BossModule module) : ThunderlightBurst(module, AID.ThunderlightBurst1, 42f);
-class ThunderlightBurst2(BossModule module) : ThunderlightBurst(module, AID.ThunderlightBurst2, 49f);
-class ThunderlightBurst3(BossModule module) : ThunderlightBurst(module, AID.ThunderlightBurst3, 35f);
-class ThunderlightBurst4(BossModule module) : ThunderlightBurst(module, AID.ThunderlightBurst4, 36f);
+abstract class ThunderlightBurst(BossModule module, uint aid, float length) : Components.SimpleAOEs(module, aid, new AOEShapeRect(length, 4f));
+class ThunderlightBurst1(BossModule module) : ThunderlightBurst(module, (uint)AID.ThunderlightBurst1, 42f);
+class ThunderlightBurst2(BossModule module) : ThunderlightBurst(module, (uint)AID.ThunderlightBurst2, 49f);
+class ThunderlightBurst3(BossModule module) : ThunderlightBurst(module, (uint)AID.ThunderlightBurst3, 35f);
+class ThunderlightBurst4(BossModule module) : ThunderlightBurst(module, (uint)AID.ThunderlightBurst4, 36f);
 
-abstract class Artillery(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(10f, 5f));
-class Artillery1(BossModule module) : Artillery(module, AID.Artillery1);
-class Artillery2(BossModule module) : Artillery(module, AID.Artillery2);
-class Artillery3(BossModule module) : Artillery(module, AID.Artillery3);
-class Artillery4(BossModule module) : Artillery(module, AID.Artillery4);
+abstract class Artillery(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(10f, 5f));
+class Artillery1(BossModule module) : Artillery(module, (uint)AID.Artillery1);
+class Artillery2(BossModule module) : Artillery(module, (uint)AID.Artillery2);
+class Artillery3(BossModule module) : Artillery(module, (uint)AID.Artillery3);
+class Artillery4(BossModule module) : Artillery(module, (uint)AID.Artillery4);
 
-class Pummel(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Pummel));
-class ThunderlightFlurry(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.ThunderlightFlurry), 6f);
+class Pummel(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Pummel);
+class ThunderlightFlurry(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.ThunderlightFlurry, 6f);
 
 class D032FirearmsStates : StateMachineBuilder
 {

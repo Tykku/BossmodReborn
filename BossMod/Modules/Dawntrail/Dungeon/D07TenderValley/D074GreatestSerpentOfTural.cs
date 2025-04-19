@@ -77,9 +77,9 @@ class DubiousTulidisasterArenaChange(BossModule module) : Components.GenericAOEs
     }
 }
 
-class ScreesOfFury(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(3f), (uint)IconID.Tankbuster, ActionID.MakeSpell(AID.ScreesOfFury), 5.3f, true, tankbuster: true);
+class ScreesOfFury(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(3f), (uint)IconID.Tankbuster, (uint)AID.ScreesOfFury, 5.3f, true, tankbuster: true);
 
-class GreatestFlood(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.GreatestFlood), 15f)
+class GreatestFlood(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.GreatestFlood, 15f)
 {
     private static readonly Angle a45 = 45f.Degrees();
 
@@ -161,10 +161,10 @@ class GreatestLabyrinth(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class MightyBlorp(BossModule module, uint iconID, AID aid, float radius) : Components.StackWithIcon(module, iconID, ActionID.MakeSpell(aid), radius, 4.6f, 4, 4);
-class MightyBlorp1(BossModule module) : MightyBlorp(module, (uint)IconID.Stackmarker1, AID.MightyBlorp1, 6f);
-class MightyBlorp2(BossModule module) : MightyBlorp(module, (uint)IconID.Stackmarker2, AID.MightyBlorp2, 5f);
-class MightyBlorp3(BossModule module) : MightyBlorp(module, (uint)IconID.Stackmarker3, AID.MightyBlorp3, 4f);
+class MightyBlorp(BossModule module, uint iconID, uint aid, float radius) : Components.StackWithIcon(module, iconID, aid, radius, 4.6f, 4, 4);
+class MightyBlorp1(BossModule module) : MightyBlorp(module, (uint)IconID.Stackmarker1, (uint)AID.MightyBlorp1, 6f);
+class MightyBlorp2(BossModule module) : MightyBlorp(module, (uint)IconID.Stackmarker2, (uint)AID.MightyBlorp2, 5f);
+class MightyBlorp3(BossModule module) : MightyBlorp(module, (uint)IconID.Stackmarker3, (uint)AID.MightyBlorp3, 4f);
 
 class SludgeVoidzone(BossModule module, float radius, uint oid) : Components.Voidzone(module, radius, m => GetVoidzones(m, oid))
 {
@@ -181,13 +181,13 @@ class SludgeVoidzone1(BossModule module) : SludgeVoidzone(module, 6f, (uint)OID.
 class SludgeVoidzone2(BossModule module) : SludgeVoidzone(module, 5f, (uint)OID.SludgeVoidzone2);
 class SludgeVoidzone3(BossModule module) : SludgeVoidzone(module, 4f, (uint)OID.SludgeVoidzone3);
 
-class DubiousTulidisaster(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DubiousTulidisaster));
-class GreatestLabyrinthRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GreatestLabyrinth));
-class GreatestFloodRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GreatestFlood));
-class ExaltedWobble(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ExaltedWobble), 9f);
-class MisplacedMystery(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MisplacedMystery), new AOEShapeRect(52f, 2.5f));
-class GreatTorrent(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GreatTorrentAOE), 6f, 10);
-class GreatTorrentSpread(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.GreatTorrentSpread), 6f, 5.1f);
+class DubiousTulidisaster(BossModule module) : Components.RaidwideCast(module, (uint)AID.DubiousTulidisaster);
+class GreatestLabyrinthRaidwide(BossModule module) : Components.RaidwideCast(module, (uint)AID.GreatestLabyrinth);
+class GreatestFloodRaidwide(BossModule module) : Components.RaidwideCast(module, (uint)AID.GreatestFlood);
+class ExaltedWobble(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ExaltedWobble, 9f);
+class MisplacedMystery(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MisplacedMystery, new AOEShapeRect(52f, 2.5f));
+class GreatTorrent(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GreatTorrentAOE, 6f, 10);
+class GreatTorrentSpread(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, (uint)AID.GreatTorrentSpread, 6f, 5.1f);
 
 class D074GreatestSerpentOfTuralStates : StateMachineBuilder
 {

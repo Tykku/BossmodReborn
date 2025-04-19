@@ -54,19 +54,19 @@ class CurtainCallArenaChange(BossModule module) : BossComponent(module)
     }
 }
 
-class Epode(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Epode), new AOEShapeRect(70f, 6f));
-class EruptionForte(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EruptionForte), 8f);
+class Epode(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Epode, new AOEShapeRect(70f, 6f));
+class EruptionForte(BossModule module) : Components.SimpleAOEs(module, (uint)AID.EruptionForte, 8f);
 
-abstract class FiragaForte(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40f, 10f));
-class LeftFiragaForte(BossModule module) : FiragaForte(module, AID.LeftFiragaForte);
-class RightFiragaForte(BossModule module) : FiragaForte(module, AID.RightFiragaForte);
+abstract class FiragaForte(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(40f, 10f));
+class LeftFiragaForte(BossModule module) : FiragaForte(module, (uint)AID.LeftFiragaForte);
+class RightFiragaForte(BossModule module) : FiragaForte(module, (uint)AID.RightFiragaForte);
 
-class ThundagaForteProximity(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThundagaForteProximity), 15f);
-class DarkForte(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DarkForte));
-class Entracte(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Entracte));
-class DreamsOfIce(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DreamsOfIce), 6f);
+class ThundagaForteProximity(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ThundagaForteProximity, 15f);
+class DarkForte(BossModule module) : Components.SingleTargetCast(module, (uint)AID.DarkForte);
+class Entracte(BossModule module) : Components.RaidwideCast(module, (uint)AID.Entracte);
+class DreamsOfIce(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DreamsOfIce, 6f);
 
-class CurtainCall(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.CurtainCall), 60f)
+class CurtainCall(BossModule module) : Components.CastLineOfSightAOE(module, (uint)AID.CurtainCall, 60f)
 {
     public override ReadOnlySpan<Actor> BlockerActors() => CollectionsMarshal.AsSpan(Module.Enemies((uint)OID.Ice));
 

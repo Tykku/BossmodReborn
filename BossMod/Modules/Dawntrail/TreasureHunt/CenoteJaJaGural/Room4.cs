@@ -48,30 +48,30 @@ public enum AID : uint
     Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
-abstract class CircleLoc6(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
-class Lumisphere(BossModule module) : CircleLoc6(module, AID.Lumisphere);
-class Tornado(BossModule module) : CircleLoc6(module, AID.Tornado);
-class RootsOfAtopy(BossModule module) : CircleLoc6(module, AID.RootsOfAtopy);
-class RottenSpores(BossModule module) : CircleLoc6(module, AID.RottenSpores);
+abstract class CircleLoc6(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
+class Lumisphere(BossModule module) : CircleLoc6(module, (uint)AID.Lumisphere);
+class Tornado(BossModule module) : CircleLoc6(module, (uint)AID.Tornado);
+class RootsOfAtopy(BossModule module) : CircleLoc6(module, (uint)AID.RootsOfAtopy);
+class RottenSpores(BossModule module) : CircleLoc6(module, (uint)AID.RottenSpores);
 
-class AetherialBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherialBlast), new AOEShapeRect(20f, 2f));
-class SerratedSpin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SerratedSpin), 8f);
-class SyrupSpout(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SyrupSpout), new AOEShapeCone(10f, 60f.Degrees()));
-class SpinningAttack(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinningAttack), new AOEShapeRect(10f, 2f));
-class OdiousAir(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OdiousAir), new AOEShapeCone(12f, 60f.Degrees()));
+class AetherialBlast(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AetherialBlast, new AOEShapeRect(20f, 2f));
+class SerratedSpin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SerratedSpin, 8f);
+class SyrupSpout(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SyrupSpout, new AOEShapeCone(10f, 60f.Degrees()));
+class SpinningAttack(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpinningAttack, new AOEShapeRect(10f, 2f));
+class OdiousAir(BossModule module) : Components.SimpleAOEs(module, (uint)AID.OdiousAir, new AOEShapeCone(12f, 60f.Degrees()));
 
-abstract class Wingblade(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(8f, 90f.Degrees()));
-class LeftWingblade(BossModule module) : Wingblade(module, AID.LeftWingblade);
-class RightWingblade(BossModule module) : Wingblade(module, AID.RightWingblade);
+abstract class Wingblade(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(8f, 90f.Degrees()));
+class LeftWingblade(BossModule module) : Wingblade(module, (uint)AID.LeftWingblade);
+class RightWingblade(BossModule module) : Wingblade(module, (uint)AID.RightWingblade);
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11f);
+class Spin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spin, 11f);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
+class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
 
 class Room4States : StateMachineBuilder
 {

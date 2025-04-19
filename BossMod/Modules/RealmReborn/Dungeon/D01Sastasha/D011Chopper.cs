@@ -13,7 +13,7 @@ public enum AID : uint
     ChargedWhisker = 351 // Boss->self, 3.0s cast, range 6.15 circle aoe
 }
 
-class ChargedWhisker(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ChargedWhisker), new AOEShapeCircle(6.15f));
+class ChargedWhisker(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ChargedWhisker, new AOEShapeCircle(6.15f));
 
 class D011ChopperStates : StateMachineBuilder
 {

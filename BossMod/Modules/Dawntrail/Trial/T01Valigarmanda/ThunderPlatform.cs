@@ -136,4 +136,4 @@ class BlightedBolt1(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class BlightedBolt2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlightedBolt2), 7f);
+class BlightedBolt2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlightedBolt2, 7f);

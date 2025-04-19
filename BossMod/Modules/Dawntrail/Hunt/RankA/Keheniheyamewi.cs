@@ -28,11 +28,11 @@ public enum SID : uint
     AboutFace = 2162
 }
 
-abstract class BodyPress(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 15f);
-class BodyPress1(BossModule module) : BodyPress(module, AID.BodyPress1);
-class BodyPress2(BossModule module) : BodyPress(module, AID.BodyPress2);
+abstract class BodyPress(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 15f);
+class BodyPress1(BossModule module) : BodyPress(module, (uint)AID.BodyPress1);
+class BodyPress2(BossModule module) : BodyPress(module, (uint)AID.BodyPress2);
 
-class Scatterscourge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scatterscourge1), new AOEShapeDonut(10f, 40f));
+class Scatterscourge(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Scatterscourge1, new AOEShapeDonut(10f, 40f));
 
 class SlipperyScatterscourge(BossModule module) : Components.GenericAOEs(module)
 {
@@ -67,7 +67,7 @@ class SlipperyScatterscourge(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class PoisonGas(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PoisonGas));
+class PoisonGas(BossModule module) : Components.RaidwideCast(module, (uint)AID.PoisonGas);
 
 class PoisonGasMarch(BossModule module) : Components.StatusDrivenForcedMarch(module, 3f, (uint)SID.ForwardMarch, (uint)SID.AboutFace, (uint)SID.LeftFace, (uint)SID.RightFace, activationLimit: 5f)
 {
@@ -97,8 +97,8 @@ class PoisonGasMarch(BossModule module) : Components.StatusDrivenForcedMarch(mod
     }
 }
 
-class MalignantMucus(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.MalignantMucus));
-class PoisonMucus(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PoisonMucus), 6f);
+class MalignantMucus(BossModule module) : Components.CastInterruptHint(module, (uint)AID.MalignantMucus);
+class PoisonMucus(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PoisonMucus, 6f);
 
 class KeheniheyamewiStates : StateMachineBuilder
 {

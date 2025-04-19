@@ -38,8 +38,8 @@ class EndwalkerStates : StateMachineBuilder
     }
 }
 
-class Megaflare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Megaflare), 6f);
-class Puddles(BossModule module) : Components.PersistentInvertibleVoidzoneByCast(module, 5f, GetVoidzones, ActionID.MakeSpell(AID.Hellfire))
+class Megaflare(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Megaflare, 6f);
+class Puddles(BossModule module) : Components.PersistentInvertibleVoidzoneByCast(module, 5f, GetVoidzones, (uint)AID.Hellfire)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {
@@ -60,33 +60,33 @@ class Puddles(BossModule module) : Components.PersistentInvertibleVoidzoneByCast
     }
 }
 
-class JudgementBolt(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.JudgementBoltVisual));
-class Hellfire(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HellfireVisual));
-class StarBeyondStars(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StarBeyondStarsHelper), new AOEShapeCone(50f, 15f.Degrees()), 6);
-class TheEdgeUnbound(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheEdgeUnbound), 10f);
-class WyrmsTongue(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WyrmsTongueHelper), new AOEShapeCone(40f, 30f.Degrees()));
+class JudgementBolt(BossModule module) : Components.RaidwideCast(module, (uint)AID.JudgementBoltVisual);
+class Hellfire(BossModule module) : Components.RaidwideCast(module, (uint)AID.HellfireVisual);
+class StarBeyondStars(BossModule module) : Components.SimpleAOEs(module, (uint)AID.StarBeyondStarsHelper, new AOEShapeCone(50f, 15f.Degrees()), 6);
+class TheEdgeUnbound(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheEdgeUnbound, 10f);
+class WyrmsTongue(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WyrmsTongueHelper, new AOEShapeCone(40f, 30f.Degrees()));
 
 class NineNightsAvatar : Components.SimpleAOEs
 {
-    public NineNightsAvatar(BossModule module) : base(module, ActionID.MakeSpell(AID.NineNightsAvatar), 10f) { Color = Colors.Danger; }
+    public NineNightsAvatar(BossModule module) : base(module, (uint)AID.NineNightsAvatar, 10f) { Color = Colors.Danger; }
 }
 
 class NineNightsHelpers : Components.SimpleAOEs
 {
-    public NineNightsHelpers(BossModule module) : base(module, ActionID.MakeSpell(AID.NineNightsHelpers), 10f, 6) { MaxDangerColor = 2; }
+    public NineNightsHelpers(BossModule module) : base(module, (uint)AID.NineNightsHelpers, 10f, 6) { MaxDangerColor = 2; }
 }
-class VeilAsunder(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VeilAsunderHelper), 6f);
-class MortalCoil(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MortalCoilVisual), new AOEShapeDonut(8f, 20f));
-class DiamondDust(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DiamondDustVisual), "Raidwide. Turns floor to ice.");
-class DeadGaze(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.DeadGazeVisual));
-class TidalWave2(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.TidalWaveVisual2), 25f, kind: Kind.DirForward, stopAtWall: true);
-class SwiftAsShadow(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.SwiftAsShadow), 1f);
-class Extinguishment(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ExtinguishmentVisual), new AOEShapeDonut(10f, 30f));
-class TheEdgeUnbound2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheEdgeUnbound2), 10f);
+class VeilAsunder(BossModule module) : Components.SimpleAOEs(module, (uint)AID.VeilAsunderHelper, 6f);
+class MortalCoil(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MortalCoilVisual, new AOEShapeDonut(8f, 20f));
+class DiamondDust(BossModule module) : Components.RaidwideCast(module, (uint)AID.DiamondDustVisual, "Raidwide. Turns floor to ice.");
+class DeadGaze(BossModule module) : Components.CastGaze(module, (uint)AID.DeadGazeVisual);
+class TidalWave2(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.TidalWaveVisual2, 25f, kind: Kind.DirForward, stopAtWall: true);
+class SwiftAsShadow(BossModule module) : Components.ChargeAOEs(module, (uint)AID.SwiftAsShadow, 1f);
+class Extinguishment(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ExtinguishmentVisual, new AOEShapeDonut(10f, 30f));
+class TheEdgeUnbound2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheEdgeUnbound2, 10f);
 
 class UnmovingDvenadkatik : Components.SimpleAOEs
 {
-    public UnmovingDvenadkatik(BossModule module) : base(module, ActionID.MakeSpell(AID.UnmovingDvenadkatikVisual), new AOEShapeCone(50f, 15f.Degrees()), 6) { MaxDangerColor = 2; }
+    public UnmovingDvenadkatik(BossModule module) : base(module, (uint)AID.UnmovingDvenadkatikVisual, new AOEShapeCone(50f, 15f.Degrees()), 6) { MaxDangerColor = 2; }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "croizat, Malediktus", PrimaryActorOID = (uint)OID.ZenosP1, GroupType = BossModuleInfo.GroupType.Quest, GroupID = 70000, NameID = 10393)]

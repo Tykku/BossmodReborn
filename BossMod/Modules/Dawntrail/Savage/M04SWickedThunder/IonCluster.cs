@@ -121,7 +121,7 @@ class ElectronStream(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class ElectronStreamCurrent(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.AxeCurrent))
+class ElectronStreamCurrent(BossModule module) : Components.GenericAOEs(module, (uint)AID.AxeCurrent)
 {
     private readonly uint[] _status = new uint[PartyState.MaxPartySize];
     private DateTime _activation;

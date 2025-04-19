@@ -44,7 +44,7 @@ class GraspingRancor : Components.SimpleAOEs
 {
     private readonly List<Actor> _hands;
 
-    public GraspingRancor(BossModule module) : base(module, ActionID.MakeSpell(AID.PurifyingLight), 12)
+    public GraspingRancor(BossModule module) : base(module, (uint)AID.PurifyingLight, 12)
     {
         Color = Colors.SafeFromAOE;
         Risky = false;
@@ -78,8 +78,8 @@ class GraspingRancor : Components.SimpleAOEs
     }
 }
 
-class HatefulMiasma(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HatefulMiasma), 6f);
-class PoisonedWords(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PoisonedWords), 6f);
+class HatefulMiasma(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.HatefulMiasma, 6f);
+class PoisonedWords(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PoisonedWords, 6f);
 
 class CoffinNails(BossModule module) : Components.GenericAOEs(module)
 {
@@ -116,9 +116,9 @@ class CoffinNails(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Stab(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Stab));
-class GripOfPoison(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GripOfPoison));
-class StepsOfDestruction(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StepsOfDestructionAOE), 6f);
+class Stab(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Stab);
+class GripOfPoison(BossModule module) : Components.RaidwideCast(module, (uint)AID.GripOfPoison);
+class StepsOfDestruction(BossModule module) : Components.SimpleAOEs(module, (uint)AID.StepsOfDestructionAOE, 6f);
 
 class CE21FinalFurlongStates : StateMachineBuilder
 {

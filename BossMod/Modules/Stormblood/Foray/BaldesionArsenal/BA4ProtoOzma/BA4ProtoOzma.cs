@@ -1,7 +1,7 @@
 namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA4ProtoOzma;
 
-class Tornado(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.Tornado), new AOEShapeCircle(6f), true);
-class MeteorStack(BossModule module) : Components.StackWithIcon(module, (uint)IconID.MeteorStack, ActionID.MakeSpell(AID.Meteor), 10f, 5.1f, 4, 24)
+class Tornado(BossModule module) : Components.BaitAwayCast(module, (uint)AID.Tornado, new AOEShapeCircle(6f), true);
+class MeteorStack(BossModule module) : Components.StackWithIcon(module, (uint)IconID.MeteorStack, (uint)AID.Meteor, 10f, 5.1f, 4, 24)
 {
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
@@ -10,7 +10,7 @@ class MeteorStack(BossModule module) : Components.StackWithIcon(module, (uint)Ic
     }
 }
 
-class MeteorBait(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.MeteorBaitaway, ActionID.MakeSpell(AID.MeteorImpact), 18f, 8.9f)
+class MeteorBait(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.MeteorBaitaway, (uint)AID.MeteorImpact, 18f, 8.9f)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -18,7 +18,7 @@ class MeteorBait(BossModule module) : Components.SpreadFromIcon(module, (uint)Ic
             Spreads.Clear();
     }
 }
-class MeteorImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MeteorImpact), 18f);
+class MeteorImpact(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MeteorImpact, 18f);
 
 class AccelerationBomb(BossModule module) : Components.StayMove(module, 3f)
 {

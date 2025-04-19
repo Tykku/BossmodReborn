@@ -1,47 +1,47 @@
 ﻿namespace BossMod.Dawntrail.Alliance.A12Fafnir;
 
-class DarkMatterBlast(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DarkMatterBlast))
+class DarkMatterBlast(BossModule module) : Components.RaidwideCast(module, (uint)AID.DarkMatterBlast)
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class HurricaneWingRW(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.HurricaneWingRaidwide), ActionID.MakeSpell(AID.HurricaneWingRaidwideAOE1), 2.7f, "Raidwide x9")
+class HurricaneWingRW(BossModule module) : Components.RaidwideCastDelay(module, (uint)AID.HurricaneWingRaidwide, (uint)AID.HurricaneWingRaidwideAOE1, 2.7f, "Raidwide x9")
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class PestilentSphere(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.PestilentSphere))
+class PestilentSphere(BossModule module) : Components.SingleTargetCast(module, (uint)AID.PestilentSphere)
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class ShudderingEarth(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.ShudderingEarth));
+class ShudderingEarth(BossModule module) : Components.CastCounter(module, (uint)AID.ShudderingEarth);
 
 class Darter(BossModule module) : Components.Adds(module, (uint)OID.Darter, 1)
 {
     public override bool KeepOnPhaseChange => true;
 }
-class Venom(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Venom), new AOEShapeCone(30f, 60f.Degrees()))
+class Venom(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Venom, new AOEShapeCone(30f, 60f.Degrees()))
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class AbsoluteTerror(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbsoluteTerrorAOE), new AOEShapeRect(70f, 10f))
+class AbsoluteTerror(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AbsoluteTerrorAOE, new AOEShapeRect(70f, 10f))
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class WingedTerror(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingedTerrorAOE), new AOEShapeRect(70f, 12.5f))
+class WingedTerror(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WingedTerrorAOE, new AOEShapeRect(70f, 12.5f))
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class BalefulBreath(BossModule module) : Components.LineStack(module, (uint)IconID.BalefulBreath, ActionID.MakeSpell(AID.BalefulBreathAOERest), 8.2f, 70f, 3f, PartyState.MaxAllianceSize, PartyState.MaxAllianceSize, 3, false)
+class BalefulBreath(BossModule module) : Components.LineStack(module, (uint)IconID.BalefulBreath, (uint)AID.BalefulBreathAOERest, 8.2f, 70f, 3f, PartyState.MaxAllianceSize, PartyState.MaxAllianceSize, 3, false)
 {
     public override bool KeepOnPhaseChange => true;
 }
 
-class SharpSpike(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(4f), (uint)IconID.SharpSpike, ActionID.MakeSpell(AID.SharpSpikeAOE), 6.2f, true)
+class SharpSpike(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(4f), (uint)IconID.SharpSpike, (uint)AID.SharpSpikeAOE, 6.2f, true)
 {
     public override bool KeepOnPhaseChange => true;
 }

@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Savage.M08SHowlingBlade;
 
-class Mooncleaver2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Mooncleaver2), 8f);
+class Mooncleaver2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Mooncleaver2, 8f);
 
 class HowlingEight(BossModule module) : Components.GenericTowers(module)
 {

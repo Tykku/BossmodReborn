@@ -26,10 +26,10 @@ public enum AID : uint
     HighTensionDischarger = 15868, // Boss->self, 3.0s cast, range 40 circle
 }
 
-class HighTensionDischarger(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HighTensionDischarger));
-class RailCannon(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.RailCannon));
-class HighGravity(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HighGravity), 8f);
-class ShatteredCrystal(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.ShatteredCrystal), 5f);
+class HighTensionDischarger(BossModule module) : Components.RaidwideCast(module, (uint)AID.HighTensionDischarger);
+class RailCannon(BossModule module) : Components.SingleTargetCast(module, (uint)AID.RailCannon);
+class HighGravity(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HighGravity, 8f);
+class ShatteredCrystal(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.ShatteredCrystal, 5f);
 
 class TemporalParadoxMagitekRay(BossModule module) : Components.GenericAOEs(module)
 {

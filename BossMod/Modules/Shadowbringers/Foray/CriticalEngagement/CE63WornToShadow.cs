@@ -36,7 +36,7 @@ public enum SID : uint
     OrbMovement = 2234 // none->VorticalOrb1/VorticalOrb2/VorticalOrb3, extra=0x1E (fast)/0x49 (slow)
 }
 
-class Stormcall(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.Explosion))
+class Stormcall(BossModule module) : Components.GenericAOEs(module, (uint)AID.Explosion)
 {
     private readonly List<AOEInstance> _aoes = [];
     private static readonly AOEShapeCircle _shape = new(35f);
@@ -62,7 +62,7 @@ class Stormcall(BossModule module) : Components.GenericAOEs(module, ActionID.Mak
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             var count = _aoes.Count;
             var id = caster.InstanceID;
@@ -79,7 +79,7 @@ class Stormcall(BossModule module) : Components.GenericAOEs(module, ActionID.Mak
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             var count = _aoes.Count;
             var id = caster.InstanceID;
@@ -95,9 +95,9 @@ class Stormcall(BossModule module) : Components.GenericAOEs(module, ActionID.Mak
     }
 }
 
-class BladedBeak(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BladedBeak));
-class NihilitysSong(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.NihilitysSong));
-class Fantod(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FantodAOE), 3f);
+class BladedBeak(BossModule module) : Components.SingleTargetCast(module, (uint)AID.BladedBeak);
+class NihilitysSong(BossModule module) : Components.RaidwideCast(module, (uint)AID.NihilitysSong);
+class Fantod(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FantodAOE, 3f);
 
 class Foreshadowing(BossModule module) : Components.GenericAOEs(module)
 {

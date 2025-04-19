@@ -1,8 +1,8 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C022Gorai;
 
-abstract class MalformedReincarnation(BossModule module, AID aid) : Components.CastCounter(module, ActionID.MakeSpell(aid));
-class NMalformedReincarnation(BossModule module) : MalformedReincarnation(module, AID.NMalformedReincarnationAOE);
-class SMalformedReincarnation(BossModule module) : MalformedReincarnation(module, AID.SMalformedReincarnationAOE);
+abstract class MalformedReincarnation(BossModule module, uint aid) : Components.CastCounter(module, aid);
+class NMalformedReincarnation(BossModule module) : MalformedReincarnation(module, (uint)AID.NMalformedReincarnationAOE);
+class SMalformedReincarnation(BossModule module) : MalformedReincarnation(module, (uint)AID.SMalformedReincarnationAOE);
 
 // TODO: initial hints (depending on strat?) + specific towers
 class MalformedPrayer2(BossModule module) : Components.GenericTowers(module)
@@ -133,6 +133,6 @@ class MalformedPrayer2(BossModule module) : Components.GenericTowers(module)
     }
 }
 
-abstract class FlickeringFlame(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(46, 2.5f), 8);
-class NFlickeringFlame(BossModule module) : FlickeringFlame(module, AID.NFireSpreadCross);
-class SFlickeringFlame(BossModule module) : FlickeringFlame(module, AID.SFireSpreadCross);
+abstract class FlickeringFlame(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(46, 2.5f), 8);
+class NFlickeringFlame(BossModule module) : FlickeringFlame(module, (uint)AID.NFireSpreadCross);
+class SFlickeringFlame(BossModule module) : FlickeringFlame(module, (uint)AID.SFireSpreadCross);

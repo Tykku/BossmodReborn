@@ -18,11 +18,11 @@ public enum AID : uint
     Obliterate = 42238 // Boss->self, 2.0s cast, raidwide
 }
 
-abstract class Cone(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(14.2f, 60.Degrees()));
-class BoulderClap(BossModule module) : Cone(module, AID.BoulderClap);
-class TrueGrit(BossModule module) : Cone(module, AID.TrueGrit);
-class Rockslide(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Rockslide), new AOEShapeRect(16.2f, 4f));
-class Obliterate(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Obliterate));
+abstract class Cone(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(14.2f, 60.Degrees()));
+class BoulderClap(BossModule module) : Cone(module, (uint)AID.BoulderClap);
+class TrueGrit(BossModule module) : Cone(module, (uint)AID.TrueGrit);
+class Rockslide(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Rockslide, new AOEShapeRect(16.2f, 4f));
+class Obliterate(BossModule module) : Components.RaidwideCast(module, (uint)AID.Obliterate);
 
 class D082TempleGuardianStates : StateMachineBuilder
 {

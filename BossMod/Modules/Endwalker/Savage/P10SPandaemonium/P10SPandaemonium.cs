@@ -1,16 +1,16 @@
 ﻿namespace BossMod.Endwalker.Savage.P10SPandaemonium;
 
-class DividingWings(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(60, 60.Degrees()), (uint)TetherID.DividingWings, ActionID.MakeSpell(AID.DividingWingsAOE));
-class PandaemonsHoly(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PandaemonsHoly), 36);
+class DividingWings(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(60, 60.Degrees()), (uint)TetherID.DividingWings, (uint)AID.DividingWingsAOE);
+class PandaemonsHoly(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PandaemonsHoly, 36);
 
 // note: origin seems to be weird?
-class CirclesOfPandaemonium(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CirclesOfPandaemonium), new AOEShapeDonut(12, 40));
+class CirclesOfPandaemonium(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CirclesOfPandaemonium, new AOEShapeDonut(12, 40));
 
-class Imprisonment(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ImprisonmentAOE), 4);
-class Cannonspawn(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CannonspawnAOE), new AOEShapeDonut(3, 8));
-class PealOfDamnation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PealOfDamnation), new AOEShapeRect(50, 3.5f));
-class PandaemoniacPillars(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.Bury), 2);
-class Touchdown(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TouchdownAOE), 20);
+class Imprisonment(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ImprisonmentAOE, 4);
+class Cannonspawn(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CannonspawnAOE, new AOEShapeDonut(3, 8));
+class PealOfDamnation(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PealOfDamnation, new AOEShapeRect(50, 3.5f));
+class PandaemoniacPillars(BossModule module) : Components.CastTowers(module, (uint)AID.Bury, 2);
+class Touchdown(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TouchdownAOE, 20);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 939, NameID = 12354, PlanLevel = 90)]
 public class P10SPandaemonium(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultArena.Center, DefaultArena)

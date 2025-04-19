@@ -163,11 +163,11 @@ class Rush(BossModule module) : Components.GenericBaitAway(module)
     }
 }
 
-class IceDart(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(16), (uint)TetherID.IceDart, ActionID.MakeSpell(AID.IceDart), centerAtTarget: true)
+class IceDart(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(16), (uint)TetherID.IceDart, (uint)AID.IceDart, centerAtTarget: true)
 {
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             ++NumCasts;
             ForbiddenPlayers[Raid.FindSlot(spell.MainTargetID)] = true;
@@ -175,7 +175,7 @@ class IceDart(BossModule module) : Components.BaitAwayTethers(module, new AOESha
     }
 }
 
-class RaisedTribute(BossModule module) : Components.GenericWildCharge(module, 4, ActionID.MakeSpell(AID.RaisedTribute), 80f)
+class RaisedTribute(BossModule module) : Components.GenericWildCharge(module, 4, (uint)AID.RaisedTribute, 80f)
 {
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
@@ -194,7 +194,7 @@ class RaisedTribute(BossModule module) : Components.GenericWildCharge(module, 4,
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             ++NumCasts;
             Source = null;

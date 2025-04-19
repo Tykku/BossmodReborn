@@ -134,9 +134,9 @@ class PathoCircuitCrossPurge(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Cytolysis(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Cytolysis));
+class Cytolysis(BossModule module) : Components.RaidwideCast(module, (uint)AID.Cytolysis);
 
-class Quarantine(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.Quarantine), 6f, 5.1f, 3, 3)
+class Quarantine(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, (uint)AID.Quarantine, 6f, 5.1f, 3, 3)
 {
     private readonly Disinfection _tb = module.FindComponent<Disinfection>()!;
 
@@ -164,7 +164,7 @@ class Quarantine(BossModule module) : Components.StackWithIcon(module, (uint)Ico
     }
 }
 
-class Disinfection(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(6), (uint)IconID.Tankbuster, ActionID.MakeSpell(AID.Disinfection), centerAtTarget: true, tankbuster: true)
+class Disinfection(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(6), (uint)IconID.Tankbuster, (uint)AID.Disinfection, centerAtTarget: true, tankbuster: true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

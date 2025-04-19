@@ -41,13 +41,13 @@ public enum TetherID : uint
     OrbTeleport = 282 // CoordinateBit2->Orb
 }
 
-class EntropicSphere(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.EntropicSphere));
-class Electray(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Electray), new AOEShapeRect(40f, 4.5f));
-class ConcurrentField(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ConcurrentField), new AOEShapeCone(26f, 25f.Degrees()));
-class ElectricField(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(26f, 25f.Degrees()), (uint)IconID.ElectricField, ActionID.MakeSpell(AID.ElectricField), 7.4f);
-class NeutralizeFrontLines(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.NeutralizeFrontLines), new AOEShapeCone(30f, 90f.Degrees()));
-class HyperchargedLight(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HyperchargedLight), 5f);
-class DeterrentPulse(BossModule module) : Components.LineStack(module, (uint)IconID.DeterrentPulse, ActionID.MakeSpell(AID.DeterrentPulse), 5.3f, 40f, 4f, 4, 4, 1, false);
+class EntropicSphere(BossModule module) : Components.RaidwideCast(module, (uint)AID.EntropicSphere);
+class Electray(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Electray, new AOEShapeRect(40f, 4.5f));
+class ConcurrentField(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ConcurrentField, new AOEShapeCone(26f, 25f.Degrees()));
+class ElectricField(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(26f, 25f.Degrees()), (uint)IconID.ElectricField, (uint)AID.ElectricField, 7.4f);
+class NeutralizeFrontLines(BossModule module) : Components.SimpleAOEs(module, (uint)AID.NeutralizeFrontLines, new AOEShapeCone(30f, 90f.Degrees()));
+class HyperchargedLight(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.HyperchargedLight, 5f);
+class DeterrentPulse(BossModule module) : Components.LineStack(module, (uint)IconID.DeterrentPulse, (uint)AID.DeterrentPulse, 5.3f, 40f, 4f, 4, 4, 1, false);
 
 class EnforcementRay(BossModule module) : Components.GenericAOEs(module)
 {

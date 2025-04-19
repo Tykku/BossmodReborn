@@ -89,7 +89,7 @@ class Dhrupad(BossModule module) : BossComponent(module)
     }
 }
 
-class ManusyaBio(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ManusyaBio), "Tankbuster + cleansable poison");
+class ManusyaBio(BossModule module) : Components.SingleTargetCast(module, (uint)AID.ManusyaBio, "Tankbuster + cleansable poison");
 
 class Poison(BossModule module) : BossComponent(module)
 {
@@ -135,19 +135,19 @@ class Poison(BossModule module) : BossComponent(module)
     }
 }
 
-class IsitvaSiddhi(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.IsitvaSiddhi));
-class Samsara(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Samsara));
-class DeltaThunderIII1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaThunderIII1), 3f);
-class DeltaThunderIII2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaThunderIII2), 5f);
-class DeltaThunderIII3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaThunderIII3), new AOEShapeRect(40f, 5f));
-class DeltaThunderIII4(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.DeltaThunderIII4), 5f, 4, 4);
-class DeltaBlizzardIII1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaBlizzardIII1), new AOEShapeCone(40.5f, 10f.Degrees()));
-class DeltaBlizzardIII2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaBlizzardIII2), new AOEShapeRect(44f, 2f));
-class DeltaBlizzardIII3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaBlizzardIII3), 15f);
-class DeltaFireIII1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaFireIII1), new AOEShapeDonut(5f, 40f));
-class DeltaFireIII2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeltaFireIII2), new AOEShapeRect(44f, 5f));
-class DeltaFireIII3(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.DeltaFireIII3), 6f);
-class PraptiSiddhi(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PraptiSiddhi), new AOEShapeRect(40f, 2f));
+class IsitvaSiddhi(BossModule module) : Components.SingleTargetCast(module, (uint)AID.IsitvaSiddhi);
+class Samsara(BossModule module) : Components.RaidwideCast(module, (uint)AID.Samsara);
+class DeltaThunderIII1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DeltaThunderIII1, 3f);
+class DeltaThunderIII2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DeltaThunderIII2, 5f);
+class DeltaThunderIII3(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DeltaThunderIII3, new AOEShapeRect(40f, 5f));
+class DeltaThunderIII4(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.DeltaThunderIII4, 5f, 4, 4);
+class DeltaBlizzardIII1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DeltaBlizzardIII1, new AOEShapeCone(40.5f, 10f.Degrees()));
+class DeltaBlizzardIII2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DeltaBlizzardIII2, new AOEShapeRect(44f, 2f));
+class DeltaBlizzardIII3(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DeltaBlizzardIII3, 15f);
+class DeltaFireIII1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DeltaFireIII1, new AOEShapeDonut(5f, 40f));
+class DeltaFireIII2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DeltaFireIII2, new AOEShapeRect(44f, 5f));
+class DeltaFireIII3(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.DeltaFireIII3, 6f);
+class PraptiSiddhi(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PraptiSiddhi, new AOEShapeRect(40f, 2f));
 
 class SphereShatter(BossModule module) : Components.GenericAOEs(module)
 {
@@ -172,8 +172,8 @@ class SphereShatter(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class PrakamyaSiddhi(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PrakamyaSiddhi), 5f);
-class ManusyaBlizzardIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ManusyaBlizzardIII2), new AOEShapeCone(40.5f, 10.Degrees()));
+class PrakamyaSiddhi(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PrakamyaSiddhi, 5f);
+class ManusyaBlizzardIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ManusyaBlizzardIII2, new AOEShapeCone(40.5f, 10.Degrees()));
 
 class D013MagusSistersStates : StateMachineBuilder
 {

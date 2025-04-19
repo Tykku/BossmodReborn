@@ -91,7 +91,7 @@ class GrahaAI(BossModule module, WorldState ws) : UnmanagedRotation(ws, 25)
 
 class AutoGraha(BossModule module) : RotationModule<GrahaAI>(module);
 class DirectionalParry(BossModule module) : Components.DirectionalParry(module, [0x3201]);
-class Explosion(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeCross(80f, 5f), maxCasts: 2);
+class Explosion(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Explosion, new AOEShapeCross(80f, 5f), maxCasts: 2);
 
 class LunarRavanaStates : StateMachineBuilder
 {

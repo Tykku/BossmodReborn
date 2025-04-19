@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Savage.M08SHowlingBlade;
 
-class Twinbite(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.Twinbite), tankbuster: true)
+class Twinbite(BossModule module) : Components.GenericBaitAway(module, (uint)AID.Twinbite, tankbuster: true)
 {
     private static readonly AOEShapeCircle circle = new(8f);
 

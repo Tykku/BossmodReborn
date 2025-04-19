@@ -140,7 +140,7 @@ class AetherLaserLine : Components.SimpleAOEs
 {
     private readonly AetheroChemicalLaserCombo _aoe;
 
-    public AetherLaserLine(BossModule module) : base(module, ActionID.MakeSpell(AID.AetherochemicalLaserLine), new AOEShapeRect(40f, 2.5f), 4)
+    public AetherLaserLine(BossModule module) : base(module, (uint)AID.AetherochemicalLaserLine, new AOEShapeRect(40f, 2.5f), 4)
     {
         MaxDangerColor = 2;
         MaxRisky = 2;
@@ -150,10 +150,10 @@ class AetherLaserLine : Components.SimpleAOEs
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Casters.Count != 0 && _aoe.AOEs.Count == 0 ? base.ActiveAOEs(slot, actor) : [];
 }
 
-class AetherLaserLine2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherochemicalLaserLine2), new AOEShapeRect(40f, 2.5f));
-class AetherLaserCone(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherochemicalLaserCone2), new AOEShapeCone(50f, 60f.Degrees()));
-class HomingLasers(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HomingLaser), 6f);
-class Laserstream(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Laserstream));
+class AetherLaserLine2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AetherochemicalLaserLine2, new AOEShapeRect(40f, 2.5f));
+class AetherLaserCone(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AetherochemicalLaserCone2, new AOEShapeCone(50f, 60f.Degrees()));
+class HomingLasers(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HomingLaser, 6f);
+class Laserstream(BossModule module) : Components.RaidwideCast(module, (uint)AID.Laserstream);
 
 class DD90AdministratorStates : StateMachineBuilder
 {

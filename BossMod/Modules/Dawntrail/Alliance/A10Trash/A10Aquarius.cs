@@ -29,14 +29,14 @@ public enum AID : uint
     Agaricus = 41661 // DeathCap->self, 3.0s cast, range 5 circle
 }
 
-class CursedSphere(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CursedSphere), 3f);
-class WaterIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaterIII), 7f);
-class BubbleShower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BubbleShower), new AOEShapeCone(6f, 30f.Degrees()));
-class Scoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Scoop), new AOEShapeCone(15f, 60f.Degrees()));
-class Agaricus(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Agaricus), 5f);
-class Beatdown(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Beatdown), new AOEShapeRect(9f, 1.5f));
-class SpiderWeb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpiderWeb), 6f);
-class HundredFists(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.HundredFists), showNameInHint: true);
+class CursedSphere(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CursedSphere, 3f);
+class WaterIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WaterIII, 7f);
+class BubbleShower(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BubbleShower, new AOEShapeCone(6f, 30f.Degrees()));
+class Scoop(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Scoop, new AOEShapeCone(15f, 60f.Degrees()));
+class Agaricus(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Agaricus, 5f);
+class Beatdown(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Beatdown, new AOEShapeRect(9f, 1.5f));
+class SpiderWeb(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpiderWeb, 6f);
+class HundredFists(BossModule module) : Components.CastInterruptHint(module, (uint)AID.HundredFists, showNameInHint: true);
 
 public class A10AquariusStates : StateMachineBuilder
 {

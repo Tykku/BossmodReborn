@@ -24,7 +24,7 @@ public enum AID : uint
     FormicPheromones = 1110 // MyrmidonMarshal->Boss, 4.5s cast, single target
 }
 
-class MandibleBite(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MandibleBite), new AOEShapeCone(9f, 45f.Degrees()));
+class MandibleBite(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MandibleBite, new AOEShapeCone(9f, 45f.Degrees()));
 
 class D091MyrmidonPrincessStates : StateMachineBuilder
 {

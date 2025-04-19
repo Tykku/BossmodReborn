@@ -45,18 +45,18 @@ public enum IconID : uint
     Icon139 = 139, // player
 }
 
-abstract class Disassembler(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(30, 5));
-class RightDisassembler(BossModule module) : Disassembler(module, AID.RightDisassembler);
-class LeftDisassembler(BossModule module) : Disassembler(module, AID.LeftDisassembler);
+abstract class Disassembler(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(30, 5));
+class RightDisassembler(BossModule module) : Disassembler(module, (uint)AID.RightDisassembler);
+class LeftDisassembler(BossModule module) : Disassembler(module, (uint)AID.LeftDisassembler);
 
-class LevelingMissile2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.LevelingMissile2), 6);
-class ElectricArc(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ElectricArc), 6, 4, 4);
+class LevelingMissile2(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.LevelingMissile2, 6);
+class ElectricArc(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.ElectricArc, 6, 4, 4);
 
-class Excavated(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Excavated), 8);
+class Excavated(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Excavated, 8);
 
-class IronKiss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IronKiss), 16);
+class IronKiss(BossModule module) : Components.SimpleAOEs(module, (uint)AID.IronKiss, 16);
 
-class PiercingMissile(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.PiercingMissile));
+class PiercingMissile(BossModule module) : Components.SingleTargetCast(module, (uint)AID.PiercingMissile);
 
 class D073BigCheeseStates : StateMachineBuilder
 {

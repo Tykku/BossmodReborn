@@ -1,7 +1,7 @@
 namespace BossMod.Dawntrail.Raid.M08NHowlingBlade;
 
-class WolvesReignRect1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WolvesReignRect1), new AOEShapeRect(36f, 5f));
-class WolvesReignRect2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WolvesReignRect2), new AOEShapeRect(28f, 5f));
+class WolvesReignRect1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WolvesReignRect1, new AOEShapeRect(36f, 5f));
+class WolvesReignRect2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WolvesReignRect2, new AOEShapeRect(28f, 5f));
 
 class WolvesReignCone(BossModule module) : Components.GenericAOEs(module)
 {

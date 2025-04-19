@@ -52,7 +52,7 @@ class ConductionPoint : Components.UniformStackSpread
 
 class ForkedFissures : Components.GenericWildCharge
 {
-    public ForkedFissures(BossModule module) : base(module, 5f, ActionID.MakeSpell(AID.ForkedFissures), 40f)
+    public ForkedFissures(BossModule module) : base(module, 5f, (uint)AID.ForkedFissures, 40f)
     {
         Array.Fill(PlayerRoles, PlayerRole.Share);
     }

@@ -43,9 +43,9 @@ public enum IconID : uint
     BallisticImpact = 261, // Helper
 }
 
-class DiveFormation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DiveFormation), new AOEShapeRect(60f, 3f));
+class DiveFormation(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DiveFormation, new AOEShapeRect(60f, 3f));
 
-class AntiPersonnelMissile(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.BallisticImpact))
+class AntiPersonnelMissile(BossModule module) : Components.GenericAOEs(module, (uint)AID.BallisticImpact)
 {
     private readonly List<AOEInstance> _aoes = new(8);
     private static readonly AOEShapeRect _shape = new(12f, 12f, 12f);
@@ -68,7 +68,7 @@ class AntiPersonnelMissile(BossModule module) : Components.GenericAOEs(module, A
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count != 0 && spell.Action == WatchedAction)
+        if (_aoes.Count != 0 && spell.Action.ID == WatchedAction)
             _aoes.RemoveAt(0);
     }
 }
@@ -179,10 +179,10 @@ class ChainCannonBoss(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class SurfaceMissile(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SurfaceMissileAOE), 6f);
-class SuppressiveMagitekRays(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SuppressiveMagitekRays));
-class Analysis(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Analysis), "Face open weakpoint to charging adds");
-class PreciseStrike(BossModule module) : Components.CastWeakpoint(module, ActionID.MakeSpell(AID.PreciseStrike), new AOEShapeRect(60f, 3f), (uint)SID.FrontUnseen, (uint)SID.BackUnseen, 0, 0);
+class SurfaceMissile(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SurfaceMissileAOE, 6f);
+class SuppressiveMagitekRays(BossModule module) : Components.RaidwideCast(module, (uint)AID.SuppressiveMagitekRays);
+class Analysis(BossModule module) : Components.CastHint(module, (uint)AID.Analysis, "Face open weakpoint to charging adds");
+class PreciseStrike(BossModule module) : Components.CastWeakpoint(module, (uint)AID.PreciseStrike, new AOEShapeRect(60f, 3f), (uint)SID.FrontUnseen, (uint)SID.BackUnseen, 0, 0);
 
 class CE64FeelingTheBurnStates : StateMachineBuilder
 {

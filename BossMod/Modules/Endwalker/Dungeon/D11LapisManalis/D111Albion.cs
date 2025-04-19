@@ -186,22 +186,22 @@ public record struct Stampede(bool Active, WPos Position, Angle Rotation, List<A
     public List<Actor> Beasts = Beasts;
 }
 
-class Icebreaker(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Icebreaker), 17f);
+class Icebreaker(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Icebreaker, 17f);
 
-class IcyThroes(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
-class IcyThroes1(BossModule module) : IcyThroes(module, AID.IcyThroes1);
-class IcyThroes2(BossModule module) : IcyThroes(module, AID.IcyThroes2);
+class IcyThroes(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
+class IcyThroes1(BossModule module) : IcyThroes(module, (uint)AID.IcyThroes1);
+class IcyThroes2(BossModule module) : IcyThroes(module, (uint)AID.IcyThroes2);
 
-class IcyThroesSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.IcyThroesSpread), 6f);
-class KnockOnIce(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.KnockOnIce), 5f);
+class IcyThroesSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.IcyThroesSpread, 6f);
+class KnockOnIce(BossModule module) : Components.SimpleAOEs(module, (uint)AID.KnockOnIce, 5f);
 
-abstract class Slam(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(80f, 10f));
-class RightSlam(BossModule module) : Slam(module, AID.RightSlam);
-class LeftSlam(BossModule module) : Slam(module, AID.LeftSlam);
+abstract class Slam(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(80f, 10f));
+class RightSlam(BossModule module) : Slam(module, (uint)AID.RightSlam);
+class LeftSlam(BossModule module) : Slam(module, (uint)AID.LeftSlam);
 
-class AlbionsEmbrace(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.AlbionsEmbrace));
+class AlbionsEmbrace(BossModule module) : Components.SingleTargetCast(module, (uint)AID.AlbionsEmbrace);
 
-class RoarOfAlbion(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.RoarOfAlbion), 60f)
+class RoarOfAlbion(BossModule module) : Components.CastLineOfSightAOE(module, (uint)AID.RoarOfAlbion, 60f)
 {
     public override ReadOnlySpan<Actor> BlockerActors() => CollectionsMarshal.AsSpan(Module.Enemies((uint)OID.IcyCrystal));
 }

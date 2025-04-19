@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.Normal.DRN1TrinitySeeker;
 
-class BalefulSwathe(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.BalefulSwathe))
+class BalefulSwathe(BossModule module) : Components.GenericAOEs(module, (uint)AID.BalefulSwathe)
 {
     private readonly DateTime _activation = module.WorldState.FutureTime(7.6d); // from verdant path cast start
     private static readonly AOEShapeRect _shape = new(50, 50, -5);

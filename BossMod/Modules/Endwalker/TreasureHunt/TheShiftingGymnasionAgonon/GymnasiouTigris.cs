@@ -32,20 +32,20 @@ public enum AID : uint
     Telega = 9630 // GymnasiouLyssa/Mandragoras->self, no cast, single-target, bonus add disappear
 }
 
-class AbsoluteZero(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AbsoluteZero), new AOEShapeCone(45f, 45f.Degrees()));
-class FrumiousJaws(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.FrumiousJaws));
-class BlizzardIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlizzardIII), 6f);
-class Eyeshine(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.Eyeshine));
-class CatchingClaws(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CatchingClaws), new AOEShapeCone(12f, 45f.Degrees()));
+class AbsoluteZero(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AbsoluteZero, new AOEShapeCone(45f, 45f.Degrees()));
+class FrumiousJaws(BossModule module) : Components.SingleTargetCast(module, (uint)AID.FrumiousJaws);
+class BlizzardIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlizzardIII, 6f);
+class Eyeshine(BossModule module) : Components.CastGaze(module, (uint)AID.Eyeshine);
+class CatchingClaws(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CatchingClaws, new AOEShapeCone(12f, 45f.Degrees()));
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
+class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6f);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HeavySmash, 6f);
 
 class GymnasiouTigrisStates : StateMachineBuilder
 {

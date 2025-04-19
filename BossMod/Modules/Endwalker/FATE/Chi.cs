@@ -246,24 +246,24 @@ class Combos(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Hellburner(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.Hellburner), new AOEShapeCircle(5f), true, tankbuster: true);
+class Hellburner(BossModule module) : Components.BaitAwayCast(module, (uint)AID.Hellburner, new AOEShapeCircle(5f), true, tankbuster: true);
 
-class MissileShower(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MissileShowerVisual), "Raidwide x2");
-class ThermobaricExplosive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThermobaricExplosive2), 25f);
+class MissileShower(BossModule module) : Components.RaidwideCast(module, (uint)AID.MissileShowerVisual, "Raidwide x2");
+class ThermobaricExplosive(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ThermobaricExplosive2, 25f);
 
-abstract class AssaultCarapace(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(120f, 16f));
-class AssaultCarapace1(BossModule module) : AssaultCarapace(module, AID.AssaultCarapace1);
-class AssaultCarapace2(BossModule module) : AssaultCarapace(module, AID.AssaultCarapace2);
+abstract class AssaultCarapace(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(120f, 16f));
+class AssaultCarapace1(BossModule module) : AssaultCarapace(module, (uint)AID.AssaultCarapace1);
+class AssaultCarapace2(BossModule module) : AssaultCarapace(module, (uint)AID.AssaultCarapace2);
 
-class AssaultCarapace3(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AssaultCarapace3), new AOEShapeDonut(16f, 60f));
+class AssaultCarapace3(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AssaultCarapace3, new AOEShapeDonut(16f, 60f));
 
-abstract class Cleave(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(45f, 90f.Degrees()));
-class ForeArms1(BossModule module) : Cleave(module, AID.ForeArms1);
-class ForeArms2(BossModule module) : Cleave(module, AID.ForeArms2);
-class RearGuns1(BossModule module) : Cleave(module, AID.RearGuns1);
-class RearGuns2(BossModule module) : Cleave(module, AID.RearGuns2);
+abstract class Cleave(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(45f, 90f.Degrees()));
+class ForeArms1(BossModule module) : Cleave(module, (uint)AID.ForeArms1);
+class ForeArms2(BossModule module) : Cleave(module, (uint)AID.ForeArms2);
+class RearGuns1(BossModule module) : Cleave(module, (uint)AID.RearGuns1);
+class RearGuns2(BossModule module) : Cleave(module, (uint)AID.RearGuns2);
 
-class FreeFallBombs(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FreeFallBombs), 6f);
+class FreeFallBombs(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FreeFallBombs, 6f);
 
 class ChiStates : StateMachineBuilder
 {

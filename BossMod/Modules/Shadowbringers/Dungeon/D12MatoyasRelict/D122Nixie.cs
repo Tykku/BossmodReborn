@@ -205,7 +205,7 @@ class GeysersCloudPlatform(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Sputter(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Sputter), 6f);
+class Sputter(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Sputter, 6f);
 
 class D122NixieStates : StateMachineBuilder
 {

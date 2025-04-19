@@ -42,18 +42,18 @@ public enum SID : uint
     Doom = 3364 // Helper->player, extra=0x0
 }
 
-class BeatificScorn5(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BeatificScornAOE), 9f, 8);
+class BeatificScorn5(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BeatificScornAOE, 9f, 8);
 
-class DeathForeseen1(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.DeathForeseen1));
-class DeathForeseen2(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.DeathForeseen2), maxCasts: 2);
+class DeathForeseen1(BossModule module) : Components.CastGaze(module, (uint)AID.DeathForeseen1);
+class DeathForeseen2(BossModule module) : Components.CastGaze(module, (uint)AID.DeathForeseen2, maxCasts: 2);
 
-class Voidshaker(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Voidshaker), new AOEShapeCone(20f, 60f.Degrees()));
+class Voidshaker(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Voidshaker, new AOEShapeCone(20f, 60f.Degrees()));
 
-class VoidNail(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.VoidNail), 6f);
-class Hush(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Hush));
-class EyeOfTroia(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.EyeOfTroia));
-class ToricVoid(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ToricVoid), new AOEShapeDonut(10f, 20f));
-class Antipressure(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Antipressure), 6f, 4, 4);
+class VoidNail(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.VoidNail, 6f);
+class Hush(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Hush);
+class EyeOfTroia(BossModule module) : Components.RaidwideCast(module, (uint)AID.EyeOfTroia);
+class ToricVoid(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ToricVoid, new AOEShapeDonut(10f, 20f));
+class Antipressure(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.Antipressure, 6f, 4, 4);
 
 class Doom(BossModule module) : BossComponent(module)
 {

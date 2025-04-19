@@ -2,13 +2,13 @@ using static BossMod.Dawntrail.Raid.BruteAmbombinatorSharedBounds.BruteAmbombina
 
 namespace BossMod.Dawntrail.Savage.M07SBruteAbombinator;
 
-class BrutalImpact(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.BrutalImpact));
-class RevengeOfTheVines2(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.RevengeOfTheVines2));
-class Slaminator(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.Slaminator), 8f, 8, 8);
+class BrutalImpact(BossModule module) : Components.CastCounter(module, (uint)AID.BrutalImpact);
+class RevengeOfTheVines2(BossModule module) : Components.CastCounter(module, (uint)AID.RevengeOfTheVines2);
+class Slaminator(BossModule module) : Components.CastTowers(module, (uint)AID.Slaminator, 8f, 8, 8);
 
 class Explosion : Components.SimpleAOEs
 {
-    public Explosion(BossModule module) : base(module, ActionID.MakeSpell(AID.Explosion), 20f, 2)
+    public Explosion(BossModule module) : base(module, (uint)AID.Explosion, 20f, 2)
     {
         MaxDangerColor = 1;
     }
@@ -16,13 +16,13 @@ class Explosion : Components.SimpleAOEs
 
 class Sporesplosion : Components.SimpleAOEs
 {
-    public Sporesplosion(BossModule module) : base(module, ActionID.MakeSpell(AID.Sporesplosion), 8f, 12)
+    public Sporesplosion(BossModule module) : base(module, (uint)AID.Sporesplosion, 8f, 12)
     {
         MaxDangerColor = 6;
     }
 }
 
-class NeoBombarianSpecialKB(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.NeoBombarianSpecial), 58f, true)
+class NeoBombarianSpecialKB(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.NeoBombarianSpecial, 58f, true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

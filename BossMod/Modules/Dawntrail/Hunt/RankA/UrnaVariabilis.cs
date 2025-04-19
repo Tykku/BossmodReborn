@@ -189,9 +189,9 @@ class MagnetismCircleDonut(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class ThunderousShower(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ThunderousShower), 6f, 8);
-class Electrowave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Electrowave));
-class Magnetron(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Magnetron));
+class ThunderousShower(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.ThunderousShower, 6f, 8);
+class Electrowave(BossModule module) : Components.RaidwideCast(module, (uint)AID.Electrowave);
+class Magnetron(BossModule module) : Components.RaidwideCast(module, (uint)AID.Magnetron);
 
 class UrnaVariabilisStates : StateMachineBuilder
 {

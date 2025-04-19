@@ -9,5 +9,5 @@ class JuryOverrulingProtean(BossModule module) : Components.BaitAwayEveryone(mod
     }
 }
 
-class IllusoryGlare(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IllusoryGlare), 5);
-class IllusoryGloom(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IllusoryGloom), new AOEShapeDonut(2, 9));
+class IllusoryGlare(BossModule module) : Components.SimpleAOEs(module, (uint)AID.IllusoryGlare, 5);
+class IllusoryGloom(BossModule module) : Components.SimpleAOEs(module, (uint)AID.IllusoryGloom, new AOEShapeDonut(2, 9));

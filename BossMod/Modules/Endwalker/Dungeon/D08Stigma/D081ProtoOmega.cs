@@ -21,15 +21,15 @@ public enum AID : uint
     SideCannons2 = 25377 // Boss->self, 7.0s cast, range 60 180-degree cone
 }
 
-class ElectricSlideKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.ElectricSlide), 15, stopAtWall: true);
-class ElectricSlide(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ElectricSlide), 6, 4, 4);
-class IronKiss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.IronKiss), 3);
+class ElectricSlideKnockback(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.ElectricSlide, 15, stopAtWall: true);
+class ElectricSlide(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.ElectricSlide, 6, 4, 4);
+class IronKiss(BossModule module) : Components.SimpleAOEs(module, (uint)AID.IronKiss, 3);
 
-abstract class SideCannons(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 90.Degrees()));
-class SideCannons1(BossModule module) : SideCannons(module, AID.SideCannons1);
-class SideCannons2(BossModule module) : SideCannons(module, AID.SideCannons2);
+abstract class SideCannons(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(60, 90.Degrees()));
+class SideCannons1(BossModule module) : SideCannons(module, (uint)AID.SideCannons1);
+class SideCannons2(BossModule module) : SideCannons(module, (uint)AID.SideCannons2);
 
-class MustardBomb(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.MustardBomb));
+class MustardBomb(BossModule module) : Components.SingleTargetCast(module, (uint)AID.MustardBomb);
 
 class D081ProtoOmegaStates : StateMachineBuilder
 {

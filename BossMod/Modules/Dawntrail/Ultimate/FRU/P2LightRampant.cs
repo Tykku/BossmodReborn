@@ -29,7 +29,7 @@ class P2LightRampant(BossModule module) : BossComponent(module)
     }
 }
 
-class P2LuminousHammer(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(6f), (uint)IconID.LuminousHammer, ActionID.MakeSpell(AID.LuminousHammer), 7.1f, true)
+class P2LuminousHammer(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(6f), (uint)IconID.LuminousHammer, (uint)AID.LuminousHammer, 7.1f, true)
 {
     public readonly int[] BaitsPerPlayer = new int[PartyState.MaxPartySize];
     public readonly WDir[] PrevBaitOffset = new WDir[PartyState.MaxPartySize];
@@ -46,7 +46,7 @@ class P2LuminousHammer(BossModule module) : Components.BaitAwayIcon(module, new 
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction && Raid.FindSlot(spell.MainTargetID) is var slot && slot >= 0)
+        if (spell.Action.ID == WatchedAction && Raid.FindSlot(spell.MainTargetID) is var slot && slot >= 0)
         {
             ++NumCasts;
             PrevBaitOffset[slot] = (Raid[slot]?.Position ?? Arena.Center) - Arena.Center;
@@ -56,7 +56,7 @@ class P2LuminousHammer(BossModule module) : Components.BaitAwayIcon(module, new 
     }
 }
 
-class P2BrightHunger1(BossModule module) : Components.GenericTowers(module, ActionID.MakeSpell(AID.BrightHunger))
+class P2BrightHunger1(BossModule module) : Components.GenericTowers(module, (uint)AID.BrightHunger)
 {
     private readonly FRUConfig _config = Service.Config.Get<FRUConfig>();
     private BitMask _forbidden;
@@ -117,7 +117,7 @@ class P2BrightHunger1(BossModule module) : Components.GenericTowers(module, Acti
 }
 
 // note: we can start showing aoes ~3s earlier if we check spawns, but it's not really needed
-class P2HolyLightBurst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HolyLightBurst), 11f, 3)
+class P2HolyLightBurst(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HolyLightBurst, 11f, 3)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints) { } // there are dedicated components for hints
 }
@@ -139,7 +139,7 @@ class P2PowerfulLight(BossModule module) : Components.UniformStackSpread(module,
     }
 }
 
-class P2BrightHunger2(BossModule module) : Components.GenericTowers(module, ActionID.MakeSpell(AID.BrightHunger))
+class P2BrightHunger2(BossModule module) : Components.GenericTowers(module, (uint)AID.BrightHunger)
 {
     private BitMask _forbidden;
 
@@ -160,7 +160,7 @@ class P2BrightHunger2(BossModule module) : Components.GenericTowers(module, Acti
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             Towers.Clear();
             ++NumCasts;
@@ -242,7 +242,7 @@ class P2LightRampantBanish(BossModule module) : P2Banish(module)
     }
 }
 
-class P2HouseOfLightBoss(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.HouseOfLightBossAOE), false)
+class P2HouseOfLightBoss(BossModule module) : Components.GenericBaitAway(module, (uint)AID.HouseOfLightBossAOE, false)
 {
     private static readonly AOEShapeCone _shape = new(60f, 30f.Degrees()); // TODO: verify angle
 

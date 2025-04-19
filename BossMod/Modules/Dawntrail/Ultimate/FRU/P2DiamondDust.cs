@@ -1,9 +1,9 @@
 ﻿namespace BossMod.Dawntrail.Ultimate.FRU;
 
-class P2AxeKick(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AxeKick), 16f);
-class P2ScytheKick(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ScytheKick), new AOEShapeDonut(4f, 20f));
+class P2AxeKick(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AxeKick, 16f);
+class P2ScytheKick(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ScytheKick, new AOEShapeDonut(4f, 20f));
 
-class P2IcicleImpact(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.IcicleImpact))
+class P2IcicleImpact(BossModule module) : Components.GenericAOEs(module, (uint)AID.IcicleImpact)
 {
     public readonly List<AOEInstance> AOEs = []; // note: we don't remove finished aoes, since we use them in other components to detect safespots
 
@@ -13,7 +13,7 @@ class P2IcicleImpact(BossModule module) : Components.GenericAOEs(module, ActionI
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             // initially all aoes start as non-risky
             AOEs.Add(new(_shape, spell.LocXZ, default, Module.CastFinishAt(spell), 0, false));
@@ -45,12 +45,12 @@ class P2IcicleImpact(BossModule module) : Components.GenericAOEs(module, ActionI
     }
 }
 
-class P2FrigidNeedleCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrigidNeedleCircle), 5f);
-class P2FrigidNeedleCross(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FrigidNeedleCross), new AOEShapeCross(40f, 2.5f));
+class P2FrigidNeedleCircle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FrigidNeedleCircle, 5f);
+class P2FrigidNeedleCross(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FrigidNeedleCross, new AOEShapeCross(40f, 2.5f));
 
 class P2FrigidStone : Components.BaitAwayIcon
 {
-    public P2FrigidStone(BossModule module) : base(module, new AOEShapeCircle(5), (uint)IconID.FrigidStone, ActionID.MakeSpell(AID.FrigidStone), 8.1f, true)
+    public P2FrigidStone(BossModule module) : base(module, new AOEShapeCircle(5), (uint)IconID.FrigidStone, (uint)AID.FrigidStone, 8.1f, true)
     {
         EnableHints = false;
         IgnoreOtherBaits = true;
@@ -59,7 +59,7 @@ class P2FrigidStone : Components.BaitAwayIcon
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints) { }
 }
 
-class P2DiamondDustHouseOfLight(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.HouseOfLight))
+class P2DiamondDustHouseOfLight(BossModule module) : Components.GenericBaitAway(module, (uint)AID.HouseOfLight)
 {
     private Actor? _source;
     private DateTime _activation;
@@ -224,7 +224,7 @@ class P2DiamondDustSafespots(BossModule module) : BossComponent(module)
     private static bool IsCardinal(WDir off) => Math.Abs(off.X) < 1 || Math.Abs(off.Z) < 1;
 }
 
-class P2HeavenlyStrike(BossModule module) : Components.GenericKnockback(module, ActionID.MakeSpell(AID.HeavenlyStrike))
+class P2HeavenlyStrike(BossModule module) : Components.GenericKnockback(module, (uint)AID.HeavenlyStrike)
 {
     private readonly WDir[] _safeDirs = BuildSafeDirs(module);
     private readonly DateTime _activation = module.WorldState.FutureTime(3.9d);
@@ -384,7 +384,7 @@ class P2SinboundHolyVoidzone(BossModule module) : Components.Voidzone(module, 6f
     }
 }
 
-class P2ShiningArmor(BossModule module) : Components.GenericGaze(module, ActionID.MakeSpell(AID.ShiningArmor))
+class P2ShiningArmor(BossModule module) : Components.GenericGaze(module, (uint)AID.ShiningArmor)
 {
     private Actor? _source;
     private DateTime _activation;

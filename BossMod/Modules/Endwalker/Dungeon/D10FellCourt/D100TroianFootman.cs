@@ -19,10 +19,10 @@ public enum AID : uint
     Geirrothr = 30215 // TroianRider->self, 3.0s cast, range 6 120-degree cone
 }
 
-class Geirrothr(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Geirrothr), new AOEShapeCone(6f, 60f.Degrees()));
-class GrimFate(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrimFate), new AOEShapeCone(12f, 60f.Degrees()));
-class GrimHalo(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrimHalo), 12f);
-class VoidTrap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VoidTrap), 6f);
+class Geirrothr(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Geirrothr, new AOEShapeCone(6f, 60f.Degrees()));
+class GrimFate(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GrimFate, new AOEShapeCone(12f, 60f.Degrees()));
+class GrimHalo(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GrimHalo, 12f);
+class VoidTrap(BossModule module) : Components.SimpleAOEs(module, (uint)AID.VoidTrap, 6f);
 
 class D100TroianFootmanStates : StateMachineBuilder
 {

@@ -1,12 +1,12 @@
 namespace BossMod.Dawntrail.Trial.T04Zelenia;
 
-abstract class PowerBreak(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(24f, 32f));
-class PowerBreak1(BossModule module) : PowerBreak(module, AID.PowerBreak1);
-class PowerBreak2(BossModule module) : PowerBreak(module, AID.PowerBreak2);
+abstract class PowerBreak(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(24f, 32f));
+class PowerBreak1(BossModule module) : PowerBreak(module, (uint)AID.PowerBreak1);
+class PowerBreak2(BossModule module) : PowerBreak(module, (uint)AID.PowerBreak2);
 
-class HolyHazard(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HolyHazard), new AOEShapeCone(24f, 60f.Degrees()), 2);
+class HolyHazard(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HolyHazard, new AOEShapeCone(24f, 60f.Degrees()), 2);
 
-class RosebloodBloom(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.RosebloodBloom), 10f, true)
+class RosebloodBloom(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.RosebloodBloom, 10f, true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -18,11 +18,9 @@ class RosebloodBloom(BossModule module) : Components.SimpleKnockbacks(module, Ac
     }
 }
 
-class PerfumedQuietus(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RosebloodBloom)); // using the knockback here, since after knockback player is stunned for a cutscene and can't heal up
-
-class ThornedCatharsis(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ThornedCatharsis));
-
-class SpecterOfTheLost(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.SpecterOfTheLost), new AOEShapeCone(50f, 25f.Degrees()), tankbuster: true);
+class PerfumedQuietus(BossModule module) : Components.RaidwideCast(module, (uint)AID.RosebloodBloom); // using the knockback here, since after knockback player is stunned for a cutscene and can't heal up
+class ThornedCatharsis(BossModule module) : Components.RaidwideCast(module, (uint)AID.ThornedCatharsis);
+class SpecterOfTheLost(BossModule module) : Components.BaitAwayCast(module, (uint)AID.SpecterOfTheLost, new AOEShapeCone(50f, 22.5f.Degrees()), tankbuster: true);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1030, NameID = 13861)]
 public class T04Zelenia(WorldState ws, Actor primary) : BossModule(ws, primary, arenaCenter, DefaultArena)

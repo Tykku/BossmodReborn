@@ -45,11 +45,11 @@ public enum IconID : uint
     Hailfire4 = 82 // player
 }
 
-class CrystallineFracture(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CrystallineFracture), 4f);
-class ResonantFrequencyDim(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ResonantFrequencyDim), 6f);
-class ResonantFrequencyCorrupted(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ResonantFrequencyCorrupted), 6f);
+class CrystallineFracture(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CrystallineFracture, 4f);
+class ResonantFrequencyDim(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ResonantFrequencyDim, 6f);
+class ResonantFrequencyCorrupted(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ResonantFrequencyCorrupted, 6f);
 
-class CrystallineStingers(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.CrystallineStingers), 60f)
+class CrystallineStingers(BossModule module) : Components.CastLineOfSightAOE(module, (uint)AID.CrystallineStingers, 60f)
 {
     public override ReadOnlySpan<Actor> BlockerActors()
     {
@@ -68,7 +68,7 @@ class CrystallineStingers(BossModule module) : Components.CastLineOfSightAOE(mod
     }
 }
 
-class AetherialStingers(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.AetherialStingers), 60f)
+class AetherialStingers(BossModule module) : Components.CastLineOfSightAOE(module, (uint)AID.AetherialStingers, 60f)
 {
     public override ReadOnlySpan<Actor> BlockerActors()
     {
@@ -87,7 +87,7 @@ class AetherialStingers(BossModule module) : Components.CastLineOfSightAOE(modul
     }
 }
 
-class Subduction(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Subduction), 8f);
+class Subduction(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Subduction, 8f);
 
 class Earthbreaker(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 {
@@ -115,8 +115,8 @@ class Earthbreaker(BossModule module) : Components.ConcentricAOEs(module, _shape
     }
 }
 
-class CrystalNeedle(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CrystalNeedle));
-class Shardstrike(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.ShardstrikeAOE), 5f)
+class CrystalNeedle(BossModule module) : Components.SingleTargetCast(module, (uint)AID.CrystalNeedle);
+class Shardstrike(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.ShardstrikeAOE, 5f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

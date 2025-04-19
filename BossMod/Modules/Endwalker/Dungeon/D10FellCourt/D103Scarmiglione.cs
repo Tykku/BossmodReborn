@@ -283,13 +283,13 @@ class VacuumWaveHint(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class VoidVortexSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.VoidVortexSpread), 6f);
-class VoidVortexStack(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VoidVortexStack), 6f, 4, 4);
-class BlightedBedevilment(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlightedBedevilment), 9f);
-class BlightedBladework(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlightedBladework), 25f, riskyWithSecondsLeft: 8d);
-class Nox(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Nox), 10f);
-class RottenRampageAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RottenRampage), 6f);
-class RottenRampageSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.RottenRampageSpread), 6f)
+class VoidVortexSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.VoidVortexSpread, 6f);
+class VoidVortexStack(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.VoidVortexStack, 6f, 4, 4);
+class BlightedBedevilment(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlightedBedevilment, 9f);
+class BlightedBladework(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlightedBladework, 25f, riskyWithSecondsLeft: 8d);
+class Nox(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Nox, 10f);
+class RottenRampageAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RottenRampage, 6f);
+class RottenRampageSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.RottenRampageSpread, 6f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -329,17 +329,17 @@ class RottenRampageSpread(BossModule module) : Components.SpreadFromCastTargets(
     }
 }
 
-class BlightedSweep(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlightedSweep), new AOEShapeCone(40f, 90f.Degrees()));
-class CursedEcho(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CursedEcho));
-class VoidGravity(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.VoidGravity), 6f, 4, 4);
-class Firedamp(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.Firedamp), new AOEShapeCircle(5f), true, tankbuster: true);
+class BlightedSweep(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlightedSweep, new AOEShapeCone(40f, 90f.Degrees()));
+class CursedEcho(BossModule module) : Components.RaidwideCast(module, (uint)AID.CursedEcho);
+class VoidGravity(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.VoidGravity, 6f, 4, 4);
+class Firedamp(BossModule module) : Components.BaitAwayCast(module, (uint)AID.Firedamp, new AOEShapeCircle(5f), true, tankbuster: true);
 
-class CorruptorsPitch(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.CorruptorsPitchVisual), ActionID.MakeSpell(AID.CorruptorsPitch3), 8.1f)
+class CorruptorsPitch(BossModule module) : Components.RaidwideCastDelay(module, (uint)AID.CorruptorsPitchVisual, (uint)AID.CorruptorsPitch3, 8.1f)
 {
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         base.OnEventCast(caster, spell);
-        if (spell.Action == ActionVisual)
+        if (spell.Action.ID == ActionVisual)
             Activation = WorldState.FutureTime(Delay);
     }
 }

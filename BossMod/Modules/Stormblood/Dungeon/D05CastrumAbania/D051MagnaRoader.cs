@@ -139,9 +139,9 @@ class WildSpeedHaywire(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class MagitekPulse(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekPulse), 6f);
-class MagitekFireII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekFireII), 5f);
-class MagitekFireIII(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MagitekFireIII));
+class MagitekPulse(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MagitekPulse, 6f);
+class MagitekFireII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MagitekFireII, 5f);
+class MagitekFireIII(BossModule module) : Components.RaidwideCast(module, (uint)AID.MagitekFireIII);
 
 class D051MagnaRoaderStates : StateMachineBuilder
 {

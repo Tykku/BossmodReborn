@@ -61,10 +61,10 @@ class Adds(BossModule module) : Components.AddsMulti(module, [(uint)OID.Mu, (uin
     }
 }
 
-class ICraveViolence(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ICraveViolence), 6f);
-class OreRigato(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.OreRigato));
-class WaterIIIBait(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(8f), (uint)TetherID.WaterIII, ActionID.MakeSpell(AID.WaterIII), (uint)OID.FeatherRay, 7.3f, true);
-class WaterIIIVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(module, 9f, ActionID.MakeSpell(AID.WaterIII), GetVoidzones, 1.6f) // apparently the voidzone is bigger than the AOE?
+class ICraveViolence(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ICraveViolence, 6f);
+class OreRigato(BossModule module) : Components.RaidwideCast(module, (uint)AID.OreRigato);
+class WaterIIIBait(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(8f), (uint)TetherID.WaterIII, (uint)AID.WaterIII, (uint)OID.FeatherRay, 7.3f, true);
+class WaterIIIVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(module, 9f, (uint)AID.WaterIII, GetVoidzones, 1.6f) // apparently the voidzone is bigger than the AOE?
 {
     private static Actor[] GetVoidzones(BossModule module)
     {
@@ -85,7 +85,7 @@ class WaterIIIVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(modu
     }
 }
 
-class ManxomeWindersnatch(BossModule module) : Components.SingleTargetInstant(module, ActionID.MakeSpell(AID.ManxomeWindersnatch), 5f)
+class ManxomeWindersnatch(BossModule module) : Components.SingleTargetInstant(module, (uint)AID.ManxomeWindersnatch, 5f)
 {
     private Actor? _target;
 
@@ -107,7 +107,7 @@ class ManxomeWindersnatch(BossModule module) : Components.SingleTargetInstant(mo
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         base.OnEventCast(caster, spell);
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             _target = null;
         }

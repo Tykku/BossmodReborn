@@ -1,7 +1,7 @@
 namespace BossMod.Components;
 
 // generic component that is 'active' when any actor casts specific spell
-public class CastHint(BossModule module, ActionID aid, string hint, bool showCastTimeLeft = false) : CastCounter(module, aid)
+public class CastHint(BossModule module, uint aid, string hint, bool showCastTimeLeft = false) : CastCounter(module, aid)
 {
     public string Hint = hint;
     public readonly bool ShowCastTimeLeft = showCastTimeLeft; // if true, show cast time left until next instance
@@ -17,13 +17,13 @@ public class CastHint(BossModule module, ActionID aid, string hint, bool showCas
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             Casters.Add(caster);
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             Casters.Remove(caster);
     }
 }
@@ -35,7 +35,7 @@ public class CastInterruptHint : CastHint
     public readonly bool ShowNameInHint; // important if there are several targets
     public readonly string HintExtra;
 
-    public CastInterruptHint(BossModule module, ActionID aid, bool canBeInterrupted = true, bool canBeStunned = false, string hintExtra = "", bool showNameInHint = false) : base(module, aid, "")
+    public CastInterruptHint(BossModule module, uint aid, bool canBeInterrupted = true, bool canBeStunned = false, string hintExtra = "", bool showNameInHint = false) : base(module, aid, "")
     {
         CanBeInterrupted = canBeInterrupted;
         CanBeStunned = canBeStunned;
@@ -61,14 +61,14 @@ public class CastInterruptHint : CastHint
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         base.OnCastStarted(caster, spell);
-        if (ShowNameInHint && spell.Action == WatchedAction)
+        if (ShowNameInHint && spell.Action.ID == WatchedAction)
             UpdateHint();
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         base.OnCastFinished(caster, spell);
-        if (ShowNameInHint && spell.Action == WatchedAction)
+        if (ShowNameInHint && spell.Action.ID == WatchedAction)
             UpdateHint();
     }
 

@@ -28,9 +28,9 @@ public enum AID : uint
     Misfortune = 15586, // Helper->location, 3.0s cast, range 6 circle
 }
 
-class ShadowWreck(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ShadowWreck));
-class Misfortune(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Misfortune), 6f);
-class ThereionCharge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TherionCharge), 20f);
+class ShadowWreck(BossModule module) : Components.RaidwideCast(module, (uint)AID.ShadowWreck);
+class Misfortune(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Misfortune, 6f);
+class ThereionCharge(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TherionCharge, 20f);
 
 class Border(BossModule module) : Components.GenericAOEs(module, warningText: "Platform will be removed during next Apokalypsis!")
 {

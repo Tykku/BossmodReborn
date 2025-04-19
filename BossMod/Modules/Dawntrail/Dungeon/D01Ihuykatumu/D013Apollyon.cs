@@ -55,15 +55,15 @@ class Whirlwind(BossModule module) : Components.Voidzone(module, 4.5f, GetWhirlw
 {
     private static List<Actor> GetWhirlwind(BossModule module) => module.Enemies((uint)OID.Whirlwind);
 }
-class Blade(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Blade));
-class HighWind(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HighWind));
+class Blade(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Blade);
+class HighWind(BossModule module) : Components.RaidwideCast(module, (uint)AID.HighWind);
 
-abstract class Blades(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(50f, 6f));
-class RazorZephyr(BossModule module) : Blades(module, AID.RazorZephyr);
-class BladesOfFamine(BossModule module) : Blades(module, AID.BladesOfFamine);
+abstract class Blades(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(50f, 6f));
+class RazorZephyr(BossModule module) : Blades(module, (uint)AID.RazorZephyr);
+class BladesOfFamine(BossModule module) : Blades(module, (uint)AID.BladesOfFamine);
 
-class Levinsickle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Levinsickle), 4f);
-class LevinsickleSpark(BossModule module) : Components.VoidzoneAtCastTarget(module, 4f, ActionID.MakeSpell(AID.LevinsickleSpark), GetVoidzones, 0.7f)
+class Levinsickle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Levinsickle, 4f);
+class LevinsickleSpark(BossModule module) : Components.VoidzoneAtCastTarget(module, 4f, (uint)AID.LevinsickleSpark, GetVoidzones, 0.7f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {
@@ -83,13 +83,13 @@ class LevinsickleSpark(BossModule module) : Components.VoidzoneAtCastTarget(modu
         return voidzones[..index];
     }
 }
-class WingOfLightning(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WingOfLightning), new AOEShapeCone(40f, 22.5f.Degrees()), 8);
+class WingOfLightning(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WingOfLightning, new AOEShapeCone(40f, 22.5f.Degrees()), 8);
 
-class ThunderIII2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.ThunderIII), 6f);
-class BladeTB(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.BladeTB), new AOEShapeCircle(6f), true, tankbuster: true);
+class ThunderIII2(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.ThunderIII, 6f);
+class BladeTB(BossModule module) : Components.BaitAwayCast(module, (uint)AID.BladeTB, new AOEShapeCircle(6f), true, tankbuster: true);
 
-class WindSickle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindSickle), new AOEShapeDonut(5f, 60f));
-class RazorStorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RazorStorm), new AOEShapeRect(40f, 20f));
+class WindSickle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WindSickle, new AOEShapeDonut(5f, 60f));
+class RazorStorm(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RazorStorm, new AOEShapeRect(40f, 20f));
 
 class CuttingWind(BossModule module) : Components.GenericAOEs(module)
 {

@@ -50,9 +50,9 @@ public enum AID : uint
     UntamedCurrentStack = 19276, // Helper->Alisaie, 5.0s cast, range 6 circle
 }
 
-class Gnaw(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Gnaw));
-class CracklingHowl(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CracklingHowl));
-class UntamedCurrentRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.UntamedCurrent));
+class Gnaw(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Gnaw);
+class CracklingHowl(BossModule module) : Components.RaidwideCast(module, (uint)AID.CracklingHowl);
+class UntamedCurrentRaidwide(BossModule module) : Components.RaidwideCast(module, (uint)AID.UntamedCurrent);
 
 class VioletVoltage(BossModule module) : Components.GenericAOEs(module)
 {
@@ -95,7 +95,7 @@ class VioletVoltage(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class RoaringBoltKB(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.RoaringBoltKB), 12f, stopAtWall: true)
+class RoaringBoltKB(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.RoaringBoltKB, 12f, stopAtWall: true)
 {
     private readonly RoaringBolt _aoe = module.FindComponent<RoaringBolt>()!;
     private static readonly Angle a25 = 25f.Degrees();
@@ -128,12 +128,12 @@ class RoaringBoltKB(BossModule module) : Components.SimpleKnockbacks(module, Act
 
 class RollingThunder : Components.SimpleAOEs
 {
-    public RollingThunder(BossModule module) : base(module, ActionID.MakeSpell(AID.RollingThunder), new AOEShapeCone(20f, 22.5f.Degrees()), 6) { MaxDangerColor = 2; }
+    public RollingThunder(BossModule module) : base(module, (uint)AID.RollingThunder, new AOEShapeCone(20f, 22.5f.Degrees()), 6) { MaxDangerColor = 2; }
 }
 
-class RoaringBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RoaringBolt), 6f);
-class UntamedCurrentSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.UntamedCurrentSpread), 5f);
-class UntamedCurrentStack(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.UntamedCurrentStack), 6f, 5, 5);
+class RoaringBolt(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RoaringBolt, 6f);
+class UntamedCurrentSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.UntamedCurrentSpread, 5f);
+class UntamedCurrentStack(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.UntamedCurrentStack, 6f, 5, 5);
 
 class UntamedCurrentAOEs(BossModule module) : Components.GenericAOEs(module)
 {

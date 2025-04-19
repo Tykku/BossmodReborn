@@ -104,10 +104,10 @@ class MagitekBitLasers(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Rush(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.Rush), 7f);
-class LaserShower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LaserShower), 10f);
-class DiffractiveLaser(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DiffractiveLaser), new AOEShapeCone(60f, 75f.Degrees()));
-class SatelliteLaser(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SatelliteLaser), "Raidwide + all lasers fire at the same time");
+class Rush(BossModule module) : Components.BaitAwayChargeCast(module, (uint)AID.Rush, 7f);
+class LaserShower(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LaserShower, 10f);
+class DiffractiveLaser(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DiffractiveLaser, new AOEShapeCone(60f, 75f.Degrees()));
+class SatelliteLaser(BossModule module) : Components.RaidwideCast(module, (uint)AID.SatelliteLaser, "Raidwide + all lasers fire at the same time");
 
 class CE31MetalFoxChaosStates : StateMachineBuilder
 {

@@ -38,18 +38,18 @@ public enum AID : uint
     Condescension = 29602, // Boss->player, 5.0s cast, single-target
 }
 
-abstract class TurmoilInner(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 22f);
-class InnerTurmoil(BossModule module) : TurmoilInner(module, AID.InnerTurmoil);
-class PhantomInnerTurmoil(BossModule module) : TurmoilInner(module, AID.PhantomInnerTurmoil);
+abstract class TurmoilInner(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 22f);
+class InnerTurmoil(BossModule module) : TurmoilInner(module, (uint)AID.InnerTurmoil);
+class PhantomInnerTurmoil(BossModule module) : TurmoilInner(module, (uint)AID.PhantomInnerTurmoil);
 
-class PhantomOuterTurmoil(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PhantomOuterTurmoil), new AOEShapeDonutSector(20.5f, 39f, 90f.Degrees()));
-class Animadversion(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Animadversion));
-class Condescension(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Condescension));
-class Disgust(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.DisgustVisual), ActionID.MakeSpell(AID.Disgust), 0.5f);
+class PhantomOuterTurmoil(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PhantomOuterTurmoil, new AOEShapeDonutSector(20.5f, 39f, 90f.Degrees()));
+class Animadversion(BossModule module) : Components.RaidwideCast(module, (uint)AID.Animadversion);
+class Condescension(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Condescension);
+class Disgust(BossModule module) : Components.RaidwideCastDelay(module, (uint)AID.DisgustVisual, (uint)AID.Disgust, 0.5f);
 
-abstract class Admonishments(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40f, 6f));
-class Admonishment(BossModule module) : Admonishments(module, AID.Admonishment);
-class PhantomAdmonishment(BossModule module) : Admonishments(module, AID.PhantomAdmonishment);
+abstract class Admonishments(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(40f, 6f));
+class Admonishment(BossModule module) : Admonishments(module, (uint)AID.Admonishment);
+class PhantomAdmonishment(BossModule module) : Admonishments(module, (uint)AID.PhantomAdmonishment);
 
 class MirageAdmonishment(BossModule module) : Components.GenericAOEs(module)
 {

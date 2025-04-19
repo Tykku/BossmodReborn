@@ -1,9 +1,9 @@
 namespace BossMod.Dawntrail.Savage.M07SBruteAbombinator;
 
-class SinisterSeedsAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SinisterSeeds), 7f);
-class SinisterSeedsSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SinisterSeedsSpread), 6f);
-class StrangeSeeds(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.StrangeSeeds), 6f);
-class KillerSeeds(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.KillerSeeds), 6f, 2, 2);
+class SinisterSeedsAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SinisterSeeds, 7f);
+class SinisterSeedsSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.SinisterSeedsSpread, 6f);
+class StrangeSeeds(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.StrangeSeeds, 6f);
+class KillerSeeds(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.KillerSeeds, 6f, 2, 2);
 
 class TendrilsOfTerrorBait(BossModule module) : Components.GenericBaitAway(module)
 {

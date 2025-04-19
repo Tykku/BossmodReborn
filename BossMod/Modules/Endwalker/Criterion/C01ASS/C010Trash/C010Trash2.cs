@@ -29,29 +29,29 @@ public enum AID : uint
     SInfernalPain = 31105, // SDullahan->self, 5.0s cast, raidwide
 }
 
-abstract class DominionSlash(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(12, 45.Degrees()));
-class NDominionSlash(BossModule module) : DominionSlash(module, AID.NDominionSlash);
-class SDominionSlash(BossModule module) : DominionSlash(module, AID.SDominionSlash);
+abstract class DominionSlash(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(12, 45.Degrees()));
+class NDominionSlash(BossModule module) : DominionSlash(module, (uint)AID.NDominionSlash);
+class SDominionSlash(BossModule module) : DominionSlash(module, (uint)AID.SDominionSlash);
 
-abstract class InfernalWeight(BossModule module, AID aid) : Components.RaidwideCast(module, ActionID.MakeSpell(aid), "Raidwide with slow");
-class NInfernalWeight(BossModule module) : InfernalWeight(module, AID.NInfernalWeight);
-class SInfernalWeight(BossModule module) : InfernalWeight(module, AID.SInfernalWeight);
+abstract class InfernalWeight(BossModule module, uint aid) : Components.RaidwideCast(module, aid, "Raidwide with slow");
+class NInfernalWeight(BossModule module) : InfernalWeight(module, (uint)AID.NInfernalWeight);
+class SInfernalWeight(BossModule module) : InfernalWeight(module, (uint)AID.SInfernalWeight);
 
-abstract class HellsNebula(BossModule module, AID aid) : Components.CastHint(module, ActionID.MakeSpell(aid), "Reduce hp to 1");
-class NHellsNebula(BossModule module) : HellsNebula(module, AID.NHellsNebula);
-class SHellsNebula(BossModule module) : HellsNebula(module, AID.SHellsNebula);
+abstract class HellsNebula(BossModule module, uint aid) : Components.CastHint(module, aid, "Reduce hp to 1");
+class NHellsNebula(BossModule module) : HellsNebula(module, (uint)AID.NHellsNebula);
+class SHellsNebula(BossModule module) : HellsNebula(module, (uint)AID.SHellsNebula);
 
-abstract class BlightedGloom(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10);
-class NBlightedGloom(BossModule module) : BlightedGloom(module, AID.NBlightedGloom);
-class SBlightedGloom(BossModule module) : BlightedGloom(module, AID.SBlightedGloom);
+abstract class BlightedGloom(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 10);
+class NBlightedGloom(BossModule module) : BlightedGloom(module, (uint)AID.NBlightedGloom);
+class SBlightedGloom(BossModule module) : BlightedGloom(module, (uint)AID.SBlightedGloom);
 
-abstract class KingsWill(BossModule module, AID aid) : Components.CastHint(module, ActionID.MakeSpell(aid), "Damage increase buff");
-class NKingsWill(BossModule module) : KingsWill(module, AID.NKingsWill);
-class SKingsWill(BossModule module) : KingsWill(module, AID.SKingsWill);
+abstract class KingsWill(BossModule module, uint aid) : Components.CastHint(module, aid, "Damage increase buff");
+class NKingsWill(BossModule module) : KingsWill(module, (uint)AID.NKingsWill);
+class SKingsWill(BossModule module) : KingsWill(module, (uint)AID.SKingsWill);
 
-abstract class InfernalPain(BossModule module, AID aid) : Components.RaidwideCast(module, ActionID.MakeSpell(aid));
-class NInfernalPain(BossModule module) : InfernalPain(module, AID.NInfernalPain);
-class SInfernalPain(BossModule module) : InfernalPain(module, AID.SInfernalPain);
+abstract class InfernalPain(BossModule module, uint aid) : Components.RaidwideCast(module, aid);
+class NInfernalPain(BossModule module) : InfernalPain(module, (uint)AID.NInfernalPain);
+class SInfernalPain(BossModule module) : InfernalPain(module, (uint)AID.SInfernalPain);
 
 class C010DullahanStates : StateMachineBuilder
 {

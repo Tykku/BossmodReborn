@@ -1,6 +1,6 @@
 ﻿namespace BossMod.RealmReborn.Extreme.Ex1Ultima;
 
-class Freefire(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.Freefire))
+class Freefire(BossModule module) : Components.GenericAOEs(module, (uint)AID.Freefire)
 {
     private readonly List<Actor> _casters = [];
     private DateTime _resolve;
@@ -52,7 +52,7 @@ class Freefire(BossModule module) : Components.GenericAOEs(module, ActionID.Make
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         base.OnEventCast(caster, spell);
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             _casters.Remove(caster);
     }
 }

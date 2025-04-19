@@ -66,10 +66,10 @@ class Throttle(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class AetherochemicalFlame(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AetherochemicalFlame));
-class AetherochemicalResidue(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(5), (uint)IconID.Baitaway, ActionID.MakeSpell(AID.AetherochemicalResidue), 4.1f, true);
-class AditDriver(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AditDriver), new AOEShapeRect(33f, 3f));
-class AetherochemicalCoil(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.AetherochemicalCoil));
+class AetherochemicalFlame(BossModule module) : Components.RaidwideCast(module, (uint)AID.AetherochemicalFlame);
+class AetherochemicalResidue(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(5), (uint)IconID.Baitaway, (uint)AID.AetherochemicalResidue, 4.1f, true);
+class AditDriver(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AditDriver, new AOEShapeRect(33f, 3f));
+class AetherochemicalCoil(BossModule module) : Components.SingleTargetCast(module, (uint)AID.AetherochemicalCoil);
 class SludgeVoidzone(BossModule module) : Components.Voidzone(module, 2.5f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)

@@ -20,7 +20,7 @@ public enum AID : uint
     IceSpikes = 859, // Boss->player, 3.0s cast, single target
     Blizzard = 967 // Boss->player, 1.0s cast, single target
 }
-class SoulDrain(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SoulDrain), new AOEShapeCircle(9f));
+class SoulDrain(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SoulDrain, new AOEShapeCircle(9f));
 
 class D062ManorStewardStates : StateMachineBuilder
 {

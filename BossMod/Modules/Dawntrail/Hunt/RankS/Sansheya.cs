@@ -143,12 +143,12 @@ class TwinscorchedHaloVeil(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class HaloOfHeat1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HaloOfHeat1), new AOEShapeDonut(10f, 40f));
-class VeilOfHeat1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VeilOfHeat1), 15f);
-class FiresDomain(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.FiresDomain), 3f);
-class CaptiveBolt(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.CaptiveBolt), 6f, 8);
-class PyreOfRebirth(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PyreOfRebirth));
-class CullingBlade(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CullingBlade));
+class HaloOfHeat1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HaloOfHeat1, new AOEShapeDonut(10f, 40f));
+class VeilOfHeat1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.VeilOfHeat1, 15f);
+class FiresDomain(BossModule module) : Components.BaitAwayChargeCast(module, (uint)AID.FiresDomain, 3f);
+class CaptiveBolt(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.CaptiveBolt, 6f, 8);
+class PyreOfRebirth(BossModule module) : Components.RaidwideCast(module, (uint)AID.PyreOfRebirth);
+class CullingBlade(BossModule module) : Components.RaidwideCast(module, (uint)AID.CullingBlade);
 
 class SansheyaStates : StateMachineBuilder
 {

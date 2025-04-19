@@ -40,4 +40,4 @@ class TasteOfThunderFire(BossModule module) : Components.GenericStackSpread(modu
     }
 }
 
-class TasteOfThunderAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TasteOfThunderAOE), 3f);
+class TasteOfThunderAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TasteOfThunderAOE, 3f);

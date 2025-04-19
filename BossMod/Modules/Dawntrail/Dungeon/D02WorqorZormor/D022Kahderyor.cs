@@ -123,7 +123,7 @@ class WindEarthShot(BossModule module) : Components.GenericAOEs(module)
         InvertForbiddenZone: inverted);
 }
 
-class WindShotStack(BossModule module) : Components.DonutStack(module, ActionID.MakeSpell(AID.WindShot), (uint)IconID.WindShot, 5f, 10f, 6f, 4, 4)
+class WindShotStack(BossModule module) : Components.DonutStack(module, (uint)AID.WindShot, (uint)IconID.WindShot, 5f, 10f, 6f, 4, 4)
 {
     private readonly WindEarthShot _aoe = module.FindComponent<WindEarthShot>()!;
 
@@ -154,14 +154,14 @@ class WindShotStack(BossModule module) : Components.DonutStack(module, ActionID.
     }
 }
 
-class WindUnbound(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WindUnbound));
-class CrystallineCrush(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.CrystallineCrush), 6f, 4, 4);
-class EarthenShot(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.EarthenShot), 6f);
-class StalagmiteCircle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StalagmiteCircle), 15f);
-class CrystallineStorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CrystallineStorm), new AOEShapeRect(50f, 1f));
-class CyclonicRing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CyclonicRing), new AOEShapeDonut(8f, 40f));
-class EyeOfTheFierce(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EyeOfTheFierce));
-class SeedCrystals(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SeedCrystals), 6f);
+class WindUnbound(BossModule module) : Components.RaidwideCast(module, (uint)AID.WindUnbound);
+class CrystallineCrush(BossModule module) : Components.CastTowers(module, (uint)AID.CrystallineCrush, 6f, 4, 4);
+class EarthenShot(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.EarthenShot, 6f);
+class StalagmiteCircle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.StalagmiteCircle, 15f);
+class CrystallineStorm(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CrystallineStorm, new AOEShapeRect(50f, 1f));
+class CyclonicRing(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CyclonicRing, new AOEShapeDonut(8f, 40f));
+class EyeOfTheFierce(BossModule module) : Components.CastGaze(module, (uint)AID.EyeOfTheFierce);
+class SeedCrystals(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.SeedCrystals, 6f);
 
 class D022KahderyorStates : StateMachineBuilder
 {

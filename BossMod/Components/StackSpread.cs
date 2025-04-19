@@ -280,21 +280,21 @@ public abstract class UniformStackSpread(BossModule module, float stackRadius, f
 }
 
 // spread/stack mechanic that selects targets by casts
-public class CastStackSpread(BossModule module, ActionID stackAID, ActionID spreadAID, float stackRadius, float spreadRadius, int minStackSize = 2, int maxStackSize = int.MaxValue, bool alwaysShowSpreads = false)
+public class CastStackSpread(BossModule module, uint stackAID, uint spreadAID, float stackRadius, float spreadRadius, int minStackSize = 2, int maxStackSize = int.MaxValue, bool alwaysShowSpreads = false)
     : UniformStackSpread(module, stackRadius, spreadRadius, minStackSize, maxStackSize, alwaysShowSpreads)
 {
-    public readonly ActionID StackAction = stackAID;
-    public readonly ActionID SpreadAction = spreadAID;
+    public readonly uint StackAction = stackAID;
+    public readonly uint SpreadAction = spreadAID;
     public int NumFinishedStacks;
     public int NumFinishedSpreads;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == StackAction && WorldState.Actors.Find(spell.TargetID) is var stackTarget && stackTarget != null)
+        if (spell.Action.ID == StackAction && WorldState.Actors.Find(spell.TargetID) is var stackTarget && stackTarget != null)
         {
             AddStack(stackTarget, Module.CastFinishAt(spell));
         }
-        else if (spell.Action == SpreadAction && WorldState.Actors.Find(spell.TargetID) is var spreadTarget && spreadTarget != null)
+        else if (spell.Action.ID == SpreadAction && WorldState.Actors.Find(spell.TargetID) is var spreadTarget && spreadTarget != null)
         {
             AddSpread(spreadTarget, Module.CastFinishAt(spell));
         }
@@ -302,12 +302,12 @@ public class CastStackSpread(BossModule module, ActionID stackAID, ActionID spre
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == StackAction)
+        if (spell.Action.ID == StackAction)
         {
             Stacks.RemoveAll(s => s.Target.InstanceID == spell.TargetID);
             ++NumFinishedStacks;
         }
-        else if (spell.Action == SpreadAction)
+        else if (spell.Action.ID == SpreadAction)
         {
             Spreads.RemoveAll(s => s.Target.InstanceID == spell.TargetID);
             ++NumFinishedSpreads;
@@ -316,19 +316,19 @@ public class CastStackSpread(BossModule module, ActionID stackAID, ActionID spre
 }
 
 // generic 'spread from targets of specific cast' mechanic
-public class SpreadFromCastTargets(BossModule module, ActionID aid, float radius, bool drawAllSpreads = true) : CastStackSpread(module, default, aid, 0, radius, alwaysShowSpreads: drawAllSpreads);
+public class SpreadFromCastTargets(BossModule module, uint aid, float radius, bool drawAllSpreads = true) : CastStackSpread(module, default, aid, 0, radius, alwaysShowSpreads: drawAllSpreads);
 
 // generic 'stack with targets of specific cast' mechanic
-public class StackWithCastTargets(BossModule module, ActionID aid, float radius, int minStackSize = 2, int maxStackSize = int.MaxValue) : CastStackSpread(module, aid, default, radius, 0, minStackSize, maxStackSize);
+public class StackWithCastTargets(BossModule module, uint aid, float radius, int minStackSize = 2, int maxStackSize = int.MaxValue) : CastStackSpread(module, aid, default, radius, 0, minStackSize, maxStackSize);
 
 // spread/stack mechanic that selects targets by icon and finishes by cast event
-public class IconStackSpread(BossModule module, uint stackIcon, uint spreadIcon, ActionID stackAID, ActionID spreadAID, float stackRadius, float spreadRadius, float activationDelay, int minStackSize = 2, int maxStackSize = int.MaxValue, bool alwaysShowSpreads = false, int maxCasts = 1)
+public class IconStackSpread(BossModule module, uint stackIcon, uint spreadIcon, uint stackAID, uint spreadAID, float stackRadius, float spreadRadius, float activationDelay, int minStackSize = 2, int maxStackSize = int.MaxValue, bool alwaysShowSpreads = false, int maxCasts = 1)
     : UniformStackSpread(module, stackRadius, spreadRadius, minStackSize, maxStackSize, alwaysShowSpreads)
 {
     public readonly uint StackIcon = stackIcon;
     public readonly uint SpreadIcon = spreadIcon;
-    public readonly ActionID StackAction = stackAID;
-    public readonly ActionID SpreadAction = spreadAID;
+    public readonly uint StackAction = stackAID;
+    public readonly uint SpreadAction = spreadAID;
     public readonly float ActivationDelay = activationDelay;
     public int NumFinishedStacks;
     public int NumFinishedSpreads;
@@ -349,7 +349,7 @@ public class IconStackSpread(BossModule module, uint stackIcon, uint spreadIcon,
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == StackAction)
+        if (spell.Action.ID == StackAction)
         {
             if (Stacks.Count == 1 && Stacks.Any(x => x.Target.InstanceID != spell.MainTargetID))
                 Stacks[0] = Stacks[0] with { Target = WorldState.Actors.Find(spell.MainTargetID)! };
@@ -360,7 +360,7 @@ public class IconStackSpread(BossModule module, uint stackIcon, uint spreadIcon,
                 CastCounter = 0;
             }
         }
-        else if (spell.Action == SpreadAction)
+        else if (spell.Action.ID == SpreadAction)
         {
             Spreads.RemoveAll(s => s.Target.InstanceID == spell.MainTargetID);
             ++NumFinishedSpreads;
@@ -369,7 +369,7 @@ public class IconStackSpread(BossModule module, uint stackIcon, uint spreadIcon,
 }
 
 // generic 'spread from actors with specific icon' mechanic
-public class SpreadFromIcon(BossModule module, uint icon, ActionID aid, float radius, float activationDelay, bool drawAllSpreads = true) : IconStackSpread(module, 0, icon, default, aid, 0, radius, activationDelay, alwaysShowSpreads: drawAllSpreads)
+public class SpreadFromIcon(BossModule module, uint icon, uint aid, float radius, float activationDelay, bool drawAllSpreads = true) : IconStackSpread(module, 0, icon, default, aid, 0, radius, activationDelay, alwaysShowSpreads: drawAllSpreads)
 {
     public override void Update()
     {
@@ -385,18 +385,18 @@ public class SpreadFromIcon(BossModule module, uint icon, ActionID aid, float ra
 }
 
 // generic 'stack with actors with specific icon' mechanic
-public class StackWithIcon(BossModule module, uint icon, ActionID aid, float radius, float activationDelay, int minStackSize = 2, int maxStackSize = int.MaxValue, int maxCasts = 1) : IconStackSpread(module, icon, 0, aid, default, radius, 0, activationDelay, minStackSize, maxStackSize, false, maxCasts);
+public class StackWithIcon(BossModule module, uint icon, uint aid, float radius, float activationDelay, int minStackSize = 2, int maxStackSize = int.MaxValue, int maxCasts = 1) : IconStackSpread(module, icon, 0, aid, default, radius, 0, activationDelay, minStackSize, maxStackSize, false, maxCasts);
 
 // generic single hit "line stack" component, usually do not have an iconID, instead players get marked by cast event
 // usually these have 50 range and 4 halfWidth, but it can be modified
-public class LineStack(BossModule module, ActionID? aidMarker, ActionID aidResolve, float activationDelay = 5.1f, float range = 50, float halfWidth = 4, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true, uint? iconid = null) : GenericBaitAway(module)
+public class LineStack(BossModule module, uint? aidMarker, uint aidResolve, float activationDelay = 5.1f, float range = 50, float halfWidth = 4, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true, uint? iconid = null) : GenericBaitAway(module)
 {
-    public LineStack(BossModule module, uint iconid, ActionID aidResolve, float activationDelay = 5.1f, float range = 50, float halfWidth = 4, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true) : this(module, null, aidResolve, activationDelay, range, halfWidth, minStackSize, maxStackSize, maxCasts, markerIsFinalTarget, iconid) { }
+    public LineStack(BossModule module, uint iconid, uint aidResolve, float activationDelay = 5.1f, float range = 50, float halfWidth = 4, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true) : this(module, null, aidResolve, activationDelay, range, halfWidth, minStackSize, maxStackSize, maxCasts, markerIsFinalTarget, iconid) { }
 
     // TODO: add forbidden slots logic?
     // TODO: add logic for min and max stack size
-    public readonly ActionID? AidMarker = aidMarker;
-    public readonly ActionID AidResolve = aidResolve;
+    public readonly uint? AidMarker = aidMarker;
+    public readonly uint AidResolve = aidResolve;
     public readonly float ActionDelay = activationDelay;
     public readonly float Range = range;
     public readonly float HalfWidth = halfWidth;
@@ -416,9 +416,9 @@ public class LineStack(BossModule module, ActionID? aidMarker, ActionID aidResol
     {
         if (AidMarker == null && Iconid == null)
             return;
-        if (spell.Action == AidMarker)
+        if (spell.Action.ID == AidMarker)
             CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.MainTargetID)!, rect, WorldState.FutureTime(ActionDelay)));
-        else if (spell.Action == AidResolve && CurrentBaits.Count != 0)
+        else if (spell.Action.ID == AidResolve && CurrentBaits.Count != 0)
         {
             ++NumCasts;
             if (MarkerIsFinalTarget)
@@ -452,7 +452,7 @@ public class LineStack(BossModule module, ActionID? aidMarker, ActionID aidResol
     {
         if (AidMarker != null || Iconid != null)
             return;
-        if (spell.Action == AidResolve)
+        if (spell.Action.ID == AidResolve)
             CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.TargetID)!, rect, Module.CastFinishAt(spell)));
     }
 
@@ -460,7 +460,7 @@ public class LineStack(BossModule module, ActionID? aidMarker, ActionID aidResol
     {
         if (AidMarker != null || Iconid != null)
             return;
-        if (spell.Action == AidResolve && CurrentBaits.Count != 0)
+        if (spell.Action.ID == AidResolve && CurrentBaits.Count != 0)
         {
             if (MarkerIsFinalTarget)
             {
@@ -557,14 +557,14 @@ public class LineStack(BossModule module, ActionID? aidMarker, ActionID aidResol
 }
 
 // generic 'donut stack' mechanic
-public class DonutStack(BossModule module, ActionID aid, uint icon, float innerRadius, float outerRadius, float activationDelay, int minStackSize = 2, int maxStackSize = int.MaxValue) : UniformStackSpread(module, innerRadius / 3, default, minStackSize, maxStackSize)
+public class DonutStack(BossModule module, uint aid, uint icon, float innerRadius, float outerRadius, float activationDelay, int minStackSize = 2, int maxStackSize = int.MaxValue) : UniformStackSpread(module, innerRadius / 3, default, minStackSize, maxStackSize)
 {
     // this is a donut targeted on each player, it is best solved by stacking
     // regular stack component won't work because this is self targeted
     public readonly AOEShapeDonut Donut = new(innerRadius, outerRadius);
     public readonly float ActivationDelay = activationDelay;
     public readonly uint Icon = icon;
-    public readonly ActionID Aid = aid;
+    public readonly uint Aid = aid;
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
@@ -574,7 +574,7 @@ public class DonutStack(BossModule module, ActionID aid, uint icon, float innerR
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == Aid)
+        if (spell.Action.ID == Aid)
             Stacks.Clear();
     }
 
@@ -600,7 +600,7 @@ public class DonutStack(BossModule module, ActionID aid, uint icon, float innerR
 
 // generic single hit "line stack" component, usually do not have an iconID, instead players get marked by cast event
 // usually these have 50 range and 4 halfWidth, but it can be modified
-public class GenericBaitStack(BossModule module, ActionID aid = default, bool onlyShowOutlines = false) : GenericBaitAway(module, aid)
+public class GenericBaitStack(BossModule module, uint aid = default, bool onlyShowOutlines = false) : GenericBaitAway(module, aid)
 {
     // TODO: add logic for min and max stack size
     public const string HintStack = "Stack!";
@@ -720,9 +720,11 @@ public class GenericBaitStack(BossModule module, ActionID aid = default, bool on
 
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
+        if (onlyShowOutlines)
+            return;
         var baits = CollectionsMarshal.AsSpan(ActiveBaits);
         var len = baits.Length;
-        if (len == 0 || onlyShowOutlines)
+        if (len == 0)
             return;
         var isBaitTarget = false; // determine if target of any stack
         for (var i = 0; i < len; ++i)
@@ -744,9 +746,11 @@ public class GenericBaitStack(BossModule module, ActionID aid = default, bool on
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
+        if (!onlyShowOutlines)
+            return;
         var baits = CollectionsMarshal.AsSpan(ActiveBaits);
         var len = baits.Length;
-        if (len == 0 || !onlyShowOutlines)
+        if (len == 0)
             return;
         var isBaitTarget = false; // determine if target of any stack
         for (var i = 0; i < len; ++i)

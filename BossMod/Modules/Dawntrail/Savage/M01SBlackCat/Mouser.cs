@@ -147,10 +147,10 @@ class Mouser(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class GrimalkinGaleShockwave(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.GrimalkinGaleShockwaveAOE), 21f, true, stopAfterWall: true);
-class GrimalkinGaleSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.GrimalkinGaleSpreadAOE), 5f);
+class GrimalkinGaleShockwave(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.GrimalkinGaleShockwaveAOE, 21f, true, stopAfterWall: true);
+class GrimalkinGaleSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.GrimalkinGaleSpreadAOE, 5f);
 
-class SplinteringNails(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.SplinteringNailsAOE))
+class SplinteringNails(BossModule module) : Components.CastCounter(module, (uint)AID.SplinteringNailsAOE)
 {
     private readonly ElevateAndEviscerate? _jumps = module.FindComponent<ElevateAndEviscerate>();
     private Actor? _source;
@@ -190,7 +190,7 @@ class SplinteringNails(BossModule module) : Components.CastCounter(module, Actio
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             ++NumCasts;
             _source = null;

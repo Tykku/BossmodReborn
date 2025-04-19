@@ -21,18 +21,18 @@ public enum AID : uint
     StreakLightning1 = 17147, // Helper->location, 2.5s cast, range 3 circle
 }
 
-class Thunderbolt(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Thunderbolt1), 5);
+class Thunderbolt(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Thunderbolt1, 5);
 
-abstract class BB(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(38.05f, 135.Degrees()));
-class BalamBlaster(BossModule module) : BB(module, AID.BalamBlaster);
-class BalamBlasterRear(BossModule module) : BB(module, AID.BalamBlasterRear);
+abstract class BB(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(38.05f, 135.Degrees()));
+class BalamBlaster(BossModule module) : BB(module, (uint)AID.BalamBlaster);
+class BalamBlasterRear(BossModule module) : BB(module, (uint)AID.BalamBlasterRear);
 
-class ElectricWhisker(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ElectricWhisker), new AOEShapeCone(16.05f, 45.Degrees()));
-class RoaringThunder(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RoaringThunder), new AOEShapeDonut(8, 30));
-class StreakLightning(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StreakLightning), 3);
-class StreakLightning1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StreakLightning1), 3);
-class AlternatingCurrent(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AlternatingCurrent1), new AOEShapeRect(60, 2.5f));
-class RumblingThunder(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.RumblingThunderStack), 5, 1);
+class ElectricWhisker(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ElectricWhisker, new AOEShapeCone(16.05f, 45.Degrees()));
+class RoaringThunder(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RoaringThunder, new AOEShapeDonut(8, 30));
+class StreakLightning(BossModule module) : Components.SimpleAOEs(module, (uint)AID.StreakLightning, 3);
+class StreakLightning1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.StreakLightning1, 3);
+class AlternatingCurrent(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AlternatingCurrent1, new AOEShapeRect(60, 2.5f));
+class RumblingThunder(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.RumblingThunderStack, 5, 1);
 
 class RendaRae(WorldState ws) : UnmanagedRotation(ws, 20)
 {

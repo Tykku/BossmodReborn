@@ -19,7 +19,7 @@ class DRS5States : StateMachineBuilder
 
     private void MaledictionOfAgony(uint id, float delay)
     {
-        Cast(id, AID.MaledictionOfAgony, delay, 4);
+        Cast(id, (uint)AID.MaledictionOfAgony, delay, 4);
         ComponentCondition<MaledictionOfAgony>(id + 2, 0.7f, comp => comp.NumCasts > 0, "Raidwide")
             .ActivateOnEnter<MaledictionOfAgony>()
             .DeactivateOnExit<MaledictionOfAgony>()
@@ -28,11 +28,11 @@ class DRS5States : StateMachineBuilder
 
     private void ManipulateInvertMiasma(uint id, float delay)
     {
-        Cast(id, AID.WeaveMiasma, delay, 3)
+        Cast(id, (uint)AID.WeaveMiasma, delay, 3)
             .ActivateOnEnter<Miasma>();
         // note: marker eobjs spawn ~0.2s after cast start, appear (eobjanim 00010002) ~1.0s after cast end, low row activates (eobjanim 00080010) right before next cast start
         // low row deactivates (eobjanim 00040020) and high row activates right when first set of aoes finish - ~1.0s after manipulate cast end
-        CastMulti(id + 0x10, [AID.ManipulateMiasma, AID.InvertMiasma], 7.1f, 9, "Miasma start");
+        CastMulti(id + 0x10, [(uint)AID.ManipulateMiasma, (uint)AID.InvertMiasma], 7.1f, 9, "Miasma start");
         // +1.0s: first set of 10-sec casts finish: rect covers whole lane, circle/donut are cast at Z+5
         // +1.0s: second set of 10-sec casts start - it's too early to show their hints though? but really, selecting donut/rect lane in the first place is a mistake...
         // +1.6s-2.6s: rest(1,1) cast (rect covers whole lane, circle/donut are cast at Z+11)
@@ -52,14 +52,14 @@ class DRS5States : StateMachineBuilder
 
     private void SummonMaledictionOfRuin(uint id, float delay)
     {
-        Cast(id, AID.Summon, delay, 3);
+        Cast(id, (uint)AID.Summon, delay, 3);
         Targetable(id + 0x10, false, 1.0f, "Boss disappears");
         ComponentCondition<BloodyWraith>(id + 0x20, 3, comp => comp.ActiveActors.Count != 0, "Adds appear") // 2x bloody + 1x misty
             .ActivateOnEnter<BloodyWraith>()
             .ActivateOnEnter<MistyWraith>()
             .SetHint(StateMachine.StateHint.DowntimeEnd);
 
-        CastStart(id + 0x30, AID.MaledictionOfRuin, 2.1f);
+        CastStart(id + 0x30, (uint)AID.MaledictionOfRuin, 2.1f);
         // +5.7s: second set of adds created (2x bloody + 2x misty)
         // +8.3s: second set of adds targetable
         // +17.7s: third set of adds created (3x bloody + 3x misty)

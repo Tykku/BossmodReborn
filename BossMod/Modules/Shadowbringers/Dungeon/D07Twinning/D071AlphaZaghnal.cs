@@ -39,10 +39,10 @@ public enum IconID : uint
     Spreadmarker = 90 // player
 }
 
-class BeastlyRoar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BeastlyRoar));
-class Augurium(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Augurium), new AOEShapeCone(12f, 60f.Degrees()));
+class BeastlyRoar(BossModule module) : Components.RaidwideCast(module, (uint)AID.BeastlyRoar);
+class Augurium(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Augurium, new AOEShapeCone(12f, 60f.Degrees()));
 
-class PounceErrant(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.PounceErrant), 10f, 4.6f)
+class PounceErrant(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, (uint)AID.PounceErrant, 10f, 4.6f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -81,7 +81,7 @@ class PounceErrant(BossModule module) : Components.SpreadFromIcon(module, (uint)
     }
 }
 
-class ChargeEradicated(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ChargeEradicated), 8f, 4, 4);
+class ChargeEradicated(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.ChargeEradicated, 8f, 4, 4);
 class ChargeEradicatedVoidzone(BossModule module) : Components.Voidzone(module, 8f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)

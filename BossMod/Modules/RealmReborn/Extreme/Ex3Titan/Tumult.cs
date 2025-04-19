@@ -1,6 +1,6 @@
 ﻿namespace BossMod.RealmReborn.Extreme.Ex3Titan;
 
-class Tumult(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.TumultBoss))
+class Tumult(BossModule module) : Components.CastCounter(module, (uint)AID.TumultBoss)
 {
     private DateTime _nextExpected = module.StateMachine.NextTransitionWithFlag(StateMachine.StateHint.Raidwide);
 
@@ -12,7 +12,7 @@ class Tumult(BossModule module) : Components.CastCounter(module, ActionID.MakeSp
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         base.OnEventCast(caster, spell);
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             _nextExpected = WorldState.FutureTime(1.2f);
     }
 }

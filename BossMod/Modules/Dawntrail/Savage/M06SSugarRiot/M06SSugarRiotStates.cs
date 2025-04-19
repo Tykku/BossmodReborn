@@ -32,7 +32,7 @@ class M06SSugarRiotStates : StateMachineBuilder
 
     private void MousseMural(uint id, float delay)
     {
-        Cast(id, AID.MousseMural, delay, 5f, "Raidwide")
+        Cast(id, (uint)AID.MousseMural, delay, 5f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 
@@ -44,9 +44,9 @@ class M06SSugarRiotStates : StateMachineBuilder
 
     private void DoubleStyle(uint id, float delay)
     {
-        Cast(id, AID.Wingmark, delay, 4f, "Apply wingmarks")
+        Cast(id, (uint)AID.Wingmark, delay, 4f, "Apply wingmarks")
             .ActivateOnEnter<Wingmark>();
-        CastMulti(id + 0x10u, [AID.ColorClashVisual1, AID.ColorClashVisual2], 3.2f, 3f, "Store stack kind")
+        CastMulti(id + 0x10u, [(uint)AID.ColorClashVisual1, (uint)AID.ColorClashVisual2], 3.2f, 3f, "Store stack kind")
             .ActivateOnEnter<ColorClash>();
         ComponentCondition<SingleDoubleStyle1>(id + 0x20u, 7.2f, comp => comp.AOEs.Count != 0, "Double Style starts")
             .ActivateOnEnter<SingleDoubleStyle1>();
@@ -70,7 +70,7 @@ class M06SSugarRiotStates : StateMachineBuilder
 
     private void SugarscapeDesert(uint id, float delay)
     {
-        Cast(id, AID.Sugarscape1, delay, 1f, "Desert painting")
+        Cast(id, (uint)AID.Sugarscape1, delay, 1f, "Desert painting")
             .ActivateOnEnter<Sweltering>()
             .ActivateOnEnter<HeatingBurningUp>()
             .ActivateOnEnter<SprayPain1>();
@@ -107,7 +107,7 @@ class M06SSugarRiotStates : StateMachineBuilder
         ComponentCondition<PuddingGraf>(id + 0x110u, 6f, comp => comp.NumFinishedSpreads != 0, "Spreads resolve")
             .DeactivateOnExit<PuddingGraf>();
         ComponentCondition<QuicksandDoubleStylePaintBomb>(id + 0x120u, 0.1f, comp => comp.Targets == default, "Bomb baits resolve");
-        Cast(id + 0x130u, AID.MousseMural, 4.1f, 5f, "Raidwide")
+        Cast(id + 0x130u, (uint)AID.MousseMural, 4.1f, 5f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide)
             .DeactivateOnExit<QuicksandDoubleStyleHeavenBomb>()
             .DeactivateOnExit<QuicksandDoubleStylePaintBomb>()
@@ -120,7 +120,7 @@ class M06SSugarRiotStates : StateMachineBuilder
 
     private void AddPhase(uint id, float delay)
     {
-        Cast(id, AID.SoulSugar, delay, 3f, "Add Phase")
+        Cast(id, (uint)AID.SoulSugar, delay, 3f, "Add Phase")
             .ActivateOnEnter<Adds>();
         ComponentCondition<Adds>(id, 10.2f, comp => comp.ActiveActors.Count != 0, "2x Mu + 1x Yan targetable");
         ComponentCondition<Adds>(id + 0x10u, 2f, comp => comp.ActiveActors.Count > 3, "GimmeCat targetable")
@@ -131,10 +131,10 @@ class M06SSugarRiotStates : StateMachineBuilder
             .ActivateOnEnter<WaterIIIBait>();
         ComponentCondition<Adds>(id + 0x30u, 22.2f, comp => comp.CountYan == 2 && comp.CountGimmeCat == 2 && comp.CountJabberwock == 1, "Yan, GimmeCat, Jabberwock spawn")
             .ActivateOnEnter<ManxomeWindersnatch>();
-        Cast(id + 0x40u, AID.ReadyOreNot, 22f, 7f, "Raidwide")
+        Cast(id + 0x40u, (uint)AID.ReadyOreNot, 22f, 7f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide);
         ComponentCondition<Adds>(id + 0x50u, 10.1f, comp => comp.CountYan == 3 && comp.CountGimmeCat == 3 && comp.CountJabberwock == 2 && comp.CountMu == 6 && comp.CountFeatherRay == 4, "Yan, GimmeCat, Jabberwock, 2x Mu, 2x FeatherRay spawn");
-        Cast(id + 0x60u, AID.ReadyOreNot, 66.1f, 7f, "Raidwide")
+        Cast(id + 0x60u, (uint)AID.ReadyOreNot, 66.1f, 7f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide)
             .ActivateOnExit<SingleDoubleStyle1>();
         ComponentCondition<SingleDoubleStyle1>(id, 13.3f, comp => comp.NumCasts != 0, "Single Style resolves")
@@ -149,7 +149,7 @@ class M06SSugarRiotStates : StateMachineBuilder
 
     private void SugarscapeRiver(uint id, float delay)
     {
-        Cast(id, AID.Sugarscape2, delay, 1f, "River painting")
+        Cast(id, (uint)AID.Sugarscape2, delay, 1f, "River painting")
             .ActivateOnEnter<ArenaChanges>();
         ComponentCondition<SingleDoubleStyle1>(id + 0x10u, 24.3f, comp => comp.NumCasts != 0, "Single Style resolves")
             .ActivateOnEnter<TasteOfThunderFire>()
@@ -213,7 +213,7 @@ class M06SSugarRiotStates : StateMachineBuilder
         ComponentCondition<TasteOfThunderAOE>(id + 0x70u, 6f, comp => comp.NumCasts != 0, "Small circle AOEs 1")
             .DeactivateOnExit<TasteOfThunderAOE>();
         ComponentCondition<MousseDripTowers>(id + 0x80u, 1.8f, comp => comp.Towers.Count == 0, "Towers 1 resolve");
-        Cast(id + 0x90u, AID.Wingmark, 0.3f, 4f, "Apply wingmarks")
+        Cast(id + 0x90u, (uint)AID.Wingmark, 0.3f, 4f, "Apply wingmarks")
             .ActivateOnEnter<Wingmark>();
         ComponentCondition<MousseDripTowers>(id + 0xA0u, 3.1f, comp => comp.Towers.Count != 0, "Towers 2 appear")
             .DeactivateOnEnter<MousseDripVoidzone>();

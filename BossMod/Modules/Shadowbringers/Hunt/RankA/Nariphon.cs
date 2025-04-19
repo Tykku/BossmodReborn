@@ -20,9 +20,9 @@ public enum SID : uint
     PiercingResistanceDownII = 1435 // Boss->player, extra=0x0
 }
 
-class OdiousMiasma(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OdiousMiasma), new AOEShapeCone(12f, 60f.Degrees()));
+class OdiousMiasma(BossModule module) : Components.SimpleAOEs(module, (uint)AID.OdiousMiasma, new AOEShapeCone(12f, 60f.Degrees()));
 
-class AllergenInjection(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.AllergenInjection), new AOEShapeCircle(6f), true)
+class AllergenInjection(BossModule module) : Components.BaitAwayCast(module, (uint)AID.AllergenInjection, new AOEShapeCircle(6f), true)
 {
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {

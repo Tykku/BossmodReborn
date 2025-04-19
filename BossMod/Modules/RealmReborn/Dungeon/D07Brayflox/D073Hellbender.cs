@@ -31,11 +31,11 @@ public enum SID : uint
     Bind = 280, // none->player, extra = 0x0
 }
 
-class BogBubble(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BogBubble), 6);
+class BogBubble(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BogBubble, 6);
 
-class PeculiarLight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PeculiarLight), 8);
+class PeculiarLight(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PeculiarLight, 8);
 
-class StagnantSpray(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StagnantSpray), new AOEShapeCone(8, 60.Degrees()));
+class StagnantSpray(BossModule module) : Components.SimpleAOEs(module, (uint)AID.StagnantSpray, new AOEShapeCone(8, 60.Degrees()));
 
 class PlayerBound(BossModule module) : BossComponent(module)
 {

@@ -64,8 +64,8 @@ class HeartOfNatureConcentric(BossModule module) : Components.ConcentricAOEs(mod
     }
 }
 
-class TasteOfBlood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TasteOfBlood), new AOEShapeCone(40f, 90f.Degrees()));
-class TasteOfBloodHint(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.TasteOfBlood), "Go behind Lyon!");
+class TasteOfBlood(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TasteOfBlood, new AOEShapeCone(40f, 90f.Degrees()));
+class TasteOfBloodHint(BossModule module) : Components.CastHint(module, (uint)AID.TasteOfBlood, "Go behind Lyon!");
 
 class RavenousGale(BossModule module) : Components.GenericAOEs(module)
 {
@@ -123,8 +123,8 @@ class RavenousGale(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class TwinAgonies(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.TwinAgonies), "Heavy Tankbuster, use Manawall or tank mitigations");
-class WindsPeak(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindsPeak1), 5f);
+class TwinAgonies(BossModule module) : Components.SingleTargetCast(module, (uint)AID.TwinAgonies, "Heavy Tankbuster, use Manawall or tank mitigations");
+class WindsPeak(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WindsPeak1, 5f);
 
 class WindsPeakKB(BossModule module) : Components.GenericKnockback(module)
 {
@@ -151,8 +151,8 @@ class WindsPeakKB(BossModule module) : Components.GenericKnockback(module)
     }
 }
 
-class TheKingsNotice(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.TheKingsNotice));
-class SplittingRage(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.SplittingRage));
+class TheKingsNotice(BossModule module) : Components.CastGaze(module, (uint)AID.TheKingsNotice);
+class SplittingRage(BossModule module) : Components.TemporaryMisdirection(module, (uint)AID.SplittingRage);
 
 class NaturesBlood(BossModule module) : Components.Exaflare(module, 4f)
 {
@@ -211,7 +211,7 @@ class SpitefulFlameCircleVoidzone(BossModule module) : Components.GenericAOEs(mo
     }
 }
 
-class SpitefulFlameRect(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpitefulFlame2), new AOEShapeRect(80f, 2f));
+class SpitefulFlameRect(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpitefulFlame2, new AOEShapeRect(80f, 2f));
 
 class DynasticFlame(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(10f), (uint)TetherID.fireorbs, centerAtTarget: true)
 {
@@ -242,4 +242,4 @@ class DynasticFlame(BossModule module) : Components.BaitAwayTethers(module, new 
     }
 }
 
-class SkyrendingStrike(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.SkyrendingStrike), "Enrage!", true);
+class SkyrendingStrike(BossModule module) : Components.CastHint(module, (uint)AID.SkyrendingStrike, "Enrage!", true);

@@ -22,7 +22,7 @@ public enum AID : uint
     PoisonBreath = 1393, // VioletBack->self, no cast, range 7.20 ?-degree cone cleave
 }
 
-class NumbingBreath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.NumbingBreath), new AOEShapeCone(9.2f, 60.Degrees()));
+class NumbingBreath(BossModule module) : Components.SimpleAOEs(module, (uint)AID.NumbingBreath, new AOEShapeCone(9.2f, 60.Degrees()));
 
 class D071GreatYellowPelicanStates : StateMachineBuilder
 {

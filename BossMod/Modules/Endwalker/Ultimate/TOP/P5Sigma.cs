@@ -207,7 +207,7 @@ class P5Sigma(BossModule module) : BossComponent(module)
     }
 }
 
-class P5SigmaHyperPulse(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(100, 3), (uint)TetherID.SigmaHyperPulse, ActionID.MakeSpell(AID.SigmaHyperPulse))
+class P5SigmaHyperPulse(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(100, 3), (uint)TetherID.SigmaHyperPulse, (uint)AID.SigmaHyperPulse)
 {
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
@@ -217,7 +217,7 @@ class P5SigmaHyperPulse(BossModule module) : Components.BaitAwayTethers(module, 
     }
 }
 
-class P5SigmaWaveCannon(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.SigmaWaveCannonAOE))
+class P5SigmaWaveCannon(BossModule module) : Components.GenericBaitAway(module, (uint)AID.SigmaWaveCannonAOE)
 {
     private BitMask _waveCannonTargets;
 

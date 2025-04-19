@@ -1,8 +1,8 @@
 ﻿namespace BossMod.Endwalker.Alliance.A12Rhalgr;
 
-class RhalgrBeaconAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RhalgrsBeaconAOE), 10f);
+class RhalgrBeaconAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RhalgrsBeaconAOE, 10f);
 
-class RhalgrBeaconShock(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.Shock))
+class RhalgrBeaconShock(BossModule module) : Components.GenericAOEs(module, (uint)AID.Shock)
 {
     private readonly List<AOEInstance> _aoes = [];
     private static readonly AOEShapeCircle _shape = new(8);
@@ -16,7 +16,7 @@ class RhalgrBeaconShock(BossModule module) : Components.GenericAOEs(module, Acti
     }
 }
 
-class RhalgrBeaconKnockback(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.RhalgrsBeaconKnockback), 50f, true, stopAfterWall: true, safeWalls: safewalls)
+class RhalgrBeaconKnockback(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.RhalgrsBeaconKnockback, 50f, true, stopAfterWall: true, safeWalls: safewalls)
 {
     private static readonly List<SafeWall> safewalls = [new(new(9.09f, 293.91f), new(3.31f, 297.2f)), new(new(-6.23f, 304.72f), new(-13.9f, 303.98f)),
     new(new(-22.35f, 306.16f), new(-31.3f, 304.94f)), new(new(-40.96f, 300.2f), new(-49.39f, 296.73f))];

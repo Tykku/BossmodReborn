@@ -41,20 +41,20 @@ public enum AID : uint
     Hammerfall = 23825 // Helper->self, 8.0s cast, range 37 circle aoe
 }
 
-class TectonicEruption(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TectonicEruption), 6f);
-class RockCutter(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.RockCutter));
-class AncientQuake(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AncientQuake));
-class Roxxor(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Roxxor), 6f);
-class ControlTowerAppear(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ControlTowerAppear), 6f);
+class TectonicEruption(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TectonicEruption, 6f);
+class RockCutter(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.RockCutter);
+class AncientQuake(BossModule module) : Components.RaidwideCast(module, (uint)AID.AncientQuake);
+class Roxxor(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Roxxor, 6f);
+class ControlTowerAppear(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ControlTowerAppear, 6f);
 
 // note: we could predict aoes way in advance, when FallingTower actors are created - they immediately have correct rotation
 // if previous cast was TowerRound, delay is ~24.4s; otherwise if previous cast was ControlTower, delay is ~9.6s; otherwise it is ~13s
 // however, just watching casts normally gives more than enough time to avoid aoes and does not interfere with mechanics that resolve earlier
-class Towerfall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Towerfall), new AOEShapeRect(40f, 5f));
+class Towerfall(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Towerfall, new AOEShapeRect(40f, 5f));
 
-abstract class ExtremeEdge(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(60f, 18f));
-class ExtremeEdgeL(BossModule module) : ExtremeEdge(module, AID.ExtremeEdgeL);
-class ExtremeEdgeR(BossModule module) : ExtremeEdge(module, AID.ExtremeEdgeR);
+abstract class ExtremeEdge(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(60f, 18f));
+class ExtremeEdgeL(BossModule module) : ExtremeEdge(module, (uint)AID.ExtremeEdgeL);
+class ExtremeEdgeR(BossModule module) : ExtremeEdge(module, (uint)AID.ExtremeEdgeR);
 
 class IntractableLand(BossModule module) : Components.Exaflare(module, 8f)
 {

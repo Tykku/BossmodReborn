@@ -15,8 +15,8 @@ public enum AID : uint
     JestersReap = 30217 // Boss->self, 4.0s cast, range 12 120-degree cone
 }
 
-class JestersReap(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.JestersReap), new AOEShapeCone(12f, 60f.Degrees()));
-class HallOfSorrow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HallOfSorrow), 8f);
+class JestersReap(BossModule module) : Components.SimpleAOEs(module, (uint)AID.JestersReap, new AOEShapeCone(12f, 60f.Degrees()));
+class HallOfSorrow(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HallOfSorrow, 8f);
 
 class D100TroianBishopStates : StateMachineBuilder
 {

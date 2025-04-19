@@ -118,9 +118,9 @@ class AuraSphere(BossModule module) : BossComponent(module)
     }
 }
 
-class SledgeHammer(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.SledgeHammerMarker), ActionID.MakeSpell(AID.Sledgehammer3), 4.9f);
-class HeavingHaymaker(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HeavingHaymaker));
-class LithicImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LithicImpact), new AOEShapeRect(4f, 2f));
+class SledgeHammer(BossModule module) : Components.LineStack(module, (uint)AID.SledgeHammerMarker, (uint)AID.Sledgehammer3, 4.9f);
+class HeavingHaymaker(BossModule module) : Components.RaidwideCast(module, (uint)AID.HeavingHaymaker);
+class LithicImpact(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LithicImpact, new AOEShapeRect(4f, 2f));
 class Whirlwind(BossModule module) : Components.Voidzone(module, 5f, GetVoidzones, 7f)
 {
     private static Actor[] GetVoidzones(BossModule module)
@@ -142,7 +142,7 @@ class Whirlwind(BossModule module) : Components.Voidzone(module, 5f, GetVoidzone
     }
 }
 
-class GreatFlood(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.GreatFlood), 25f, kind: Kind.DirForward)
+class GreatFlood(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.GreatFlood, 25f, kind: Kind.DirForward)
 {
     private readonly Allfire _aoe = module.FindComponent<Allfire>()!;
 
@@ -231,14 +231,14 @@ class Allfire(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class VolcanicDrop(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.VolcanicDrop), 6f);
-class EnduringGlory(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.EnduringGlory));
-class Windswrath1Raidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Windswrath1));
-class Windswrath2Raidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Windswrath2));
-class GreatFloodRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GreatFlood));
+class VolcanicDrop(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.VolcanicDrop, 6f);
+class EnduringGlory(BossModule module) : Components.RaidwideCast(module, (uint)AID.EnduringGlory);
+class Windswrath1Raidwide(BossModule module) : Components.RaidwideCast(module, (uint)AID.Windswrath1);
+class Windswrath2Raidwide(BossModule module) : Components.RaidwideCast(module, (uint)AID.Windswrath2);
+class GreatFloodRaidwide(BossModule module) : Components.RaidwideCast(module, (uint)AID.GreatFlood);
 
-class Windswrath(BossModule module, AID aid) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(aid), 15f);
-class Windswrath1(BossModule module) : Windswrath(module, AID.Windswrath1)
+class Windswrath(BossModule module, uint aid) : Components.SimpleKnockbacks(module, aid, 15f);
+class Windswrath1(BossModule module) : Windswrath(module, (uint)AID.Windswrath1)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -249,7 +249,7 @@ class Windswrath1(BossModule module) : Windswrath(module, AID.Windswrath1)
     }
 }
 
-class Windswrath2(BossModule module) : Windswrath(module, AID.Windswrath2)
+class Windswrath2(BossModule module) : Windswrath(module, (uint)AID.Windswrath2)
 {
     private enum Pattern { None, EWEW, WEWE }
     private Pattern CurrentPattern;

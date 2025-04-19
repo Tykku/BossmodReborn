@@ -17,7 +17,7 @@ class EvilSeedBait(BossModule module) : BossComponent(module)
     }
 }
 
-class EvilSeedAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EvilSeedAOE), 5f);
+class EvilSeedAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.EvilSeedAOE, 5f);
 
 class EvilSeedVoidzone(BossModule module) : Components.Voidzone(module, 5, module => module.Enemies((uint)OID.EvilSeed).Where(z => z.EventState != 7));
 

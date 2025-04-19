@@ -1,12 +1,12 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C013Shadowcaster;
 
-abstract class FiresteelFracture(BossModule module, AID aid) : Components.Cleave(module, ActionID.MakeSpell(aid), new AOEShapeCone(40f, 30f.Degrees()));
-class NFiresteelFracture(BossModule module) : FiresteelFracture(module, AID.NFiresteelFracture);
-class SFiresteelFracture(BossModule module) : FiresteelFracture(module, AID.SFiresteelFracture);
+abstract class FiresteelFracture(BossModule module, uint aid) : Components.Cleave(module, aid, new AOEShapeCone(40f, 30f.Degrees()));
+class NFiresteelFracture(BossModule module) : FiresteelFracture(module, (uint)AID.NFiresteelFracture);
+class SFiresteelFracture(BossModule module) : FiresteelFracture(module, (uint)AID.SFiresteelFracture);
 
-abstract class PureFire(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
-class NPureFire(BossModule module) : PureFire(module, AID.NPureFireAOE);
-class SPureFire(BossModule module) : PureFire(module, AID.SPureFireAOE);
+abstract class PureFire(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
+class NPureFire(BossModule module) : PureFire(module, (uint)AID.NPureFireAOE);
+class SPureFire(BossModule module) : PureFire(module, (uint)AID.SPureFireAOE);
 
 public abstract class C013Shadowcaster(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, StartingBounds)
 {

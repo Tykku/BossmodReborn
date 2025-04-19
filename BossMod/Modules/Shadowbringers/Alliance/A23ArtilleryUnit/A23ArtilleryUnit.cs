@@ -1,15 +1,15 @@
 ﻿namespace BossMod.Shadowbringers.Alliance.A23ArtilleryUnit;
 
-class ManeuverVoltArray(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ManeuverVoltArray));
+class ManeuverVoltArray(BossModule module) : Components.RaidwideCast(module, (uint)AID.ManeuverVoltArray);
 
-class LowerLaser1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LowerLaser1), new AOEShapeCone(30f, 30f.Degrees()));
+class LowerLaser1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LowerLaser1, new AOEShapeCone(30f, 30f.Degrees()));
 
-class EnergyBombardment2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.EnergyBombardment2), 4);
-class UnknownWeaponskill(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.UnknownWeaponskill), 8);
-class ManeuverRevolvingLaser(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ManeuverRevolvingLaser), new AOEShapeDonut(4f, 60f));
+class EnergyBombardment2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.EnergyBombardment2, 4);
+class UnknownWeaponskill(BossModule module) : Components.SimpleAOEs(module, (uint)AID.UnknownWeaponskill, 8);
+class ManeuverRevolvingLaser(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ManeuverRevolvingLaser, new AOEShapeDonut(4f, 60f));
 
-class R010Laser(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.R010Laser), new AOEShapeRect(60f, 6f));
-class R030Hammer(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.R030Hammer), 18f);
+class R010Laser(BossModule module) : Components.SimpleAOEs(module, (uint)AID.R010Laser, new AOEShapeRect(60f, 6f));
+class R030Hammer(BossModule module) : Components.SimpleAOEs(module, (uint)AID.R030Hammer, 18f);
 
 class UpperLaser(BossModule module) : Components.GenericAOEs(module)
 {

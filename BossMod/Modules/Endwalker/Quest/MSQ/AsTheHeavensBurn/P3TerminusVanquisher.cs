@@ -40,13 +40,13 @@ public enum AID : uint
     ForceOfLoathing = 27031 // TerminusVanquisher->self, no cast, range 10 120-degree cone
 }
 
-class TheBlackDeath(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.TheBlackDeath), new AOEShapeCone(25, 60.Degrees()), [(uint)OID.Boss], activeWhileCasting: false);
-class ForceOfLoathing(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ForceOfLoathing), new AOEShapeCone(10, 60.Degrees()), [(uint)OID.TerminusVanquisher], activeWhileCasting: false);
-class DeadlyImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DeadlyImpact), 10, 6);
-class BlackStar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BlackStar));
+class TheBlackDeath(BossModule module) : Components.Cleave(module, (uint)AID.TheBlackDeath, new AOEShapeCone(25, 60.Degrees()), [(uint)OID.Boss], activeWhileCasting: false);
+class ForceOfLoathing(BossModule module) : Components.Cleave(module, (uint)AID.ForceOfLoathing, new AOEShapeCone(10, 60.Degrees()), [(uint)OID.TerminusVanquisher], activeWhileCasting: false);
+class DeadlyImpact(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DeadlyImpact, 10, 6);
+class BlackStar(BossModule module) : Components.RaidwideCast(module, (uint)AID.BlackStar);
 
-class ForcefulImpact(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ForcefulImpactAOE), 7);
-class ForcefulImpactKB(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.ForcefulImpactKB), 10, stopAtWall: true)
+class ForcefulImpact(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ForcefulImpactAOE, 7);
+class ForcefulImpactKB(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.ForcefulImpactKB, 10, stopAtWall: true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -54,12 +54,12 @@ class ForcefulImpactKB(BossModule module) : Components.SimpleKnockbacks(module, 
             hints.PredictedDamage.Add((WorldState.Party.WithSlot(false, true).Mask(), Module.CastFinishAt(c.CastInfo)));
     }
 }
-class MutableLaws1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MutableLawsBig), 15);
-class MutableLaws2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MutableLawsSmall), 6);
-class AccursedTongue(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.AccursedTongue), 6);
-class ForcefulImpact2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ForcefulImpact), 7);
-class Shock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shock), 10, 6);
-class Depress(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Depress), 7);
+class MutableLaws1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MutableLawsBig, 15);
+class MutableLaws2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MutableLawsSmall, 6);
+class AccursedTongue(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.AccursedTongue, 6);
+class ForcefulImpact2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ForcefulImpact, 7);
+class Shock(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Shock, 10, 6);
+class Depress(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.Depress, 7);
 
 class TerminusVanquisherStates : StateMachineBuilder
 {

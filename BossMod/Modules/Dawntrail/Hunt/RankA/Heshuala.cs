@@ -118,8 +118,8 @@ class ShockingCrossXMarksTheShock(BossModule module) : Components.GenericAOEs(mo
     }
 }
 
-class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 5f);
-class ElectricalOverload(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ElectricalOverload));
+class LightningBolt(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LightningBolt, 5f);
+class ElectricalOverload(BossModule module) : Components.RaidwideCast(module, (uint)AID.ElectricalOverload);
 
 class HeshualaStates : StateMachineBuilder
 {

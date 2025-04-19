@@ -70,8 +70,8 @@ class SludgeVoidzone(BossModule module) : Components.Voidzone(module, 9.8f, GetV
     }
 }
 
-class ScavengersDaughter(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ScavengersDaughter));
-class HeadCrusher(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.HeadCrusher));
+class ScavengersDaughter(BossModule module) : Components.RaidwideCast(module, (uint)AID.ScavengersDaughter);
+class HeadCrusher(BossModule module) : Components.SingleTargetCast(module, (uint)AID.HeadCrusher);
 
 class Fetters(BossModule module) : BossComponent(module)
 {
@@ -177,7 +177,7 @@ class Aethersup(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class PendulumFlare(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(20f), (uint)IconID.SpreadFlare, ActionID.MakeSpell(AID.PendulumAOE1), 5.1f, true)
+class PendulumFlare(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(20f), (uint)IconID.SpreadFlare, (uint)AID.PendulumAOE1, 5.1f, true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -194,15 +194,15 @@ class PendulumFlare(BossModule module) : Components.BaitAwayIcon(module, new AOE
     }
 }
 
-class PendulumAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PendulumAOE3), 15f);
+class PendulumAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PendulumAOE3, 15f);
 
-class Knout(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(24f, 105f.Degrees()));
-class LeftKnout(BossModule module) : Knout(module, AID.LeftKnout);
-class RightKnout(BossModule module) : Knout(module, AID.RightKnout);
+class Knout(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(24f, 105f.Degrees()));
+class LeftKnout(BossModule module) : Knout(module, (uint)AID.LeftKnout);
+class RightKnout(BossModule module) : Knout(module, (uint)AID.RightKnout);
 
-class Taphephobia(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Taphephobia2), 6f);
+class Taphephobia(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Taphephobia2, 6f);
 
-class IntoTheLight(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.IntoTheLightMarker), ActionID.MakeSpell(AID.IntoTheLight), 5.3f);
+class IntoTheLight(BossModule module) : Components.LineStack(module, (uint)AID.IntoTheLightMarker, (uint)AID.IntoTheLight, 5.3f);
 
 class CatONineTails(BossModule module) : Components.GenericRotatingAOE(module)
 {

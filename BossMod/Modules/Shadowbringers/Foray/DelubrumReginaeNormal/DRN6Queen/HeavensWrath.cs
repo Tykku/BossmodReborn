@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.Normal.DRN6Queen;
 
-class HeavensWrathAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavensWrathKnockback), new AOEShapeRect(60f, 50f));
+class HeavensWrathAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HeavensWrathKnockback, new AOEShapeRect(60f, 50f));
 
 // TODO: generalize
 class HeavensWrathKnockback(BossModule module) : Components.GenericKnockback(module)

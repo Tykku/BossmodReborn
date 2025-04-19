@@ -25,11 +25,11 @@ public enum AID : uint
     SelfDetonate = 3078 // ClockworkReservoir->player, no cast, single-target
 }
 
-class PassiveInfraredGuidanceSystem(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.PassiveInfraredGuidanceSystem), new AOEShapeCircle(6f), [(uint)OID.RetooledEnforcementDroid], originAtTarget: true);
-class TheHand(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheHand), new AOEShapeCone(7.5f, 60f.Degrees()));
-class Shred(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shred), new AOEShapeRect(5.5f, 2f));
-class SpawnReservoir(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpawnReservoir), 3f);
-class AutoCannons(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AutoCannons), new AOEShapeRect(42f, 2.5f));
+class PassiveInfraredGuidanceSystem(BossModule module) : Components.Cleave(module, (uint)AID.PassiveInfraredGuidanceSystem, new AOEShapeCircle(6f), [(uint)OID.RetooledEnforcementDroid], originAtTarget: true);
+class TheHand(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheHand, new AOEShapeCone(7.5f, 60f.Degrees()));
+class Shred(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Shred, new AOEShapeRect(5.5f, 2f));
+class SpawnReservoir(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpawnReservoir, 3f);
+class AutoCannons(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AutoCannons, new AOEShapeRect(42f, 2.5f));
 
 class D080CrimsonControlUnitStates : StateMachineBuilder
 {

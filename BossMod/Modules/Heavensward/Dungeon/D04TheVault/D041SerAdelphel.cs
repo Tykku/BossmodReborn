@@ -45,10 +45,10 @@ public enum IconID : uint
     Spreadmarker = 32 // player
 }
 
-class Bloodstain(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Bloodstain), 5f);
-class HeavenlySlash(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.HeavenlySlash), new AOEShapeCone(10.2f, 45f.Degrees()));
-class HoliestOfHoly(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HoliestOfHoly));
-class HolyShieldBash(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.HolyShieldBash), "Stun + single target damage x2");
+class Bloodstain(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Bloodstain, 5f);
+class HeavenlySlash(BossModule module) : Components.Cleave(module, (uint)AID.HeavenlySlash, new AOEShapeCone(10.2f, 45f.Degrees()));
+class HoliestOfHoly(BossModule module) : Components.RaidwideCast(module, (uint)AID.HoliestOfHoly);
+class HolyShieldBash(BossModule module) : Components.SingleTargetCast(module, (uint)AID.HolyShieldBash, "Stun + single target damage x2");
 
 class BrightSphere(BossModule module) : Components.GenericAOEs(module)
 {
@@ -85,7 +85,7 @@ class BrightSphere(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Execution(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(5), (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.Execution), 4.8f, true);
+class Execution(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(5), (uint)IconID.Spreadmarker, (uint)AID.Execution, 4.8f, true);
 
 class ShiningBlade(BossModule module) : Components.GenericAOEs(module)
 {

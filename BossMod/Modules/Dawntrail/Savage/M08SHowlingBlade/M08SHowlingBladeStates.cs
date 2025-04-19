@@ -7,9 +7,9 @@ class M08SHowlingBladeStates : StateMachineBuilder
     public M08SHowlingBladeStates(M08SHowlingBlade module) : base(module)
     {
         _module = module;
-        SimplePhase(0, Phase1, "P1")
+        SimplePhase(default, Phase1, "P1")
             .Raw.Update = () => Module.PrimaryActor.IsDestroyed || Module.PrimaryActor.HPMP.CurHP == 1;
-        SimplePhase(1, Phase2, "P2")
+        SimplePhase(1u, Phase2, "P2")
             .SetHint(StateMachine.PhaseHint.StartWithDowntime)
             .Raw.Update = () => Module.PrimaryActor.IsDeadOrDestroyed && (_module.BossP2()?.IsDeadOrDestroyed ?? true);
     }
@@ -67,7 +67,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
 
     private void ExtraplanarPursuit(uint id, float delay)
     {
-        Cast(id, AID.ExtraplanarPursuitVisual, delay, 1.6f)
+        Cast(id, (uint)AID.ExtraplanarPursuitVisual, delay, 1.6f)
             .ActivateOnEnter<ExtraplanarPursuit>();
         ComponentCondition<ExtraplanarPursuit>(id + 0x10u, 2.4f, comp => comp.NumCasts != 0, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide)
@@ -76,7 +76,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
 
     private void GreatDivide(uint id, float delay)
     {
-        Cast(id, AID.GreatDivide, delay, 5f, "Shared tankbuster")
+        Cast(id, (uint)AID.GreatDivide, delay, 5f, "Shared tankbuster")
             .ActivateOnEnter<GreatDivide>()
             .DeactivateOnExit<GreatDivide>()
             .SetHint(StateMachine.StateHint.Tankbuster);
@@ -93,7 +93,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
 
     private void WindfangStonefang1(uint id, float delay)
     {
-        CastStartMulti(id, [AID.WindfangCross1, AID.WindfangCross2, AID.StonefangCross1, AID.StonefangCross2], delay, "Wind-/Stonefang 1")
+        CastStartMulti(id, [(uint)AID.WindfangCross1, (uint)AID.WindfangCross2, (uint)AID.StonefangCross1, (uint)AID.StonefangCross2], delay, "Wind-/Stonefang 1")
             .ActivateOnEnter<StonefangBait>()
             .ActivateOnEnter<WindfangBait>()
             .ActivateOnEnter<WindfangStonefang>()
@@ -106,7 +106,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
 
     private void WolvesReign(uint id, float delay)
     {
-        CastStartMulti(id, [AID.RevolutionaryReignVisual1, AID.RevolutionaryReignVisual2, AID.EminentReignVisual1, AID.EminentReignVisual2], delay, "Wolvesreign")
+        CastStartMulti(id, [(uint)AID.RevolutionaryReignVisual1, (uint)AID.RevolutionaryReignVisual2, (uint)AID.EminentReignVisual1, (uint)AID.EminentReignVisual2], delay, "Wolvesreign")
             .ActivateOnEnter<WolvesReignCircle>();
         ComponentCondition<WolvesReignCircle>(id + 0x10u, 7f, comp => comp.NumCasts == 4, "Circles resolve")
             .DeactivateOnExit<WolvesReignCircle>()
@@ -124,7 +124,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
 
     private void MillennialDecay(uint id, float delay)
     {
-        Cast(id, AID.MillennialDecay, delay, 5f, "Raidwide")
+        Cast(id, (uint)AID.MillennialDecay, delay, 5f, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide)
             .ActivateOnExit<BreathOfDecay>()
             .ActivateOnExit<AeroIII>()
@@ -172,7 +172,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
 
     private void TacticalPack(uint id, float delay)
     {
-        Cast(id, AID.TacticalPack, delay, 3f, "Tactical Pack")
+        Cast(id, (uint)AID.TacticalPack, delay, 3f, "Tactical Pack")
             .ActivateOnExit<Adds>()
             .ActivateOnExit<ArenaChanges>();
         Targetable(id + 0x10u, false, 2f, "Boss untargetable");
@@ -203,7 +203,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
 
     private void TerrestrialRage1(uint id, float delay)
     {
-        Cast(id, AID.TerrestrialRage, delay, 3f, "Terrestial Rage 1")
+        Cast(id, (uint)AID.TerrestrialRage, delay, 3f, "Terrestial Rage 1")
             .ActivateOnExit<FangedCharge>()
             .ActivateOnExit<Heavensearth>()
             .ActivateOnExit<SuspendedStone>();
@@ -223,7 +223,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
 
     private void WolvesReign3(uint id, float delay)
     {
-        CastStartMulti(id, [AID.RevolutionaryReignVisual1, AID.RevolutionaryReignVisual2, AID.EminentReignVisual1, AID.EminentReignVisual2], delay, "Wolvesreign")
+        CastStartMulti(id, [(uint)AID.RevolutionaryReignVisual1, (uint)AID.RevolutionaryReignVisual2, (uint)AID.EminentReignVisual1, (uint)AID.EminentReignVisual2], delay, "Wolvesreign")
             .ActivateOnEnter<WolvesReignCircle>();
         ComponentCondition<RoaringWind>(id + 0x10u, 0.5f, comp => comp.NumCasts != 0, "Line AOEs 1")
             .DeactivateOnExit<RoaringWind>();
@@ -246,7 +246,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
 
     private void TerrestrialRage2(uint id, float delay)
     {
-        Cast(id, AID.BeckonMoonlight, delay, 3f, "Terrestial Rage 2")
+        Cast(id, (uint)AID.BeckonMoonlight, delay, 3f, "Terrestial Rage 2")
             .ActivateOnExit<MoonbeamsBite>()
             .ActivateOnExit<Heavensearth>()
             .ActivateOnExit<SuspendedStone>();
@@ -268,7 +268,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
 
     private void WindfangStonefang2(uint id, float delay)
     {
-        CastStartMulti(id, [AID.WindfangCross1, AID.WindfangCross2, AID.StonefangCross1, AID.StonefangCross2], delay, "Wind-/Stonefang 2")
+        CastStartMulti(id, [(uint)AID.WindfangCross1, (uint)AID.WindfangCross2, (uint)AID.StonefangCross1, (uint)AID.StonefangCross2], delay, "Wind-/Stonefang 2")
             .ActivateOnEnter<WindfangStonefang>();
         ComponentCondition<WealOfStone>(id + 0x10u, 1.1f, comp => comp.NumCasts == 4, "Line AOEs")
             .ExecOnExit<WindfangStonefang>(comp => comp.Draw = true)
@@ -396,8 +396,8 @@ class M08SHowlingBladeStates : StateMachineBuilder
 
     private void RiseOfTheHuntersBlade(uint id, float delay)
     {
-        ActorCast(id, _module.BossP2, AID.RiseOfTheHuntersBlade, delay, 7f, true, "Rise of the Hunter's Blade");
-        ActorCast(id + 0x10u, _module.BossP2, AID.LoneWolfsLament, 2.2f, 3f, true, "Lone Wolf's Lament");
+        ActorCast(id, _module.BossP2, (uint)AID.RiseOfTheHuntersBlade, delay, 7f, true, "Rise of the Hunter's Blade");
+        ActorCast(id + 0x10u, _module.BossP2, (uint)AID.LoneWolfsLament, 2.2f, 3f, true, "Lone Wolf's Lament");
         ComponentCondition<LamentOfTheCloseDistant>(id + 0x20u, 0.8f, comp => comp.TethersAssigned, "Tethers assigned")
             .ActivateOnEnter<LamentOfTheCloseDistant>();
         ComponentCondition<ProwlingGaleLast>(id + 0x30u, 18.2f, comp => comp.NumCasts != 0, "Towers resolve")

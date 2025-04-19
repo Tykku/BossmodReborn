@@ -28,7 +28,7 @@ public enum TetherID : uint
     Lightning = 6 // Boss->player/BlackenedStatue
 }
 
-class ElectricPredation(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ElectricPredation), new AOEShapeCone(12.9f, 60.Degrees()));
+class ElectricPredation(BossModule module) : Components.Cleave(module, (uint)AID.ElectricPredation, new AOEShapeCone(12.9f, 60.Degrees()));
 
 class Electrocution(BossModule module) : Components.GenericBaitAway(module)
 {
@@ -87,8 +87,8 @@ class IonosphericCharge(BossModule module) : Components.BaitAwayTethers(module, 
     }
 }
 
-class ElectricCachexia(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ElectricCachexia), new AOEShapeDonut(8, 60));
-class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 3);
+class ElectricCachexia(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ElectricCachexia, new AOEShapeDonut(8, 60));
+class LightningBolt(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LightningBolt, 3);
 
 class D031RangdaStates : StateMachineBuilder
 {

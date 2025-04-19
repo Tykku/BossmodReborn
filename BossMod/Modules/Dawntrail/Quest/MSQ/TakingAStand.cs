@@ -219,19 +219,19 @@ class Kickdown(BossModule module) : Components.GenericKnockback(module)
     }
 }
 
-class RiotousRampage(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.RiotousRampage), 4f);
-class Roar1(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Roar1));
-class Roar2(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Roar2));
-class LethalSwipe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LethalSwipe), new AOEShapeCone(45f, 90f.Degrees()));
-class Fireshower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fireshower), 6);
+class RiotousRampage(BossModule module) : Components.CastTowers(module, (uint)AID.RiotousRampage, 4f);
+class Roar1(BossModule module) : Components.RaidwideCast(module, (uint)AID.Roar1);
+class Roar2(BossModule module) : Components.RaidwideCast(module, (uint)AID.Roar2);
+class LethalSwipe(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LethalSwipe, new AOEShapeCone(45f, 90f.Degrees()));
+class Fireshower(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Fireshower, 6);
 
-abstract class RunThrough(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(45f, 2.5f));
-class RunThrough1(BossModule module) : RunThrough(module, AID.RunThrough1);
-class RunThrough2(BossModule module) : RunThrough(module, AID.RunThrough2);
+abstract class RunThrough(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(45f, 2.5f));
+class RunThrough1(BossModule module) : RunThrough(module, (uint)AID.RunThrough1);
+class RunThrough2(BossModule module) : RunThrough(module, (uint)AID.RunThrough2);
 
-class Fireflood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Fireflood), 18f);
-class TuraliStoneIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TuraliStoneIII), 4f);
-class TuraliQuake(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TuraliQuake), 9f, maxCasts: 5);
+class Fireflood(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Fireflood, 18f);
+class TuraliStoneIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TuraliStoneIII, 4f);
+class TuraliQuake(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TuraliQuake, 9f, maxCasts: 5);
 
 class AutoWukLamat(WorldState ws) : UnmanagedRotation(ws, 3f)
 {

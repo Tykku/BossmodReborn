@@ -56,13 +56,14 @@ class Spotlight(BossModule module) : Components.GenericAOEs(module)
         else if (_aoes.Count == 0 && id == 0x11DC)
         {
             WPos[] positions = [];
-            if (actor.Position == new WPos(112.5f, 87.5f))
+            var position = actor.Position;
+            if (position == new WPos(112.5f, 87.5f))
                 positions = threeSpotlights;
-            else if (actor.Position == new WPos(87.5f, 112.5f))
+            else if (position == new WPos(87.5f, 112.5f))
                 positions = threeSpotlights.ReverseArray();
-            else if (actor.Position == new WPos(95f, 87.5f))
+            else if (position == new WPos(95f, 87.5f))
                 positions = fourSpotlights1;
-            else if (actor.Position == new WPos(95f, 112.5f))
+            else if (position == new WPos(95f, 112.5f))
                 positions = fourSpotlights2;
 
             var len = positions.Length;
@@ -78,7 +79,7 @@ class Spotlight(BossModule module) : Components.GenericAOEs(module)
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         var count = _aoes.Count;
-        if (count < 2)
+        if (count < 2 || !active)
             return;
         var aoes = CollectionsMarshal.AsSpan(_aoes);
         var countAdj = count == 6 ? 3 : count;

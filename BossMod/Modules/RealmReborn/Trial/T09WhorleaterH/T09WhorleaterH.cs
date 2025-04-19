@@ -1,7 +1,7 @@
 namespace BossMod.RealmReborn.Trial.T09WhorleaterH;
 
-class GrandFall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GrandFall), 8f);
-class Hydroshot(BossModule module) : Components.VoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.Hydroshot), GetVoidzones, 0f)
+class GrandFall(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GrandFall, 8f);
+class Hydroshot(BossModule module) : Components.VoidzoneAtCastTarget(module, 5, (uint)AID.Hydroshot, GetVoidzones, 0f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {
@@ -21,7 +21,7 @@ class Hydroshot(BossModule module) : Components.VoidzoneAtCastTarget(module, 5, 
         return voidzones[..index];
     }
 }
-class Dreadstorm(BossModule module) : Components.VoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.Dreadstorm), GetVoidzones, 0f)
+class Dreadstorm(BossModule module) : Components.VoidzoneAtCastTarget(module, 5, (uint)AID.Dreadstorm, GetVoidzones, 0f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {

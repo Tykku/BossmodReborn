@@ -82,4 +82,4 @@ class RadicalShift(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class RadicalShiftAOE(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.RadicalShiftAOE), 5);
+class RadicalShiftAOE(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.RadicalShiftAOE, 5);

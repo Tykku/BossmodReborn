@@ -39,11 +39,11 @@ public enum AID : uint
     ConvulsiveCrush = 36518, // Boss->player, 5.0s cast, single-target, tb
 }
 
-class CollectiveAgony(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.CollectiveAgonyMarker), ActionID.MakeSpell(AID.CollectiveAgony), 5.6f);
-class StridentShriek(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.StridentShriek));
-class ConvulsiveCrush(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.ConvulsiveCrush));
-class PoisonHeartSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PoisonHeartSpread), 5f);
-class PoisonHeartVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(module, 2f, ActionID.MakeSpell(AID.PoisonHeartVoidzone), GetVoidzones, 0.9f)
+class CollectiveAgony(BossModule module) : Components.LineStack(module, (uint)AID.CollectiveAgonyMarker, (uint)AID.CollectiveAgony, 5.6f);
+class StridentShriek(BossModule module) : Components.RaidwideCast(module, (uint)AID.StridentShriek);
+class ConvulsiveCrush(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.ConvulsiveCrush);
+class PoisonHeartSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.PoisonHeartSpread, 5f);
+class PoisonHeartVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(module, 2f, (uint)AID.PoisonHeartVoidzone, GetVoidzones, 0.9f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {
@@ -64,9 +64,9 @@ class PoisonHeartVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(m
     }
 }
 
-abstract class PodBurst(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
-class PodBurst1(BossModule module) : PodBurst(module, AID.PodBurst1);
-class PodBurst2(BossModule module) : PodBurst(module, AID.PodBurst2);
+abstract class PodBurst(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
+class PodBurst1(BossModule module) : PodBurst(module, (uint)AID.PodBurst1);
+class PodBurst2(BossModule module) : PodBurst(module, (uint)AID.PodBurst2);
 
 class WrithingRiot(BossModule module) : Components.GenericAOEs(module)
 {

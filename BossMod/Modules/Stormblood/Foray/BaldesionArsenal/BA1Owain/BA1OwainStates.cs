@@ -47,32 +47,32 @@ class BA1OwainStates : StateMachineBuilder
 
     private void Thricecull(uint id, float delay)
     {
-        Cast(id, AID.Thricecull, delay, 5, "Tankbuster")
+        Cast(id, (uint)AID.Thricecull, delay, 5, "Tankbuster")
             .SetHint(StateMachine.StateHint.Tankbuster);
     }
 
     private void AcallamNaSenorach(uint id, float delay)
     {
-        Cast(id, AID.AcallamNaSenorach, delay, 5, "Raidwide")
+        Cast(id, (uint)AID.AcallamNaSenorach, delay, 5, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide);
     }
 
     private void Mythcall(uint id, float delay)
     {
-        Cast(id, AID.Mythcall, delay, 2, "Spawn spears");
-        Cast(id + 0x10, AID.ElementalShift1, 2.2f, 2, "Switch elements");
-        CastMulti(id + 0x20, [AID.ElementalMagicksIceBoss, AID.ElementalMagicksFireBoss], 6.3f, 5, "Circle AOEs");
+        Cast(id, (uint)AID.Mythcall, delay, 2, "Spawn spears");
+        Cast(id + 0x10, (uint)AID.ElementalShift1, 2.2f, 2, "Switch elements");
+        CastMulti(id + 0x20, [(uint)AID.ElementalMagicksIceBoss, (uint)AID.ElementalMagicksFireBoss], 6.3f, 5, "Circle AOEs");
     }
 
     private void ElementalShift(uint id, float delay)
     {
-        Cast(id, AID.ElementalShift1, delay, 2, "Switch elements");
-        CastMulti(id + 0x10, [AID.ElementalMagicksIceBoss, AID.ElementalMagicksFireBoss], 6.4f, 5, "Circle AOEs");
+        Cast(id, (uint)AID.ElementalShift1, delay, 2, "Switch elements");
+        CastMulti(id + 0x10, [(uint)AID.ElementalMagicksIceBoss, (uint)AID.ElementalMagicksFireBoss], 6.4f, 5, "Circle AOEs");
     }
 
     private void Spiritcull(uint id, float delay)
     {
-        Cast(id, AID.Spiritcull, delay, 3, "Dorito stacks appear")
+        Cast(id, (uint)AID.Spiritcull, delay, 3, "Dorito stacks appear")
             .ActivateOnEnter<LegendaryImbas>();
         ComponentCondition<LegendaryImbas>(id + 0x10, 0.1f, comp => comp.Casters.Count != 0, "Spreads appear")
             .SetHint(StateMachine.StateHint.Raidwide)
@@ -83,20 +83,20 @@ class BA1OwainStates : StateMachineBuilder
     private void PiercingLight2(uint id, float delay)
     {
         ComponentCondition<PiercingLight2>(id, delay, comp => comp.Spreads.Count != 0, "Spreads appear");
-        CastStart(id + 0x10, AID.Pitfall, 1, "Proximity AOE");
+        CastStart(id + 0x10, (uint)AID.Pitfall, 1, "Proximity AOE");
         ComponentCondition<PiercingLight2>(id + 0x20, 3.8f, comp => comp.Spreads.Count == 0, "Spreads resolve");
         CastEnd(id + 0x30, 1, "Proximity AOE resolves");
     }
 
     private void ElementalShiftSpiritcull(uint id, float delay)
     {
-        Cast(id, AID.ElementalShift1, delay, 2, "Switch elements");
-        Cast(id + 0x10, AID.Spiritcull, 6.3f, 3, "Dorito stacks appear")
+        Cast(id, (uint)AID.ElementalShift1, delay, 2, "Switch elements");
+        Cast(id + 0x10, (uint)AID.Spiritcull, 6.3f, 3, "Dorito stacks appear")
             .ActivateOnEnter<LegendaryImbas>();
         ComponentCondition<LegendaryImbas>(id + 0x20, 1.1f, comp => comp.Casters.Count != 0, "Spreads appear")
             .SetHint(StateMachine.StateHint.Raidwide)
             .DeactivateOnExit<LegendaryImbas>();
-        CastStartMulti(id + 0x30, [AID.ElementalMagicksIceBoss, AID.ElementalMagicksFireBoss], 2, "Circle AOEs start");
+        CastStartMulti(id + 0x30, [(uint)AID.ElementalMagicksIceBoss, (uint)AID.ElementalMagicksFireBoss], 2, "Circle AOEs start");
         ComponentCondition<PiercingLight1>(id + 0x40, 3, comp => comp.Spreads.Count == 0, "Spreads resolve");
         ComponentCondition<ElementalMagicks>(id + 0x50, 2, comp => comp.AOEs.Count == 0, "Circles resolve");
     }
@@ -104,9 +104,9 @@ class BA1OwainStates : StateMachineBuilder
     private void IvoryPalmElementalMagicks(uint id, float delay)
     {
         ComponentCondition<IvoryPalm>(id, delay, comp => comp.Tethers.Count != 0, "Hands spawn");
-        Cast(id + 0x10, AID.ElementalShift1, 6.4f, 2, "Switch elements");
-        CastMulti(id + 0x20, [AID.ElementalMagicksIceBoss, AID.ElementalMagicksFireBoss], 6.3f, 5, "Circle AOEs");
-        Cast(id + 0x30, AID.Thricecull, 6, 5, "Tankbuster")
+        Cast(id + 0x10, (uint)AID.ElementalShift1, 6.4f, 2, "Switch elements");
+        CastMulti(id + 0x20, [(uint)AID.ElementalMagicksIceBoss, (uint)AID.ElementalMagicksFireBoss], 6.3f, 5, "Circle AOEs");
+        Cast(id + 0x30, (uint)AID.Thricecull, 6, 5, "Tankbuster")
             .SetHint(StateMachine.StateHint.Tankbuster);
         ComponentCondition<IvoryPalmExplosion>(id + 0x40, 5, comp => comp.Casters.Count == 0, "Hands soft enrage"); // quite some timing variation here since hands could be killed at any time
     }

@@ -208,13 +208,13 @@ class NerveGasRingAndAutoCannons(BossModule module) : Components.GenericAOEs(mod
     }
 }
 
-class NerveGas(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(25.5f, 90f.Degrees()));
-class LeftNerveGas(BossModule module) : NerveGas(module, AID.LeftwardNerveGas);
-class RightNerveGas(BossModule module) : NerveGas(module, AID.RightwardNerveGas);
+class NerveGas(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(25.5f, 90f.Degrees()));
+class LeftNerveGas(BossModule module) : NerveGas(module, (uint)AID.LeftwardNerveGas);
+class RightNerveGas(BossModule module) : NerveGas(module, (uint)AID.RightwardNerveGas);
 
-class CentralizedNerveGas(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CentralizedNerveGas), new AOEShapeCone(25.5f, 60f.Degrees()));
+class CentralizedNerveGas(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CentralizedNerveGas, new AOEShapeCone(25.5f, 60f.Degrees()));
 
-class AutoAttack(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.AutoAttack), new AOEShapeCone(11f, 45f.Degrees()))
+class AutoAttack(BossModule module) : Components.Cleave(module, (uint)AID.AutoAttack, new AOEShapeCone(11f, 45f.Degrees()))
 {
     private readonly Barofield _aoe = module.FindComponent<Barofield>()!;
 
@@ -231,7 +231,7 @@ class AutoAttack(BossModule module) : Components.Cleave(module, ActionID.MakeSpe
     }
 }
 
-class Resonance(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.Resonance), new AOEShapeCone(12f, 45f.Degrees()), endsOnCastEvent: true, tankbuster: true);
+class Resonance(BossModule module) : Components.BaitAwayCast(module, (uint)AID.Resonance, new AOEShapeCone(12f, 45f.Degrees()), endsOnCastEvent: true, tankbuster: true);
 
 class DD80ProtoKaliyaStates : StateMachineBuilder
 {

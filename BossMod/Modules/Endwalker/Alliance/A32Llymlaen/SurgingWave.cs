@@ -18,8 +18,8 @@ class SurgingWaveCorridor(BossModule module) : BossComponent(module)
     }
 }
 
-class SurgingWaveAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SurgingWaveAOE), 6f);
-class SurgingWaveShockwave(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.SurgingWaveShockwave), 68f, true);
+class SurgingWaveAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SurgingWaveAOE, 6f);
+class SurgingWaveShockwave(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.SurgingWaveShockwave, 68f, true);
 class SurgingWaveSeaFoam(BossModule module) : Components.Voidzone(module, 1.5f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)
@@ -78,6 +78,6 @@ public class SurgingWaveFrothingSea : Components.Exaflare
     }
 }
 
-abstract class Strait(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(100f, 90f.Degrees()));
-class LeftStrait(BossModule module) : Strait(module, AID.LeftStrait);
-class RightStrait(BossModule module) : Strait(module, AID.RightStrait);
+abstract class Strait(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(100f, 90f.Degrees()));
+class LeftStrait(BossModule module) : Strait(module, (uint)AID.LeftStrait);
+class RightStrait(BossModule module) : Strait(module, (uint)AID.RightStrait);

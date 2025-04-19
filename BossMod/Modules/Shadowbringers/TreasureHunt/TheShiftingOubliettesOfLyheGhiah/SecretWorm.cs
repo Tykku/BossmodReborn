@@ -36,10 +36,10 @@ public enum IconID : uint
     Baitaway = 23 // player
 }
 
-class Hydrocannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrocannon), 8f);
-class FreshwaterCannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FreshwaterCannon), new AOEShapeRect(46f, 2f));
-class AquaBurst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AquaBurst), 10f);
-class BrineBreath(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BrineBreath));
+class Hydrocannon(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Hydrocannon, 8f);
+class FreshwaterCannon(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FreshwaterCannon, new AOEShapeRect(46f, 2f));
+class AquaBurst(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AquaBurst, 10f);
+class BrineBreath(BossModule module) : Components.SingleTargetCast(module, (uint)AID.BrineBreath);
 class Hydroburst(BossModule module) : Components.Voidzone(module, 10f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)
@@ -95,12 +95,12 @@ class Bubble(BossModule module) : Components.GenericBaitAway(module)
     }
 }
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6.84f);
+class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
 
 class SecretWormStates : StateMachineBuilder
 {

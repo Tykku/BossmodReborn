@@ -143,17 +143,17 @@ class Burn(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Drumbeat(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Drumbeat));
+class Drumbeat(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Drumbeat);
 
-abstract class Cleave(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(65f, 90f.Degrees()));
-class LeftwardTrisula(BossModule module) : Cleave(module, AID.LeftwardTrisula);
-class RightwardParasu(BossModule module) : Cleave(module, AID.RightwardParasu);
+abstract class Cleave(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(65f, 90f.Degrees()));
+class LeftwardTrisula(BossModule module) : Cleave(module, (uint)AID.LeftwardTrisula);
+class RightwardParasu(BossModule module) : Cleave(module, (uint)AID.RightwardParasu);
 
-class ErrantAkasa(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ErrantAkasa), new AOEShapeCone(60f, 45f.Degrees()));
-class CosmicWeave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CosmicWeave), 18f);
-class KarmicFlames(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.KarmicFlames), 20f);
-class YawningHells(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.YawningHells), 8f);
-class InfernalRedemption(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.InfernalRedemptionVisual), ActionID.MakeSpell(AID.InfernalRedemption), 1f);
+class ErrantAkasa(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ErrantAkasa, new AOEShapeCone(60f, 45f.Degrees()));
+class CosmicWeave(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CosmicWeave, 18f);
+class KarmicFlames(BossModule module) : Components.SimpleAOEs(module, (uint)AID.KarmicFlames, 20f);
+class YawningHells(BossModule module) : Components.SimpleAOEs(module, (uint)AID.YawningHells, 8f);
+class InfernalRedemption(BossModule module) : Components.RaidwideCastDelay(module, (uint)AID.InfernalRedemptionVisual, (uint)AID.InfernalRedemption, 1f);
 
 class DivineCall(BossModule module) : Components.StatusDrivenForcedMarch(module, 2f, (uint)SID.ForwardMarch, (uint)SID.AboutFace, (uint)SID.LeftFace, (uint)SID.RightFace)
 {

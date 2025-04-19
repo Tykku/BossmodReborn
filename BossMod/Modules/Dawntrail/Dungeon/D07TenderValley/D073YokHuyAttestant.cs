@@ -28,9 +28,9 @@ public enum TetherID : uint
     StatueActivate = 37 // 28E8->Boss
 }
 
-class TectonicShift(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TectonicShift), 8f);
-class BoulderToss(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BoulderToss));
-class SunToss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SunToss), 6f);
+class TectonicShift(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TectonicShift, 8f);
+class BoulderToss(BossModule module) : Components.SingleTargetCast(module, (uint)AID.BoulderToss);
+class SunToss(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SunToss, 6f);
 
 class AncientWrath(BossModule module) : Components.GenericAOEs(module)
 {

@@ -74,8 +74,8 @@ class QuintupleSneeze(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Uppercut(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Uppercut), new AOEShapeCone(15f, 60f.Degrees()));
-class RottenSpores(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RottenSpores), 6f);
+class Uppercut(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Uppercut, new AOEShapeCone(15f, 60f.Degrees()));
+class RottenSpores(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RottenSpores, 6f);
 
 class BurfurlurStates : StateMachineBuilder
 {

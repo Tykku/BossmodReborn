@@ -24,7 +24,7 @@ public enum AID : uint
     HellSlash = 341, // SkeletonSoldier->player, no cast, single target
 }
 
-class MindBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MindBlast), new AOEShapeCircle(9.95f));
+class MindBlast(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MindBlast, new AOEShapeCircle(9.95f));
 
 class D022GalvanthTheDominatorStates : StateMachineBuilder
 {

@@ -159,9 +159,9 @@ class TimeEruptionBombReproduce(BossModule module) : Components.GenericAOEs(modu
     }
 }
 
-class Eruption(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Eruption), 8f);
-class FireTankbuster(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.FireTankbuster));
-class FireRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FireRaidwide));
+class Eruption(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Eruption, 8f);
+class FireTankbuster(BossModule module) : Components.SingleTargetCast(module, (uint)AID.FireTankbuster);
+class FireRaidwide(BossModule module) : Components.RaidwideCast(module, (uint)AID.FireRaidwide);
 
 class CE52TimeToBurnStates : StateMachineBuilder
 {

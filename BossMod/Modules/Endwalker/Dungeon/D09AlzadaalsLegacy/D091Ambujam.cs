@@ -89,7 +89,7 @@ class ToxicCorrosiveFountain(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class BigWave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BigWave));
+class BigWave(BossModule module) : Components.RaidwideCast(module, (uint)AID.BigWave);
 
 class D091AmbujamStates : StateMachineBuilder
 {

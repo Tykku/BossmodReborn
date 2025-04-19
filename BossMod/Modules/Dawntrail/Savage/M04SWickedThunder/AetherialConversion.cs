@@ -37,7 +37,7 @@ class AetherialConversion(BossModule module) : Components.CastCounter(module, de
     }
 }
 
-class AetherialConversionTailThrust(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.TailThrust))
+class AetherialConversionTailThrust(BossModule module) : Components.GenericAOEs(module, (uint)AID.TailThrust)
 {
     private readonly AetherialConversion? _comp = module.FindComponent<AetherialConversion>();
 
@@ -51,7 +51,7 @@ class AetherialConversionTailThrust(BossModule module) : Components.GenericAOEs(
     }
 }
 
-class AetherialConversionSwitchOfTides(BossModule module) : Components.GenericKnockback(module, ActionID.MakeSpell(AID.SwitchOfTides), true)
+class AetherialConversionSwitchOfTides(BossModule module) : Components.GenericKnockback(module, (uint)AID.SwitchOfTides, true)
 {
     private readonly AetherialConversion? _comp = module.FindComponent<AetherialConversion>();
 

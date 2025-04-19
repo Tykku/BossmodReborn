@@ -41,6 +41,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
     private AOEInstance? _aoe;
 
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
+
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action.ID == (uint)AID.FreeSpirits)
@@ -52,23 +53,23 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index != 0x07)
+        if (index != 0x07u)
             return;
         switch (state)
         {
-            case 0x00020001:
+            case 0x00020001u:
                 SetArena(D092OverseerKanilokka.DefaultArena);
                 break;
-            case 0x00200010:
+            case 0x00200010u:
                 SetArena(D092OverseerKanilokka.TinyArena);
                 break;
-            case 0x00800040:
+            case 0x00800040u:
                 SetArena(D092OverseerKanilokka.ArenaENVC00800040);
                 break;
-            case 0x02000100:
+            case 0x02000100u:
                 SetArena(D092OverseerKanilokka.ArenaENVC02000100);
                 break;
-            case 0x00080004:
+            case 0x00080004u:
                 SetArena(D092OverseerKanilokka.StartingBounds);
                 break;
         }
@@ -124,13 +125,41 @@ class Soulweave(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class FreeSpirits(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FreeSpirits));
-class Bloodburst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Bloodburst));
-class DarkSouls(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DarkSouls));
-class TelltaleTears(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.TelltaleTears), 5f);
-class SoulDouse(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.SoulDouse), 6f, 4, 4);
-class LostHope(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.LostHope));
-class Necrohazard(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Necrohazard), 18f);
+class FreeSpirits(BossModule module) : Components.RaidwideCast(module, (uint)AID.FreeSpirits);
+class Bloodburst(BossModule module) : Components.RaidwideCast(module, (uint)AID.Bloodburst);
+class DarkSouls(BossModule module) : Components.SingleTargetCast(module, (uint)AID.DarkSouls);
+class TelltaleTears(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.TelltaleTears, 5f);
+class SoulDouse(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.SoulDouse, 6f, 4, 4);
+class LostHope(BossModule module) : Components.TemporaryMisdirection(module, (uint)AID.LostHope)
+{
+    private bool prepare;
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if (spell.Action.ID == (uint)AID.LostHope)
+        {
+            prepare = true;
+        }
+    }
+
+    public override void OnEventEnvControl(byte index, uint state)
+    {
+        if (index == 0x07u)
+            return;
+        prepare = false;
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        base.AddAIHints(slot, actor, assignment, hints);
+        if (prepare)
+        {
+            hints.GoalZones.Add(hints.GoalSingleTarget(Arena.Center, 1f, 1f));
+        }
+    }
+}
+
+class Necrohazard(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Necrohazard, 18f);
 
 class DarkII(BossModule module) : Components.GenericAOEs(module)
 {

@@ -23,13 +23,13 @@ public enum AID : uint
     TrapJaws = 42548 // Boss->player, 5.0s cast, single-target
 }
 
-class AerialAmbush(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AerialAmbush), new AOEShapeRect(30f, 7.5f));
-class AlmightyRacket(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AlmightyRacket), new AOEShapeRect(30f, 15f));
-class FoundationalDebris(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FoundationalDebris), 10f);
-class SedimentaryDebris(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SedimentaryDebris), 5f);
-class Earthsong(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Earthsong));
-class ChillingChirp(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ChillingChirp));
-class TrapJaws(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.TrapJaws));
+class AerialAmbush(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AerialAmbush, new AOEShapeRect(30f, 7.5f));
+class AlmightyRacket(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AlmightyRacket, new AOEShapeRect(30f, 15f));
+class FoundationalDebris(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FoundationalDebris, 10f);
+class SedimentaryDebris(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.SedimentaryDebris, 5f);
+class Earthsong(BossModule module) : Components.RaidwideCast(module, (uint)AID.Earthsong);
+class ChillingChirp(BossModule module) : Components.RaidwideCast(module, (uint)AID.ChillingChirp);
+class TrapJaws(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.TrapJaws);
 
 class SphereShatter(BossModule module) : Components.GenericAOEs(module)
 {

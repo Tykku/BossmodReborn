@@ -23,16 +23,16 @@ public enum AID : uint
     BodkinVolley = 17189, // Andreia->29DF, 6.0s cast, range 5 circle
 }
 
-class ArrowOfFortitude(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ArrowOfFortitude), new AOEShapeRect(30, 4));
-class BodkinVolley(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BodkinVolley), 5, minStackSize: 1);
-class RainOfLight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RainOfLight), 4);
-class ThePathOfLight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThePathOfLight), 15);
-class InquisitorsBlade(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.InquisitorsBlade), new AOEShapeCone(40, 90.Degrees()));
-class MythrilCycloneKB(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.MythrilCyclone1), 18, stopAtWall: true);
-class MythrilCycloneDonut(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MythrilCyclone2), new AOEShapeDonut(8, 20));
-class SanctifiedMeltdown(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SanctifiedMeltdown), 6);
-class UncloudedAscension(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.UncloudedAscension1), 10);
-class Overcome(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Overcome), new AOEShapeCone(8.5f, 60.Degrees()));
+class ArrowOfFortitude(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ArrowOfFortitude, new AOEShapeRect(30, 4));
+class BodkinVolley(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.BodkinVolley, 5, minStackSize: 1);
+class RainOfLight(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RainOfLight, 4);
+class ThePathOfLight(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ThePathOfLight, 15);
+class InquisitorsBlade(BossModule module) : Components.SimpleAOEs(module, (uint)AID.InquisitorsBlade, new AOEShapeCone(40, 90.Degrees()));
+class MythrilCycloneKB(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.MythrilCyclone1, 18, stopAtWall: true);
+class MythrilCycloneDonut(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MythrilCyclone2, new AOEShapeDonut(8, 20));
+class SanctifiedMeltdown(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.SanctifiedMeltdown, 6);
+class UncloudedAscension(BossModule module) : Components.SimpleAOEs(module, (uint)AID.UncloudedAscension1, 10);
+class Overcome(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Overcome, new AOEShapeCone(8.5f, 60.Degrees()));
 
 class SanctifiedFireII(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(5), 23, centerAtTarget: true)
 {
@@ -66,7 +66,7 @@ class SanctifiedFireII(BossModule module) : Components.BaitAwayIcon(module, new 
     }
 }
 
-class FireVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(module, 5, ActionID.MakeSpell(AID.SanctifiedFireII1), m => m.Enemies(0x29E5).Where(e => e.EventState != 7), 0.25f);
+class FireVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(module, 5, (uint)AID.SanctifiedFireII1, m => m.Enemies(0x29E5).Where(e => e.EventState != 7), 0.25f);
 
 class ImmaculateWarriorStates : StateMachineBuilder
 {

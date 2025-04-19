@@ -81,10 +81,10 @@ class HexingStaves(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class StaffSmite(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.StaffSmite));
-class VoidDarkII(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.VoidDarkII2), 6f);
-class Explosion(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeRect(8f, 4f));
-class AbyssalOutburst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AbyssalOutburst));
+class StaffSmite(BossModule module) : Components.SingleTargetCast(module, (uint)AID.StaffSmite);
+class VoidDarkII(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.VoidDarkII2, 6f);
+class Explosion(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Explosion, new AOEShapeRect(8f, 4f));
+class AbyssalOutburst(BossModule module) : Components.RaidwideCast(module, (uint)AID.AbyssalOutburst);
 
 class Doom(BossModule module) : BossComponent(module)
 {

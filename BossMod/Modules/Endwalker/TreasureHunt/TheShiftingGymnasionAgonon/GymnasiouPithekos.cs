@@ -42,9 +42,9 @@ public enum IconID : uint
     Thundercall = 111 // Thundercall marker
 }
 
-class Spark(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spark), new AOEShapeDonut(14f, 30f));
-class SweepingGouge(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SweepingGouge));
-class Thundercall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Thundercall), 3f);
+class Spark(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spark, new AOEShapeDonut(14f, 30f));
+class SweepingGouge(BossModule module) : Components.SingleTargetCast(module, (uint)AID.SweepingGouge);
+class Thundercall(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Thundercall, 3f);
 
 class Thundercall2(BossModule module) : Components.GenericBaitAway(module)
 {
@@ -80,18 +80,18 @@ class Thundercall2(BossModule module) : Components.GenericBaitAway(module)
     }
 }
 
-class RockThrow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RockThrow), 6f);
-class LightningBolt(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 6f);
-class ThunderIV(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ThunderIV), 18f);
+class RockThrow(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RockThrow, 6f);
+class LightningBolt(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LightningBolt, 6f);
+class ThunderIV(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ThunderIV, 18f);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
+class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
 
-class HeavySmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeavySmash), 6f);
+class HeavySmash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HeavySmash, 6f);
 
 class GymnasiouPithekosStates : StateMachineBuilder
 {

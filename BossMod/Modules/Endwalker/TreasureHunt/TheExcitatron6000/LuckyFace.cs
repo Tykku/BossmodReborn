@@ -58,31 +58,31 @@ public enum AID : uint
     Telega = 9630 // Mandragoras->self, no cast, single-target, mandragoras disappear
 }
 
-abstract class InTheDark(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(20f, 90f.Degrees()));
-class LeftInTheDark1(BossModule module) : InTheDark(module, AID.LeftInTheDark1);
-class LeftInTheDark2(BossModule module) : InTheDark(module, AID.LeftInTheDark2);
-class RightInTheDark1(BossModule module) : InTheDark(module, AID.RightInTheDark1);
-class RightInTheDark2(BossModule module) : InTheDark(module, AID.RightInTheDark2);
+abstract class InTheDark(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(20f, 90f.Degrees()));
+class LeftInTheDark1(BossModule module) : InTheDark(module, (uint)AID.LeftInTheDark1);
+class LeftInTheDark2(BossModule module) : InTheDark(module, (uint)AID.LeftInTheDark2);
+class RightInTheDark1(BossModule module) : InTheDark(module, (uint)AID.RightInTheDark1);
+class RightInTheDark2(BossModule module) : InTheDark(module, (uint)AID.RightInTheDark2);
 
-abstract class QuakeCircle(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10f);
-class QuakeMeAwayCircle(BossModule module) : QuakeCircle(module, AID.QuakeMeAwayCircle);
-class QuakeInYourBootsCircle(BossModule module) : QuakeCircle(module, AID.QuakeInYourBootsCircle);
+abstract class QuakeCircle(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 10f);
+class QuakeMeAwayCircle(BossModule module) : QuakeCircle(module, (uint)AID.QuakeMeAwayCircle);
+class QuakeInYourBootsCircle(BossModule module) : QuakeCircle(module, (uint)AID.QuakeInYourBootsCircle);
 
-abstract class QuakeDonut(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(10f, 20f));
-class QuakeInYourBootsDonut(BossModule module) : QuakeDonut(module, AID.QuakeInYourBootsDonut);
-class QuakeMeAwayDonut(BossModule module) : QuakeDonut(module, AID.QuakeMeAwayDonut);
+abstract class QuakeDonut(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonut(10f, 20f));
+class QuakeInYourBootsDonut(BossModule module) : QuakeDonut(module, (uint)AID.QuakeInYourBootsDonut);
+class QuakeMeAwayDonut(BossModule module) : QuakeDonut(module, (uint)AID.QuakeMeAwayDonut);
 
-class HeartOnFireII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeartOnFireII), 6f);
-class HeartOnFireIV(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.HeartOnFireIV));
-class HeartOnFireIII(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HeartOnFireIII), 6f);
-class TempersFlare(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.TempersFlare));
+class HeartOnFireII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HeartOnFireII, 6f);
+class HeartOnFireIV(BossModule module) : Components.SingleTargetCast(module, (uint)AID.HeartOnFireIV);
+class HeartOnFireIII(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.HeartOnFireIII, 6f);
+class TempersFlare(BossModule module) : Components.RaidwideCast(module, (uint)AID.TempersFlare);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6.84f);
+class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
 
 class LuckyFaceStates : StateMachineBuilder
 {

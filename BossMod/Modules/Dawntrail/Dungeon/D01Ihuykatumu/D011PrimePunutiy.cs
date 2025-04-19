@@ -57,7 +57,7 @@ public enum TetherID : uint
     BaitAway = 17, // ProdigiousPunutiy/Punutiy/PetitPunutiy->player
 }
 
-class HydrowaveBait(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(60f, 15f.Degrees()), (uint)TetherID.BaitAway, ActionID.MakeSpell(AID.HydrowaveBait), (uint)OID.Punutiy, 8.6f)
+class HydrowaveBait(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(60f, 15f.Degrees()), (uint)TetherID.BaitAway, (uint)AID.HydrowaveBait, (uint)OID.Punutiy, 8.6f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -75,7 +75,7 @@ class HydrowaveBait(BossModule module) : Components.BaitAwayTethers(module, new 
     }
 }
 
-class Resurface(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Resurface), Inhale.Cone);
+class Resurface(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Resurface, Inhale.Cone);
 class Inhale(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
@@ -100,8 +100,8 @@ class Inhale(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class PunutiyPress(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PunutiyPress));
-class Hydrowave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydrowave), new AOEShapeCone(60f, 15f.Degrees()));
+class PunutiyPress(BossModule module) : Components.RaidwideCast(module, (uint)AID.PunutiyPress);
+class Hydrowave(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Hydrowave, new AOEShapeCone(60f, 15f.Degrees()));
 
 class BuryDecay(BossModule module) : Components.GenericAOEs(module)
 {
@@ -165,8 +165,8 @@ class BuryDecay(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class PunutiyFlop1(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PunutiyFlop1), 14f);
-class PunutiyFlop2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PunutiyFlop2), 6f);
+class PunutiyFlop1(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.PunutiyFlop1, 14f);
+class PunutiyFlop2(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.PunutiyFlop2, 6f);
 
 class ShoreShaker(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 {

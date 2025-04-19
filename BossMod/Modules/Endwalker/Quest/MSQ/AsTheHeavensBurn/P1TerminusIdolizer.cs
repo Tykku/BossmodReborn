@@ -37,9 +37,9 @@ public enum TetherID : uint
     BombTether = 17 // TerminusDetonator->Estinien
 }
 
-class DeadlyCharge(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.DeadlyCharge), 5f);
-class GriefOfParting(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GriefOfParting));
-class DeadlyTentaclesTB(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DeadlyTentaclesTB));
+class DeadlyCharge(BossModule module) : Components.ChargeAOEs(module, (uint)AID.DeadlyCharge, 5f);
+class GriefOfParting(BossModule module) : Components.RaidwideCast(module, (uint)AID.GriefOfParting);
+class DeadlyTentaclesTB(BossModule module) : Components.SingleTargetCast(module, (uint)AID.DeadlyTentaclesTB);
 
 class TentacleWhip(BossModule module) : Components.GenericAOEs(module)
 {
@@ -122,8 +122,8 @@ class SelfDestruct(BossModule module) : Components.GenericStackSpread(module)
         }
     }
 }
-class Petrifaction(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.Petrifaction));
-class Whack(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Whack));
+class Petrifaction(BossModule module) : Components.CastGaze(module, (uint)AID.Petrifaction);
+class Whack(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Whack);
 
 class AutoAlphinaud(BossModule module) : QuestBattle.RotationModule<AlphinaudAI>(module);
 

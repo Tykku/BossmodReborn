@@ -30,7 +30,7 @@ public enum AID : uint
     WaterCannon = 555, // Gaurd->player, no cast
 }
 
-class Hydroball(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hydroball), new AOEShapeCone(8f, 45f.Degrees()));
+class Hydroball(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Hydroball, new AOEShapeCone(8f, 45f.Degrees()));
 
 class TrashSpawning(BossModule module) : BossComponent(module)
 {

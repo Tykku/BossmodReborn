@@ -70,14 +70,7 @@ class WavelengthAlphaBeta(BossModule module) : BossComponent(module)
                 var partner = exp.Actor;
                 if (!remaining)
                     continue;
-                if (exp.Order == player)
-                {
-                    Arena.AddCircle(partner.Position, 2f, Colors.Safe);
-                }
-                else
-                {
-                    Arena.AddCircle(partner.Position, 2f);
-                }
+                Arena.AddCircle(partner.Position, 2f, exp.Order == player ? Colors.Safe : default);
             }
         }
     }

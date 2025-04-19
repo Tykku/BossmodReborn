@@ -18,6 +18,7 @@ class Spotlights1(BossModule module) : Components.GenericTowers(module)
         new(107.5f, 97.49f), new(112.474f, 112.474f), new(87.48f, 87.48f), new(92.485f, 102.495f)
     ];
     protected readonly List<Tower> cachedTowers = new(4);
+    private readonly M05SDancingGreenConfig _config = Service.Config.Get<M05SDancingGreenConfig>();
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
@@ -29,16 +30,17 @@ class Spotlights1(BossModule module) : Components.GenericTowers(module)
     {
         if (spotlightSet == null && actor.OID == (uint)OID.Spotlight && id == 0x11DC)
         {
-            if (actor.Position == new WPos(102.5f, 107.5f))
+            var position = actor.Position;
+            if (position == new WPos(102.5f, 107.5f))
                 spotlightSet = true;
-            else if (actor.Position == new WPos(102.5f, 92.5f))
+            else if (position == new WPos(102.5f, 92.5f))
                 spotlightSet = false;
         }
     }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index != 0x03 || patternENVC200010 != null)
+        if (index != 0x03u || patternENVC200010 != null)
             return;
 
         patternENVC200010 ??= state switch
@@ -59,6 +61,12 @@ class Spotlights1(BossModule module) : Components.GenericTowers(module)
         {
             Towers.Add(new(spotlights[i], 2.5f, forbiddenSoakers: forbiddenFirst, activation: WorldState.FutureTime(22d)));
             cachedTowers.Add(new(spotlights2[i], 2.5f, forbiddenSoakers: forbiddenSecond, activation: WorldState.FutureTime(33.6d)));
+        }
+        if (_config.ShowAllSpotlights)
+        {
+            Towers.AddRange(cachedTowers);
+            cachedTowers.Clear();
+            Towers.SortByReverse(t => t.Activation); // prevent allowed towers overlapping forbidden
         }
     }
 
@@ -107,11 +115,40 @@ class Spotlights1(BossModule module) : Components.GenericTowers(module)
             _orders[slot] = 0;
             if (++FinishedCount >= 4)
             {
-                Towers.Clear();
-                if (FinishedCount == 4)
+                if (Towers.Count == 8)
+                    Towers.RemoveRange(4, 4);
+                else
+                    Towers.Clear();
+                if (FinishedCount == 4 && cachedTowers.Count != 0)
                     Towers = cachedTowers;
             }
         }
+    }
+
+    public override void DrawArenaForeground(int pcSlot, Actor pc)
+    {
+        var count = Towers.Count;
+        if (count == 0)
+            return;
+        var towers = CollectionsMarshal.AsSpan(Towers);
+        for (var i = 0; i < count; ++i)
+        {
+            ref var t = ref towers[i];
+            var isInside = t.IsInside(pc);
+            var numInside = t.NumInside(Module);
+            var safe = !t.ForbiddenSoakers[pcSlot] && (numInside < t.MaxSoakers || isInside && numInside <= t.MaxSoakers);
+            t.Shape.Outline(Arena, t.Position, t.Rotation, safe ? Colors.Safe : default, 2f);
+        }
+    }
+
+    public override void DrawArenaBackground(int pcSlot, Actor pc) { }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        if (Towers.Count == 0)
+            return;
+        if (!Towers[0].ForbiddenSoakers[slot])
+            base.AddAIHints(slot, actor, assignment, hints);
     }
 }
 

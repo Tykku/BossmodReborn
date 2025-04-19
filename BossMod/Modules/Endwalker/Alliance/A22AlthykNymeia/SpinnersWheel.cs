@@ -19,7 +19,7 @@ class SpinnersWheelSelect(BossModule module) : BossComponent(module)
     }
 }
 
-abstract class SpinnersWheelGaze(BossModule module, bool inverted, AID aid, uint sid) : Components.GenericGaze(module, ActionID.MakeSpell(aid), inverted)
+abstract class SpinnersWheelGaze(BossModule module, bool inverted, uint aid, uint sid) : Components.GenericGaze(module, aid, inverted)
 {
     private readonly Actor? _source = module.Enemies(OID.Nymeia).FirstOrDefault();
     private DateTime _activation;
@@ -41,8 +41,8 @@ abstract class SpinnersWheelGaze(BossModule module, bool inverted, AID aid, uint
         }
     }
 }
-class SpinnersWheelArcaneAttraction(BossModule module) : SpinnersWheelGaze(module, false, AID.SpinnersWheelArcaneAttraction, (uint)SID.ArcaneAttraction);
-class SpinnersWheelAttractionReversed(BossModule module) : SpinnersWheelGaze(module, true, AID.SpinnersWheelAttractionReversed, (uint)SID.AttractionReversed);
+class SpinnersWheelArcaneAttraction(BossModule module) : SpinnersWheelGaze(module, false, (uint)AID.SpinnersWheelArcaneAttraction, (uint)SID.ArcaneAttraction);
+class SpinnersWheelAttractionReversed(BossModule module) : SpinnersWheelGaze(module, true, (uint)AID.SpinnersWheelAttractionReversed, (uint)SID.AttractionReversed);
 
 class SpinnersWheelStayMove(BossModule module) : Components.StayMove(module)
 {

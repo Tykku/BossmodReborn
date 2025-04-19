@@ -1,8 +1,8 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C023Moko;
 
-abstract class LateralSlice(BossModule module, AID aid) : Components.BaitAwayCast(module, ActionID.MakeSpell(aid), new AOEShapeCone(40f, 45f.Degrees())); // TODO: verify angle
-class NLateralSlice(BossModule module) : LateralSlice(module, AID.NLateralSlice);
-class SLateralSlice(BossModule module) : LateralSlice(module, AID.SLateralSlice);
+abstract class LateralSlice(BossModule module, uint aid) : Components.BaitAwayCast(module, aid, new AOEShapeCone(40f, 45f.Degrees())); // TODO: verify angle
+class NLateralSlice(BossModule module) : LateralSlice(module, (uint)AID.NLateralSlice);
+class SLateralSlice(BossModule module) : LateralSlice(module, (uint)AID.SLateralSlice);
 
 public abstract class C023Moko(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, StartingBounds)
 {

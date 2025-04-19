@@ -28,7 +28,7 @@ public enum AID : uint
     Pteraspit3 = 38640, // Boss->self, 0.8s cast, range 40 150-degree cone, turn right -> front
 }
 
-class WhirlingOmenRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WhirlingOmenRaidwide), "Raidwide, no turn buffs this time!");
+class WhirlingOmenRaidwide(BossModule module) : Components.RaidwideCast(module, (uint)AID.WhirlingOmenRaidwide, "Raidwide, no turn buffs this time!");
 
 class WhirlingOmen(BossModule module) : Components.GenericAOEs(module)
 {

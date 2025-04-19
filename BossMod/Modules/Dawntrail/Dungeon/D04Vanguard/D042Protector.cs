@@ -217,35 +217,35 @@ class BatteryCircuit(BossModule module) : Components.GenericRotatingAOE(module)
     }
 }
 
-class HeavyBlastCannon(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.HeavyBlastCannonMarker), ActionID.MakeSpell(AID.HeavyBlastCannon), 8f, 36f);
-class RapidThunder(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.RapidThunder));
-class Electrowave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Electrowave));
+class HeavyBlastCannon(BossModule module) : Components.LineStack(module, (uint)AID.HeavyBlastCannonMarker, (uint)AID.HeavyBlastCannon, 8f, 36f);
+class RapidThunder(BossModule module) : Components.SingleTargetCast(module, (uint)AID.RapidThunder);
+class Electrowave(BossModule module) : Components.RaidwideCast(module, (uint)AID.Electrowave);
 
 class BlastCannon : Components.SimpleAOEs
 {
-    public BlastCannon(BossModule module) : base(module, ActionID.MakeSpell(AID.BlastCannon), new AOEShapeRect(26f, 2f), 4)
+    public BlastCannon(BossModule module) : base(module, (uint)AID.BlastCannon, new AOEShapeRect(26f, 2f), 4)
     {
         MaxDangerColor = 2;
         MaxRisky = 2;
     }
 }
-class Shock(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Shock), 3f);
+class Shock(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Shock, 3f);
 
 class HomingCannon : Components.SimpleAOEs
 {
-    public HomingCannon(BossModule module) : base(module, ActionID.MakeSpell(AID.HomingCannon), new AOEShapeRect(50f, 1f))
+    public HomingCannon(BossModule module) : base(module, (uint)AID.HomingCannon, new AOEShapeRect(50f, 1f))
     {
         MaxDangerColor = 4;
     }
 }
 
-class Bombardment(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Bombardment), 5f);
+class Bombardment(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Bombardment, 5f);
 
-abstract class Electrowhirl(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
-class Electrowhirl1(BossModule module) : Electrowhirl(module, AID.Electrowhirl1);
-class Electrowhirl2(BossModule module) : Electrowhirl(module, AID.Electrowhirl2);
+abstract class Electrowhirl(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
+class Electrowhirl1(BossModule module) : Electrowhirl(module, (uint)AID.Electrowhirl1);
+class Electrowhirl2(BossModule module) : Electrowhirl(module, (uint)AID.Electrowhirl2);
 
-class TrackingBolt2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.TrackingBolt2), 8f);
+class TrackingBolt2(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.TrackingBolt2, 8f);
 
 class AccelerationBomb(BossModule module) : Components.StayMove(module, 3f)
 {

@@ -1,8 +1,8 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C030Trash1;
 
-abstract class Water(BossModule module, AID aid) : Components.StackWithCastTargets(module, ActionID.MakeSpell(aid), 8, 4, 4);
-class NWater(BossModule module) : Water(module, AID.NWater);
-class SWater(BossModule module) : Water(module, AID.SWater);
+abstract class Water(BossModule module, uint aid) : Components.StackWithCastTargets(module, aid, 8, 4, 4);
+class NWater(BossModule module) : Water(module, (uint)AID.NWater);
+class SWater(BossModule module) : Water(module, (uint)AID.SWater);
 
 class BubbleShowerCrabDribble(BossModule module) : Components.GenericAOEs(module)
 {
@@ -60,13 +60,13 @@ class C030SnipperStates : StateMachineBuilder
 
     private void Water(uint id, float delay)
     {
-        Cast(id, _savage ? AID.SWater : AID.NWater, delay, 5, "Stack");
+        Cast(id, _savage ? (uint)AID.SWater : (uint)AID.NWater, delay, 5, "Stack");
     }
 
     private void BubbleShowerCrabDribble(uint id, float delay)
     {
-        Cast(id, _savage ? AID.SBubbleShower : AID.NBubbleShower, delay, 5, "Cleave front");
-        Cast(id + 0x10, _savage ? AID.SCrabDribble : AID.NCrabDribble, 2.1f, 1.5f, "Cleave back");
+        Cast(id, _savage ? (uint)AID.SBubbleShower : (uint)AID.NBubbleShower, delay, 5, "Cleave front");
+        Cast(id + 0x10, _savage ? (uint)AID.SCrabDribble : (uint)AID.NCrabDribble, 2.1f, 1.5f, "Cleave back");
     }
 }
 class C030NSnipperStates(BossModule module) : C030SnipperStates(module, false);

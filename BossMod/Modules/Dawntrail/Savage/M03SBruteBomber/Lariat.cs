@@ -1,12 +1,12 @@
 ﻿namespace BossMod.Dawntrail.Savage.M03SBruteBomber;
 
-abstract class LariatOut(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10f);
-class OctupleLariatOut(BossModule module) : LariatOut(module, AID.OctupleLariatOutAOE);
-class QuadrupleLariatOut(BossModule module) : LariatOut(module, AID.QuadrupleLariatOutAOE);
+abstract class LariatOut(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 10f);
+class OctupleLariatOut(BossModule module) : LariatOut(module, (uint)AID.OctupleLariatOutAOE);
+class QuadrupleLariatOut(BossModule module) : LariatOut(module, (uint)AID.QuadrupleLariatOutAOE);
 
-abstract class LariatIn(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(10f, 60f));
-class OctupleLariatIn(BossModule module) : LariatIn(module, AID.OctupleLariatInAOE);
-class QuadrupleLariatIn(BossModule module) : LariatIn(module, AID.QuadrupleLariatInAOE);
+abstract class LariatIn(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonut(10f, 60f));
+class OctupleLariatIn(BossModule module) : LariatIn(module, (uint)AID.OctupleLariatInAOE);
+class QuadrupleLariatIn(BossModule module) : LariatIn(module, (uint)AID.QuadrupleLariatInAOE);
 
 // TODO: generalize to a conal stack/spread with role-based targets
 class BlazingLariat(BossModule module) : Components.CastCounter(module, default)

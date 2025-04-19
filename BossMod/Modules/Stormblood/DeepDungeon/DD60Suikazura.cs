@@ -18,12 +18,12 @@ public enum AID : uint
     AncientFlare = 11928, // Boss->self, 5.0s cast, range 50 circle
 }
 
-class Firewalker(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Firewalker), new AOEShapeCone(10f, 45f.Degrees()));
-class InfiniteAnguish(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.InfiniteAnguish), new AOEShapeDonut(6.5f, 12f));
-class FireII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireII), 5f);
-class Topple(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Topple), 5.5f);
-class SearingChain(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SearingChain), new AOEShapeRect(61f, 2f));
-class AncientFlare(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AncientFlare), "Raidwide, watch your feet after it goes off");
+class Firewalker(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Firewalker, new AOEShapeCone(10f, 45f.Degrees()));
+class InfiniteAnguish(BossModule module) : Components.SimpleAOEs(module, (uint)AID.InfiniteAnguish, new AOEShapeDonut(6.5f, 12f));
+class FireII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FireII, 5f);
+class Topple(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Topple, 5.5f);
+class SearingChain(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SearingChain, new AOEShapeRect(61f, 2f));
+class AncientFlare(BossModule module) : Components.RaidwideCast(module, (uint)AID.AncientFlare, "Raidwide, watch your feet after it goes off");
 
 class DD60SuikazuraStates : StateMachineBuilder
 {

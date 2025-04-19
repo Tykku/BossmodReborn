@@ -16,8 +16,8 @@ public enum AID : uint
     Devour = 12204 // Boss->location, no cast, range 4+R ?-degree cone
 }
 
-class PredatorClaws(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PredatorClaws), new AOEShapeCone(15f, 60f.Degrees()));
-class Slabber(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Slabber), 8f);
+class PredatorClaws(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PredatorClaws, new AOEShapeCone(15f, 60f.Degrees()));
+class Slabber(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Slabber, 8f);
 class InnerspacePredict(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? Next;
@@ -71,8 +71,8 @@ class Innerspace(BossModule module) : Components.PersistentInvertibleVoidzone(mo
             InvertResolveAt = default;
     }
 }
-class Ululation(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Ululation));
-class HoundOutOfHell(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.HoundOutOfHell), 7f);
+class Ululation(BossModule module) : Components.RaidwideCast(module, (uint)AID.Ululation);
+class HoundOutOfHell(BossModule module) : Components.BaitAwayChargeCast(module, (uint)AID.HoundOutOfHell, 7f);
 
 class KenkoStates : StateMachineBuilder
 {

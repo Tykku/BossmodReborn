@@ -45,7 +45,7 @@ class DireStraits(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class NavigatorsTridentAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.NavigatorsTridentAOE), new AOEShapeRect(40f, 5f));
+class NavigatorsTridentAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.NavigatorsTridentAOE, new AOEShapeRect(40f, 5f));
 
 class NavigatorsTridentKnockback(BossModule module) : Components.GenericKnockback(module)
 {

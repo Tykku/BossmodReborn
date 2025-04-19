@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Savage.M08SHowlingBlade;
 
-class ProwlingGaleLast(BossModule module) : Components.GenericTowers(module, ActionID.MakeSpell(AID.ProwlingGaleLast1))
+class ProwlingGaleLast(BossModule module) : Components.GenericTowers(module, (uint)AID.ProwlingGaleLast1)
 {
     public override void AddGlobalHints(GlobalHints hints)
     {

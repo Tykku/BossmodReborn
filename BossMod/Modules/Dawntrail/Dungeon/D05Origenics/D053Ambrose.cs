@@ -65,8 +65,8 @@ class PsychicWaveArenaChange(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class PsychicWave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PsychicWave));
-class Psychokinesis(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Psychokinesis), new AOEShapeRect(70f, 6.5f));
+class PsychicWave(BossModule module) : Components.RaidwideCast(module, (uint)AID.PsychicWave);
+class Psychokinesis(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Psychokinesis, new AOEShapeRect(70f, 6.5f));
 
 class ExtrasensoryExpulsion(BossModule module) : Components.GenericKnockback(module, maxCasts: 1)
 {
@@ -120,7 +120,7 @@ class ExtrasensoryExpulsion(BossModule module) : Components.GenericKnockback(mod
     }
 }
 
-class VoltaicSlash(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.VoltaicSlash));
+class VoltaicSlash(BossModule module) : Components.SingleTargetCast(module, (uint)AID.VoltaicSlash);
 
 class OverwhelmingCharge(BossModule module) : Components.GenericAOEs(module)
 {
@@ -209,8 +209,8 @@ class OverwhelmingCharge(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Electrolance(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Electrolance), 22f);
-class WhorlOfTheMind(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.WhorlOfTheMind), 5f);
+class Electrolance(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Electrolance, 22f);
+class WhorlOfTheMind(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.WhorlOfTheMind, 5f);
 
 class Rush(BossModule module) : Components.GenericAOEs(module)
 {

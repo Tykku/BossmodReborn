@@ -34,10 +34,10 @@ public enum SID : uint
     Concussion = 3513 // Boss->player, extra=0xF43
 }
 
-abstract class WaterBomb(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
-class WaterBomb1(BossModule module) : WaterBomb(module, AID.WaterBomb1);
-class WaterBomb2(BossModule module) : WaterBomb(module, AID.WaterBomb2);
-class WaterBomb3(BossModule module) : WaterBomb(module, AID.WaterBomb3);
+abstract class WaterBomb(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
+class WaterBomb1(BossModule module) : WaterBomb(module, (uint)AID.WaterBomb1);
+class WaterBomb2(BossModule module) : WaterBomb(module, (uint)AID.WaterBomb2);
+class WaterBomb3(BossModule module) : WaterBomb(module, (uint)AID.WaterBomb3);
 
 class OdiousCroak(BossModule module) : Components.GenericAOEs(module)
 {
@@ -81,7 +81,7 @@ class DiscordantHarmony(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class ToyHammer(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ToyHammer));
+class ToyHammer(BossModule module) : Components.SingleTargetCast(module, (uint)AID.ToyHammer);
 
 class Concussion(BossModule module) : BossComponent(module)
 {

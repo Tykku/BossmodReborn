@@ -50,8 +50,8 @@ class Fireflow(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class BurningBolt(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BurningBolt));
-class FireII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireII), 5f);
+class BurningBolt(BossModule module) : Components.SingleTargetCast(module, (uint)AID.BurningBolt);
+class FireII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FireII, 5f);
 
 class D041FiremaneStates : StateMachineBuilder
 {

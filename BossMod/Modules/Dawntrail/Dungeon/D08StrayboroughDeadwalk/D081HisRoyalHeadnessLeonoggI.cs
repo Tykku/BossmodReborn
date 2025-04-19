@@ -67,14 +67,14 @@ class MaliciousMistArenaChange(BossModule module) : Components.GenericAOEs(modul
     }
 }
 
-class LoomingNightmare(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(4), ActionID.MakeSpell(AID.LoomingNightmareFirst), ActionID.MakeSpell(AID.LoomingNightmareRest), 3, 1.6f, 5, true, (uint)IconID.ChasingAOE)
+class LoomingNightmare(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(4), (uint)AID.LoomingNightmareFirst, (uint)AID.LoomingNightmareRest, 3, 1.6f, 5, true, (uint)IconID.ChasingAOE)
 {
     private int totalChasers;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         base.OnCastStarted(caster, spell);
-        if (spell.Action == ActionFirst)
+        if (spell.Action.ID == ActionFirst)
         {
             ++totalChasers;
             if (totalChasers > 1)
@@ -171,11 +171,11 @@ class EvilScheme(BossModule module) : Components.Exaflare(module, 4f)
     }
 }
 
-class MaliciousMist(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MaliciousMist));
+class MaliciousMist(BossModule module) : Components.RaidwideCast(module, (uint)AID.MaliciousMist);
 
 class Scream : Components.SimpleAOEs
 {
-    public Scream(BossModule module) : base(module, ActionID.MakeSpell(AID.Scream), new AOEShapeCone(20f, 30f.Degrees()), 4) { MaxDangerColor = 2; }
+    public Scream(BossModule module) : base(module, (uint)AID.Scream, new AOEShapeCone(20f, 30f.Degrees()), 4) { MaxDangerColor = 2; }
 }
 
 class D081HisRoyalHeadnessLeonoggIStates : StateMachineBuilder

@@ -168,11 +168,11 @@ class RapidRotary(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Electrowave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Electrowave));
+class Electrowave(BossModule module) : Components.RaidwideCast(module, (uint)AID.Electrowave);
 
-class Rush(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.Rush), 2.5f);
-class AerialOffensive(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AerialOffensive), 14f, 4);
-class Electrosurge(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Electrosurge), 5f);
+class Rush(BossModule module) : Components.ChargeAOEs(module, (uint)AID.Rush, 2.5f);
+class AerialOffensive(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AerialOffensive, 14f, 4);
+class Electrosurge(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Electrosurge, 5f);
 
 class D041CommanderR8States : StateMachineBuilder
 {

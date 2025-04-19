@@ -35,27 +35,27 @@ public enum AID : uint
     OdiousUproar = 39481 // Boss->self, 5.0s cast, range 40 circle
 }
 
-class Flourish(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40f, 135f.Degrees()));
-class FightersFlourish1(BossModule module) : Flourish(module, AID.FightersFlourish1);
-class FightersFlourish2(BossModule module) : Flourish(module, AID.FightersFlourish2);
-class FightersFlourish3(BossModule module) : Flourish(module, AID.FightersFlourish3);
-class DiscordantFlourish1(BossModule module) : Flourish(module, AID.DiscordantFlourish1);
-class DiscordantFlourish2(BossModule module) : Flourish(module, AID.DiscordantFlourish2);
-class DiscordantFlourish3(BossModule module) : Flourish(module, AID.DiscordantFlourish3);
+class Flourish(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(40f, 135f.Degrees()));
+class FightersFlourish1(BossModule module) : Flourish(module, (uint)AID.FightersFlourish1);
+class FightersFlourish2(BossModule module) : Flourish(module, (uint)AID.FightersFlourish2);
+class FightersFlourish3(BossModule module) : Flourish(module, (uint)AID.FightersFlourish3);
+class DiscordantFlourish1(BossModule module) : Flourish(module, (uint)AID.DiscordantFlourish1);
+class DiscordantFlourish2(BossModule module) : Flourish(module, (uint)AID.DiscordantFlourish2);
+class DiscordantFlourish3(BossModule module) : Flourish(module, (uint)AID.DiscordantFlourish3);
 
-class Fullmoon(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 20f);
-class FullmoonFuryCircle1(BossModule module) : Fullmoon(module, AID.FullmoonFuryCircle1);
-class FullmoonFuryCircle2(BossModule module) : Fullmoon(module, AID.FullmoonFuryCircle2);
-class DiscordantMoonCircle(BossModule module) : Fullmoon(module, AID.DiscordantMoonCircle);
+class Fullmoon(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 20f);
+class FullmoonFuryCircle1(BossModule module) : Fullmoon(module, (uint)AID.FullmoonFuryCircle1);
+class FullmoonFuryCircle2(BossModule module) : Fullmoon(module, (uint)AID.FullmoonFuryCircle2);
+class DiscordantMoonCircle(BossModule module) : Fullmoon(module, (uint)AID.DiscordantMoonCircle);
 
-class DiscordantMoon(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(10f, 40f));
-class FullmoonFuryDonut(BossModule module) : DiscordantMoon(module, AID.FullmoonFuryDonut);
-class DiscordantMoonDonut1(BossModule module) : DiscordantMoon(module, AID.DiscordantMoonDonut1);
-class DiscordantMoonDonut2(BossModule module) : DiscordantMoon(module, AID.DiscordantMoonDonut2);
+class DiscordantMoon(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonut(10f, 40f));
+class FullmoonFuryDonut(BossModule module) : DiscordantMoon(module, (uint)AID.FullmoonFuryDonut);
+class DiscordantMoonDonut1(BossModule module) : DiscordantMoon(module, (uint)AID.DiscordantMoonDonut1);
+class DiscordantMoonDonut2(BossModule module) : DiscordantMoon(module, (uint)AID.DiscordantMoonDonut2);
 
-class FlyingFist(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlyingFist), new AOEShapeRect(40f, 4f));
-class OdiousUproar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.OdiousUproar));
-class EnervatingGloom(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.EnervatingGloom), 6f, 8);
+class FlyingFist(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FlyingFist, new AOEShapeRect(40f, 4f));
+class OdiousUproar(BossModule module) : Components.RaidwideCast(module, (uint)AID.OdiousUproar);
+class EnervatingGloom(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.EnervatingGloom, 6f, 8);
 
 class KirlirgerTheAbhorrentStates : StateMachineBuilder
 {

@@ -26,7 +26,7 @@ public enum SID : uint
     AboutFace = 2162
 }
 
-class ResonantBuzz(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ResonantBuzz), "Apply forced march!");
+class ResonantBuzz(BossModule module) : Components.RaidwideCast(module, (uint)AID.ResonantBuzz, "Apply forced march!");
 class ResonantBuzzMarch(BossModule module) : Components.StatusDrivenForcedMarch(module, 3f, (uint)SID.ForwardMarch, (uint)SID.AboutFace, (uint)SID.LeftFace, (uint)SID.RightFace)
 {
     private readonly BeeBeAOE _aoe = module.FindComponent<BeeBeAOE>()!;
@@ -53,8 +53,8 @@ class ResonantBuzzMarch(BossModule module) : Components.StatusDrivenForcedMarch(
     }
 }
 
-class StraightSpindle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.StraightSpindle), new AOEShapeRect(50f, 2.5f));
-class FrenziedSting(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.FrenziedSting));
+class StraightSpindle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.StraightSpindle, new AOEShapeRect(50f, 2.5f));
+class FrenziedSting(BossModule module) : Components.SingleTargetCast(module, (uint)AID.FrenziedSting);
 
 class BeeBeAOE(BossModule module) : Components.GenericAOEs(module)
 {

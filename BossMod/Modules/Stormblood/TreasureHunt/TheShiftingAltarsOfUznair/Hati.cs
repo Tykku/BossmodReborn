@@ -33,18 +33,18 @@ public enum AID : uint
     Telega = 9630 // Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
-class PolarRoar(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PolarRoar), new AOEShapeDonut(9f, 40f));
-class Hellstorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hellstorm2), 10f);
-class Netherwind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Netherwind), new AOEShapeRect(18f, 2f));
-class GlassyNova(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GlassyNova), new AOEShapeRect(45.4f, 4f));
-class BrainFreeze(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BrainFreeze), 15.4f);
+class PolarRoar(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PolarRoar, new AOEShapeDonut(9f, 40f));
+class Hellstorm(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Hellstorm2, 10f);
+class Netherwind(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Netherwind, new AOEShapeRect(18f, 2f));
+class GlassyNova(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GlassyNova, new AOEShapeRect(45.4f, 4f));
+class BrainFreeze(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BrainFreeze, 15.4f);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6.84f);
+class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
 
 class HatiStates : StateMachineBuilder
 {

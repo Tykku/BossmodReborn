@@ -1,18 +1,18 @@
 namespace BossMod.Endwalker.VariantCriterion.V01SS.V013Gladiator;
 
-class SunderedRemains(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SunderedRemains), 10f);
-class Landing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Landing), 20f);
+class SunderedRemains(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SunderedRemains, 10f);
+class Landing(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Landing, 20f);
 
-class GoldenFlame(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GoldenFlame), new AOEShapeRect(60f, 5f));
-class SculptorsPassion(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SculptorsPassion), new AOEShapeRect(60f, 4f));
-class RackAndRuin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RackAndRuin), new AOEShapeRect(40f, 2.5f), 8);
+class GoldenFlame(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GoldenFlame, new AOEShapeRect(60f, 5f));
+class SculptorsPassion(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SculptorsPassion, new AOEShapeRect(60f, 4f));
+class RackAndRuin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RackAndRuin, new AOEShapeRect(40f, 2.5f), 8);
 
-class MightySmite(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.MightySmite));
+class MightySmite(BossModule module) : Components.SingleTargetCast(module, (uint)AID.MightySmite);
 
-class BitingWindBad(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BitingWindBad), 4f);
+class BitingWindBad(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BitingWindBad, 4f);
 
-class ShatteringSteel(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ShatteringSteel), "Get in bigger Whirlwind to dodge");
-class ViperPoisonPatterns(BossModule module) : Components.VoidzoneAtCastTarget(module, 6f, ActionID.MakeSpell(AID.BitingWindBad), GetVoidzones, 0f)
+class ShatteringSteel(BossModule module) : Components.RaidwideCast(module, (uint)AID.ShatteringSteel, "Get in bigger Whirlwind to dodge");
+class ViperPoisonPatterns(BossModule module) : Components.VoidzoneAtCastTarget(module, 6f, (uint)AID.BitingWindBad, GetVoidzones, 0f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {
@@ -147,9 +147,9 @@ class RushOfMight(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class FlashOfSteel1(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FlashOfSteel1));
-class FlashOfSteel2(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FlashOfSteel2));
-class ShatteringSteelMeteor(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.ShatteringSteel), 60f)
+class FlashOfSteel1(BossModule module) : Components.RaidwideCast(module, (uint)AID.FlashOfSteel1);
+class FlashOfSteel2(BossModule module) : Components.RaidwideCast(module, (uint)AID.FlashOfSteel2);
+class ShatteringSteelMeteor(BossModule module) : Components.CastLineOfSightAOE(module, (uint)AID.ShatteringSteel, 60f)
 {
     public override ReadOnlySpan<Actor> BlockerActors()
     {

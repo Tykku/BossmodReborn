@@ -46,11 +46,11 @@ public enum IconID : uint
     StaticForce = 591 // Boss->players
 }
 
-class FieldOfScorn(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.FieldOfScorn));
-class ThunderousSlash(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ThunderousSlash));
-class OrderedFire(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OrderedFire), new AOEShapeRect(55f, 4f));
-class ElectricExcess(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.ElectricExcess), 6f);
-class StaticForce(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(60f, 15f.Degrees()), (uint)IconID.StaticForce, ActionID.MakeSpell(AID.StaticForce), 5.1f);
+class FieldOfScorn(BossModule module) : Components.RaidwideCast(module, (uint)AID.FieldOfScorn);
+class ThunderousSlash(BossModule module) : Components.SingleTargetCast(module, (uint)AID.ThunderousSlash);
+class OrderedFire(BossModule module) : Components.SimpleAOEs(module, (uint)AID.OrderedFire, new AOEShapeRect(55f, 4f));
+class ElectricExcess(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.ElectricExcess, 6f);
+class StaticForce(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(60f, 15f.Degrees()), (uint)IconID.StaticForce, (uint)AID.StaticForce, 5.1f);
 
 class SectorBisector(BossModule module) : Components.GenericAOEs(module)
 {

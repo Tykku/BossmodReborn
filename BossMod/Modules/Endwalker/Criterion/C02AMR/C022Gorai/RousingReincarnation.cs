@@ -1,8 +1,8 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C022Gorai;
 
-abstract class RousingReincarnation(BossModule module, AID aid) : Components.CastCounter(module, ActionID.MakeSpell(aid));
-class NRousingReincarnation(BossModule module) : RousingReincarnation(module, AID.NRousingReincarnationAOE);
-class SRousingReincarnation(BossModule module) : RousingReincarnation(module, AID.SRousingReincarnationAOE);
+abstract class RousingReincarnation(BossModule module, uint aid) : Components.CastCounter(module, aid);
+class NRousingReincarnation(BossModule module) : RousingReincarnation(module, (uint)AID.NRousingReincarnationAOE);
+class SRousingReincarnation(BossModule module) : RousingReincarnation(module, (uint)AID.SRousingReincarnationAOE);
 
 // note on towers: indices are 0-7 CW from N, even (cardinal) are blue, odd (intercardinal) are orange
 class MalformedPrayer1(BossModule module) : Components.GenericTowers(module)

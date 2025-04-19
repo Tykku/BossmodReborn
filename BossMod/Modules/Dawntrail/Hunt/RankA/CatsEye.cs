@@ -17,9 +17,9 @@ public enum AID : uint
     BloodshotGazeInverted = 39668, // Boss->players, 5.0s cast, range 8 circle, inverted.
 }
 
-class CatsEyeGaze(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.CatsEye1));
-class CatsEyeInvertedGaze(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.CatsEye2), true);
-class GravitationalWave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GravitationalWave));
+class CatsEyeGaze(BossModule module) : Components.CastGaze(module, (uint)AID.CatsEye1);
+class CatsEyeInvertedGaze(BossModule module) : Components.CastGaze(module, (uint)AID.CatsEye2, true);
+class GravitationalWave(BossModule module) : Components.RaidwideCast(module, (uint)AID.GravitationalWave);
 class BloodshotGaze(BossModule module) : Components.GenericGaze(module)
 {
     private readonly BloodshotStack _stack = module.FindComponent<BloodshotStack>()!;
@@ -50,8 +50,8 @@ class BloodshotGaze(BossModule module) : Components.GenericGaze(module)
     }
 }
 
-class BloodshotStack(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BloodshotGaze), 8f, 8);
-class BloodshotStackInverted(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BloodshotGazeInverted), 8f, 8);
+class BloodshotStack(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.BloodshotGaze, 8f, 8);
+class BloodshotStackInverted(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.BloodshotGazeInverted, 8f, 8);
 
 class CatsEyeStates : StateMachineBuilder
 {

@@ -38,7 +38,7 @@ class OnFire(BossModule module) : BossComponent(module)
     }
 }
 
-class WildfiresFury(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.WildfiresFury));
+class WildfiresFury(BossModule module) : Components.RaidwideCast(module, (uint)AID.WildfiresFury);
 
 class HeavenAndEarth(BossModule module) : Components.GenericRotatingAOE(module)
 {
@@ -100,9 +100,9 @@ class HeartOfNatureConcentric(BossModule module) : Components.ConcentricAOEs(mod
     }
 }
 
-class CagedHeartOfNature(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CagedHeartOfNature), 6f);
+class CagedHeartOfNature(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CagedHeartOfNature, 6f);
 
-class WindsPeak(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindsPeak1), 5f);
+class WindsPeak(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WindsPeak1, 5f);
 
 class WindsPeakKB(BossModule module) : Components.GenericKnockback(module)
 {
@@ -129,7 +129,7 @@ class WindsPeakKB(BossModule module) : Components.GenericKnockback(module)
     }
 }
 
-class SplittingRage(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.SplittingRage));
+class SplittingRage(BossModule module) : Components.TemporaryMisdirection(module, (uint)AID.SplittingRage);
 
 class NaturesBlood(BossModule module) : Components.Exaflare(module, 4f)
 {
@@ -162,9 +162,9 @@ class NaturesBlood(BossModule module) : Components.Exaflare(module, 4f)
     }
 }
 
-class MoveMountains(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MoveMountains3), new AOEShapeRect(40f, 3f))
+class MoveMountains(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MoveMountains3, new AOEShapeRect(40f, 3f))
 {
     // TODO predict rotation
 }
 
-class WildfireCrucible(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.WildfireCrucible), "Enrage!", true);
+class WildfireCrucible(BossModule module) : Components.CastHint(module, (uint)AID.WildfireCrucible, "Enrage!", true);

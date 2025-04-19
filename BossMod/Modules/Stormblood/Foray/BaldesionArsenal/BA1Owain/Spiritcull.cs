@@ -1,7 +1,7 @@
 namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA1Owain;
 
-class PiercingLight1(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PiercingLight1), 6f);
-class PiercingLight2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PiercingLight2), 6f);
+class PiercingLight1(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.PiercingLight1, 6f);
+class PiercingLight2(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.PiercingLight2, 6f);
 
 class Spiritcull(BossModule module) : Components.GenericStackSpread(module)
 {

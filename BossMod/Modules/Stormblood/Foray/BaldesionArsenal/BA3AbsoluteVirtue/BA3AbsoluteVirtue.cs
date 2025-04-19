@@ -1,15 +1,15 @@
 namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA3AbsoluteVirtue;
 
-class Meteor(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Meteor));
-class MedusaJavelin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MedusaJavelin), new AOEShapeCone(65.4f, 45f.Degrees()));
-class AuroralWind(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.AuroralWind), new AOEShapeCircle(5f), true, tankbuster: true);
+class Meteor(BossModule module) : Components.RaidwideCast(module, (uint)AID.Meteor);
+class MedusaJavelin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MedusaJavelin, new AOEShapeCone(65.4f, 45f.Degrees()));
+class AuroralWind(BossModule module) : Components.BaitAwayCast(module, (uint)AID.AuroralWind, new AOEShapeCircle(5f), true, tankbuster: true);
 
-abstract class ExplosiveImpulse(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 18f);
-class ExplosiveImpulse1(BossModule module) : ExplosiveImpulse(module, AID.ExplosiveImpulse1);
-class ExplosiveImpulse2(BossModule module) : ExplosiveImpulse(module, AID.ExplosiveImpulse2);
+abstract class ExplosiveImpulse(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 18f);
+class ExplosiveImpulse1(BossModule module) : ExplosiveImpulse(module, (uint)AID.ExplosiveImpulse1);
+class ExplosiveImpulse2(BossModule module) : ExplosiveImpulse(module, (uint)AID.ExplosiveImpulse2);
 
-class AernsWynavExplosion(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.ExplosionWyvern), "Aerns Wyvnav is enraging!", true);
-class MeteorEnrageCounter(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.MeteorEnrageRepeat));
+class AernsWynavExplosion(BossModule module) : Components.CastHint(module, (uint)AID.ExplosionWyvern, "Aerns Wyvnav is enraging!", true);
+class MeteorEnrageCounter(BossModule module) : Components.CastCounter(module, (uint)AID.MeteorEnrageRepeat);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.BaldesionArsenal, GroupID = 639, NameID = 7976, PlanLevel = 70, SortOrder = 4)]
 public class BA3AbsoluteVirtue(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)

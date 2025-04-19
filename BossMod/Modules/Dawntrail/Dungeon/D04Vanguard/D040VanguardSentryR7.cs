@@ -15,9 +15,9 @@ public enum AID : uint
     SpinningAxle = 39018, // Boss->self, 4.0s cast, range 6 circle
 }
 
-class Swoop(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.Swoop), 2.5f);
-class FloaterTurn(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FloaterTurn), new AOEShapeDonut(4f, 10f));
-class SpinningAxle(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpinningAxle), 6f);
+class Swoop(BossModule module) : Components.ChargeAOEs(module, (uint)AID.Swoop, 2.5f);
+class FloaterTurn(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FloaterTurn, new AOEShapeDonut(4f, 10f));
+class SpinningAxle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpinningAxle, 6f);
 
 class D040VanguardSentryR7States : StateMachineBuilder
 {

@@ -55,4 +55,4 @@ class FangedCrossing(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class TerrestrialTitans(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TerrestrialTitans), 5f);
+class TerrestrialTitans(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TerrestrialTitans, 5f);

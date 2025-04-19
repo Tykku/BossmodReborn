@@ -48,12 +48,12 @@ class Hints(BossModule module) : BossComponent(module)
 }
 
 // also handles rockbuster, which is just a smaller cleave...
-class MountainBuster(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.MountainBuster), new AOEShapeCone(21.25f, 60f.Degrees())); // TODO: verify angle
+class MountainBuster(BossModule module) : Components.Cleave(module, (uint)AID.MountainBuster, new AOEShapeCone(21.25f, 60f.Degrees())); // TODO: verify angle
 
-class WeightOfTheLand(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WeightOfTheLandAOE), 6f);
-class Landslide(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Landslide), new AOEShapeRect(40.25f, 3f));
+class WeightOfTheLand(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WeightOfTheLandAOE, 6f);
+class Landslide(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Landslide, new AOEShapeRect(40.25f, 3f));
 
-class Geocrush(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.Geocrush))
+class Geocrush(BossModule module) : Components.GenericAOEs(module, (uint)AID.Geocrush)
 {
     private int _currentCast;
     private AOEShapeDonut? _outer;
@@ -71,7 +71,7 @@ class Geocrush(BossModule module) : Components.GenericAOEs(module, ActionID.Make
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             var outerRadius = ++_currentCast switch
             {
@@ -88,14 +88,14 @@ class Geocrush(BossModule module) : Components.GenericAOEs(module, ActionID.Make
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             _inner = null;
         }
     }
 }
 
-class Burst(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Burst), new AOEShapeCircle(6.3f))
+class Burst(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Burst, new AOEShapeCircle(6.3f))
 {
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {

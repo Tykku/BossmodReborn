@@ -142,8 +142,8 @@ class TeaAwhirl : Components.GenericAOEs
     }
 }
 
-class SordidSteam(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SordidSteam));
-class LastDrop(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.LastDrop));
+class SordidSteam(BossModule module) : Components.RaidwideCast(module, (uint)AID.SordidSteam);
+class LastDrop(BossModule module) : Components.SingleTargetCast(module, (uint)AID.LastDrop);
 
 class D082JackInThePotStates : StateMachineBuilder
 {

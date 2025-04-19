@@ -194,9 +194,9 @@ class NecroticFluidMist(BossModule module) : Components.Exaflare(module, 6)
     }
 }
 
-class Befoulment(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Befoulment), 6f);
-class BlightedWater(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BlightedWater), 6f, 4, 4);
-class CoughUpAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CoughUpAOE), 6f);
+class Befoulment(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Befoulment, 6f);
+class BlightedWater(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.BlightedWater, 6f, 4, 4);
+class CoughUpAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CoughUpAOE, 6f);
 
 class WaveOfNausea(BossModule module) : Components.GenericAOEs(module)
 {
@@ -234,8 +234,8 @@ class WaveOfNausea(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class PoxFlail(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.PoxFlail));
-class Miasmata(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Miasmata));
+class PoxFlail(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.PoxFlail);
+class Miasmata(BossModule module) : Components.RaidwideCast(module, (uint)AID.Miasmata);
 
 class D061CausticGrebuloffStates : StateMachineBuilder
 {

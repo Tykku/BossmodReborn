@@ -36,7 +36,7 @@ public enum SID : uint
     Poison = 18 // Boss->player, extra=0x0
 }
 
-class ManusyaBio(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ManusyaBio), "Tankbuster + cleansable poison");
+class ManusyaBio(BossModule module) : Components.SingleTargetCast(module, (uint)AID.ManusyaBio, "Tankbuster + cleansable poison");
 
 class Poison(BossModule module) : BossComponent(module)
 {
@@ -113,10 +113,10 @@ class Dhrupad(BossModule module) : BossComponent(module)
     }
 }
 
-class ManusyaThunderIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ManusyaThunderIII2), 3);
-class ManusyaBioIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ManusyaBioIII2), new AOEShapeCone(40.5f, 90.Degrees()));
-class ManusyaBlizzardIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ManusyaBlizzardIII2), new AOEShapeCone(40.5f, 10.Degrees()));
-class ManusyaFireIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ManusyaFireIII2), new AOEShapeDonut(5, 60));
+class ManusyaThunderIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ManusyaThunderIII2, 3);
+class ManusyaBioIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ManusyaBioIII2, new AOEShapeCone(40.5f, 90.Degrees()));
+class ManusyaBlizzardIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ManusyaBlizzardIII2, new AOEShapeCone(40.5f, 10.Degrees()));
+class ManusyaFireIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ManusyaFireIII2, new AOEShapeDonut(5, 60));
 
 class D011MinduruvaStates : StateMachineBuilder
 {

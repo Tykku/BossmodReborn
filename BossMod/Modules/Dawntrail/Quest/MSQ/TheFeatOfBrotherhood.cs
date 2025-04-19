@@ -236,19 +236,19 @@ class LayOfTheSun(BossModule module) : Components.UniformStackSpread(module, 6f,
     }
 }
 
-class RoaringStar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RoaringStarRaidwide));
-class CoiledStrike(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CoiledStrike), new AOEShapeCone(30f, 75f.Degrees()));
-class Burn(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Burn), new AOEShapeRect(46f, 2.5f), 8);
-class FallenStar(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FallenStar), 6f);
-class FirstLight(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FirstLight), 6f);
-class InnerWake(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.InnerWake), 10f);
-class OuterWake(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OuterWake), new AOEShapeDonut(6f, 40f));
-class BattleBreaker(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BattleBreaker));
-class HeartOfTuralRaidwides(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HeartOfTural), "Raidwides x7");
+class RoaringStar(BossModule module) : Components.RaidwideCast(module, (uint)AID.RoaringStarRaidwide);
+class CoiledStrike(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CoiledStrike, new AOEShapeCone(30f, 75f.Degrees()));
+class Burn(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Burn, new AOEShapeRect(46f, 2.5f), 8);
+class FallenStar(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.FallenStar, 6f);
+class FirstLight(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FirstLight, 6f);
+class InnerWake(BossModule module) : Components.SimpleAOEs(module, (uint)AID.InnerWake, 10f);
+class OuterWake(BossModule module) : Components.SimpleAOEs(module, (uint)AID.OuterWake, new AOEShapeDonut(6f, 40f));
+class BattleBreaker(BossModule module) : Components.RaidwideCast(module, (uint)AID.BattleBreaker);
+class HeartOfTuralRaidwides(BossModule module) : Components.RaidwideCast(module, (uint)AID.HeartOfTural, "Raidwides x7");
 
 class HeartOfTural : Components.SimpleAOEs
 {
-    public HeartOfTural(BossModule module) : base(module, ActionID.MakeSpell(AID.HeartOfTural), new AOEShapeRect(20f, 20f, InvertForbiddenZone: true)) { Color = Colors.SafeFromAOE; }
+    public HeartOfTural(BossModule module) : base(module, (uint)AID.HeartOfTural, new AOEShapeRect(20f, 20f, InvertForbiddenZone: true)) { Color = Colors.SafeFromAOE; }
 
     private const string hint = "Wait in safe area!";
     public override void AddHints(int slot, Actor actor, TextHints hints)

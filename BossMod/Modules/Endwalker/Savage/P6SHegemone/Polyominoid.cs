@@ -5,7 +5,7 @@
 // 4  5  6  7
 // 8  9  A  B
 // C  D  E  F
-class Polyominoid(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.PolyominousDark))
+class Polyominoid(BossModule module) : Components.GenericAOEs(module, (uint)AID.PolyominousDark)
 {
     public enum State { None, Plus, Cross }
 

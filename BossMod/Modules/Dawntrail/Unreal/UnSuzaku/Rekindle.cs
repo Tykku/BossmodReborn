@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Unreal.UnSuzaku;
 
-abstract class Rekindle(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, ActionID.MakeSpell(AID.Rekindle), 6f, 5.1f);
+abstract class Rekindle(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, (uint)AID.Rekindle, 6f, 5.1f);
 
 class RekindleP1(BossModule module) : Rekindle(module)
 {

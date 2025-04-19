@@ -29,8 +29,8 @@ public enum SID : uint
     AetherochemicalBomb = 723, // none->player, extra=0x0
 }
 
-class SeedOfTheRivers(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SeedOfTheRivers), 5f);
-class Sanctification(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Sanctification), new AOEShapeCone(16.5f, 60f.Degrees()), activeWhileCasting: false);
+class SeedOfTheRivers(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SeedOfTheRivers, 5f);
+class Sanctification(BossModule module) : Components.Cleave(module, (uint)AID.Sanctification, new AOEShapeCone(16.5f, 60f.Degrees()), activeWhileCasting: false);
 
 class Educator(BossModule module) : Components.GenericAOEs(module)
 {

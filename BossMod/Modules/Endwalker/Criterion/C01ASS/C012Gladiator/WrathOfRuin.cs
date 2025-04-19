@@ -81,10 +81,10 @@ class GoldenSilverFlame(BossModule module) : BossComponent(module)
 
 // note: actual spell targets location, but it seems to be incorrect...
 // note: we can predict cast start during Regret actor spawn...
-abstract class RackAndRuin(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40f, 2.5f), 8);
-class NRackAndRuin(BossModule module) : RackAndRuin(module, AID.NRackAndRuin);
-class SRackAndRuin(BossModule module) : RackAndRuin(module, AID.SRackAndRuin);
+abstract class RackAndRuin(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(40f, 2.5f), 8);
+class NRackAndRuin(BossModule module) : RackAndRuin(module, (uint)AID.NRackAndRuin);
+class SRackAndRuin(BossModule module) : RackAndRuin(module, (uint)AID.SRackAndRuin);
 
-abstract class NothingBesideRemains(BossModule module, AID aid) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(aid), 8f);
-class NNothingBesideRemains(BossModule module) : NothingBesideRemains(module, AID.NNothingBesideRemainsAOE);
-class SNothingBesideRemains(BossModule module) : NothingBesideRemains(module, AID.SNothingBesideRemainsAOE);
+abstract class NothingBesideRemains(BossModule module, uint aid) : Components.SpreadFromCastTargets(module, aid, 8f);
+class NNothingBesideRemains(BossModule module) : NothingBesideRemains(module, (uint)AID.NNothingBesideRemainsAOE);
+class SNothingBesideRemains(BossModule module) : NothingBesideRemains(module, (uint)AID.SNothingBesideRemainsAOE);

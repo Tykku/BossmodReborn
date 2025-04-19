@@ -222,7 +222,7 @@ class P4CrystallizeTimeDragonHead(BossModule module) : BossComponent(module)
     }
 }
 
-class P4CrystallizeTimeMaelstrom(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.CrystallizeTimeMaelstrom))
+class P4CrystallizeTimeMaelstrom(BossModule module) : Components.GenericAOEs(module, (uint)AID.CrystallizeTimeMaelstrom)
 {
     public readonly List<AOEInstance> AOEs = [];
 
@@ -276,7 +276,7 @@ class P4CrystallizeTimeMaelstrom(BossModule module) : Components.GenericAOEs(mod
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             ++NumCasts;
             var count = AOEs.Count;
@@ -329,7 +329,7 @@ class P4CrystallizeTimeDarkWater(BossModule module) : Components.UniformStackSpr
     }
 }
 
-class P4CrystallizeTimeDarkEruption(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.DarkEruption))
+class P4CrystallizeTimeDarkEruption(BossModule module) : Components.GenericBaitAway(module, (uint)AID.DarkEruption)
 {
     private static readonly AOEShapeCircle _shape = new(6f);
 
@@ -344,7 +344,7 @@ class P4CrystallizeTimeDarkEruption(BossModule module) : Components.GenericBaitA
     }
 }
 
-class P4CrystallizeTimeDarkAero(BossModule module) : Components.GenericKnockback(module, ActionID.MakeSpell(AID.CrystallizeTimeDarkAero)) // TODO: not sure whether it actually ignores immunes, if so need to warn about immunity
+class P4CrystallizeTimeDarkAero(BossModule module) : Components.GenericKnockback(module, (uint)AID.CrystallizeTimeDarkAero) // TODO: not sure whether it actually ignores immunes, if so need to warn about immunity
 {
     private readonly List<Actor> _sources = [];
     private DateTime _activation;
@@ -453,7 +453,7 @@ class P4CrystallizeTimeTidalLight : Components.Exaflare
     }
 }
 
-class P4CrystallizeTimeQuietus(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Quietus));
+class P4CrystallizeTimeQuietus(BossModule module) : Components.CastCounter(module, (uint)AID.Quietus);
 
 class P4CrystallizeTimeHints(BossModule module) : BossComponent(module)
 {

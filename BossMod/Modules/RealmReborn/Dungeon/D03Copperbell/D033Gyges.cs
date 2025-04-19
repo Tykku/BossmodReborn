@@ -16,11 +16,11 @@ public enum AID : uint
     ColossalSlam = 28763, // Boss->self, 4.0s cast, range 40 60-degree cone aoe
 }
 
-class GiganticSwing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GiganticSwing), new AOEShapeDonut(4, 40));
-class GiganticSmash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GiganticSmash), 10);
-class GiganticBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GiganticBlast), 8);
-class GrandSlam(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.GrandSlam));
-class ColossalSlam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ColossalSlam), new AOEShapeCone(40, 30.Degrees()));
+class GiganticSwing(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GiganticSwing, new AOEShapeDonut(4, 40));
+class GiganticSmash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GiganticSmash, 10);
+class GiganticBlast(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GiganticBlast, 8);
+class GrandSlam(BossModule module) : Components.SingleTargetCast(module, (uint)AID.GrandSlam);
+class ColossalSlam(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ColossalSlam, new AOEShapeCone(40, 30.Degrees()));
 
 class D033GygesStates : StateMachineBuilder
 {

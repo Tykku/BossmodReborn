@@ -37,12 +37,12 @@ public enum SID : uint
     Transporting = 404 // none->player, extra=0x15
 }
 
-class OdeToLostLove(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.OdeToLostLove));
-class StormOfColor(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.StormOfColor));
-class FarWindSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FarWindSpread), 5f);
-class FarWind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FarWind), 8f);
-class OdeToFallenPetals(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OdeToFallenPetals), new AOEShapeDonut(5f, 60f));
-class IrefulWind(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.IrefulWind), 10f, kind: Kind.DirForward, stopAtWall: true);
+class OdeToLostLove(BossModule module) : Components.RaidwideCast(module, (uint)AID.OdeToLostLove);
+class StormOfColor(BossModule module) : Components.SingleTargetCast(module, (uint)AID.StormOfColor);
+class FarWindSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.FarWindSpread, 5f);
+class FarWind(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FarWind, 8f);
+class OdeToFallenPetals(BossModule module) : Components.SimpleAOEs(module, (uint)AID.OdeToFallenPetals, new AOEShapeDonut(5f, 60f));
+class IrefulWind(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.IrefulWind, 10f, kind: Kind.DirForward, stopAtWall: true);
 
 class GreenTiles(BossModule module) : Components.GenericAOEs(module)
 {

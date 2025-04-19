@@ -31,9 +31,9 @@ public enum AID : uint
     WhisperOfTheWood3 = 39495 // Boss->self, 3.0s cast, single-target
 }
 
-class Level5DeathSentence(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.Level5DeathSentence), true, false, "Applies Doom!");
-class SentinelRoar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SentinelRoar));
-class WordOfTheWood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CastWordOfTheWood), new AOEShapeCone(30f, 90f.Degrees()));
+class Level5DeathSentence(BossModule module) : Components.CastInterruptHint(module, (uint)AID.Level5DeathSentence, true, false, "Applies Doom!");
+class SentinelRoar(BossModule module) : Components.RaidwideCast(module, (uint)AID.SentinelRoar);
+class WordOfTheWood(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CastWordOfTheWood, new AOEShapeCone(30f, 90f.Degrees()));
 
 class WhispersOfTheWood(BossModule module) : Components.GenericAOEs(module)
 {

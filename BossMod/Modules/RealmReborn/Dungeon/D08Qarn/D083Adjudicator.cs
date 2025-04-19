@@ -25,13 +25,13 @@ public enum AID : uint
     VergePulse = 42241 // MythrilVerge->self, 20.0s cast, range 60.6 width 4 rect aoe
 }
 
-class LoomingJudgement(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.LoomingJudgement));
-class CreepingDarkness(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CreepingDarkness));
-class DarkII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DarkII), new AOEShapeCone(40f, 60.Degrees()));
-class Dark(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Dark), new AOEShapeCircle(5f));
-class SelfDestruct(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SelfDestruct));
-class VergeLine(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VergeLine), new AOEShapeRect(60.6f, 2f));
-class VergePulse(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.VergePulse), new AOEShapeRect(60.6f, 2f));
+class LoomingJudgement(BossModule module) : Components.SingleTargetCast(module, (uint)AID.LoomingJudgement);
+class CreepingDarkness(BossModule module) : Components.RaidwideCast(module, (uint)AID.CreepingDarkness);
+class DarkII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DarkII, new AOEShapeCone(40f, 60.Degrees()));
+class Dark(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Dark, new AOEShapeCircle(5f));
+class SelfDestruct(BossModule module) : Components.RaidwideCast(module, (uint)AID.SelfDestruct);
+class VergeLine(BossModule module) : Components.SimpleAOEs(module, (uint)AID.VergeLine, new AOEShapeRect(60.6f, 2f));
+class VergePulse(BossModule module) : Components.SimpleAOEs(module, (uint)AID.VergePulse, new AOEShapeRect(60.6f, 2f));
 
 class D083AdjudicatorStates : StateMachineBuilder
 {

@@ -1,17 +1,17 @@
 ﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.DRS4QueensGuard;
 
-class OptimalPlaySword(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OptimalPlaySword), 10f);
-class OptimalPlayShield(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OptimalPlayShield), new AOEShapeDonut(5f, 60f));
-class OptimalPlayCone(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OptimalPlayCone), new AOEShapeCone(60f, 135f.Degrees()));
+class OptimalPlaySword(BossModule module) : Components.SimpleAOEs(module, (uint)AID.OptimalPlaySword, 10f);
+class OptimalPlayShield(BossModule module) : Components.SimpleAOEs(module, (uint)AID.OptimalPlayShield, new AOEShapeDonut(5f, 60f));
+class OptimalPlayCone(BossModule module) : Components.SimpleAOEs(module, (uint)AID.OptimalPlayCone, new AOEShapeCone(60f, 135f.Degrees()));
 
 // note: apparently there is no 'front unseen' status
-class QueensShotUnseen(BossModule module) : Components.CastWeakpoint(module, ActionID.MakeSpell(AID.QueensShotUnseen), new AOEShapeCircle(60f), 0, (uint)SID.BackUnseen, (uint)SID.LeftUnseen, (uint)SID.RightUnseen);
-class TurretsTourUnseen(BossModule module) : Components.CastWeakpoint(module, ActionID.MakeSpell(AID.TurretsTourUnseen), new AOEShapeRect(50f, 2.5f), 0, (uint)SID.BackUnseen, (uint)SID.LeftUnseen, (uint)SID.RightUnseen);
+class QueensShotUnseen(BossModule module) : Components.CastWeakpoint(module, (uint)AID.QueensShotUnseen, new AOEShapeCircle(60f), 0, (uint)SID.BackUnseen, (uint)SID.LeftUnseen, (uint)SID.RightUnseen);
+class TurretsTourUnseen(BossModule module) : Components.CastWeakpoint(module, (uint)AID.TurretsTourUnseen, new AOEShapeRect(50f, 2.5f), 0, (uint)SID.BackUnseen, (uint)SID.LeftUnseen, (uint)SID.RightUnseen);
 
-class FieryPortent(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.FieryPortent), "Stand still!");
-class IcyPortent(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.IcyPortent), "Move!");
-class PawnOff(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.PawnOffReal), 20);
-class Fracture(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Fracture)); // TODO: consider showing reflect hints
+class FieryPortent(BossModule module) : Components.CastHint(module, (uint)AID.FieryPortent, "Stand still!");
+class IcyPortent(BossModule module) : Components.CastHint(module, (uint)AID.IcyPortent, "Move!");
+class PawnOff(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PawnOffReal, 20);
+class Fracture(BossModule module) : Components.CastCounter(module, (uint)AID.Fracture); // TODO: consider showing reflect hints
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", PrimaryActorOID = (uint)OID.Knight, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 761, NameID = 9838, PlanLevel = 80)]
 public class DRS4 : BossModule

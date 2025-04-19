@@ -32,8 +32,8 @@ class BrightDarkAurora(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class BrightDarkAuroraCounter(BossModule module) : Components.CastCounterMulti(module, [ActionID.MakeSpell(AID.DarkAurora1), ActionID.MakeSpell(AID.BrightAurora1),
-ActionID.MakeSpell(AID.DarkAurora2), ActionID.MakeSpell(AID.BrightAurora2)]);
+class BrightDarkAuroraCounter(BossModule module) : Components.CastCounterMulti(module, [(uint)AID.DarkAurora1, (uint)AID.BrightAurora1,
+(uint)AID.DarkAurora2, (uint)AID.BrightAurora2]);
 
 class AstralUmbralRays(BossModule module) : Components.GenericAOEs(module)
 {

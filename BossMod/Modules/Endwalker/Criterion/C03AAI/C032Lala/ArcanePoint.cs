@@ -1,9 +1,9 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C032Lala;
 
 // TODO: we could detect aoe positions slightly earlier, when golems spawn
-abstract class ConstructiveFigure(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(50, 4));
-class NConstructiveFigure(BossModule module) : ConstructiveFigure(module, AID.NAero);
-class SConstructiveFigure(BossModule module) : ConstructiveFigure(module, AID.SAero);
+abstract class ConstructiveFigure(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(50, 4));
+class NConstructiveFigure(BossModule module) : ConstructiveFigure(module, (uint)AID.NAero);
+class SConstructiveFigure(BossModule module) : ConstructiveFigure(module, (uint)AID.SAero);
 
 class ArcanePoint(BossModule module) : BossComponent(module)
 {
@@ -51,10 +51,10 @@ class ArcanePoint(BossModule module) : BossComponent(module)
     }
 }
 
-abstract class ExplosiveTheorem(BossModule module, AID aid) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(aid), 8);
-class NExplosiveTheorem(BossModule module) : ExplosiveTheorem(module, AID.NExplosiveTheoremAOE);
-class SExplosiveTheorem(BossModule module) : ExplosiveTheorem(module, AID.SExplosiveTheoremAOE);
+abstract class ExplosiveTheorem(BossModule module, uint aid) : Components.SpreadFromCastTargets(module, aid, 8);
+class NExplosiveTheorem(BossModule module) : ExplosiveTheorem(module, (uint)AID.NExplosiveTheoremAOE);
+class SExplosiveTheorem(BossModule module) : ExplosiveTheorem(module, (uint)AID.SExplosiveTheoremAOE);
 
-abstract class TelluricTheorem(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 8);
-class NTelluricTheorem(BossModule module) : TelluricTheorem(module, AID.NTelluricTheorem);
-class STelluricTheorem(BossModule module) : TelluricTheorem(module, AID.STelluricTheorem);
+abstract class TelluricTheorem(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 8);
+class NTelluricTheorem(BossModule module) : TelluricTheorem(module, (uint)AID.NTelluricTheorem);
+class STelluricTheorem(BossModule module) : TelluricTheorem(module, (uint)AID.STelluricTheorem);

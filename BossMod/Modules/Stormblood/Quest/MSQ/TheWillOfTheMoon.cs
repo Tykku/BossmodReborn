@@ -34,14 +34,14 @@ public enum SID : uint
     Invincibility = 775 // none->Boss, extra=0x0
 }
 
-class DispellingWind(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DispellingWind), new AOEShapeRect(40f, 4f));
-class Epigraph(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Epigraph), new AOEShapeRect(45f, 4f));
-class Whisper(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WhisperOfLivesPast), new AOEShapeDonut(6f, 12f));
-class Blizzard(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AncientBlizzard), new AOEShapeCone(40f, 22.5f.Degrees()));
-class Tornado(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Tornado), 6f);
-class Epigraph1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Epigraph2), new AOEShapeRect(45f, 4f));
+class DispellingWind(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DispellingWind, new AOEShapeRect(40f, 4f));
+class Epigraph(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Epigraph, new AOEShapeRect(45f, 4f));
+class Whisper(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WhisperOfLivesPast, new AOEShapeDonut(6f, 12f));
+class Blizzard(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AncientBlizzard, new AOEShapeCone(40f, 22.5f.Degrees()));
+class Tornado(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Tornado, 6f);
+class Epigraph1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Epigraph2, new AOEShapeRect(45f, 4f));
 
-public class FlatlandFury(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlatlandFury), 10f)
+public class FlatlandFury(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FlatlandFury, 10f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -53,7 +53,7 @@ public class FlatlandFury(BossModule module) : Components.SimpleAOEs(module, Act
     }
 }
 
-public class FlatlandFuryEnrage(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FlatlandFuryEnrage), 10f)
+public class FlatlandFuryEnrage(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FlatlandFuryEnrage, 10f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -62,8 +62,8 @@ public class FlatlandFuryEnrage(BossModule module) : Components.SimpleAOEs(modul
     }
 }
 
-public class ViolentEarth(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ViolentEarth), 6f);
-public class WindChisel(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WindChisel), new AOEShapeCone(34f, 10f.Degrees()));
+public class ViolentEarth(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ViolentEarth, 6f);
+public class WindChisel(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WindChisel, new AOEShapeCone(34f, 10f.Degrees()));
 
 public class Scales(BossModule module) : Components.Adds(module, (uint)OID.TheScaleOfTheFather);
 

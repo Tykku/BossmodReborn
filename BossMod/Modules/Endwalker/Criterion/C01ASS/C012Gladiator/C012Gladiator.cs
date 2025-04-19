@@ -1,12 +1,12 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C012Gladiator;
 
-abstract class RushOfMightFront(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60f, 90f.Degrees()));
-class NRushOfMightFront(BossModule module) : RushOfMightFront(module, AID.NRushOfMightFront);
-class SRushOfMightFront(BossModule module) : RushOfMightFront(module, AID.SRushOfMightFront);
+abstract class RushOfMightFront(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(60f, 90f.Degrees()));
+class NRushOfMightFront(BossModule module) : RushOfMightFront(module, (uint)AID.NRushOfMightFront);
+class SRushOfMightFront(BossModule module) : RushOfMightFront(module, (uint)AID.SRushOfMightFront);
 
-abstract class RushOfMightBack(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60f, 90f.Degrees()));
-class NRushOfMightBack(BossModule module) : RushOfMightBack(module, AID.NRushOfMightBack);
-class SRushOfMightBack(BossModule module) : RushOfMightBack(module, AID.SRushOfMightBack);
+abstract class RushOfMightBack(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(60f, 90f.Degrees()));
+class NRushOfMightBack(BossModule module) : RushOfMightBack(module, (uint)AID.NRushOfMightBack);
+class SRushOfMightBack(BossModule module) : RushOfMightBack(module, (uint)AID.SRushOfMightBack);
 
 public abstract class C012Gladiator(WorldState ws, Actor primary) : BossModule(ws, primary, new(-35f, -271f), new ArenaBoundsSquare(19.5f));
 

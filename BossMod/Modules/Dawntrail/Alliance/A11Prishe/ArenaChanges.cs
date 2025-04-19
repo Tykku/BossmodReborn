@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Alliance.A11Prishe;
 
-class ArenaChanges(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.Thornbite))
+class ArenaChanges(BossModule module) : Components.GenericAOEs(module, (uint)AID.Thornbite)
 {
     public bool Active => _aoe != null || Arena.Bounds != A11Prishe.DefaultBounds;
     private AOEInstance? _aoe;

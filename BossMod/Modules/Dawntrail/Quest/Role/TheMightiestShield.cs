@@ -122,15 +122,15 @@ class Fractures(BossModule module) : Components.DirectionalParry(module, [(uint)
     }
 }
 
-class SteelhogsRevenge(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SteelhogsRevenge), 12f);
-class RuthlessBombardment1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RuthlessBombardment1), 8f);
+class SteelhogsRevenge(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SteelhogsRevenge, 12f);
+class RuthlessBombardment1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RuthlessBombardment1, 8f);
 
-abstract class Bombardment(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 4f);
-class RuthlessBombardment2(BossModule module) : Bombardment(module, AID.RuthlessBombardment2);
-class AreaBombardment(BossModule module) : Bombardment(module, AID.AreaBombardment);
+abstract class Bombardment(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 4f);
+class RuthlessBombardment2(BossModule module) : Bombardment(module, (uint)AID.RuthlessBombardment2);
+class AreaBombardment(BossModule module) : Bombardment(module, (uint)AID.AreaBombardment);
 
-class RagingArtillery(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.RagingArtilleryFirst));
-class MagitekCannon(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.MagitekCannon), 6f);
+class RagingArtillery(BossModule module) : Components.RaidwideCast(module, (uint)AID.RagingArtilleryFirst);
+class MagitekCannon(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.MagitekCannon, 6f);
 class MagitekMissile(BossModule module) : Components.Voidzone(module, 3f, GetVoidzones, 5f)
 {
     private static Actor[] GetVoidzones(BossModule module)

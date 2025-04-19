@@ -1,8 +1,8 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C032Lala;
 
-abstract class ArcaneBlight(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 135.Degrees()));
-class NArcaneBlight(BossModule module) : ArcaneBlight(module, AID.NArcaneBlightAOE);
-class SArcaneBlight(BossModule module) : ArcaneBlight(module, AID.SArcaneBlightAOE);
+abstract class ArcaneBlight(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(60, 135.Degrees()));
+class NArcaneBlight(BossModule module) : ArcaneBlight(module, (uint)AID.NArcaneBlightAOE);
+class SArcaneBlight(BossModule module) : ArcaneBlight(module, (uint)AID.SArcaneBlightAOE);
 
 public abstract class C032Lala(WorldState ws, Actor primary) : BossModule(ws, primary, new(200, 0), new ArenaBoundsSquare(20));
 

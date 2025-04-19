@@ -15,7 +15,7 @@ public enum AID : uint
     Condemnation = 912, // Boss->self, 2.5s cast, range 7 90-degree cone aoe
 }
 
-class Condemnation(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Condemnation), new AOEShapeCone(7f, 45f.Degrees()));
+class Condemnation(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Condemnation, new AOEShapeCone(7f, 45f.Degrees()));
 class D021VoidSoulcounterStates : StateMachineBuilder
 {
     public D021VoidSoulcounterStates(BossModule module) : base(module)

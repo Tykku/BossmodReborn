@@ -23,7 +23,7 @@ static class Portals
     }
 }
 
-class PortalsAOE(BossModule module, AID aid, OID movedOID, float activationDelay, AOEShape shape) : Components.GenericAOEs(module, ActionID.MakeSpell(aid))
+class PortalsAOE(BossModule module, uint aid, OID movedOID, float activationDelay, AOEShape shape) : Components.GenericAOEs(module, aid)
 {
     private readonly List<Actor> _movedActors = module.Enemies((uint)movedOID);
     private readonly float _activationDelay = activationDelay;
@@ -44,13 +44,13 @@ class PortalsAOE(BossModule module, AID aid, OID movedOID, float activationDelay
     }
 }
 
-abstract class PortalsBurn(BossModule module, AID aid, OID oid) : PortalsAOE(module, aid, oid, 11.6f, new AOEShapeCircle(12f));
-class NPortalsBurn(BossModule module) : PortalsBurn(module, AID.NBurn, OID.NBallOfFire);
-class SPortalsBurn(BossModule module) : PortalsBurn(module, AID.SBurn, OID.SBallOfFire);
+abstract class PortalsBurn(BossModule module, uint aid, OID oid) : PortalsAOE(module, aid, oid, 11.6f, new AOEShapeCircle(12f));
+class NPortalsBurn(BossModule module) : PortalsBurn(module, (uint)AID.NBurn, OID.NBallOfFire);
+class SPortalsBurn(BossModule module) : PortalsBurn(module, (uint)AID.SBurn, OID.SBallOfFire);
 
-abstract class PortalsMirror(BossModule module, AID aid, OID oid) : PortalsAOE(module, aid, oid, 11.7f, new AOEShapeRect(100f, 5f));
-class NPortalsMirror(BossModule module) : PortalsMirror(module, AID.NBlazingBenifice, OID.NArcaneFont);
-class SPortalsMirror(BossModule module) : PortalsMirror(module, AID.SBlazingBenifice, OID.SArcaneFont);
+abstract class PortalsMirror(BossModule module, uint aid, OID oid) : PortalsAOE(module, aid, oid, 11.7f, new AOEShapeRect(100f, 5f));
+class NPortalsMirror(BossModule module) : PortalsMirror(module, (uint)AID.NBlazingBenifice, OID.NArcaneFont);
+class SPortalsMirror(BossModule module) : PortalsMirror(module, (uint)AID.SBlazingBenifice, OID.SArcaneFont);
 
 class PortalsWave(BossModule module) : BossComponent(module)
 {

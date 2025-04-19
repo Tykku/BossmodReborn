@@ -160,8 +160,8 @@ class Burst(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Immersion(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Immersion));
-class WorrisomeWaveBoss(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WorrisomeWave1), WorrisomeWavePlayer.Cone);
+class Immersion(BossModule module) : Components.RaidwideCast(module, (uint)AID.Immersion);
+class WorrisomeWaveBoss(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WorrisomeWave1, WorrisomeWavePlayer.Cone);
 
 class WorrisomeWavePlayer(BossModule module) : Components.GenericBaitAway(module, centerAtTarget: true)
 {

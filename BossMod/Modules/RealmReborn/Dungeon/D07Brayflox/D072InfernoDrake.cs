@@ -21,7 +21,7 @@ public enum AID : uint
     Levinfang = 519 // Trash->player, no cast, single target
 }
 
-class BurningCyclone(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.BurningCyclone), new AOEShapeCone(8.6f, 60.Degrees()));
+class BurningCyclone(BossModule module) : Components.Cleave(module, (uint)AID.BurningCyclone, new AOEShapeCone(8.6f, 60.Degrees()));
 
 class D072InfernoDrakeStates : StateMachineBuilder
 {

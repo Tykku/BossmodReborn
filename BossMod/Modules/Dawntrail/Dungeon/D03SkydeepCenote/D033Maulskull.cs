@@ -173,9 +173,9 @@ class Shatter(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-abstract class Impact(BossModule module, AID aid, float distance) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(aid), distance, stopAfterWall: true);
+abstract class Impact(BossModule module, uint aid, float distance) : Components.SimpleKnockbacks(module, aid, distance, stopAfterWall: true);
 
-class Impact1(BossModule module) : Impact(module, AID.Impact1, 18f)
+class Impact1(BossModule module) : Impact(module, (uint)AID.Impact1, 18f)
 {
     private static readonly Angle halfAngle = 30f.Degrees();
 
@@ -189,7 +189,7 @@ class Impact1(BossModule module) : Impact(module, AID.Impact1, 18f)
     }
 }
 
-class Impact2(BossModule module) : Impact(module, AID.Impact2, 18f)
+class Impact2(BossModule module) : Impact(module, (uint)AID.Impact2, 18f)
 {
     private static readonly Angle halfAngle = 20f.Degrees();
     private readonly Stonecarver _aoe = module.FindComponent<Stonecarver>()!;
@@ -206,7 +206,7 @@ class Impact2(BossModule module) : Impact(module, AID.Impact2, 18f)
     }
 }
 
-class Impact3(BossModule module) : Impact(module, AID.Impact3, 20f)
+class Impact3(BossModule module) : Impact(module, (uint)AID.Impact3, 20f)
 {
     private static readonly Angle halfAngle = 10f.Degrees(), direction = 135f.Degrees();
 
@@ -220,12 +220,12 @@ class Impact3(BossModule module) : Impact(module, AID.Impact3, 20f)
     }
 }
 
-abstract class Crush(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10f);
-class ColossalImpact(BossModule module) : Crush(module, AID.ColossalImpact);
-class Skullcrush1(BossModule module) : Crush(module, AID.Skullcrush1);
-class Skullcrush2(BossModule module) : Crush(module, AID.Skullcrush2);
+abstract class Crush(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 10f);
+class ColossalImpact(BossModule module) : Crush(module, (uint)AID.ColossalImpact);
+class Skullcrush1(BossModule module) : Crush(module, (uint)AID.Skullcrush1);
+class Skullcrush2(BossModule module) : Crush(module, (uint)AID.Skullcrush2);
 
-class DestructiveHeat(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.DestructiveHeat), 6f)
+class DestructiveHeat(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.DestructiveHeat, 6f)
 {
     private WPos origin;
     private readonly Impact1 _kb1 = module.FindComponent<Impact1>()!;
@@ -257,15 +257,15 @@ class DestructiveHeat(BossModule module) : Components.SpreadFromCastTargets(modu
     }
 }
 
-class Landing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Landing), 8f);
+class Landing(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Landing, 8f);
 
-abstract class DeepThunder(BossModule module, AID aid) : Components.CastTowers(module, ActionID.MakeSpell(aid), 6f, 4, 4);
-class DeepThunder1(BossModule module) : DeepThunder(module, AID.DeepThunderTower1);
-class DeepThunder2(BossModule module) : DeepThunder(module, AID.DeepThunderTower2);
+abstract class DeepThunder(BossModule module, uint aid) : Components.CastTowers(module, aid, 6f, 4, 4);
+class DeepThunder1(BossModule module) : DeepThunder(module, (uint)AID.DeepThunderTower1);
+class DeepThunder2(BossModule module) : DeepThunder(module, (uint)AID.DeepThunderTower2);
 
-class WroughtFire(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.WroughtFire), new AOEShapeCircle(6f), true, tankbuster: true);
-class BuildingHeat(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BuildingHeat), 6f, 4, 4);
-class Ashlayer(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Ashlayer));
+class WroughtFire(BossModule module) : Components.BaitAwayCast(module, (uint)AID.WroughtFire, new AOEShapeCircle(6f), true, tankbuster: true);
+class BuildingHeat(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.BuildingHeat, 6f, 4, 4);
+class Ashlayer(BossModule module) : Components.RaidwideCast(module, (uint)AID.Ashlayer);
 
 class D033MaulskullStates : StateMachineBuilder
 {

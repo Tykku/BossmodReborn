@@ -13,8 +13,8 @@ public enum AID : uint
     BlizzardII = 39624 // Boss->self, 5.0s cast, range 40 45-degree cone
 }
 
-class FireII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FireII), 5f);
-class BlizzardII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlizzardII), new AOEShapeCone(40f, 22.5f.Degrees()));
+class FireII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FireII, 5f);
+class BlizzardII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlizzardII, new AOEShapeCone(40f, 22.5f.Degrees()));
 
 class CrystalIncarnationStates : StateMachineBuilder
 {

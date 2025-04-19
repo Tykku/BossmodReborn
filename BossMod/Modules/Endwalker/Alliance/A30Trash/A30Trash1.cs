@@ -22,18 +22,18 @@ public enum AID : uint
     DivineBurst = 35441 // DivineSprite->self, no cast, range 40 circle, raidwide when Divine Sprite dies
 }
 
-class WaterIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaterIII), 8f);
+class WaterIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WaterIII, 8f);
 
-abstract class PelagicCleaver(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40f, 30f.Degrees()));
-class PelagicCleaver1(BossModule module) : PelagicCleaver(module, AID.PelagicCleaver1);
-class PelagicCleaver2(BossModule module) : PelagicCleaver(module, AID.PelagicCleaver2);
+abstract class PelagicCleaver(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(40f, 30f.Degrees()));
+class PelagicCleaver1(BossModule module) : PelagicCleaver(module, (uint)AID.PelagicCleaver1);
+class PelagicCleaver2(BossModule module) : PelagicCleaver(module, (uint)AID.PelagicCleaver2);
 
-class PelagicCleaver1Hint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PelagicCleaver1));
-class PelagicCleaver2Hint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PelagicCleaver2));
+class PelagicCleaver1Hint(BossModule module) : Components.CastInterruptHint(module, (uint)AID.PelagicCleaver1);
+class PelagicCleaver2Hint(BossModule module) : Components.CastInterruptHint(module, (uint)AID.PelagicCleaver2);
 
-class Flood(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6f);
-class WaterFlood(BossModule module) : Flood(module, AID.WaterFlood);
-class DivineFlood(BossModule module) : Flood(module, AID.DivineFlood);
+class Flood(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
+class WaterFlood(BossModule module) : Flood(module, (uint)AID.WaterFlood);
+class DivineFlood(BossModule module) : Flood(module, (uint)AID.DivineFlood);
 
 public class A30Trash1States : StateMachineBuilder
 {

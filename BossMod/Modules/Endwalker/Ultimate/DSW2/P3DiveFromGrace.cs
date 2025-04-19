@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Ultimate.DSW2;
 
-class P3Geirskogul(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Geirskogul), new AOEShapeRect(62, 4))
+class P3Geirskogul(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Geirskogul, new AOEShapeRect(62, 4))
 {
     private readonly List<Actor> _predicted = [];
 
@@ -18,7 +18,7 @@ class P3Geirskogul(BossModule module) : Components.SimpleAOEs(module, ActionID.M
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         base.OnCastStarted(caster, spell);
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             _predicted.Clear();
     }
 
@@ -72,7 +72,7 @@ class P3GnashAndLash(BossModule module) : Components.GenericAOEs(module)
 // 2. if there are forward/backward jumps at given order, forward takes W spot, backward takes E spot (center takes S) - this can be changed by config
 // 3. otherwise, no specific assignments are assumed until player baits or soaks the tower
 // TODO: split into towers & bait-away?
-class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.DarkdragonDive), 5f)
+class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, (uint)AID.DarkdragonDive, 5f)
 {
     private struct PlayerState
     {
@@ -180,7 +180,7 @@ class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionI
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             _predictedTowers.Clear();
             Towers.Add(CreateTower(caster.Position));

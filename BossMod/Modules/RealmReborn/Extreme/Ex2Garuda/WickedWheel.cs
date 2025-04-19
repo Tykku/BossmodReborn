@@ -1,6 +1,6 @@
 ﻿namespace BossMod.RealmReborn.Extreme.Ex2Garuda;
 
-class WickedWheel(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.WickedWheel))
+class WickedWheel(BossModule module) : Components.CastCounter(module, (uint)AID.WickedWheel)
 {
     private DateTime _expectedNext = module.WorldState.FutureTime(25);
     private const float _radius = 8.7f;
@@ -27,7 +27,7 @@ class WickedWheel(BossModule module) : Components.CastCounter(module, ActionID.M
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         base.OnEventCast(caster, spell);
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             // not sure about this ...
             _expectedNext = Module.Enemies(OID.Suparna).Any(a => a.IsTargetable && !a.IsDead) ? WorldState.FutureTime(25) : new();

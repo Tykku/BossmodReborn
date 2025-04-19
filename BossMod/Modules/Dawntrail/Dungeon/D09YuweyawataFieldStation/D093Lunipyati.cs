@@ -66,7 +66,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class CraterCarve(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CraterCarve), 11f, riskyWithSecondsLeft: 2.5f);
+class CraterCarve(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CraterCarve, 11f, riskyWithSecondsLeft: 2.5f);
 
 class RagingClaw(BossModule module) : Components.GenericAOEs(module)
 {
@@ -127,7 +127,7 @@ class BoulderDance(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class JaggedEdge(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.JaggedEdge), 6f)
+class JaggedEdge(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.JaggedEdge, 6f)
 {
     private readonly RagingClaw _aoe = module.FindComponent<RagingClaw>()!;
 
@@ -141,12 +141,12 @@ class JaggedEdge(BossModule module) : Components.SpreadFromCastTargets(module, A
         base.AddAIHints(slot, actor, assignment, hints);
     }
 }
-class TuraliStoneIV(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.TuraliStoneIV), 6f, 4, 4);
-class LeporineLoaf(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.LeporineLoaf));
-class BeastlyRoarRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BeastlyRoar));
-class BeastlyRoar(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BeastlyRoar), 25f);
-class SonicHowl(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SonicHowl));
-class Slabber(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Slabber));
+class TuraliStoneIV(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.TuraliStoneIV, 6f, 4, 4);
+class LeporineLoaf(BossModule module) : Components.RaidwideCast(module, (uint)AID.LeporineLoaf);
+class BeastlyRoarRaidwide(BossModule module) : Components.RaidwideCast(module, (uint)AID.BeastlyRoar);
+class BeastlyRoar(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BeastlyRoar, 25f);
+class SonicHowl(BossModule module) : Components.RaidwideCast(module, (uint)AID.SonicHowl);
+class Slabber(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Slabber);
 
 class LeapingEarth(BossModule module) : Components.GenericAOEs(module)
 {

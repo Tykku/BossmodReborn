@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Savage.M08SHowlingBlade;
 
-class GleamingBarrage(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GleamingBarrage), new AOEShapeRect(31f, 4f));
+class GleamingBarrage(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GleamingBarrage, new AOEShapeRect(31f, 4f));
 
 class ChampionsCircuit(BossModule module) : Components.GenericAOEs(module)
 {

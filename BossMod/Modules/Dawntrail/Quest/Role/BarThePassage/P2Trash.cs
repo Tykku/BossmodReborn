@@ -65,9 +65,9 @@ class IceAegis(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class SavageSwipe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SavageSwipe), new AOEShapeCone(9f, 60f.Degrees()));
-class OneOneOneTonzeSwing(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OneOneOneTonzeSwing), 10f);
-class OneOneTonzeSwipe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.OneOneTonzeSwipe), new AOEShapeCone(10f, 60f.Degrees()));
+class SavageSwipe(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SavageSwipe, new AOEShapeCone(9f, 60f.Degrees()));
+class OneOneOneTonzeSwing(BossModule module) : Components.SimpleAOEs(module, (uint)AID.OneOneOneTonzeSwing, 10f);
+class OneOneTonzeSwipe(BossModule module) : Components.SimpleAOEs(module, (uint)AID.OneOneTonzeSwipe, new AOEShapeCone(10f, 60f.Degrees()));
 
 class Trash2States : StateMachineBuilder
 {

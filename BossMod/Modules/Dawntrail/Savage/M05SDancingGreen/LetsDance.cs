@@ -13,7 +13,7 @@ class LetsDance(BossModule module) : Components.GenericAOEs(module)
         var count = _aoes.Count;
         if (count > 0)
         {
-            var sb = new StringBuilder(4 * count - 1 + count * 4);
+            var sb = new StringBuilder(4 * (count - 1) + 4 * count);
             var aoes = CollectionsMarshal.AsSpan(_aoes);
             for (var i = 0; i < count; i++)
             {
@@ -98,7 +98,7 @@ class LetsDanceRemix(BossModule module) : LetsDance(module)
         var count = _aoes.Count;
         if (count > 0)
         {
-            var sb = new StringBuilder(4 * count - 1 + count * 5);
+            var sb = new StringBuilder(4 * (count - 1) + count * 5);
             var aoes = CollectionsMarshal.AsSpan(_aoes);
             for (var i = 0; i < count; i++)
             {

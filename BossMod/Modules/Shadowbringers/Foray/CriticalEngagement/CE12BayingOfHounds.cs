@@ -32,12 +32,12 @@ public enum AID : uint
     VoidQuakeAOE3 = 20551, // Helper->self, 3.0s cast, range 20-30 donut aoe
 }
 
-class Hellclaw(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Hellclaw));
-class TailBlow(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TailBlow), new AOEShapeCone(19f, 45f.Degrees()));
-class LavaSpit(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LavaSpitAOE), 5f);
-class ScorchingLash(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ScorchingLash), new AOEShapeRect(50f, 5f));
+class Hellclaw(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Hellclaw);
+class TailBlow(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TailBlow, new AOEShapeCone(19f, 45f.Degrees()));
+class LavaSpit(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LavaSpitAOE, 5f);
+class ScorchingLash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ScorchingLash, new AOEShapeRect(50f, 5f));
 
-class Hellpounce(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.Hellpounce), "GTFO from charge!")
+class Hellpounce(BossModule module) : Components.GenericAOEs(module, (uint)AID.Hellpounce, "GTFO from charge!")
 {
     private AOEInstance? _charge;
 
@@ -70,12 +70,12 @@ class Hellpounce(BossModule module) : Components.GenericAOEs(module, ActionID.Ma
     }
 }
 
-abstract class Breath(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60f, 30f.Degrees()));
-class DragonsBreathR(BossModule module) : Breath(module, AID.DragonsBreathAOER);
-class DragonsBreathL(BossModule module) : Breath(module, AID.DragonsBreathAOEL);
-class LionsBreath(BossModule module) : Breath(module, AID.LionsBreathAOE);
+abstract class Breath(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(60f, 30f.Degrees()));
+class DragonsBreathR(BossModule module) : Breath(module, (uint)AID.DragonsBreathAOER);
+class DragonsBreathL(BossModule module) : Breath(module, (uint)AID.DragonsBreathAOEL);
+class LionsBreath(BossModule module) : Breath(module, (uint)AID.LionsBreathAOE);
 
-class VoidTornado(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.VoidTornado), "Set hp to 1");
+class VoidTornado(BossModule module) : Components.CastHint(module, (uint)AID.VoidTornado, "Set hp to 1");
 
 class VoidQuake(BossModule module) : Components.GenericAOEs(module) // this concentric AOE can happen forwards or backwards in order with the same AID as the starter
 {

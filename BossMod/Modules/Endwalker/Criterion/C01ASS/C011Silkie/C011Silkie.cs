@@ -1,32 +1,32 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C011Silkie;
 
-abstract class FizzlingDuster(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), C011Silkie.ShapeYellow);
-class NFizzlingDuster(BossModule module) : FizzlingDuster(module, AID.NFizzlingDusterAOE);
-class SFizzlingDuster(BossModule module) : FizzlingDuster(module, AID.SFizzlingDusterAOE);
+abstract class FizzlingDuster(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, C011Silkie.ShapeYellow);
+class NFizzlingDuster(BossModule module) : FizzlingDuster(module, (uint)AID.NFizzlingDusterAOE);
+class SFizzlingDuster(BossModule module) : FizzlingDuster(module, (uint)AID.SFizzlingDusterAOE);
 
-abstract class DustBluster(BossModule module, AID aid) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(aid), 16f);
-class NDustBluster(BossModule module) : DustBluster(module, AID.NDustBluster);
-class SDustBluster(BossModule module) : DustBluster(module, AID.SDustBluster);
+abstract class DustBluster(BossModule module, uint aid) : Components.SimpleKnockbacks(module, aid, 16f);
+class NDustBluster(BossModule module) : DustBluster(module, (uint)AID.NDustBluster);
+class SDustBluster(BossModule module) : DustBluster(module, (uint)AID.SDustBluster);
 
-abstract class SqueakyCleanE(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60f, 112.5f.Degrees()));
-class NSqueakyCleanE(BossModule module) : SqueakyCleanE(module, AID.NSqueakyCleanAOE3E);
-class SSqueakyCleanE(BossModule module) : SqueakyCleanE(module, AID.SSqueakyCleanAOE3E);
+abstract class SqueakyCleanE(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(60f, 112.5f.Degrees()));
+class NSqueakyCleanE(BossModule module) : SqueakyCleanE(module, (uint)AID.NSqueakyCleanAOE3E);
+class SSqueakyCleanE(BossModule module) : SqueakyCleanE(module, (uint)AID.SSqueakyCleanAOE3E);
 
-abstract class SqueakyCleanW(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60f, 112.5f.Degrees()));
-class NSqueakyCleanW(BossModule module) : SqueakyCleanW(module, AID.NSqueakyCleanAOE3W);
-class SSqueakyCleanW(BossModule module) : SqueakyCleanW(module, AID.SSqueakyCleanAOE3W);
+abstract class SqueakyCleanW(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(60f, 112.5f.Degrees()));
+class NSqueakyCleanW(BossModule module) : SqueakyCleanW(module, (uint)AID.NSqueakyCleanAOE3W);
+class SSqueakyCleanW(BossModule module) : SqueakyCleanW(module, (uint)AID.SSqueakyCleanAOE3W);
 
-abstract class ChillingDusterPuff(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), C011Silkie.ShapeBlue);
-class NChillingDusterPuff(BossModule module) : ChillingDusterPuff(module, AID.NChillingDusterPuff);
-class SChillingDusterPuff(BossModule module) : ChillingDusterPuff(module, AID.SChillingDusterPuff);
+abstract class ChillingDusterPuff(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, C011Silkie.ShapeBlue);
+class NChillingDusterPuff(BossModule module) : ChillingDusterPuff(module, (uint)AID.NChillingDusterPuff);
+class SChillingDusterPuff(BossModule module) : ChillingDusterPuff(module, (uint)AID.SChillingDusterPuff);
 
-abstract class BracingDusterPuff(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), C011Silkie.ShapeGreen);
-class NBracingDusterPuff(BossModule module) : BracingDusterPuff(module, AID.NBracingDusterPuff);
-class SBracingDusterPuff(BossModule module) : BracingDusterPuff(module, AID.SBracingDusterPuff);
+abstract class BracingDusterPuff(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, C011Silkie.ShapeGreen);
+class NBracingDusterPuff(BossModule module) : BracingDusterPuff(module, (uint)AID.NBracingDusterPuff);
+class SBracingDusterPuff(BossModule module) : BracingDusterPuff(module, (uint)AID.SBracingDusterPuff);
 
-abstract class FizzlingDusterPuff(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), C011Silkie.ShapeYellow);
-class NFizzlingDusterPuff(BossModule module) : FizzlingDusterPuff(module, AID.NFizzlingDusterPuff);
-class SFizzlingDusterPuff(BossModule module) : FizzlingDusterPuff(module, AID.SFizzlingDusterPuff);
+abstract class FizzlingDusterPuff(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, C011Silkie.ShapeYellow);
+class NFizzlingDusterPuff(BossModule module) : FizzlingDusterPuff(module, (uint)AID.NFizzlingDusterPuff);
+class SFizzlingDusterPuff(BossModule module) : FizzlingDusterPuff(module, (uint)AID.SFizzlingDusterPuff);
 
 public abstract class C011Silkie(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, StartingBounds)
 {

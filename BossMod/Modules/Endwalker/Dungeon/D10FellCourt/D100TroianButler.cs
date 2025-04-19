@@ -20,11 +20,11 @@ public enum AID : uint
     Dark = 30222 // Boss->self, 3.0s cast, range 6 120-degree cone
 }
 
-class Karma(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Karma), new AOEShapeCone(30f, 45f.Degrees()));
-class Dark(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Dark), new AOEShapeCone(6f, 60f.Degrees()));
-class ArachneWeb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.ArachneWeb), 6f);
-class Swoop(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Swoop), 6f);
-class UnholyDarkness(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.UnholyDarkness), 8f);
+class Karma(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Karma, new AOEShapeCone(30f, 45f.Degrees()));
+class Dark(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Dark, new AOEShapeCone(6f, 60f.Degrees()));
+class ArachneWeb(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ArachneWeb, 6f);
+class Swoop(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Swoop, 6f);
+class UnholyDarkness(BossModule module) : Components.SimpleAOEs(module, (uint)AID.UnholyDarkness, 8f);
 
 class D100TroianButlerStates : StateMachineBuilder
 {

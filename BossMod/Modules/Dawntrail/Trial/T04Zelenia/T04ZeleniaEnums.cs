@@ -42,7 +42,7 @@ public enum AID : uint
     HolyHazard = 43126, // Helper->self, 7.7s cast, range 24 120-degree cone
 
     SpecterOfTheLostVisual = 43128, // Boss->self, 5.0+0,7s cast, single-target
-    SpecterOfTheLost = 43129, // Helper->player, 5.7s cast, range 50 50-degree cone
+    SpecterOfTheLost = 43129, // Helper->player, 5.7s cast, range 50 45-degree cone
 
     ThunderSlashVisual1 = 43078, // Boss->self, 6.0+0,7s cast, single-target
     ThunderSlashVisual2 = 43079, // Boss->self, 6.0+0,7s cast, single-target
@@ -57,8 +57,8 @@ public enum AID : uint
 
     QueensCrusade = 43092, // Helper->self, 3.7s cast, range 4 circle
     AlexandrianThunderIIIVisual = 43100, // Boss->self, 3.0s cast, single-target
-    AlexandrianThunderIII1 = 43102, // Helper->location, 7.0s cast, custom AOE shape stuff, seems to activate a donut and/or circles at the same time, circle is radius 4
-    AlexandrianThunderIII2 = 43439, // Helper->location, 6.0s cast, custom AOE shape stuff, seems to activate a donut and/or circles at the same time, circle is radius 4
+    AlexandrianThunderIII1 = 43102, // Helper->location, 7.0s cast, custom AOE shape stuff, seems to activate a cone and/or circles at the same time, circle is radius 4
+    AlexandrianThunderIII2 = 43439, // Helper->location, 6.0s cast, custom AOE shape stuff, seems to activate a cones and/or circles at the same time, circle is radius 4
 
     StockBreakVisual = 43086, // Boss->self, 7.0s cast, single-target, stack, 4 hits
     StockBreak1 = 43087, // Helper->location, no cast, range 6 circle

@@ -32,9 +32,9 @@ public enum AID : uint
     RavagingRootsRest = 37375 // Boss->self, no cast, range 30 width 6 cross
 }
 
-class Neurotoxify(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Neurotoxify));
-class NoxiousSap1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.NoxiousSap1), new AOEShapeCone(40f, 60f.Degrees()));
-class Cocopult(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Cocopult), 5f, 8);
+class Neurotoxify(BossModule module) : Components.RaidwideCast(module, (uint)AID.Neurotoxify);
+class NoxiousSap1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.NoxiousSap1, new AOEShapeCone(40f, 60f.Degrees()));
+class Cocopult(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.Cocopult, 5f, 8);
 
 class RavagingRoots(BossModule module) : Components.GenericRotatingAOE(module)
 {

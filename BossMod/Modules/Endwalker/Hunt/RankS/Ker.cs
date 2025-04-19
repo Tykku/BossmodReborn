@@ -53,34 +53,34 @@ public enum SID : uint
     WhispersManifest = 2847, // Boss->Boss, extra=0x0
 }
 
-class MinaxGlare(BossModule module) : Components.TemporaryMisdirection(module, ActionID.MakeSpell(AID.MinaxGlare));
-class Heliovoid(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Heliovoid), 12);
+class MinaxGlare(BossModule module) : Components.TemporaryMisdirection(module, (uint)AID.MinaxGlare);
+class Heliovoid(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Heliovoid, 12);
 
-abstract class Blizzard(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(8, 40));
-class AncientBlizzard1(BossModule module) : Blizzard(module, AID.AncientBlizzard1);
-class AncientBlizzard2(BossModule module) : Blizzard(module, AID.AncientBlizzard2);
-class AncientBlizzardWhispersManifest(BossModule module) : Blizzard(module, AID.WhispersManifest3);
+abstract class Blizzard(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonut(8, 40));
+class AncientBlizzard1(BossModule module) : Blizzard(module, (uint)AID.AncientBlizzard1);
+class AncientBlizzard2(BossModule module) : Blizzard(module, (uint)AID.AncientBlizzard2);
+class AncientBlizzardWhispersManifest(BossModule module) : Blizzard(module, (uint)AID.WhispersManifest3);
 
-abstract class AncientHoly(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 20);
-class AncientHoly1(BossModule module) : AncientHoly(module, AID.AncientHoly1);
-class AncientHoly2(BossModule module) : AncientHoly(module, AID.AncientHoly2);
-class AncientHolyWhispersManifest(BossModule module) : AncientHoly(module, AID.WhispersManifest2);
+abstract class AncientHoly(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 20);
+class AncientHoly1(BossModule module) : AncientHoly(module, (uint)AID.AncientHoly1);
+class AncientHoly2(BossModule module) : AncientHoly(module, (uint)AID.AncientHoly2);
+class AncientHolyWhispersManifest(BossModule module) : AncientHoly(module, (uint)AID.WhispersManifest2);
 
-abstract class Interment(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
-class ForeInterment(BossModule module) : Interment(module, AID.ForeInterment);
-class RearInterment(BossModule module) : Interment(module, AID.RearInterment);
-class RightInterment(BossModule module) : Interment(module, AID.RightInterment);
-class LeftInterment(BossModule module) : Interment(module, AID.LeftInterment);
-class MirroredForeInterment(BossModule module) : Interment(module, AID.MirroredForeInterment);
-class MirroredRearInterment(BossModule module) : Interment(module, AID.MirroredRearInterment);
-class MirroredRightInterment(BossModule module) : Interment(module, AID.MirroredRightInterment);
-class MirroredLeftInterment(BossModule module) : Interment(module, AID.MirroredLeftInterment);
+abstract class Interment(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(40, 90.Degrees()));
+class ForeInterment(BossModule module) : Interment(module, (uint)AID.ForeInterment);
+class RearInterment(BossModule module) : Interment(module, (uint)AID.RearInterment);
+class RightInterment(BossModule module) : Interment(module, (uint)AID.RightInterment);
+class LeftInterment(BossModule module) : Interment(module, (uint)AID.LeftInterment);
+class MirroredForeInterment(BossModule module) : Interment(module, (uint)AID.MirroredForeInterment);
+class MirroredRearInterment(BossModule module) : Interment(module, (uint)AID.MirroredRearInterment);
+class MirroredRightInterment(BossModule module) : Interment(module, (uint)AID.MirroredRightInterment);
+class MirroredLeftInterment(BossModule module) : Interment(module, (uint)AID.MirroredLeftInterment);
 
-class EternalDamnation1(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EternalDamnation1));
-class EternalDamnation2(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EternalDamnation2));
-class EternalDamnationWhispersManifest(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.WhispersManifest4));
+class EternalDamnation1(BossModule module) : Components.CastGaze(module, (uint)AID.EternalDamnation1);
+class EternalDamnation2(BossModule module) : Components.CastGaze(module, (uint)AID.EternalDamnation2);
+class EternalDamnationWhispersManifest(BossModule module) : Components.CastGaze(module, (uint)AID.WhispersManifest4);
 
-class WhisperedIncantation(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.WhisperedIncantation), "Remembers the next skill and uses it again when casting Whispers Manifest");
+class WhisperedIncantation(BossModule module) : Components.CastHint(module, (uint)AID.WhisperedIncantation, "Remembers the next skill and uses it again when casting Whispers Manifest");
 
 class MirroredIncantation(BossModule module) : BossComponent(module)
 {

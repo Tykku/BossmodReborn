@@ -135,10 +135,10 @@ class SlitherbaneBurstCombo(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Electrothermia(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Electrothermia));
-class Screech(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Screech));
-class Burst1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Burst1), new AOEShapeRect(20f, 20f));
-class SaberRush(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.SaberRush))
+class Electrothermia(BossModule module) : Components.RaidwideCast(module, (uint)AID.Electrothermia);
+class Screech(BossModule module) : Components.RaidwideCast(module, (uint)AID.Screech);
+class Burst1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Burst1, new AOEShapeRect(20f, 20f));
+class SaberRush(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.SaberRush)
 {
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
@@ -148,13 +148,13 @@ class SaberRush(BossModule module) : Components.SingleTargetDelayableCast(module
     }
 }
 
-class ShadeShot(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ShadeShot));
-class SoulbaneShock(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SoulbaneShock), 5f);
+class ShadeShot(BossModule module) : Components.SingleTargetCast(module, (uint)AID.ShadeShot);
+class SoulbaneShock(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.SoulbaneShock, 5f);
 
-abstract class Slitherbane(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(20f, 2f));
-class SlitherbaneForeguardRect(BossModule module) : Slitherbane(module, AID.SlitherbaneForeguardRect);
-class SlitherbaneRearguardRect(BossModule module) : Slitherbane(module, AID.SlitherbaneRearguardRect);
-class SoulbaneSaber(BossModule module) : Slitherbane(module, AID.SoulbaneSaber);
+abstract class Slitherbane(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(20f, 2f));
+class SlitherbaneForeguardRect(BossModule module) : Slitherbane(module, (uint)AID.SlitherbaneForeguardRect);
+class SlitherbaneRearguardRect(BossModule module) : Slitherbane(module, (uint)AID.SlitherbaneRearguardRect);
+class SoulbaneSaber(BossModule module) : Slitherbane(module, (uint)AID.SoulbaneSaber);
 
 class Syntheslither(BossModule module) : Components.GenericAOEs(module)
 {

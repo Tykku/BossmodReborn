@@ -51,8 +51,8 @@ public enum AID : uint
     PoisonDaggers = 39046 // Helper->player/TentoawaTheWideEye/LoazenikweTheShutEye, no cast, single-target
 }
 
-class Bladestorm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Bladestorm), new AOEShapeCone(20f, 45f.Degrees()));
-class KeenTempest(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.KeenTempest), 8f)
+class Bladestorm(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Bladestorm, new AOEShapeCone(20f, 45f.Degrees()));
+class KeenTempest(BossModule module) : Components.SimpleAOEs(module, (uint)AID.KeenTempest, 8f)
 {
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -70,9 +70,9 @@ class KeenTempest(BossModule module) : Components.SimpleAOEs(module, ActionID.Ma
     }
 }
 
-class AethericBurst(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.AethericBurstVisual), ActionID.MakeSpell(AID.AethericBurst), 0.9f);
-class AetherialExposure(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.AetherialExposure), 6f, 3, 3);
-class Conviction(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.Conviction), 4f)
+class AethericBurst(BossModule module) : Components.RaidwideCastDelay(module, (uint)AID.AethericBurstVisual, (uint)AID.AethericBurst, 0.9f);
+class AetherialExposure(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.AetherialExposure, 6f, 3, 3);
+class Conviction(BossModule module) : Components.CastTowers(module, (uint)AID.Conviction, 4f)
 {
     private readonly AetherialExposure _stack = module.FindComponent<AetherialExposure>()!;
 
@@ -90,11 +90,11 @@ class Conviction(BossModule module) : Components.CastTowers(module, ActionID.Mak
     }
 }
 
-class AetherialRay(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AetherialRay), new AOEShapeRect(40f, 2f), 10);
-class Aethershot(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Aethershot), 5f);
-class BloodyTrinity(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.BloodyTrinity));
-class PoisonDaggers(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PoisonDaggersVisual));
-class Daggerflight(BossModule module) : Components.InterceptTether(module, ActionID.MakeSpell(AID.DaggerflightVisual))
+class AetherialRay(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AetherialRay, new AOEShapeRect(40f, 2f), 10);
+class Aethershot(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Aethershot, 5f);
+class BloodyTrinity(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.BloodyTrinity);
+class PoisonDaggers(BossModule module) : Components.CastInterruptHint(module, (uint)AID.PoisonDaggersVisual);
+class Daggerflight(BossModule module) : Components.InterceptTether(module, (uint)AID.DaggerflightVisual)
 {
     private DateTime _activation;
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

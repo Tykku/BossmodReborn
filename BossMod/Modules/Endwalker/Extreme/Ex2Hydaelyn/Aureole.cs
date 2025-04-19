@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.Extreme.Ex2Hydaelyn;
 
-abstract class Aureoles(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 75.Degrees()));
-class LateralAureole1(BossModule module) : Aureoles(module, AID.LateralAureole1AOE);
-class LateralAureole2(BossModule module) : Aureoles(module, AID.LateralAureole2AOE);
-class Aureole1(BossModule module) : Aureoles(module, AID.Aureole1AOE);
-class Aureole2(BossModule module) : Aureoles(module, AID.Aureole2AOE);
+abstract class Aureoles(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(40, 75.Degrees()));
+class LateralAureole1(BossModule module) : Aureoles(module, (uint)AID.LateralAureole1AOE);
+class LateralAureole2(BossModule module) : Aureoles(module, (uint)AID.LateralAureole2AOE);
+class Aureole1(BossModule module) : Aureoles(module, (uint)AID.Aureole1AOE);
+class Aureole2(BossModule module) : Aureoles(module, (uint)AID.Aureole2AOE);
 
 // component tracking [lateral] aureole mechanic, only exists for the timeline anymore
 class Aureole(BossModule module) : BossComponent(module)

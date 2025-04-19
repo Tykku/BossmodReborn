@@ -49,7 +49,7 @@ public class Voidzone(BossModule module, float radius, Func<BossModule, IEnumera
 // note that if voidzone is predicted by cast start rather than cast event, we have to account for possibility of cast finishing without event (e.g. if actor dies before cast finish)
 // TODO: this has problems when target moves - castevent and spawn position could be quite different
 // TODO: this has problems if voidzone never actually spawns after castevent, eg because of phase changes
-public class VoidzoneAtCastTarget(BossModule module, float radius, ActionID aid, Func<BossModule, IEnumerable<Actor>> sources, float castEventToSpawn) : GenericAOEs(module, aid, "GTFO from voidzone!")
+public class VoidzoneAtCastTarget(BossModule module, float radius, uint aid, Func<BossModule, IEnumerable<Actor>> sources, float castEventToSpawn) : GenericAOEs(module, aid, "GTFO from voidzone!")
 {
     public readonly AOEShapeCircle Shape = new(radius);
     public readonly Func<BossModule, IEnumerable<Actor>> Sources = sources;
@@ -94,13 +94,13 @@ public class VoidzoneAtCastTarget(BossModule module, float radius, ActionID aid,
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             _predicted.Add(new(spell.LocXZ, Module.CastFinishAt(spell, CastEventToSpawn), caster.InstanceID));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             var count = _predicted.Count;
             var id = caster.InstanceID;
@@ -118,7 +118,7 @@ public class VoidzoneAtCastTarget(BossModule module, float radius, ActionID aid,
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         base.OnEventCast(caster, spell);
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             _predicted.Add(new(spell.TargetXZ, WorldState.FutureTime(CastEventToSpawn), caster.InstanceID));
     }
 }
@@ -126,7 +126,7 @@ public class VoidzoneAtCastTarget(BossModule module, float radius, ActionID aid,
 // these are normal voidzones that could be 'inverted' (e.g. when you need to enter a voidzone at specific time to avoid some mechanic)
 // TODO: i'm not sure whether these should be considered actual voidzones (if so, should i merge them with base component? what about cast prediction?) or some completely other type of mechanic (maybe drawing differently)
 // TODO: might want to have per-player invertability
-public class PersistentInvertibleVoidzone(BossModule module, float radius, Func<BossModule, IEnumerable<Actor>> sources, ActionID aid = default) : CastCounter(module, aid)
+public class PersistentInvertibleVoidzone(BossModule module, float radius, Func<BossModule, IEnumerable<Actor>> sources, uint aid = default) : CastCounter(module, aid)
 {
     public readonly AOEShapeCircle Shape = new(radius);
     public readonly Func<BossModule, IEnumerable<Actor>> Sources = sources;
@@ -168,17 +168,17 @@ public class PersistentInvertibleVoidzone(BossModule module, float radius, Func<
 }
 
 // invertible voidzone that is inverted when specific spell is being cast; resolved when cast ends
-public class PersistentInvertibleVoidzoneByCast(BossModule module, float radius, Func<BossModule, IEnumerable<Actor>> sources, ActionID aid) : PersistentInvertibleVoidzone(module, radius, sources, aid)
+public class PersistentInvertibleVoidzoneByCast(BossModule module, float radius, Func<BossModule, IEnumerable<Actor>> sources, uint aid) : PersistentInvertibleVoidzone(module, radius, sources, aid)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             InvertResolveAt = Module.CastFinishAt(spell);
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             InvertResolveAt = default;
     }
 }

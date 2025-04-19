@@ -23,9 +23,9 @@ public enum AID : uint
     SelfDetonate = 3078 // ClockworkReservoir->player, no cast, single-target
 }
 
-class Exhaust(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Exhaust), new AOEShapeRect(33f, 6f));
-class AutoCannons(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.AutoCannons), new AOEShapeRect(42f, 2.5f));
-class SpawnReservoir(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpawnReservoir), 3f);
+class Exhaust(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Exhaust, new AOEShapeRect(33f, 6f));
+class AutoCannons(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AutoCannons, new AOEShapeRect(42f, 2.5f));
+class SpawnReservoir(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpawnReservoir, 3f);
 
 class ClockworkReservoir(BossModule module) : Components.Voidzone(module, 3f, GetVoidzones)
 {

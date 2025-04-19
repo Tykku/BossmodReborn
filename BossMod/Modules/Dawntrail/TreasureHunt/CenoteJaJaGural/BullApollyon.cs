@@ -49,33 +49,33 @@ public enum AID : uint
     Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
-class Blade(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Blade));
-class Pyreburst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Pyreburst));
+class Blade(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Blade);
+class Pyreburst(BossModule module) : Components.RaidwideCast(module, (uint)AID.Pyreburst);
 
-abstract class RectWide(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40f, 5f));
-class FlameBlade1(BossModule module) : RectWide(module, AID.FlameBlade1);
-class FlameBlade2(BossModule module) : RectWide(module, AID.FlameBlade2);
+abstract class RectWide(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(40f, 5f));
+class FlameBlade1(BossModule module) : RectWide(module, (uint)AID.FlameBlade1);
+class FlameBlade2(BossModule module) : RectWide(module, (uint)AID.FlameBlade2);
 
-abstract class RectNarrow(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40f, 2.5f));
-class CrossfireBlade3(BossModule module) : RectNarrow(module, AID.CrossfireBlade3);
-class FlameBlade3(BossModule module) : RectNarrow(module, AID.FlameBlade3);
+abstract class RectNarrow(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(40f, 2.5f));
+class CrossfireBlade3(BossModule module) : RectNarrow(module, (uint)AID.CrossfireBlade3);
+class FlameBlade3(BossModule module) : RectNarrow(module, (uint)AID.FlameBlade3);
 
-abstract class Crosses(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCross(20f, 5f));
-class CrossfireBlade1(BossModule module) : Crosses(module, AID.CrossfireBlade1);
-class CrossfireBlade2(BossModule module) : Crosses(module, AID.CrossfireBlade2);
+abstract class Crosses(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCross(20f, 5f));
+class CrossfireBlade1(BossModule module) : Crosses(module, (uint)AID.CrossfireBlade1);
+class CrossfireBlade2(BossModule module) : Crosses(module, (uint)AID.CrossfireBlade2);
 
-class BlazingBreath(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlazingBreath), new AOEShapeRect(44f, 5f));
-class BlazingBlast(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.BlazingBlast), 6f);
+class BlazingBreath(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlazingBreath, new AOEShapeRect(44f, 5f));
+class BlazingBlast(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlazingBlast, 6f);
 
-class Spin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Spin), 11f);
-class RottenSpores(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RottenSpores), 6f);
+class Spin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spin, 11f);
+class RottenSpores(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RottenSpores, 6f);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
+class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
 
 class BullApollyonStates : StateMachineBuilder
 {

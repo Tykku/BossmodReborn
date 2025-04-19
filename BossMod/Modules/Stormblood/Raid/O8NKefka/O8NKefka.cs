@@ -45,26 +45,26 @@ public enum AID : uint
     UltimaUpsurge = 10541, // Boss->self, 4.0s cast, range 100 circle
 }
 
-class Hyperdrive(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Hyperdrive));
+class Hyperdrive(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Hyperdrive);
 
-abstract class BlizzardBlitzDonut(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(10, 40));
-class BlizzardBlitzDonut1(BossModule module) : BlizzardBlitzDonut(module, AID.BlizzardBlitzDonut1);
-class BlizzardBlitzDonut2(BossModule module) : BlizzardBlitzDonut(module, AID.BlizzardBlitzDonut2);
+abstract class BlizzardBlitzDonut(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonut(10, 40));
+class BlizzardBlitzDonut1(BossModule module) : BlizzardBlitzDonut(module, (uint)AID.BlizzardBlitzDonut1);
+class BlizzardBlitzDonut2(BossModule module) : BlizzardBlitzDonut(module, (uint)AID.BlizzardBlitzDonut2);
 
-abstract class BlizzardBlitzCircle(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 10);
-class BlizzardBlitzCircle1(BossModule module) : BlizzardBlitzCircle(module, AID.BlizzardBlitzCircle1);
-class BlizzardBlitzCircle2(BossModule module) : BlizzardBlitzCircle(module, AID.BlizzardBlitzCircle2);
+abstract class BlizzardBlitzCircle(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 10);
+class BlizzardBlitzCircle1(BossModule module) : BlizzardBlitzCircle(module, (uint)AID.BlizzardBlitzCircle1);
+class BlizzardBlitzCircle2(BossModule module) : BlizzardBlitzCircle(module, (uint)AID.BlizzardBlitzCircle2);
 
-class FlagrantFireSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FlagrantFireSpread), 5);
-class FlagrantFireStack(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.FlagrantFireStack), 6, 8, 8);
+class FlagrantFireSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.FlagrantFireSpread, 5);
+class FlagrantFireStack(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.FlagrantFireStack, 6, 8, 8);
 
-abstract class ThrummingThunder(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 5));
-class ThrummingThunder1(BossModule module) : ThrummingThunder(module, AID.ThrummingThunder1);
-class ThrummingThunder2(BossModule module) : ThrummingThunder(module, AID.ThrummingThunder2);
+abstract class ThrummingThunder(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(40, 5));
+class ThrummingThunder1(BossModule module) : ThrummingThunder(module, (uint)AID.ThrummingThunder1);
+class ThrummingThunder2(BossModule module) : ThrummingThunder(module, (uint)AID.ThrummingThunder2);
 
-class UltimaUpsurge(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.UltimaUpsurge));
+class UltimaUpsurge(BossModule module) : Components.RaidwideCast(module, (uint)AID.UltimaUpsurge);
 
-class AeroAssault(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.AeroAssault), 10)
+class AeroAssault(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.AeroAssault, 10)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -73,7 +73,7 @@ class AeroAssault(BossModule module) : Components.SimpleKnockbacks(module, Actio
     }
 }
 
-class Shockwave(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Shockwave), 15, kind: Kind.DirForward)
+class Shockwave(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.Shockwave, 15, kind: Kind.DirForward)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -82,14 +82,14 @@ class Shockwave(BossModule module) : Components.SimpleKnockbacks(module, ActionI
     }
 }
 
-class WaveCannon(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WaveCannon), new AOEShapeRect(70, 3));
+class WaveCannon(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WaveCannon, new AOEShapeRect(70, 3));
 
-abstract class Cleave(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(100, 90.Degrees()));
-class GravitationalWave(BossModule module) : Cleave(module, AID.GravitationalWave);
-class IntemperateWill(BossModule module) : Cleave(module, AID.IntemperateWill);
+abstract class Cleave(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(100, 90.Degrees()));
+class GravitationalWave(BossModule module) : Cleave(module, (uint)AID.GravitationalWave);
+class IntemperateWill(BossModule module) : Cleave(module, (uint)AID.IntemperateWill);
 
-class AveMaria(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.AveMaria), true);
-class IndolentWill(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.IndolentWill));
+class AveMaria(BossModule module) : Components.CastGaze(module, (uint)AID.AveMaria, true);
+class IndolentWill(BossModule module) : Components.CastGaze(module, (uint)AID.IndolentWill);
 
 class RevoltingRuin(BossModule module) : Components.GenericAOEs(module)
 {

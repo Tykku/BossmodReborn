@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Alliance.A13Azeyma;
 
-class DancingFlame(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.DancingFlameFirst))
+class DancingFlame(BossModule module) : Components.GenericAOEs(module, (uint)AID.DancingFlameFirst)
 {
     private static readonly (WPos, Angle)[] startingRects = [(new(-750f, -766.5f), Angle.AnglesCardinals[1]), (new(-733.5f, -750f), Angle.AnglesCardinals[0]),
     (new(-766.5f, -750f), Angle.AnglesCardinals[3]), (new(-750f, -733.5f), Angle.AnglesCardinals[2])];

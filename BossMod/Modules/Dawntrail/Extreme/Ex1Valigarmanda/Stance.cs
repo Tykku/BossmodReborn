@@ -48,7 +48,7 @@ class CharringCataclysm(BossModule module) : Components.UniformStackSpread(modul
     }
 }
 
-class ChillingCataclysm(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.ChillingCataclysmAOE))
+class ChillingCataclysm(BossModule module) : Components.GenericAOEs(module, (uint)AID.ChillingCataclysmAOE)
 {
     private readonly List<AOEInstance> _aoes = [];
 
@@ -68,4 +68,4 @@ class ChillingCataclysm(BossModule module) : Components.GenericAOEs(module, Acti
     }
 }
 
-class CracklingCataclysm(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.CracklingCataclysm), 6f);
+class CracklingCataclysm(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CracklingCataclysm, 6f);

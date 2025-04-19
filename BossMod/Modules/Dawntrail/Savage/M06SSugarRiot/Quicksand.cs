@@ -130,6 +130,6 @@ class QuicksandDoubleStyleHeavenBomb(BossModule module) : Components.GenericKnoc
     }
 }
 
-class PaintBomb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Burst1), 10f);
-class HeavenBomb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Burst2), 10f);
-class PuddingGraf(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PuddingGraf), 6f);
+class PaintBomb(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Burst1, 10f);
+class HeavenBomb(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Burst2, 10f);
+class PuddingGraf(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.PuddingGraf, 6f);

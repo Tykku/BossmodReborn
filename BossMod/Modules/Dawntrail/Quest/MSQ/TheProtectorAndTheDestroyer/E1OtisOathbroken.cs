@@ -39,18 +39,18 @@ public enum AID : uint
     ModelChange = 38204 // Boss->self, no cast, single-target
 }
 
-class StormlitShockwave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.StormlitShockwave));
-class ValorousAscension(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ValorousAscension));
-class RendPower(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RendPower), new AOEShapeCone(40f, 15f.Degrees()), 6);
+class StormlitShockwave(BossModule module) : Components.RaidwideCast(module, (uint)AID.StormlitShockwave);
+class ValorousAscension(BossModule module) : Components.RaidwideCast(module, (uint)AID.ValorousAscension);
+class RendPower(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RendPower, new AOEShapeCone(40f, 15f.Degrees()), 6);
 
-class BastionBreaker(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BastionBreaker), 6f);
-class HolyBlade(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HolyBlade), 6f);
+class BastionBreaker(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.BastionBreaker, 6f);
+class HolyBlade(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.HolyBlade, 6f);
 
-abstract class Circle8(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 8f);
-class SearingSlash(BossModule module) : Circle8(module, AID.SearingSlash);
-class ThrownFlames(BossModule module) : Circle8(module, AID.ThrownFlames);
+abstract class Circle8(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 8f);
+class SearingSlash(BossModule module) : Circle8(module, (uint)AID.SearingSlash);
+class ThrownFlames(BossModule module) : Circle8(module, (uint)AID.ThrownFlames);
 
-class Electrobeam(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Electrobeam), new AOEShapeRect(40f, 2f));
+class Electrobeam(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Electrobeam, new AOEShapeRect(40f, 2f));
 
 class Rush(BossModule module) : Components.GenericAOEs(module)
 {
@@ -93,7 +93,7 @@ class Rush(BossModule module) : Components.GenericAOEs(module)
             _aoes.RemoveAt(0);
     }
 }
-class SteadfastWill(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SteadfastWill));
+class SteadfastWill(BossModule module) : Components.SingleTargetCast(module, (uint)AID.SteadfastWill);
 
 class OtisOathbrokenStates : StateMachineBuilder
 {
@@ -116,7 +116,7 @@ class OtisOathbrokenStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.Quest, GroupID = 70478, NameID = 13168)]
 public class OtisOathbroken(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, ArenaBounds)
 {
-    public static readonly WPos ArenaCenter = new(349, -14);
+    public static readonly WPos ArenaCenter = new(349f, -14f);
     public static readonly ArenaBoundsComplex ArenaBounds = new([new Polygon(ArenaCenter, 19.5f, 20)]);
 
     protected override bool CheckPull() => Raid.Player()!.InCombat;

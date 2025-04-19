@@ -19,7 +19,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
         new(new(110.286f, 85.842f), 8f, 40), // northeast, ENVC 0x19
         new(new(116.643f, 105.408f), 8f, 40), // southeast, ENVC 0x1A
     ];
-    public static readonly float[] PlatformAngles = CalculateAngles();
+    public static readonly Angle[] PlatformAngles = CalculateAngles();
     private static readonly WPos[] numberPositions = CalculateNumberPositions();
     private readonly bool[] activePlatforms = new bool[5];
     private bool active;
@@ -110,11 +110,12 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
         }
     }
 
-    private static float[] CalculateAngles()
+    private static Angle[] CalculateAngles()
     {
-        Span<float> platformAngles = stackalloc float[5];
+        Span<Angle> platformAngles = stackalloc Angle[5];
+        var angle = -72f.Degrees();
         for (var i = 0; i < 5; ++i)
-            platformAngles[i] = Angle.FromDirection(EndArenaPlatforms[i].Center - M08SHowlingBlade.ArenaCenter).Rad;
+            platformAngles[i] = angle * i;
         return [.. platformAngles];
     }
 
@@ -123,7 +124,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
         Span<WPos> positions = stackalloc WPos[5];
         for (var i = 0; i < 5; ++i)
         {
-            positions[i] = M08SHowlingBlade.ArenaCenter + 7f * new Angle(PlatformAngles[i]).ToDirection();
+            positions[i] = M08SHowlingBlade.ArenaCenter + 7f * PlatformAngles[i].ToDirection();
         }
         return [.. positions];
     }
@@ -141,7 +142,7 @@ class Teleporters(BossModule module) : BossComponent(module)
         for (var i = 0; i < 5; ++i)
         {
             var zero = i == 0;
-            var angle = new Angle(ArenaChanges.PlatformAngles[i]).Deg;
+            var angle = ArenaChanges.PlatformAngles[i].Deg;
             positions[index++] = ArenaChanges.EndArenaPlatforms[i].Center + 6f * (zero ? -120 : 120f + angle).Degrees().ToDirection();
             positions[zero ? 9 : index++] = ArenaChanges.EndArenaPlatforms[i].Center + 6f * (zero ? 120 : -120f + angle).Degrees().ToDirection();
         }

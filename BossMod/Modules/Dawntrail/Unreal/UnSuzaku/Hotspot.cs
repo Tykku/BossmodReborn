@@ -38,25 +38,24 @@ class Hotspot(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if (id == 0x1E43 && actor.OID == (uint)OID.Helper2)
+        if (id == 0x1E43u && actor.OID == (uint)OID.Helper2)
         {
-            GetAOES(actor.Rotation + 180f.Degrees(), 6.7d);
-            startrotation = actor.Rotation;
+            startrotation = actor.Rotation + 180f.Degrees();
+            GetAOES(startrotation, 6.7d);
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action.ID == (uint)AID.Hotspot)
+        {
             ++NumCasts;
+        }
         else if (AOEs.Count != 16 && spell.Action.ID is (uint)AID.RuthlessRefrain or (uint)AID.MesmerizingMelody)
         {
             AOEs.Clear();
             NumCasts = 0;
-            var helper = Module.Enemies((uint)OID.Helper2);
-            var rot = helper.Count != 0 ? Angle.FromDirection(helper[0].Position - UnSuzaku.ArenaCenter) : default;
-            var roundedrot = (MathF.Round(rot.Deg / 12f) * 12f).Degrees();
-            GetAOES(roundedrot + (startrotation.AlmostEqual(default, Angle.DegToRad) ? default : 180f.Degrees()), -2.2d);
+            GetAOES(startrotation, -2.2d);
         }
     }
 
@@ -79,7 +78,6 @@ class Hotspot(BossModule module) : Components.GenericAOEs(module)
                 (uint)OID.SongOfFire => Angle.AnglesIntercardinals[2],
                 _ => default
             };
-
             AOEs.Add(new(cone, pos, rot, WorldState.FutureTime(delay + index * 1.25d)));
         }
         AOEs.Sort((x, y) => x.Activation.CompareTo(y.Activation));

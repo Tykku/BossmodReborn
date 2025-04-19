@@ -16,8 +16,8 @@ public enum AID : uint
     LineVoltage = 40665 // Electrogolem2->self, 4.0s cast, range 14 width 4 rect
 }
 
-class FlashFlood(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SweepingGouge), new AOEShapeCone(9f, 45f.Degrees()));
-class LineVoltage(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LineVoltage), new AOEShapeRect(14f, 2f));
+class FlashFlood(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SweepingGouge, new AOEShapeCone(9f, 45f.Degrees()));
+class LineVoltage(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LineVoltage, new AOEShapeRect(14f, 2f));
 
 class D90ForestBatStates : StateMachineBuilder
 {

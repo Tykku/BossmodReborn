@@ -18,9 +18,9 @@ public enum AID : uint
     WordsOfWoe = 11920 // Boss->self, 3.0s cast, range 45+R width 6 rect // untelegraph'd
 }
 
-class EyeoftheFire(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.EyeOfTheFire));
-class RustingClaw(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RustingClaw), new AOEShapeCone(11.45f, 60f.Degrees()));
-class TheSpin(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TheSpin), 20f);
+class EyeoftheFire(BossModule module) : Components.CastGaze(module, (uint)AID.EyeOfTheFire);
+class RustingClaw(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RustingClaw, new AOEShapeCone(11.45f, 60f.Degrees()));
+class TheSpin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheSpin, 20f);
 class VoidSpark(BossModule module) : Components.Voidzone(module, 8f, GetVoidzones)
 {
     private static Actor[] GetVoidzones(BossModule module)
@@ -41,7 +41,7 @@ class VoidSpark(BossModule module) : Components.Voidzone(module, 8f, GetVoidzone
         return voidzones[..index];
     }
 }
-class WordsofWoe(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WordsOfWoe), new AOEShapeRect(48.45f, 3f));
+class WordsofWoe(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WordsOfWoe, new AOEShapeRect(48.45f, 3f));
 
 class DD50GozuStates : StateMachineBuilder
 {

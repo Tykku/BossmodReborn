@@ -47,7 +47,7 @@ public enum IconID : uint
     Gaze = 73 // player
 }
 
-class TerrifyingGlanceBait(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(42.25f, 61f.Degrees()), (uint)IconID.Gaze, ActionID.MakeSpell(AID.TerrifyingGlance), 3.1f, source: module.Enemies(OID.Calcabrina)[0]);
+class TerrifyingGlanceBait(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(42.25f, 61f.Degrees()), (uint)IconID.Gaze, (uint)AID.TerrifyingGlance, 3.1f, source: module.Enemies(OID.Calcabrina)[0]);
 class TerrifyingGlanceGaze(BossModule module) : Components.GenericGaze(module)
 {
     private DateTime activation;
@@ -99,9 +99,9 @@ class Brace(BossModule module) : Components.DirectionalParry(module, [(uint)OID.
     }
 }
 
-class HeatGazeBrina(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeatGazeBrina), new AOEShapeDonut(5f, 10f));
-class HeatGazeCalca(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.HeatGazeCalca), new AOEShapeCone(19.9f, 30f.Degrees()));
-class Knockout(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Knockout));
+class HeatGazeBrina(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HeatGazeBrina, new AOEShapeDonut(5f, 10f));
+class HeatGazeCalca(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HeatGazeCalca, new AOEShapeCone(19.9f, 30f.Degrees()));
+class Knockout(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Knockout);
 
 class Slapstick(BossModule module) : BossComponent(module)
 {

@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Ultimate.DSW2;
 
-class P6Touchdown(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.TouchdownAOE))
+class P6Touchdown(BossModule module) : Components.GenericAOEs(module, (uint)AID.TouchdownAOE)
 {
     private static readonly AOEShapeCircle _shape = new(20f); // TODO: verify falloff
 

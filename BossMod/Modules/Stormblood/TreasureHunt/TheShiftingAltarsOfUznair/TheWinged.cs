@@ -38,23 +38,23 @@ public enum AID : uint
     Telega = 9630 // AltarMatanga/Mandragoras/GoldWhisker->self, no cast, single-target, bonus adds disappear
 }
 
-class Filoplumes(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Filoplumes), new AOEShapeRect(11.36f, 2));
-class Wingbeat(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Wingbeat), new AOEShapeCone(43.36f, 30.Degrees()));
-class WingbeatKB(BossModule module) : Components.SimpleKnockbacks(module, ActionID.MakeSpell(AID.Wingbeat), 20, false, 1, new AOEShapeCone(43.36f, 30.Degrees()), stopAtWall: true);
-class FeatherSquall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.FeatherSquall), 6);
-class Pinion(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Pinion), new AOEShapeRect(40.5f, 1.5f));
-class Sideslip(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Sideslip));
+class Filoplumes(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Filoplumes, new AOEShapeRect(11.36f, 2));
+class Wingbeat(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Wingbeat, new AOEShapeCone(43.36f, 30.Degrees()));
+class WingbeatKB(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.Wingbeat, 20, false, 1, new AOEShapeCone(43.36f, 30.Degrees()), stopAtWall: true);
+class FeatherSquall(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FeatherSquall, 6);
+class Pinion(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Pinion, new AOEShapeRect(40.5f, 1.5f));
+class Sideslip(BossModule module) : Components.RaidwideCast(module, (uint)AID.Sideslip);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SimpleAOEs(module, ActionID.MakeSpell(aid), 6.84f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6.84f);
+class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
+class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
+class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
+class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
+class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
 
-class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RaucousScritch), new AOEShapeCone(8.42f, 60.Degrees()));
-class Hurl(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Hurl), 6);
-class Spin(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Spin), new AOEShapeCone(9.42f, 60.Degrees()), [(uint)OID.AltarMatanga]);
+class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RaucousScritch, new AOEShapeCone(8.42f, 60.Degrees()));
+class Hurl(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Hurl, 6);
+class Spin(BossModule module) : Components.Cleave(module, (uint)AID.Spin, new AOEShapeCone(9.42f, 60.Degrees()), [(uint)OID.AltarMatanga]);
 
 class TheWingedStates : StateMachineBuilder
 {

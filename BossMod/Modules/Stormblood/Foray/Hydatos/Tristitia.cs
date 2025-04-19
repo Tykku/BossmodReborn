@@ -24,10 +24,10 @@ public enum AID : uint
     Dualcast = 15909 // Tristitia->self, 2.0s cast, single-target
 }
 
-class WatergaIII(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.WatergaIII), 8f);
-class SpineLash1(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpineLash1), new AOEShapeCone(9f, 45f.Degrees()));
-class SpineLash2(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.SpineLash2), new AOEShapeCone(11f, 45f.Degrees()));
-class Meteor(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Meteor));
+class WatergaIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WatergaIII, 8f);
+class SpineLash1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpineLash1, new AOEShapeCone(9f, 45f.Degrees()));
+class SpineLash2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpineLash2, new AOEShapeCone(11f, 45f.Degrees()));
+class Meteor(BossModule module) : Components.RaidwideCast(module, (uint)AID.Meteor);
 
 class TornadoIIAerogaIVDualCast(BossModule module) : Components.GenericAOEs(module)
 {

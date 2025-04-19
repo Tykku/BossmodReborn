@@ -26,14 +26,14 @@ public enum AID : uint
 
 class Adds(BossModule module) : Components.AddsMulti(module, [(uint)OID.ImperialPilusPrior, (uint)OID.ImperialCenturion]);
 
-class MagitekMissiles(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.MagitekMissiles), 7);
-class DrillShot(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DrillShot), new AOEShapeRect(30, 2.5f));
-class TartareanShockwave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TartareanShockwave), 7);
-class BigTartareanShockwave(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TartareanShockwave1), 14);
-class GalesOfTartarus(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GalesOfTartarus), new AOEShapeRect(30, 2.5f));
-class BigGalesOfTartarus(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.GalesOfTartarus1), new AOEShapeRect(30, 15));
+class MagitekMissiles(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MagitekMissiles, 7);
+class DrillShot(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DrillShot, new AOEShapeRect(30, 2.5f));
+class TartareanShockwave(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TartareanShockwave, 7);
+class BigTartareanShockwave(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TartareanShockwave1, 14);
+class GalesOfTartarus(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GalesOfTartarus, new AOEShapeRect(30, 2.5f));
+class BigGalesOfTartarus(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GalesOfTartarus1, new AOEShapeRect(30, 15));
 class DirectionalParry(BossModule module) : Components.DirectionalParry(module, [(uint)OID.Boss]);
-class TartareanTomb(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.TartareanTomb), 11);
+class TartareanTomb(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TartareanTomb, 11);
 
 class RhitahtynSasArvinaStates : StateMachineBuilder
 {

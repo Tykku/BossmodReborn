@@ -1,10 +1,10 @@
 namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA1Art;
 
-class Thricecull(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Thricecull));
-class AcallamNaSenorach(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AcallamNaSenorach));
-class DefilersDeserts(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.DefilersDeserts), new AOEShapeRect(35.5f, 4f));
-class Pitfall(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.Pitfall), 20f);
-class LegendaryGeasAOE(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.LegendaryGeas), 8f);
+class Thricecull(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Thricecull);
+class AcallamNaSenorach(BossModule module) : Components.RaidwideCast(module, (uint)AID.AcallamNaSenorach);
+class DefilersDeserts(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DefilersDeserts, new AOEShapeRect(35.5f, 4f));
+class Pitfall(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Pitfall, 20f);
+class LegendaryGeasAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LegendaryGeas, 8f);
 
 class DefilersDesertsPredict(BossModule module) : Components.GenericAOEs(module)
 {
@@ -40,8 +40,8 @@ class LegendaryGeasStay(BossModule module) : Components.StayMove(module)
     }
 }
 
-class GloryUnearthed(BossModule module) : Components.OpenWorldChasingAOEs(module, new AOEShapeCircle(10f), ActionID.MakeSpell(AID.GloryUnearthedFirst), ActionID.MakeSpell(AID.GloryUnearthedRest), 6.5f, 1.5f, 5, true, (uint)IconID.ChasingAOE);
-class PiercingDark(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.PiercingDark), 6f);
+class GloryUnearthed(BossModule module) : Components.OpenWorldChasingAOEs(module, new AOEShapeCircle(10f), (uint)AID.GloryUnearthedFirst, (uint)AID.GloryUnearthedRest, 6.5f, 1.5f, 5, true, (uint)IconID.ChasingAOE);
+class PiercingDark(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.PiercingDark, 6f);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.BaldesionArsenal, GroupID = 639, NameID = 7968, PlanLevel = 70, SortOrder = 1)]
 public class BA1Art(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)

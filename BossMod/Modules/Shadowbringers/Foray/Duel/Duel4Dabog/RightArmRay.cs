@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Shadowbringers.Foray.Duel.Duel4Dabog;
 
-class RightArmRayNormal(BossModule module) : Components.SimpleAOEs(module, ActionID.MakeSpell(AID.RightArmRayNormalAOE), 10);
+class RightArmRayNormal(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RightArmRayNormalAOE, 10);
 
 class RightArmRayBuffed(BossModule module) : Components.GenericRotatingAOE(module)
 {
@@ -95,7 +95,7 @@ class RightArmRayBuffed(BossModule module) : Components.GenericRotatingAOE(modul
     }
 }
 
-class RightArmRayVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(module, 5f, ActionID.MakeSpell(AID.RightArmRayVoidzone), GetVoidzones, 0.9f)
+class RightArmRayVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(module, 5f, (uint)AID.RightArmRayVoidzone, GetVoidzones, 0.9f)
 {
     private static Actor[] GetVoidzones(BossModule module)
     {
