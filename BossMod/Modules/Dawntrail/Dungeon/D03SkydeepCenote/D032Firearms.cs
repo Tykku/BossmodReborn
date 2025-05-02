@@ -67,11 +67,7 @@ class ThunderlightBurst2(BossModule module) : ThunderlightBurst(module, (uint)AI
 class ThunderlightBurst3(BossModule module) : ThunderlightBurst(module, (uint)AID.ThunderlightBurst3, 35f);
 class ThunderlightBurst4(BossModule module) : ThunderlightBurst(module, (uint)AID.ThunderlightBurst4, 36f);
 
-abstract class Artillery(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(10f, 5f));
-class Artillery1(BossModule module) : Artillery(module, (uint)AID.Artillery1);
-class Artillery2(BossModule module) : Artillery(module, (uint)AID.Artillery2);
-class Artillery3(BossModule module) : Artillery(module, (uint)AID.Artillery3);
-class Artillery4(BossModule module) : Artillery(module, (uint)AID.Artillery4);
+class Artillery(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.Artillery1, (uint)AID.Artillery2, (uint)AID.Artillery3, (uint)AID.Artillery4], new AOEShapeRect(10f, 5f));
 
 class Pummel(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Pummel);
 class ThunderlightFlurry(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.ThunderlightFlurry, 6f);
@@ -88,10 +84,7 @@ class D032FirearmsStates : StateMachineBuilder
             .ActivateOnEnter<ThunderlightBurst2>()
             .ActivateOnEnter<ThunderlightBurst3>()
             .ActivateOnEnter<ThunderlightBurst4>()
-            .ActivateOnEnter<Artillery1>()
-            .ActivateOnEnter<Artillery2>()
-            .ActivateOnEnter<Artillery3>()
-            .ActivateOnEnter<Artillery4>()
+            .ActivateOnEnter<Artillery>()
             .ActivateOnEnter<Pummel>()
             .ActivateOnEnter<ThunderlightFlurry>();
     }

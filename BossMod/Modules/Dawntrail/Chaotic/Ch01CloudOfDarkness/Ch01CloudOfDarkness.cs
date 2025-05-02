@@ -6,8 +6,9 @@ class Atomos(BossModule module) : Components.Adds(module, (uint)OID.Atomos);
 class GhastlyGloomCross(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GhastlyGloomCrossAOE, new AOEShapeCross(40f, 15f));
 class GhastlyGloomDonut(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GhastlyGloomDonutAOE, new AOEShapeDonut(21f, 40f));
 class FloodOfDarknessAdd(BossModule module) : Components.CastInterruptHint(module, (uint)AID.FloodOfDarknessAdd); // TODO: only if add is player's?..
-class Excruciate(BossModule module) : Components.BaitAwayCast(module, (uint)AID.Excruciate, new AOEShapeCircle(4f), true);
+class Excruciate(BossModule module) : Components.BaitAwayCast(module, (uint)AID.Excruciate, 4f, tankbuster: true);
 class LoomingChaos(BossModule module) : Components.CastCounter(module, (uint)AID.LoomingChaosAOE);
+class Phaser(BossModule module) : Components.SimpleAOEGroupsByTimewindow(module, [(uint)AID.Phaser], new AOEShapeCone(23f, 30f.Degrees()));
 
 // TODO: tankswap hints component for phase1
 // TODO: phase 2 teleport zones?

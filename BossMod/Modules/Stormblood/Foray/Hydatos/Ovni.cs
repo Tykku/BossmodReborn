@@ -40,7 +40,7 @@ class ConcussiveOscillation(BossModule module) : Components.SimpleAOEs(module, (
 class VitriolicBarrage(BossModule module) : Components.RaidwideCast(module, (uint)AID.VitriolicBarrage);
 class RockHard(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RockHard, 8);
 class TorrentialTorment(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TorrentialTorment, new AOEShapeCone(56f, 22.5f.Degrees()));
-class Fluorescence(BossModule module) : DispelComponent(module, (uint)SID.DamageUp);
+class Fluorescence(BossModule module) : Components.Dispel(module, (uint)SID.DamageUp);
 class IonShower(BossModule module) : Components.GenericStackSpread(module, alwaysShowSpreads: true, raidwideOnResolve: false)
 {
     private int _numCasts;
@@ -99,7 +99,7 @@ class OvniStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "xan, Malediktus", GroupType = BossModuleInfo.GroupType.EurekaNM, GroupID = 639, NameID = 1424, SortOrder = 11)]
-public class Ovni(WorldState ws, Actor primary) : BossModule(ws, primary, new(266.1068f, -97.09414f), SharedBounds.Circle)
+public class Ovni(WorldState ws, Actor primary) : SimpleBossModule(ws, primary)
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

@@ -1,5 +1,3 @@
-using BossMod.Endwalker.Quest.MSQ.AsTheHeavensBurn.P1TerminusIdolizer;
-
 namespace BossMod.Heavensward.Dungeon.D11Antitower.D152DotoliCiloc;
 
 public enum OID : uint

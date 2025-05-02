@@ -18,29 +18,29 @@ public enum AID : uint
     ThePathOfLight = 9875, // Boss->self, 5.0s cast, range 40+R 120-degree cone
 }
 
-class PathOfLight(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ThePathOfLight, new AOEShapeCone(43.5f, 60.Degrees()));
-class BlissfulSpear(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlissfulSpear, new AOEShapeCross(40, 4));
-class ThePallOfLight(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.ThePallOfLight, 6, 1);
-class BlissfulHammer(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(7), 109, (uint)AID.BlissfulHammer, 12.15f, true);
+class PathOfLight(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ThePathOfLight, new AOEShapeCone(43.5f, 60f.Degrees()));
+class BlissfulSpear(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlissfulSpear, new AOEShapeCross(40f, 4f));
+class ThePallOfLight(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.ThePallOfLight, 6f, 1);
+class BlissfulHammer(BossModule module) : Components.BaitAwayIcon(module, 7f, 109u, (uint)AID.BlissfulHammer, 12.1f);
 class FordolaShield(BossModule module) : BossComponent(module)
 {
-    public Actor? Shield => WorldState.Actors.FirstOrDefault(a => (OID)a.OID == OID.FordolaShield);
+    public Actor? Shield => WorldState.Actors.FirstOrDefault(a => a.OID == (uint)OID.FordolaShield);
 
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         if (Shield != null)
-            Arena.AddCircleFilled(Shield.Position, 4, Colors.SafeFromAOE);
+            Arena.AddCircleFilled(Shield.Position, 4f, Colors.SafeFromAOE);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         if (Shield != null)
-            hints.AddForbiddenZone(new AOEShapeDonut(4, 100), Shield.Position, default, WorldState.FutureTime(5));
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Shield.Position, 4f), WorldState.FutureTime(5));
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (Shield != null && !actor.Position.InCircle(Shield.Position, 4))
+        if (Shield != null && !actor.Position.InCircle(Shield.Position, 4f))
             hints.Add("Go to safe zone!");
     }
 }

@@ -1,13 +1,13 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C032Lala;
 
 // TODO: we could detect aoe positions slightly earlier, when golems spawn
-abstract class ConstructiveFigure(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(50, 4));
+abstract class ConstructiveFigure(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(50f, 4f));
 class NConstructiveFigure(BossModule module) : ConstructiveFigure(module, (uint)AID.NAero);
 class SConstructiveFigure(BossModule module) : ConstructiveFigure(module, (uint)AID.SAero);
 
 class ArcanePoint(BossModule module) : BossComponent(module)
 {
-    public int NumCasts { get; private set; }
+    public int NumCasts;
     private readonly ArcanePlot? _plot = module.FindComponent<ArcanePlot>();
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -51,10 +51,10 @@ class ArcanePoint(BossModule module) : BossComponent(module)
     }
 }
 
-abstract class ExplosiveTheorem(BossModule module, uint aid) : Components.SpreadFromCastTargets(module, aid, 8);
+abstract class ExplosiveTheorem(BossModule module, uint aid) : Components.SpreadFromCastTargets(module, aid, 8f);
 class NExplosiveTheorem(BossModule module) : ExplosiveTheorem(module, (uint)AID.NExplosiveTheoremAOE);
 class SExplosiveTheorem(BossModule module) : ExplosiveTheorem(module, (uint)AID.SExplosiveTheoremAOE);
 
-abstract class TelluricTheorem(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 8);
+abstract class TelluricTheorem(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 8f);
 class NTelluricTheorem(BossModule module) : TelluricTheorem(module, (uint)AID.NTelluricTheorem);
 class STelluricTheorem(BossModule module) : TelluricTheorem(module, (uint)AID.STelluricTheorem);

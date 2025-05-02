@@ -32,7 +32,7 @@ public enum IconID : uint
     Meteor = 7 // player
 }
 
-class HeavensfallBait(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(5), (uint)IconID.Comet, (uint)AID.Heavensfall1, 3.1f, true)
+class HeavensfallBait(BossModule module) : Components.BaitAwayIcon(module, 5f, (uint)IconID.Comet, (uint)AID.Heavensfall1, 3.1f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -49,7 +49,7 @@ class HeavensfallBait(BossModule module) : Components.BaitAwayIcon(module, new A
     }
 }
 
-class Meteor(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(20), (uint)IconID.Meteor, (uint)AID.MeteorImpactVisual, 8.1f, true)
+class Meteor(BossModule module) : Components.BaitAwayIcon(module, 20f, (uint)IconID.Meteor, (uint)AID.MeteorImpactVisual, 8.1f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

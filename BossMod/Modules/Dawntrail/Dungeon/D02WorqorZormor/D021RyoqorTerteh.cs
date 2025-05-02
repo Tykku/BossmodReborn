@@ -50,7 +50,7 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state == 0x00020001 && index == 0x17)
+        if (state == 0x00020001u && index == 0x17u)
         {
             Arena.Bounds = D021RyoqorTerteh.DefaultBounds;
             _aoe = null;

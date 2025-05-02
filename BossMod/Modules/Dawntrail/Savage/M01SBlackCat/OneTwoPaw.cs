@@ -72,7 +72,7 @@ class OneTwoPawShade(BossModule module) : Components.GenericAOEs(module)
         if (count == 0)
             return [];
         var max = count > 2 ? 2 : count;
-        return _aoes.AsSpan()[..max];
+        return CollectionsMarshal.AsSpan(_aoes)[..max];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)

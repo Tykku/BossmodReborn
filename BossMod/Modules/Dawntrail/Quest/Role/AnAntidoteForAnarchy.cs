@@ -83,13 +83,8 @@ class StingingMaladyBait(BossModule module) : Components.GenericBaitAway(module)
 class BewilderingBlight(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.BewilderingBlight, 6f);
 class BewilderingBlightTM(BossModule module) : Components.TemporaryMisdirection(module, (uint)AID.BewilderingBlight);
 
-abstract class SkineaterSurge(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(40f, 90f.Degrees()));
-class SkineaterSurge1(BossModule module) : SkineaterSurge(module, (uint)AID.SkineaterSurge1);
-class SkineaterSurge2(BossModule module) : SkineaterSurge(module, (uint)AID.SkineaterSurge2);
-
-abstract class PoisonCloud(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 10f);
-class Burst(BossModule module) : PoisonCloud(module, (uint)AID.Burst1);
-class SkineaterSurgePoisonCloud(BossModule module) : PoisonCloud(module, (uint)AID.SkineaterSurgePoisonCloud);
+class SkineaterSurge(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.SkineaterSurge1, (uint)AID.SkineaterSurge2], new AOEShapeCone(40f, 90f.Degrees()));
+class SkineaterSurgePoisonCloud(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.Burst1, (uint)AID.SkineaterSurgePoisonCloud], 10f);
 
 class SelfDestruct(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SelfDestruct, 5f);
 class SelfDestructKBMammet(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SelfDestructKBMammet, 7f, 8);
@@ -164,9 +159,7 @@ class AnAntidoteForAnarchyStates : StateMachineBuilder
             .ActivateOnEnter<StingingMaladyBait>()
             .ActivateOnEnter<BewilderingBlight>()
             .ActivateOnEnter<BewilderingBlightTM>()
-            .ActivateOnEnter<SkineaterSurge1>()
-            .ActivateOnEnter<SkineaterSurge2>()
-            .ActivateOnEnter<Burst>()
+            .ActivateOnEnter<SkineaterSurge>()
             .ActivateOnEnter<SkineaterSurgePoisonCloud>()
             .ActivateOnEnter<SelfDestruct>()
             .ActivateOnEnter<SelfDestructKBMammet>()

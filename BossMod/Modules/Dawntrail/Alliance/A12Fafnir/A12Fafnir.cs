@@ -41,7 +41,7 @@ class BalefulBreath(BossModule module) : Components.LineStack(module, (uint)Icon
     public override bool KeepOnPhaseChange => true;
 }
 
-class SharpSpike(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(4f), (uint)IconID.SharpSpike, (uint)AID.SharpSpikeAOE, 6.2f, true)
+class SharpSpike(BossModule module) : Components.BaitAwayIcon(module, 4f, (uint)IconID.SharpSpike, (uint)AID.SharpSpikeAOE, 6.2f)
 {
     public override bool KeepOnPhaseChange => true;
 }

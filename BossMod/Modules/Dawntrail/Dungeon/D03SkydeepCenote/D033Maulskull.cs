@@ -220,10 +220,7 @@ class Impact3(BossModule module) : Impact(module, (uint)AID.Impact3, 20f)
     }
 }
 
-abstract class Crush(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 10f);
-class ColossalImpact(BossModule module) : Crush(module, (uint)AID.ColossalImpact);
-class Skullcrush1(BossModule module) : Crush(module, (uint)AID.Skullcrush1);
-class Skullcrush2(BossModule module) : Crush(module, (uint)AID.Skullcrush2);
+class ColossalImpactSkullcrush(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.ColossalImpact, (uint)AID.Skullcrush1, (uint)AID.Skullcrush2], 10f);
 
 class DestructiveHeat(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.DestructiveHeat, 6f)
 {
@@ -263,7 +260,7 @@ abstract class DeepThunder(BossModule module, uint aid) : Components.CastTowers(
 class DeepThunder1(BossModule module) : DeepThunder(module, (uint)AID.DeepThunderTower1);
 class DeepThunder2(BossModule module) : DeepThunder(module, (uint)AID.DeepThunderTower2);
 
-class WroughtFire(BossModule module) : Components.BaitAwayCast(module, (uint)AID.WroughtFire, new AOEShapeCircle(6f), true, tankbuster: true);
+class WroughtFire(BossModule module) : Components.BaitAwayCast(module, (uint)AID.WroughtFire, 6f, tankbuster: true);
 class BuildingHeat(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.BuildingHeat, 6f, 4, 4);
 class Ashlayer(BossModule module) : Components.RaidwideCast(module, (uint)AID.Ashlayer);
 
@@ -276,9 +273,7 @@ class D033MaulskullStates : StateMachineBuilder
             .ActivateOnEnter<Impact1>()
             .ActivateOnEnter<Impact2>()
             .ActivateOnEnter<Impact3>()
-            .ActivateOnEnter<ColossalImpact>()
-            .ActivateOnEnter<Skullcrush1>()
-            .ActivateOnEnter<Skullcrush2>()
+            .ActivateOnEnter<ColossalImpactSkullcrush>()
             .ActivateOnEnter<DestructiveHeat>()
             .ActivateOnEnter<Landing>()
             .ActivateOnEnter<Shatter>()

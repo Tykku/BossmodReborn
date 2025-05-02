@@ -1,44 +1,8 @@
 namespace BossMod.Shadowbringers.Foray.Duel.Duel2Lyon;
 
-class Enaero(BossModule module) : BossComponent(module)
-{
-    private bool EnaeroBuff;
-    private bool casting;
+class Enaero(BossModule module) : Components.Dispel(module, (uint)SID.Enaero, (uint)AID.RagingWinds1);
 
-    public override void AddHints(int slot, Actor actor, TextHints hints)
-    {
-        if (casting)
-            hints.Add("Applies Enaero to Lyon. Use Dispell to remove it");
-        if (EnaeroBuff)
-            hints.Add("Enaero on Lyon. Use Dispell to remove it! You only need to do this once per duel, so you can switch to a different action after removing his buff.");
-    }
-
-    public override void OnStatusGain(Actor actor, ActorStatus status)
-    {
-        if (actor == Module.PrimaryActor && status.ID == (uint)SID.Enaero)
-            EnaeroBuff = true;
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if (spell.Action.ID == (uint)AID.RagingWinds1)
-            casting = true;
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if (spell.Action.ID == (uint)AID.RagingWinds1)
-            casting = false;
-    }
-
-    public override void OnStatusLose(Actor actor, ActorStatus status)
-    {
-        if (actor == Module.PrimaryActor && status.ID == (uint)SID.Enaero)
-            EnaeroBuff = false;
-    }
-}
-
-class HeartOfNatureConcentric(BossModule module) : Components.ConcentricAOEs(module, _shapes)
+class HeartOfNature(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 {
     private static readonly AOEShape[] _shapes = [new AOEShapeCircle(10f), new AOEShapeDonut(10f, 20f), new AOEShapeDonut(20f, 30f)];
 
@@ -123,7 +87,7 @@ class RavenousGale(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class TwinAgonies(BossModule module) : Components.SingleTargetCast(module, (uint)AID.TwinAgonies, "Heavy Tankbuster, use Manawall or tank mitigations");
+class TwinAgonies(BossModule module) : Components.SingleTargetCast(module, (uint)AID.TwinAgonies, "Use Manawall or tank mitigations");
 class WindsPeak(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WindsPeak1, 5f);
 
 class WindsPeakKB(BossModule module) : Components.GenericKnockback(module)
@@ -213,7 +177,7 @@ class SpitefulFlameCircleVoidzone(BossModule module) : Components.GenericAOEs(mo
 
 class SpitefulFlameRect(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpitefulFlame2, new AOEShapeRect(80f, 2f));
 
-class DynasticFlame(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(10f), (uint)TetherID.fireorbs, centerAtTarget: true)
+class DynasticFlame(BossModule module) : Components.BaitAwayTethers(module, 10f, (uint)TetherID.fireorbs)
 {
     private int orbcount;
 

@@ -59,10 +59,7 @@ public enum AID : uint
     Telega = 9630 // Mandragoras/Abharamu/NamazuStickywhisker->self, no cast, single-target, bonus adds disappear
 }
 
-abstract class Hurl(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
-class HurlBoss(BossModule module) : Hurl(module, (uint)AID.HurlBoss);
-class HurlBonusAdd(BossModule module) : Hurl(module, (uint)AID.Hurl);
-
+class Hurl(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.HurlBoss, (uint)AID.Hurl], 6f);
 class SpinBoss(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpinBoss, new AOEShapeCone(20f, 60f.Degrees()));
 class BarbarousScream(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BarbarousScream, 14f);
 class Buffet(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Buffet);
@@ -75,30 +72,21 @@ class StoneII(BossModule module) : Components.SingleTargetCast(module, (uint)AID
 class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RaucousScritch, new AOEShapeCone(8.42f, 60f.Degrees()));
 class Spin(BossModule module) : Components.Cleave(module, (uint)AID.Spin, new AOEShapeCone(9.42f, 60f.Degrees()), [(uint)OID.Abharamu]);
 
-abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6.84f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 6.84f);
 
 class AiravataStates : StateMachineBuilder
 {
     public AiravataStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<HurlBoss>()
+            .ActivateOnEnter<Hurl>()
             .ActivateOnEnter<SpinBoss>()
             .ActivateOnEnter<BarbarousScream>()
             .ActivateOnEnter<Buffet>()
-            .ActivateOnEnter<HurlBonusAdd>()
             .ActivateOnEnter<RaucousScritch>()
             .ActivateOnEnter<Spin>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
+            .ActivateOnEnter<MandragoraAOEs>()
             .Raw.Update = () =>
             {
                 var enemies = module.Enemies(Airavata.All);

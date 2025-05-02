@@ -1,6 +1,6 @@
 namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA4ProtoOzma;
 
-class Tornado(BossModule module) : Components.BaitAwayCast(module, (uint)AID.Tornado, new AOEShapeCircle(6f), true);
+class Tornado(BossModule module) : Components.BaitAwayCast(module, (uint)AID.Tornado, 6f);
 class MeteorStack(BossModule module) : Components.StackWithIcon(module, (uint)IconID.MeteorStack, (uint)AID.Meteor, 10f, 5.1f, 4, 24)
 {
     public override void OnEventCast(Actor caster, ActorCastEvent spell)

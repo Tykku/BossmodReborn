@@ -7,7 +7,7 @@ public enum OID : uint
 
     // Trash
     VioletBack = 0x1A9, // Violet Back
-    SableBack = 0x1AA, // Sable Back
+    SableBack = 0x1AA // Sable Back
 }
 
 public enum AID : uint
@@ -19,7 +19,7 @@ public enum AID : uint
 
     // Trash
     AutoAttackTrash = 871, // Trash->player, no cast
-    PoisonBreath = 1393, // VioletBack->self, no cast, range 7.20 ?-degree cone cleave
+    PoisonBreath = 1393 // VioletBack->self, no cast, range 7.20 ?-degree cone cleave
 }
 
 class NumbingBreath(BossModule module) : Components.SimpleAOEs(module, (uint)AID.NumbingBreath, new AOEShapeCone(9.2f, 60.Degrees()));

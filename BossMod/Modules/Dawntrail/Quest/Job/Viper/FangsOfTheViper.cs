@@ -30,10 +30,7 @@ class BurningCyclone(BossModule module) : Components.SimpleAOEs(module, (uint)AI
 class FoulBreath(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FoulBreath, new AOEShapeCone(7f, 45f.Degrees()));
 class BrowHorn(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BrowHorn, new AOEShapeRect(6f, 2f));
 class Firebreathe(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Firebreathe, new AOEShapeCone(60f, 45f.Degrees()));
-
-abstract class Shockwave(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(20f, 90f.Degrees()));
-class RightSidedShockwave(BossModule module) : Shockwave(module, (uint)AID.RightSidedShockwave);
-class LeftSidedShockwave(BossModule module) : Shockwave(module, (uint)AID.LeftSidedShockwave);
+class Shockwave(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.RightSidedShockwave, (uint)AID.LeftSidedShockwave], new AOEShapeCone(20f, 90f.Degrees()));
 
 class FangsOfTheViperStates : StateMachineBuilder
 {
@@ -44,8 +41,7 @@ class FangsOfTheViperStates : StateMachineBuilder
             .ActivateOnEnter<FoulBreath>()
             .ActivateOnEnter<BrowHorn>()
             .ActivateOnEnter<Firebreathe>()
-            .ActivateOnEnter<RightSidedShockwave>()
-            .ActivateOnEnter<LeftSidedShockwave>()
+            .ActivateOnEnter<Shockwave>()
             .Raw.Update = () => module.Enemies((uint)OID.WanderingGowrow).Any(e => e.IsDead) || module.PrimaryActor.IsDeadOrDestroyed;
     }
 }

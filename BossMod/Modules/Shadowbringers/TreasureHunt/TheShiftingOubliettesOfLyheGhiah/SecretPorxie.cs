@@ -82,12 +82,8 @@ class Spin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spin, 11
 class Mash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Mash, new AOEShapeRect(13f, 2f));
 class Scoop(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Scoop, new AOEShapeCone(15f, 60f.Degrees()));
 
-abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6.84f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 6.84f);
 
 class SecretPorxieStates : StateMachineBuilder
 {
@@ -101,11 +97,7 @@ class SecretPorxieStates : StateMachineBuilder
             .ActivateOnEnter<Spin>()
             .ActivateOnEnter<Mash>()
             .ActivateOnEnter<Scoop>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
+            .ActivateOnEnter<MandragoraAOEs>()
             .Raw.Update = () =>
             {
                 var enemies = module.Enemies(SecretPorxie.All);

@@ -140,12 +140,8 @@ class DeadlyHold(BossModule module) : Components.SingleTargetCast(module, (uint)
 class TailSwing(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TailSwing, 13f);
 class CriticalBite(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CriticalBite, new AOEShapeCone(10f, 60f.Degrees()));
 
-abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 7f);
 
 class HeavySmash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HeavySmash, 6f);
 
@@ -161,11 +157,7 @@ class GymnasiouAcheloiosStates : StateMachineBuilder
             .ActivateOnEnter<DeadlyHold>()
             .ActivateOnEnter<Earthbreak>()
             .ActivateOnEnter<VolcanicHowl>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
+            .ActivateOnEnter<MandragoraAOEs>()
             .ActivateOnEnter<HeavySmash>()
             .Raw.Update = () =>
             {

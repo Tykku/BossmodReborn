@@ -2,9 +2,9 @@ namespace BossMod.Components;
 
 public class GenericTowers(BossModule module, uint aid = default, bool prioritizeInsufficient = false) : CastCounter(module, aid)
 {
-    public struct Tower(WPos position, AOEShape shape, int minSoakers = 1, int maxSoakers = 1, BitMask forbiddenSoakers = default, DateTime activation = default, Angle rotation = default)
+    public struct Tower(WPos position, AOEShape shape, int minSoakers = 1, int maxSoakers = 1, BitMask forbiddenSoakers = default, DateTime activation = default, Angle rotation = default, ulong actorID = default)
     {
-        public Tower(WPos position, float radius, int minSoakers = 1, int maxSoakers = 1, BitMask forbiddenSoakers = default, DateTime activation = default) : this(position, new AOEShapeCircle(radius), minSoakers, maxSoakers, forbiddenSoakers, activation) { }
+        public Tower(WPos position, float radius, int minSoakers = 1, int maxSoakers = 1, BitMask forbiddenSoakers = default, DateTime activation = default, ulong actorID = default) : this(position, new AOEShapeCircle(radius), minSoakers, maxSoakers, forbiddenSoakers, activation, default, actorID) { }
         public WPos Position = position;
         public Angle Rotation = rotation;
         public AOEShape Shape = shape;
@@ -12,6 +12,7 @@ public class GenericTowers(BossModule module, uint aid = default, bool prioritiz
         public int MaxSoakers = maxSoakers;
         public BitMask ForbiddenSoakers = forbiddenSoakers;
         public DateTime Activation = activation;
+        public ulong ActorID = actorID;
 
         public readonly bool IsInside(WPos pos) => Shape.Check(pos, Position, Rotation);
         public readonly bool IsInside(Actor actor) => IsInside(actor.Position);
@@ -37,15 +38,18 @@ public class GenericTowers(BossModule module, uint aid = default, bool prioritiz
     public List<Tower> Towers = [];
     public readonly bool PrioritizeInsufficient = prioritizeInsufficient; // give priority to towers with more than 0 but less than min soakers
 
+    public virtual ReadOnlySpan<Tower> ActiveTowers(int slot, Actor actor) => CollectionsMarshal.AsSpan(Towers);
+
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        var count = Towers.Count;
-        if (count == 0)
+        var towers = ActiveTowers(slot, actor);
+        var len = towers.Length;
+        if (len == 0)
             return;
         var gtfoFromTower = false;
-        for (var i = 0; i < count; ++i)
+        for (var i = 0; i < len; ++i)
         {
-            var t = Towers[i];
+            var t = towers[i];
             if (t.ForbiddenSoakers[slot] && t.IsInside(actor))
             {
                 gtfoFromTower = true;
@@ -60,9 +64,9 @@ public class GenericTowers(BossModule module, uint aid = default, bool prioritiz
         else // Find index of a tower that is not forbidden and the actor is inside
         {
             var soakedIndex = -1;
-            for (var i = 0; i < count; ++i)
+            for (var i = 0; i < len; ++i)
             {
-                var t = Towers[i];
+                var t = towers[i];
                 if (!t.ForbiddenSoakers[slot] && t.IsInside(actor))
                 {
                     soakedIndex = i;
@@ -72,10 +76,10 @@ public class GenericTowers(BossModule module, uint aid = default, bool prioritiz
 
             if (soakedIndex >= 0) // If a suitable tower is found
             {
-                var count2 = Towers[soakedIndex].NumInside(Module);
-                if (count2 < Towers[soakedIndex].MinSoakers)
+                var count2 = towers[soakedIndex].NumInside(Module);
+                if (count2 < towers[soakedIndex].MinSoakers)
                     hints.Add("Too few soakers in the tower!");
-                else if (count2 > Towers[soakedIndex].MaxSoakers)
+                else if (count2 > towers[soakedIndex].MaxSoakers)
                     hints.Add("Too many soakers in the tower!");
                 else
                     hints.Add("Soak the tower!", false);
@@ -83,9 +87,9 @@ public class GenericTowers(BossModule module, uint aid = default, bool prioritiz
             else // Check if any tower has insufficient soakers
             {
                 var insufficientSoakers = false;
-                for (var i = 0; i < count; ++i)
+                for (var i = 0; i < len; ++i)
                 {
-                    var t = Towers[i];
+                    var t = towers[i];
                     if (!t.ForbiddenSoakers[slot] && t.InsufficientAmountInside(Module))
                     {
                         insufficientSoakers = true;
@@ -100,13 +104,13 @@ public class GenericTowers(BossModule module, uint aid = default, bool prioritiz
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        var count = Towers.Count;
-        if (count == 0)
+        var towers = ActiveTowers(pcSlot, pc);
+        var len = towers.Length;
+        if (len == 0)
             return;
-        var towers = CollectionsMarshal.AsSpan(Towers);
-        for (var i = 0; i < count; ++i)
+        for (var i = 0; i < len; ++i)
         {
-            ref var t = ref towers[i];
+            ref readonly var t = ref towers[i];
             if (t.ForbiddenSoakers[pcSlot])
                 continue;
             var isInside = t.IsInside(pc);
@@ -121,13 +125,13 @@ public class GenericTowers(BossModule module, uint aid = default, bool prioritiz
 
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
-        var count = Towers.Count;
-        if (count == 0)
+        var towers = ActiveTowers(pcSlot, pc);
+        var len = towers.Length;
+        if (len == 0)
             return;
-        var towers = CollectionsMarshal.AsSpan(Towers);
-        for (var i = 0; i < count; ++i)
+        for (var i = 0; i < len; ++i)
         {
-            ref var t = ref towers[i];
+            ref readonly var t = ref towers[i];
             if (t.ForbiddenSoakers[pcSlot] || !t.IsInside(pc) && t.NumInside(Module) >= t.MaxSoakers)
             {
                 t.Shape.Draw(Arena, t.Position, t.Rotation);
@@ -148,16 +152,18 @@ public class GenericTowers(BossModule module, uint aid = default, bool prioritiz
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var count = Towers.Count;
-        if (count == 0)
+        var towers = ActiveTowers(slot, actor);
+        var len = towers.Length;
+        if (len == 0)
             return;
-        var forbiddenInverted = new List<Func<WPos, float>>(count);
-        var forbidden = new List<Func<WPos, float>>(count);
+
+        var forbiddenInverted = new List<Func<WPos, float>>(len);
+        var forbidden = new List<Func<WPos, float>>(len);
 
         var hasForbiddenSoakers = false;
-        for (var i = 0; i < count; ++i)
+        for (var i = 0; i < len; ++i)
         {
-            if (Towers[i].ForbiddenSoakers[slot])
+            if (towers[i].ForbiddenSoakers[slot])
             {
                 hasForbiddenSoakers = true;
                 break;
@@ -167,10 +173,10 @@ public class GenericTowers(BossModule module, uint aid = default, bool prioritiz
         {
             if (PrioritizeInsufficient)
             {
-                List<Tower> insufficientTowers = new(count);
-                for (var i = 0; i < count; ++i)
+                List<Tower> insufficientTowers = new(len);
+                for (var i = 0; i < len; ++i)
                 {
-                    var t = Towers[i];
+                    var t = towers[i];
                     if (t.InsufficientAmountInside(Module) && t.NumInside(Module) != 0)
                         insufficientTowers.Add(t);
                 }
@@ -191,9 +197,9 @@ public class GenericTowers(BossModule module, uint aid = default, bool prioritiz
                 }
             }
             var inTower = false;
-            for (var i = 0; i < count; ++i)
+            for (var i = 0; i < len; ++i)
             {
-                var t = Towers[i];
+                var t = towers[i];
                 if (t.IsInside(actor) && t.CorrectAmountInside(Module))
                 {
                     inTower = true;
@@ -204,9 +210,9 @@ public class GenericTowers(BossModule module, uint aid = default, bool prioritiz
             var missingSoakers = !inTower;
             if (missingSoakers)
             {
-                for (var i = 0; i < count; ++i)
+                for (var i = 0; i < len; ++i)
                 {
-                    var t = Towers[i];
+                    var t = towers[i];
                     if (t.InsufficientAmountInside(Module))
                     {
                         missingSoakers = true;
@@ -216,9 +222,9 @@ public class GenericTowers(BossModule module, uint aid = default, bool prioritiz
             }
             if (forbiddenInverted.Count == 0)
             {
-                for (var i = 0; i < count; ++i)
+                for (var i = 0; i < len; ++i)
                 {
-                    var t = Towers[i];
+                    var t = towers[i];
                     var isInside = t.IsInside(actor);
                     var correctAmount = t.CorrectAmountInside(Module);
                     if (t.InsufficientAmountInside(Module) || isInside && correctAmount)
@@ -231,33 +237,32 @@ public class GenericTowers(BossModule module, uint aid = default, bool prioritiz
                     }
                 }
             }
-            var ficount = forbiddenInverted.Count;
             var fcount = forbidden.Count;
-            if (fcount == 0 || inTower || missingSoakers && ficount != 0)
+            if (fcount == 0 || inTower || missingSoakers && forbiddenInverted.Count != 0)
             {
-                hints.AddForbiddenZone(ShapeDistance.Intersection(forbiddenInverted), Towers[0].Activation);
+                hints.AddForbiddenZone(ShapeDistance.Intersection(forbiddenInverted), towers[0].Activation);
             }
             else if (fcount != 0 && !inTower)
             {
-                hints.AddForbiddenZone(ShapeDistance.Union(forbidden), Towers[0].Activation);
+                hints.AddForbiddenZone(ShapeDistance.Union(forbidden), towers[0].Activation);
             }
         }
         else
         {
-            for (var i = 0; i < count; ++i)
+            for (var i = 0; i < len; ++i)
             {
-                var t = Towers[i];
+                var t = towers[i];
                 forbidden.Add(t.Shape.Distance(t.Position, t.Rotation));
             }
             var fcount = forbidden.Count;
             if (fcount != 0)
             {
-                hints.AddForbiddenZone(ShapeDistance.Union(forbidden), Towers[0].Activation);
+                hints.AddForbiddenZone(ShapeDistance.Union(forbidden), towers[0].Activation);
             }
         }
-        for (var i = 0; i < count; ++i)
+        for (var i = 0; i < len; ++i)
         {
-            var t = Towers[i];
+            var t = towers[i];
             var actors = Module.Raid.WithSlot();
             var acount = actors.Length;
             var mask = new BitMask();
@@ -290,7 +295,8 @@ public class CastTowers(BossModule module, uint aid, float radius, int minSoaker
     {
         if (spell.Action.ID == WatchedAction)
         {
-            for (var i = 0; i < Towers.Count; ++i)
+            var count = Towers.Count;
+            for (var i = 0; i < count; ++i)
             {
                 var tower = Towers[i];
                 if (tower.Position == spell.LocXZ)

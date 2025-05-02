@@ -1,12 +1,7 @@
 ﻿namespace BossMod.Dawntrail.Trial.T02ZoraalJaP2;
 
-abstract class Donuts(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonut(10f, 30f));
-class SmitingCircuitDonut(BossModule module) : Donuts(module, (uint)AID.SmitingCircuitDonut);
-class HalfCircuitDonut(BossModule module) : Donuts(module, (uint)AID.HalfCircuitDonut);
-
-abstract class Circles(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 10f);
-class SmitingCircuitCircle(BossModule module) : Circles(module, (uint)AID.SmitingCircuitCircle);
-class HalfCircuitCircle(BossModule module) : Circles(module, (uint)AID.HalfCircuitCircle);
+class SmitingCircuitHalfCircuitDonut(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.SmitingCircuitDonut, (uint)AID.HalfCircuitDonut], new AOEShapeDonut(10f, 30f));
+class SmitingCircuitHalfCircuitCircle(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.SmitingCircuitCircle, (uint)AID.HalfCircuitCircle], 10f);
 
 class DawnOfAnAge(BossModule module) : Components.RaidwideCast(module, (uint)AID.DawnOfAnAge);
 class BitterReaping(BossModule module) : Components.SingleTargetCast(module, (uint)AID.BitterReaping);
@@ -18,7 +13,7 @@ class HalfFull(BossModule module) : HalfRect(module, (uint)AID.HalfFull)
     private readonly ChasmOfVollok _aoe = module.FindComponent<ChasmOfVollok>()!;
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        return Casters.Count != 0 && _aoe.AOEs.Count == 0 ? new AOEInstance[1] { Casters[0] } : [];
+        return Casters.Count != 0 && _aoe.AOEs.Count == 0 ? CollectionsMarshal.AsSpan(Casters)[..1] : [];
     }
 }
 
@@ -34,8 +29,8 @@ class T02ZoraalJaP2States : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<DawnOfAnAgeArenaChange>()
-            .ActivateOnEnter<SmitingCircuitDonut>()
-            .ActivateOnEnter<SmitingCircuitCircle>()
+            .ActivateOnEnter<SmitingCircuitHalfCircuitDonut>()
+            .ActivateOnEnter<SmitingCircuitHalfCircuitCircle>()
             .ActivateOnEnter<DawnOfAnAge>()
             .ActivateOnEnter<BitterReaping>()
             .ActivateOnEnter<ChasmOfVollok>()
@@ -43,8 +38,6 @@ class T02ZoraalJaP2States : StateMachineBuilder
             .ActivateOnEnter<Actualize>()
             .ActivateOnEnter<HalfFull>()
             .ActivateOnEnter<HalfCircuitRect>()
-            .ActivateOnEnter<HalfCircuitDonut>()
-            .ActivateOnEnter<HalfCircuitCircle>()
             .ActivateOnEnter<FireIII>()
             .ActivateOnEnter<DutysEdge>();
     }

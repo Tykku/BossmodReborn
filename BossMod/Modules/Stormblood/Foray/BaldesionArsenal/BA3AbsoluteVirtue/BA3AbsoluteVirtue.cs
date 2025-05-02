@@ -2,12 +2,9 @@ namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA3AbsoluteVirtue;
 
 class Meteor(BossModule module) : Components.RaidwideCast(module, (uint)AID.Meteor);
 class MedusaJavelin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MedusaJavelin, new AOEShapeCone(65.4f, 45f.Degrees()));
-class AuroralWind(BossModule module) : Components.BaitAwayCast(module, (uint)AID.AuroralWind, new AOEShapeCircle(5f), true, tankbuster: true);
+class AuroralWind(BossModule module) : Components.BaitAwayCast(module, (uint)AID.AuroralWind, 5f, tankbuster: true);
 
-abstract class ExplosiveImpulse(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 18f);
-class ExplosiveImpulse1(BossModule module) : ExplosiveImpulse(module, (uint)AID.ExplosiveImpulse1);
-class ExplosiveImpulse2(BossModule module) : ExplosiveImpulse(module, (uint)AID.ExplosiveImpulse2);
-
+class ExplosiveImpulse(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.ExplosiveImpulse1, (uint)AID.ExplosiveImpulse2], 18f);
 class AernsWynavExplosion(BossModule module) : Components.CastHint(module, (uint)AID.ExplosionWyvern, "Aerns Wyvnav is enraging!", true);
 class MeteorEnrageCounter(BossModule module) : Components.CastCounter(module, (uint)AID.MeteorEnrageRepeat);
 

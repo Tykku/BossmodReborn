@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Savage.M06SSugarRiot;
 
-class LightningStorm(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(8f), (uint)IconID.LightningStorm, (uint)AID.LightningStorm, 9.1f, true);
+class LightningStorm(BossModule module) : Components.BaitAwayIcon(module, 8f, (uint)IconID.LightningStorm, (uint)AID.LightningStorm, 9.1f);
 
 class LightningStormHint(BossModule module) : Components.GenericAOEs(module)
 {

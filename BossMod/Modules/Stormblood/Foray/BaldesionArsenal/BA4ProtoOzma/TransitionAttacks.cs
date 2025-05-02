@@ -31,7 +31,7 @@ class TransitionAttacks(BossModule module) : Components.GenericAOEs(module)
                 AddAOE(rect, angles[i], new(-17f, 29.012f));
         }
         void AddAOE(AOEShape shape, Angle rotation = default, WPos position = default)
-        => AOEs.Add(new(shape, WPos.ClampToGrid(position == default ? caster.Position : position), rotation, WorldState.FutureTime(7.8)));
+        => AOEs.Add(new(shape, WPos.ClampToGrid(position == default ? caster.Position : position), rotation, WorldState.FutureTime(7.8d)));
         void TransfigurationCounter()
         {
             if (caster == Module.PrimaryActor)

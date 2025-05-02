@@ -201,13 +201,13 @@ class P5Sigma(BossModule module) : BossComponent(module)
 
         if (!_waveCannonsDone)
         {
-            return [(ActiveGlitch == Glitch.Mid ? 11 : 19) * p.SpreadAngle.ToDirection()];
+            return [(ActiveGlitch == Glitch.Mid ? 11f : 19f) * p.SpreadAngle.ToDirection()];
         }
         return [];
     }
 }
 
-class P5SigmaHyperPulse(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(100, 3), (uint)TetherID.SigmaHyperPulse, (uint)AID.SigmaHyperPulse)
+class P5SigmaHyperPulse(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(100f, 3f), (uint)TetherID.SigmaHyperPulse, (uint)AID.SigmaHyperPulse)
 {
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {

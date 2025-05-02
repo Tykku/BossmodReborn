@@ -69,7 +69,7 @@ class DubiousTulidisasterArenaChange(BossModule module) : Components.GenericAOEs
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state == 0x00020001 && index == 0x00)
+        if (state == 0x00020001u && index == 0x00u)
         {
             Arena.Bounds = D074GreatestSerpentOfTural.DefaultBounds;
             _aoe = null;
@@ -77,7 +77,7 @@ class DubiousTulidisasterArenaChange(BossModule module) : Components.GenericAOEs
     }
 }
 
-class ScreesOfFury(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(3f), (uint)IconID.Tankbuster, (uint)AID.ScreesOfFury, 5.3f, true, tankbuster: true);
+class ScreesOfFury(BossModule module) : Components.BaitAwayIcon(module, 3f, (uint)IconID.Tankbuster, (uint)AID.ScreesOfFury, 5.3f, tankbuster: true);
 
 class GreatestFlood(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.GreatestFlood, 15f)
 {

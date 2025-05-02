@@ -63,19 +63,12 @@ class AetherialBlast(BossModule module) : Components.SimpleAOEs(module, (uint)AI
 class Envenomate(BossModule module) : Components.BaitAwayChargeCast(module, (uint)AID.Envenomate, 1.5f);
 class SyrupSpout(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SyrupSpout, new AOEShapeCone(10f, 60f.Degrees()));
 class SpinningAttack(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpinningAttack, new AOEShapeRect(10f, 2f));
-
-abstract class CircleLoc6(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
-class IsleDrop(BossModule module) : CircleLoc6(module, (uint)AID.IsleDrop);
-class RottenSpores(BossModule module) : CircleLoc6(module, (uint)AID.RottenSpores);
+class IsleDropRottenSpores(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.IsleDrop, (uint)AID.RottenSpores], 6f);
 
 class Spin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spin, 11f);
 
-abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 7f);
 
 class Room1States : StateMachineBuilder
 {
@@ -88,18 +81,13 @@ class Room1States : StateMachineBuilder
             .ActivateOnEnter<BestialFire>()
             .ActivateOnEnter<HeadButt>()
             .ActivateOnEnter<AetherialBlast>()
-            .ActivateOnEnter<IsleDrop>()
+            .ActivateOnEnter<IsleDropRottenSpores>()
             .ActivateOnEnter<Envenomate>()
             .ActivateOnEnter<SyrupSpout>()
             .ActivateOnEnter<SpinningAttack>()
             .ActivateOnEnter<Spin>()
-            .ActivateOnEnter<RottenSpores>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.PrimaryActor.IsDestroyed || module.PrimaryActor.EventState == 7;
+            .ActivateOnEnter<MandragoraAOEs>()
+            .Raw.Update = () => module.PrimaryActor.IsDestroyed || module.PrimaryActor.EventState == 7u;
     }
 }
 

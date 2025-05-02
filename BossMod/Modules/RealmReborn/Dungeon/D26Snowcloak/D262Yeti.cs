@@ -24,7 +24,7 @@ public enum AID : uint
     FrozenCircle = 29591, // Helper->self, 5.0s cast, range 10-40 donut
 
     FrozenSpikeVisual = 25583, // Boss->self, 4.5+0,5s cast, single-target
-    FrozenSpike = 29592, // Helper->player, 5.0s cast, range 6 circle
+    FrozenSpike = 29592 // Helper->player, 5.0s cast, range 6 circle
 }
 
 class FrozenSpike(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.FrozenSpike, 5);

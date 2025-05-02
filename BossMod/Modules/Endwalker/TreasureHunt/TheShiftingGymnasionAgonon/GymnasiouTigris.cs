@@ -38,12 +38,8 @@ class BlizzardIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.B
 class Eyeshine(BossModule module) : Components.CastGaze(module, (uint)AID.Eyeshine);
 class CatchingClaws(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CatchingClaws, new AOEShapeCone(12f, 45f.Degrees()));
 
-abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 7f);
 
 class HeavySmash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HeavySmash, 6f);
 
@@ -57,11 +53,7 @@ class GymnasiouTigrisStates : StateMachineBuilder
             .ActivateOnEnter<BlizzardIII>()
             .ActivateOnEnter<Eyeshine>()
             .ActivateOnEnter<CatchingClaws>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
+            .ActivateOnEnter<MandragoraAOEs>()
             .ActivateOnEnter<HeavySmash>()
             .Raw.Update = () =>
             {

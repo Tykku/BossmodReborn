@@ -6,6 +6,7 @@ public abstract class UnmanagedRotation(WorldState ws, float effectiveRange)
     protected Actor Player = null!;
     protected WorldState World => ws;
     protected uint MP;
+    private static readonly ZoneModuleConfig config = Service.Config.Get<ZoneModuleConfig>();
 
     protected Roleplay.AID ComboAction => (Roleplay.AID)World.Client.ComboState.Action;
 
@@ -13,20 +14,44 @@ public abstract class UnmanagedRotation(WorldState ws, float effectiveRange)
 
     public void Execute(Actor player, AIHints hints)
     {
+        if (AI.AIManager.Instance?.Beh == null && !config.EnableQuestBattles)
+            return;
+
         Hints = hints;
         Player = player;
 
         MP = (uint)Player.PredictedMPRaw;
+        var count = Hints.PotentialTargets.Count;
 
-        var primary = World.Actors.Find(player.TargetID);
-        if (primary != null)
-            Hints.GoalZones.Add(Hints.GoalSingleTarget(primary, effectiveRange));
+        Actor? closestPriorityTarget = null;
+        var minDistanceSq = float.MaxValue;
+        var maxPriority = int.MinValue;
 
-        Exec(primary);
+        for (var i = 0; i < count; ++i)
+        {
+            var target = Hints.PotentialTargets[i];
+            var priority = target.Priority;
+            if (priority < 0)
+                continue;
+            var distanceSq = (target.Actor.Position - player.Position).LengthSq();
+            if (priority > maxPriority || priority == maxPriority && distanceSq < minDistanceSq)
+            {
+                maxPriority = priority;
+                minDistanceSq = distanceSq;
+                closestPriorityTarget = target.Actor;
+            }
+        }
+
+        if (closestPriorityTarget != null)
+        {
+            Hints.ForcedTarget = closestPriorityTarget;
+            Hints.GoalZones.Add(Hints.GoalSingleTarget(closestPriorityTarget, effectiveRange));
+        }
+        Exec(closestPriorityTarget);
     }
 
-    protected void UseAction(Roleplay.AID action, Actor? target, float additionalPriority = 0, Vector3 targetPos = default) => UseAction(ActionID.MakeSpell(action), target, additionalPriority, targetPos);
-    protected void UseAction(ActionID action, Actor? target, float additionalPriority = 0, Vector3 targetPos = default)
+    protected void UseAction(Roleplay.AID action, Actor? target, float additionalPriority = default, Vector3 targetPos = default) => UseAction(ActionID.MakeSpell(action), target, additionalPriority, targetPos);
+    protected void UseAction(ActionID action, Actor? target, float additionalPriority = default, Vector3 targetPos = default)
     {
         var def = ActionDefinitions.Instance[action];
         if (def == null)
@@ -47,5 +72,5 @@ public abstract class UnmanagedRotation(WorldState ws, float effectiveRange)
 public abstract class RotationModule<R>(BossModule module) : BossComponent(module) where R : UnmanagedRotation
 {
     private readonly R _rotation = New<R>.Constructor<WorldState>()(module.WorldState);
-    public sealed override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints) => _rotation.Execute(actor, hints);
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints) => _rotation.Execute(actor, hints);
 }

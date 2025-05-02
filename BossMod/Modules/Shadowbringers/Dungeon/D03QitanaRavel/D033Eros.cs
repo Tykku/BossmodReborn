@@ -64,12 +64,12 @@ class ConfessionOfFaithCenter(BossModule module) : Breath(module, (uint)AID.Conf
 class ConfessionOfFaithLeft(BossModule module) : Breath(module, (uint)AID.ConfessionOfFaithLeft);
 class ConfessionOfFaithRight(BossModule module) : Breath(module, (uint)AID.ConfessionOfFaithRight);
 
-class ViperPoisonBait(BossModule module) : Components.BaitAwayCast(module, (uint)AID.ViperPoisonBait, new AOEShapeCircle(6f), true)
+class ViperPoisonBait(BossModule module) : Components.BaitAwayCast(module, (uint)AID.ViperPoisonBait, 6f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        if (ActiveBaits.Any(x => x.Target == actor))
+        if (ActiveBaitsOn(actor).Count != 0)
             hints.AddForbiddenZone(ShapeDistance.Rect(new(17f, -518f), new(17f, -558f), 13f));
     }
 }

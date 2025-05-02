@@ -21,7 +21,7 @@ public enum AID : uint
     PillarShatter1 = 29648, // Icicle->self, 6.0s cast, range 8 circle
     PillarShatter2 = 29601, // Icicle->self, 2.0s cast, range 8 circle
     EclipticBite = 29596, // Boss->player, 5.0s cast, single-target
-    HeavenswardRoar = 29593, // Boss->self, 5.0s cast, range 50 60-degree cone
+    HeavenswardRoar = 29593 // Boss->self, 5.0s cast, range 50 60-degree cone
 }
 
 class LunarCry(BossModule module) : Components.CastLineOfSightAOE(module, (uint)AID.LunarCry, 80f)

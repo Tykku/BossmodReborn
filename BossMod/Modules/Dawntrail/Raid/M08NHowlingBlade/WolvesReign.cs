@@ -13,7 +13,10 @@ class WolvesReignCone(BossModule module) : Components.GenericAOEs(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action.ID is (uint)AID.WolvesReignTeleport2 or (uint)AID.WolvesReignTeleport4)
-            _aoe = new(cone, spell.LocXZ, caster.Rotation + 180f.Degrees(), Module.CastFinishAt(spell, 5.1f));
+        {
+            var pos = spell.LocXZ;
+            _aoe = new(cone, pos, Angle.FromDirection(Arena.Center - pos), Module.CastFinishAt(spell, 5.1f));
+        }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
@@ -23,53 +26,5 @@ class WolvesReignCone(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class WolvesReignCircle(BossModule module) : Components.GenericAOEs(module)
-{
-    private readonly List<AOEInstance> _aoes = new(4);
-    private static readonly AOEShapeCircle circle = new(6f);
-
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        switch (spell.Action.ID)
-        {
-            case (uint)AID.WolvesReignCircle1:
-            case (uint)AID.WolvesReignCircle2:
-            case (uint)AID.WolvesReignCircle3:
-            case (uint)AID.WolvesReignCircle4:
-            case (uint)AID.WolvesReignCircle5:
-            case (uint)AID.WolvesReignCircle6:
-            case (uint)AID.WolvesReignCircle7:
-            case (uint)AID.WolvesReignCircle8:
-                _aoes.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
-                break;
-        }
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        var count = _aoes.Count;
-        if (count != 0)
-            switch (spell.Action.ID)
-            {
-                case (uint)AID.WolvesReignCircle1:
-                case (uint)AID.WolvesReignCircle2:
-                case (uint)AID.WolvesReignCircle3:
-                case (uint)AID.WolvesReignCircle4:
-                case (uint)AID.WolvesReignCircle5:
-                case (uint)AID.WolvesReignCircle6:
-                case (uint)AID.WolvesReignCircle7:
-                case (uint)AID.WolvesReignCircle8:
-                    for (var i = 0; i < count; ++i)
-                    {
-                        if (_aoes[i].ActorID == caster.InstanceID)
-                        {
-                            _aoes.RemoveAt(i);
-                            break;
-                        }
-                    }
-                    break;
-            }
-    }
-}
+class WolvesReignCircle(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.WolvesReignCircle1, (uint)AID.WolvesReignCircle2,
+(uint)AID.WolvesReignCircle3, (uint)AID.WolvesReignCircle4, (uint)AID.WolvesReignCircle5, (uint)AID.WolvesReignCircle6, (uint)AID.WolvesReignCircle7, (uint)AID.WolvesReignCircle8], 6f);

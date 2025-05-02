@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C030Trash2;
 
-abstract class Tornado(BossModule module, uint aid) : Components.SpreadFromCastTargets(module, aid, 4);
+abstract class Tornado(BossModule module, uint aid) : Components.SpreadFromCastTargets(module, aid, 4f);
 class NTornado(BossModule module) : Tornado(module, (uint)AID.NTornado);
 class STornado(BossModule module) : Tornado(module, (uint)AID.STornado);
 
-abstract class Ovation(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(12, 2));
+abstract class Ovation(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(12f, 2f));
 class NOvation(BossModule module) : Ovation(module, (uint)AID.NOvation);
 class SOvation(BossModule module) : Ovation(module, (uint)AID.SOvation);
 

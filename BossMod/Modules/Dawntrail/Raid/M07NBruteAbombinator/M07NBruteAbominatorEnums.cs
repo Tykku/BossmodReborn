@@ -64,7 +64,7 @@ public enum AID : uint
 
     CrossingCrosswinds = 43276, // BloomingAbomination->self, 8.5s cast, range 50 width 10 cross
     QuarrySwamp = 42285, // Boss->self, 4.0s cast, range 60 circle, need to hide behind dead or alive add or get petrified
-    Explosion = 42286, // Helper->location, 9.0s cast, range 60 circle, fall off AOE, optimal around 20
+    Explosion = 42286, // Helper->location, 9.0s cast, range 60 circle, fall off AOE, optimal around 25
 
     NeoBombarianSpecial = 42287, // Boss->self, 8.0s cast, range 60 circle, raidwide, knockback 58, arena change
     GrapplingIvy = 42288, // Boss->location, no cast, single-target

@@ -13,7 +13,7 @@ class BlissfulSpear2(BossModule module) : Components.CastCounter(module, (uint)A
 class BlissfulSpear3(BossModule module) : Components.CastCounter(module, (uint)AID.BlissfulSpear3);
 class BlissfulSpear4(BossModule module) : Components.CastCounter(module, (uint)AID.BlissfulSpear4);
 
-class BlissfulSpear(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(7), (uint)IconID.Spread1, (uint)AID.BlissfulSpear1, 3, true)
+class BlissfulSpear(BossModule module) : Components.BaitAwayIcon(module, 7f, (uint)IconID.Spread1, (uint)AID.BlissfulSpear1, 3f)
 {
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
@@ -23,7 +23,7 @@ class BlissfulSpear(BossModule module) : Components.BaitAwayIcon(module, new AOE
     }
 }
 
-class BlissfulArrow(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(7), (uint)IconID.Spread2, (uint)AID.BlissfulArrow2, 3, true)
+class BlissfulArrow(BossModule module) : Components.BaitAwayIcon(module, 7f, (uint)IconID.Spread2, (uint)AID.BlissfulArrow2, 3f)
 {
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
@@ -34,4 +34,4 @@ class BlissfulArrow(BossModule module) : Components.BaitAwayIcon(module, new AOE
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 263, NameID = 6385)]
-public class T02Lakshmi(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, 0), new ArenaBoundsCircle(20));
+public class T02Lakshmi(WorldState ws, Actor primary) : BossModule(ws, primary, default, new ArenaBoundsCircle(20f));

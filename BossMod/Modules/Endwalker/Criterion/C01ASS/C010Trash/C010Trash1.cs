@@ -57,7 +57,7 @@ public enum AID : uint
     SBloodyCaress = 31095, // SSapria->self, 3.0s cast, range 12 120-degree cone
 }
 
-abstract class AtropineSpore(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonut(10, 40));
+abstract class AtropineSpore(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonut(10f, 40f));
 class NAtropineSpore(BossModule module) : AtropineSpore(module, (uint)AID.NAtropineSpore);
 class SAtropineSpore(BossModule module) : AtropineSpore(module, (uint)AID.SAtropineSpore);
 
@@ -69,43 +69,43 @@ abstract class Deracinator(BossModule module, uint aid) : Components.SingleTarge
 class NDeracinator(BossModule module) : Deracinator(module, (uint)AID.NDeracinator);
 class SDeracinator(BossModule module) : Deracinator(module, (uint)AID.SDeracinator);
 
-abstract class ArborealStorm(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 12);
+abstract class ArborealStorm(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 12f);
 class NArborealStorm(BossModule module) : ArborealStorm(module, (uint)AID.NArborealStorm);
 class SArborealStorm(BossModule module) : ArborealStorm(module, (uint)AID.SArborealStorm);
 
-abstract class AcornBomb(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6);
+abstract class AcornBomb(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
 class NAcornBomb(BossModule module) : AcornBomb(module, (uint)AID.NAcornBomb);
 class SAcornBomb(BossModule module) : AcornBomb(module, (uint)AID.SAcornBomb);
 
-abstract class GelidGale(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6);
+abstract class GelidGale(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
 class NGelidGale(BossModule module) : GelidGale(module, (uint)AID.NGelidGale);
 class SGelidGale(BossModule module) : GelidGale(module, (uint)AID.SGelidGale);
 
-abstract class Uproot(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6);
+abstract class Uproot(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
 class NUproot(BossModule module) : Uproot(module, (uint)AID.NUproot);
 class SUproot(BossModule module) : Uproot(module, (uint)AID.SUproot);
 
-abstract class Sweep(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(30, 105.Degrees()));
+abstract class Sweep(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(30f, 105f.Degrees()));
 class NRightSweep(BossModule module) : Sweep(module, (uint)AID.NRightSweep);
 class SRightSweep(BossModule module) : Sweep(module, (uint)AID.SRightSweep);
 class NLeftSweep(BossModule module) : Sweep(module, (uint)AID.NLeftSweep);
 class SLeftSweep(BossModule module) : Sweep(module, (uint)AID.SLeftSweep);
 
-abstract class CreepingIvy(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(10, 45.Degrees()));
+abstract class CreepingIvy(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(10f, 45f.Degrees()));
 class NCreepingIvy(BossModule module) : CreepingIvy(module, (uint)AID.NCreepingIvy);
 class SCreepingIvy(BossModule module) : CreepingIvy(module, (uint)AID.SCreepingIvy);
 
-abstract class Honeyed(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(30, 90.Degrees()));
+abstract class Honeyed(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(30f, 90f.Degrees()));
 class NHoneyedLeft(BossModule module) : Honeyed(module, (uint)AID.NHoneyedLeft);
 class SHoneyedLeft(BossModule module) : Honeyed(module, (uint)AID.SHoneyedLeft);
 class NHoneyedRight(BossModule module) : Honeyed(module, (uint)AID.NHoneyedRight);
 class SHoneyedRight(BossModule module) : Honeyed(module, (uint)AID.SHoneyedRight);
 
-abstract class HoneyedFront(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(30, 60.Degrees()));
+abstract class HoneyedFront(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(30f, 60f.Degrees()));
 class NHoneyedFront(BossModule module) : HoneyedFront(module, (uint)AID.NHoneyedFront);
 class SHoneyedFront(BossModule module) : HoneyedFront(module, (uint)AID.SHoneyedFront);
 
-abstract class BloodyCaress(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(12, 60.Degrees()));
+abstract class BloodyCaress(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(12f, 60f.Degrees()));
 class NBloodyCaress(BossModule module) : BloodyCaress(module, (uint)AID.NBloodyCaress);
 class SBloodyCaress(BossModule module) : BloodyCaress(module, (uint)AID.SBloodyCaress);
 

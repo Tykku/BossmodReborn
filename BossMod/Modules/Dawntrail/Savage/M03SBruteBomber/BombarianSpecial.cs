@@ -65,4 +65,3 @@ class SpecialBombarianSpecialIn(BossModule module) : SpecialIn(module, (uint)AID
 
 class BombarianSpecialAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BombarianSpecialAOE, 8);
 class BombarianSpecialKnockback(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.BombarianSpecialKnockback, 10);
-

@@ -29,7 +29,7 @@ public enum AID : uint
     SInfernalPain = 31105, // SDullahan->self, 5.0s cast, raidwide
 }
 
-abstract class DominionSlash(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(12, 45.Degrees()));
+abstract class DominionSlash(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(12f, 45f.Degrees()));
 class NDominionSlash(BossModule module) : DominionSlash(module, (uint)AID.NDominionSlash);
 class SDominionSlash(BossModule module) : DominionSlash(module, (uint)AID.SDominionSlash);
 
@@ -41,7 +41,7 @@ abstract class HellsNebula(BossModule module, uint aid) : Components.CastHint(mo
 class NHellsNebula(BossModule module) : HellsNebula(module, (uint)AID.NHellsNebula);
 class SHellsNebula(BossModule module) : HellsNebula(module, (uint)AID.SHellsNebula);
 
-abstract class BlightedGloom(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 10);
+abstract class BlightedGloom(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 10f);
 class NBlightedGloom(BossModule module) : BlightedGloom(module, (uint)AID.NBlightedGloom);
 class SBlightedGloom(BossModule module) : BlightedGloom(module, (uint)AID.SBlightedGloom);
 

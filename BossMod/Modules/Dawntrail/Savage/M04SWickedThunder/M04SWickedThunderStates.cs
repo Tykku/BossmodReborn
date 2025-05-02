@@ -119,13 +119,11 @@ class M04SWickedThunderStates : StateMachineBuilder
         CastMulti(id + 0x30, [(uint)AID.ElectropeEdgeSidewiseSparkR, (uint)AID.ElectropeEdgeSidewiseSparkL], 3.2f, 7, "Corner + Pairs/Spread") // everything resolves within 0.1s of each other
             .ActivateOnEnter<ElectropeEdgeSpark1>()
             .ActivateOnEnter<ElectropeEdgeSpark2>()
-            .ActivateOnEnter<ElectropeEdgeSidewiseSparkR>()
-            .ActivateOnEnter<ElectropeEdgeSidewiseSparkL>()
+            .ActivateOnEnter<ElectropeEdgeSidewiseSpark>()
             .ActivateOnEnter<ElectropeEdgeStar>()
             .DeactivateOnExit<ElectropeEdgeSpark1>()
             .DeactivateOnExit<ElectropeEdgeSpark2>()
-            .DeactivateOnExit<ElectropeEdgeSidewiseSparkR>()
-            .DeactivateOnExit<ElectropeEdgeSidewiseSparkL>()
+            .DeactivateOnExit<ElectropeEdgeSidewiseSpark>()
             .DeactivateOnExit<ElectropeEdgeStar>();
     }
 
@@ -145,11 +143,9 @@ class M04SWickedThunderStates : StateMachineBuilder
         ComponentCondition<LightningCage>(id + 0x31, 6.7f, comp => comp.NumSparks > 0);
         ComponentCondition<LightningCage>(id + 0x32, 0.3f, comp => comp.NumCasts > 0, "Anchor 1");
         CastMulti(id + 0x40, [(uint)AID.ElectropeEdgeSidewiseSparkR, (uint)AID.ElectropeEdgeSidewiseSparkL], 2.2f, 7, "Side + Pairs/Spread") // everything resolves within 0.1s of each other
-            .ActivateOnEnter<ElectropeEdgeSidewiseSparkR>()
-            .ActivateOnEnter<ElectropeEdgeSidewiseSparkL>()
+            .ActivateOnEnter<ElectropeEdgeSidewiseSpark>()
             .ActivateOnEnter<ElectropeEdgeStar>()
-            .DeactivateOnExit<ElectropeEdgeSidewiseSparkR>()
-            .DeactivateOnExit<ElectropeEdgeSidewiseSparkL>()
+            .DeactivateOnExit<ElectropeEdgeSidewiseSpark>()
             .DeactivateOnExit<ElectropeEdgeStar>();
         ComponentCondition<LightningCage>(id + 0x50, 4.2f, comp => comp.Active);
         ComponentCondition<LightningCage>(id + 0x51, 6.4f, comp => comp.NumSparks > 4);

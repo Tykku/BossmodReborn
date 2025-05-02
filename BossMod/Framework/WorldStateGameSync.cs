@@ -175,7 +175,7 @@ sealed class WorldStateGameSync : IDisposable
         _interceptor.Dispose();
     }
 
-    public unsafe void Update(ref TimeSpan prevFramePerf)
+    public unsafe void Update(TimeSpan prevFramePerf)
     {
         var fwk = Framework.Instance();
         _ws.Execute(new WorldState.OpFrameStart
@@ -200,8 +200,8 @@ sealed class WorldStateGameSync : IDisposable
         // {
         //     _ws.Execute(new NetworkState.OpIDScramble(Network.IDScramble.Delta));
         // }
-
-        for (var i = 0; i < _globalOps.Count; ++i)
+        var count = _globalOps.Count;
+        for (var i = 0; i < count; ++i)
         {
             _ws.Execute(_globalOps[i]);
         }

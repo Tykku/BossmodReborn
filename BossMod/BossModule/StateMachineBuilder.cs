@@ -130,13 +130,16 @@ public class StateMachineBuilder(BossModule module)
     }
 
     // create a single-state phase; useful for modules with trivial state machines
-    public Phase TrivialPhase(uint seqID = 0, float enrage = 10000) => DeathPhase(seqID, id => SimpleState(id, enrage, "Enrage"));
+    public Phase TrivialPhase(uint seqID = 0u, float enrage = 10000f) => DeathPhase(seqID, id => SimpleState(id, enrage, "Enrage"));
 
     // create a simple state without any actions
     public State SimpleState(uint id, float duration, string name)
     {
-        // if (_states.ContainsKey(id))
-        //     throw new InvalidOperationException($"Duplicate state id {id:X}");
+        while (_states.ContainsKey(id))
+        {
+            Service.Log($"Duplicate state id {id:X}, incrementing by 1");
+            ++id;
+        }
 
         var state = _states[id] = new() { ID = id, Duration = duration, Name = name };
         if (_lastState != null)

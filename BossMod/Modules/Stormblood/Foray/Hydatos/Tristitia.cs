@@ -24,9 +24,18 @@ public enum AID : uint
     Dualcast = 15909 // Tristitia->self, 2.0s cast, single-target
 }
 
+public enum SID : uint
+{
+    ShockSpikes = 199, // Boss->Boss, extra=0x64
+    CriticalStrikes = 1797 // Boss->Boss, extra=0x0
+}
+
 class WatergaIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WatergaIII, 8f);
 class SpineLash1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpineLash1, new AOEShapeCone(9f, 45f.Degrees()));
 class SpineLash2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpineLash2, new AOEShapeCone(11f, 45f.Degrees()));
+class ShockSpikes(BossModule module) : Components.Dispel(module, (uint)SID.ShockSpikes);
+class MightyStrikes(BossModule module) : Components.Dispel(module, (uint)SID.CriticalStrikes);
+
 class Meteor(BossModule module) : Components.RaidwideCast(module, (uint)AID.Meteor);
 
 class TornadoIIAerogaIVDualCast(BossModule module) : Components.GenericAOEs(module)
@@ -134,6 +143,9 @@ class TristitiaStates : StateMachineBuilder
     public TristitiaStates(BossModule module) : base(module)
     {
         TrivialPhase()
+            .ActivateOnEnter<ShockSpikes>()
+            .ActivateOnEnter<MightyStrikes>()
+            .ActivateOnEnter<TornadoIIAerogaIVDualCast>()
             .ActivateOnEnter<WatergaIII>()
             .ActivateOnEnter<TornadoIIAerogaIVDualCast>()
             .ActivateOnEnter<SpineLash2>()
@@ -144,7 +156,7 @@ class TristitiaStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.EurekaNM, GroupID = 639, NameID = 1422, PrimaryActorOID = (uint)OID.Tristitia, SortOrder = 13)]
 public class Tristitia(WorldState ws, Actor primary) : BASupportFate(ws, primary);
 
-public abstract class BASupportFate(WorldState ws, Actor primary) : BossModule(ws, primary, new(-125.7764f, -111.1819f), SharedBounds.Circle)
+public abstract class BASupportFate(WorldState ws, Actor primary) : SimpleBossModule(ws, primary)
 {
     public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.Tristitia];
     protected override void DrawEnemies(int pcSlot, Actor pc)

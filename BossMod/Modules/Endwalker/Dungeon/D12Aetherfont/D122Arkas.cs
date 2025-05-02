@@ -51,15 +51,15 @@ class BattleCryArenaChange(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index == 0x00)
+        if (index == 0x00u)
         {
-            if (state == 0x00020001)
+            if (state == 0x00020001u)
             {
                 Arena.Bounds = D122Arkas.SmallerBounds;
                 Arena.Center = D122Arkas.SmallerBounds.Center;
                 _aoe = null;
             }
-            else if (state == 0x00080004)
+            else if (state == 0x00080004u)
             {
                 Arena.Bounds = D122Arkas.DefaultBounds;
                 Arena.Center = D122Arkas.DefaultBounds.Center;
@@ -145,7 +145,7 @@ class ForkedFissures(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state is 0x00200010 or 0x00020001)
+        if (state is 0x00200010u or 0x00020001u)
         {
             var pattern = index switch
             {

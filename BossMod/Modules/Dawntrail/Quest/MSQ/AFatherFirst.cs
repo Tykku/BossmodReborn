@@ -225,10 +225,7 @@ class FancyBladework(BossModule module) : Components.RaidwideCast(module, (uint)
 class CoiledStrike(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CoiledStrike, new AOEShapeCone(30f, 75f.Degrees()));
 class GloryBlaze(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GloryBlaze, new AOEShapeRect(40f, 3f));
 class BattleBreaker(BossModule module) : Components.RaidwideCast(module, (uint)AID.BattleBreaker);
-
-abstract class MorningStars(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 4f);
-class MorningStars1(BossModule module) : MorningStars(module, (uint)AID.MorningStars1);
-class MorningStars2(BossModule module) : MorningStars(module, (uint)AID.MorningStars2);
+class MorningStars(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.MorningStars1, (uint)AID.MorningStars2], 4f);
 
 class AFatherFirstStates : StateMachineBuilder
 {
@@ -239,8 +236,7 @@ class AFatherFirstStates : StateMachineBuilder
             .ActivateOnEnter<FancyBladework>()
             .ActivateOnEnter<GloryBlaze>()
             .ActivateOnEnter<CoiledStrike>()
-            .ActivateOnEnter<MorningStars1>()
-            .ActivateOnEnter<MorningStars2>()
+            .ActivateOnEnter<MorningStars>()
             .ActivateOnEnter<FireVoidzone>()
             .ActivateOnEnter<BurningSun>()
             .ActivateOnEnter<TheThrill1>()

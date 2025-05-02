@@ -1,5 +1,3 @@
-using BossMod.QuestBattle;
-
 namespace BossMod.Dawntrail.Quest.MSQ.TakingAStand;
 
 public enum OID : uint
@@ -223,17 +221,13 @@ class RiotousRampage(BossModule module) : Components.CastTowers(module, (uint)AI
 class Roar1(BossModule module) : Components.RaidwideCast(module, (uint)AID.Roar1);
 class Roar2(BossModule module) : Components.RaidwideCast(module, (uint)AID.Roar2);
 class LethalSwipe(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LethalSwipe, new AOEShapeCone(45f, 90f.Degrees()));
-class Fireshower(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Fireshower, 6);
-
-abstract class RunThrough(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(45f, 2.5f));
-class RunThrough1(BossModule module) : RunThrough(module, (uint)AID.RunThrough1);
-class RunThrough2(BossModule module) : RunThrough(module, (uint)AID.RunThrough2);
-
+class Fireshower(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Fireshower, 6f);
+class RunThrough(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.RunThrough1, (uint)AID.RunThrough2], new AOEShapeRect(45f, 2.5f));
 class Fireflood(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Fireflood, 18f);
 class TuraliStoneIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TuraliStoneIII, 4f);
 class TuraliQuake(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TuraliQuake, 9f, maxCasts: 5);
 
-class AutoWukLamat(WorldState ws) : UnmanagedRotation(ws, 3f)
+class AutoWukLamat(WorldState ws) : QuestBattle.UnmanagedRotation(ws, 3f)
 {
     protected override void Exec(Actor? primaryTarget)
     {
@@ -263,7 +257,7 @@ class AutoWukLamat(WorldState ws) : UnmanagedRotation(ws, 3f)
         UseAction(gcd, primaryTarget);
         UseAction(Roleplay.AID.BeakOfTheLuwatena, primaryTarget, -5f);
 
-        if (Player.DistanceToHitbox(primaryTarget) < 3)
+        if (Player.DistanceToHitbox(primaryTarget) < 3f)
             UseAction(Roleplay.AID.RunOfTheRroneek, primaryTarget, -10f);
 
         if (Player.HPMP.CurHP * 2 < Player.HPMP.MaxHP)
@@ -271,7 +265,23 @@ class AutoWukLamat(WorldState ws) : UnmanagedRotation(ws, 3f)
     }
 }
 
-class WukLamatAI(BossModule module) : RotationModule<AutoWukLamat>(module);
+class WukLamatAI(BossModule module) : QuestBattle.RotationModule<AutoWukLamat>(module)
+{
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var e = hints.PotentialTargets[i];
+            e.Priority = e.Actor.OID switch
+            {
+                (uint)OID.BakoolJaJaShade => AIHints.Enemy.PriorityInvincible,
+                _ => 0
+            };
+        }
+        base.AddAIHints(slot, actor, assignment, hints);
+    }
+}
 
 class TakingAStandStates : StateMachineBuilder
 {
@@ -291,8 +301,7 @@ class TakingAStandStates : StateMachineBuilder
             .ActivateOnEnter<TuraliQuake>()
             .ActivateOnEnter<TuraliStoneIII>()
             .ActivateOnEnter<Fireflood>()
-            .ActivateOnEnter<RunThrough1>()
-            .ActivateOnEnter<RunThrough2>()
+            .ActivateOnEnter<RunThrough>()
             .ActivateOnEnter<WukLamatAI>()
             .Raw.Update = () => module.PrimaryActor.IsDestroyed || module.PrimaryActor.HPMP.CurHP == 1;
     }
@@ -309,19 +318,5 @@ public class TakingAStand(WorldState ws, Actor primary) : BossModule(ws, primary
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actors(Enemies(all));
-    }
-
-    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        var count = hints.PotentialTargets.Count;
-        for (var i = 0; i < count; ++i)
-        {
-            var e = hints.PotentialTargets[i];
-            e.Priority = e.Actor.OID switch
-            {
-                (uint)OID.BakoolJaJaShade => AIHints.Enemy.PriorityInvincible,
-                _ => 0
-            };
-        }
     }
 }

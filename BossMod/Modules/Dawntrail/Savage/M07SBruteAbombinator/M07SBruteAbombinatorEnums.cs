@@ -79,7 +79,7 @@ public enum AID : uint
     WindingWildwinds = 43277, // BloomingAbomination->self, 7.0s cast, range 5-60 donut
     HurricaneForce = 42348, // BloomingAbomination->self, 6.0s cast, range 60 circle, enrage
     QuarrySwamp = 42357, // Boss->self, 4.0s cast, range 60 circle, line of sight AOE, take cover behind adds (dead or alive)
-    Explosion = 42358, // Helper->location, 9.0s cast, range 60 circle, proximity AOE, about 20 optimal range
+    Explosion = 42358, // Helper->location, 9.0s cast, range 60 circle, proximity AOE, about 25 optimal range
 
     PulpSmashVisual1 = 42359, // Boss->self, 3.0+2,0s cast, single-target, stack
     PulpSmashVisual2 = 42360, // Boss->player, no cast, single-target

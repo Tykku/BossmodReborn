@@ -3,7 +3,7 @@
 public enum OID : uint
 {
     Boss = 0x3870,
-    IchorousDrip = 0x3871, // x6
+    IchorousDrip = 0x3871 // x6
 }
 
 public enum AID : uint
@@ -13,7 +13,7 @@ public enum AID : uint
     FluidSpread = 28461, // Boss->player, 5.0s cast, tankbuster
     Divide = 28463, // Boss->self, 3.0s cast, visual
     DivideAppear = 28464, // IchorousDrip->location, no cast, teleport/appear
-    Burst = 28465, // IchorousDrip->self, 6.0s cast, range 8 aoe
+    Burst = 28465 // IchorousDrip->self, 6.0s cast, range 8 aoe
 }
 
 class Syrup(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Syrup, 4);

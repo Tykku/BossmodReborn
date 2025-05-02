@@ -9,6 +9,13 @@ class RavenousSaber(BossModule module) : Components.CastCounterMulti(module, [(u
 (uint)AID.RavenousSaber5]);
 class Mooncleaver1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Mooncleaver1, 8f);
 class ProwlingGaleP2(BossModule module) : Components.CastTowers(module, (uint)AID.ProwlingGaleP2, 2f, 2, 2);
+class MoonbeamsBite : Components.SimpleAOEGroups
+{
+    public MoonbeamsBite(BossModule module) : base(module, [(uint)AID.MoonbeamsBite1, (uint)AID.MoonbeamsBite2], new AOEShapeRect(40f, 10f), 2, 6)
+    {
+        MaxDangerColor = 1;
+    }
+}
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1026, NameID = 13843, PlanLevel = 100)]
 public class M08SHowlingBlade(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, StartingArena)

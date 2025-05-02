@@ -46,7 +46,7 @@ class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Sunbeam(BossModule module) : Components.BaitAwayCast(module, (uint)AID.SunbeamAOE, new AOEShapeCircle(6f), true);
+class Sunbeam(BossModule module) : Components.BaitAwayCast(module, (uint)AID.SunbeamAOE, 6f);
 class DestructiveBolt(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.DestructiveBoltAOE, 6f, 8);
 
 class HoD(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(90f, 20f));

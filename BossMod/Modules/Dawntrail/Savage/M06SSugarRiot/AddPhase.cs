@@ -63,7 +63,7 @@ class Adds(BossModule module) : Components.AddsMulti(module, [(uint)OID.Mu, (uin
 
 class ICraveViolence(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ICraveViolence, 6f);
 class OreRigato(BossModule module) : Components.RaidwideCast(module, (uint)AID.OreRigato);
-class WaterIIIBait(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(8f), (uint)TetherID.WaterIII, (uint)AID.WaterIII, (uint)OID.FeatherRay, 7.3f, true);
+class WaterIIIBait(BossModule module) : Components.BaitAwayTethers(module, 8f, (uint)TetherID.WaterIII, (uint)AID.WaterIII, (uint)OID.FeatherRay, 7.3f);
 class WaterIIIVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(module, 9f, (uint)AID.WaterIII, GetVoidzones, 1.6f) // apparently the voidzone is bigger than the AOE?
 {
     private static Actor[] GetVoidzones(BossModule module)

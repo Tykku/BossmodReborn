@@ -9,7 +9,7 @@ class HeatingBurningUp(BossModule module) : Components.GenericStackSpread(module
 
     public override void Update()
     {
-        if (Spreads.Count == 0)
+        if (Spreads.Count < 2 || Stacks.Count == 0)
         {
             BitMask forbidden = new();
             var act = WorldState.FutureTime(8d);
@@ -25,7 +25,6 @@ class HeatingBurningUp(BossModule module) : Components.GenericStackSpread(module
                     DefamationStatus[i] = false;
                 }
             }
-
             if (_stack is (Actor, DateTime) stack && Math.Max(0d, (stack.Item2 - WorldState.CurrentTime).TotalSeconds) < 8d)
             {
                 _stack = null;

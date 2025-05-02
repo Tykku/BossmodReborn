@@ -177,7 +177,7 @@ class Aethersup(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class PendulumFlare(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(20f), (uint)IconID.SpreadFlare, (uint)AID.PendulumAOE1, 5.1f, true)
+class PendulumFlare(BossModule module) : Components.BaitAwayIcon(module, 20f, (uint)IconID.SpreadFlare, (uint)AID.PendulumAOE1, 5.1f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

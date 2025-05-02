@@ -237,18 +237,27 @@ public class BaitAwayEveryone : GenericBaitAway
     {
         AllowDeadTargets = false;
         if (source != null)
-            CurrentBaits.AddRange(Raid.WithoutSlot(true).Select(p => new Bait(source, p, shape)));
+        {
+            var party = Raid.WithoutSlot(true);
+            var len = party.Length;
+            for (var i = 0; i < len; ++i)
+            {
+                CurrentBaits.Add(new(source, party[i], shape));
+            }
+        }
     }
 }
 
 // component for mechanics requiring tether targets to bait their aoe away from raid
-public class BaitAwayTethers(BossModule module, AOEShape shape, uint tetherID, uint aid = default, uint enemyOID = default, float activationDelay = default, bool centerAtTarget = false) : GenericBaitAway(module, aid, centerAtTarget: centerAtTarget)
+public class BaitAwayTethers(BossModule module, AOEShape shape, uint tetherID, uint aid = default, uint enemyOID = default, double activationDelay = default, bool centerAtTarget = false) : GenericBaitAway(module, aid, centerAtTarget: centerAtTarget)
 {
+    public BaitAwayTethers(BossModule module, float radius, uint tetherID, uint aid = default, uint enemyOID = default, double activationDelay = default, bool centerAtTarget = true) : this(module, new AOEShapeCircle(radius), tetherID, aid, enemyOID, activationDelay, centerAtTarget) { }
+
     public AOEShape Shape = shape;
     public uint TID = tetherID;
     public bool DrawTethers = true;
     public readonly List<Actor> _enemies = module.Enemies(enemyOID);
-    public float ActivationDelay = activationDelay;
+    public double ActivationDelay = activationDelay;
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
@@ -298,11 +307,13 @@ public class BaitAwayTethers(BossModule module, AOEShape shape, uint tetherID, u
 }
 
 // component for mechanics requiring icon targets to bait their aoe away from raid
-public class BaitAwayIcon(BossModule module, AOEShape shape, uint iconID, uint aid = default, float activationDelay = 5.1f, bool centerAtTarget = false, Actor? source = null, bool tankbuster = false) : GenericBaitAway(module, aid, centerAtTarget: centerAtTarget, tankbuster: tankbuster)
+public class BaitAwayIcon(BossModule module, AOEShape shape, uint iconID, uint aid = default, double activationDelay = 5.1d, bool centerAtTarget = false, Actor? source = null, bool tankbuster = false) : GenericBaitAway(module, aid, centerAtTarget: centerAtTarget, tankbuster: tankbuster)
 {
+    public BaitAwayIcon(BossModule module, float radius, uint iconID, uint aid = default, double activationDelay = 5.1d, bool centerAtTarget = true, Actor? source = null, bool tankbuster = false) : this(module, new AOEShapeCircle(radius), iconID, aid, activationDelay, centerAtTarget, source, tankbuster) { }
+
     public AOEShape Shape = shape;
     public uint IID = iconID;
-    public float ActivationDelay = activationDelay;
+    public double ActivationDelay = activationDelay;
 
     public virtual Actor? BaitSource(Actor target) => source ?? Module.PrimaryActor;
 
@@ -325,6 +336,8 @@ public class BaitAwayIcon(BossModule module, AOEShape shape, uint iconID, uint a
 // component for mechanics requiring cast targets to gtfo from raid (aoe tankbusters etc)
 public class BaitAwayCast(BossModule module, uint aid, AOEShape shape, bool centerAtTarget = false, bool endsOnCastEvent = false, bool tankbuster = false) : GenericBaitAway(module, aid, centerAtTarget: centerAtTarget, tankbuster: tankbuster)
 {
+    public BaitAwayCast(BossModule module, uint aid, float radius, bool centerAtTarget = true, bool endsOnCastEvent = false, bool tankbuster = false) : this(module, aid, new AOEShapeCircle(radius), centerAtTarget, endsOnCastEvent, tankbuster) { }
+
     public AOEShape Shape = shape;
     public bool EndsOnCastEvent = endsOnCastEvent;
 

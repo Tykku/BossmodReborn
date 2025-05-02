@@ -21,7 +21,7 @@ class P2PropellerWind(BossModule module) : Components.CastLineOfSightAOE(module,
 }
 
 class P2DoubleRocketPunch(BossModule module) : Components.CastSharedTankbuster(module, (uint)AID.DoubleRocketPunch, 3f);
-class P3ChasteningHeat(BossModule module) : Components.BaitAwayCast(module, (uint)AID.ChasteningHeat, new AOEShapeCircle(5f), true);
+class P3ChasteningHeat(BossModule module) : Components.BaitAwayCast(module, (uint)AID.ChasteningHeat, 5f);
 class P3DivineSpear(BossModule module) : Components.Cleave(module, (uint)AID.DivineSpear, new AOEShapeCone(24.2f, 45f.Degrees()), [(uint)OID.AlexanderPrime]); // TODO: verify angle
 class P3DivineJudgmentRaidwide(BossModule module) : Components.CastCounter(module, (uint)AID.DivineJudgmentRaidwide);
 

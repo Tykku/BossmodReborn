@@ -1,5 +1,4 @@
-﻿using BossMod.QuestBattle;
-using RPID = BossMod.Roleplay.AID;
+﻿using RPID = BossMod.Roleplay.AID;
 
 namespace BossMod.Stormblood.Quest.MSQ.TheWillOfTheMoon;
 
@@ -67,7 +66,7 @@ public class WindChisel(BossModule module) : Components.SimpleAOEs(module, (uint
 
 public class Scales(BossModule module) : Components.Adds(module, (uint)OID.TheScaleOfTheFather);
 
-class AutoYshtola(BossModule module, WorldState ws) : UnmanagedRotation(ws, 25f)
+class AutoYshtola(BossModule module, WorldState ws) : QuestBattle.UnmanagedRotation(ws, 25f)
 {
     private Actor Magnai => module.Enemies((uint)OID.Magnai)[0];
     private Actor Hien => module.Enemies((uint)OID.Hien)[0];
@@ -101,7 +100,7 @@ class AutoYshtola(BossModule module, WorldState ws) : UnmanagedRotation(ws, 25f)
     }
 }
 
-class YshtolaAI(BossModule module) : RotationModule<AutoYshtola>(module);
+class YshtolaAI(BossModule module) : QuestBattle.RotationModule<AutoYshtola>(module);
 
 class P1Hints(BossModule module) : BossComponent(module)
 {

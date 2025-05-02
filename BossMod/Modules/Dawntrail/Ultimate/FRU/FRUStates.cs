@@ -559,15 +559,13 @@ class FRUStates : StateMachineBuilder
         ComponentCondition<SpiritTaker>(id + 0x24, 0.3f, comp => comp.Spreads.Count == 0, "Jump")
             .DeactivateOnExit<SpiritTaker>();
         ActorCastStart(id + 0x25, _module.BossP4Oracle, (uint)AID.SomberDance, 2.8f)
-            .ActivateOnEnter<P4HallowedWingsL>()
-            .ActivateOnEnter<P4HallowedWingsR>()
+            .ActivateOnEnter<P4HallowedWings>()
             .ExecOnEnter<P4DarklitDragonsongDarkWater>(comp => comp.Show());
         ComponentCondition<P4DarklitDragonsongDarkWater>(id + 0x26, 1.7f, comp => comp.Stacks.Count == 0, "Stacks")
             .DeactivateOnExit<P4DarklitDragonsongDarkWater>();
         ActorCastEnd(id + 0x27, _module.BossP4Usurper, 0.2f, false, "Side cleave")
             .ActivateOnEnter<P4SomberDance>()
-            .DeactivateOnExit<P4HallowedWingsL>()
-            .DeactivateOnExit<P4HallowedWingsR>();
+            .DeactivateOnExit<P4HallowedWings>();
         ActorCastEnd(id + 0x28, _module.BossP4Oracle, 3.1f, true)
             .DeactivateOnExit<P4DarklitDragonsong>(); // tethers deactivate ~0.5s before cast end
         ComponentCondition<P4SomberDance>(id + 0x29, 0.4f, comp => comp.NumCasts > 0, "Tankbuster 1")

@@ -120,7 +120,7 @@ class UnSuzakuStates : StateMachineBuilder
             .DeactivateOnExit<MesmerizingMelody>()
             .ActivateOnEnter<RekindleP2>();
         RekindleWellOfFlameScathingNet(id + 0x20u, 3.1f);
-        PhantomFlurry(id + 0x30u, 1f)
+        PhantomFlurry(id + 0x70u, 1f)
             .ActivateOnExit<Hotspot>();
     }
 
@@ -219,28 +219,28 @@ class UnSuzakuStates : StateMachineBuilder
             .DeactivateOnExit<PayThePiperRegular>()
             .ActivateOnExit<RekindleP2>();
         RekindleWellOfFlameScathingNet(id + 0x50u, 0.5f);
-        PhantomFlurry(id + 0x60u, 4f, 2.6f)
+        PhantomFlurry(id + 0xA0u, 4f, 1.6f)
             .ActivateOnExit<Hotspot>();
     }
 
     private void Phase2AfterHotspot2(uint id, float delay)
     {
         PhantomFlurry(id, delay);
-        SouthronStar(id + 0x10u, 5.1f)
+        SouthronStar(id + 0x40u, 5.1f)
             .ActivateOnExit<RuthlessRefrain>()
             .ActivateOnExit<IncandescentInterlude>()
             .ActivateOnExit<RekindleP2>();
-        ComponentCondition<IncandescentInterlude>(id + 0x20u, 14.3f, comp => comp.TowerCache.Count != 0, "Towers appear");
-        ComponentCondition<RekindleP2>(id + 0x30u, 4.8f, comp => comp.Spreads.Count != 0, "Spreadmarkers appear");
-        ComponentCondition<RuthlessRefrain>(id + 0x40u, 2.5f, comp => comp.NumCasts != 0, "Knockback")
+        ComponentCondition<IncandescentInterlude>(id + 0x50u, 14.3f, comp => comp.TowerCache.Count != 0, "Towers appear");
+        ComponentCondition<RekindleP2>(id + 0x60u, 4.8f, comp => comp.Spreads.Count != 0, "Spreadmarkers appear");
+        ComponentCondition<RuthlessRefrain>(id + 0x70u, 2.5f, comp => comp.NumCasts != 0, "Knockback")
             .SetHint(StateMachine.StateHint.Knockback)
             .DeactivateOnExit<RuthlessRefrain>();
-        ComponentCondition<IncandescentInterlude>(id + 0x50u, 2.3f, comp => comp.Towers.Count == 0, "Towers resolve")
+        ComponentCondition<IncandescentInterlude>(id + 0x80u, 2.3f, comp => comp.Towers.Count == 0, "Towers resolve")
             .DeactivateOnExit<IncandescentInterlude>();
-        ComponentCondition<RekindleP2>(id + 0x60u, 0.25f, comp => comp.Spreads.Count == 0, "Spreads resolve")
+        ComponentCondition<RekindleP2>(id + 0x90u, 0.25f, comp => comp.Spreads.Count == 0, "Spreads resolve")
             .ActivateOnExit<WellOfFlame>()
             .DeactivateOnExit<RekindleP2>();
-        ComponentCondition<WellOfFlame>(id + 0x70u, 4.8f, comp => comp.NumCasts != 0, "Frontal AOE")
+        ComponentCondition<WellOfFlame>(id + 0xA0u, 4.8f, comp => comp.NumCasts != 0, "Frontal AOE")
             .DeactivateOnExit<WellOfFlame>()
             .ActivateOnExit<PayThePiperHotspotCombo>()
             .ActivateOnExit<Hotspot>();
@@ -252,18 +252,18 @@ class UnSuzakuStates : StateMachineBuilder
         MesmerizingMelodyRuthlessRefrain(id + 0x10u, 9.1f)
             .ActivateOnExit<RekindleP2>();
         RekindleWellOfFlameScathingNet(id + 0x20u, 8.2f);
-        PhantomFlurry(id + 0x30u, 1f);
-        SouthronStar(id + 0x40u, 5.1f);
-        MesmerizingMelodyRuthlessRefrain(id + 0x90, 9.1f);
-        SouthronStar(id + 0x50u, 9.2f);
-        PhantomFlurry(id + 0x60u, 2.6f);
+        PhantomFlurry(id + 0x70u, 1f);
+        SouthronStar(id + 0xB0u, 5.1f);
+        MesmerizingMelodyRuthlessRefrain(id + 0xC0, 9.1f);
+        SouthronStar(id + 0xD0u, 9.2f);
+        PhantomFlurry(id + 0xE0u, 2.6f);
     }
 
     private State PhantomFlurry(uint id, float delay, float delay2 = 1.6f)
     {
         Cast(id, (uint)AID.PhantomFlurryVisual, delay, 4f)
-                .ActivateOnEnter<PhantomFlurryAOE>()
-                .ActivateOnEnter<PhantomFlurryTB>();
+            .ActivateOnEnter<PhantomFlurryAOE>()
+            .ActivateOnEnter<PhantomFlurryTB>();
         ComponentCondition<PhantomFlurryTB>(id + 0x10u, 0.1f, comp => comp.NumCasts == 1, "Tank swap")
             .SetHint(StateMachine.StateHint.Tankbuster);
         ComponentCondition<PhantomFlurryAOE>(id + 0x20u, 6.1f, comp => comp.NumCasts != 0, "Frontal AOE")

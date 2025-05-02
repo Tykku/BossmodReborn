@@ -94,18 +94,14 @@ class DisruptionArenaChange(BossModule module) : Components.GenericAOEs(module)
 
 class Disruption(BossModule module) : Components.RaidwideCast(module, (uint)AID.Disruption);
 
-abstract class Partition(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(40f, 90f.Degrees()));
-class Partition1(BossModule module) : Partition(module, (uint)AID.Partition1);
-class Partition2(BossModule module) : Partition(module, (uint)AID.Partition2);
-class Partition3(BossModule module) : Partition(module, (uint)AID.Partition3);
-
+class Partition(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.Partition1, (uint)AID.Partition2, (uint)AID.Partition3], new AOEShapeCone(40f, 90f.Degrees()));
 class Terminate(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Terminate, new AOEShapeRect(40f, 5f));
 class HaloOfDestruction(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HaloOfDestruction, new AOEShapeDonut(6f, 40f));
 
 class Electray(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Electray, 6f)
 {
     private readonly HaloOfDestruction _aoe1 = module.FindComponent<HaloOfDestruction>()!;
-    private readonly Partition2 _aoe2 = module.FindComponent<Partition2>()!;
+    private readonly Partition _aoe2 = module.FindComponent<Partition>()!;
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -150,7 +146,7 @@ class LightOfDevotion(BossModule module) : Components.LineStack(module, (uint)AI
 {
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index == 0x2F && state == 0x00080004) // as soon as limit break phase ends the line stack gets cancelled
+        if (index == 0x2Fu && state == 0x00080004u) // as soon as limit break phase ends the line stack gets cancelled
             CurrentBaits.Clear();
     }
 }
@@ -194,9 +190,7 @@ class D063EliminatorStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<DisruptionArenaChange>()
             .ActivateOnEnter<Disruption>()
-            .ActivateOnEnter<Partition1>()
-            .ActivateOnEnter<Partition2>()
-            .ActivateOnEnter<Partition3>()
+            .ActivateOnEnter<Partition>()
             .ActivateOnEnter<Terminate>()
             .ActivateOnEnter<HaloOfDestruction>()
             .ActivateOnEnter<Electray>()

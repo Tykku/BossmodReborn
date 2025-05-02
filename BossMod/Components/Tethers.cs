@@ -347,9 +347,9 @@ public class InterceptTether(BossModule module, uint aid, uint tetherIDBad = 84u
     public readonly uint TIDGood = tetherIDGood;
     public readonly uint TIDBad = tetherIDBad;
     public readonly uint[]? ExcludedAllies = excludedAllies;
-    private readonly List<(Actor Player, Actor Enemy)> _tethers = [];
-    private BitMask _tetheredPlayers;
-    private const string hint = "Grab the tether!";
+    protected readonly List<(Actor Player, Actor Enemy)> _tethers = [];
+    protected BitMask _tetheredPlayers;
+    protected const string hint = "Grab the tether!";
     public bool Active => _tethers.Count != 0;
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -371,7 +371,8 @@ public class InterceptTether(BossModule module, uint aid, uint tetherIDBad = 84u
         if (ExcludedAllies != null)
             for (var i = 0; i < len; ++i)
                 exclude.AddRange(Module.Enemies(ExcludedAllies[i]));
-        for (var i = 0; i < _tethers.Count; ++i)
+        var count = _tethers.Count;
+        for (var i = 0; i < count; ++i)
         {
             var side = _tethers[i];
             Arena.AddLine(side.Enemy.Position, side.Player.Position, Raid.WithoutSlot().Exclude(exclude).Contains(side.Player) ? Colors.Safe : default);
@@ -398,7 +399,7 @@ public class InterceptTether(BossModule module, uint aid, uint tetherIDBad = 84u
         }
     }
 
-    private (int PlayerSlot, Actor Player, Actor Enemy)? DetermineTetherSides(Actor source, ActorTetherInfo tether)
+    public virtual (int PlayerSlot, Actor Player, Actor Enemy)? DetermineTetherSides(Actor source, ActorTetherInfo tether)
     {
         if (tether.ID != TIDGood && tether.ID != TIDBad)
             return null;

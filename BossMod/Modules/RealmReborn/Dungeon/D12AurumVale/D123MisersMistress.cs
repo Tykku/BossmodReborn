@@ -6,7 +6,7 @@ public enum OID : uint
     MorbolFruit = 0x5BC, // R0.6-1.8
     Plume1 = 0x5CA, // R0.5
     Plume2 = 0x603, // R1.5
-    MorbolSeedling = 0x5BB, // R0.9
+    MorbolSeedling = 0x5BB // R0.9
 }
 
 public enum AID : uint

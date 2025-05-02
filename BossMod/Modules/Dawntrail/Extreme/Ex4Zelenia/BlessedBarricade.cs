@@ -63,6 +63,8 @@ class SpearpointPushBait(BossModule module) : Components.GenericBaitAway(module,
 {
     private static readonly AOEShapeRect rect = new(32f, 37f, 1f);
     private Angle offset;
+    private static readonly Angle a90 = 90f.Degrees();
+    private static readonly WDir dir = new(default, 8f);
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
@@ -70,8 +72,8 @@ class SpearpointPushBait(BossModule module) : Components.GenericBaitAway(module,
         {
             offset = id switch
             {
-                0x0C90 => -90f.Degrees(),
-                0x0C91 => 90f.Degrees(),
+                0x0C90 => -a90,
+                0x0C91 => a90,
                 _ => default
             };
         }
@@ -95,6 +97,38 @@ class SpearpointPushBait(BossModule module) : Components.GenericBaitAway(module,
         }
     }
 
+    public override void DrawArenaForeground(int pcSlot, Actor pc)
+    {
+        base.DrawArenaForeground(pcSlot, pc);
+        var count = CurrentBaits.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var b = CurrentBaits[i];
+            if (b.Target == pc)
+            {
+                var pos = b.Source.Position;
+                Arena.AddLine(pos, pc.Position);
+                var offsetDir = pos.X < 100f ? offset == -a90 ? 1f : -1f : offset == a90 ? 1f : -1f;
+                Arena.AddCircle(pos + offsetDir * dir, 1f, Colors.Safe);
+            }
+        }
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        var baits = ActiveBaitsOn(actor);
+        var count = baits.Count;
+        if (count == 0)
+            base.AddAIHints(slot, actor, assignment, hints);
+        else
+        {
+            var b = baits[0];
+            var pos = b.Source.Position;
+            var offsetDir = pos.X < 100f ? offset == -a90 ? 1f : -1f : offset == a90 ? 1f : -1f;
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(pos + offsetDir * dir, 1f));
+        }
+    }
+
     public override void Update()
     {
         var count = CurrentBaits.Count;
@@ -105,6 +139,16 @@ class SpearpointPushBait(BossModule module) : Components.GenericBaitAway(module,
         {
             ref var b = ref baits[i];
             b.CustomRotation = b.Source.Rotation + offset;
+        }
+    }
+
+    public override void AddHints(int slot, Actor actor, TextHints hints)
+    {
+        var baits = ActiveBaitsOn(actor);
+        var count = baits.Count;
+        if (count != 0)
+        {
+            hints.Add("Bait away at marked spot!");
         }
     }
 }

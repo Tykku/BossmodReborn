@@ -12,7 +12,7 @@ class SprayPain : Components.SimpleAOEs
 
 class LightningBolt(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LightningBolt, 4f);
 
-abstract class ColorRiot(BossModule module, uint aid, bool showhint) : Components.BaitAwayCast(module, aid, new AOEShapeCircle(4f), true, tankbuster: showhint);
+abstract class ColorRiot(BossModule module, uint aid, bool showhint) : Components.BaitAwayCast(module, aid, 4f, tankbuster: showhint);
 class WarmBomb(BossModule module) : ColorRiot(module, (uint)AID.WarmBomb, true);
 class CoolBomb(BossModule module) : ColorRiot(module, (uint)AID.CoolBomb, false);
 

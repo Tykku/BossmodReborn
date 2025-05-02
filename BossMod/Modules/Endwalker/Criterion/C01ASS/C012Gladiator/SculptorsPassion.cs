@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C012Gladiator;
 
-abstract class SculptorsPassion(BossModule module, uint aid) : Components.GenericWildCharge(module, 4, aid)
+abstract class SculptorsPassion(BossModule module, uint aid) : Components.GenericWildCharge(module, 4f, aid)
 {
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {

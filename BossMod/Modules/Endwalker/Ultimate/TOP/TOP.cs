@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Endwalker.Ultimate.TOP;
 
-class SolarRayM(BossModule module) : Components.BaitAwayCast(module, (uint)AID.SolarRayM, new AOEShapeCircle(5f), true);
-class SolarRayF(BossModule module) : Components.BaitAwayCast(module, (uint)AID.SolarRayF, new AOEShapeCircle(5f), true);
+class SolarRayM(BossModule module) : Components.BaitAwayCast(module, (uint)AID.SolarRayM, 5f);
+class SolarRayF(BossModule module) : Components.BaitAwayCast(module, (uint)AID.SolarRayF, 5f);
 class P4BlueScreen(BossModule module) : Components.CastCounter(module, (uint)AID.BlueScreenAOE);
 class P5BlindFaith(BossModule module) : Components.CastHint(module, (uint)AID.BlindFaithSuccess, "Intermission");
 

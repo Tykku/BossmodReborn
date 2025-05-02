@@ -1,6 +1,4 @@
-﻿using BossMod.Stormblood.TreasureHunt.ShiftingAltarsOfUznair.AltarSkatene;
-
-namespace BossMod.Dawntrail.Hunt.RankA.TheRaintriller;
+﻿namespace BossMod.Dawntrail.Hunt.RankA.TheRaintriller;
 
 public enum OID : uint
 {

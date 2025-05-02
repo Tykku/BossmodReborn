@@ -29,7 +29,7 @@ class P2LightRampant(BossModule module) : BossComponent(module)
     }
 }
 
-class P2LuminousHammer(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(6f), (uint)IconID.LuminousHammer, (uint)AID.LuminousHammer, 7.1f, true)
+class P2LuminousHammer(BossModule module) : Components.BaitAwayIcon(module, 6f, (uint)IconID.LuminousHammer, (uint)AID.LuminousHammer, 7.1f)
 {
     public readonly int[] BaitsPerPlayer = new int[PartyState.MaxPartySize];
     public readonly WDir[] PrevBaitOffset = new WDir[PartyState.MaxPartySize];

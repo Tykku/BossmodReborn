@@ -154,7 +154,7 @@ class Ex4ZeleniaStates : StateMachineBuilder
         ComponentCondition<AlexandrianThunderIV>(id + 0x30u, 1f, comp => comp.NumCasts == 2, "In OR Out AOE 2 + Cone AOE 4")
             .DeactivateOnExit<ActiveTiles>()
             .DeactivateOnExit<AlexandrianThunderIV>();
-        for (var i = 4; i <= 6; ++i)
+        for (var i = 5; i <= 6; ++i)
         {
             var offset = id + (uint)((i - 1) * 0x10u);
             var time = 1f;
@@ -197,7 +197,7 @@ class Ex4ZeleniaStates : StateMachineBuilder
             .DeactivateOnExit<AlexandrianBanishII>();
         ComponentCondition<ShockAOE>(id + 0x60u, 4.4f, comp => comp.Done, "AOEs disappear")
             .DeactivateOnExit<ShockAOE>();
-        EscelonsFall(id, 0x30u, 1.7f);
+        EscelonsFall(id, 0x70u, 1.7f);
     }
 
     private void RosebloodBloomIV(uint id, float delay)
@@ -282,7 +282,7 @@ class Ex4ZeleniaStates : StateMachineBuilder
         ComponentCondition<AlexandrianThunderIV>(id + 0x70u, 0.1f, comp => comp.NumCasts == 2, "In OR Out AOE 2 + Cone AOE 4")
             .DeactivateOnExit<ActiveTiles>()
             .DeactivateOnExit<AlexandrianThunderIV>();
-        for (var i = 4; i <= 6; ++i)
+        for (var i = 5; i <= 6; ++i)
         {
             var offset = id + 0x40u + (uint)((i - 1) * 0x10u);
             var time = 1f;

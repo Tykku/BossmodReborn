@@ -28,10 +28,7 @@ public enum SID : uint
     AboutFace = 2162
 }
 
-abstract class BodyPress(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 15f);
-class BodyPress1(BossModule module) : BodyPress(module, (uint)AID.BodyPress1);
-class BodyPress2(BossModule module) : BodyPress(module, (uint)AID.BodyPress2);
-
+class BodyPress(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.BodyPress1, (uint)AID.BodyPress2], 15f);
 class Scatterscourge(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Scatterscourge1, new AOEShapeDonut(10f, 40f));
 
 class SlipperyScatterscourge(BossModule module) : Components.GenericAOEs(module)
@@ -105,8 +102,7 @@ class KeheniheyamewiStates : StateMachineBuilder
     public KeheniheyamewiStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<BodyPress1>()
-            .ActivateOnEnter<BodyPress2>()
+            .ActivateOnEnter<BodyPress>()
             .ActivateOnEnter<Scatterscourge>()
             .ActivateOnEnter<SlipperyScatterscourge>()
             .ActivateOnEnter<PoisonGas>()

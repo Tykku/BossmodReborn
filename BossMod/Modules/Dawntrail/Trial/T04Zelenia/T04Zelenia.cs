@@ -1,8 +1,6 @@
 namespace BossMod.Dawntrail.Trial.T04Zelenia;
 
-abstract class PowerBreak(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(24f, 32f));
-class PowerBreak1(BossModule module) : PowerBreak(module, (uint)AID.PowerBreak1);
-class PowerBreak2(BossModule module) : PowerBreak(module, (uint)AID.PowerBreak2);
+class PowerBreak(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PowerBreak1, (uint)AID.PowerBreak2], new AOEShapeRect(24f, 32f));
 
 class HolyHazard(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HolyHazard, new AOEShapeCone(24f, 60f.Degrees()), 2);
 
@@ -15,6 +13,14 @@ class RosebloodBloom(BossModule module) : Components.SimpleKnockbacks(module, (u
             var source = Casters[0];
             hints.AddForbiddenZone(ShapeDistance.InvertedCircle(source.Position, 6f), Module.CastFinishAt(source.CastInfo));
         }
+    }
+}
+
+class ThunderSlash : Components.SimpleAOEs
+{
+    public ThunderSlash(BossModule module) : base(module, (uint)AID.ThunderSlash, new AOEShapeCone(24f, 30f.Degrees()), 4)
+    {
+        MaxDangerColor = 2;
     }
 }
 

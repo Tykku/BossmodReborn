@@ -11,37 +11,7 @@ class FiresteelFracture(BossModule module) : Components.SimpleAOEs(module, (uint
 class InfernGaleKnockback(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.Unknown2, 20, shape: new AOEShapeCircle(80));
 
 class ShowOfStrength(BossModule module) : Components.RaidwideCast(module, (uint)AID.ShowOfStrength);
-
-class CastShadow(BossModule module) : Components.GenericAOEs(module)
-{
-    private static readonly AOEShapeCone cone = new(50f, 15f.Degrees());
-    private readonly List<AOEInstance> _aoes = new(8);
-
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        var count = _aoes.Count;
-        if (count == 0)
-            return [];
-        var max = count > 6 ? 6 : count;
-        return CollectionsMarshal.AsSpan(_aoes)[..max];
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if (spell.Action.ID is (uint)AID.CastShadowFirst or (uint)AID.CastShadowNext)
-        {
-            _aoes.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
-            if (_aoes.Count == 12)
-                _aoes.SortBy(x => x.Activation);
-        }
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if (_aoes.Count != 0 && spell.Action.ID is (uint)AID.CastShadowFirst or (uint)AID.CastShadowNext)
-            _aoes.RemoveAt(0);
-    }
-}
+class CastShadow(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.CastShadowFirst, (uint)AID.CastShadowNext], new AOEShapeCone(50f, 15f.Degrees()), 6, 12);
 
 class BlazingBenifice(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlazingBenifice, new AOEShapeRect(100, 5));
 

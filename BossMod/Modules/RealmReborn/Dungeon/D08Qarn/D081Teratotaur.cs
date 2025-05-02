@@ -5,13 +5,13 @@ public enum OID : uint
     // Boss
     Boss = 0x477A, // x1
 
-    // Adds
+    // Trash
     DungWespe = 0x477B, // spawn during fight
 
     // EventObj
     Platform1 = 0x1E87E2, // x1, EventObj type; eventstate 0 if active, 7 if inactive
     Platform2 = 0x1E87E3, // x1, EventObj type; eventstate 0 if active, 7 if inactive
-    Platform3 = 0x1E87E4, // x1, EventObj type; eventstate 0 if active, 7 if inactive
+    Platform3 = 0x1E87E4 // x1, EventObj type; eventstate 0 if active, 7 if inactive
 }
 
 public enum AID : uint

@@ -109,20 +109,14 @@ class ShadowFlareLBPhase(BossModule module) : Components.RaidwideCast(module, (u
 class Annihilation(BossModule module) : Components.RaidwideCast(module, (uint)AID.AnnihilationAOE);
 class UniversalManipulation(BossModule module) : Components.RaidwideCast(module, (uint)AID.UniversalManipulation, "Raidwide + Apply debuffs for later");
 
-class HeightOfChaos(BossModule module) : Components.BaitAwayCast(module, (uint)AID.HeightOfChaos, new AOEShapeCircle(5f), true, tankbuster: true);
+class HeightOfChaos(BossModule module) : Components.BaitAwayCast(module, (uint)AID.HeightOfChaos, 5f, tankbuster: true);
 
 class AncientEruption(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AncientEruption, 5f);
 
-abstract class ChillingCross(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCross(40f, 2.5f));
-class ChillingCross1(BossModule module) : ChillingCross(module, (uint)AID.ChillingCross1);
-class ChillingCross2(BossModule module) : ChillingCross(module, (uint)AID.ChillingCross2);
+class ChillingCross(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.ChillingCross1, (uint)AID.ChillingCross2], new AOEShapeCross(40f, 2.5f));
 
-abstract class DarkBlizzard(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(41f, 10f.Degrees()));
-class DarkBlizzardIIIAOE1(BossModule module) : DarkBlizzard(module, (uint)AID.DarkBlizzardIII1);
-class DarkBlizzardIIIAOE2(BossModule module) : DarkBlizzard(module, (uint)AID.DarkBlizzardIII2);
-class DarkBlizzardIIIAOE3(BossModule module) : DarkBlizzard(module, (uint)AID.DarkBlizzardIII3);
-class DarkBlizzardIIIAOE4(BossModule module) : DarkBlizzard(module, (uint)AID.DarkBlizzardIII4);
-class DarkBlizzardIIIAOE5(BossModule module) : DarkBlizzard(module, (uint)AID.DarkBlizzardIII5);
+class DarkBlizzardIII(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.DarkBlizzardIII1, (uint)AID.DarkBlizzardIII2, (uint)AID.DarkBlizzardIII3,
+(uint)AID.DarkBlizzardIII4, (uint)AID.DarkBlizzardIII5], new AOEShapeCone(41f, 10f.Degrees()));
 
 class DarkFireII(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.DarkFireII, 6f);
 class BurningChains(BossModule module) : Components.Chains(module, (uint)TetherID.BurningChains, (uint)AID.BurningChains);
@@ -191,14 +185,9 @@ class D064AscianPrimeStates : StateMachineBuilder
             .ActivateOnEnter<ShadowFlareLBPhase>()
             .ActivateOnEnter<Annihilation>()
             .ActivateOnEnter<HeightOfChaos>()
-            .ActivateOnEnter<DarkBlizzardIIIAOE1>()
-            .ActivateOnEnter<DarkBlizzardIIIAOE2>()
-            .ActivateOnEnter<DarkBlizzardIIIAOE3>()
-            .ActivateOnEnter<DarkBlizzardIIIAOE4>()
-            .ActivateOnEnter<DarkBlizzardIIIAOE5>()
+            .ActivateOnEnter<DarkBlizzardIII>()
             .ActivateOnEnter<AncientEruption>()
-            .ActivateOnEnter<ChillingCross1>()
-            .ActivateOnEnter<ChillingCross2>()
+            .ActivateOnEnter<ChillingCross>()
             .ActivateOnEnter<Stars>()
             .ActivateOnEnter<DarkFireII>()
             .ActivateOnEnter<UniversalManipulation>()

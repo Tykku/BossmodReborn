@@ -35,7 +35,7 @@ class HiemalStormVoidzone(BossModule module) : Components.Voidzone(module, 6f, G
         return voidzones[..index];
     }
 }
-class SpiralPierce(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(50, 6), (uint)TetherID.SpiralPierce, (uint)AID.SpiralPierce);
+class SpiralPierce(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(50f, 6f), (uint)TetherID.SpiralPierce, (uint)AID.SpiralPierce);
 class DimensionalCollapse(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DimensionalCollapseAOE, 9f);
 
 class FaithUnmoving(BossModule module) : Components.GenericKnockback(module, (uint)AID.FaithUnmoving, true)

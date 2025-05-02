@@ -5,9 +5,9 @@ public enum OID : uint
     // Boss
     Boss = 0x477E, // x1
 
-    // Adds
+    // Trash
     MythrilVerge1 = 0x477F, // Summoned during fight (VergeLine attacks)
-    MythrilVerge2 = 0x4780, // Summoned during fight (VergePulse attacks)
+    MythrilVerge2 = 0x4780 // Summoned during fight (VergePulse attacks)
 }
 
 public enum AID : uint

@@ -70,9 +70,9 @@ class SectorBisector(BossModule module) : Components.GenericAOEs(module)
     {
         if (actor.OID == (uint)OID.SoldierS0Clone)
         {
-            if (modelState == 5)
+            if (modelState == 5u)
                 direction = false;
-            else if (modelState == 6)
+            else if (modelState == 6u)
                 direction = true;
         }
     }

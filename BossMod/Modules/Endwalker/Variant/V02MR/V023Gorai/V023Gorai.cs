@@ -29,7 +29,7 @@ class StringSnap(BossModule module) : Components.ConcentricAOEs(module, _shapes)
     }
 }
 
-class TorchingTorment(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(6f), (uint)IconID.Tankbuster, (uint)AID.TorchingTorment, 5.9f, true, tankbuster: true);
+class TorchingTorment(BossModule module) : Components.BaitAwayIcon(module, 6f, (uint)IconID.Tankbuster, (uint)AID.TorchingTorment, 5.9f, tankbuster: true);
 
 class PureShock(BossModule module) : Components.RaidwideCast(module, (uint)AID.PureShock);
 class HumbleHammer(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HumbleHammer, 3f);

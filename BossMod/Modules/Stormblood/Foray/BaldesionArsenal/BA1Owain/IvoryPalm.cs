@@ -1,6 +1,6 @@
 namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA1Owain;
 
-class IvoryPalm(BossModule module) : Components.GenericGaze(module, inverted: true)
+class IvoryPalm(BossModule module) : Components.GenericGaze(module)
 {
     public readonly List<(Actor target, Actor source)> Tethers = new(2);
 
@@ -15,7 +15,7 @@ class IvoryPalm(BossModule module) : Components.GenericGaze(module, inverted: tr
             var tether = Tethers[i];
             if (tether.target == actor && !tether.source.IsDead) // apparently tethers don't get removed immediately upon death
             {
-                return new Eye[1] { new(tether.source.Position) };
+                return new Eye[1] { new(tether.source.Position, Inverted: true) };
             }
         }
         return [];
@@ -28,7 +28,7 @@ class IvoryPalm(BossModule module) : Components.GenericGaze(module, inverted: tr
         for (var i = 0; i < len; ++i)
         {
             ref readonly var eye = ref eyes[i];
-            if (HitByEye(ref actor, eye) != Inverted)
+            if (HitByEye(ref actor, eye) != eye.Inverted)
             {
                 hints.Add("Face the hand to petrify it!");
                 break;

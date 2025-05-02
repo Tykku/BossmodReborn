@@ -164,7 +164,7 @@ class Quarantine(BossModule module) : Components.StackWithIcon(module, (uint)Ico
     }
 }
 
-class Disinfection(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(6), (uint)IconID.Tankbuster, (uint)AID.Disinfection, centerAtTarget: true, tankbuster: true)
+class Disinfection(BossModule module) : Components.BaitAwayIcon(module, 6f, (uint)IconID.Tankbuster, (uint)AID.Disinfection, tankbuster: true)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

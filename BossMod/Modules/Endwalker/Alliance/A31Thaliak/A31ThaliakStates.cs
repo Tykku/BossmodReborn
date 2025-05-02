@@ -74,10 +74,8 @@ class A31ThaliakStates : StateMachineBuilder
     private void LeftRightBank(uint id, float delay)
     {
         CastMulti(id, [(uint)AID.LeftBank, (uint)AID.RightBank], delay, 5, "Half-arena cleave")
-            .ActivateOnEnter<LeftBank>()
-            .ActivateOnEnter<RightBank>()
-            .DeactivateOnExit<LeftBank>()
-            .DeactivateOnExit<RightBank>();
+            .ActivateOnEnter<Bank>()
+            .DeactivateOnExit<Bank>();
     }
 
     private void Hydroptosis(uint id, float delay)
@@ -173,8 +171,7 @@ class A31ThaliakStates : StateMachineBuilder
     private void HieroglyphicaLeftRightBank(uint id, float delay)
     {
         Cast(id, (uint)AID.Hieroglyphika, delay, 5)
-            .ActivateOnEnter<HieroglyphikaLeftBank>()
-            .ActivateOnEnter<HieroglyphikaRightBank>();
+            .ActivateOnEnter<Bank>();
         ComponentCondition<Hieroglyphika>(id + 0x10, 0.9f, comp => comp.SafeSideDir != default)
             .ActivateOnEnter<Hieroglyphika>();
         CastStartMulti(id + 0x11, [(uint)AID.HieroglyphikaLeftBank, (uint)AID.HieroglyphikaRightBank], 1.2f);
@@ -183,7 +180,6 @@ class A31ThaliakStates : StateMachineBuilder
         ComponentCondition<Hieroglyphika>(id + 0x30, 4.1f, comp => comp.NumCasts > 0, "Squares")
             .DeactivateOnExit<Hieroglyphika>();
         CastEnd(id + 0x40, 4.1f, "Half-arena cleave")
-            .DeactivateOnExit<HieroglyphikaLeftBank>()
-            .DeactivateOnExit<HieroglyphikaRightBank>();
+            .DeactivateOnExit<Bank>();
     }
 }

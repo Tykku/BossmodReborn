@@ -32,7 +32,7 @@ public enum AID : uint
     DiffractiveBreak = 14998 // Boss->self, 4.0s cast, range 40 circle
 }
 
-class TheScarletPrice(BossModule module) : Components.BaitAwayCast(module, (uint)AID.TheScarletPrice, new AOEShapeCircle(3f), true, true);
+class TheScarletPrice(BossModule module) : Components.BaitAwayCast(module, (uint)AID.TheScarletPrice, 3f, true);
 class TheScarletWhisper(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheScarletWhisper, new AOEShapeCone(22f, 60f.Degrees()));
 class EuhedralSwat(BossModule module) : Components.SimpleAOEs(module, (uint)AID.EuhedralSwat, new AOEShapeRect(100f, 13f));
 class Touchdown(BossModule module) : Components.RaidwideInstant(module, (uint)AID.Touchdown, 3.1f)
@@ -175,4 +175,4 @@ class ProvenanceWatcherStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.WIP, GroupType = BossModuleInfo.GroupType.EurekaNM, GroupID = 639, NameID = 1423, Contributors = "xan", SortOrder = 10)]
-public class ProvenanceWatcher(WorldState ws, Actor primary) : BossModule(ws, primary, new(564.0466f, -568.6868f), new ArenaBoundsCircle(51.5f, 1f, true));
+public class ProvenanceWatcher(WorldState ws, Actor primary) : SimpleBossModule(ws, primary);

@@ -67,7 +67,7 @@ class Throttle(BossModule module) : Components.GenericAOEs(module)
 }
 
 class AetherochemicalFlame(BossModule module) : Components.RaidwideCast(module, (uint)AID.AetherochemicalFlame);
-class AetherochemicalResidue(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(5), (uint)IconID.Baitaway, (uint)AID.AetherochemicalResidue, 4.1f, true);
+class AetherochemicalResidue(BossModule module) : Components.BaitAwayIcon(module, 5f, (uint)IconID.Baitaway, (uint)AID.AetherochemicalResidue, 4.1f);
 class AditDriver(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AditDriver, new AOEShapeRect(33f, 3f));
 class AetherochemicalCoil(BossModule module) : Components.SingleTargetCast(module, (uint)AID.AetherochemicalCoil);
 class SludgeVoidzone(BossModule module) : Components.Voidzone(module, 2.5f, GetVoidzones)

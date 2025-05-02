@@ -1,6 +1,4 @@
-﻿using BossMod.QuestBattle;
-
-namespace BossMod.Shadowbringers.Quest.Role.TheLostAndTheFound.Yxtlilton;
+﻿namespace BossMod.Shadowbringers.Quest.Role.TheLostAndTheFound.Yxtlilton;
 
 public enum OID : uint
 {
@@ -15,7 +13,7 @@ public enum AID : uint
 }
 
 class CodexOfDarknessII(BossModule module) : Components.RaidwideCast(module, (uint)AID.TheCodexOfDarknessII);
-class CodexOfGravity(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.TheCodexOfGravity, 6)
+class CodexOfGravity(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.TheCodexOfGravity, 6f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -25,7 +23,7 @@ class CodexOfGravity(BossModule module) : Components.StackWithCastTargets(module
     }
 }
 
-class LamittAI(WorldState ws) : UnmanagedRotation(ws, 25)
+class LamittAI(WorldState ws) : QuestBattle.UnmanagedRotation(ws, 25f)
 {
     protected override void Exec(Actor? primaryTarget)
     {
@@ -77,7 +75,7 @@ class LamittAI(WorldState ws) : UnmanagedRotation(ws, 25)
     }
 }
 
-class AutoLamitt(BossModule module) : RotationModule<LamittAI>(module);
+class AutoLamitt(BossModule module) : QuestBattle.RotationModule<LamittAI>(module);
 
 class YxtliltonStates : StateMachineBuilder
 {
@@ -91,7 +89,7 @@ class YxtliltonStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Contributed, GroupType = BossModuleInfo.GroupType.Quest, GroupID = 68806, NameID = 8393)]
-public class Yxtlilton(WorldState ws, Actor primary) : BossModule(ws, primary, new(-120, -770), new ArenaBoundsCircle(20))
+public class Yxtlilton(WorldState ws, Actor primary) : BossModule(ws, primary, new(-120f, -770f), new ArenaBoundsCircle(20f))
 {
     protected override void DrawEnemies(int pcSlot, Actor pc) => Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
 }

@@ -47,7 +47,7 @@ public enum IconID : uint
     Gaze = 73 // player
 }
 
-class TerrifyingGlanceBait(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(42.25f, 61f.Degrees()), (uint)IconID.Gaze, (uint)AID.TerrifyingGlance, 3.1f, source: module.Enemies(OID.Calcabrina)[0]);
+class TerrifyingGlanceBait(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(42.25f, 61f.Degrees()), (uint)IconID.Gaze, (uint)AID.TerrifyingGlance, 3.1f, source: module.Enemies((uint)OID.Calcabrina)[0]);
 class TerrifyingGlanceGaze(BossModule module) : Components.GenericGaze(module)
 {
     private DateTime activation;

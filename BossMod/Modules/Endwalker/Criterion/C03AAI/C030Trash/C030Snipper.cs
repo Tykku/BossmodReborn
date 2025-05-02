@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C030Trash1;
 
-abstract class Water(BossModule module, uint aid) : Components.StackWithCastTargets(module, aid, 8, 4, 4);
+abstract class Water(BossModule module, uint aid) : Components.StackWithCastTargets(module, aid, 8f, 4, 4);
 class NWater(BossModule module) : Water(module, (uint)AID.NWater);
 class SWater(BossModule module) : Water(module, (uint)AID.SWater);
 
@@ -8,8 +8,8 @@ class BubbleShowerCrabDribble(BossModule module) : Components.GenericAOEs(module
 {
     private readonly List<AOEInstance> _aoes = [];
 
-    private static readonly AOEShapeCone _shape1 = new(9, 45.Degrees());
-    private static readonly AOEShapeCone _shape2 = new(6, 60.Degrees());
+    private static readonly AOEShapeCone _shape1 = new(9f, 45f.Degrees());
+    private static readonly AOEShapeCone _shape2 = new(6f, 60f.Degrees());
 
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Count != 0 ? CollectionsMarshal.AsSpan(_aoes)[..1] : [];
 

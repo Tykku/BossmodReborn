@@ -52,17 +52,9 @@ public enum AID : uint
 class Blade(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Blade);
 class Pyreburst(BossModule module) : Components.RaidwideCast(module, (uint)AID.Pyreburst);
 
-abstract class RectWide(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(40f, 5f));
-class FlameBlade1(BossModule module) : RectWide(module, (uint)AID.FlameBlade1);
-class FlameBlade2(BossModule module) : RectWide(module, (uint)AID.FlameBlade2);
-
-abstract class RectNarrow(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(40f, 2.5f));
-class CrossfireBlade3(BossModule module) : RectNarrow(module, (uint)AID.CrossfireBlade3);
-class FlameBlade3(BossModule module) : RectNarrow(module, (uint)AID.FlameBlade3);
-
-abstract class Crosses(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCross(20f, 5f));
-class CrossfireBlade1(BossModule module) : Crosses(module, (uint)AID.CrossfireBlade1);
-class CrossfireBlade2(BossModule module) : Crosses(module, (uint)AID.CrossfireBlade2);
+class FlameBlade1and2(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.FlameBlade1, (uint)AID.FlameBlade2], new AOEShapeRect(40f, 5f));
+class CrossfireBlade3FlameBlade3(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.CrossfireBlade3, (uint)AID.FlameBlade3], new AOEShapeRect(40f, 2.5f));
+class CrossfireBlade1and2(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.CrossfireBlade1, (uint)AID.CrossfireBlade2], new AOEShapeCross(20f, 5f));
 
 class BlazingBreath(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlazingBreath, new AOEShapeRect(44f, 5f));
 class BlazingBlast(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlazingBlast, 6f);
@@ -70,12 +62,8 @@ class BlazingBlast(BossModule module) : Components.SimpleAOEs(module, (uint)AID.
 class Spin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spin, 11f);
 class RottenSpores(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RottenSpores, 6f);
 
-abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 7f);
 
 class BullApollyonStates : StateMachineBuilder
 {
@@ -84,21 +72,14 @@ class BullApollyonStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<Blade>()
             .ActivateOnEnter<Pyreburst>()
-            .ActivateOnEnter<FlameBlade1>()
-            .ActivateOnEnter<FlameBlade2>()
-            .ActivateOnEnter<FlameBlade3>()
+            .ActivateOnEnter<FlameBlade1and2>()
+            .ActivateOnEnter<CrossfireBlade3FlameBlade3>()
+            .ActivateOnEnter<CrossfireBlade1and2>()
             .ActivateOnEnter<BlazingBreath>()
-            .ActivateOnEnter<CrossfireBlade1>()
-            .ActivateOnEnter<CrossfireBlade2>()
-            .ActivateOnEnter<CrossfireBlade3>()
             .ActivateOnEnter<BlazingBlast>()
             .ActivateOnEnter<Spin>()
             .ActivateOnEnter<RottenSpores>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
+            .ActivateOnEnter<MandragoraAOEs>()
             .Raw.Update = () =>
             {
                 var enemies = module.Enemies(BullApollyon.All);

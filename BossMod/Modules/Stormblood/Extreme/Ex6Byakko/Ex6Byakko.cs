@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Stormblood.Extreme.Ex6Byakko;
 
 class StormPulseRepeat(BossModule module) : Components.CastCounter(module, (uint)AID.StormPulseRepeat);
-class HeavenlyStrike(BossModule module) : Components.BaitAwayCast(module, (uint)AID.HeavenlyStrike, new AOEShapeCircle(3f), true);
+class HeavenlyStrike(BossModule module) : Components.BaitAwayCast(module, (uint)AID.HeavenlyStrike, 3f);
 class FireAndLightningBoss(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FireAndLightningBoss, new AOEShapeRect(54.3f, 10f));
 class FireAndLightningAdd(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FireAndLightningAdd, new AOEShapeRect(54.75f, 10f));
 class SteelClaw(BossModule module) : Components.Cleave(module, (uint)AID.SteelClaw, new AOEShapeCone(17.75f, 60f.Degrees()), [(uint)OID.Hakutei]);

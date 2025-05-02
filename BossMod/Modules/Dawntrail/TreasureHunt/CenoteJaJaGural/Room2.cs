@@ -55,56 +55,33 @@ class SwiftwindSerenade(BossModule module) : Components.SimpleAOEs(module, (uint
 class Ovation(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Ovation, new AOEShapeRect(14f, 2f));
 class GravelShower(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GravelShower, new AOEShapeRect(10f, 2f));
 class Flatten(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Flatten, new AOEShapeCone(8f, 45f.Degrees()));
-class PollenCorona(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PollenCorona, 8f);
-class WaterIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WaterIII, 8f);
 
-abstract class Cone1045(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(10f, 45f.Degrees()));
-class Dissever(BossModule module) : Cone1045(module, (uint)AID.Dissever);
-class NepenthicPlunge(BossModule module) : Cone1045(module, (uint)AID.NepenthicPlunge);
-
-abstract class Cone1060(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(10f, 60f.Degrees()));
-class DoubleSmash(BossModule module) : Cone1060(module, (uint)AID.DoubleSmash);
-class CriticalBite(BossModule module) : Cone1060(module, (uint)AID.CriticalBite);
-
-abstract class CircleLoc6(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
-class Tornado(BossModule module) : CircleLoc6(module, (uint)AID.Tornado);
-class TornadicSerenade(BossModule module) : CircleLoc6(module, (uint)AID.TornadicSerenade);
-class RottenSpores(BossModule module) : CircleLoc6(module, (uint)AID.RottenSpores);
+class WaterIIIPollenCorona(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.WaterIII, (uint)AID.PollenCorona], 8f);
+class DisseverNepenthicPlunge(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.Dissever, (uint)AID.NepenthicPlunge], new AOEShapeCone(10f, 45f.Degrees()));
+class DoubleSmashCriticalBite(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.DoubleSmash, (uint)AID.CriticalBite], new AOEShapeCone(10f, 60f.Degrees()));
+class TornadoTornadicSerenadeRottenSpores(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.Tornado, (uint)AID.TornadicSerenade, (uint)AID.RottenSpores], 6f);
 
 class Spin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spin, 11f);
 
-abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 7f);
 
 class Room2States : StateMachineBuilder
 {
     public Room2States(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<TornadicSerenade>()
+            .ActivateOnEnter<WaterIIIPollenCorona>()
             .ActivateOnEnter<SwiftwindSerenade>()
             .ActivateOnEnter<Ovation>()
             .ActivateOnEnter<GravelShower>()
             .ActivateOnEnter<Flatten>()
-            .ActivateOnEnter<CriticalBite>()
-            .ActivateOnEnter<NepenthicPlunge>()
-            .ActivateOnEnter<WaterIII>()
-            .ActivateOnEnter<Dissever>()
-            .ActivateOnEnter<Tornado>()
-            .ActivateOnEnter<PollenCorona>()
-            .ActivateOnEnter<DoubleSmash>()
+            .ActivateOnEnter<DisseverNepenthicPlunge>()
+            .ActivateOnEnter<DoubleSmashCriticalBite>()
+            .ActivateOnEnter<TornadoTornadicSerenadeRottenSpores>()
             .ActivateOnEnter<Spin>()
-            .ActivateOnEnter<RottenSpores>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.PrimaryActor.IsDestroyed || module.PrimaryActor.EventState == 7;
+            .ActivateOnEnter<MandragoraAOEs>()
+            .Raw.Update = () => module.PrimaryActor.IsDestroyed || module.PrimaryActor.EventState == 7u;
     }
 }
 

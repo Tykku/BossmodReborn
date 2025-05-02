@@ -5,7 +5,7 @@ public enum OID : uint
     // Boss
     Boss = 0x1A1, // Denn The Orcatoothed
 
-    // Adds
+    // Trash
     BaleenGuard = 0x1A2, // Spawn during fight
 
     // EventObj
@@ -13,7 +13,7 @@ public enum OID : uint
     UnnaturalRipples1 = 0x1E8615,
     UnnaturalRipples2 = 0x1E8616,
     UnnaturalRipples3 = 0x1E8617,
-    UnnaturalRipples4 = 0x1E8618,
+    UnnaturalRipples4 = 0x1E8618
 }
 
 public enum AID : uint
@@ -27,7 +27,7 @@ public enum AID : uint
     // BaleenGuard
     AutoAttackGuard = 870, // Guard->player, no cast
     Ambuscade = 835, // Guard->self, no cast, range 8 circle aoe
-    WaterCannon = 555, // Gaurd->player, no cast
+    WaterCannon = 555 // Gaurd->player, no cast
 }
 
 class Hydroball(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Hydroball, new AOEShapeCone(8f, 45f.Degrees()));

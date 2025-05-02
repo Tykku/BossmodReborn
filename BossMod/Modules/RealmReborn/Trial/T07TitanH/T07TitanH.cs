@@ -95,27 +95,11 @@ class Geocrush(BossModule module) : Components.GenericAOEs(module, (uint)AID.Geo
     }
 }
 
-class Burst(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Burst, new AOEShapeCircle(6.3f))
-{
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        // pattern 1: one-by-one explosions every ~0.4-0.5s, 8 clockwise then center
-        // pattern 2: center -> 4 cardinals at small offset ~1s later -> 4 intercardinals at bigger offset ~1s later
-        // pattern 3: 3 in center line -> 3 in side line ~1.5s later -> 3 in other side line ~1.5s later
-        // showing casts that end within 2.25s seems to deal with all patterns reasonably well
-        var count = Casters.Count;
-        if (count == 0)
-            return [];
-        var aoes = CollectionsMarshal.AsSpan(Casters);
-        var deadline = aoes[0].Activation.AddSeconds(2.25d);
-
-        var index = 0;
-        while (index < count && aoes[index].Activation < deadline)
-            ++index;
-
-        return aoes[..index];
-    }
-}
+// pattern 1: one-by-one explosions every ~0.4-0.5s, 8 clockwise then center
+// pattern 2: center -> 4 cardinals at small offset ~1s later -> 4 intercardinals at bigger offset ~1s later
+// pattern 3: 3 in center line -> 3 in side line ~1.5s later -> 3 in other side line ~1.5s later
+// showing casts that end within 2.25s seems to deal with all patterns reasonably well
+class Burst(BossModule module) : Components.SimpleAOEGroupsByTimewindow(module, [(uint)AID.Burst], 6.3f, 2.25d);
 
 class T07TitanHStates : StateMachineBuilder
 {

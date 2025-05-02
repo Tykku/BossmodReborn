@@ -151,55 +151,9 @@ class SaberRush(BossModule module) : Components.SingleTargetDelayableCast(module
 class ShadeShot(BossModule module) : Components.SingleTargetCast(module, (uint)AID.ShadeShot);
 class SoulbaneShock(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.SoulbaneShock, 5f);
 
-abstract class Slitherbane(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(20f, 2f));
-class SlitherbaneForeguardRect(BossModule module) : Slitherbane(module, (uint)AID.SlitherbaneForeguardRect);
-class SlitherbaneRearguardRect(BossModule module) : Slitherbane(module, (uint)AID.SlitherbaneRearguardRect);
-class SoulbaneSaber(BossModule module) : Slitherbane(module, (uint)AID.SoulbaneSaber);
-
-class Syntheslither(BossModule module) : Components.GenericAOEs(module)
-{
-    private readonly List<AOEInstance> _aoes = new(4);
-    private static readonly AOEShapeCone cone = new(19f, 45f.Degrees());
-
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        switch (spell.Action.ID)
-        {
-            case (uint)AID.Syntheslean:
-            case (uint)AID.Syntheslither1:
-            case (uint)AID.Syntheslither2:
-            case (uint)AID.Syntheslither3:
-            case (uint)AID.Syntheslither4:
-            case (uint)AID.Syntheslither5:
-            case (uint)AID.Syntheslither6:
-            case (uint)AID.Syntheslither7:
-            case (uint)AID.Syntheslither8:
-                _aoes.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
-                break;
-        }
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if (_aoes.Count != 0)
-            switch (spell.Action.ID)
-            {
-                case (uint)AID.Syntheslean:
-                case (uint)AID.Syntheslither1:
-                case (uint)AID.Syntheslither2:
-                case (uint)AID.Syntheslither3:
-                case (uint)AID.Syntheslither4:
-                case (uint)AID.Syntheslither5:
-                case (uint)AID.Syntheslither6:
-                case (uint)AID.Syntheslither7:
-                case (uint)AID.Syntheslither8:
-                    _aoes.RemoveAt(0);
-                    break;
-            }
-    }
-}
+class SlitherbaneSoulbaneSaber(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.SlitherbaneForeguardRect, (uint)AID.SlitherbaneRearguardRect, (uint)AID.SoulbaneSaber], new AOEShapeRect(20f, 2f));
+class Syntheslither(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.Syntheslean, (uint)AID.Syntheslither1, (uint)AID.Syntheslither2,
+(uint)AID.Syntheslither3, (uint)AID.Syntheslither4, (uint)AID.Syntheslither5, (uint)AID.Syntheslither6, (uint)AID.Syntheslither7, (uint)AID.Syntheslither8], new AOEShapeCone(19f, 45f.Degrees()));
 
 class D043ZanderStates : StateMachineBuilder
 {
@@ -212,10 +166,8 @@ class D043ZanderStates : StateMachineBuilder
             .ActivateOnEnter<Burst1>()
             .ActivateOnEnter<SaberRush>()
             .ActivateOnEnter<ShadeShot>()
-            .ActivateOnEnter<SlitherbaneForeguardRect>()
-            .ActivateOnEnter<SlitherbaneRearguardRect>()
+            .ActivateOnEnter<SlitherbaneSoulbaneSaber>()
             .ActivateOnEnter<SlitherbaneBurstCombo>()
-            .ActivateOnEnter<SoulbaneSaber>()
             .ActivateOnEnter<SoulbaneShock>()
             .ActivateOnEnter<Syntheslither>();
     }

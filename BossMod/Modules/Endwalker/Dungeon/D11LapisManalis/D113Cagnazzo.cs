@@ -73,7 +73,7 @@ class StygianDelugeArenaChange(BossModule module) : Components.GenericAOEs(modul
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state == 0x00020001 && index == 0x00)
+        if (state == 0x00020001u && index == 0x00u)
         {
             Arena.Bounds = D113Cagnazzo.DefaultBounds;
             _aoe = null;
@@ -86,9 +86,7 @@ class VoidTorrent(BossModule module) : Components.BaitAwayCast(module, (uint)AID
 class Voidcleaver(BossModule module) : Components.RaidwideCast(module, (uint)AID.Voidcleaver);
 class VoidMiasmaBait(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(50f, 15f.Degrees()), (uint)TetherID.BaitAway);
 
-class Cleaver(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(50f, 15f.Degrees()));
-class VoidMiasma(BossModule module) : Cleaver(module, (uint)AID.VoidMiasma);
-class Lifescleaver(BossModule module) : Cleaver(module, (uint)AID.Lifescleaver);
+class LifescleaverVoidMiasma(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.VoidMiasma, (uint)AID.Lifescleaver], new AOEShapeCone(50f, 15f.Degrees()));
 
 class Tsunami(BossModule module) : Components.RaidwideAfterNPCYell(module, (uint)AID.Tsunami, (uint)NPCYell.LimitBreakStart, 4.5f);
 class StygianDeluge(BossModule module) : Components.RaidwideCast(module, (uint)AID.StygianDeluge);
@@ -225,8 +223,7 @@ class D113CagnazzoStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<StygianDelugeArenaChange>()
             .ActivateOnEnter<Voidcleaver>()
-            .ActivateOnEnter<Lifescleaver>()
-            .ActivateOnEnter<VoidMiasma>()
+            .ActivateOnEnter<LifescleaverVoidMiasma>()
             .ActivateOnEnter<VoidMiasmaBait>()
             .ActivateOnEnter<Antediluvian>()
             .ActivateOnEnter<BodySlam>()

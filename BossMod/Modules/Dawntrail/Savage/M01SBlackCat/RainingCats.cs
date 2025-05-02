@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Savage.M01SBlackCat;
 
-class RainingCatsTether(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(100, 35.Degrees()), (uint)TetherID.RainingCats, (uint)AID.RainingCatsTether) // TODO: verify angle
+class RainingCatsTether(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(100f, 35f.Degrees()), (uint)TetherID.RainingCats, (uint)AID.RainingCatsTether) // TODO: verify angle
 {
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
@@ -13,7 +13,7 @@ class RainingCatsTether(BossModule module) : Components.BaitAwayTethers(module, 
     }
 }
 
-class RainingCatsStack(BossModule module) : Components.UniformStackSpread(module, 4, 0, 3)
+class RainingCatsStack(BossModule module) : Components.UniformStackSpread(module, 4f, default, 3)
 {
     private readonly RainingCatsTether? _tether = module.FindComponent<RainingCatsTether>();
     private DateTime _activation;
@@ -40,13 +40,13 @@ class RainingCatsStack(BossModule module) : Components.UniformStackSpread(module
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.RainingCatsFirst or AID.RainingCatsMid or AID.RainingCatsLast)
+        if (spell.Action.ID is (uint)AID.RainingCatsFirst or (uint)AID.RainingCatsMid or (uint)AID.RainingCatsLast)
             _activation = Module.CastFinishAt(spell, 0.8f);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.RainingCatsStack)
+        if (spell.Action.ID == (uint)AID.RainingCatsStack)
             _activation = default;
     }
 }

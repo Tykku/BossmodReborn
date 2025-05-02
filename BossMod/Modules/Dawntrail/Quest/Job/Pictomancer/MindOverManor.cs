@@ -20,11 +20,7 @@ public enum AID : uint
 
 class JitteringGlare(BossModule module) : Components.SimpleAOEs(module, (uint)AID.JitteringGlare, new AOEShapeCone(40f, 15f.Degrees()));
 class GyratingGlare(BossModule module) : Components.RaidwideCast(module, (uint)AID.GyratingGlare);
-
-abstract class Rubble(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 10f);
-class RubbleRouse(BossModule module) : Rubble(module, (uint)AID.RubbleRouse);
-class RockAndRefrain1(BossModule module) : Rubble(module, (uint)AID.RockAndRefrain1);
-class RockAndRefrain2(BossModule module) : Rubble(module, (uint)AID.RockAndRefrain2);
+class RubbleRouseRockAndRefrain(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.RubbleRouse, (uint)AID.RockAndRefrain1, (uint)AID.RockAndRefrain2], 10f);
 
 class MindOverManorStates : StateMachineBuilder
 {
@@ -33,9 +29,7 @@ class MindOverManorStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<JitteringGlare>()
             .ActivateOnEnter<GyratingGlare>()
-            .ActivateOnEnter<RubbleRouse>()
-            .ActivateOnEnter<RockAndRefrain1>()
-            .ActivateOnEnter<RockAndRefrain2>();
+            .ActivateOnEnter<RubbleRouseRockAndRefrain>();
     }
 }
 

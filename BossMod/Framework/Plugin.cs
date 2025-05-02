@@ -250,7 +250,7 @@ public sealed class Plugin : IDalamudPlugin
 
         _dtr.Update();
         Camera.Instance?.Update();
-        _wsSync.Update(ref _prevUpdateTime);
+        _wsSync.Update(_prevUpdateTime);
         _bossmod.Update();
         _zonemod.ActiveModule?.Update();
         _hintsBuilder.Update(_hints, PartyState.PlayerSlot, moveImminent);

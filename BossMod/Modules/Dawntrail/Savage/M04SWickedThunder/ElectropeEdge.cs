@@ -18,9 +18,7 @@ class ElectropeEdgeWitchgleam(BossModule module) : Components.GenericAOEs(module
 class ElectropeEdgeSpark1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ElectropeEdgeSpark1, new AOEShapeRect(10f, 5f));
 class ElectropeEdgeSpark2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ElectropeEdgeSpark2, new AOEShapeRect(30f, 15f));
 
-abstract class ElectropeEdgeSidewise(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(60f, 90f.Degrees()));
-class ElectropeEdgeSidewiseSparkR(BossModule module) : ElectropeEdgeSidewise(module, (uint)AID.ElectropeEdgeSidewiseSparkR);
-class ElectropeEdgeSidewiseSparkL(BossModule module) : ElectropeEdgeSidewise(module, (uint)AID.ElectropeEdgeSidewiseSparkL);
+class ElectropeEdgeSidewiseSpark(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.ElectropeEdgeSidewiseSparkR, (uint)AID.ElectropeEdgeSidewiseSparkL], new AOEShapeCone(60f, 90f.Degrees()));
 
 class ElectropeEdgeStar(BossModule module) : Components.UniformStackSpread(module, 6f, 6f, alwaysShowSpreads: true)
 {

@@ -8,7 +8,7 @@ class Slaminator(BossModule module) : Components.CastTowers(module, (uint)AID.Sl
 
 class Explosion : Components.SimpleAOEs
 {
-    public Explosion(BossModule module) : base(module, (uint)AID.Explosion, 20f, 2)
+    public Explosion(BossModule module) : base(module, (uint)AID.Explosion, 25f, 2)
     {
         MaxDangerColor = 1;
     }

@@ -6,12 +6,12 @@ class SurgingWaveCorridor(BossModule module) : BossComponent(module)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index == 0x49 && state is 0x02000001 or 0x00200001 or 0x00800040 or 0x08000400)
+        if (index == 0x49u && state is 0x02000001u or 0x00200001u or 0x00800040u or 0x08000400u)
         {
             CorridorDir = state switch
             {
-                0x00800040 => new(-1f, default),
-                0x08000400 => new(1f, default),
+                0x00800040u => new(-1f, default),
+                0x08000400u => new(1f, default),
                 _ => default
             };
         }
@@ -53,11 +53,11 @@ public class SurgingWaveFrothingSea : Components.Exaflare
     {
         void AddLine(WPos first, Angle rot)
         => Lines.Add(new() { Next = first, Advance = 2.3f * rot.ToDirection(), NextExplosion = WorldState.FutureTime(30d), TimeToMove = 0.9f, ExplosionsLeft = 13, MaxShownExplosions = 2, Rotation = rot });
-        if (index == 0x49)
+        if (index == 0x49u)
         {
-            if (state == 0x00800040)
+            if (state == 0x00800040u)
                 AddLine(new(-80f, -900f), 90f.Degrees());
-            else if (state == 0x08000400)
+            else if (state == 0x08000400u)
                 AddLine(new(80f, -900f), -90f.Degrees());
         }
     }
@@ -78,6 +78,4 @@ public class SurgingWaveFrothingSea : Components.Exaflare
     }
 }
 
-abstract class Strait(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(100f, 90f.Degrees()));
-class LeftStrait(BossModule module) : Strait(module, (uint)AID.LeftStrait);
-class RightStrait(BossModule module) : Strait(module, (uint)AID.RightStrait);
+class Strait(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.LeftStrait, (uint)AID.RightStrait], new AOEShapeCone(100f, 90f.Degrees()));

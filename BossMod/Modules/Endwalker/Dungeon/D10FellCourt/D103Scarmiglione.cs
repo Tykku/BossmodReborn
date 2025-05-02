@@ -332,7 +332,7 @@ class RottenRampageSpread(BossModule module) : Components.SpreadFromCastTargets(
 class BlightedSweep(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlightedSweep, new AOEShapeCone(40f, 90f.Degrees()));
 class CursedEcho(BossModule module) : Components.RaidwideCast(module, (uint)AID.CursedEcho);
 class VoidGravity(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.VoidGravity, 6f, 4, 4);
-class Firedamp(BossModule module) : Components.BaitAwayCast(module, (uint)AID.Firedamp, new AOEShapeCircle(5f), true, tankbuster: true);
+class Firedamp(BossModule module) : Components.BaitAwayCast(module, (uint)AID.Firedamp, 5f, tankbuster: true);
 
 class CorruptorsPitch(BossModule module) : Components.RaidwideCastDelay(module, (uint)AID.CorruptorsPitchVisual, (uint)AID.CorruptorsPitch3, 8.1f)
 {

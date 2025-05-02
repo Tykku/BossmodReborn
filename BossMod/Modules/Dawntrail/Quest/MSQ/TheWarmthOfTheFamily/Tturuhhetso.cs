@@ -191,38 +191,7 @@ class FlameBlast(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Firestorm(BossModule module) : Components.GenericAOEs(module)
-{
-    private readonly List<AOEInstance> _aoes = [];
-    private static readonly AOEShapeCircle circle = new(10f);
-
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        var count = _aoes.Count;
-        if (count == 0)
-            return [];
-        var aoes = CollectionsMarshal.AsSpan(_aoes);
-        var deadline = aoes[0].Activation.AddSeconds(1d);
-
-        var index = 0;
-        while (index < count && aoes[index].Activation < deadline)
-            ++index;
-
-        return aoes[..index];
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if (spell.Action.ID == (uint)AID.Firestorm)
-            _aoes.Add(new(circle, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if (_aoes.Count != 0 && spell.Action.ID == (uint)AID.Firestorm)
-            _aoes.RemoveAt(0);
-    }
-}
+class Firestorm(BossModule module) : Components.SimpleAOEGroupsByTimewindow(module, [(uint)AID.Firestorm], 10f, 1d, 10);
 
 class TturuhhetsoStates : StateMachineBuilder
 {

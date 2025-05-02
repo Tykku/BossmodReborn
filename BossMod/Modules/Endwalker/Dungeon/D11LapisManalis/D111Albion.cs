@@ -188,17 +188,11 @@ public record struct Stampede(bool Active, WPos Position, Angle Rotation, List<A
 
 class Icebreaker(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Icebreaker, 17f);
 
-class IcyThroes(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
-class IcyThroes1(BossModule module) : IcyThroes(module, (uint)AID.IcyThroes1);
-class IcyThroes2(BossModule module) : IcyThroes(module, (uint)AID.IcyThroes2);
-
+class IcyThroes(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.IcyThroes1, (uint)AID.IcyThroes2], 6f);
 class IcyThroesSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.IcyThroesSpread, 6f);
 class KnockOnIce(BossModule module) : Components.SimpleAOEs(module, (uint)AID.KnockOnIce, 5f);
 
-abstract class Slam(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(80f, 10f));
-class RightSlam(BossModule module) : Slam(module, (uint)AID.RightSlam);
-class LeftSlam(BossModule module) : Slam(module, (uint)AID.LeftSlam);
-
+class Slam(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.RightSlam, (uint)AID.LeftSlam], new AOEShapeRect(80f, 10f));
 class AlbionsEmbrace(BossModule module) : Components.SingleTargetCast(module, (uint)AID.AlbionsEmbrace);
 
 class RoarOfAlbion(BossModule module) : Components.CastLineOfSightAOE(module, (uint)AID.RoarOfAlbion, 60f)
@@ -212,13 +206,11 @@ class D111AlbionStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<WildlifeCrossing>()
-            .ActivateOnEnter<LeftSlam>()
-            .ActivateOnEnter<RightSlam>()
+            .ActivateOnEnter<Slam>()
             .ActivateOnEnter<AlbionsEmbrace>()
             .ActivateOnEnter<Icebreaker>()
             .ActivateOnEnter<KnockOnIce>()
-            .ActivateOnEnter<IcyThroes1>()
-            .ActivateOnEnter<IcyThroes2>()
+            .ActivateOnEnter<IcyThroes>()
             .ActivateOnEnter<IcyThroesSpread>()
             .ActivateOnEnter<RoarOfAlbion>();
     }

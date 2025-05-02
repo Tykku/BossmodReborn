@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Alliance.A12Rhalgr;
 
-class DestructiveBolt(BossModule module) : Components.BaitAwayCast(module, (uint)AID.DestructiveBoltAOE, new AOEShapeCircle(3), true, tankbuster: true);
+class DestructiveBolt(BossModule module) : Components.BaitAwayCast(module, (uint)AID.DestructiveBoltAOE, 3f, tankbuster: true);
 class StrikingMeteor(BossModule module) : Components.SimpleAOEs(module, (uint)AID.StrikingMeteor, 6f);
 class BronzeLightning(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BronzeLightning, new AOEShapeCone(50f, 22.5f.Degrees()), 4);
 

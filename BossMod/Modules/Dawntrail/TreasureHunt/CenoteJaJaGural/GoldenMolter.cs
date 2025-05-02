@@ -106,10 +106,7 @@ class AetherialLight : Components.SimpleAOEs
     public AetherialLight(BossModule module) : base(module, (uint)AID.AetherialLight, new AOEShapeCone(40f, 30f.Degrees()), 4) { MaxDangerColor = 2; }
 }
 
-abstract class Vasoconstrictor(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
-class Vasoconstrictor1(BossModule module) : Vasoconstrictor(module, (uint)AID.Vasoconstrictor1);
-class Vasoconstrictor2(BossModule module) : Vasoconstrictor(module, (uint)AID.Vasoconstrictor2);
-class Vasoconstrictor3(BossModule module) : Vasoconstrictor(module, (uint)AID.Vasoconstrictor3);
+class Vasoconstrictor(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.Vasoconstrictor1, (uint)AID.Vasoconstrictor2, (uint)AID.Vasoconstrictor3], 6f);
 
 class VasoconstrictorPool(BossModule module) : Components.GenericAOEs(module)
 {
@@ -134,12 +131,8 @@ class VasoconstrictorPool(BossModule module) : Components.GenericAOEs(module)
 class Spin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spin, 11f);
 class RottenSpores(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RottenSpores, 6f);
 
-abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 7f);
 
 class GoldenMolterStates : StateMachineBuilder
 {
@@ -153,15 +146,9 @@ class GoldenMolterStates : StateMachineBuilder
             .ActivateOnEnter<GoldenRadiance>()
             .ActivateOnEnter<BlindingLight>()
             .ActivateOnEnter<AetherialLight>()
-            .ActivateOnEnter<Vasoconstrictor1>()
-            .ActivateOnEnter<Vasoconstrictor2>()
-            .ActivateOnEnter<Vasoconstrictor3>()
+            .ActivateOnEnter<Vasoconstrictor>()
             .ActivateOnEnter<VasoconstrictorPool>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
+            .ActivateOnEnter<MandragoraAOEs>()
             .ActivateOnEnter<Spin>()
             .ActivateOnEnter<RottenSpores>()
             .Raw.Update = () =>

@@ -69,8 +69,8 @@ public enum AID : uint
     QueensCrusade = 43194, // Helper->self, 3.7s cast, range 2 circle
 
     AlexandrianThunderIIVisual = 43198, // Boss->self, 5.0s cast, single-target
-    AlexandrianThunderIIFirst = 43199, // Helper->self, 5.7s cast, seems to activate a cone and/or circles at the same time, cone is range 24 30-degree
-    AlexandrianThunderIIRepeat = 43064, // Helper->self, no cast, seems to activate a cone and/or circles at the same time, cone is range 24 30-degree
+    AlexandrianThunderIIFirst = 43199, // Helper->self, 5.7s cast, seems to activate a cone and/or circles at the same time, cone is range 24 45-degree
+    AlexandrianThunderIIRepeat = 43064, // Helper->self, no cast, seems to activate a cone and/or circles at the same time, cone is range 24 45-degree
     AlexandrianThunderIIIVisual = 43235, // Boss->self, 4.3s cast, single-target
     AlexandrianThunderIIISpread = 43236, // Helper->player, 5.0s cast, seems to activate tiles and circles at the same time, circle is radius 4
     AlexandrianThunderIIIAOE = 43238, // Helper->location, 7.5s cast, seems to activate tiles and circles at the same time, circle is radius 4

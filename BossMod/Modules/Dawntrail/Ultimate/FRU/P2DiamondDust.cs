@@ -50,7 +50,7 @@ class P2FrigidNeedleCross(BossModule module) : Components.SimpleAOEs(module, (ui
 
 class P2FrigidStone : Components.BaitAwayIcon
 {
-    public P2FrigidStone(BossModule module) : base(module, new AOEShapeCircle(5), (uint)IconID.FrigidStone, (uint)AID.FrigidStone, 8.1f, true)
+    public P2FrigidStone(BossModule module) : base(module, 5f, (uint)IconID.FrigidStone, (uint)AID.FrigidStone, 8.1f)
     {
         EnableHints = false;
         IgnoreOtherBaits = true;

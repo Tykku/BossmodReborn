@@ -1,14 +1,8 @@
 ﻿namespace BossMod.Dawntrail.Raid.M02NHoneyBLovely;
 
 class CallMeHoney(BossModule module) : Components.RaidwideCast(module, (uint)AID.CallMeHoney);
-
-abstract class TemptingTwist(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonut(7f, 30f));
-class TemptingTwist1(BossModule module) : TemptingTwist(module, (uint)AID.TemptingTwist1);
-class TemptingTwist2(BossModule module) : TemptingTwist(module, (uint)AID.TemptingTwist2);
-
-abstract class HoneyBeeline(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(60f, 7f));
-class HoneyBeeline1(BossModule module) : HoneyBeeline(module, (uint)AID.HoneyBeeline1);
-class HoneyBeeline2(BossModule module) : HoneyBeeline(module, (uint)AID.HoneyBeeline2);
+class TemptingTwist(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.TemptingTwist1, (uint)AID.TemptingTwist2], new AOEShapeDonut(7f, 30f));
+class HoneyBeeline(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.HoneyBeeline1, (uint)AID.HoneyBeeline2], new AOEShapeRect(60f, 7f));
 
 class HoneyedBreeze(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(40f, 15f.Degrees()), (uint)IconID.HoneyedBreezeTB, (uint)AID.HoneyedBreeze, 5f, tankbuster: true);
 

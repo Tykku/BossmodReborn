@@ -7,7 +7,7 @@ public enum OID : uint
 
     // Trash
     MyrmidonMarshal = 0x647,
-    MyrmidonSoldier = 0x649,
+    MyrmidonSoldier = 0x649
 }
 
 public enum AID : uint

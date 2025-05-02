@@ -10,6 +10,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 15574, // Boss->player, no cast, single-target
+
     ShadowWreck = 15587, // Boss->self, 4.0s cast, range 100 circle
     ApokalypsisFirst = 15575, // Boss->self, 6.0s cast, range 76 width 20 rect
     ApokalypsisRest = 15577, // Helper->self, no cast, range 76 width 20 rect
@@ -25,7 +26,7 @@ public enum AID : uint
     DeathlyRayFacesRest = 15581, // Helper->self, no cast, range 60 width 6 rect
     DeathlyRayThereionFirst = 15583, // Helper->self, no cast, range 60 width 6 rect
     DeathlyRayThereionRest = 15585, // Helper->self, no cast, range 60 width 6 rect
-    Misfortune = 15586, // Helper->location, 3.0s cast, range 6 circle
+    Misfortune = 15586 // Helper->location, 3.0s cast, range 6 circle
 }
 
 class ShadowWreck(BossModule module) : Components.RaidwideCast(module, (uint)AID.ShadowWreck);
@@ -34,30 +35,37 @@ class ThereionCharge(BossModule module) : Components.SimpleAOEs(module, (uint)AI
 
 class Border(BossModule module) : Components.GenericAOEs(module, warningText: "Platform will be removed during next Apokalypsis!")
 {
-    private const float SquareHalfWidth = 2f;
-    private const float RectangleHalfWidth = 10.1f;
     private const float MaxError = 5f;
     private static readonly AOEShapeRect _square = new(2f, 2f, 2f);
 
     public readonly List<AOEInstance> BreakingPlatforms = new(2);
 
-    public static readonly WPos[] positions = [new(-12f, -71f), new(12f, -71f), new(-12f, -51f),
+    private static readonly WPos[] positions = [new(-12f, -71f), new(12f, -71f), new(-12f, -51f),
     new(12f, -51f), new(-12f, -31f), new(12f, -31f), new(-12f, -17f), new(12f, -17f), new(default, -65f), new(default, -45f)];
 
-    private static readonly Square[] shapes = [new(positions[0], SquareHalfWidth), new(positions[1], SquareHalfWidth), new(positions[2], SquareHalfWidth),
-    new(positions[3], SquareHalfWidth), new(positions[4], SquareHalfWidth), new(positions[5], SquareHalfWidth), new(positions[6], SquareHalfWidth),
-    new(positions[7], SquareHalfWidth), new(positions[8], RectangleHalfWidth), new(positions[9], RectangleHalfWidth)];
+    private static readonly Rectangle[] alcoves = Squares();
+    private static readonly Square[] differences = [new(positions[8], 10.01f), new(positions[9], 10.01f)];
 
     private static readonly Rectangle[] rect = [new(new(default, -45f), 10f, 30f)];
     public readonly List<Shape> UnionRefresh = Union();
     private readonly List<Shape> difference = new(8);
     public static readonly ArenaBoundsComplex DefaultArena = new([.. Union()]);
 
+    private static Rectangle[] Squares()
+    {
+        var squares = new Rectangle[8];
+        for (var i = 0; i < 8; ++i)
+        {
+            squares[i] = new Rectangle(positions[i], 2f, 1.99f); // small offset to account for rounding errors
+        }
+        return squares;
+    }
+
     private static List<Shape> Union()
     {
         var union = new List<Shape>(rect);
         for (var i = 0; i < 8; ++i)
-            union.Add(shapes[i]);
+            union.Add(alcoves[i]);
         return union;
     }
 
@@ -77,18 +85,18 @@ class Border(BossModule module) : Components.GenericAOEs(module, warningText: "P
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
-        if (state == 0x00040008)
+        if (state == 0x00040008u)
         {
             for (var i = 0; i < 8; ++i)
             {
                 if (actor.Position.AlmostEqual(positions[i], MaxError))
                 {
-                    if (UnionRefresh.Remove(shapes[i]))
+                    if (UnionRefresh.Remove(alcoves[i]))
                     {
                         if (UnionRefresh.Count == 7)
-                            difference.Add(shapes[8]);
+                            difference.Add(differences[0]);
                         else if (UnionRefresh.Count == 5)
-                            difference.Add(shapes[9]);
+                            difference.Add(differences[1]);
                         ArenaBoundsComplex arena = new([.. UnionRefresh], [.. difference]);
                         Arena.Bounds = arena;
                         Arena.Center = arena.Center;
@@ -97,7 +105,7 @@ class Border(BossModule module) : Components.GenericAOEs(module, warningText: "P
                 }
             }
         }
-        else if (state == 0x00100020)
+        else if (state == 0x00100020u)
         {
             for (var i = 0; i < 8; ++i)
             {
@@ -185,11 +193,11 @@ class DeathlyRayFaces(BossModule module) : Components.GenericAOEs(module)
         if (total == 0)
             return [];
         var aoes = new AOEInstance[total];
-        var index = 0;
+        var risk = countFirst == 0;
         for (var i = 0; i < countFirst; ++i)
-            aoes[index++] = _aoesFirst[i];
+            aoes[i] = _aoesFirst[i];
         for (var i = 0; i < countRest; ++i)
-            aoes[index++] = _aoesRest[i] with { Risky = countFirst == 0 };
+            aoes[countFirst + i] = _aoesRest[i] with { Risky = risk };
         return aoes;
     }
 

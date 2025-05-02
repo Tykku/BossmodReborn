@@ -27,7 +27,7 @@ class BloodshotGaze(BossModule module) : Components.GenericGaze(module)
 
     public override ReadOnlySpan<Eye> ActiveEyes(int slot, Actor actor)
     {
-        Eye[] TryGetEye(Components.GenericStackSpread comp)
+        Eye[] TryGetEye(Components.GenericStackSpread comp, bool inverted)
         {
             var count = comp.Stacks.Count;
             if (count == 0)
@@ -35,18 +35,10 @@ class BloodshotGaze(BossModule module) : Components.GenericGaze(module)
             var stack = CollectionsMarshal.AsSpan(comp.Stacks)[0];
             if (stack.Target == actor)
                 return [];
-            return [new(stack.Target.Position, stack.Activation)];
+            return [new(stack.Target.Position, stack.Activation, Inverted: inverted)];
         }
-        var stack = TryGetEye(_stack);
-        return stack.Length != 0 ? stack : TryGetEye(_stackInv);
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if (spell.Action.ID == (uint)AID.BloodshotGaze)
-            Inverted = false;
-        else if (spell.Action.ID == (uint)AID.BloodshotGazeInverted)
-            Inverted = true;
+        var stack = TryGetEye(_stack, false);
+        return stack.Length != 0 ? stack : TryGetEye(_stackInv, true);
     }
 }
 

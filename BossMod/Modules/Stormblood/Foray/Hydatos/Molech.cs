@@ -40,7 +40,7 @@ class MolechStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "xan, Malediktus", GroupType = BossModuleInfo.GroupType.EurekaNM, GroupID = 639, NameID = 1414, SortOrder = 3)]
-public class Molech(WorldState ws, Actor primary) : BossModule(ws, primary, new(-676.8632f, -441.8009f), SharedBounds.Circle)
+public class Molech(WorldState ws, Actor primary) : SimpleBossModule(ws, primary)
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

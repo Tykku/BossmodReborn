@@ -64,9 +64,7 @@ class PoisonHeartVoidzone(BossModule module) : Components.VoidzoneAtCastTarget(m
     }
 }
 
-abstract class PodBurst(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
-class PodBurst1(BossModule module) : PodBurst(module, (uint)AID.PodBurst1);
-class PodBurst2(BossModule module) : PodBurst(module, (uint)AID.PodBurst2);
+class PodBurst(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PodBurst1, (uint)AID.PodBurst2], 6f);
 
 class WrithingRiot(BossModule module) : Components.GenericAOEs(module)
 {
@@ -143,8 +141,7 @@ class D051HerpekarisStates : StateMachineBuilder
             .ActivateOnEnter<StridentShriek>()
             .ActivateOnEnter<PoisonHeartSpread>()
             .ActivateOnEnter<PoisonHeartVoidzone>()
-            .ActivateOnEnter<PodBurst1>()
-            .ActivateOnEnter<PodBurst2>()
+            .ActivateOnEnter<PodBurst>()
             .ActivateOnEnter<WrithingRiot>()
             .ActivateOnEnter<ConvulsiveCrush>();
     }

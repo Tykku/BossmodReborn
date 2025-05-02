@@ -53,10 +53,10 @@ class ParticleConcentration(BossModule module) : Components.GenericTowers(module
     public void ShowOuterTowers()
     {
         var activation = Towers.Count != 0 ? Towers[0].Activation : default;
-        for (var i = 0; i < _outerTowers.Count; ++i)
+        var count = _outerTowers.Count;
+        for (var i = 0; i < count; ++i)
         {
-            var newTower = new Tower(_outerTowers[i], 3f, 3, 3, _innerPlayers, activation);
-            Towers.Add(newTower);
+            Towers.Add(new(_outerTowers[i], 3f, 3, 3, _innerPlayers, activation));
         }
     }
 
@@ -88,7 +88,7 @@ class ParticleConcentration(BossModule module) : Components.GenericTowers(module
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state != 0x00020001) // appear
+        if (state != 0x00020001u) // appear
             return;
 
         var (offset, count) = index switch

@@ -52,23 +52,7 @@ public enum AID : uint
 }
 
 class Bladestorm(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Bladestorm, new AOEShapeCone(20f, 45f.Degrees()));
-class KeenTempest(BossModule module) : Components.SimpleAOEs(module, (uint)AID.KeenTempest, 8f)
-{
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        var count = Casters.Count;
-        if (count == 0)
-            return [];
-        var aoes = CollectionsMarshal.AsSpan(Casters);
-        var deadline = aoes[0].Activation.AddSeconds(1d);
-
-        var index = 0;
-        while (index < count && aoes[index].Activation < deadline)
-            ++index;
-
-        return aoes[..index];
-    }
-}
+class KeenTempest(BossModule module) : Components.SimpleAOEGroupsByTimewindow(module, [(uint)AID.KeenTempest], 8f);
 
 class AethericBurst(BossModule module) : Components.RaidwideCastDelay(module, (uint)AID.AethericBurstVisual, (uint)AID.AethericBurst, 0.9f);
 class AetherialExposure(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.AetherialExposure, 6f, 3, 3);

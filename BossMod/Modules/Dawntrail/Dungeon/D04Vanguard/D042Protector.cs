@@ -36,20 +36,20 @@ public enum AID : uint
     Electrowhirl1 = 37160, // Helper->self, 3.0s cast, range 6 circle
     Electrowhirl2 = 37350, // Helper->self, 5.0s cast, range 6 circle
 
-    TrackingBolt1 = 37348, // Boss->self, 8.0s cast, single-target
-    TrackingBolt2 = 37349, // Helper->player, 8.0s cast, range 8 circle // Spread marker
+    TrackingBoltVisual = 37348, // Boss->self, 8.0s cast, single-target
+    TrackingBolt = 37349, // Helper->player, 8.0s cast, range 8 circle, spread
 
     ApplyAccelerationBomb = 37343, // Helper->player, no cast, single-target
 
     HeavyBlastCannonMarker = 37347, // Helper->player, no cast, single-target
-    HeavyBlastCannon = 37345, // Boss->self/players, 8.0s cast, range 36 width 8 rect, line stack
+    HeavyBlastCannon = 37345 // Boss->self/players, 8.0s cast, range 36 width 8 rect, line stack
 }
 
 public enum SID : uint
 {
     LaserTurretsVisual = 2056, // Boss->Boss, extra=0x2CE
     AccelerationBomb = 3802, // Helper->player, extra=0x0
-    AccelerationBombNPCs = 4144, // Helper->NPCs, extra=0x0
+    AccelerationBombNPCs = 4144 // Helper->NPCs, extra=0x0
 }
 
 class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
@@ -240,12 +240,9 @@ class HomingCannon : Components.SimpleAOEs
 }
 
 class Bombardment(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Bombardment, 5f);
+class Electrowhirl(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.Electrowhirl1, (uint)AID.Electrowhirl2], 6f);
 
-abstract class Electrowhirl(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
-class Electrowhirl1(BossModule module) : Electrowhirl(module, (uint)AID.Electrowhirl1);
-class Electrowhirl2(BossModule module) : Electrowhirl(module, (uint)AID.Electrowhirl2);
-
-class TrackingBolt2(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.TrackingBolt2, 8f);
+class TrackingBolt(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.TrackingBolt, 8f);
 
 class AccelerationBomb(BossModule module) : Components.StayMove(module, 3f)
 {
@@ -277,9 +274,8 @@ class D042ProtectorStates : StateMachineBuilder
             .ActivateOnEnter<HomingCannon>()
             .ActivateOnEnter<BatteryCircuit>()
             .ActivateOnEnter<Bombardment>()
-            .ActivateOnEnter<Electrowhirl1>()
-            .ActivateOnEnter<Electrowhirl2>()
-            .ActivateOnEnter<TrackingBolt2>();
+            .ActivateOnEnter<Electrowhirl>()
+            .ActivateOnEnter<TrackingBolt>();
     }
 }
 

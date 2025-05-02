@@ -7,8 +7,8 @@ class AlexandrianThunderII(BossModule module) : Components.GenericRotatingAOE(mo
     private readonly List<Angle> _rotation = new(3);
     private bool? clockwise;
     private static readonly AOEShapeDonutSector sector = new(2f, 8f, 15f.Degrees(), InvertForbiddenZone: true);
-
-    private static readonly AOEShapeCone _shape = new(24f, 15f.Degrees());
+    private static readonly Angle a75 = 7.5f.Degrees();
+    private static readonly AOEShapeCone _shape = new(24f, 22.5f.Degrees());
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
@@ -57,7 +57,7 @@ class AlexandrianThunderII(BossModule module) : Components.GenericRotatingAOE(mo
             return;
         if (clockwise != null)
         {
-            sector.Outline(Arena, Arena.Center, clockwise == true ? FloorTiles.TileAngles[2] : FloorTiles.TileAngles[7], Colors.Safe, 2f);
+            sector.Outline(Arena, Arena.Center, clockwise == true ? FloorTiles.TileAngles[2] + a75 : FloorTiles.TileAngles[7] - a75, Colors.Safe, 2f);
         }
     }
 
@@ -77,7 +77,7 @@ class AlexandrianThunderII(BossModule module) : Components.GenericRotatingAOE(mo
         if (clockwise != null)
         {
             var act = Sequences.Count != 0 ? Sequences[0].NextActivation : DateTime.MaxValue;
-            hints.AddForbiddenZone(sector, Arena.Center, clockwise == true ? FloorTiles.TileAngles[2] : FloorTiles.TileAngles[7], act);
+            hints.AddForbiddenZone(sector, Arena.Center, clockwise == true ? FloorTiles.TileAngles[2] + a75 : FloorTiles.TileAngles[7] - a75, act);
         }
     }
 }

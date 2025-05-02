@@ -1,14 +1,14 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C030Trash1;
 
-abstract class Hydrocannon(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(15, 3));
+abstract class Hydrocannon(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(15f, 3f));
 class NHydrocannon(BossModule module) : Hydrocannon(module, (uint)AID.NHydrocannon);
 class SHydrocannon(BossModule module) : Hydrocannon(module, (uint)AID.SHydrocannon);
 
-abstract class Expulsion(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 8);
+abstract class Expulsion(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 8f);
 class NExpulsion(BossModule module) : Expulsion(module, (uint)AID.NExpulsion);
 class SExpulsion(BossModule module) : Expulsion(module, (uint)AID.SExpulsion);
 
-abstract class ElectricWhorl(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonut(8, 60));
+abstract class ElectricWhorl(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonut(8f, 60f));
 class NElectricWhorl(BossModule module) : ElectricWhorl(module, (uint)AID.NElectricWhorl);
 class SElectricWhorl(BossModule module) : ElectricWhorl(module, (uint)AID.SElectricWhorl);
 

@@ -19,7 +19,7 @@ public enum AID : uint
 class Kasaya(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Kasaya, new AOEShapeCone(7.6f, 60f.Degrees()));
 class WaterIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WaterIII, 8f);
 
-class BlizzardIIIIcon(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(5f), 26, centerAtTarget: true)
+class BlizzardIIIIcon(BossModule module) : Components.BaitAwayIcon(module, 5f, 26u)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

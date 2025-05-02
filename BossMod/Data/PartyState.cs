@@ -102,7 +102,6 @@ public sealed class PartyState
                 ref readonly var player = ref _actors[i];
                 if (player == null || !includeDead && player.IsDead)
                     continue;
-
                 result[count++] = (i, player);
             }
             if (!excludeNPCs)

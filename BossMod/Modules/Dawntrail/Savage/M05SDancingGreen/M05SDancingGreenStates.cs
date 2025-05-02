@@ -120,20 +120,20 @@ class M05SDancingGreenStates : StateMachineBuilder
                 cond.DeactivateOnExit<GetDownBait>();
         }
 
-        ComponentCondition<GetDownCone>(id + 0x90u, 2.5f, comp => comp.NumCasts == 8, "Cone repeat")
+        ComponentCondition<GetDownCone>(id + 0xA0u, 2.5f, comp => comp.NumCasts == 8, "Cone repeat")
             .DeactivateOnExit<GetDownCone>()
             .DeactivateOnExit<GetDownOutIn>();
 
         for (var i = 1; i <= 8; ++i)
         {
-            var offset = id + 0xA0u + (uint)((i - 1) * 0x10u);
+            var offset = id + 0xB0u + (uint)((i - 1) * 0x10u);
             var time = i == 1 ? 8.4f : 2.4f;
             var desc = (i % 2 == 0 ? $"Stack {i / 2} + " : "") + $"Halfroom cleave {i}";
             var casts = i;
             ComponentCondition<LetsDance>(offset, time, comp => comp.NumCasts == casts, desc);
         }
 
-        Cast(id + 0x120u, (uint)AID.LetsPose, 3.2f, 5f, "Raidwide")
+        Cast(id + 0x130u, (uint)AID.LetsPose, 3.2f, 5f, "Raidwide")
             .DeactivateOnExit<LetsDance>()
             .DeactivateOnExit<WavelengthAlphaBeta>();
     }
@@ -162,7 +162,7 @@ class M05SDancingGreenStates : StateMachineBuilder
             .DeactivateOnExit<RideTheWaves>();
         ComponentCondition<TwoThreeFourSnapTwistDropTheNeedle>(id + 0xA0u, 4f, comp => comp.NumCasts != 0, "Half room cleave 1");
         ComponentCondition<TwoThreeFourSnapTwistDropTheNeedle>(id + 0xB0u, 3.5f, comp => comp.NumCasts == 3, "Half room cleave 2");
-        ComponentCondition<FlipToABSide>(id + 0xB0u, 1.7f, comp => comp.Source == null, "Stored stack resolves")
+        ComponentCondition<FlipToABSide>(id + 0xC0u, 1.7f, comp => comp.Source == null, "Stored stack resolves")
             .DeactivateOnExit<TwoThreeFourSnapTwistDropTheNeedle>()
             .DeactivateOnExit<FlipToABSide>();
     }
@@ -214,7 +214,7 @@ class M05SDancingGreenStates : StateMachineBuilder
             .ActivateOnEnter<LetsDanceRemix>();
         for (var i = 1; i <= 8; ++i)
         {
-            var offset = id + (uint)(0x10u * (i + 1));
+            var offset = id + (uint)(0x20u * (i + 1));
             var time = i == 1 ? 0.3f : 2.4f;
             var pattern = i % 2 == 0 ? "donut" : "circle";
             var desc = i == 1 ? "Bait 1" : $"Bait {i} + {pattern} + cone repeat";
@@ -225,17 +225,17 @@ class M05SDancingGreenStates : StateMachineBuilder
                 cond.DeactivateOnExit<GetDownBait>();
         }
 
-        ComponentCondition<GetDownCone>(id + 0x90u, 2.5f, comp => comp.NumCasts == 8, "Cone repeat")
+        ComponentCondition<GetDownCone>(id + 0x130u, 2.5f, comp => comp.NumCasts == 8, "Cone repeat")
             .DeactivateOnExit<GetDownCone>()
             .DeactivateOnExit<GetDownOutIn>();
         for (var i = 1; i <= 8; ++i)
         {
-            var offset = id + 0xA0u + (uint)((i - 1) * 0x10u);
+            var offset = id + 0x140u + (uint)((i - 1) * 0x10u);
             var casts = i;
             var desc = $"Halfroom cleave {i}";
             ComponentCondition<LetsDanceRemix>(offset, i == 1 ? 8.4f : 1.5f, comp => comp.NumCasts == casts, desc);
         }
-        Cast(id + 0x120u, (uint)AID.LetsPoseRemix, 2.2f, 5f, "Raidwide")
+        Cast(id + 0x1C0, (uint)AID.LetsPoseRemix, 2.2f, 5f, "Raidwide")
             .DeactivateOnExit<LetsDanceRemix>();
     }
 

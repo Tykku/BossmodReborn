@@ -7,10 +7,7 @@ class SweepTheLeg1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.
 class SweepTheLeg3(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SweepTheLeg3, new AOEShapeDonut(5f, 30f));
 class TheRoarOfThunder(BossModule module) : Components.RaidwideCast(module, (uint)AID.TheRoarOfThunder);
 class ImperialGuard(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ImperialGuard, new AOEShapeRect(44.75f, 2.5f));
-
-abstract class FireAndLightning(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(50f, 10f));
-class FireAndLightning1(BossModule module) : FireAndLightning(module, (uint)AID.FireAndLightning1);
-class FireAndLightning2(BossModule module) : FireAndLightning(module, (uint)AID.FireAndLightning2);
+class FireAndLightning(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.FireAndLightning1, (uint)AID.FireAndLightning2], new AOEShapeRect(50f, 10f));
 
 class DistantClap(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DistantClap, new AOEShapeDonut(5f, 3f));
 

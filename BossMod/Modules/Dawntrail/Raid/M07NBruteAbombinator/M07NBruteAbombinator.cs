@@ -21,7 +21,7 @@ class Sporesplosion : Components.SimpleAOEs
 
 class Explosion : Components.SimpleAOEs
 {
-    public Explosion(BossModule module) : base(module, (uint)AID.Explosion, 20f, 2)
+    public Explosion(BossModule module) : base(module, (uint)AID.Explosion, 25f, 2)
     {
         MaxDangerColor = 1;
     }
@@ -38,17 +38,9 @@ class GlowerPower(BossModule module) : Components.SimpleAOEs(module, (uint)AID.G
 class BrutishSwingCircle2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BrutishSwingCircle2, 12f);
 class BrutishSwingDonut(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BrutishSwingDonut, new AOEShapeDonut(9f, 60f));
 
-abstract class BrutishSwingCone(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(25f, 90f.Degrees()));
-class BrutishSwingCone1(BossModule module) : BrutishSwingCone(module, (uint)AID.BrutishSwingCone1);
-class BrutishSwingCone2(BossModule module) : BrutishSwingCone(module, (uint)AID.BrutishSwingCone2);
-
-abstract class BrutishSwingDonutSegment(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonutSector(22f, 88f, 90f.Degrees()));
-class BrutishSwingDonutSegment1(BossModule module) : BrutishSwingDonutSegment(module, (uint)AID.BrutishSwingDonutSegment1);
-class BrutishSwingDonutSegment2(BossModule module) : BrutishSwingDonutSegment(module, (uint)AID.BrutishSwingDonutSegment2);
-
-abstract class LashingLariat(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(70f, 16f));
-class LashingLariat1(BossModule module) : LashingLariat(module, (uint)AID.LashingLariat1);
-class LashingLariat2(BossModule module) : LashingLariat(module, (uint)AID.LashingLariat2);
+class BrutishSwingCone(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.BrutishSwingCone1, (uint)AID.BrutishSwingCone2], new AOEShapeCone(25f, 90f.Degrees()));
+class BrutishSwingDonutSegment(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.BrutishSwingDonutSegment1, (uint)AID.BrutishSwingDonutSegment2], new AOEShapeDonutSector(22f, 88f, 90f.Degrees()));
+class LashingLariat(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.LashingLariat1, (uint)AID.LashingLariat2], new AOEShapeRect(70f, 16f));
 
 class NeoBombarianSpecialKB(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.NeoBombarianSpecial, 58f, true)
 {

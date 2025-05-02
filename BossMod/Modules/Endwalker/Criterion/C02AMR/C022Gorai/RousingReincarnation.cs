@@ -76,7 +76,7 @@ class MalformedPrayer1(BossModule module) : Components.GenericTowers(module)
             BitMask forbidden = new(0xf);
             var soakerSlot = (index & 1) != 0 ? orangeSoaker : blueSoaker;
             forbidden.Clear(soakerSlot);
-            Towers.Add(new(Arena.Center + 11 * (180.Degrees() - index * 45.Degrees()).ToDirection(), 4, forbiddenSoakers: forbidden));
+            Towers.Add(new(Arena.Center + 11f * (180f.Degrees() - index * 45f.Degrees()).ToDirection(), 4, forbiddenSoakers: forbidden));
         }
     }
 }
@@ -85,7 +85,7 @@ class PointedPurgation : Components.BaitAwayTethers
 {
     private BitMask _oddSoakers; // players with 1/3 debuff
 
-    public PointedPurgation(BossModule module) : base(module, new AOEShapeCone(60, 22.5f.Degrees()), (uint)TetherID.PointedPurgation)
+    public PointedPurgation(BossModule module) : base(module, new AOEShapeCone(60f, 22.5f.Degrees()), (uint)TetherID.PointedPurgation)
     {
         var malformedPlayer = module.FindComponent<MalformedPrayer1>();
         foreach (var (index, _) in Raid.WithSlot(true, true, true))
@@ -104,7 +104,7 @@ class PointedPurgation : Components.BaitAwayTethers
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.NPointedPurgationAOE or AID.SPointedPurgationAOE)
+        if (spell.Action.ID is (uint)AID.NPointedPurgationAOE or (uint)AID.SPointedPurgationAOE)
         {
             ++NumCasts;
             ForbiddenPlayers = (NumCasts & 2) != 0 ? ~_oddSoakers : _oddSoakers;

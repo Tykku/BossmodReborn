@@ -64,7 +64,7 @@ class TrismegistosArenaChange(BossModule module) : Components.GenericAOEs(module
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state == 0x00020001 && index == 0x08)
+        if (state == 0x00020001u && index == 0x08u)
         {
             Arena.Bounds = D043Hermes.DefaultBounds;
             _aoe = null;
@@ -75,7 +75,7 @@ class TrismegistosArenaChange(BossModule module) : Components.GenericAOEs(module
 class TrueBraveryInterruptHint(BossModule module) : Components.CastInterruptHint(module, (uint)AID.TrueBravery);
 class Trismegistos(BossModule module) : Components.RaidwideCast(module, (uint)AID.Trismegistos);
 
-class TrueTornadoTankbuster(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCircle(4f), (uint)IconID.Tankbuster, (uint)AID.TrueTornado4, 5.1f, true, tankbuster: true);
+class TrueTornadoTankbuster(BossModule module) : Components.BaitAwayIcon(module, 4f, (uint)IconID.Tankbuster, (uint)AID.TrueTornado4, 5.1f, tankbuster: true);
 
 class TrueTornadoAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TrueTornadoAOE, 4f);
 

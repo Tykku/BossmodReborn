@@ -59,7 +59,7 @@ class DaphneStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "xan, Malediktus", GroupType = BossModuleInfo.GroupType.EurekaNM, GroupID = 639, NameID = 1417, SortOrder = 5)]
-public class Daphne(WorldState ws, Actor primary) : BossModule(ws, primary, new(207.8475f, -736.8179f), SharedBounds.Circle)
+public class Daphne(WorldState ws, Actor primary) : SimpleBossModule(ws, primary)
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {

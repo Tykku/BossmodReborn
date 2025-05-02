@@ -45,18 +45,15 @@ public enum SID : uint
     LeftFace = 1960 // Boss->player, extra=0x0
 }
 
-class Mindhack(BossModule module) : Components.StatusDrivenForcedMarch(module, 2, (uint)SID.ForwardMarch, (uint)SID.AboutFace, (uint)SID.LeftFace, (uint)SID.RightFace, activationLimit: 8);
+class Mindhack(BossModule module) : Components.StatusDrivenForcedMarch(module, 2f, (uint)SID.ForwardMarch, (uint)SID.AboutFace, (uint)SID.LeftFace, (uint)SID.RightFace, activationLimit: 8);
 
-class ElectromagneticReleaseIn(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ElectromagneticReleaseIn, new AOEShapeDonut(7, 60));
-class ElectromagneticReleaseOut(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ElectromagneticReleaseOut, 16);
+class ElectromagneticReleaseIn(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ElectromagneticReleaseIn, new AOEShapeDonut(7f, 60f));
+class ElectromagneticReleaseOut(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ElectromagneticReleaseOut, 16f);
 
-class FireBreath(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FireBreath, new AOEShapeCone(40, 60.Degrees()));
-class Touchdown(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Touchdown, 7);
+class FireBreath(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FireBreath, new AOEShapeCone(40f, 60f.Degrees()));
+class Touchdown(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Touchdown, 7f);
 
-abstract class ProtoWaveCannon(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(60, 90.Degrees()));
-class ProtoWaveCannon1(BossModule module) : ProtoWaveCannon(module, (uint)AID.ProtoWaveCannon1);
-class ProtoWaveCannon2(BossModule module) : ProtoWaveCannon(module, (uint)AID.ProtoWaveCannon2);
-
+class ProtoWaveCannon(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.ProtoWaveCannon1, (uint)AID.ProtoWaveCannon2], new AOEShapeCone(60f, 90f.Degrees()));
 class Rush(BossModule module) : Components.ChargeAOEs(module, (uint)AID.Rush, 2.5f);
 
 class SelfDestructOmega(BossModule module) : Components.RaidwideCast(module, (uint)AID.SelfDestructOmega);
@@ -73,8 +70,7 @@ class D083Stigma4States : StateMachineBuilder
             .ActivateOnEnter<ElectromagneticReleaseOut>()
             .ActivateOnEnter<FireBreath>()
             .ActivateOnEnter<Touchdown>()
-            .ActivateOnEnter<ProtoWaveCannon1>()
-            .ActivateOnEnter<ProtoWaveCannon2>()
+            .ActivateOnEnter<ProtoWaveCannon>()
             .ActivateOnEnter<Rush>()
             .ActivateOnEnter<SelfDestructOmega>()
             .ActivateOnEnter<SelfDestructDragon>()

@@ -5,6 +5,13 @@ class AlexandrianThunderIIISpread(BossModule module) : Components.SpreadFromCast
 class AlexandrianBanishII(BossModule module) : Components.StackWithIcon(module, (uint)IconID.AlexandrianBanishII, (uint)AID.AlexandrianBanishII, 4f, 5.8f, 4, 4);
 class AlexandrianThunderIIIAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AlexandrianThunderIIIAOE, 4f);
 class HolyHazard(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HolyHazard, new AOEShapeCone(24f, 60f.Degrees()), 2);
+class ThunderSlash : Components.SimpleAOEs
+{
+    public ThunderSlash(BossModule module) : base(module, (uint)AID.ThunderSlash, new AOEShapeCone(24f, 30f.Degrees()), 2)
+    {
+        MaxDangerColor = 2;
+    }
+}
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1031, NameID = 13861, PlanLevel = 100)]
 public class Ex4Zelenia(WorldState ws, Actor primary) : BossModule(ws, primary, arenaCenter, DefaultArena)

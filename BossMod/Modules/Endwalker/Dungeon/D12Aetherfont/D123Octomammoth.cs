@@ -30,11 +30,7 @@ public enum AID : uint
 class Wallop(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Wallop, new AOEShapeRect(22f, 4f));
 class VividEyes(BossModule module) : Components.SimpleAOEs(module, (uint)AID.VividEyes, new AOEShapeDonut(20f, 26f));
 class Clearout(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Clearout, new AOEShapeCone(16f, 60f.Degrees()));
-
-abstract class Breath(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(35f, 90f.Degrees()));
-class TidalBreath(BossModule module) : Breath(module, (uint)AID.TidalBreath);
-class Breathstroke(BossModule module) : Breath(module, (uint)AID.Breathstroke);
-
+class TidalBreathBreathstroke(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.TidalBreath, (uint)AID.Breathstroke], new AOEShapeCone(35f, 90f.Degrees()));
 class TidalRoar(BossModule module) : Components.RaidwideCast(module, (uint)AID.TidalRoar);
 class WaterDrop(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.WaterDrop, 6f);
 class SalineSpit(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SalineSpit2, 8f);
@@ -50,9 +46,8 @@ class D123OctomammothStates : StateMachineBuilder
             .ActivateOnEnter<VividEyes>()
             .ActivateOnEnter<WaterDrop>()
             .ActivateOnEnter<TidalRoar>()
-            .ActivateOnEnter<TidalBreath>()
+            .ActivateOnEnter<TidalBreathBreathstroke>()
             .ActivateOnEnter<Telekinesis>()
-            .ActivateOnEnter<Breathstroke>()
             .ActivateOnEnter<SalineSpit>();
     }
 }

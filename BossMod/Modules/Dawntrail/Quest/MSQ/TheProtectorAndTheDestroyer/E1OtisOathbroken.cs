@@ -46,51 +46,16 @@ class RendPower(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Ren
 class BastionBreaker(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.BastionBreaker, 6f);
 class HolyBlade(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.HolyBlade, 6f);
 
-abstract class Circle8(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 8f);
-class SearingSlash(BossModule module) : Circle8(module, (uint)AID.SearingSlash);
-class ThrownFlames(BossModule module) : Circle8(module, (uint)AID.ThrownFlames);
+class SearingSlashThrownFlames(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.SearingSlash, (uint)AID.ThrownFlames], 8f);
 
 class Electrobeam(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Electrobeam, new AOEShapeRect(40f, 2f));
 
-class Rush(BossModule module) : Components.GenericAOEs(module)
+class Rush : Components.SimpleChargeAOEGroups
 {
-    private readonly List<AOEInstance> _aoes = new(8);
-
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public Rush(BossModule module) : base(module, [(uint)AID.Rush], 2.5f, 4)
     {
-        var count = _aoes.Count;
-        if (count == 0)
-            return [];
-        var max = count > 4 ? 4 : count;
-        var aoes = CollectionsMarshal.AsSpan(_aoes);
-        for (var i = 0; i < max; ++i)
-        {
-            ref var aoe = ref aoes[i];
-            if (i < 2)
-            {
-                if (count > 2)
-                    aoe.Color = Colors.Danger;
-                aoe.Risky = true;
-            }
-            else
-                aoe.Risky = false;
-        }
-        return aoes[..max];
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if (spell.Action.ID == (uint)AID.Rush)
-        {
-            var dir = spell.LocXZ - caster.Position;
-            _aoes.Add(new(new AOEShapeRect(dir.Length(), 2.5f), caster.Position, Angle.FromDirection(dir), Module.CastFinishAt(spell)));
-        }
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if (_aoes.Count != 0 && spell.Action.ID == (uint)AID.Rush)
-            _aoes.RemoveAt(0);
+        MaxDangerColor = 2;
+        MaxRisky = 2;
     }
 }
 class SteadfastWill(BossModule module) : Components.SingleTargetCast(module, (uint)AID.SteadfastWill);
@@ -103,9 +68,8 @@ class OtisOathbrokenStates : StateMachineBuilder
             .ActivateOnEnter<StormlitShockwave>()
             .ActivateOnEnter<ValorousAscension>()
             .ActivateOnEnter<RendPower>()
-            .ActivateOnEnter<ThrownFlames>()
+            .ActivateOnEnter<SearingSlashThrownFlames>()
             .ActivateOnEnter<BastionBreaker>()
-            .ActivateOnEnter<SearingSlash>()
             .ActivateOnEnter<Electrobeam>()
             .ActivateOnEnter<SteadfastWill>()
             .ActivateOnEnter<HolyBlade>()

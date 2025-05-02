@@ -48,54 +48,34 @@ public enum AID : uint
     Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
-abstract class CircleLoc6(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
-class Lumisphere(BossModule module) : CircleLoc6(module, (uint)AID.Lumisphere);
-class Tornado(BossModule module) : CircleLoc6(module, (uint)AID.Tornado);
-class RootsOfAtopy(BossModule module) : CircleLoc6(module, (uint)AID.RootsOfAtopy);
-class RottenSpores(BossModule module) : CircleLoc6(module, (uint)AID.RottenSpores);
-
+class LumisphereTornadoRootsOfAtopyRottenSpores(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.Lumisphere, (uint)AID.Tornado, (uint)AID.RootsOfAtopy, (uint)AID.RottenSpores], 6f);
 class AetherialBlast(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AetherialBlast, new AOEShapeRect(20f, 2f));
 class SerratedSpin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SerratedSpin, 8f);
 class SyrupSpout(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SyrupSpout, new AOEShapeCone(10f, 60f.Degrees()));
 class SpinningAttack(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpinningAttack, new AOEShapeRect(10f, 2f));
 class OdiousAir(BossModule module) : Components.SimpleAOEs(module, (uint)AID.OdiousAir, new AOEShapeCone(12f, 60f.Degrees()));
-
-abstract class Wingblade(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(8f, 90f.Degrees()));
-class LeftWingblade(BossModule module) : Wingblade(module, (uint)AID.LeftWingblade);
-class RightWingblade(BossModule module) : Wingblade(module, (uint)AID.RightWingblade);
+class Wingblade(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.LeftWingblade, (uint)AID.RightWingblade], new AOEShapeCone(8f, 90f.Degrees()));
 
 class Spin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spin, 11f);
 
-abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 7f);
 
 class Room4States : StateMachineBuilder
 {
     public Room4States(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Lumisphere>()
+            .ActivateOnEnter<LumisphereTornadoRootsOfAtopyRottenSpores>()
             .ActivateOnEnter<AetherialBlast>()
             .ActivateOnEnter<SerratedSpin>()
-            .ActivateOnEnter<RootsOfAtopy>()
+            .ActivateOnEnter<Wingblade>()
             .ActivateOnEnter<SyrupSpout>()
             .ActivateOnEnter<SpinningAttack>()
-            .ActivateOnEnter<Tornado>()
-            .ActivateOnEnter<LeftWingblade>()
-            .ActivateOnEnter<RightWingblade>()
             .ActivateOnEnter<OdiousAir>()
             .ActivateOnEnter<Spin>()
-            .ActivateOnEnter<RottenSpores>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.PrimaryActor.IsDestroyed || module.PrimaryActor.EventState == 7;
+            .ActivateOnEnter<MandragoraAOEs>()
+            .Raw.Update = () => module.PrimaryActor.IsDestroyed || module.PrimaryActor.EventState == 7u;
     }
 }
 

@@ -12,7 +12,7 @@ class WavelengthAlphaBeta(BossModule module) : BossComponent(module)
         {
             ref readonly var player = ref expirationBySlot[slot];
 
-            bool? inRisk = null;
+            var inRisk = false;
             if (player != default)
                 hints.Add($"Order: {player.Order} -", false);
             for (var i = 0; i < 8; ++i)
@@ -33,7 +33,7 @@ class WavelengthAlphaBeta(BossModule module) : BossComponent(module)
                         inRisk = true;
                 }
             }
-            if (inRisk != null)
+            if (inRisk)
                 hints.Add($"GTFO from incorrect stacks!");
         }
     }
@@ -60,27 +60,25 @@ class WavelengthAlphaBeta(BossModule module) : BossComponent(module)
     {
         if (numCasts == 8)
         {
-            ref readonly var player = ref expirationBySlot[pcSlot].Order;
+            var player = expirationBySlot[pcSlot].Order;
             for (var i = 0; i < 8; ++i)
             {
-                ref readonly var exp = ref expirationBySlot[i];
+                var exp = expirationBySlot[i];
                 if (exp == default || pcSlot == i)
                     continue;
                 var remaining = Math.Max(0d, (exp.Expiration - WorldState.CurrentTime).TotalSeconds) < 5d;
-                var partner = exp.Actor;
                 if (!remaining)
                     continue;
-                Arena.AddCircle(partner.Position, 2f, exp.Order == player ? Colors.Safe : default);
+                Arena.AddCircle(exp.Actor.Position, 2f, exp.Order == player ? Colors.Safe : default);
             }
         }
     }
+
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
         if (status.ID is (uint)SID.WavelengthAlpha or (uint)SID.WavelengthBeta)
         {
             var slot = WorldState.Party.FindSlot(actor.InstanceID);
-            if (slot < 0)
-                return;
             if (firstActivation == default)
                 firstActivation = WorldState.FutureTime(27.5d);
             var order = (status.ExpireAt - firstActivation).TotalSeconds switch
@@ -99,8 +97,6 @@ class WavelengthAlphaBeta(BossModule module) : BossComponent(module)
         if (status.ID is (uint)SID.WavelengthAlpha or (uint)SID.WavelengthBeta)
         {
             var slot = WorldState.Party.FindSlot(actor.InstanceID);
-            if (slot < 0)
-                return;
             expirationBySlot[slot] = default;
         }
     }

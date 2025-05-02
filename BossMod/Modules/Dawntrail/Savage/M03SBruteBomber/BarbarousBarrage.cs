@@ -1,6 +1,4 @@
-﻿using BossMod.Shadowbringers.Foray.CriticalEngagement.CE14VigilForLost;
-
-namespace BossMod.Dawntrail.Savage.M03SBruteBomber;
+﻿namespace BossMod.Dawntrail.Savage.M03SBruteBomber;
 
 class BarbarousBarrageTowers(BossModule module) : Components.GenericTowers(module)
 {
@@ -23,8 +21,8 @@ class BarbarousBarrageTowers(BossModule module) : Components.GenericTowers(modul
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (CurState == State.None && index is 14 or 15)
-            SetState(index == 14 ? State.NextNS : State.NextEW, 4, 10.1f);
+        if (CurState == State.None && index is 0x0E or 0x0F)
+            SetState(index == 0x0Eu ? State.NextNS : State.NextEW, 4, 10.1f);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -141,8 +139,8 @@ class BarbarousBarrageLariatCombo(BossModule module) : Components.GenericAOEs(mo
             var offset = 0.6667f * (to - from);
             var dir1 = Angle.FromDirection(offset);
             var dir2 = dir1 + 180.Degrees();
-            _aoes.Add(new(_shape, from - offset + 12 * (dir1 + off1).ToDirection(), dir1, Module.CastFinishAt(spell, 1.2f)));
-            _aoes.Add(new(_shape, to + offset + 12 * (dir2 + off2).ToDirection(), dir2, Module.CastFinishAt(spell, 5.6f)));
+            _aoes.Add(new(_shape, from - offset + 12f * (dir1 + off1).ToDirection(), dir1, Module.CastFinishAt(spell, 1.2f)));
+            _aoes.Add(new(_shape, to + offset + 12f * (dir2 + off2).ToDirection(), dir2, Module.CastFinishAt(spell, 5.6f)));
         }
     }
 

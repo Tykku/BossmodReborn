@@ -134,61 +134,9 @@ class RollingThunder : Components.SimpleAOEs
 class RoaringBolt(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RoaringBolt, 6f);
 class UntamedCurrentSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.UntamedCurrentSpread, 5f);
 class UntamedCurrentStack(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.UntamedCurrentStack, 6f, 5, 5);
-
-class UntamedCurrentAOEs(BossModule module) : Components.GenericAOEs(module)
-{
-    private readonly List<AOEInstance> _aoes = new(11);
-    private static readonly AOEShapeCircle circle = new(5f);
-
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        switch (spell.Action.ID)
-        {
-            case (uint)AID.UntamedCurrentAOE1:
-            case (uint)AID.UntamedCurrentAOE2:
-            case (uint)AID.UntamedCurrentAOE3:
-            case (uint)AID.UntamedCurrentAOE4:
-            case (uint)AID.UntamedCurrentAOE5:
-            case (uint)AID.UntamedCurrentAOE6:
-            case (uint)AID.UntamedCurrentAOE7:
-            case (uint)AID.UntamedCurrentAOE8:
-            case (uint)AID.UntamedCurrentAOE9:
-            case (uint)AID.UntamedCurrentAOE10:
-                _aoes.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
-                break;
-        }
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        var count = _aoes.Count;
-        if (count != 0)
-            switch (spell.Action.ID)
-            {
-                case (uint)AID.UntamedCurrentAOE1:
-                case (uint)AID.UntamedCurrentAOE2:
-                case (uint)AID.UntamedCurrentAOE3:
-                case (uint)AID.UntamedCurrentAOE4:
-                case (uint)AID.UntamedCurrentAOE5:
-                case (uint)AID.UntamedCurrentAOE6:
-                case (uint)AID.UntamedCurrentAOE7:
-                case (uint)AID.UntamedCurrentAOE8:
-                case (uint)AID.UntamedCurrentAOE9:
-                case (uint)AID.UntamedCurrentAOE10:
-                    for (var i = 0; i < count; ++i)
-                    {
-                        if (_aoes[i].ActorID == caster.InstanceID)
-                        {
-                            _aoes.RemoveAt(i);
-                            break;
-                        }
-                    }
-                    break;
-            }
-    }
-}
+class UntamedCurrentAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.UntamedCurrentAOE1, (uint)AID.UntamedCurrentAOE2, (uint)AID.UntamedCurrentAOE3,
+(uint)AID.UntamedCurrentAOE4, (uint)AID.UntamedCurrentAOE5, (uint)AID.UntamedCurrentAOE6, (uint)AID.UntamedCurrentAOE7,
+(uint)AID.UntamedCurrentAOE8, (uint)AID.UntamedCurrentAOE9, (uint)AID.UntamedCurrentAOE10], 5f);
 
 class GwyddrudStates : StateMachineBuilder
 {

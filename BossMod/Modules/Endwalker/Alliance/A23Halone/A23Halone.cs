@@ -2,7 +2,7 @@
 
 class RainOfSpearsFirst(BossModule module) : Components.CastCounter(module, (uint)AID.RainOfSpearsFirst);
 class RainOfSpearsRest(BossModule module) : Components.CastCounter(module, (uint)AID.RainOfSpearsRest);
-class SpearsThree(BossModule module) : Components.BaitAwayCast(module, (uint)AID.SpearsThreeAOE, new AOEShapeCircle(5f), true);
+class SpearsThree(BossModule module) : Components.BaitAwayCast(module, (uint)AID.SpearsThreeAOE, 5f);
 class WrathOfHalone(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WrathOfHaloneAOE, 25f); // TODO: verify falloff
 class GlacialSpearSmall(BossModule module) : Components.Adds(module, (uint)OID.GlacialSpearSmall);
 class GlacialSpearLarge(BossModule module) : Components.Adds(module, (uint)OID.GlacialSpearLarge);

@@ -19,7 +19,7 @@ class BogBequest(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Bo
 class FeculentFlood(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FeculentFlood, new AOEShapeCone(40f, 30f.Degrees()));
 class RoyalFlush(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RoyalFlush, 8f);
 
-class GravityForce(BossModule module) : Components.BaitAwayCast(module, (uint)AID.GravityForce, new AOEShapeCircle(6f), true)
+class GravityForce(BossModule module) : Components.BaitAwayCast(module, (uint)AID.GravityForce, 6f)
 {
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {

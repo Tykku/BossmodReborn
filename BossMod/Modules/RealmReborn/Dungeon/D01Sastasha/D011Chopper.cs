@@ -3,7 +3,7 @@
 public enum OID : uint
 {
     // Boss
-    Boss = 0x19B, // Chopper
+    Boss = 0x19B // Chopper
 }
 
 public enum AID : uint

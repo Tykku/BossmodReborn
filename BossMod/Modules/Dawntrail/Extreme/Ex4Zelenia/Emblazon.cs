@@ -12,7 +12,7 @@ class Emblazon(BossModule module) : Components.GenericTowers(module, (uint)AID.E
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index == 0x2F && state == 0x00020001u)
+        if (index == 0x2Fu && state == 0x00020001u)
         {
             pattern = true;
         }

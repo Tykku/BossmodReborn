@@ -719,9 +719,7 @@ class UWUStates : StateMachineBuilder
             .ActivateOnEnter<P1GreatWhirlwind>(); // cast starts ~0.2s after last eruption ends
         ComponentCondition<P1FeatherRain>(id + 0x61, 0.5f, comp => comp.NumCasts > 0); // second set should still be predicted
         ComponentCondition<P1GreatWhirlwind>(id + 0x62, 1.5f, comp => comp.NumCasts > 0)
-            .ActivateOnEnter<P5AetherochemicalLaserCenter>()
-            .ActivateOnEnter<P5AetherochemicalLaserRight>()
-            .ActivateOnEnter<P5AetherochemicalLaserLeft>()
+            .ActivateOnEnter<P5AetherochemicalLaser>()
             .DeactivateOnExit<P1GreatWhirlwind>();
         ComponentCondition<P1FeatherRain>(id + 0x63, 0.5f, comp => !comp.CastsPredicted && !comp.CastsActive)
             .DeactivateOnExit<P1FeatherRain>();
@@ -736,9 +734,7 @@ class UWUStates : StateMachineBuilder
             .ActivateOnEnter<P1Mesohigh>(); // mesohigh tether appears ~0.1s before cast start
         ActorCastEnd(id + 0x81, _module.Ultima, 3, true, "Laser 3")
             .ActivateOnEnter<P5FlamingCrush>() // icon appears ~0.7s after cast start
-            .DeactivateOnExit<P5AetherochemicalLaserCenter>()
-            .DeactivateOnExit<P5AetherochemicalLaserRight>()
-            .DeactivateOnExit<P5AetherochemicalLaserLeft>();
+            .DeactivateOnExit<P5AetherochemicalLaser>();
         ComponentCondition<Landslide>(id + 0x82, 1.3f, comp => !comp.CastsActive)
             .DeactivateOnExit<Landslide>();
         ComponentCondition<P1Mesohigh>(id + 0x83, 0.7f, comp => comp.NumCasts > 0, "Mesohigh")

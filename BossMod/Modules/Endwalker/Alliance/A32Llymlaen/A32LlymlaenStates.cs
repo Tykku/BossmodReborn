@@ -69,10 +69,8 @@ class A32LlymlaenStates : StateMachineBuilder
     private void LeftRightStrait(uint id, float delay)
     {
         CastMulti(id, [(uint)AID.LeftStrait, (uint)AID.RightStrait], delay, 6, "Side")
-            .ActivateOnEnter<LeftStrait>()
-            .ActivateOnEnter<RightStrait>()
-            .DeactivateOnExit<LeftStrait>()
-            .DeactivateOnExit<RightStrait>();
+            .ActivateOnEnter<Strait>()
+            .DeactivateOnExit<Strait>();
     }
 
     private void NavigatorsTridentNormal(uint id, float delay)
@@ -109,16 +107,14 @@ class A32LlymlaenStates : StateMachineBuilder
         ComponentCondition<SurgingWaveFrothingSea>(id + 0x20, 6.2f, comp => comp.NumCasts > 0);
         CastStartMulti(id + 0x30, [(uint)AID.LeftStrait, (uint)AID.RightStrait], 7.8f);
         ComponentCondition<SurgingWaveFrothingSea>(id + 0x40, 3.9f, comp => comp.NumCasts > 12)
-            .ActivateOnEnter<LeftStrait>()
-            .ActivateOnEnter<RightStrait>();
+            .ActivateOnEnter<Strait>();
         ComponentCondition<SurgingWaveCorridor>(id + 0x50, 0.5f, comp => comp.CorridorDir == default)
             .DeactivateOnExit<SurgingWaveSeaFoam>()
             .DeactivateOnExit<SurgingWaveCorridor>()
             .DeactivateOnExit<SurgingWaveFrothingSea>()
             .OnExit(() => (Module.Arena.Center, Module.Arena.Bounds) = (A32Llymlaen.DefaultCenter, A32Llymlaen.DefaultBounds));
         CastEnd(id + 0x60, 1.6f, "Side")
-            .DeactivateOnExit<LeftStrait>()
-            .DeactivateOnExit<RightStrait>();
+            .DeactivateOnExit<Strait>();
     }
 
     private void DeepDiveNormal(uint id, float delay)
@@ -166,12 +162,10 @@ class A32LlymlaenStates : StateMachineBuilder
         ComponentCondition<SerpentsTide>(id + 0x100, 3.1f, comp => comp.AOEs.Count > 0);
         CastStartMulti(id + 0x110, [(uint)AID.LeftStrait, (uint)AID.RightStrait], 7);
         ComponentCondition<SerpentsTide>(id + 0x120, 1.2f, comp => comp.AOEs.Count == 0, "Lines 2")
-            .ActivateOnEnter<LeftStrait>()
-            .ActivateOnEnter<RightStrait>();
+            .ActivateOnEnter<Strait>();
         ComponentCondition<SerpentsTide>(id + 0x130, 2.8f, comp => comp.AOEs.Count > 0);
         CastEnd(id + 0x140, 2, "Side")
-            .DeactivateOnExit<LeftStrait>()
-            .DeactivateOnExit<RightStrait>();
+            .DeactivateOnExit<Strait>();
         ComponentCondition<SerpentsTide>(id + 0x150, 6.2f, comp => comp.AOEs.Count == 0, "Lines 3")
             .DeactivateOnExit<SerpentsTide>();
 
@@ -232,14 +226,12 @@ class A32LlymlaenStates : StateMachineBuilder
             .DeactivateOnExit<ToTheLast>();
         CastStartMulti(id + 0x60, [(uint)AID.LeftStrait, (uint)AID.RightStrait], 1.4f);
         ComponentCondition<SurgingWaveCorridor>(id + 0x70, 4.0f, comp => comp.CorridorDir == default)
-            .ActivateOnEnter<LeftStrait>()
-            .ActivateOnEnter<RightStrait>()
+            .ActivateOnEnter<Strait>()
             .DeactivateOnExit<SurgingWaveCorridor>()
             .DeactivateOnExit<SurgingWaveFrothingSea>()
             .OnExit(() => (Module.Arena.Center, Module.Arena.Bounds) = (A32Llymlaen.DefaultCenter, A32Llymlaen.DefaultBounds));
         CastEnd(id + 0x80, 2.0f, "Side")
-            .DeactivateOnExit<LeftStrait>()
-            .DeactivateOnExit<RightStrait>();
+            .DeactivateOnExit<Strait>();
     }
 
     private void DeepDiveHardWater(uint id, float delay)

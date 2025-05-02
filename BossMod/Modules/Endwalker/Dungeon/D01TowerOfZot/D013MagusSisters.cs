@@ -91,49 +91,7 @@ class Dhrupad(BossModule module) : BossComponent(module)
 
 class ManusyaBio(BossModule module) : Components.SingleTargetCast(module, (uint)AID.ManusyaBio, "Tankbuster + cleansable poison");
 
-class Poison(BossModule module) : BossComponent(module)
-{
-    private readonly List<Actor> _poisoned = [];
-
-    public override void OnStatusGain(Actor actor, ActorStatus status)
-    {
-        if (status.ID == (uint)SID.Poison)
-            _poisoned.Add(actor);
-    }
-
-    public override void OnStatusLose(Actor actor, ActorStatus status)
-    {
-        if (status.ID == (uint)SID.Poison)
-            _poisoned.Remove(actor);
-    }
-
-    public override void AddHints(int slot, Actor actor, TextHints hints)
-    {
-        if (_poisoned.Count != 0)
-            if (_poisoned.Contains(actor))
-            {
-                if (!(actor.Role == Role.Healer || actor.Class == Class.BRD)) // in practice only the tank can ge poisoned, this is just in here incase of bad tanks
-                    hints.Add("You were poisoned! Get cleansed fast.");
-                else if (actor.Role == Role.Healer || actor.Class == Class.BRD)
-                    hints.Add("Cleanse yourself! (Poison).");
-            }
-            else if (actor.Role == Role.Healer || actor.Class == Class.BRD)
-                foreach (var c in _poisoned)
-                    hints.Add($"Cleanse {c.Name} (Poison)");
-    }
-
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        if (_poisoned.Count != 0)
-            foreach (var c in _poisoned)
-            {
-                if (actor.Role == Role.Healer)
-                    hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Esuna), c, ActionQueue.Priority.High, castTime: 1);
-                else if (actor.Class == Class.BRD)
-                    hints.ActionsToExecute.Push(ActionID.MakeSpell(BRD.AID.WardensPaean), c, ActionQueue.Priority.High);
-            }
-    }
-}
+class Poison(BossModule module) : Components.CleansableDebuff(module, (uint)SID.Poison, "Poison", "poisoned");
 
 class IsitvaSiddhi(BossModule module) : Components.SingleTargetCast(module, (uint)AID.IsitvaSiddhi);
 class Samsara(BossModule module) : Components.RaidwideCast(module, (uint)AID.Samsara);
@@ -203,8 +161,8 @@ class D013MagusSistersStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 783, NameID = 10265)]
-class D013MagusSisters(WorldState ws, Actor primary) : BossModule(ws, primary, new(-27.5f, -49.5f), new ArenaBoundsCircle(20))
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 783, NameID = 10265)]
+class D013MagusSisters(WorldState ws, Actor primary) : BossModule(ws, primary, new(-27.5f, -49.5f), new ArenaBoundsCircle(20f))
 {
     public static readonly uint[] Bosses = [(uint)OID.Boss, (uint)OID.Sanduruva, (uint)OID.Minduruva];
     protected override void DrawEnemies(int pcSlot, Actor pc)
@@ -217,10 +175,10 @@ class D013MagusSisters(WorldState ws, Actor primary) : BossModule(ws, primary, n
         for (var i = 0; i < hints.PotentialTargets.Count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = (OID)e.Actor.OID switch
+            e.Priority = e.Actor.OID switch
             {
-                OID.Boss => 2,
-                OID.Minduruva => 1,
+                (uint)OID.Boss => 2,
+                (uint)OID.Minduruva => 1,
                 _ => 0
             };
         }

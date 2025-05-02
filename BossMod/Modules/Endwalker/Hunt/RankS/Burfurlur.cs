@@ -8,6 +8,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     Trolling = 27316, // Boss->self, no cast, range 10 circle
     QuintupleInhale1 = 27307, // Boss->self, 4.0s cast, range 27 120-degree cone
     QuintupleInhale24 = 27308, // Boss->self, 0.5s cast, range 27 120-degree cone
@@ -33,10 +34,10 @@ class QuintupleSneeze(BossModule module) : Components.GenericAOEs(module)
         {
             var count = _pendingOffsets.Count;
             var max = count > 2 ? 2 : count;
-            var aoes = new AOEInstance[2];
+            var aoes = new AOEInstance[max];
             for (var i = 0; i < max; ++i)
             {
-                aoes[i] = new(_shape, Module.PrimaryActor.Position, _referenceAngle + _pendingOffsets[i], i == 0 ? _nextSneeze : _nextSneeze.AddSeconds(2.2d), count > 1 && i == 0 ? Colors.Danger : 0);
+                aoes[i] = new(_shape, Module.PrimaryActor.Position, _referenceAngle + _pendingOffsets[i], i == 0 ? _nextSneeze : _nextSneeze.AddSeconds(2.2d), count > 1 && i == 0 ? Colors.Danger : default);
             }
             return aoes;
         }

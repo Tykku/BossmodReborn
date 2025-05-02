@@ -64,10 +64,7 @@ class Electrowave(BossModule module) : Components.RaidwideCast(module, (uint)AID
 class Disassembly(BossModule module) : Components.RaidwideCast(module, (uint)AID.Disassembly);
 class CentralizedCurrent(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CentralizedCurrent, new AOEShapeRect(90f, 7.5f));
 
-abstract class SplitCurrent(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(90f, 12.5f));
-class SplitCurrent1(BossModule module) : SplitCurrent(module, (uint)AID.SplitCurrent1);
-class SplitCurrent2(BossModule module) : SplitCurrent(module, (uint)AID.SplitCurrent2);
-
+class SplitCurrent(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.SplitCurrent1, (uint)AID.SplitCurrent2], new AOEShapeRect(90f, 12.5f));
 class SupercellMatrix1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SupercellMatrix1, new AOEShapeTriCone(40f, 45.Degrees()));
 class SupercellMatrix2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SupercellMatrix2, new AOEShapeRect(55f, 4f));
 class StaticSpark(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.StaticSpark, 6f);
@@ -110,8 +107,7 @@ class D062AmalgamStates : StateMachineBuilder
             .ActivateOnEnter<Electrowave>()
             .ActivateOnEnter<Disassembly>()
             .ActivateOnEnter<CentralizedCurrent>()
-            .ActivateOnEnter<SplitCurrent1>()
-            .ActivateOnEnter<SplitCurrent2>()
+            .ActivateOnEnter<SplitCurrent>()
             .ActivateOnEnter<SupercellMatrix1>()
             .ActivateOnEnter<SupercellMatrix2>()
             .ActivateOnEnter<StaticSpark>()
@@ -125,7 +121,7 @@ class D062AmalgamStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS), erdelf", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 827, NameID = 12864)]
 public class D062Amalgam(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, StartingBounds)
 {
-    public static readonly WPos ArenaCenter = new(-533, -373);
-    public static readonly ArenaBoundsSquare StartingBounds = new(23);
-    public static readonly ArenaBoundsSquare DefaultBounds = new(20);
+    public static readonly WPos ArenaCenter = new(-533f, -373f);
+    public static readonly ArenaBoundsSquare StartingBounds = new(23f);
+    public static readonly ArenaBoundsSquare DefaultBounds = new(20f);
 }

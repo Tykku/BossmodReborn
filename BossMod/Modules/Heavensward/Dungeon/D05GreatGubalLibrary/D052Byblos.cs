@@ -81,7 +81,7 @@ class Tomewind(BossModule module) : Components.Voidzone(module, 3f, GetVoidzones
 
 class TailSmash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TailSmash, new AOEShapeCone(12f, 45f.Degrees()));
 
-class Bibliocide(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(0), (uint)TetherID.WhaleOil, activationDelay: 5f)
+class Bibliocide(BossModule module) : Components.BaitAwayTethers(module, 0f, (uint)TetherID.WhaleOil, activationDelay: 5f)
 {
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {

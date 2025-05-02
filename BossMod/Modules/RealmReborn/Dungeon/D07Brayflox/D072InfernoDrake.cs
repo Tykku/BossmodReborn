@@ -5,8 +5,8 @@ public enum OID : uint
     // Boss
     Boss = 0x3DE, // Inferno Drake
 
-    // Adds
-    TemplestBiast = 0x3DF, // Templest Biast
+    // Trash
+    TemplestBiast = 0x3DF // Templest Biast
 }
 
 public enum AID : uint

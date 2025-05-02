@@ -124,10 +124,7 @@ class Fractures(BossModule module) : Components.DirectionalParry(module, [(uint)
 
 class SteelhogsRevenge(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SteelhogsRevenge, 12f);
 class RuthlessBombardment1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RuthlessBombardment1, 8f);
-
-abstract class Bombardment(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 4f);
-class RuthlessBombardment2(BossModule module) : Bombardment(module, (uint)AID.RuthlessBombardment2);
-class AreaBombardment(BossModule module) : Bombardment(module, (uint)AID.AreaBombardment);
+class Bombardment(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.RuthlessBombardment2, (uint)AID.AreaBombardment], 4f);
 
 class RagingArtillery(BossModule module) : Components.RaidwideCast(module, (uint)AID.RagingArtilleryFirst);
 class MagitekCannon(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.MagitekCannon, 6f);
@@ -211,52 +208,8 @@ class NeedleGunOilShower(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class HeavySurfaceMissiles(BossModule module) : Components.GenericAOEs(module)
-{
-    private readonly List<AOEInstance> _aoes = [];
-    private static readonly AOEShapeCircle circle = new(14);
-
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        var count = _aoes.Count;
-        if (count == 0)
-            return [];
-        var max = count > 2 ? 2 : count;
-        var aoes = new AOEInstance[max];
-        for (var i = 0; i < max; ++i)
-            aoes[i] = _aoes[i];
-        return aoes;
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        switch (spell.Action.ID)
-        {
-            case (uint)AID.HeavySurfaceMissiles1:
-            case (uint)AID.HeavySurfaceMissiles2:
-            case (uint)AID.HeavySurfaceMissiles3:
-            case (uint)AID.HeavySurfaceMissiles4:
-                _aoes.Add(new(circle, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
-                if (_aoes.Count > 1)
-                    _aoes.SortBy(x => x.Activation);
-                break;
-        }
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if (_aoes.Count != 0)
-            switch (spell.Action.ID)
-            {
-                case (uint)AID.HeavySurfaceMissiles1:
-                case (uint)AID.HeavySurfaceMissiles2:
-                case (uint)AID.HeavySurfaceMissiles3:
-                case (uint)AID.HeavySurfaceMissiles4:
-                    _aoes.RemoveAt(0);
-                    break;
-            }
-    }
-}
+class HeavySurfaceMissiles(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.HeavySurfaceMissiles1, (uint)AID.HeavySurfaceMissiles2,
+(uint)AID.HeavySurfaceMissiles3, (uint)AID.HeavySurfaceMissiles4], 14f, 2, 8);
 
 class HomingLaser(BossModule module) : Components.GenericBaitAway(module)
 {
@@ -282,8 +235,7 @@ class TheMightiestShieldStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<Fractures>()
             .ActivateOnEnter<RuthlessBombardment1>()
-            .ActivateOnEnter<RuthlessBombardment2>()
-            .ActivateOnEnter<AreaBombardment>()
+            .ActivateOnEnter<Bombardment>()
             .ActivateOnEnter<RagingArtillery>()
             .ActivateOnEnter<MagitekCannon>()
             .ActivateOnEnter<NeedleGunOilShower>()

@@ -177,9 +177,10 @@ public sealed class AIHints
         }
     }
 
-    public void SetPriority(Actor actor, int priority)
+    public void SetPriority(Actor? actor, int priority)
     {
-        if (FindEnemy(actor) is { } enemy)
+        var enemy = FindEnemy(actor);
+        if (enemy != null)
             enemy.Priority = priority;
     }
 

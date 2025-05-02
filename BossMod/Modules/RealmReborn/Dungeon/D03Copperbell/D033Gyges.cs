@@ -3,7 +3,7 @@
 public enum OID : uint
 {
     Boss = 0x38C9,
-    Helper = 0x233C, // x5
+    Helper = 0x233C // x5
 }
 
 public enum AID : uint
@@ -13,7 +13,7 @@ public enum AID : uint
     GiganticSmash = 28760, // Boss->location, 6.0s cast, range 10 aoe
     GiganticBlast = 28761, // Helper->self, 6.0s cast, range 8 aoe
     GrandSlam = 28764, // Boss->player, 5.0s cast, tankbuster
-    ColossalSlam = 28763, // Boss->self, 4.0s cast, range 40 60-degree cone aoe
+    ColossalSlam = 28763 // Boss->self, 4.0s cast, range 40 60-degree cone aoe
 }
 
 class GiganticSwing(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GiganticSwing, new AOEShapeDonut(4, 40));

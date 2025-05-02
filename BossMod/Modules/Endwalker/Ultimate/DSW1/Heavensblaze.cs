@@ -3,7 +3,7 @@
 // TODO: consider adding invuln hint for tether tank?..
 class HolyShieldBash : Components.BaitAwayTethers
 {
-    public HolyShieldBash(BossModule module) : base(module, new AOEShapeRect(80, 4), (uint)TetherID.HolyBladedance, (uint)AID.HolyShieldBash)
+    public HolyShieldBash(BossModule module) : base(module, new AOEShapeRect(80f, 4f), (uint)TetherID.HolyBladedance, (uint)AID.HolyShieldBash)
     {
         BaiterPriority = PlayerPriority.Danger;
         // TODO: consider selecting specific tank rather than any
@@ -16,8 +16,8 @@ class HolyBladedance(BossModule module) : Components.GenericBaitAway(module, (ui
 {
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.HolyShieldBash && WorldState.Actors.Find(spell.MainTargetID) is var target && target != null)
-            CurrentBaits.Add(new(caster, target, new AOEShapeCone(16, 45.Degrees())));
+        if (spell.Action.ID == (uint)AID.HolyShieldBash && WorldState.Actors.Find(spell.MainTargetID) is var target && target != null)
+            CurrentBaits.Add(new(caster, target, new AOEShapeCone(16f, 45f.Degrees())));
     }
 }
 
@@ -26,7 +26,7 @@ class Heavensblaze(BossModule module) : Components.StackWithCastTargets(module, 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         // bladedance target shouldn't stack
-        if ((AID)spell.Action.ID == AID.HolyShieldBash)
+        if (spell.Action.ID == (uint)AID.HolyShieldBash)
             foreach (ref var s in Stacks.AsSpan())
                 s.ForbiddenPlayers.Set(Raid.FindSlot(spell.MainTargetID));
     }

@@ -5,7 +5,7 @@ public enum OID : uint
     // Boss
     Boss = 0x1AB, // Hellbender
 
-    //Aiatar
+    // Aiatar
     Aiatar = 0x1AD, // Aiatar
 
     // Trash
@@ -28,7 +28,7 @@ public enum AID : uint
 
 public enum SID : uint
 {
-    Bind = 280, // none->player, extra = 0x0
+    Bind = 280 // none->player, extra = 0x0
 }
 
 class BogBubble(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BogBubble, 6);

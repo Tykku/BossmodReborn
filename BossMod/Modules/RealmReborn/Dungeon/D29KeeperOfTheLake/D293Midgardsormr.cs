@@ -35,7 +35,7 @@ public enum AID : uint
     AnimadversionEnrage = 29282, // Boss->self, 7.0s cast, range 50 circle
     AkhMornFirst = 29283, // Boss->players, 5.0s cast, range 6 circle
     AkhMornRest = 29284, // Boss->players, no cast, range 6 circle
-    Condescension = 29602, // Boss->player, 5.0s cast, single-target
+    Condescension = 29602 // Boss->player, 5.0s cast, single-target
 }
 
 abstract class TurmoilInner(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 22f);

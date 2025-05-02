@@ -1,9 +1,8 @@
-﻿namespace BossMod.RealmReborn.Dungeon.D02Deepcroft.D021VoidSoulcounter;
+﻿namespace BossMod.RealmReborn.Dungeon.D02TamTaraDeepcroft.D021VoidSoulcounter;
 
 public enum OID : uint
 {
-    // Boss
-    Boss = 0x237, // Void Soulcounter
+    Boss = 0x237 //  // R1.0
 }
 
 public enum AID : uint
@@ -12,10 +11,11 @@ public enum AID : uint
     AutoAttack = 870, // Boss->player, no cast
     Enthunder = 430, // Boss->self, 1.5s cast, single target
     DarkOrbs = 911, // Boss->player, no cast, single target
-    Condemnation = 912, // Boss->self, 2.5s cast, range 7 90-degree cone aoe
+    Condemnation = 912 // Boss->self, 2.5s cast, range 6+R (7) 90-degree cone aoe
 }
 
 class Condemnation(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Condemnation, new AOEShapeCone(7f, 45f.Degrees()));
+
 class D021VoidSoulcounterStates : StateMachineBuilder
 {
     public D021VoidSoulcounterStates(BossModule module) : base(module)
@@ -25,7 +25,7 @@ class D021VoidSoulcounterStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "Chuggalo", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 2, NameID = 455)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Chuggalo", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 2, NameID = 455)]
 public class D021VoidSoulcounter(WorldState ws, Actor primary) : BossModule(ws, primary, IsFirstArena(primary) ? FirstArena.Center : (IsSecondArena(primary) ? SecondArena.Center : ThirdArena.Center), IsFirstArena(primary) ? FirstArena : (IsSecondArena(primary) ? SecondArena : ThirdArena))
 {
     private static bool IsFirstArena(Actor primary) => primary.Position.X > -10f;
@@ -46,7 +46,6 @@ public class D021VoidSoulcounter(WorldState ws, Actor primary) : BossModule(ws, 
     new(3.78f, -23.25f), new(4.20f, -22.82f), new(4.71f, -22.62f), new(5.30f, -22.88f), new(5.68f, -23.31f),
     new(5.73f, -23.95f), new(6.21f, -24.17f), new(6.84f, -24.22f), new(7.03f, -24.71f), new(6.90f, -25.35f),
     new(7.04f, -25.87f)];
-    // Centroid of the polygon is at: (2.259f, -16.652f)
 
     // Second encounter
     private static readonly WPos[] second = [new(-22.10f, 13.07f), new(-20.07f, 13.40f), new(-19.40f, 13.60f), new(-18.17f, 14.18f), new(-17.69f, 14.68f),
@@ -64,7 +63,6 @@ public class D021VoidSoulcounter(WorldState ws, Actor primary) : BossModule(ws, 
     new(-22.20f, 34.55f), new(-22.77f, 34.31f), new(-30.55f, 23.18f), new(-30.75f, 22.54f), new(-30.87f, 21.21f),
     new(-30.50f, 19.26f), new(-30.31f, 18.64f), new(-28.87f, 16.24f), new(-26.85f, 14.46f), new(-25.01f, 13.51f),
     new(-24.30f, 13.33f), new(-22.34f, 13.05f)];
-    // Centroid of the polygon is at: (-16.273f, 28.114f)
 
     // Third encounter
     private static readonly WPos[] third = [new(-116.51f, -13.11f), new(-116.08f, -12.64f), new(-115.75f, -12.02f), new(-115.66f, -11.33f), new(-114.97f, -7.20f),
@@ -98,7 +96,6 @@ public class D021VoidSoulcounter(WorldState ws, Actor primary) : BossModule(ws, 
     new(-121.65f, -3.40f), new(-122.24f, -6.02f), new(-122.19f, -8.02f), new(-122.08f, -8.62f), new(-122.07f, -9.30f),
     new(-122.13f, -9.96f), new(-122.55f, -10.35f), new(-123.56f, -11.09f), new(-124.11f, -11.69f), new(-122.27f, -12.03f),
     new(-120.90f, -11.97f), new(-117.18f, -13.23f), new(-116.51f, -13.11f)];
-    // Centroid of the polygon is at: (-102.047f, 15.699f)
 
     public static readonly ArenaBoundsComplex FirstArena = new([new PolygonCustom(first)]);
     public static readonly ArenaBoundsComplex SecondArena = new([new PolygonCustom(second)]);

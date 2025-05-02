@@ -16,15 +16,13 @@ class M08NHowlingBladeStates : StateMachineBuilder
             .ActivateOnEnter<WolvesReignCone>()
             .ActivateOnEnter<WolvesReignCircle>()
             .ActivateOnEnter<MoonbeamsBite>()
-            .ActivateOnEnter<Shadowchase1>()
-            .ActivateOnEnter<Shadowchase2>()
+            .ActivateOnEnter<RoaringWindShadowchase>()
             .ActivateOnEnter<TargetedQuake>()
             .ActivateOnEnter<FangedCharge>()
             .ActivateOnEnter<TerrestrialTitans>()
             .ActivateOnEnter<Towerfall>()
             .ActivateOnEnter<TrackingTremors>()
             .ActivateOnEnter<RavenousSaber>()
-            .ActivateOnEnter<RoaringWind>()
             .ActivateOnEnter<Gust>()
             .ActivateOnEnter<GrowlingWindWealofStone>();
     }

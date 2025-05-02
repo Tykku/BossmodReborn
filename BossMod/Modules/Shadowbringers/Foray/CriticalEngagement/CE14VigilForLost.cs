@@ -53,4 +53,7 @@ class CE14VigilForLostStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 735, NameID = 3)] // bnpcname=9396
-public class CE14VigilForLost(WorldState ws, Actor primary) : BossModule(ws, primary, new(451f, 830f), new ArenaBoundsCircle(30f));
+public class CE14VigilForLost(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
+{
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(451f, 830f), 29.5f, 32)]);
+}

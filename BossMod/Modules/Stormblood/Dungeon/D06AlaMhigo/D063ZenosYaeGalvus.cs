@@ -170,7 +170,7 @@ class ArtOfTheSword(BossModule module) : Components.GenericBaitAway(module)
     }
 }
 
-class LightlessSparkBaitaway(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(40.96f, 45f.Degrees()), (uint)TetherID.BaitAway, (uint)AID.LightlessSpark, activationDelay: 8)
+class LightlessSparkBaitaway(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(40.96f, 45f.Degrees()), (uint)TetherID.BaitAway, (uint)AID.LightlessSpark, activationDelay: 8f)
 {
     private readonly ArtOfTheSwell1 _kb = module.FindComponent<ArtOfTheSwell1>()!;
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)

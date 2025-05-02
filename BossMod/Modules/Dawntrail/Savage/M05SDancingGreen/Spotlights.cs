@@ -17,8 +17,31 @@ class Spotlights1(BossModule module) : Components.GenericTowers(module)
         new(87.48f, 112.474f), new(97.49f, 92.49f), new(112.474f, 87.48f), new(102.495f, 107.5f),
         new(107.5f, 97.49f), new(112.474f, 112.474f), new(87.48f, 87.48f), new(92.485f, 102.495f)
     ];
-    protected readonly List<Tower> cachedTowers = new(4);
+
     private readonly M05SDancingGreenConfig _config = Service.Config.Get<M05SDancingGreenConfig>();
+
+    public override ReadOnlySpan<Tower> ActiveTowers(int slot, Actor actor)
+    {
+        var towers = CollectionsMarshal.AsSpan(Towers);
+        var showDiff = _config.ShowFromDifferentOrder;
+        var showSame = _config.ShowFromSameOrder;
+        var now = WorldState.CurrentTime;
+        var spotlightTime = _config.SpotlightTimer;
+
+        Span<Tower> filtered = new Tower[towers.Length];
+        var count = 0;
+        var len = towers.Length;
+
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var tower = ref towers[i];
+            var isFromDifferentOrder = tower.ForbiddenSoakers[slot];
+            if (Math.Max(0d, (tower.Activation - now).TotalSeconds) < spotlightTime && (isFromDifferentOrder && showDiff || !isFromDifferentOrder && showSame))
+                filtered[count++] = tower;
+        }
+
+        return filtered[..count];
+    }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
@@ -28,7 +51,7 @@ class Spotlights1(BossModule module) : Components.GenericTowers(module)
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if (spotlightSet == null && actor.OID == (uint)OID.Spotlight && id == 0x11DC)
+        if (spotlightSet == null && actor.OID == (uint)OID.Spotlight && id == 0x11DCu)
         {
             var position = actor.Position;
             if (position == new WPos(102.5f, 107.5f))
@@ -57,16 +80,15 @@ class Spotlights1(BossModule module) : Components.GenericTowers(module)
 
         var (forbiddenFirst, forbiddenSecond) = ForbiddenBitMasks;
 
+        var activation2 = WorldState.FutureTime(33.6d);
+        for (var i = 0; i < 4; ++i)  // 2nd order first to prevent allowed towers overlapping forbidden
+        {
+            AddTower(spotlights2[i], forbiddenSecond, activation2);
+        }
+        var activation1 = WorldState.FutureTime(22d);
         for (var i = 0; i < 4; ++i)
         {
-            Towers.Add(new(spotlights[i], 2.5f, forbiddenSoakers: forbiddenFirst, activation: WorldState.FutureTime(22d)));
-            cachedTowers.Add(new(spotlights2[i], 2.5f, forbiddenSoakers: forbiddenSecond, activation: WorldState.FutureTime(33.6d)));
-        }
-        if (_config.ShowAllSpotlights)
-        {
-            Towers.AddRange(cachedTowers);
-            cachedTowers.Clear();
-            Towers.SortByReverse(t => t.Activation); // prevent allowed towers overlapping forbidden
+            AddTower(spotlights[i], forbiddenFirst, activation1);
         }
     }
 
@@ -119,21 +141,17 @@ class Spotlights1(BossModule module) : Components.GenericTowers(module)
                     Towers.RemoveRange(4, 4);
                 else
                     Towers.Clear();
-                if (FinishedCount == 4 && cachedTowers.Count != 0)
-                    Towers = cachedTowers;
             }
         }
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        var count = Towers.Count;
-        if (count == 0)
-            return;
-        var towers = CollectionsMarshal.AsSpan(Towers);
-        for (var i = 0; i < count; ++i)
+        var towers = ActiveTowers(pcSlot, pc);
+        var len = towers.Length;
+        for (var i = 0; i < len; ++i)
         {
-            ref var t = ref towers[i];
+            ref readonly var t = ref towers[i];
             var isInside = t.IsInside(pc);
             var numInside = t.NumInside(Module);
             var safe = !t.ForbiddenSoakers[pcSlot] && (numInside < t.MaxSoakers || isInside && numInside <= t.MaxSoakers);
@@ -145,10 +163,62 @@ class Spotlights1(BossModule module) : Components.GenericTowers(module)
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (Towers.Count == 0)
+        var towers = CollectionsMarshal.AsSpan(Towers);
+        var len = towers.Length;
+        if (len == 0)
             return;
-        if (!Towers[0].ForbiddenSoakers[slot])
-            base.AddAIHints(slot, actor, assignment, hints);
+        var now = WorldState.CurrentTime;
+        var forbiddenInverted = new List<Func<WPos, float>>(len);
+        var forbidden = new List<Func<WPos, float>>(len);
+        var inTower = false;
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var t = ref towers[i];
+            if (t.ForbiddenSoakers[slot]) // nothing to do for forbidden players, players of different orders can share a spotlight
+                continue;
+            if (Math.Max(0d, (t.Activation - now).TotalSeconds) < 10d)
+            {
+                var isInside = t.IsInside(actor);
+                var correctAmount = t.CorrectAmountInside(Module);
+                if (isInside || correctAmount)
+                {
+                    inTower = true;
+                }
+                if (t.InsufficientAmountInside(Module) || isInside && correctAmount)
+                    forbiddenInverted.Add(t.Shape.InvertedDistance(t.Position, t.Rotation));
+                else if (t.TooManyInside(Module) || !isInside && correctAmount)
+                {
+                    forbidden.Add(t.Shape.Distance(t.Position, t.Rotation));
+                }
+            }
+        }
+        var missingSoakers = !inTower;
+        if (missingSoakers)
+        {
+            for (var i = 0; i < len; ++i)
+            {
+                var t = towers[i];
+                if (t.InsufficientAmountInside(Module))
+                {
+                    missingSoakers = true;
+                    break;
+                }
+            }
+        }
+        var fcount = forbidden.Count;
+        if (fcount == 0 || inTower || missingSoakers && forbiddenInverted.Count != 0)
+        {
+            hints.AddForbiddenZone(ShapeDistance.Intersection(forbiddenInverted), towers[0].Activation);
+        }
+        else if (fcount != 0 && !inTower)
+        {
+            hints.AddForbiddenZone(ShapeDistance.Union(forbidden), towers[0].Activation);
+        }
+    }
+
+    protected void AddTower(WPos position, BitMask forbidden, DateTime activation)
+    {
+        Towers.Add(new(position, 2.5f, forbiddenSoakers: forbidden, activation: activation));
     }
 }
 
@@ -172,10 +242,15 @@ class Spotlights2(BossModule module) : Spotlights1(module)
 
                 var (forbiddenFirst, forbiddenSecond) = ForbiddenBitMasks;
 
+                var activation2 = WorldState.FutureTime(19.5d);
                 for (var i = 0; i < 4; ++i)
                 {
-                    Towers.Add(new(spotlights1[i], 2.5f, forbiddenSoakers: forbiddenFirst, activation: WorldState.FutureTime(9.5d)));
-                    cachedTowers.Add(new(spotlights2[i], 2.5f, forbiddenSoakers: forbiddenSecond, activation: WorldState.FutureTime(19.5d)));
+                    AddTower(spotlights2[i], forbiddenSecond, activation2);
+                }
+                var activation1 = WorldState.FutureTime(9.5d);
+                for (var i = 0; i < 4; ++i)
+                {
+                    AddTower(spotlights1[i], forbiddenFirst, activation1);
                 }
             }
         }

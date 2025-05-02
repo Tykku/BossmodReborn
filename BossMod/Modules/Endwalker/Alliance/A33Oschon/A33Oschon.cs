@@ -10,7 +10,7 @@ class SoaringMinuet(BossModule module, uint aid) : Components.SimpleAOEs(module,
 class P1SoaringMinuet1(BossModule module) : SoaringMinuet(module, (uint)AID.SoaringMinuet1);
 class P1SoaringMinuet2(BossModule module) : SoaringMinuet(module, (uint)AID.SoaringMinuet2);
 
-class P1Arrow(BossModule module) : Components.BaitAwayCast(module, (uint)AID.ArrowP1AOE, new AOEShapeCircle(6f), true);
+class P1Arrow(BossModule module) : Components.BaitAwayCast(module, (uint)AID.ArrowP1AOE, 6f);
 class P1Downhill(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DownhillP1AOE, 6f);
 class P2MovingMountains(BossModule module) : Components.CastCounter(module, (uint)AID.MovingMountains);
 class P2PeakPeril(BossModule module) : Components.CastCounter(module, (uint)AID.PeakPeril);
@@ -19,10 +19,10 @@ class P2SuddenDownpour(BossModule module) : Components.CastCounter(module, (uint
 
 class P2PitonPull(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PitonPullAOE, 22f);
 class P2Altitude(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AltitudeAOE, 6f);
-class P2Arrow(BossModule module) : Components.BaitAwayCast(module, (uint)AID.ArrowP2AOE, new AOEShapeCircle(10f), true);
+class P2Arrow(BossModule module) : Components.BaitAwayCast(module, (uint)AID.ArrowP2AOE, 10f);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus, LTS", PrimaryActorOID = (uint)OID.BossP1, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 962, NameID = 11300, SortOrder = 4, PlanLevel = 90)]
-public class A33Oschon(WorldState ws, Actor primary) : BossModule(ws, primary, new(default, 750), new ArenaBoundsSquare(25f))
+public class A33Oschon(WorldState ws, Actor primary) : BossModule(ws, primary, new(default, 750f), new ArenaBoundsSquare(25f))
 {
     private Actor? _bossP2;
 

@@ -20,7 +20,14 @@ public class CastCounterMulti(BossModule module, uint[] aids) : BossComponent(mo
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (WatchedActions.Contains(spell.Action.ID))
-            ++NumCasts;
+        var len = WatchedActions.Length;
+        for (var i = 0; i < len; ++i)
+        {
+            if (spell.Action.ID == WatchedActions[i])
+            {
+                ++NumCasts;
+                return;
+            }
+        }
     }
 }

@@ -66,7 +66,7 @@ class Geyser(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
-        if (state == 0x00100020)
+        if (state == 0x00100020u)
         {
             var positions = actor.OID switch
             {

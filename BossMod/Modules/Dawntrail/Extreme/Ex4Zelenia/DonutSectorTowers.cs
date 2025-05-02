@@ -53,7 +53,7 @@ class DonutSectorTowers(BossModule module) : Components.GenericTowers(module, (u
             else if (index is >= 0x2D and <= 0x34)
                 AddTower(FloorTiles.DonutSIn, (byte)0x2Du);
         }
-        else if (state == 0x00800040u && ++envccounter == 4)
+        else if (state is 0x00800040u or 0x80000040u && ++envccounter == 4)
         {
             var towers = CollectionsMarshal.AsSpan(Towers);
             var len = towers.Length;

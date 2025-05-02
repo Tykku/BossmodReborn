@@ -24,16 +24,11 @@ public enum AID : uint
 
 class WaterIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WaterIII, 8f);
 
-abstract class PelagicCleaver(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(40f, 30f.Degrees()));
-class PelagicCleaver1(BossModule module) : PelagicCleaver(module, (uint)AID.PelagicCleaver1);
-class PelagicCleaver2(BossModule module) : PelagicCleaver(module, (uint)AID.PelagicCleaver2);
-
+class PelagicCleaver(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PelagicCleaver1, (uint)AID.PelagicCleaver2], new AOEShapeCone(40f, 30f.Degrees()));
 class PelagicCleaver1Hint(BossModule module) : Components.CastInterruptHint(module, (uint)AID.PelagicCleaver1);
 class PelagicCleaver2Hint(BossModule module) : Components.CastInterruptHint(module, (uint)AID.PelagicCleaver2);
 
-class Flood(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
-class WaterFlood(BossModule module) : Flood(module, (uint)AID.WaterFlood);
-class DivineFlood(BossModule module) : Flood(module, (uint)AID.DivineFlood);
+class WaterDivineFlood(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.WaterFlood, (uint)AID.DivineFlood], 6f);
 
 public class A30Trash1States : StateMachineBuilder
 {
@@ -53,13 +48,11 @@ public class A30Trash1States : StateMachineBuilder
                 }
                 return true;
             };
-        TrivialPhase(1)
-            .ActivateOnEnter<PelagicCleaver1>()
-            .ActivateOnEnter<PelagicCleaver2>()
+        TrivialPhase(1u)
+            .ActivateOnEnter<PelagicCleaver>()
             .ActivateOnEnter<PelagicCleaver1Hint>()
             .ActivateOnEnter<PelagicCleaver2Hint>()
-            .ActivateOnEnter<WaterFlood>()
-            .ActivateOnEnter<DivineFlood>()
+            .ActivateOnEnter<WaterDivineFlood>()
             .Raw.Update = () =>
             {
                 var enemies = module.Enemies(A30Trash1.Trash);

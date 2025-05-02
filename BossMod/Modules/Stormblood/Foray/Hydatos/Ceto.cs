@@ -90,7 +90,7 @@ class CetoStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "xan, Malediktus", GroupType = BossModuleInfo.GroupType.EurekaNM, GroupID = 639, NameID = 1421, SortOrder = 9)]
-public class Ceto(WorldState ws, Actor primary) : BossModule(ws, primary, new(747.8959f, -878.8765f), SharedBounds.Circle)
+public class Ceto(WorldState ws, Actor primary) : SimpleBossModule(ws, primary)
 {
     private static readonly uint[] trash = [(uint)OID.FaithlessGuard, (uint)OID.HydatosDelphyne, (uint)OID.DarkGargoyle];
     protected override void DrawEnemies(int pcSlot, Actor pc)

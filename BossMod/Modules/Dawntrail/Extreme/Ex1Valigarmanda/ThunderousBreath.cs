@@ -10,7 +10,10 @@ class ThunderousBreath : Components.CastCounter
             var party = module.Raid.WithSlot(true, true, true);
             var len = party.Length;
             for (var i = 0; i < len; ++i)
-                platform.RequireHint[i] = platform.RequireLevitating[i] = true;
+            {
+                var slot = party[i].Item1;
+                platform.RequireHint[slot] = platform.RequireLevitating[slot] = true;
+            }
         }
     }
 }

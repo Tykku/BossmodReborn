@@ -39,12 +39,8 @@ class Netherwind(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Ne
 class GlassyNova(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GlassyNova, new AOEShapeRect(45.4f, 4f));
 class BrainFreeze(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BrainFreeze, 15.4f);
 
-abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6.84f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 6.84f);
 
 class HatiStates : StateMachineBuilder
 {
@@ -56,11 +52,7 @@ class HatiStates : StateMachineBuilder
             .ActivateOnEnter<Netherwind>()
             .ActivateOnEnter<BrainFreeze>()
             .ActivateOnEnter<GlassyNova>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
+            .ActivateOnEnter<MandragoraAOEs>()
             .Raw.Update = () =>
             {
                 var enemies = module.Enemies(Hati.All);

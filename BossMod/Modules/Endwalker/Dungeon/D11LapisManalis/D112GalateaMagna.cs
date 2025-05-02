@@ -201,55 +201,7 @@ public class TenebrismTowers(BossModule module) : Components.GenericTowers(modul
     }
 }
 
-class Doom(BossModule module) : BossComponent(module)
-{
-    private readonly List<Actor> _doomed = new(4);
-
-    public override void OnStatusGain(Actor actor, ActorStatus status)
-    {
-        if (status.ID == (uint)SID.Doom)
-            _doomed.Add(actor);
-    }
-
-    public override void OnStatusLose(Actor actor, ActorStatus status)
-    {
-        if (status.ID == (uint)SID.Doom)
-            _doomed.Remove(actor);
-    }
-
-    public override void AddHints(int slot, Actor actor, TextHints hints)
-    {
-        var count = _doomed.Count;
-        if (count == 0)
-            return;
-        if (_doomed.Contains(actor) && !(actor.Role == Role.Healer || actor.Class == Class.BRD))
-            hints.Add("You were doomed! Get cleansed fast.");
-        if (!(actor.Role == Role.Healer || actor.Class == Class.BRD))
-            return;
-        if (_doomed.Contains(actor))
-            hints.Add("Cleanse yourself! (Doom).");
-        for (var i = 0; i < count; ++i)
-        {
-            var doom = _doomed[i];
-            if (!_doomed.Contains(actor))
-                hints.Add($"Cleanse {doom.Name} (Doom)");
-        }
-    }
-
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        var count = _doomed.Count;
-        if (count != 0)
-            for (var i = 0; i < count; ++i)
-            {
-                var doom = _doomed[i];
-                if (actor.Role == Role.Healer)
-                    hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Esuna), doom, ActionQueue.Priority.High, castTime: 1);
-                else if (actor.Class == Class.BRD)
-                    hints.ActionsToExecute.Push(ActionID.MakeSpell(BRD.AID.WardensPaean), doom, ActionQueue.Priority.High);
-            }
-    }
-}
+class Doom(BossModule module) : Components.CleansableDebuff(module, (uint)SID.Doom);
 
 class SoulScythe(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SoulScythe, 18f);
 

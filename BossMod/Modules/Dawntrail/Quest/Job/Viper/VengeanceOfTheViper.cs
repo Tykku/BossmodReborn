@@ -98,11 +98,7 @@ class SwoopingFrenzy2(BossModule module) : Components.GenericAOEs(module)
 class BrutalStroke(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BrutalStroke, 25f);
 class CatchingChaos(BossModule module) : Components.RaidwideCast(module, (uint)AID.CatchingChaos);
 class Galeripper(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Galeripper, new AOEShapeCone(60f, 45f.Degrees()));
-
-abstract class BitingScratch(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(40f, 45f.Degrees()));
-class BitingScratch1(BossModule module) : BitingScratch(module, (uint)AID.BitingScratch1);
-class BitingScratch2(BossModule module) : BitingScratch(module, (uint)AID.BitingScratch2);
-
+class BitingScratch(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.BitingScratch1, (uint)AID.BitingScratch2], new AOEShapeCone(40f, 45f.Degrees()));
 class FervidImpact(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FervidImpact, 12f);
 class FrigidPulse(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FrigidPulse, new AOEShapeDonut(12f, 60f));
 
@@ -187,8 +183,7 @@ class VengeanceOfTheViperStates : StateMachineBuilder
     public VengeanceOfTheViperStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<BitingScratch1>()
-            .ActivateOnEnter<BitingScratch2>()
+            .ActivateOnEnter<BitingScratch>()
             .ActivateOnEnter<Razorwind>()
             .ActivateOnEnter<Explosion>()
             .ActivateOnEnter<BrutalStroke>()

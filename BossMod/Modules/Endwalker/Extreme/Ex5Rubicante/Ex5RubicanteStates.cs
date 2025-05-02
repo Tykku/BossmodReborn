@@ -158,12 +158,10 @@ class Ex5RubicanteStates : StateMachineBuilder
             .DeactivateOnExit<ScaldingFleetFirst>();
 
         CastMulti(id + 0x20, [(uint)AID.SweepingImmolationSpread, (uint)AID.SweepingImmolationStack], 2.5f, 7)
-            .ActivateOnEnter<SweepingImmolationSpread>()
-            .ActivateOnEnter<SweepingImmolationStack>()
+            .ActivateOnEnter<SweepingImmolation>()
             .ActivateOnEnter<PartialTotalImmolation>()
             .ActivateOnEnter<ScaldingFleetSecond>() // casts start ~0.3s or ~1s into cast
-            .DeactivateOnExit<SweepingImmolationSpread>()
-            .DeactivateOnExit<SweepingImmolationStack>();
+            .DeactivateOnExit<SweepingImmolation>();
         ComponentCondition<PartialTotalImmolation>(id + 0x30, 0.5f, comp => comp.NumFinishedSpreads + comp.NumFinishedStacks > 0, "Spread/stack")
             .DeactivateOnExit<PartialTotalImmolation>()
             .DeactivateOnExit<ScaldingFleetSecond>(); // can resolve either slightly before sweeping or together with stack/spread

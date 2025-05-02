@@ -116,7 +116,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
             .ActivateOnExit<SovereignScar>();
         ComponentCondition<WolvesReignRect>(id + 0x20u, 2.5f, comp => comp.NumCasts != 0, "Line AOE")
             .DeactivateOnExit<WolvesReignRect>();
-        ComponentCondition<WolvesReignConeCircle>(id + 0x30u, 3.1f, comp => comp.NumCasts != 0, "Baits resolve + cone OR circle")
+        ComponentCondition<WolvesReignConeCircle>(id + 0x30u, 3.1f, comp => comp.NumCasts != 0, "Baits resolve + cone OR circle", 2f)
             .DeactivateOnExit<WolvesReignConeCircle>()
             .DeactivateOnExit<ReignsEnd>()
             .DeactivateOnExit<SovereignScar>();
@@ -180,7 +180,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
             .ActivateOnEnter<HowlingHavoc>()
             .DeactivateOnExit<HowlingHavoc>()
             .SetHint(StateMachine.StateHint.Raidwide);
-        ComponentCondition<Adds>(id + 0x30u, 0.5f, comp => comp.Windpack != default, "Debuff assignment + donut arena")
+        ComponentCondition<Adds>(id + 0x30u, 0.5f, comp => comp.Windpack != default, "Debuff assignment + donut arena", 3f)
             .ActivateOnEnter<EarthWindborneEnd>()
             .ActivateOnExit<StalkingStoneWind>()
             .ActivateOnExit<AlphaWindStone>();
@@ -409,7 +409,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
     {
         for (var i = 0; i < 5; ++i)
         {
-            var phaseOffset = (uint)(i * 0x20u);
+            var phaseOffset = (uint)(i * 0x30u);
             var cast1Id = id + 0x10u + phaseOffset;
             var cast8Id = id + 0x20u + phaseOffset;
             var platformId = id + 0x30u + phaseOffset;

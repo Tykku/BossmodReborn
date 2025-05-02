@@ -5,43 +5,7 @@ class HolyIVSpread(BossModule module) : Components.SpreadFromCastTargets(module,
 class AuralightAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AuralightAOE, 20f);
 class AuralightRect(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AuralightRect, new AOEShapeRect(70f, 5f));
 class GrandCrossAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GrandCrossAOE, new AOEShapeCross(60f, 7.5f));
-
-class TimeEruption(BossModule module) : Components.GenericAOEs(module)
-{
-    private static readonly AOEShapeRect rect = new(20f, 10f);
-    private readonly List<AOEInstance> _aoes = new(4);
-
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        var count = _aoes.Count;
-        if (count == 0)
-            return [];
-        var aoes = CollectionsMarshal.AsSpan(_aoes);
-        var deadline = aoes[0].Activation.AddSeconds(1d);
-
-        var index = 0;
-        while (index < count && aoes[index].Activation < deadline)
-            ++index;
-
-        return aoes[..index];
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if (spell.Action.ID is (uint)AID.TimeEruptionAOEFirst or (uint)AID.TimeEruptionAOESecond)
-        {
-            _aoes.Add(new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
-            if (_aoes.Count == 9)
-                _aoes.SortBy(x => x.Activation);
-        }
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if (spell.Action.ID is (uint)AID.TimeEruptionAOEFirst or (uint)AID.TimeEruptionAOESecond)
-            _aoes.RemoveAt(0);
-    }
-}
+class TimeEruption(BossModule module) : Components.SimpleAOEGroupsByTimewindow(module, [(uint)AID.TimeEruptionAOEFirst, (uint)AID.TimeEruptionAOESecond], new AOEShapeRect(20f, 10f), expectedNumCasters: 9);
 
 class Eruption2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Eruption2, 8f);
 class ControlTower2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ControlTower2, 6f);

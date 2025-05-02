@@ -6,9 +6,9 @@ class SLateralSlice(BossModule module) : LateralSlice(module, (uint)AID.SLateral
 
 public abstract class C023Moko(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, StartingBounds)
 {
-    public static readonly WPos ArenaCenter = new(-200, 0);
+    public static readonly WPos ArenaCenter = new(-200f, default);
     public static readonly ArenaBoundsSquare StartingBounds = new(24.6f);
-    public static readonly ArenaBoundsSquare DefaultBounds = new(20);
+    public static readonly ArenaBoundsSquare DefaultBounds = new(20f);
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", PrimaryActorOID = (uint)OID.NBoss, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 946, NameID = 12357, SortOrder = 5, PlanLevel = 90)]

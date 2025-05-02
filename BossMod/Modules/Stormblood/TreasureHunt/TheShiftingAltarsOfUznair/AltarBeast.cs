@@ -45,12 +45,8 @@ class WordsOfWoe(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Wo
 class VengefulSoul(BossModule module) : Components.SimpleAOEs(module, (uint)AID.VengefulSoul, 6f);
 class EyeOfTheFire(BossModule module) : Components.CastGaze(module, (uint)AID.EyeOfTheFire);
 
-abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6.84f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 6.84f);
 
 class RaucousScritch(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RaucousScritch, new AOEShapeCone(8.42f, 60f.Degrees()));
 class Hurl(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Hurl, 6);
@@ -67,11 +63,7 @@ class AltarBeastStates : StateMachineBuilder
             .ActivateOnEnter<WordsOfWoe>()
             .ActivateOnEnter<VengefulSoul>()
             .ActivateOnEnter<EyeOfTheFire>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
+            .ActivateOnEnter<MandragoraAOEs>()
             .ActivateOnEnter<RaucousScritch>()
             .ActivateOnEnter<Hurl>()
             .ActivateOnEnter<Spin>()

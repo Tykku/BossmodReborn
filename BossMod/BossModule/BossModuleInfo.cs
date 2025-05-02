@@ -60,6 +60,8 @@ public static class BossModuleInfo
         MaskedCarnivale, // group id is ContentFinderCondition row
         RemovedUnreal, // group id is ContentFinderCondition row
         BaldesionArsenal, // group id is ContentFinderCondition row
+        CastrumLacusLitore, // group id is ContentFinderCondition row
+        BozjaSkirmish, // group id is Fate row
         Quest, // group id is Quest row
         Fate, // group id is Fate row
         Hunt, // group id is HuntRank

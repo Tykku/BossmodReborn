@@ -90,8 +90,8 @@ class D012SanduruvaStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 783, NameID = 10257)]
-public class D012Sanduruva(WorldState ws, Actor primary) : BossModule(ws, primary, new(-258, -26), new ArenaBoundsCircle(20))
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 783, NameID = 10257)]
+public class D012Sanduruva(WorldState ws, Actor primary) : BossModule(ws, primary, new(-258f, -26f), new ArenaBoundsCircle(20f))
 {
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {

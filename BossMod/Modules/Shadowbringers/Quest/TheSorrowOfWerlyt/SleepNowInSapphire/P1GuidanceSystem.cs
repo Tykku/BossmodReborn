@@ -33,7 +33,7 @@ public class GuidanceSystem(WorldState ws, Actor primary) : SleepNowInSapphireSh
 {
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (actor.FindStatus(Roleplay.SID.PyreticBooster) == null)
+        if (actor.FindStatus((uint)Roleplay.SID.PyreticBooster) == null)
             hints.ActionsToExecute.Push(ActionID.MakeSpell(Roleplay.AID.PyreticBooster), actor, ActionQueue.Priority.Medium);
     }
 }

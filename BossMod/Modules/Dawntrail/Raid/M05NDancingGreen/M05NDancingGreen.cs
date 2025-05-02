@@ -1,9 +1,6 @@
 namespace BossMod.Dawntrail.Raid.M05NDancingGreen;
 
-abstract class DoTheHustle(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(50f, 90f.Degrees()));
-class DoTheHustle1(BossModule module) : DoTheHustle(module, (uint)AID.DoTheHustle1);
-class DoTheHustle2(BossModule module) : DoTheHustle(module, (uint)AID.DoTheHustle2);
-
+class DoTheHustle(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.DoTheHustle1, (uint)AID.DoTheHustle2], new AOEShapeCone(50f, 90f.Degrees()));
 class DeepCut(BossModule module) : Components.BaitAwayIcon(module, new AOEShapeCone(60, 22.5f.Degrees()), (uint)IconID.DeepCut, (uint)AID.DeepCut, 5f, tankbuster: true);
 class FullBeat(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.FullBeat, 6f, 8, 8);
 class CelebrateGoodTimes(BossModule module) : Components.RaidwideCast(module, (uint)AID.CelebrateGoodTimes);

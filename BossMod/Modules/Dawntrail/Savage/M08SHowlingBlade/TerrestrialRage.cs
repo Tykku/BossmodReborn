@@ -17,9 +17,10 @@ class Heavensearth(BossModule module) : Components.StackWithIcon(module, (uint)I
     public override void Update()
     {
         base.Update();
-        if (Stacks.Count == 0)
+        var count = Stacks.Count;
+        if (count == 0)
             forbidden = default;
-        if (Stacks.Count == 1)
+        else if (count == 1)
         {
             var stack = CollectionsMarshal.AsSpan(Stacks)[0];
             stack.ForbiddenPlayers = forbidden;

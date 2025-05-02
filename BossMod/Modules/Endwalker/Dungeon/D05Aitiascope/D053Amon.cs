@@ -44,11 +44,11 @@ class CurtainCallArenaChange(BossModule module) : BossComponent(module)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index == 0x05)
+        if (index == 0x05u)
         {
-            if (state == 0x00020001)
+            if (state == 0x00020001u)
                 Arena.Bounds = CurtaincallArena;
-            else if (state == 0x00080004)
+            else if (state == 0x00080004u)
                 Arena.Bounds = D053Amon.arena;
         }
     }
@@ -57,10 +57,7 @@ class CurtainCallArenaChange(BossModule module) : BossComponent(module)
 class Epode(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Epode, new AOEShapeRect(70f, 6f));
 class EruptionForte(BossModule module) : Components.SimpleAOEs(module, (uint)AID.EruptionForte, 8f);
 
-abstract class FiragaForte(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(40f, 10f));
-class LeftFiragaForte(BossModule module) : FiragaForte(module, (uint)AID.LeftFiragaForte);
-class RightFiragaForte(BossModule module) : FiragaForte(module, (uint)AID.RightFiragaForte);
-
+class FiragaForte(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.LeftFiragaForte, (uint)AID.RightFiragaForte], new AOEShapeRect(40f, 10f));
 class ThundagaForteProximity(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ThundagaForteProximity, 15f);
 class DarkForte(BossModule module) : Components.SingleTargetCast(module, (uint)AID.DarkForte);
 class Entracte(BossModule module) : Components.RaidwideCast(module, (uint)AID.Entracte);
@@ -76,36 +73,7 @@ class CurtainCall(BossModule module) : Components.CastLineOfSightAOE(module, (ui
     }
 }
 
-class ThundagaForteCone(BossModule module) : Components.GenericAOEs(module)
-{
-    private static readonly AOEShapeCone cone = new(20f, 22.5f.Degrees());
-    private readonly List<AOEInstance> _aoes = new(8);
-
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        var count = _aoes.Count;
-        if (count == 0)
-            return [];
-        var max = count > 4 ? 4 : count;
-        return CollectionsMarshal.AsSpan(_aoes)[..max];
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if (spell.Action.ID is (uint)AID.ThundagaForteCone1 or (uint)AID.ThundagaForteCone2)
-        {
-            _aoes.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
-            if (_aoes.Count == 8)
-                _aoes.SortBy(x => x.Activation);
-        }
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if (_aoes.Count != 0 && spell.Action.ID is (uint)AID.ThundagaForteCone1 or (uint)AID.ThundagaForteCone2)
-            _aoes.RemoveAt(0);
-    }
-}
+class ThundagaForteCone(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.ThundagaForteCone1, (uint)AID.ThundagaForteCone2], new AOEShapeCone(20f, 22.5f.Degrees()), 4, 8);
 
 class D053AmonStates : StateMachineBuilder
 {
@@ -117,8 +85,7 @@ class D053AmonStates : StateMachineBuilder
             .ActivateOnEnter<DreamsOfIce>()
             .ActivateOnEnter<Epode>()
             .ActivateOnEnter<EruptionForte>()
-            .ActivateOnEnter<LeftFiragaForte>()
-            .ActivateOnEnter<RightFiragaForte>()
+            .ActivateOnEnter<FiragaForte>()
             .ActivateOnEnter<ThundagaForteProximity>()
             .ActivateOnEnter<ThundagaForteCone>()
             .ActivateOnEnter<DarkForte>()

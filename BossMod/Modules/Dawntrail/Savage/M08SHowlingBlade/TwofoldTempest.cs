@@ -176,8 +176,7 @@ class TwofoldTempestRect(BossModule module) : Components.GenericBaitStack(module
             {
                 if (ArenaChanges.PlatformAngles[i] != baits[0].Rotation)
                     return;
-                else
-                 if (vulnerability[slot])
+                else if (vulnerability[slot])
                 {
                     hints.Add("Avoid bait!");
                     return;

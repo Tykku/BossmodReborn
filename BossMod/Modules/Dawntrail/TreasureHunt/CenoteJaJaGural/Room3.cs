@@ -61,23 +61,13 @@ class BloodyCaress(BossModule module) : Components.SimpleAOEs(module, (uint)AID.
 class SwiftSough(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SwiftSough, new AOEShapeCone(13f, 30f.Degrees()));
 class FireBreak(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FireBreak, new AOEShapeCone(8f, 45f.Degrees()));
 
-abstract class CircleLoc6(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
-class Tornado(BossModule module) : CircleLoc6(module, (uint)AID.Tornado);
-class Incubus(BossModule module) : CircleLoc6(module, (uint)AID.Incubus);
-class RottenSpores(BossModule module) : CircleLoc6(module, (uint)AID.RottenSpores);
-
-abstract class CircleLoc5(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 5f);
-class FireII(BossModule module) : CircleLoc5(module, (uint)AID.FireII);
-class BitterNectar(BossModule module) : CircleLoc5(module, (uint)AID.BitterNectar);
+class TornadoIncubusRottenSpores(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.Tornado, (uint)AID.Incubus, (uint)AID.RottenSpores], 6f);
+class FireIIBitterNectar(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.FireII, (uint)AID.BitterNectar], 5f);
 
 class Spin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spin, 11);
 
-abstract class Mandragoras(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 7f);
-class PluckAndPrune(BossModule module) : Mandragoras(module, (uint)AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, (uint)AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, (uint)AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, (uint)AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, (uint)AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 7f);
 
 class Room3States : StateMachineBuilder
 {
@@ -89,19 +79,12 @@ class Room3States : StateMachineBuilder
             .ActivateOnEnter<GoldDust>()
             .ActivateOnEnter<BloodyCaress>()
             .ActivateOnEnter<SwiftSough>()
-            .ActivateOnEnter<BitterNectar>()
+            .ActivateOnEnter<TornadoIncubusRottenSpores>()
             .ActivateOnEnter<FireBreak>()
-            .ActivateOnEnter<Tornado>()
-            .ActivateOnEnter<Incubus>()
-            .ActivateOnEnter<FireII>()
+            .ActivateOnEnter<FireIIBitterNectar>()
             .ActivateOnEnter<Spin>()
-            .ActivateOnEnter<RottenSpores>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.PrimaryActor.IsDestroyed || module.PrimaryActor.EventState == 7;
+            .ActivateOnEnter<MandragoraAOEs>()
+            .Raw.Update = () => module.PrimaryActor.IsDestroyed || module.PrimaryActor.EventState == 7u;
     }
 }
 

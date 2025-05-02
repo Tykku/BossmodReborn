@@ -221,18 +221,10 @@ class Ex2HydaelynStates : StateMachineBuilder
     private State Aureole(uint id, float delay)
     {
         // note: what is the difference between aureole spells? seems to be determined by weapon?..
-        CastMulti(id, [(uint)AID.Aureole1, (uint)AID.Aureole2, (uint)AID.LateralAureole1, (uint)AID.LateralAureole2], delay, 5)
-            .ActivateOnEnter<Aureole>()
-            .ActivateOnEnter<Aureole1>()
-            .ActivateOnEnter<Aureole2>()
-            .ActivateOnEnter<LateralAureole1>()
-            .ActivateOnEnter<LateralAureole2>();
-        return ComponentCondition<Aureole>(id + 2, 0.5f, comp => comp.Done, "Aureole")
-            .DeactivateOnExit<Aureole>()
-            .DeactivateOnExit<Aureole1>()
-            .DeactivateOnExit<Aureole2>()
-            .DeactivateOnExit<LateralAureole1>()
-            .DeactivateOnExit<LateralAureole2>();
+        CastMulti(id, [(uint)AID.Aureole1, (uint)AID.Aureole2, (uint)AID.LateralAureole1, (uint)AID.LateralAureole2], delay, 5f)
+            .ActivateOnEnter<Aureole>();
+        return ComponentCondition<Aureole>(id + 2, 0.5f, comp => comp.NumCasts != 0, "Aureole")
+            .DeactivateOnExit<Aureole>();
     }
 
     private void ParhelicCircle(uint id, float delay)
