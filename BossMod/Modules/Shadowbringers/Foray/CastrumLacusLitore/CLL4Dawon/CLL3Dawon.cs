@@ -166,7 +166,7 @@ public class CLL4Dawon(WorldState ws, Actor primary) : BossModule(ws, primary, D
     public static readonly ArenaBoundsComplex LyonStartingArena = new([new Polygon(LyonCenter, 24.5f, 48)]);
     public static readonly ArenaBoundsComplex LyonDefaultArena = new([new Polygon(LyonCenter, 20f, 48)]);
     public static readonly WPos DawonCenter = new(80f, -813f);
-    public static readonly ArenaBoundsComplex DawonStartingArena = new([new Polygon(DawonCenter, 34.86f, 96)], [new Rectangle(new(80f, -778f), 20f, 1.25f)]);
+    public static readonly ArenaBoundsComplex DawonStartingArena = new([new Polygon(DawonCenter, 34.5f, 96)], [new Rectangle(new(80f, -778f), 20f, 1.25f)]);
     public static readonly ArenaBoundsComplex DawonDefaultArena = new([new Polygon(DawonCenter, 30f, 96)]);
     private static readonly uint[] adds = [(uint)OID.TamedBeetle, (uint)OID.TamedCoeurl, (uint)OID.TamedManticore];
 

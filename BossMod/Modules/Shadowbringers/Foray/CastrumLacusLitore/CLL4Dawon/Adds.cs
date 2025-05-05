@@ -47,7 +47,7 @@ class LeftRightHammer(BossModule module) : Components.GenericAOEs(module)
 
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_arena.IsDawonArena)
+        if (!_arena.IsDawonArena)
             return [];
 
         var count = _aoes.Count;

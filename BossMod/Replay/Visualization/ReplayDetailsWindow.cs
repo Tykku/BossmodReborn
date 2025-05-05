@@ -23,6 +23,7 @@ class ReplayDetailsWindow : UIWindow
     private bool _azimuthOverride = true;
     private int _povSlot = PartyState.PlayerSlot;
     private readonly ConfigUI _config;
+    private readonly PartyRolesConfig _roles = Service.Config.Get<PartyRolesConfig>();
     private bool _showConfig;
     private bool _showDebug;
     private readonly EventList _events;
@@ -308,7 +309,7 @@ class ReplayDetailsWindow : UIWindow
         if (actor.HPMP.MaxHP > 0)
         {
             float frac = Math.Min((float)(actor.HPMP.CurHP + actor.HPMP.Shield) / actor.HPMP.MaxHP, 1);
-            ImGui.ProgressBar(frac, new(ImGui.GetColumnWidth(), 0), $"{frac * 100:f1}% ({actor.HPMP.CurHP} + {actor.HPMP.Shield} / {actor.HPMP.MaxHP}) [{actor.PendingHPDiffence} pending]");
+            ImGui.ProgressBar(frac, new(ImGui.GetColumnWidth(), 0), $"{frac:#0.#%} ({actor.HPMP.CurHP} + {actor.HPMP.Shield} / {actor.HPMP.MaxHP}) [{actor.PendingHPDifference} pending]");
         }
 
         ImGui.TableNextColumn();
@@ -367,9 +368,10 @@ class ReplayDetailsWindow : UIWindow
             return false;
 
         var resetPF = false;
-        ImGui.BeginTable("party", 11, ImGuiTableFlags.Resizable);
+        ImGui.BeginTable("party", 12, ImGuiTableFlags.Resizable);
         ImGui.TableSetupColumn("POV", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize, 25);
         ImGui.TableSetupColumn("Class", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize, 30);
+        ImGui.TableSetupColumn("Assign", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize, 50);
         ImGui.TableSetupColumn("X", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize, 90);
         ImGui.TableSetupColumn("Z", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize, 90);
         ImGui.TableSetupColumn("Rot", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoResize, 90);
@@ -395,6 +397,11 @@ class ReplayDetailsWindow : UIWindow
 
             ImGui.TableNextColumn();
             ImGui.TextUnformatted(player.Class.ToString());
+            ImGui.TableNextColumn();
+            var cid = _player.WorldState.Party.Members[slot].ContentId;
+            var currentRole = _roles[cid];
+            if (UICombo.Enum("", ref currentRole))
+                _roles.Assignments[cid] = currentRole;
 
             DrawCommonColumns(player);
 

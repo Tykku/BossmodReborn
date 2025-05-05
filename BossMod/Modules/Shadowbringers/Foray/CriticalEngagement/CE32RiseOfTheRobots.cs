@@ -153,7 +153,7 @@ class Train(BossModule module) : Components.GenericRotatingAOE(module)
 
 class OrderTowers(BossModule module) : Components.GenericAOEs(module)
 {
-    public readonly AOEInstance?[] AOEs = new AOEInstance?[8];
+    public readonly AOEInstance[][] AOEs = new AOEInstance[8][];
     public static readonly WPos[] TowerPositions = GetTowerPositions();
     public List<uint>[] Numbers = new List<uint>[8];
 
@@ -172,9 +172,9 @@ class OrderTowers(BossModule module) : Components.GenericAOEs(module)
 
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (slot is < 0 or > 7 || AOEs[slot] is not AOEInstance aoe) // no support for NPCs that might be around
+        if (slot is < 0 or > 7 || AOEs[slot] == default) // no support for NPCs that might be around
             return [];
-        return new Span<AOEInstance>([aoe]);
+        return AOEs[slot];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -189,10 +189,11 @@ class OrderTowers(BossModule module) : Components.GenericAOEs(module)
         };
         if (divisor < 6u)
         {
-            var party = Module.Raid.WithSlot(true, true, true);
-            var len = party.Length;
             for (var i = 0; i < 8; ++i)
                 Numbers[i] = [];
+
+            var party = Module.Raid.WithSlot(true, true, true);
+            var len = party.Length;
             for (var i = 0; i < len; ++i)
             {
                 ref readonly var p = ref party[i];
@@ -217,7 +218,7 @@ class OrderTowers(BossModule module) : Components.GenericAOEs(module)
                         shapes.Add(new Polygon(TowerPositions[j - 1], 5f, 20));
                     }
                 }
-                AOEs[p.Item1] = new(new AOEShapeCustom(shapes, InvertForbiddenZone: !outsideSafe), Arena.Center, default, Module.CastFinishAt(spell), !outsideSafe ? Colors.SafeFromAOE : default);
+                AOEs[p.Item1] = [new(new AOEShapeCustom(shapes, InvertForbiddenZone: !outsideSafe), Arena.Center, default, Module.CastFinishAt(spell), !outsideSafe ? Colors.SafeFromAOE : default)];
             }
         }
     }
@@ -238,8 +239,10 @@ class OrderTowers(BossModule module) : Components.GenericAOEs(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (AOEs[slot] is AOEInstance aoe)
+        ref var aoes = ref AOEs[slot];
+        if (aoes != default)
         {
+            ref var aoe = ref AOEs[slot][0];
             var isInside = aoe.Check(actor.Position);
             hints.Add(Numbers[slot][0] == default ? ("Avoid marked towers!", isInside) : ("Move into a marked tower!", !isInside));
         }
@@ -255,12 +258,14 @@ class OrderForcedMarch(BossModule module) : Components.StatusDrivenForcedMarch(m
     private readonly float randomOdd = random.Next(1, 51) * 2 - 1; // used as pseudo randomisation for default case
 #pragma warning restore CA5394
 
-    private static readonly Angle a175 = 175f.Degrees(), a45 = 45f.Degrees(), am90 = -90f.Degrees(), a225 = 22.5f.Degrees();
+    private static readonly Angle a175 = 175f.Degrees(), a45 = 45f.Degrees(), am90 = -90f.Degrees(), a225 = 22.5f.Degrees(), a180 = 180f.Degrees();
 
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos)
     {
-        if (_math.AOEs[slot] is Components.GenericAOEs.AOEInstance aoe)
+        ref var aoes = ref _math.AOEs[slot];
+        if (aoes != default)
         {
+            ref var aoe = ref aoes[0];
             var isInside = aoe.Check(pos);
             return _math.Numbers[slot][0] == default ? isInside : !isInside;
         }
@@ -275,11 +280,11 @@ class OrderForcedMarch(BossModule module) : Components.StatusDrivenForcedMarch(m
         if (_math.Numbers[slot] is var num && num != default)
         {
             var move0 = state.PendingMoves[0];
-            var dir = move0.dir;
             var act = move0.activation;
-            var angleToTower = (num[0] - 1) * am90;
-            hints.AddForbiddenZone(num[0] == default ? ShapeDistance.InvertedCone(CE32RiseOfTheRobots.ArenaCenter, 7f, a45 * randomOdd, a225) : ShapeDistance.InvertedCone(CE32RiseOfTheRobots.ArenaCenter, 7f, angleToTower + dir, a225), act);
-            hints.ForbiddenDirections.Add(num[0] == default ? (a45 * randomOdd, a175, act) : (angleToTower - dir, a175, act));
+            var isDefault = num[0] == default;
+            var angleToTower = isDefault ? default : (num[0] - 1) * am90;
+            hints.AddForbiddenZone(isDefault ? ShapeDistance.InvertedCone(CE32RiseOfTheRobots.ArenaCenter, 7f, a45 * randomOdd, a225) : ShapeDistance.InvertedCone(CE32RiseOfTheRobots.ArenaCenter, 7f, a180 + angleToTower, a225), act);
+            hints.ForbiddenDirections.Add(isDefault ? (a45 * randomOdd, a175, act) : (angleToTower - move0.dir, a175, act));
         }
     }
 }

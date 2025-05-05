@@ -44,15 +44,15 @@ class LamittAI(WorldState ws) : QuestBattle.UnmanagedRotation(ws, 25f)
             return count;
         });
 
-        var lowest = party.MinBy(p => p.PredictedHPRatio)!;
+        var lowest = party.MinBy(p => p.PendingHPRatio)!;
         var esunable = party.FirstOrDefault(x => x.FindStatus(482) != null);
         var doomed = party.FirstOrDefault(x => x.FindStatus(1769) != null);
-        var partyHealth = party.Average(p => p.PredictedHPRatio);
+        var partyHealth = party.Average(p => p.PendingHPRatio);
 
         // pre heal during doom cast since it does insane damage for some reason
         if (primaryTarget.CastInfo is { Action.ID: 17011 } ci && ci.TargetID == Player.InstanceID)
         {
-            if (Player.PredictedHPRatio <= 0.8f)
+            if (Player.PendingHPRatio <= 0.8f)
                 UseAction(Roleplay.AID.RonkanCureII, Player);
         }
 

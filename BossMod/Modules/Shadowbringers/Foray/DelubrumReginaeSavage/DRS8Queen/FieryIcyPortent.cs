@@ -20,7 +20,7 @@ class FieryIcyPortent(BossModule module) : Components.StayMove(module)
     {
         if (spell.Action.ID is (uint)AID.FieryPortent or (uint)AID.IcyPortent)
         {
-            Array.Fill(PlayerStates, default);
+            Array.Clear(PlayerStates);
         }
     }
 }

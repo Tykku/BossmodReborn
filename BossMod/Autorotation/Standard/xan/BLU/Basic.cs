@@ -3,7 +3,7 @@ using static BossMod.AIHints;
 
 namespace BossMod.Autorotation.xan;
 
-public sealed class BLU(RotationModuleManager manager, Actor player) : Castxan<AID, TraitID>(manager, player)
+public sealed class BLU(RotationModuleManager manager, Actor player) : Castxan<AID, TraitID>(manager, player, PotionType.Intelligence)
 {
     public static RotationModuleDefinition Definition()
     {
@@ -48,7 +48,7 @@ public sealed class BLU(RotationModuleManager manager, Actor player) : Castxan<A
     {
         SelectPrimaryTarget(strategy, ref primaryTarget, 25);
 
-        var currentHP = Player.PredictedHPRaw;
+        var currentHP = Player.PendingHPRaw;
 
         Mimic = CurrentMimic();
 

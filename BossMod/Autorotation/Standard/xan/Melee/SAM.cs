@@ -4,9 +4,9 @@ using static BossMod.AIHints;
 
 namespace BossMod.Autorotation.xan;
 
-public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan<AID, TraitID>(manager, player)
+public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan<AID, TraitID>(manager, player, PotionType.Strength)
 {
-    public enum Track { Higanbana = SharedTrack.Count, Enpi, Meikyo }
+    public enum Track { Higanbana = SharedTrack.Count, Enpi, Meikyo, Opener }
 
     public enum EnpiStrategy
     {
@@ -23,6 +23,13 @@ public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan
         HoldOne
     }
 
+    public enum OpenerStrategy
+    {
+        Standard,
+        KashaStandard,
+        GekkoBana
+    }
+
     public static RotationModuleDefinition Definition()
     {
         var def = new RotationModuleDefinition("xan SAM", "Samurai", "Standard rotation (xan)|Melee", "xan", RotationModuleQuality.Basic, BitMask.Build(Class.SAM), 100);
@@ -32,18 +39,26 @@ public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan
         def.Define(Track.Higanbana).As<OffensiveStrategy>("Higanbana")
             .AddOption(OffensiveStrategy.Automatic, "Auto", "Refresh every 60s according to standard rotation", supportedTargets: ActionTargets.Hostile)
             .AddOption(OffensiveStrategy.Delay, "Delay", "Don't apply")
-            .AddOption(OffensiveStrategy.Force, "Force", "Apply to target ASAP, regardless of remaining duration", supportedTargets: ActionTargets.Hostile);
+            .AddOption(OffensiveStrategy.Force, "Force", "Apply to target ASAP, regardless of remaining duration", supportedTargets: ActionTargets.Hostile)
+            .AddAssociatedActions(AID.Higanbana);
 
         def.Define(Track.Enpi).As<EnpiStrategy>("Enpi")
             .AddOption(EnpiStrategy.Enhanced, "Enhanced", "Use if Enhanced Enpi is active")
             .AddOption(EnpiStrategy.None, "None", "Do not use")
-            .AddOption(EnpiStrategy.Ranged, "Ranged", "Use when out of range");
+            .AddOption(EnpiStrategy.Ranged, "Ranged", "Use when out of range")
+            .AddAssociatedActions(AID.Enpi);
 
         def.Define(Track.Meikyo).As<MeikyoStrategy>("Meikyo")
             .AddOption(MeikyoStrategy.Auto, "Auto", "Use every minute or so")
             .AddOption(MeikyoStrategy.Delay, "Delay", "Don't use")
             .AddOption(MeikyoStrategy.Force, "Force", "Use ASAP (unless already active)")
-            .AddOption(MeikyoStrategy.HoldOne, "HoldOne", "Only use if charges are capped");
+            .AddOption(MeikyoStrategy.HoldOne, "HoldOne", "Only use if charges are capped")
+            .AddAssociatedActions(AID.MeikyoShisui);
+
+        def.Define(Track.Opener).As<OpenerStrategy>("Opener")
+            .AddOption(OpenerStrategy.Standard, "Standard", "Standard opener; Gekko (damage buff), Kasha, Midare, Higanbana, Ogi")
+            .AddOption(OpenerStrategy.KashaStandard, "KashaStandard", "Standard opener, but use Kasha first for immediate haste buff")
+            .AddOption(OpenerStrategy.GekkoBana, "GekkoBana", "Apply Higanbana immediately");
 
         return def;
     }
@@ -168,29 +183,33 @@ public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan
                 break;
         }
 
+        var opener = strategy.Option(Track.Opener).As<OpenerStrategy>();
+
+        var meikyoCutoff = opener == OpenerStrategy.GekkoBana ? 11 : 14;
+
         if (CountdownRemaining > 0)
         {
-            if (MeikyoLeft == 0 && CountdownRemaining < 14)
+            if (MeikyoLeft == 0 && CountdownRemaining < meikyoCutoff)
                 PushGCD(AID.MeikyoShisui, Player);
 
             if (TrueNorthLeft == 0 && Hints.PotentialTargets.Any(x => !x.Actor.Omnidirectional) && CountdownRemaining < 5)
                 PushGCD(AID.TrueNorth, Player);
 
             if (MeikyoLeft > CountdownRemaining && CountdownRemaining < 0.76f)
-                PushGCD(AID.Gekko, primaryTarget);
+                PushGCD(opener == OpenerStrategy.KashaStandard ? AID.Kasha : AID.Gekko, primaryTarget);
 
             return;
         }
 
         EmergencyMeikyo(strategy, primaryTarget);
         UseKaeshi(primaryTarget);
-        UseIaijutsu(primaryTarget);
+        UseIaijutsu(strategy, primaryTarget);
 
         if (OgiLeft > GCD && TargetDotLeft > 10 && HaveFugetsu && HaveFuka && (RaidBuffsLeft > GCD || RaidBuffsIn > 1000))
             PushGCD(AID.OgiNamikiri, BestOgiTarget);
 
         if (MeikyoLeft > GCD)
-            PushGCD(MeikyoAction, NumAOECircleTargets > 2 ? null : primaryTarget);
+            PushGCD(GetMeikyoAction(strategy), NumAOECircleTargets > 2 ? null : primaryTarget);
 
         if (ComboLastMove == AOEStarter && NumAOECircleTargets > 0)
         {
@@ -252,40 +271,42 @@ public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan
         return Unlocked(AID.Yukikaze) ? AID.Yukikaze : AID.None;
     }
 
-    private AID MeikyoAction
+    private AID GetMeikyoAction(StrategyValues strategy)
     {
-        get
+        var opener = strategy.Option(Track.Opener).As<OpenerStrategy>();
+
+        if (CombatTimer < 10 && FugetsuLeft == 0 && FukaLeft == 0 && opener == OpenerStrategy.KashaStandard)
+            return AID.Kasha;
+
+        if (NumAOECircleTargets > 2)
         {
-            if (NumAOECircleTargets > 2)
-            {
-                // priority 0: damage buff
-                if (FugetsuLeft == 0)
-                    return AID.Mangetsu;
+            // priority 0: damage buff
+            if (FugetsuLeft == 0)
+                return AID.Mangetsu;
 
-                return (Moon, Flower) switch
-                {
-                    // refresh buff running out first
-                    (false, false) => FugetsuLeft <= FukaLeft ? AID.Mangetsu : AID.Oka,
-                    (true, false) => AID.Oka,
-                    _ => AID.Mangetsu,
-                };
-            }
-            else
+            return (Moon, Flower) switch
             {
-                // priority 0: damage buff
-                if (FugetsuLeft == 0)
-                    return AID.Gekko;
+                // refresh buff running out first
+                (false, false) => FugetsuLeft <= FukaLeft ? AID.Mangetsu : AID.Oka,
+                (true, false) => AID.Oka,
+                _ => AID.Mangetsu,
+            };
+        }
+        else
+        {
+            // priority 0: damage buff
+            if (FugetsuLeft == 0)
+                return AID.Gekko;
 
-                return (Moon, Flower) switch
-                {
-                    // refresh buff running out first
-                    (false, false) => FugetsuLeft <= FukaLeft ? AID.Gekko : AID.Kasha,
-                    (false, true) => AID.Gekko,
-                    (true, false) => AID.Kasha,
-                    // only use yukikaze to get sen, as it's the weakest ender
-                    _ => Ice ? AID.Gekko : AID.Yukikaze,
-                };
-            }
+            return (Moon, Flower) switch
+            {
+                // refresh buff running out first
+                (false, false) => FugetsuLeft <= FukaLeft ? AID.Gekko : AID.Kasha,
+                (false, true) => AID.Gekko,
+                (true, false) => AID.Kasha,
+                // only use yukikaze to get sen, as it's the weakest ender
+                _ => Ice ? AID.Gekko : AID.Yukikaze,
+            };
         }
     }
 
@@ -299,7 +320,9 @@ public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan
         if (aid == default)
             return;
 
-        if (RaidBuffsLeft > GCD || !CanFitGCD(KaeshiAction.Left, 1))
+        if (RaidBuffsLeft > GCD
+            || !CanFitGCD(KaeshiAction.Left, 1)
+            || PotionLeft > GCD && !CanFitGCD(PotionLeft, 1))
             PushGCD(aid, target);
     }
 
@@ -312,12 +335,14 @@ public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan
         _ => (default, null)
     };
 
-    private void UseIaijutsu(Enemy? primaryTarget)
+    private void UseIaijutsu(StrategyValues strategy, Enemy? primaryTarget)
     {
         if (!HaveFugetsu || NumStickers == 0)
             return;
 
-        if (NumStickers == 1 && !CanFitGCD(TargetDotLeft, 1) && FukaLeft > 0)
+        var opener = strategy.Option(Track.Opener).As<OpenerStrategy>();
+
+        if (NumStickers == 1 && !CanFitGCD(TargetDotLeft, 1) && (FukaLeft > 0 || opener == OpenerStrategy.GekkoBana && CombatTimer < 10))
             PushGCD(AID.Higanbana, BestDotTarget);
 
         void kaeshi()
@@ -395,7 +420,7 @@ public sealed class SAM(RotationModuleManager manager, Actor player) : Attackxan
         if (Meditation == 3 && (RaidBuffsLeft > AnimLock || GrantsMeditation(NextGCD)))
             PushOGCD(AID.Shoha, BestLineTarget);
 
-        var saveKenki = RaidBuffsLeft <= AnimLock || Zanshin > 0 || ReadyIn(AID.HissatsuSenei) < 10;
+        var saveKenki = RaidBuffsLeft <= AnimLock && RaidBuffsIn < 1000 || Zanshin > 0 || ReadyIn(AID.HissatsuSenei) < 10;
 
         if (Kenki >= (saveKenki ? 90 : 25))
         {

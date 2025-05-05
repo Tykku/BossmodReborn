@@ -20,7 +20,7 @@ public abstract class UnmanagedRotation(WorldState ws, float effectiveRange)
         Hints = hints;
         Player = player;
 
-        MP = (uint)Player.PredictedMPRaw;
+        MP = (uint)Player.PendingMPRaw;
         var count = Hints.PotentialTargets.Count;
 
         Actor? closestPriorityTarget = null;

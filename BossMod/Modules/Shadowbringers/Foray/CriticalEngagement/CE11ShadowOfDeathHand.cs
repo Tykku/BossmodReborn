@@ -76,7 +76,7 @@ class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 class BestialLoyalty(BossModule module) : Components.CastHint(module, (uint)AID.BestialLoyalty, "Summon crows");
 class RunWild(BossModule module) : Components.CastInterruptHint(module, (uint)AID.RunWild, showNameInHint: true);
 class HardBeak(BossModule module) : Components.SingleTargetCast(module, (uint)AID.HardBeak);
-class Helldive(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.Helldive, 6f);
+class Helldive(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.Helldive, 6f, 8);
 class BroadsideBarrage(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BroadsideBarrage, new AOEShapeRect(40f, 20f));
 class BlindsideBarrage(BossModule module) : Components.RaidwideCast(module, (uint)AID.BlindsideBarrage, "Raidwide + deathwall appears");
 class RollingBarrage(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RollingBarrageAOE, 8f);
@@ -93,7 +93,7 @@ class Wind(BossModule module) : Components.GenericKnockback(module)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action.ID == (uint)AID.WindVisual)
-            _kb = new(spell.LocXZ, 30f, Module.CastFinishAt(spell, 0.1f), Direction: spell.Rotation, Kind: Kind.DirBackward);
+            _kb = new(spell.LocXZ, 30f, Module.CastFinishAt(spell, 0.1f), Direction: spell.Rotation, Kind: Kind.DirForward);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
@@ -117,7 +117,7 @@ class Wind(BossModule module) : Components.GenericKnockback(module)
             if (!IsImmune(slot, act))
             {
                 var dir = kb.Direction;
-                hints.AddForbiddenZone(ShapeDistance.Cone(Arena.Center + 10f * dir.ToDirection(), 30f, dir + 180f.Degrees(), 135f.Degrees()), act);
+                hints.AddForbiddenZone(ShapeDistance.Cone(Arena.Center - 10f * dir.ToDirection(), 30f, dir, 135f.Degrees()), act);
             }
         }
     }

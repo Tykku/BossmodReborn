@@ -78,7 +78,7 @@ class AutoYshtola(BossModule module, WorldState ws) : QuestBattle.UnmanagedRotat
             ? 28000
             : 10000;
 
-        if (Hien.PredictedHPRaw < hienMinHP)
+        if (Hien.PendingHPRaw < hienMinHP)
         {
             if (Player.DistanceToHitbox(Hien) > 25f)
                 Hints.ForcedMovement = Player.DirectionTo(Hien).ToVec3();

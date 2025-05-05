@@ -22,6 +22,8 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
     private DateTime _masterLastMoved;
     private DateTime _navStartTime; // if current time is < this, navigation won't start
     private static readonly SemaphoreSlim _semaphore = new(1, 1);
+    private static readonly Random random = new();
+
     public void Dispose() { }
 
     public async Task Execute(Actor player, Actor master)
@@ -153,9 +155,14 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
             || autorot.Hints.ImminentSpecialMode.mode == AIHints.SpecialMode.NoMovement && autorot.Hints.ImminentSpecialMode.activation <= WorldState.FutureTime(1d))
             return new() { LeewaySeconds = float.MaxValue };
 
-        if (autorot.Hints.ImminentSpecialMode.mode == AIHints.SpecialMode.Freezing && autorot.Hints.ImminentSpecialMode.activation <= WorldState.FutureTime(0.5d))
+        if (autorot.Hints.ImminentSpecialMode.mode == AIHints.SpecialMode.Freezing && autorot.Hints.ImminentSpecialMode.activation <= WorldState.FutureTime(2.1d))
         {
-            autorot.Hints.WantJump = true;
+#pragma warning disable CA5394 // Do not use insecure randomness
+            var randomO1 = random.NextSingle() * 2f - 1f;
+            var randomO2 = random.NextSingle() * 2f - 1f;
+#pragma warning restore CA5394
+            autorot.Hints.ForcedMovement = new WPos(player.Position.X * randomO1, player.Position.Z * randomO2).ToVec3();
+            return new() { LeewaySeconds = float.MaxValue };
         }
 
         Actor? forceDestination = null;

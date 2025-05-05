@@ -67,10 +67,11 @@ class Thunderbolt(BossModule module) : Components.GenericAOEs(module)
             var loc = spell.LocXZ;
             for (var i = 0; i < count; ++i)
             {
-                var pos = corpses[i].Position;
+                var corpse = corpses[i];
+                var pos = corpse.Position;
                 if (pos.InCircle(loc, 6f))
                 {
-                    AddAOE(pos, corpses[i].Rotation);
+                    AddAOE(pos, corpse.Rotation);
                     return; // never more than one corpse per circle
                 }
             }
@@ -83,10 +84,11 @@ class Thunderbolt(BossModule module) : Components.GenericAOEs(module)
             var rot = spell.Rotation.ToDirection();
             for (var i = 0; i < count; ++i)
             {
-                var pos = corpses[i].Position;
+                var corpse = corpses[i];
+                var pos = corpse.Position;
                 if (pos.InRect(loc, rot, 60f, default, 3f))
                 {
-                    AddAOE(pos, corpses[i].Rotation);
+                    AddAOE(pos, corpse.Rotation);
                     // no early exit, if unlucky boss tanking, rect can hit multiple corpses
                 }
             }

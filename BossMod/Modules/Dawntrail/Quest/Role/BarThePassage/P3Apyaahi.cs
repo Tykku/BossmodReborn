@@ -136,7 +136,7 @@ class BlazingBlazeOfGlory(BossModule module) : Components.SpreadFromCastTargets(
 class MyceliumStomp(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.MyceliumStomp, 6f);
 class SpoilingSmashEnrage(BossModule module) : Components.CastHint(module, (uint)AID.SpoilingSmashVisual2, "Enrage!", true);
 
-class Burst(BossModule module) : Components.Exaflare(module, new AOEShapeCircle(6f))
+class Burst(BossModule module) : Components.Exaflare(module, 6f)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {

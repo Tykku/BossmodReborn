@@ -58,8 +58,8 @@ public sealed class Plugin : IDalamudPlugin
         InteropGenerator.Runtime.Resolver.GetInstance.Resolve();
 
         dalamud.Create<Service>();
-        Service.LogHandlerDebug = (string msg) => Service.Logger.Debug(msg);
-        Service.LogHandlerVerbose = (string msg) => Service.Logger.Verbose(msg);
+        Service.LogHandlerDebug = msg => Service.Logger.Debug(msg);
+        Service.LogHandlerVerbose = msg => Service.Logger.Verbose(msg);
         Service.LuminaGameData = dataManager.GameData;
         Service.WindowSystem = new("bmr");
         //Service.Device = pluginInterface.UiBuilder.Device;
@@ -74,7 +74,6 @@ public sealed class Plugin : IDalamudPlugin
 
         CommandManager = commandManager;
         CommandManager.AddHandler("/bmr", new CommandInfo(OnCommand) { HelpMessage = "Show boss mod settings UI" });
-        CommandManager.AddHandler("/vbm", new CommandInfo(OnCommand) { ShowInHelp = false });
 
         ActionDefinitions.Instance.UnlockCheck = QuestUnlocked; // ensure action definitions are initialized and set unlock check functor (we don't really store the quest progress in clientstate, for now at least)
 
@@ -133,7 +132,6 @@ public sealed class Plugin : IDalamudPlugin
         _bossmod.Dispose();
         ActionDefinitions.Instance.Dispose();
         CommandManager.RemoveHandler("/bmr");
-        CommandManager.RemoveHandler("/vbm");
         GarbageCollection();
     }
 

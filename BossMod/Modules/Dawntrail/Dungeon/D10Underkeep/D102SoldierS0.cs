@@ -127,7 +127,7 @@ class SectorBisector(BossModule module) : Components.GenericAOEs(module)
 
     public override void Update()
     {
-        if (firstClone != null && _aoe == null && active && tethers.Count < cloneCount)
+        if (active && firstClone != null && _aoe == null && tethers.Count < cloneCount)
         {
             var count = tethers.Count;
             for (var i = 0; i < count; ++i)

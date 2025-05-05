@@ -97,7 +97,7 @@ public sealed class AIHintsBuilder : IDisposable
                 else
                     priority = 0; // Relevant fate mob
             }
-            else if (actor.PredictedDead)
+            else if (actor.PendingDead)
                 priority = AIHints.Enemy.PriorityPointless; // Mob is about to die
             else if (actor.AggroPlayer)
                 priority = 0; // Aggroed player

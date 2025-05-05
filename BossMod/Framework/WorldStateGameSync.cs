@@ -806,15 +806,16 @@ sealed class WorldStateGameSync : IDisposable
         var count = ops.Count;
         for (var i = 0; i < count; ++i)
         {
-            var op = ops[i];
-            _ws.Execute(op);
+            _ws.Execute(ops[i]);
         }
         _actorOps.Remove(instanceID);
     }
 
     private List<(int, Cooldown)> CalcCooldownDifference(Span<Cooldown> values, ReadOnlySpan<Cooldown> reference)
     {
-        var max = values.Length < reference.Length ? values.Length : reference.Length;
+        var lenValues = values.Length;
+        var lenReference = reference.Length;
+        var max = lenValues < lenReference ? lenValues : lenReference;
         var res = new List<(int, Cooldown)>(max);
         for (int i = 0, cnt = max; i < cnt; ++i)
         {

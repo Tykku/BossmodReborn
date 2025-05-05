@@ -37,7 +37,7 @@ class TailBlow(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Tail
 class LavaSpit(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LavaSpitAOE, 5f);
 class ScorchingLash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ScorchingLash, new AOEShapeRect(50f, 5f));
 
-class Hellpounce(BossModule module) : Components.GenericAOEs(module, (uint)AID.Hellpounce, "GTFO from charge!")
+class Hellpounce(BossModule module) : Components.GenericAOEs(module, warningText: "GTFO from charge!")
 {
     private AOEInstance? _charge;
 
@@ -70,10 +70,7 @@ class Hellpounce(BossModule module) : Components.GenericAOEs(module, (uint)AID.H
     }
 }
 
-abstract class Breath(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(60f, 30f.Degrees()));
-class DragonsBreathR(BossModule module) : Breath(module, (uint)AID.DragonsBreathAOER);
-class DragonsBreathL(BossModule module) : Breath(module, (uint)AID.DragonsBreathAOEL);
-class LionsBreath(BossModule module) : Breath(module, (uint)AID.LionsBreathAOE);
+class DragonsLionsBreath(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.DragonsBreathAOER, (uint)AID.DragonsBreathAOEL, (uint)AID.LionsBreathAOE], new AOEShapeCone(60f, 30f.Degrees()));
 
 class VoidTornado(BossModule module) : Components.CastHint(module, (uint)AID.VoidTornado, "Set hp to 1");
 
@@ -119,9 +116,7 @@ class CE12BayingOfHoundsStates : StateMachineBuilder
             .ActivateOnEnter<LavaSpit>()
             .ActivateOnEnter<ScorchingLash>()
             .ActivateOnEnter<Hellpounce>()
-            .ActivateOnEnter<LionsBreath>()
-            .ActivateOnEnter<DragonsBreathR>()
-            .ActivateOnEnter<DragonsBreathL>()
+            .ActivateOnEnter<DragonsLionsBreath>()
             .ActivateOnEnter<VoidTornado>()
             .ActivateOnEnter<VoidQuake>();
     }
