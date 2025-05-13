@@ -35,7 +35,7 @@ class MagitekLaser(BossModule module) : Components.SimpleAOEs(module, (uint)AID.
 class Pulverize(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Pulverize, 15f);
 class Ventilate(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Ventilate, 8f);
 class Compress(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Compress, new AOEShapeCross(50f, 3.5f));
-class Accelerate(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.Accelerate, 6f, 8, 8);
+class Accelerate(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.Accelerate, 6f, 8);
 class Dispose(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Dispose, new AOEShapeCone(40f, 30f.Degrees()));
 
 class Shatter(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Shatter, 6f);
@@ -57,7 +57,7 @@ class HeavyBootsOfLeadStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.BozjaSkirmish, GroupID = 1612, NameID = 9382)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.BozjaSkirmish, GroupID = 735, NameID = 1612)]
 public class HeavyBootsOfLead(WorldState ws, Actor primary) : SimpleBossModule(ws, primary)
 {
     private static readonly uint[] adds = [(uint)OID.BozjanDoblyn, (uint)OID.BozjanSabotender, (uint)OID.FourthLegionVanguard, (uint)OID.ForthLegionGunship,

@@ -85,7 +85,7 @@ class Reflection(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-abstract class EctoplasmicRay(BossModule module, uint aid1, uint aid2) : Components.LineStack(module, aid1, aid2, 5.2f);
+abstract class EctoplasmicRay(BossModule module, uint aid1, uint aid2) : Components.LineStack(module, aidMarker: aid1, aid2, 5.2f);
 class EctoplasmicRay1(BossModule module) : EctoplasmicRay(module, (uint)AID.EctoplasmicRayMarker1, (uint)AID.EctoplasmicRay1);
 class EctoplasmicRay2(BossModule module) : EctoplasmicRay(module, (uint)AID.EctoplasmicRayMarker2, (uint)AID.EctoplasmicRay2);
 

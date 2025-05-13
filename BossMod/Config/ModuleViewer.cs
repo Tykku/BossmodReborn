@@ -301,8 +301,9 @@ public sealed class ModuleViewer : IDisposable
             case BossModuleInfo.GroupType.CastrumLacusLitore:
                 return (new("Castrum Lacus Litore", groupId, groupId), new(module, BNpcName(module.NameID), module.SortOrder));
             case BossModuleInfo.GroupType.BozjaSkirmish:
-                var fateRowBozjaSkirmish = Service.LuminaRow<Fate>(module.GroupID)!.Value;
-                return (new($"Bozja Skirmish", groupId, groupId, _iconFATE), new(module, $"{fateRowBozjaSkirmish.Name}: {BNpcName(module.NameID)}", module.SortOrder));
+                var fateRowBozjaSkirmish = Service.LuminaRow<Fate>(module.NameID)!.Value;
+                var skirmishName = $"{FixCase(Service.LuminaRow<ContentFinderCondition>(module.GroupID)!.Value.Name)} Skirmish";
+                return (new(skirmishName, groupId, groupId), new(module, $"{fateRowBozjaSkirmish.Name}", module.SortOrder));
             case BossModuleInfo.GroupType.Quest:
                 var questRow = Service.LuminaRow<Quest>(module.GroupID)!.Value;
                 groupId |= questRow.JournalGenre.RowId;

@@ -7,7 +7,7 @@ class HailOfFeathers(BossModule module) : Components.RaidwideCast(module, (uint)
 class DisasterZone1(BossModule module) : Components.RaidwideCast(module, (uint)AID.DisasterZone1);
 class DisasterZone2(BossModule module) : Components.RaidwideCast(module, (uint)AID.DisasterZone2);
 
-abstract class CalamitousCry(BossModule module, uint aid) : Components.LineStack(module, aid, (uint)AID.CalamitousCry, 5f, 60f, 3f)
+abstract class CalamitousCry(BossModule module, uint aid) : Components.LineStack(module, aidMarker: aid, (uint)AID.CalamitousCry, 5f, 60f, 3f)
 {
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {

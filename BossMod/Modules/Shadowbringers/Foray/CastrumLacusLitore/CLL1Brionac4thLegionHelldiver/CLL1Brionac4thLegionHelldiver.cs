@@ -172,11 +172,8 @@ public class CLL1Brionac4thLegionHelldiver : BossModule
         // the problem is that on wipe, any actor can be deleted and recreated in the same frame
         if (_bossHellDiver == null)
         {
-            if (StateMachine.ActivePhaseIndex == 0)
-            {
-                var b = Enemies((uint)OID.FourthLegionHelldiver1);
-                _bossHellDiver = b.Count != 0 ? b[0] : null;
-            }
+            var b = Enemies((uint)OID.FourthLegionHelldiver1);
+            _bossHellDiver = b.Count != 0 ? b[0] : null;
         }
     }
 

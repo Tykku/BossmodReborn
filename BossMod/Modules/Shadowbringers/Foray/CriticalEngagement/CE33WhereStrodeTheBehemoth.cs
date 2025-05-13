@@ -86,7 +86,7 @@ class Thunderbolt(BossModule module) : Components.GenericAOEs(module)
             {
                 var corpse = corpses[i];
                 var pos = corpse.Position;
-                if (pos.InRect(loc, rot, 60f, default, 3f))
+                if (pos.InRect(loc, rot, 60f, default, 7.35f)) // 3 half width + 4.35 hitbox radius
                 {
                     AddAOE(pos, corpse.Rotation);
                     // no early exit, if unlucky boss tanking, rect can hit multiple corpses
@@ -121,4 +121,6 @@ class CE33WhereStrodeTheBehemothStates : StateMachineBuilder
 public class CE33WhereStrodeTheBehemoth(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(231f, 95f), 29.5f, 32)]);
+
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InCircle(Arena.Center, 30f);
 }

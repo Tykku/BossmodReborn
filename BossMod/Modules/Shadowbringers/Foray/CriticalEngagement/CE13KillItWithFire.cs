@@ -2,9 +2,9 @@
 
 public enum OID : uint
 {
-    Boss = 0x2E2F, // R2.250, x1
-    RottenMandragora = 0x2E30, // R1.050, spawn during fight
-    Pheromones = 0x2E31, // R1.500, spawn during fight
+    Boss = 0x2E2F, // R2.25
+    RottenMandragora = 0x2E30, // R1.05
+    Pheromones = 0x2E31, // R1.5
     Helper = 0x233C
 }
 
@@ -128,4 +128,6 @@ class CE13KillItWithFireStates : StateMachineBuilder
 public class CE13KillItWithFire(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-90f, 700f), 29.5f, 32)]);
+
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InCircle(Arena.Center, 30f);
 }

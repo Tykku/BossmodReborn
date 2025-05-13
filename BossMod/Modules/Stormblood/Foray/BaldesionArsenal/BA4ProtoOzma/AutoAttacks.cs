@@ -158,7 +158,7 @@ class AutoAttacksStar(BossModule module) : Components.GenericStackSpread(module)
             if (countP == 0)
             {
                 foreach (var a in Module.WorldState.Actors.Actors.Values)
-                    if (a.OID == 0)
+                    if (a.OID == default)
                         players.Add(a);
             }
 

@@ -194,4 +194,6 @@ public class CE54NeverCryWolf(WorldState ws, Actor primary) : BossModule(ws, pri
         base.DrawEnemies(pcSlot, pc);
         Arena.Actors(Enemies((uint)OID.Imaginifer));
     }
+
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InSquare(Arena.Center, 24f);
 }

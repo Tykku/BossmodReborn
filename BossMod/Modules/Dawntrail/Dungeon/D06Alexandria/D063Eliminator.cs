@@ -84,7 +84,7 @@ class DisruptionArenaChange(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state == 0x00020001 && index == 0x28)
+        if (state == 0x00020001u && index == 0x28u)
         {
             Arena.Bounds = D063Eliminator.DefaultBounds;
             _aoe = null;
@@ -141,8 +141,8 @@ class Impact(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.
 
 class Compression(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Compression, 6f);
 
-class Overexposure(BossModule module) : Components.LineStack(module, (uint)AID.OverexposureMarker, (uint)AID.Overexposure, 5f, 40f, 3f);
-class LightOfDevotion(BossModule module) : Components.LineStack(module, (uint)AID.LightOfDevotionMarker, (uint)AID.LightOfDevotion, 5.5f, 40f, 3f)
+class Overexposure(BossModule module) : Components.LineStack(module, aidMarker: (uint)AID.OverexposureMarker, (uint)AID.Overexposure, 5f, 40f, 3f);
+class LightOfDevotion(BossModule module) : Components.LineStack(module, aidMarker: (uint)AID.LightOfDevotionMarker, (uint)AID.LightOfDevotion, 5.5f, 40f, 3f)
 {
     public override void OnEventEnvControl(byte index, uint state)
     {

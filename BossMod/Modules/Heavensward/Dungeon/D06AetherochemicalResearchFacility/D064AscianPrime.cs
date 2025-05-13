@@ -55,10 +55,10 @@ public enum AID : uint
 
     Dualstar = 31894, // Boss->self, 4.0s cast, single-target
 
-    EntropicFlame = 31907, // Helper->player, no cast, single-target
-    EntropicFlame1 = 32126, // Boss->self, no cast, single-target
-    EntropicFlame2 = 31906, // Boss->self, 5.0s cast, single-target
-    EntropicFlame3 = 32555, // Helper->self, no cast, range 50 width 8 rect, line stack
+    EntropicFlameMarker = 31907, // Helper->player, no cast, single-target
+    EntropicFlameVisual1 = 32126, // Boss->self, no cast, single-target
+    EntropicFlameVisual2 = 31906, // Boss->self, 5.0s cast, single-target
+    EntropicFlame = 32555, // Helper->self, no cast, range 50 width 8 rect, line stack
 
     FusionPrime = 31895, // Boss->self, 3.0s cast, single-target
 
@@ -120,7 +120,7 @@ class DarkBlizzardIII(BossModule module) : Components.SimpleAOEGroups(module, [(
 
 class DarkFireII(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.DarkFireII, 6f);
 class BurningChains(BossModule module) : Components.Chains(module, (uint)TetherID.BurningChains, (uint)AID.BurningChains);
-class EntropicFlame(BossModule module) : Components.LineStack(module, (uint)AID.EntropicFlame, (uint)AID.EntropicFlame3, 5.2f);
+class EntropicFlame(BossModule module) : Components.LineStack(module, aidMarker: (uint)AID.EntropicFlameMarker, (uint)AID.EntropicFlame, 5.2f);
 
 class Stars(BossModule module) : Components.GenericAOEs(module)
 {

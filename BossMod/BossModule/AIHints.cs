@@ -138,7 +138,7 @@ public sealed class AIHints
         WantDismount = false;
     }
 
-    public void PrioritizeTargetsByOID(uint oid, int priority = 0)
+    public void PrioritizeTargetsByOID(uint oid, int priority = default)
     {
         var count = PotentialTargets.Count;
         for (var i = 0; i < count; ++i)
@@ -151,9 +151,9 @@ public sealed class AIHints
             }
         }
     }
-    public void PrioritizeTargetsByOID<OID>(OID oid, int priority = 0) where OID : Enum => PrioritizeTargetsByOID((uint)(object)oid, priority);
+    public void PrioritizeTargetsByOID<OID>(OID oid, int priority = default) where OID : Enum => PrioritizeTargetsByOID((uint)(object)oid, priority);
 
-    public void PrioritizeTargetsByOID(uint[] oids, int priority = 0)
+    public void PrioritizeTargetsByOID(uint[] oids, int priority = default)
     {
         var count = PotentialTargets.Count;
         for (var i = 0; i < count; ++i)

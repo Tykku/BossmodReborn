@@ -138,8 +138,8 @@ class TimeEruptionBombReproduce(BossModule module) : Components.GenericAOEs(modu
 
         var delay = state switch
         {
-            0x00010002 => TimeSpan.FromSeconds(9.7),
-            0x00010020 => TimeSpan.FromSeconds(11.7),
+            0x00010002u => TimeSpan.FromSeconds(9.7),
+            0x00010020u => TimeSpan.FromSeconds(11.7),
             _ => TimeSpan.Zero
         };
         if (delay == TimeSpan.Zero)
@@ -176,4 +176,7 @@ class CE52TimeToBurnStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 26)] // bnpcname=9930
-public class CE52TimeToBurn(WorldState ws, Actor primary) : BossModule(ws, primary, new(-550f, default), new ArenaBoundsSquare(30f));
+public class CE52TimeToBurn(WorldState ws, Actor primary) : BossModule(ws, primary, new(-550f, default), new ArenaBoundsSquare(30f))
+{
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InSquare(Arena.Center, 30f);
+}

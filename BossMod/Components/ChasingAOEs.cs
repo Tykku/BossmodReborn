@@ -101,6 +101,8 @@ public class GenericChasingAOEs(BossModule module, float moveDistance, uint aid 
 // standard chasing aoe; first cast is long - assume it is baited on the nearest allowed target; successive casts are instant
 public class StandardChasingAOEs(BossModule module, AOEShape shape, uint actionFirst, uint actionRest, float moveDistance, float secondsBetweenActivations, int maxCasts, bool resetExcludedTargets = false, uint icon = default, float activationDelay = 5.1f) : GenericChasingAOEs(module, moveDistance)
 {
+    public StandardChasingAOEs(BossModule module, float radius, uint actionFirst, uint actionRest, float moveDistance, float secondsBetweenActivations, int maxCasts, bool resetExcludedTargets = false, uint icon = default, float activationDelay = 5.1f) : this(module, new AOEShapeCircle(radius), actionFirst, actionRest, moveDistance, secondsBetweenActivations, maxCasts, resetExcludedTargets, icon, activationDelay) { }
+
     public readonly AOEShape Shape = shape;
     public readonly uint ActionFirst = actionFirst;
     public readonly uint ActionRest = actionRest;
@@ -158,7 +160,7 @@ public class StandardChasingAOEs(BossModule module, AOEShape shape, uint actionF
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action.ID == ActionFirst || spell.Action.ID == ActionRest)
+        if (spell.Action.ID is var id && id == ActionFirst || id == ActionRest)
         {
             var pos = spell.MainTargetID == caster.InstanceID ? caster.Position : WorldState.Actors.Find(spell.MainTargetID)?.Position ?? spell.TargetXZ;
             Advance(WPos.ClampToGrid(pos), MoveDistance, WorldState.CurrentTime);

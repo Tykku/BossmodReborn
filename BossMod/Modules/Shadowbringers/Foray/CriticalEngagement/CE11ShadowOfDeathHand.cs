@@ -156,4 +156,6 @@ public class CE11ShadowOfDeathHand(WorldState ws, Actor primary) : BossModule(ws
         Arena.Actors(Enemies((uint)OID.Beastmaster));
         Arena.Actors(Enemies((uint)OID.TamedCarrionCrow));
     }
+
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InCircle(Arena.Center, 30f);
 }

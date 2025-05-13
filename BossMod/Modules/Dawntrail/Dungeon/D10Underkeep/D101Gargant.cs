@@ -81,4 +81,7 @@ class D101GargantStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1027, NameID = 13753)]
-public class D101Gargant(WorldState ws, Actor primary) : BossModule(ws, primary, new(-248f, 122f), new ArenaBoundsCircle(14.5f));
+public class D101Gargant(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
+{
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-248f, 122f), 14.5f, 72)]);
+}

@@ -7,20 +7,57 @@ class Adds(BossModule module) : Components.AddsMulti(module, [(uint)OID.Mu, (uin
     public int CountFeatherRay;
     public int CountJabberwock;
     public int CountGimmeCat;
+    private int phase = 1;
+
+    private static readonly M06SSugarRiotConfig _config = Service.Config.Get<M06SSugarRiotConfig>();
+    private static readonly WPos featherRayNW = new(90f, 95f), featherRayNE = new(110f, 95f), featherRaySW = new(90f, 105f), featherRaySE = new(110f, 105f);
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         var count = hints.PotentialTargets.Count;
+        var config = _config.AddsPriorityOrder;
+        Span<int> priorities = stackalloc int[9];
+
+        for (var i = 0; i < 16; ++i)
+        {
+            var e = config[i];
+            var prio = 15 - i;
+
+            switch (e)
+            {
+                case 0: priorities[0] = prio; break; // Boss
+                case 1 when phase == 1: priorities[1] = prio; break; // Mu P1
+                case 2 when phase <= 2: priorities[2] = prio; break; // Yan P1
+                case 3 when phase <= 2: priorities[3] = prio; break; // Gimme Cat P1
+                case 4 when phase is >= 2 and not 4: priorities[1] = prio; break; // Mu P2
+                case 5: priorities[4] = prio; break; // FeatherRay NW
+                case 6: priorities[5] = prio; break; // FeatherRay NE
+                case 7 when phase == 3: priorities[2] = prio; break; // Yan P3
+                case 8 when phase == 3: priorities[3] = prio; break; // Gimme Cat P3
+                case 9 when phase == 3: priorities[6] = prio; break; // Jabberwock P3
+                case 10: priorities[7] = prio; break; // FeatherRay SW
+                case 11: priorities[8] = prio; break; // FeatherRay SE
+                case 12 when phase == 4: priorities[1] = prio; break; // Mu P4
+                case 13 when phase == 4: priorities[3] = prio; break; // Gimme Cat P4
+                case 14 when phase == 4: priorities[6] = prio; break; // Jabberwock P4
+                case 15 when phase == 4: priorities[2] = prio; break; // Yan P4
+            }
+        }
+
         for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
             e.Priority = e.Actor.OID switch
             {
-                (uint)OID.Jabberwock => 5,
-                (uint)OID.GimmeCat => 4,
-                (uint)OID.FeatherRay => 3,
-                (uint)OID.Mu => 2,
-                (uint)OID.Yan => 1,
+                (uint)OID.Jabberwock => priorities[6],
+                (uint)OID.GimmeCat => priorities[3],
+                (uint)OID.FeatherRay when e.Actor.Position.AlmostEqual(featherRayNW, 1f) => priorities[4],
+                (uint)OID.FeatherRay when e.Actor.Position.AlmostEqual(featherRayNE, 1f) => priorities[5],
+                (uint)OID.FeatherRay when e.Actor.Position.AlmostEqual(featherRaySW, 1f) => priorities[7],
+                (uint)OID.FeatherRay when e.Actor.Position.AlmostEqual(featherRaySE, 1f) => priorities[8],
+                (uint)OID.Mu => priorities[1],
+                (uint)OID.Yan => priorities[2],
+                (uint)OID.Boss => priorities[0],
                 _ => 0
             };
         }
@@ -57,6 +94,14 @@ class Adds(BossModule module) : Components.AddsMulti(module, [(uint)OID.Mu, (uin
                     ++CountGimmeCat;
                     break;
             }
+            var total = CountMu + CountYan + CountJabberwock + CountFeatherRay + CountGimmeCat;
+            phase = total switch
+            {
+                8 => 2,
+                11 => 3,
+                18 => 4,
+                _ => phase
+            };
         }
     }
 }

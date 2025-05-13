@@ -113,6 +113,8 @@ public sealed class BLM(RotationModuleManager manager, Actor player) : Castxan<A
     private bool DotExpiring(Actor? t) => DotExpiring(GetTargetThunderLeft(t));
     private bool DotExpiring(float timer) => !CanFitGCD(timer, 1);
 
+    private bool AlmostMaxMP => MP >= Player.HPMP.MaxMP * 0.96f;
+
     public override void Exec(StrategyValues strategy, Enemy? primaryTarget)
     {
         SelectPrimaryTarget(strategy, ref primaryTarget, range: 25);
@@ -242,13 +244,15 @@ public sealed class BLM(RotationModuleManager manager, Actor player) : Castxan<A
         if (AstralSoul == 6)
             PushGCD(AID.FlareStar, BestAOETarget);
 
+        var haveInstant = GetCastTime(AID.Fire4) == 0;
+
         if (Unlocked(AID.Fire4))
         {
             var f4Cost = Hearts > 0 ? 800 : 1600;
 
             if (Fire == 3)
             {
-                if (ShouldUseLeylines(strategy, 1) && GetCastTime(AID.Fire4) > 0)
+                if (ShouldUseLeylines(strategy, 1) && !haveInstant)
                     TryInstantCast(strategy, primaryTarget);
 
                 // despair requires 800 MP
@@ -263,11 +267,18 @@ public sealed class BLM(RotationModuleManager manager, Actor player) : Castxan<A
 
                 if (MP >= f4Cost)
                 {
-                    if (MP < f4Cost * 2 && Paradox)
+                    if (MP < f4Cost * 2 && Paradox && AstralSoul < 5)
                         PushGCD(AID.Paradox, primaryTarget);
+
+                    // TODO despair used to be optimal at <2400 MP, but now we have to worry about losing an astral soul stack
+                    //if (MP < f4Cost + 800 && !CanWeave(AID.Manafont, 1))
+                    //    PushGCD(AID.Despair, primaryTarget);
 
                     PushGCD(AID.Fire4, primaryTarget);
                 }
+
+                if (Polyglot > 0 && !haveInstant)
+                    PushGCD(AID.Xenoglossy, primaryTarget);
 
                 if (Paradox && MP >= 1600)
                     PushGCD(AID.Paradox, primaryTarget);
@@ -361,22 +372,19 @@ public sealed class BLM(RotationModuleManager manager, Actor player) : Castxan<A
     {
         T1(strategy);
 
-        if (Paradox)
-            PushGCD(AID.Paradox, primaryTarget);
-
         if (Ice < 3 && Unlocked(AID.Blizzard3))
             PushGCD(AID.Blizzard3, primaryTarget);
 
-        if (MP >= 10000 && Unlocked(AID.Fire3))
+        if (AlmostMaxMP && Unlocked(AID.Fire3))
         {
             if (Firestarter && CanWeave(AID.Transpose, 1) && SwiftcastLeft == 0 && TriplecastLeft == 0)
-                TryInstantCast(strategy, primaryTarget, useFirestarter: false);
+                TryInstantCast(strategy, primaryTarget, useFirestarter: false, useParadox: true);
 
             PushGCD(AID.Fire3, primaryTarget);
         }
         else if (Unlocked(AID.Blizzard4))
             PushGCD(AID.Blizzard4, primaryTarget);
-        else if (MP >= 10000)
+        else if (AlmostMaxMP)
         {
             TryInstantOrTranspose(strategy, primaryTarget);
             PushGCD(AID.Fire1, primaryTarget);
@@ -390,7 +398,7 @@ public sealed class BLM(RotationModuleManager manager, Actor player) : Castxan<A
     {
         if (Ice == 0)
         {
-            if (MP >= 9600)
+            if (MP >= Player.HPMP.MaxMP * 0.96f)
                 PushGCD(AID.Fire2, BestAOETarget);
 
             PushGCD(AID.Blizzard2, BestAOETarget);
@@ -404,7 +412,7 @@ public sealed class BLM(RotationModuleManager manager, Actor player) : Castxan<A
                 PushGCD(AID.Blizzard4, primaryTarget);
         }
 
-        TryInstantCast(strategy, primaryTarget);
+        TryInstantCast(strategy, primaryTarget, useParadox: true);
     }
 
     private void IceAOELowLevel(StrategyValues strategy, Enemy? primaryTarget)
@@ -412,7 +420,7 @@ public sealed class BLM(RotationModuleManager manager, Actor player) : Castxan<A
         T2(strategy);
         T1(strategy);
 
-        if (MP >= 9600)
+        if (MP >= Player.HPMP.MaxMP * 0.96f)
         {
             if (!Unlocked(TraitID.AspectMastery3))
                 TryInstantOrTranspose(strategy, primaryTarget);
@@ -474,13 +482,16 @@ public sealed class BLM(RotationModuleManager manager, Actor player) : Castxan<A
     private void Choose(AID st, AID aoe, Enemy? primaryTarget, int additionalPrio = 0)
     {
         if (NumAOETargets >= AOEBreakpoint && Unlocked(aoe))
-            PushGCD(aoe, BestAOETarget, additionalPrio + 1);
+            PushGCD(aoe, BestAOETarget, additionalPrio + 2);
         else
-            PushGCD(st, primaryTarget, additionalPrio + 1);
+            PushGCD(st, primaryTarget, additionalPrio + 2);
     }
 
-    private void TryInstantCast(StrategyValues strategy, Enemy? primaryTarget, bool useFirestarter = true, bool useThunderhead = true, bool usePolyglot = true)
+    private void TryInstantCast(StrategyValues strategy, Enemy? primaryTarget, bool useFirestarter = true, bool useThunderhead = true, bool usePolyglot = true, bool useParadox = false)
     {
+        if (useParadox && Paradox)
+            PushGCD(AID.Paradox, primaryTarget);
+
         if (usePolyglot && Polyglot > 0)
             Choose(AID.Xenoglossy, AID.Foul, primaryTarget);
 
@@ -518,7 +529,7 @@ public sealed class BLM(RotationModuleManager manager, Actor player) : Castxan<A
     private bool ShouldTranspose(StrategyValues strategy)
     {
         if (!Unlocked(AID.Fire3))
-            return Fire > 0 && MP < 1600 || Ice > 0 && MP > 9000;
+            return Fire > 0 && MP < 1600 || Ice > 0 && MP > Player.HPMP.MaxMP * 0.9f;
 
         if (NumAOETargets >= AOEBreakpoint)
             return

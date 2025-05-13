@@ -265,7 +265,7 @@ class OrderForcedMarch(BossModule module) : Components.StatusDrivenForcedMarch(m
         ref var aoes = ref _math.AOEs[slot];
         if (aoes != default)
         {
-            ref var aoe = ref aoes[0];
+            ref readonly var aoe = ref aoes[0];
             var isInside = aoe.Check(pos);
             return _math.Numbers[slot][0] == default ? isInside : !isInside;
         }
@@ -312,4 +312,6 @@ public class CE32RiseOfTheRobots(WorldState ws, Actor primary) : BossModule(ws, 
     public static readonly WPos ArenaCenter = new(104f, 237f);
     private static readonly ArenaBoundsComplex startingArena = new([new Polygon(ArenaCenter, 29.5f, 32)]);
     public static readonly ArenaBoundsCircle DefaultArena = new(25f); // default arena got no extra collision, just a donut aoe
+
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InCircle(Arena.Center, 30f);
 }

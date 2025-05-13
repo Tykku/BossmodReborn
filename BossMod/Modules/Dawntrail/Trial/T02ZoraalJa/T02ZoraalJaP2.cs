@@ -20,7 +20,7 @@ class HalfFull(BossModule module) : HalfRect(module, (uint)AID.HalfFull)
 class HalfCircuitRect(BossModule module) : HalfRect(module, (uint)AID.HalfCircuitRect);
 
 class FireIII(BossModule module) : Components.SpreadFromIcon(module, (uint)IconID.Spreadmarker, (uint)AID.FireIII, 6f, 5.1f);
-class DutysEdge(BossModule module) : Components.LineStack(module, (uint)AID.DutysEdgeMarker, (uint)AID.DutysEdge, 5.4f, 100f, minStackSize: 8, maxStackSize: 8, maxCasts: 4, markerIsFinalTarget: false);
+class DutysEdge(BossModule module) : Components.LineStack(module, aidMarker: (uint)AID.DutysEdgeMarker, (uint)AID.DutysEdge, 5.4f, 100f, minStackSize: 8, maxStackSize: 8, maxCasts: 4, markerIsFinalTarget: false);
 
 // P2 is a checkpoint so we can't make it one module since it would prevent reloading the module incase of wipes
 class T02ZoraalJaP2States : StateMachineBuilder

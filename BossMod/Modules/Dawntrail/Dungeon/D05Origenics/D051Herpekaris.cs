@@ -39,7 +39,7 @@ public enum AID : uint
     ConvulsiveCrush = 36518, // Boss->player, 5.0s cast, single-target, tb
 }
 
-class CollectiveAgony(BossModule module) : Components.LineStack(module, (uint)AID.CollectiveAgonyMarker, (uint)AID.CollectiveAgony, 5.6f);
+class CollectiveAgony(BossModule module) : Components.LineStack(module, aidMarker: (uint)AID.CollectiveAgonyMarker, (uint)AID.CollectiveAgony, 5.6f);
 class StridentShriek(BossModule module) : Components.RaidwideCast(module, (uint)AID.StridentShriek);
 class ConvulsiveCrush(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.ConvulsiveCrush);
 class PoisonHeartSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.PoisonHeartSpread, 5f);

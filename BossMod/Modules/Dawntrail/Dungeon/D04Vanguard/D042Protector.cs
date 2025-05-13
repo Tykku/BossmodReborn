@@ -217,7 +217,7 @@ class BatteryCircuit(BossModule module) : Components.GenericRotatingAOE(module)
     }
 }
 
-class HeavyBlastCannon(BossModule module) : Components.LineStack(module, (uint)AID.HeavyBlastCannonMarker, (uint)AID.HeavyBlastCannon, 8f, 36f);
+class HeavyBlastCannon(BossModule module) : Components.LineStack(module, aidMarker: (uint)AID.HeavyBlastCannonMarker, (uint)AID.HeavyBlastCannon, 8f, 36f);
 class RapidThunder(BossModule module) : Components.SingleTargetCast(module, (uint)AID.RapidThunder);
 class Electrowave(BossModule module) : Components.RaidwideCast(module, (uint)AID.Electrowave);
 

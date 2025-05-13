@@ -9,7 +9,7 @@ class BurningChains(BossModule module) : Components.Chains(module, (uint)TetherI
 class HalfCircuitRect(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HalfCircuitAOERect, new AOEShapeRect(60f, 60f));
 class HalfCircuitDonut(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HalfCircuitAOEDonut, new AOEShapeDonut(10f, 30f));
 class HalfCircuitCircle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HalfCircuitAOECircle, 10f);
-class DutysEdge(BossModule module) : Components.LineStack(module, (uint)AID.DutysEdgeTarget, (uint)AID.DutysEdgeAOE, 5.3f, 100f, 4f, 8, 8, 4, false);
+class DutysEdge(BossModule module) : Components.LineStack(module, aidMarker: (uint)AID.DutysEdgeTarget, (uint)AID.DutysEdgeAOE, 5.3f, 100f, 4f, 8, 8, 4, false);
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 996, NameID = 12882, PlanLevel = 100)]
 public class Ex2ZoraalJa(WorldState ws, Actor primary) : Trial.T02ZoraalJa.ZoraalJa(ws, primary)

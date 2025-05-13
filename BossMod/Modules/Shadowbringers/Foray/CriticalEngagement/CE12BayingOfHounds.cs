@@ -126,4 +126,6 @@ class CE12BayingOfHoundsStates : StateMachineBuilder
 public class CE12BayingOfHounds(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(154f, 785f), 24.5f, 32)]);
+
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InCircle(Arena.Center, 25f);
 }

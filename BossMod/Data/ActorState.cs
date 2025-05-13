@@ -11,7 +11,7 @@ public sealed class ActorState : IEnumerable<Actor>
 
     public const uint StatusIDDirectionalDisregard = 3808u;
 
-    public Actor? Find(ulong instanceID) => instanceID is not 0 and not 0xE0000000 ? Actors.GetValueOrDefault(instanceID) : null;
+    public Actor? Find(ulong instanceID) => instanceID is not 0u and not 0xE0000000 ? Actors.GetValueOrDefault(instanceID) : null;
 
     // all actor-related operations have instance ID to which they are applied
     // in addition to worldstate's modification event, extra event with actor pointer is dispatched for all actor events
@@ -30,7 +30,7 @@ public sealed class ActorState : IEnumerable<Actor>
         List<Operation> ops = new(Actors.Count * 5);
         foreach (var act in Actors.Values)
         {
-            ref var instanceID = ref act.InstanceID;
+            ref readonly var instanceID = ref act.InstanceID;
             ops.Add(new OpCreate(instanceID, act.OID, act.SpawnIndex, act.Name, act.NameID, act.Type, act.Class, act.Level, act.PosRot, act.HitboxRadius, act.HPMP, act.IsTargetable, act.IsAlly, act.OwnerID, act.FateID));
             if (act.IsDead)
                 ops.Add(new OpDead(instanceID, true));
@@ -38,30 +38,30 @@ public sealed class ActorState : IEnumerable<Actor>
                 ops.Add(new OpCombat(instanceID, true));
             if (act.ModelState != default)
                 ops.Add(new OpModelState(instanceID, act.ModelState));
-            if (act.EventState != 0)
+            if (act.EventState != default)
                 ops.Add(new OpEventState(instanceID, act.EventState));
-            if (act.TargetID != 0)
+            if (act.TargetID != default)
                 ops.Add(new OpTarget(instanceID, act.TargetID));
-            if (act.MountId != 0)
+            if (act.MountId != default)
                 ops.Add(new OpMount(instanceID, act.MountId));
             if (act.ForayInfo != default)
                 ops.Add(new OpForayInfo(act.InstanceID, act.ForayInfo));
-            if (act.Tether.ID != 0)
+            if (act.Tether.ID != default)
                 ops.Add(new OpTether(instanceID, act.Tether));
             if (act.CastInfo != null)
                 ops.Add(new OpCastInfo(instanceID, act.CastInfo));
             var statuslen = act.Statuses.Length;
             for (var i = 0; i < statuslen; ++i)
             {
-                ref var status = ref act.Statuses[i];
-                if (status.ID != 0)
+                ref readonly var status = ref act.Statuses[i];
+                if (status.ID != default)
                     ops.Add(new OpStatus(instanceID, i, status));
             }
             var effectlen = act.IncomingEffects.Length;
             for (var i = 0; i < effectlen; ++i)
             {
-                ref var effect = ref act.IncomingEffects[i];
-                if (effect.GlobalSequence != 0)
+                ref readonly var effect = ref act.IncomingEffects[i];
+                if (effect.GlobalSequence != default)
                     ops.Add(new OpIncomingEffect(act.InstanceID, i, effect));
             }
         }
@@ -74,16 +74,16 @@ public sealed class ActorState : IEnumerable<Actor>
         foreach (var act in Actors.Values)
         {
             act.PrevPosRot = act.PosRot;
-            ref var castinfo = ref act.CastInfo;
+            var castinfo = act.CastInfo;
             if (castinfo != null)
-                castinfo.ElapsedTime = Math.Min(castinfo.ElapsedTime + frame.Duration, castinfo.AdjustedTotalTime);
+                act.CastInfo!.ElapsedTime = Math.Min(castinfo.ElapsedTime + frame.Duration, castinfo.AdjustedTotalTime);
             RemovePendingEffects(act, (in PendingEffect p) => p.Expiration < ts);
         }
     }
 
-    private void AddPendingEffects(ref Actor source, ActorCastEvent ev, DateTime timestamp)
+    private void AddPendingEffects(Actor source, ActorCastEvent ev, DateTime timestamp)
     {
-        var expiration = timestamp.AddSeconds(3);
+        var expiration = timestamp.AddSeconds(3d);
         var count = ev.Targets.Count;
         for (var i = 0; i < count; ++i)
         {
@@ -188,7 +188,7 @@ public sealed class ActorState : IEnumerable<Actor>
                 actor.InCombat = false;
                 wsactors.InCombatChanged.Fire(actor);
             }
-            if (actor.Tether.Target != 0) // untether
+            if (actor.Tether.Target != default) // untether
             {
                 wsactors.Untethered.Fire(actor);
                 actor.Tether = default;
@@ -202,7 +202,7 @@ public sealed class ActorState : IEnumerable<Actor>
             for (var i = 0; i < len; ++i)
             {
                 ref var status = ref actor.Statuses[i];
-                if (status.ID != 0) // clear statuses
+                if (status.ID != default) // clear statuses
                 {
                     wsactors.StatusLose.Fire(actor, i);
                     status = default;
@@ -388,10 +388,10 @@ public sealed class ActorState : IEnumerable<Actor>
     {
         protected override void ExecActor(WorldState ws, Actor actor)
         {
-            if (actor.Tether.Target != 0)
+            if (actor.Tether.Target != default)
                 ws.Actors.Untethered.Fire(actor);
             actor.Tether = Value;
-            if (Value.Target != 0)
+            if (Value.Target != default)
                 ws.Actors.Tethered.Fire(actor);
         }
         public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("TETH"u8).EmitActor(InstanceID).Emit(Value.ID).EmitActor(Value.Target);
@@ -403,11 +403,10 @@ public sealed class ActorState : IEnumerable<Actor>
     {
         protected override void ExecActor(WorldState ws, Actor actor)
         {
-            ref var castinfo = ref actor.CastInfo;
             var wsactors = ws.Actors;
-            if (castinfo != null)
+            if (actor.CastInfo != null)
                 wsactors.CastFinished.Fire(actor);
-            castinfo = Value != null ? Value with { } : null;
+            actor.CastInfo = Value != null ? Value with { } : null;
             if (Value != null)
                 wsactors.CastStarted.Fire(actor);
         }
@@ -426,11 +425,10 @@ public sealed class ActorState : IEnumerable<Actor>
     {
         protected override void ExecActor(WorldState ws, Actor actor)
         {
-            ref var castinfo = ref actor.CastInfo;
             var wsactors = ws.Actors;
-            if (castinfo?.Action == Value.Action)
-                castinfo.EventHappened = true;
-            wsactors.AddPendingEffects(ref actor, Value, ws.CurrentTime);
+            if (actor.CastInfo?.Action == Value.Action)
+                actor.CastInfo.EventHappened = true;
+            wsactors.AddPendingEffects(actor, Value, ws.CurrentTime);
             wsactors.CastEvent.Fire(actor, Value);
         }
         public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("CST!"u8)
@@ -464,9 +462,9 @@ public sealed class ActorState : IEnumerable<Actor>
     {
         protected override void ExecActor(WorldState ws, Actor actor)
         {
-            ref var prev = ref actor.Statuses[Index];
+            ref readonly var prev = ref actor.Statuses[Index];
             var wsactors = ws.Actors;
-            if (prev.ID != 0 && (prev.ID != Value.ID || prev.SourceID != Value.SourceID))
+            if (prev.ID != default && (prev.ID != Value.ID || prev.SourceID != Value.SourceID))
             {
                 ws.Actors.StatusLose.Fire(actor, Index);
                 if (prev.ID == StatusIDDirectionalDisregard)
@@ -474,7 +472,7 @@ public sealed class ActorState : IEnumerable<Actor>
             }
             actor.Statuses[Index] = Value;
             actor.PendingStatuses.RemoveAll(s => s.StatusId == Value.ID && s.Effect.SourceInstanceId == Value.SourceID);
-            if (Value.ID != 0)
+            if (Value.ID != default)
             {
                 ws.Actors.StatusGain.Fire(actor, Index);
                 if (Value.ID == StatusIDDirectionalDisregard)
@@ -483,7 +481,7 @@ public sealed class ActorState : IEnumerable<Actor>
         }
         public override void Write(ReplayRecorder.Output output)
         {
-            if (Value.ID != 0)
+            if (Value.ID != default)
                 output.EmitFourCC("STA+"u8).EmitActor(InstanceID).Emit(Index).Emit(Value);
             else
                 output.EmitFourCC("STA-"u8).EmitActor(InstanceID).Emit(Index);
@@ -496,7 +494,7 @@ public sealed class ActorState : IEnumerable<Actor>
     {
         protected override void ExecActor(WorldState ws, Actor actor)
         {
-            ref var prev = ref actor.IncomingEffects[Index];
+            ref readonly var prev = ref actor.IncomingEffects[Index];
             var prevSeq = prev.GlobalSequence;
             var prevIdx = prev.TargetIndex;
             if (prevSeq != 0 && (prevSeq != Value.GlobalSequence || prevIdx != Value.TargetIndex))

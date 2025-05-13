@@ -45,8 +45,8 @@ class KanaboBait(BossModule module) : Components.BaitAwayTethers(module, new AOE
 }
 
 class KanaboAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Kanabo, new AOEShapeCone(45f, 30f.Degrees()));
-class BlueBolt(BossModule module) : Components.LineStack(module, (uint)AID.BlueBoltMarker, (uint)AID.BlueBolt, 5.9f, 83f, 2.5f);
-class ForbiddenArts(BossModule module) : Components.LineStack(module, (uint)AID.ForbiddenArtsMarker, (uint)AID.ForbiddenArtsSecond, 5.2f, 84.4f, 4); // this hits twice
+class BlueBolt(BossModule module) : Components.LineStack(module, aidMarker: (uint)AID.BlueBoltMarker, (uint)AID.BlueBolt, 5.9f, 83f, 2.5f);
+class ForbiddenArts(BossModule module) : Components.LineStack(module, aidMarker: (uint)AID.ForbiddenArtsMarker, (uint)AID.ForbiddenArtsSecond, 5.2f, 84.4f, 4); // this hits twice
 class RedRush(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(82.6f, 2.5f), (uint)TetherID.BaitAway, (uint)AID.RedRush, (uint)OID.AkaNoShiki, 6f)
 {
     public override void OnTethered(Actor source, ActorTetherInfo tether)

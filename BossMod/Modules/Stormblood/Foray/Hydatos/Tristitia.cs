@@ -50,21 +50,25 @@ class TornadoIIAerogaIVDualCast(BossModule module) : Components.GenericAOEs(modu
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        var aoes = new AOEInstance[count];
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
         for (var i = 0; i < count; ++i)
         {
-            var aoe = _aoes[i];
+            ref var aoe = ref aoes[i];
             if (i == 0)
-                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
+            {
+                if (count > 1)
+                    aoe.Color = Colors.Danger;
+                aoe.Risky = true;
+            }
             else
-                aoes[i] = aoe with { Risky = false };
+                aoe.Risky = false;
         }
         return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        void AddAOE(AOEShape shape, float delay = 0f) => _aoes.Add(new(shape, spell.LocXZ, default, Module.CastFinishAt(spell, delay)));
+        void AddAOE(AOEShape shape, float delay = default) => _aoes.Add(new(shape, spell.LocXZ, default, Module.CastFinishAt(spell, delay)));
         void AddAOEs(AOEShape shape1, AOEShape shape2)
         {
             AddAOE(shape1);

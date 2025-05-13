@@ -59,9 +59,9 @@ class IceAegis(BossModule module) : Components.GenericAOEs(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (_aoe == null)
+        if (_aoe is not AOEInstance aoe)
             return;
-        hints.Add("Go behind shield!", !_aoe.Value.Check(actor.Position));
+        hints.Add("Go behind shield!", !aoe.Check(actor.Position));
     }
 }
 

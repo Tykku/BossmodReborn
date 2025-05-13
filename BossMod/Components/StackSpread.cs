@@ -389,9 +389,9 @@ public class StackWithIcon(BossModule module, uint icon, uint aid, float radius,
 
 // generic single hit "line stack" component, usually do not have an iconID, instead players get marked by cast event
 // usually these have 50 range and 4 halfWidth, but it can be modified
-public class LineStack(BossModule module, uint? aidMarker, uint aidResolve, float activationDelay = 5.1f, float range = 50, float halfWidth = 4, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true, uint? iconid = null) : GenericBaitAway(module)
+public class LineStack(BossModule module, uint? aidMarker, uint aidResolve, float activationDelay = 5.1f, float range = 50f, float halfWidth = 4f, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true, uint? iconid = null) : GenericBaitAway(module)
 {
-    public LineStack(BossModule module, uint iconid, uint aidResolve, float activationDelay = 5.1f, float range = 50, float halfWidth = 4, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true) : this(module, null, aidResolve, activationDelay, range, halfWidth, minStackSize, maxStackSize, maxCasts, markerIsFinalTarget, iconid) { }
+    public LineStack(BossModule module, uint iconid, uint aidResolve, float activationDelay = 5.1f, float range = 50f, float halfWidth = 4f, int minStackSize = 4, int maxStackSize = int.MaxValue, int maxCasts = 1, bool markerIsFinalTarget = true) : this(module, null, aidResolve, activationDelay, range, halfWidth, minStackSize, maxStackSize, maxCasts, markerIsFinalTarget, iconid) { }
 
     // TODO: add forbidden slots logic?
     // TODO: add logic for min and max stack size

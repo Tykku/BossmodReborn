@@ -83,7 +83,7 @@ class NinetyNinefoldCurse(BossModule module) : Components.RaidwideCast(module, (
 class Roar(BossModule module) : Components.RaidwideCast(module, (uint)AID.Roar);
 class SonicStorm(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.SonicStorm, 6f);
 class RushBait(BossModule module) : Components.BaitAwayChargeTether(module, 4f, 8.3f, (uint)AID.RushBait, (uint)AID.RushBaitFail, (uint)TetherID.TetherBad, (uint)TetherID.TetherGood, (uint)OID.Dzo, 30f);
-class RushLineStack(BossModule module) : Components.LineStack(module, (uint)AID.RushLineStackMarker, (uint)AID.RushLineStack, 4.9f, markerIsFinalTarget: false);
+class RushLineStack(BossModule module) : Components.LineStack(module, aidMarker: (uint)AID.RushLineStackMarker, (uint)AID.RushLineStack, 4.9f, markerIsFinalTarget: false);
 class Trample(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Trample, 15f);
 
 class FallingDusk(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FallingDusk, 15f)

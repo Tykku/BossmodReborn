@@ -91,6 +91,7 @@ class ChocoMeteorStream(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = new(28);
     private static readonly AOEShapeCircle circle = new(8f);
+    private readonly List<WPos> initialPositions = new(2);
 
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
@@ -117,15 +118,70 @@ class ChocoMeteorStream(BossModule module) : Components.GenericAOEs(module)
     {
         if (spell.Action.ID == (uint)AID.ChocoMeteorStreamFirst)
         {
-            var center = Arena.Center;
-            var dir = spell.LocXZ - center;
-            var angle = 45f.Degrees();
-            for (var i = 0; i < 14; ++i)
+            var loc = spell.LocXZ;
+            _aoes.Add(new(circle, loc, default, Module.CastFinishAt(spell)));
+            initialPositions.Add(loc);
+        }
+        else if (spell.Action.ID == (uint)AID.ChocoMeteorStreamRest)
+        {
+            var loc = spell.LocXZ;
+            if (_aoes.Count < 28)
             {
-                _aoes.Add(new(circle, WPos.ClampToGrid(dir.Rotate(i * angle) + center), default, Module.CastFinishAt(spell, i * 2f)));
+                var center = Arena.Center;
+                var dir = loc - center;
+
+                // identify the closest initial position
+                var a = initialPositions[0];
+                var b = initialPositions[1];
+                var distA = (a - loc).LengthSq();
+                var distB = (b - loc).LengthSq();
+                var closest = distA < distB ? a : b;
+                var dirClosest = closest - center;
+
+                var angle = (WDir.Cross(dirClosest, dir) > 0f ? -1f : 1f) * 45f.Degrees(); // cross product to detect rotation direction
+                for (var i = 0; i < 13; ++i)
+                {
+                    var pos = i == 0 ? loc : WPos.ClampToGrid(center + dir.Rotate(i * angle));
+                    _aoes.Add(new(circle, pos, default, Module.CastFinishAt(spell, i * 2f)));
+                }
+
+                if (_aoes.Count == 28)
+                    _aoes.Sort((x, y) => x.Activation.CompareTo(y.Activation));
             }
-            if (_aoes.Count == 28)
-                _aoes.Sort((x, y) => x.Activation.CompareTo(y.Activation));
+            else
+            {
+                var aoes = CollectionsMarshal.AsSpan(_aoes);
+                var maxC = Math.Min(2, 28 - NumCasts);
+                var maxI = NumCasts + maxC;
+
+                for (var i = NumCasts; i < maxI; ++i)
+                {
+                    ref var aoe = ref aoes[i];
+                    if (loc.AlmostEqual(aoe.Origin, 1f))
+                    {
+                        aoe.Origin = loc;
+                        return;
+                    }
+                }
+            }
+        }
+        if (spell.Action.ID == (uint)AID.ChocoMeteorStreamRest) // update location to replace prediction with actual location to ensure pixel perfectness
+        {
+            var count = _aoes.Count;
+            var max = count > 2 ? 2 : count;
+            var aoes = CollectionsMarshal.AsSpan(_aoes);
+            var maxC = Math.Min(max, count - NumCasts);
+            var maxI = NumCasts + maxC;
+            var loc = spell.LocXZ;
+            for (var i = NumCasts; i < maxI; ++i)
+            {
+                ref var aoe = ref aoes[i];
+                if (loc.AlmostEqual(aoe.Origin, 1f))
+                {
+                    aoe.Origin = loc;
+                    return;
+                }
+            }
         }
     }
 
@@ -136,6 +192,7 @@ class ChocoMeteorStream(BossModule module) : Components.GenericAOEs(module)
             if (++NumCasts == 28)
             {
                 _aoes.Clear();
+                initialPositions.Clear();
                 NumCasts = 0;
             }
         }
@@ -162,5 +219,7 @@ class CE22TheHuntForRedChoctoberStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 735, NameID = 7)]
 public class CE22TheHuntForRedChoctober(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(393f, 268), 19.5f, 32)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(393f, 268f), 19.5f, 32)]);
+
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InCircle(Arena.Center, 20f);
 }

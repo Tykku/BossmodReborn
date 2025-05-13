@@ -61,13 +61,13 @@ class EnforcementRay(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if (id == 0x11DA && !teleported)
+        if (id == 0x11DAu && !teleported)
         {
             _aoes.Add(new(cross, WPos.ClampToGrid(actor.Position)));
             if (center != default)
                 UpdateAOEs();
         }
-        else if (id == 0x11D5)
+        else if (id == 0x11D5u)
         {
             startingpositions.Add(actor.Position);
             if (startingpositions.Count == 2)
@@ -103,12 +103,21 @@ class EnforcementRay(BossModule module) : Components.GenericAOEs(module)
 
     private void SortAOEs()
     {
-        _aoes.Sort((a, b) =>
+        var count = _aoes.Count;
+        if (count < 2)
+            return;
+
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
+        if ((aoes[0].Origin - center).LengthSq() > (aoes[1].Origin - center).LengthSq())
+            (aoes[0], aoes[1]) = (aoes[1], aoes[0]);
+        if (count == 3)
         {
-            var distA = (a.Origin - center).LengthSq();
-            var distB = (b.Origin - center).LengthSq();
-            return distA.CompareTo(distB);
-        });
+            if ((aoes[0].Origin - center).LengthSq() > (aoes[2].Origin - center).LengthSq())
+                (aoes[0], _aoes[2]) = (aoes[2], aoes[0]);
+
+            if ((aoes[1].Origin - center).LengthSq() > (aoes[2].Origin - center).LengthSq())
+                (aoes[1], aoes[2]) = (aoes[2], aoes[1]);
+        }
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
@@ -131,9 +140,11 @@ class EnforcementRay(BossModule module) : Components.GenericAOEs(module)
                 }
             }
             SortAOEs();
+
             double[] timings = NumCasts == 1 ? [2.8, 7.9] : [0.6, 7.9, 14.4];
             var lenT = timings.Length;
-            for (var i = 0; i < lenT; ++i)
+            var max = lenT > len ? len : lenT;
+            for (var i = 0; i < max; ++i)
             {
                 aoes[i].Activation = WorldState.FutureTime(timings[i]);
             }

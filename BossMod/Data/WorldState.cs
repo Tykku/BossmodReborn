@@ -64,7 +64,7 @@ public sealed class WorldState
 
         if (CurrentTime != default)
             ops.Add(new OpFrameStart(Frame, default, Client.GaugePayload, Client.CameraAzimuth));
-        if (CurrentZone != 0 || CurrentCFCID != 0)
+        if (CurrentZone != default || CurrentCFCID != default)
             ops.Add(new OpZoneChange(CurrentZone, CurrentCFCID));
         foreach (var (k, v) in RSVEntries)
             ops.Add(new OpRSVData(k, v));

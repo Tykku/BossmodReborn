@@ -61,7 +61,7 @@ public enum ActionAspect : byte
 // because of that, we need to reimplement a lot of the logic here - this has to be synchronized to the code whenever game changes
 public sealed record class ActionDefinition(ActionID ID)
 {
-    public delegate bool ConditionDelegate(WorldState ws, Actor player, Actor? target, AIHints hints);
+    public delegate bool ConditionDelegate(WorldState ws, Actor player, ActionQueue.Entry action, AIHints hints);
     public delegate Actor? SmartTargetDelegate(WorldState ws, Actor player, Actor? target, AIHints hints);
     public delegate Angle? TransformAngleDelegate(WorldState ws, Actor player, Actor? target, AIHints hints);
 
@@ -250,6 +250,22 @@ public sealed class ActionDefinitions : IDisposable
         foreach (var act in typeof(EurekaActionID).GetEnumValues())
             if ((uint)act > 0)
                 RegisterSpell((EurekaActionID)act);
+
+        for (var i = 1u; i <= 6u; i++)
+        {
+            var petAction = new ActionID(ActionType.PetAction, i);
+            var def = new ActionDefinition(petAction)
+            {
+                CastAnimLock = 0,
+                InstantAnimLock = 0,
+            };
+            if (i == 3) // PetAction 3 "Place" is area-targeted
+            {
+                def.Range = 30;
+                def.AllowedTargets = ActionTargets.Area;
+            }
+            Register(def.ID, def);
+        }
     }
 
     public void Dispose()
@@ -269,10 +285,9 @@ public sealed class ActionDefinitions : IDisposable
     public static Actor? FindEsunaTarget(WorldState ws) => ws.Party.WithoutSlot().FirstOrDefault(p => p.Statuses.Any(s => Utils.StatusIsRemovable(s.ID)));
     public static Actor? SmartTargetEsunable(WorldState ws, Actor player, Actor? primaryTarget, AIHints hints) => SmartTargetFriendly(primaryTarget) ?? FindEsunaTarget(ws) ?? player;
 
-    // check if dashing to target will put the player inside a forbidden zone
-    // TODO should we check if dash trajectory will cross any zones with imminent activation?
-    public static bool PreventDashIfDangerous(WorldState _, Actor player, Actor? target, AIHints hints)
+    public static bool DashToTargetCheck(WorldState _, Actor player, ActionQueue.Entry action, AIHints hints)
     {
+        var target = action.Target;
         if (target == null || !_config.PreventDangerousDash)
             return false;
 
@@ -288,20 +303,48 @@ public sealed class ActionDefinitions : IDisposable
         return IsDashDangerous(src, src + dir * MathF.Max(0, dist), hints);
     }
 
-    public static ActionDefinition.ConditionDelegate PreventBackdashIfDangerous(float range)
-         => (ws, player, target, hints) =>
+    public static bool DashToPositionCheck(WorldState _, Actor player, ActionQueue.Entry action, AIHints hints)
+    {
+        if (action.TargetPos == default || !_config.PreventDangerousDash || !_config.PreventDangerousDashExtra)
+            return false;
+
+        if (player.PendingKnockbacks.Count > 0)
+            return true;
+
+        return IsDashDangerous(player.Position, new WPos(action.TargetPos.XZ()), hints);
+    }
+
+    public static ActionDefinition.ConditionDelegate DashFixedDistanceCheck(float range, bool backwards = false)
+        => (ws, player, act, hints) =>
         {
-            if (target == null || !_config.PreventDangerousDash)
+            if (!_config.PreventDangerousDash || !_config.PreventDangerousDashExtra)
+                return false;
+
+            if (player.PendingKnockbacks.Count != 0)
+                return true;
+
+            var dir = act.FacingAngle ?? player.Rotation;
+
+            var dest = player.Position + dir.ToDirection() * range * (backwards ? -1f : 1f);
+
+            return IsDashDangerous(player.Position, dest, hints);
+        };
+
+    public static ActionDefinition.ConditionDelegate BackdashCheck(float range)
+         => (ws, player, act, hints) =>
+        {
+            if (act.Target == null || !_config.PreventDangerousDash || !_config.PreventDangerousDashExtra)
                 return false;
 
             if (player.PendingKnockbacks.Count > 0)
                 return true;
 
-            var dir = target.DirectionTo(player).Normalized();
+            var dir = act.Target.DirectionTo(player).Normalized();
 
             return IsDashDangerous(player.Position, player.Position + dir * range, hints);
         };
 
+    // check if dashing to target will put the player inside a forbidden zone
     private static bool IsDashDangerous(WPos from, WPos to, AIHints hints)
     {
         var center = hints.PathfindMapCenter;
@@ -312,7 +355,7 @@ public sealed class ActionDefinitions : IDisposable
         if (from != to && hints.PathfindMapBounds is ArenaBoundsCustom && hints.PathfindMapBounds.IntersectRay(from - center, to - from) is >= 0 and < float.MaxValue)
             return true;
 
-        return hints.ForbiddenZones.Any(d => d.shapeDistance(to) < 0);
+        return hints.ForbiddenZones.Any(d => d.shapeDistance(to) < 0f);
     }
 
     public BitMask SpellAllowedClasses(Lumina.Excel.Sheets.Action data)
@@ -399,7 +442,7 @@ public sealed class ActionDefinitions : IDisposable
     public float ActionBaseCooldown(ActionID aid) => aid.Type switch
     {
         ActionType.Spell => SpellBaseCooldown(aid.ID),
-        ActionType.Item => ItemData(aid.ID).Cooldowns * (aid.ID > 1000000 ? 0.9f : 1.0f) /*?? 5*/,
+        ActionType.Item => ItemData(aid.ID).Cooldowns * (aid.ID > 1000000u ? 0.9f : 1.0f) /*?? 5*/,
         _ => 5,
     };
 
@@ -471,7 +514,7 @@ public sealed class ActionDefinitions : IDisposable
             Cooldown = cooldown,
             InstantAnimLock = animLock,
         };
-        var aidHQ = new ActionID(ActionType.Item, baseId + 1000000);
+        var aidHQ = new ActionID(ActionType.Item, baseId + 1000000u);
         _definitions[aidHQ] = new(aidHQ)
         {
             AllowedTargets = targets,

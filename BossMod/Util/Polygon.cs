@@ -96,7 +96,7 @@ public class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStarts)
         {
             var holecount = HoleStarts.Count;
             ContourEdgeBuckets[] holeEdgeBuckets;
-            var exteriorTask = Task.Run(() => BuildEdgeBucketsForContour(Exterior));
+            var exterior = BuildEdgeBucketsForContour(Exterior);
             switch (holecount)
             {
                 case 0:
@@ -104,24 +104,18 @@ public class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStarts)
                     break;
                 case 1:
                     holeEdgeBuckets = new ContourEdgeBuckets[1];
-                    holeEdgeBuckets[0] = Task.Run(() => BuildEdgeBucketsForContour(Interior(0))).Result;
+                    holeEdgeBuckets[0] = BuildEdgeBucketsForContour(Interior(0));
                     break;
                 default:
                     holeEdgeBuckets = new ContourEdgeBuckets[holecount];
-                    var holeTasks = new Task[holecount];
-                    for (var i = 0; i < holecount; ++i)
+                    Parallel.For(0, holecount, i =>
                     {
-                        var index = i;
-                        holeTasks[i] = Task.Run(() =>
-                        {
-                            holeEdgeBuckets[index] = BuildEdgeBucketsForContour(Interior(index));
-                        });
-                    }
-                    Task.WaitAll(holeTasks);
+                        holeEdgeBuckets[i] = BuildEdgeBucketsForContour(Interior(i));
+                    });
                     break;
             }
 
-            var newEdgeBuckets = new EdgeBuckets(exteriorTask.Result, holeEdgeBuckets);
+            var newEdgeBuckets = new EdgeBuckets(exterior, holeEdgeBuckets);
             var original = Interlocked.CompareExchange(ref _edgeBuckets, newEdgeBuckets, null);
 
             edgeBuckets = original ?? newEdgeBuckets;
@@ -494,7 +488,7 @@ public class SpatialIndex
         }
     }
 
-    public int[] Query(float px, float py)
+    public ReadOnlySpan<int> Query(float px, float py)
     {
         var cellX = (int)MathF.Floor(px * InvGridSize) - _minX;
         var cellY = (int)MathF.Floor(py * InvGridSize) - _minY;
@@ -576,7 +570,7 @@ public readonly struct PolygonWithHolesDistanceFunction
         var pZ = p.Z;
         var localPoint = new WDir(pX - _origin.X, pZ - _origin.Z);
         if (_polygon.Contains(localPoint)) // NOTE: our usecase doesn't care about distance inside of the polygon, so we can short circuit here
-            return 0f;
+            return default;
         var minDistanceSq = float.MaxValue;
 
         var indices = _spatialIndex.Query(pX, pZ);
@@ -603,7 +597,7 @@ public readonly struct PolygonWithHolesDistanceFunction
         var pZ = p.Z;
         var localPoint = new WDir(pX - _origin.X, pZ - _origin.Z);
         if (!_polygon.Contains(localPoint)) // NOTE: our usecase doesn't care about distance outside of the polygon, so we can short circuit here
-            return 0f;
+            return default;
         var minDistanceSq = float.MaxValue;
 
         var indices = _spatialIndex.Query(pX, pZ);

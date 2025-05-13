@@ -192,4 +192,7 @@ class CE63WornToShadowStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 28)] // bnpcname=9973
-public class CE63WornToShadow(WorldState ws, Actor primary) : BossModule(ws, primary, new(-480f, -690f), new ArenaBoundsCircle(30f));
+public class CE63WornToShadow(WorldState ws, Actor primary) : BossModule(ws, primary, new(-480f, -690f), new ArenaBoundsCircle(30f))
+{
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InCircle(Arena.Center, 30f);
+}

@@ -118,7 +118,7 @@ class AuraSphere(BossModule module) : BossComponent(module)
     }
 }
 
-class SledgeHammer(BossModule module) : Components.LineStack(module, (uint)AID.SledgeHammerMarker, (uint)AID.Sledgehammer3, 4.9f);
+class SledgeHammer(BossModule module) : Components.LineStack(module, aidMarker: (uint)AID.SledgeHammerMarker, (uint)AID.Sledgehammer3, 4.9f);
 class HeavingHaymaker(BossModule module) : Components.RaidwideCast(module, (uint)AID.HeavingHaymaker);
 class LithicImpact(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LithicImpact, new AOEShapeRect(4f, 2f));
 class Whirlwind(BossModule module) : Components.Voidzone(module, 5f, GetVoidzones, 7f)

@@ -2,10 +2,10 @@
 
 public enum OID : uint
 {
-    Boss = 0x2DBB, // R3.375, x1
-    Monoceros = 0x2DB9, // R1.800, x1
-    LlofiiTheForthright = 0x2DBA, // R0.500, x1
-    GraspingRancor = 0x2DBC, // R1.600, spawn during fight
+    Boss = 0x2DBB, // R3.375
+    Monoceros = 0x2DB9, // R1.8
+    LlofiiTheForthright = 0x2DBA, // R0.5
+    GraspingRancor = 0x2DBC, // R1.6
     Helper = 0x233C
 }
 
@@ -44,11 +44,11 @@ class GraspingRancor : Components.SimpleAOEs
 {
     private readonly List<Actor> _hands;
 
-    public GraspingRancor(BossModule module) : base(module, (uint)AID.PurifyingLight, 12)
+    public GraspingRancor(BossModule module) : base(module, (uint)AID.PurifyingLight, 12f)
     {
         Color = Colors.SafeFromAOE;
         Risky = false;
-        _hands = module.Enemies(OID.GraspingRancor);
+        _hands = module.Enemies((uint)OID.GraspingRancor);
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -73,46 +73,33 @@ class GraspingRancor : Components.SimpleAOEs
         {
             var isFrozen = hand.Tether.ID == (uint)TetherID.Frozen;
             Arena.Actor(hand, Colors.Object, true);
-            Arena.AddLine(hand.Position, pc.Position, isFrozen ? Colors.Safe : Colors.Danger);
+            Arena.AddLine(hand.Position, pc.Position, isFrozen ? Colors.Safe : default);
         }
     }
 }
 
 class HatefulMiasma(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.HatefulMiasma, 6f);
 class PoisonedWords(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PoisonedWords, 6f);
-
-class CoffinNails(BossModule module) : Components.GenericAOEs(module)
+class CoffinNails : Components.SimpleAOEs
 {
-    private readonly List<AOEInstance> _aoes = new(4);
-    private static readonly AOEShapeCone cone = new(60f, 45f.Degrees());
-
-    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public CoffinNails(BossModule module) : base(module, (uint)AID.CoffinNails, new AOEShapeCone(60f, 45f.Degrees()))
     {
-        var count = _aoes.Count;
+        MaxDangerColor = 2;
+        MaxRisky = 2;
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        var count = Casters.Count;
         if (count == 0)
-            return [];
-        var aoes = new AOEInstance[count];
-        for (var i = 0; i < count; ++i)
+            return;
+        base.AddAIHints(slot, actor, assignment, hints);
+        // stay close to the middle if there is next a 2nd aoe set
+        if (count > 2)
         {
-            var aoe = _aoes[i];
-            if (i < 2)
-                aoes[i] = count > 2 ? aoe with { Color = Colors.Danger } : aoe;
-            else
-                aoes[i] = aoe with { Risky = false };
+            var aoe = Casters[0];
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(aoe.Origin, 4f), aoe.Activation);
         }
-        return aoes;
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if (spell.Action.ID == (uint)AID.CoffinNails)
-            _aoes.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if (_aoes.Count != 0 && spell.Action.ID == (uint)AID.CoffinNails)
-            _aoes.RemoveAt(0);
     }
 }
 
@@ -136,4 +123,9 @@ class CE21FinalFurlongStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 735, NameID = 6)] // bnpcname=9405
-public class CE21FinalFurlong(WorldState ws, Actor primary) : BossModule(ws, primary, new(644f, 228f), new ArenaBoundsCircle(27f));
+public class CE21FinalFurlong(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
+{
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(644f, 228f), 29.5f, 32)]);
+
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InCircle(Arena.Center, 30f);
+}

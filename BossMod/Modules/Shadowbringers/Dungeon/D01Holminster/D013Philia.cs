@@ -23,8 +23,8 @@ public enum AID : uint
     AethersupRest = 15849, // Helper->self, no cast, range 24+R 120-degree cone
     RightKnout = 15846, // Boss->self, 5.0s cast, range 24 210-degree cone
     LeftKnout = 15847, // Boss->self, 5.0s cast, range 24 210-degree cone
-    Taphephobia = 15842, // Boss->self, 4.5s cast, single-target
-    Taphephobia2 = 16769, // Helper->player, 5.0s cast, range 6 circle
+    TaphephobiaVisual = 15842, // Boss->self, 4.5s cast, single-target
+    Taphephobia = 16769, // Helper->player, 5.0s cast, range 6 circle
     IntoTheLightMarker = 15844, // Helper->player, no cast, single-target, line stack
     IntoTheLightVisual = 17232, // Boss->self, 5.0s cast, single-target
     IntoTheLight = 15845, // Boss->self, no cast, range 50 width 8 rect
@@ -196,13 +196,11 @@ class PendulumFlare(BossModule module) : Components.BaitAwayIcon(module, 20f, (u
 
 class PendulumAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PendulumAOE3, 15f);
 
-class Knout(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(24f, 105f.Degrees()));
-class LeftKnout(BossModule module) : Knout(module, (uint)AID.LeftKnout);
-class RightKnout(BossModule module) : Knout(module, (uint)AID.RightKnout);
+class Knout(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.LeftKnout, (uint)AID.RightKnout], new AOEShapeCone(24f, 105f.Degrees()));
 
-class Taphephobia(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Taphephobia2, 6f);
+class Taphephobia(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Taphephobia, 6f);
 
-class IntoTheLight(BossModule module) : Components.LineStack(module, (uint)AID.IntoTheLightMarker, (uint)AID.IntoTheLight, 5.3f);
+class IntoTheLight(BossModule module) : Components.LineStack(module, aidMarker: (uint)AID.IntoTheLightMarker, (uint)AID.IntoTheLight, 5.3f);
 
 class CatONineTails(BossModule module) : Components.GenericRotatingAOE(module)
 {
@@ -324,8 +322,7 @@ class D013PhiliaStates : StateMachineBuilder
             .ActivateOnEnter<Aethersup>()
             .ActivateOnEnter<Fetters>()
             .ActivateOnEnter<SludgeVoidzone>()
-            .ActivateOnEnter<LeftKnout>()
-            .ActivateOnEnter<RightKnout>()
+            .ActivateOnEnter<Knout>()
             .ActivateOnEnter<Taphephobia>()
             .ActivateOnEnter<IntoTheLight>()
             .ActivateOnEnter<CatONineTails>()

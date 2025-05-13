@@ -96,25 +96,29 @@ class ShockSphere(BossModule module) : Components.Voidzone(module, 7f, GetSphere
 
 class SoulPurge(BossModule module) : Components.GenericAOEs(module)
 {
-    private bool _dualcast;
+    private bool dualCast;
     private readonly List<AOEInstance> _aoes = new(2);
 
-    private static readonly AOEShapeCircle _shapeCircle = new(10);
-    private static readonly AOEShapeDonut _shapeDonut = new(10, 30);
+    private static readonly AOEShapeCircle circle = new(10f);
+    private static readonly AOEShapeDonut donut = new(10f, 30f);
 
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        var aoes = new AOEInstance[count];
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
         for (var i = 0; i < count; ++i)
         {
-            var aoe = _aoes[i];
+            ref var aoe = ref aoes[i];
             if (i == 0)
-                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
+            {
+                if (count > 1)
+                    aoe.Color = Colors.Danger;
+                aoe.Risky = true;
+            }
             else
-                aoes[i] = aoe with { Risky = false };
+                aoe.Risky = false;
         }
         return aoes;
     }
@@ -124,23 +128,27 @@ class SoulPurge(BossModule module) : Components.GenericAOEs(module)
         switch (spell.Action.ID)
         {
             case (uint)AID.ChainMagick:
-                _dualcast = true;
-                break;
-            case (uint)AID.SoulPurgeCircle:
-                AddAOEs(_shapeCircle, _shapeDonut);
+                dualCast = true;
                 break;
             case (uint)AID.SoulPurgeDonut:
-                AddAOEs(_shapeDonut, _shapeCircle);
+                if (!dualCast)
+                    AddAOE(donut);
+                else
+                    AddAOEs(donut, circle);
+                break;
+            case (uint)AID.SoulPurgeCircle:
+                if (!dualCast)
+                    AddAOE(circle);
+                else
+                    AddAOEs(circle, donut);
                 break;
         }
-        void AddAOEs(AOEShape main, AOEShape dual)
+        void AddAOE(AOEShape shape, float delay = default) => _aoes.Add(new(shape, spell.LocXZ, default, Module.CastFinishAt(spell, delay)));
+        void AddAOEs(AOEShape shape1, AOEShape shape2)
         {
-            _aoes.Add(new(main, spell.LocXZ, default, Module.CastFinishAt(spell)));
-            if (_dualcast)
-            {
-                _aoes.Add(new(dual, spell.LocXZ, default, Module.CastFinishAt(spell, 2.1f)));
-                _dualcast = false;
-            }
+            AddAOE(shape1);
+            AddAOE(shape2, 2.1f);
+            dualCast = false;
         }
     }
 
@@ -162,7 +170,7 @@ class SoulSacrifice(BossModule module) : Components.CastInterruptHint(module, (u
 
 class PurifyingLight : Components.SimpleAOEs
 {
-    public PurifyingLight(BossModule module) : base(module, (uint)AID.PurifyingLight, 12)
+    public PurifyingLight(BossModule module) : base(module, (uint)AID.PurifyingLight, 12f)
     {
         Color = Colors.SafeFromAOE;
         Risky = false;
@@ -176,6 +184,7 @@ class CE42FromBeyondTheGraveStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<DevourSoul>()
             .ActivateOnEnter<Blight>()
+            .ActivateOnEnter<PurifyingLight>()
             .ActivateOnEnter<GallowsMarch>()
             .ActivateOnEnter<ShockSphere>()
             .ActivateOnEnter<SoulPurge>()
@@ -186,19 +195,20 @@ class CE42FromBeyondTheGraveStates : StateMachineBuilder
             .ActivateOnEnter<TacticalAero>()
             .ActivateOnEnter<EntropicFlame>()
             .ActivateOnEnter<DarkFlare>()
-            .ActivateOnEnter<SoulSacrifice>()
-            .ActivateOnEnter<PurifyingLight>();
+            .ActivateOnEnter<SoulSacrifice>();
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 20)] // bnpcname=9931
-public class CE42FromBeyondTheGrave(WorldState ws, Actor primary) : BossModule(ws, primary, new(-60, 800), new ArenaBoundsCircle(30))
+public class CE42FromBeyondTheGrave(WorldState ws, Actor primary) : BossModule(ws, primary, new(-60f, 800f), new ArenaBoundsCircle(30f))
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(Enemies(OID.WarWraith));
-        Arena.Actors(Enemies(OID.HernaisTheTenacious));
-        Arena.Actors(Enemies(OID.DyunbuTheAccursed));
+        Arena.Actors(Enemies((uint)OID.WarWraith));
+        Arena.Actors(Enemies((uint)OID.HernaisTheTenacious));
+        Arena.Actors(Enemies((uint)OID.DyunbuTheAccursed));
     }
+
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InCircle(Arena.Center, 30f);
 }

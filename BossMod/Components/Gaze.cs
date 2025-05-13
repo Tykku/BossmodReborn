@@ -144,6 +144,7 @@ public class CastGaze(BossModule module, uint aid, bool inverted = false, float 
 // cast weakpoint component: a number of casts (with supposedly non-intersecting shapes), player should face specific side determined by active status to the caster for aoe he's in
 public class CastWeakpoint(BossModule module, uint aid, AOEShape shape, uint statusForward, uint statusBackward, uint statusLeft, uint statusRight) : GenericGaze(module, aid)
 {
+    public CastWeakpoint(BossModule module, uint aid, float radius, uint statusForward, uint statusBackward, uint statusLeft, uint statusRight) : this(module, aid, new AOEShapeCircle(radius), statusForward, statusBackward, statusLeft, statusRight) { }
     public AOEShape Shape = shape;
     public readonly uint[] Statuses = [statusForward, statusLeft, statusBackward, statusRight]; // 4 elements: fwd, left, back, right
     private readonly List<Actor> _casters = [];
@@ -199,5 +200,20 @@ public class CastWeakpoint(BossModule module, uint aid, AOEShape shape, uint sta
         var statusKind = Array.IndexOf(Statuses, status.ID);
         if (statusKind >= 0)
             _playerWeakpoints.Remove(actor.InstanceID);
+    }
+
+    public override void AddHints(int slot, Actor actor, TextHints hints)
+    {
+        var eyes = ActiveEyes(slot, actor);
+        var len = eyes.Length;
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var eye = ref eyes[i];
+            if (!HitByEye(ref actor, eye))
+            {
+                hints.Add("Face open weakpoint to eye!");
+                return;
+            }
+        }
     }
 }

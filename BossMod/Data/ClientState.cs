@@ -38,6 +38,11 @@ public sealed class ClientState
     public record struct Stats(int SkillSpeed, int SpellSpeed, int Haste);
     public record struct Pet(ulong InstanceID, byte Order, byte Stance);
     public record struct DutyAction(ActionID Action, byte CurCharges, byte MaxCharges);
+    public record struct HateInfo(ulong InstanceID, Hate[] Targets)
+    {
+        public readonly Hate[] Targets = Targets;
+    }
+    public record struct Hate(ulong InstanceID, int Enmity);
 
     public const int NumCooldownGroups = 82;
     public const int NumClassLevels = 32; // see ClassJob.ExpArrayIndex
@@ -60,6 +65,7 @@ public sealed class ClientState
     public ulong FocusTargetId;
     public Angle ForcedMovementDirection; // used for temporary misdirection and spinning states
     public uint[] ContentKeyValueData = new uint[6]; // used for content-specific persistent player attributes, like bozja resistance rank
+    public HateInfo CurrentTargetHate = new(0, new Hate[32]);
 
     public uint GetContentValue(uint key) => ContentKeyValueData[0] == key
         ? ContentKeyValueData[1]
@@ -92,14 +98,14 @@ public sealed class ClientState
 
     public List<WorldState.Operation> CompareToInitial()
     {
-        List<WorldState.Operation> ops = new(14);
+        List<WorldState.Operation> ops = new(15);
         if (CountdownRemaining != null)
             ops.Add(new OpCountdownChange(CountdownRemaining));
 
-        if (AnimationLock != 0)
+        if (AnimationLock != default)
             ops.Add(new OpAnimationLockChange(AnimationLock));
 
-        if (ComboState.Remaining != 0)
+        if (ComboState.Remaining != default)
             ops.Add(new OpComboChange(ComboState));
 
         if (PlayerStats != default)
@@ -149,9 +155,10 @@ public sealed class ClientState
         }
 
         var hasNonZeroBMSpell = false;
-        for (var i = 0; i < BlueMageSpells.Length; ++i)
+        var lenSpells = BlueMageSpells.Length;
+        for (var i = 0; i < lenSpells; ++i)
         {
-            if (BlueMageSpells[i] != 0)
+            if (BlueMageSpells[i] != default)
             {
                 hasNonZeroBMSpell = true;
                 break;
@@ -161,9 +168,10 @@ public sealed class ClientState
             ops.Add(new OpBlueMageSpellsChange(BlueMageSpells));
 
         var hasNonZeroLevels = false;
-        for (var i = 0; i < ClassJobLevels.Length; ++i)
+        var lenLevels = ClassJobLevels.Length;
+        for (var i = 0; i < lenLevels; ++i)
         {
-            if (ClassJobLevels[i] != 0)
+            if (ClassJobLevels[i] != default)
             {
                 hasNonZeroLevels = true;
                 break;
@@ -172,17 +180,29 @@ public sealed class ClientState
         if (hasNonZeroLevels)
             ops.Add(new OpClassJobLevelsChange(ClassJobLevels));
 
-        if (ActiveFate.ID != 0)
+        if (ActiveFate.ID != default)
             ops.Add(new OpActiveFateChange(ActiveFate));
 
-        if (ActivePet.InstanceID != 0)
+        if (ActivePet.InstanceID != default)
             ops.Add(new OpActivePetChange(ActivePet));
 
-        if (FocusTargetId != 0)
+        if (FocusTargetId != default)
             ops.Add(new OpFocusTargetChange(FocusTargetId));
 
         if (ForcedMovementDirection != default)
             ops.Add(new OpForcedMovementDirectionChange(ForcedMovementDirection));
+        var hasNonDefaultTarget = false;
+        for (var i = 0; i < 32; ++i)
+        {
+            ref readonly var target = ref CurrentTargetHate.Targets[i];
+            if (target != default)
+            {
+                hasNonDefaultTarget = true;
+                break;
+            }
+        }
+        if (CurrentTargetHate.InstanceID != default || hasNonDefaultTarget)
+            ops.Add(new OpHateChange(CurrentTargetHate.InstanceID, CurrentTargetHate.Targets));
         return ops;
     }
 
@@ -191,13 +211,13 @@ public sealed class ClientState
         if (CountdownRemaining != null)
             CountdownRemaining = CountdownRemaining.Value - dt;
 
-        if (AnimationLock > 0)
+        if (AnimationLock > 0f)
             AnimationLock = Math.Max(0, AnimationLock - dt);
 
-        if (ComboState.Remaining > 0)
+        if (ComboState.Remaining > 0f)
         {
             ComboState.Remaining -= dt;
-            if (ComboState.Remaining <= 0)
+            if (ComboState.Remaining <= 0f)
                 ComboState = default;
         }
 
@@ -206,7 +226,7 @@ public sealed class ClientState
         {
             cd.Elapsed += dt;
             if (cd.Elapsed >= cd.Total)
-                cd.Elapsed = cd.Total = 0;
+                cd.Elapsed = cd.Total = default;
         }
     }
 
@@ -477,5 +497,24 @@ public sealed class ClientState
     {
         protected override void Exec(WorldState ws) => ws.Client.FateInfo.Fire(this);
         public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("FATE"u8).Emit(FateId).Emit(StartTime.Ticks);
+    }
+
+    public Event<OpHateChange> HateChanged = new();
+    public sealed record class OpHateChange(ulong InstanceID, Hate[] Targets) : WorldState.Operation
+    {
+        public readonly Hate[] Targets = Targets;
+        protected override void Exec(WorldState ws)
+        {
+            ws.Client.CurrentTargetHate = new(InstanceID, Targets);
+            ws.Client.HateChanged.Fire(this);
+        }
+        public override void Write(ReplayRecorder.Output output)
+        {
+            output.EmitFourCC("HATE"u8).EmitActor(InstanceID);
+            var countNonEmpty = Array.FindIndex(Targets, t => t != default) + 1;
+            output.Emit(countNonEmpty);
+            for (var i = 0; i < countNonEmpty; i++)
+                output.EmitActor(Targets[i].InstanceID).Emit(Targets[i].Enmity);
+        }
     }
 }

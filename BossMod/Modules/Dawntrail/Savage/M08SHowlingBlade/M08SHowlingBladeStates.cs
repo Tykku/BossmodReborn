@@ -30,7 +30,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
         TerrestrialRage1(id + 0xB0000u, 14.5f);
         WolvesReign3(id + 0xC0000u, 4.1f);
         GreatDivide(id + 0xD0000u, 5.4f);
-        TerrestrialRage2(id + 0xE0000u, 11.3f);
+        BeckonMoonlight(id + 0xE0000u, 11.3f);
         WindfangStonefang2(id + 0xF0000u, 3.3f);
         TrackingTremors(id + 0x100000u, 10f);
         ExtraplanarPursuit(id + 0x110000u, 1.8f);
@@ -244,9 +244,9 @@ class M08SHowlingBladeStates : StateMachineBuilder
             .DeactivateOnExit<WealOfStone>();
     }
 
-    private void TerrestrialRage2(uint id, float delay)
+    private void BeckonMoonlight(uint id, float delay)
     {
-        Cast(id, (uint)AID.BeckonMoonlight, delay, 3f, "Terrestial Rage 2")
+        Cast(id, (uint)AID.BeckonMoonlight, delay, 3f, "Beckon Moonlight")
             .ActivateOnExit<MoonbeamsBite>()
             .ActivateOnExit<Heavensearth>()
             .ActivateOnExit<SuspendedStone>();

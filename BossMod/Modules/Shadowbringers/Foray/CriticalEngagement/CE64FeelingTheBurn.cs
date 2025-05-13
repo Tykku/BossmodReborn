@@ -208,4 +208,6 @@ public class CE64FeelingTheBurn(WorldState ws, Actor primary) : BossModule(ws, p
         base.DrawEnemies(pcSlot, pc);
         Arena.Actors(Enemies((uint)OID.Escort2));
     }
+
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InSquare(Arena.Center, 24f);
 }
