@@ -92,7 +92,7 @@ public static class UIMisc
     public static void HelpMarker(Func<string> helpText, FontAwesomeIcon icon = FontAwesomeIcon.InfoCircle)
     {
         IconText(icon, "(?)");
-        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+        if (ImGui.IsItemHovered())
         {
             using var tooltip = ImRaii.Tooltip();
             using var wrap = ImRaii.TextWrapPos(ImGui.GetFontSize() * 35f);
