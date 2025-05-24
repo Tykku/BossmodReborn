@@ -11,7 +11,7 @@ class CaloricTheory1Part1(BossModule module) : Components.UniformStackSpread(mod
         if ((AID)spell.Action.ID == AID.CaloricTheory1InitialFire && WorldState.Actors.Find(spell.TargetID) is var target && target != null)
         {
             AddStack(target, Module.CastFinishAt(spell));
-            foreach (var (_, p) in Raid.WithSlot(true).ExcludedFromMask(_initialMarkers))
+            foreach (var (_, p) in Raid.WithSlot(true, true, true).ExcludedFromMask(_initialMarkers))
                 AddSpread(p, Module.CastFinishAt(spell));
         }
     }
@@ -166,4 +166,4 @@ class CaloricTheory2Part2(BossModule module) : Components.UniformStackSpread(mod
     }
 }
 
-class EntropicExcess(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.EntropicExcess), 7);
+class EntropicExcess(BossModule module) : Components.SimpleAOEs(module, (uint)AID.EntropicExcess, 7);

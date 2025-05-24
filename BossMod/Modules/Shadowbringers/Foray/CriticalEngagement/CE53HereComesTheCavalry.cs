@@ -3,10 +3,10 @@
 public enum OID : uint
 {
     Boss = 0x31C7, // R7.200, x1
-    Helper = 0x233C, // R0.500, x4
     ImperialAssaultCraft = 0x2EE8, // R0.500, x22, also helper?
     Cavalry = 0x31C6, // R4.000, x9, and more spawn during fight
     FireShot = 0x1EB1D3, // R0.500, EventObj type, spawn during fight
+    Helper = 0x233C
 }
 
 public enum AID : uint
@@ -36,99 +36,84 @@ public enum AID : uint
     FarAfieldAOE = 23947, // Helper->self, 5.0s cast, range 10-30 donut
     CallControlledBurn = 23950, // Boss->self, 5.0s cast, single-target, visual (spread)
     CallControlledBurnAOE = 23951, // ImperialAssaultCraft->players, 5.0s cast, range 6 circle spread
-    MagitekBlaster = 23952, // Boss->players, 5.0s cast, range 8 circle stack
+    MagitekBlaster = 23952 // Boss->players, 5.0s cast, range 8 circle stack
 }
 
 public enum TetherID : uint
 {
-    RawSteel = 57, // Boss->player
+    RawSteel = 57 // Boss->player
 }
 
-class StormSlash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.StormSlash), new AOEShapeCone(8, 60.Degrees()));
-class MagitekBurst(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MagitekBurst), 8);
-class BurnishedJoust(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.BurnishedJoust), 3);
+class StormSlash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.StormSlash, new AOEShapeCone(8f, 60f.Degrees()));
+class MagitekBurst(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MagitekBurst, 8f);
+class BurnishedJoust(BossModule module) : Components.ChargeAOEs(module, (uint)AID.BurnishedJoust, 3f);
 
 // note: there are two casters, probably to avoid 32-target limit - we only want to show one
-class GustSlash(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.GustSlashAOE), 35, true, 1, null, Kind.DirForward);
+class GustSlash(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.GustSlashAOE, 35f, true, 1, null, Kind.DirForward);
 
-class FireShot(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.FireShot), m => m.Enemies(OID.FireShot).Where(e => e.EventState != 7), 0);
-class AirborneExplosion(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AirborneExplosion), 10);
-class RideDownAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RideDown), new AOEShapeRect(60, 5));
+class FireShot(BossModule module) : Components.VoidzoneAtCastTarget(module, 6f, (uint)AID.FireShot, GetVoidzones, 0)
+{
+    private static Actor[] GetVoidzones(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.FireShot);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
+
+        var voidzones = new Actor[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (z.EventState != 7)
+                voidzones[index++] = z;
+        }
+        return voidzones[..index];
+    }
+}
+
+class AirborneExplosion(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AirborneExplosion, 10);
+class RideDownAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RideDown, new AOEShapeRect(60, 5));
 
 // note: there are two casters, probably to avoid 32-target limit - we only want to show one
 // TODO: generalize to reusable component
-class RideDownKnockback(BossModule module) : Components.Knockback(module, ActionID.MakeSpell(AID.RideDownAOE), false, 1)
+class RideDownKnockback(BossModule module) : Components.GenericKnockback(module, (uint)AID.RideDownAOE, false, 1)
 {
-    private readonly List<Source> _sources = [];
-    private static readonly AOEShapeCone _shape = new(30, 90.Degrees());
+    private readonly List<Knockback> _sources = new(2);
+    private static readonly AOEShapeCone _shape = new(30f, 90f.Degrees());
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor) => _sources;
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor) => CollectionsMarshal.AsSpan(_sources);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             _sources.Clear();
+            var act = Module.CastFinishAt(spell);
             // charge always happens through center, so create two sources with origin at center looking orthogonally
-            _sources.Add(new(Module.Center, 12, Module.CastFinishAt(spell), _shape, spell.Rotation + 90.Degrees(), Kind.DirForward));
-            _sources.Add(new(Module.Center, 12, Module.CastFinishAt(spell), _shape, spell.Rotation - 90.Degrees(), Kind.DirForward));
+            _sources.Add(new(Arena.Center, 12f, act, _shape, spell.Rotation + 90f.Degrees(), Kind.DirForward));
+            _sources.Add(new(Arena.Center, 12f, act, _shape, spell.Rotation - 90f.Degrees(), Kind.DirForward));
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             _sources.Clear();
     }
 }
 
-class CallRaze(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CallRaze), "Multi raidwide");
+class CallRaze(BossModule module) : Components.RaidwideCast(module, (uint)AID.CallRaze, "Multi raidwide");
 
 // TODO: find out optimal distance, test results so far:
 // - distance ~6.4 (inside hitbox) and 1 vuln stack: 79194 damage
 // - distance ~22.2 and 4 vuln stacks: 21083 damage
 // since hitbox is 7.2 it is probably starting to be optimal around distance 15
-class RawSteel(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.RawSteel), 2)
-{
-    private const float _safeDistance = 15;
-
-    public override void AddHints(int slot, Actor actor, TextHints hints)
-    {
-        base.AddHints(slot, actor, hints);
-        if (ActiveBaitsOn(actor).Any(b => b.Target.Position.InCircle(b.Source.Position, _safeDistance)))
-            hints.Add("Go further away from boss!");
-    }
-
-    public override void AddGlobalHints(GlobalHints hints)
-    {
-        if (CurrentBaits.Count > 0)
-            hints.Add("Proximity Tankbuster + Charge");
-    }
-
-    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
-    {
-        base.AddAIHints(slot, actor, assignment, hints);
-        foreach (var b in ActiveBaits)
-        {
-            if (b.Target == actor)
-                hints.AddForbiddenZone(ShapeDistance.Circle(b.Source.Position, _safeDistance));
-            hints.PredictedDamage.Add((new BitMask().WithBit(Raid.FindSlot(b.Target.InstanceID)), Module.CastFinishAt(b.Source.CastInfo)));
-        }
-    }
-
-    public override void DrawArenaForeground(int pcSlot, Actor pc)
-    {
-        foreach (var bait in ActiveBaitsOn(pc))
-        {
-            bait.Shape.Outline(Arena, BaitOrigin(bait), bait.Rotation, bait.Target.Position.InCircle(bait.Source.Position, 15) ? Colors.Danger : Colors.Safe);
-        }
-    }
-}
-
-class CloseQuarters(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CloseQuartersAOE), new AOEShapeCircle(15));
-class FarAfield(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FarAfieldAOE), new AOEShapeDonut(10, 30));
-class CallControlledBurn(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.CallControlledBurnAOE), 6);
-class MagitekBlaster(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.MagitekBlaster), 8);
+class RawSteel(BossModule module) : Components.BaitAwayChargeTether(module, 2f, 5f, (uint)AID.RawSteel, (uint)AID.RawSteel, minimumDistance: 15f);
+class CloseQuarters(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CloseQuartersAOE, 15f);
+class FarAfield(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FarAfieldAOE, new AOEShapeDonut(10f, 30f));
+class CallControlledBurn(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.CallControlledBurnAOE, 6f);
+class MagitekBlaster(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.MagitekBlaster, 8f);
 
 class CE53HereComesTheCavalryStates : StateMachineBuilder
 {
@@ -152,14 +137,14 @@ class CE53HereComesTheCavalryStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn, Malediktus", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 22)] // bnpcname=9929
-public class CE53HereComesTheCavalry(WorldState ws, Actor primary) : BossModule(ws, primary, new(-750, 790), new ArenaBoundsCircle(25))
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 22)] // bnpcname=9929
+public class CE53HereComesTheCavalry(WorldState ws, Actor primary) : BossModule(ws, primary, new(-750f, 790f), new ArenaBoundsCircle(25f))
 {
-    protected override bool CheckPull() => PrimaryActor.InCombat; // not targetable at start
+    protected override bool CheckPull() => PrimaryActor.InCombat && Raid.Player()!.Position.InCircle(Arena.Center, 25f); // not targetable at start
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(Enemies(OID.Cavalry));
+        Arena.Actors(Enemies((uint)OID.Cavalry));
     }
 }

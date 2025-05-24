@@ -14,7 +14,7 @@ internal sealed class DTRProvider : IDisposable
     private readonly AIManager _ai;
     private readonly IDtrBarEntry _autorotationEntry = Service.DtrBar.Get("bmr-autorotation");
     private readonly IDtrBarEntry _aiEntry = Service.DtrBar.Get("bmr-ai");
-    private readonly AIConfig _aiConfig = Service.Config.Get<AIConfig>();
+    private static readonly AIConfig _aiConfig = Service.Config.Get<AIConfig>();
     private bool _wantOpenPopup;
 
     public DTRProvider(RotationModuleManager manager, AIManager ai)

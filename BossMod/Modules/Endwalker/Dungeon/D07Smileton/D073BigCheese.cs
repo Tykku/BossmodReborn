@@ -32,30 +32,15 @@ public enum AID : uint
     UnknownAbility = 27700, // ExcavationBomb1->self, no cast, single-target
 }
 
-public enum SID : uint
-{
-    VulnerabilityUp = 1789, // Bomb/ExcavationBomb1->player, extra=0x1
-    Paralysis = 482, // ExcavationBomb1->player, extra=0x0
-}
+class Disassembler(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.RightDisassembler, (uint)AID.LeftDisassembler], new AOEShapeRect(30f, 5f));
+class LevelingMissile2(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.LevelingMissile2, 6f);
+class ElectricArc(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.ElectricArc, 6f, 4, 4);
 
-public enum IconID : uint
-{
-    Icon218 = 218, // player
-    Icon62 = 62, // player
-    Icon139 = 139, // player
-}
+class Excavated(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Excavated, 8f);
 
-class RightDisassembler(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RightDisassembler), new AOEShapeRect(30, 5));
-class LeftDisassembler(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeftDisassembler), new AOEShapeRect(30, 5));
+class IronKiss(BossModule module) : Components.SimpleAOEs(module, (uint)AID.IronKiss, 16f);
 
-class LevelingMissile2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.LevelingMissile2), 6);
-class ElectricArc(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.ElectricArc), 6, 4, 4);
-
-class Excavated(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Excavated), new AOEShapeCircle(8));
-
-class IronKiss(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.IronKiss), 16);
-
-class PiercingMissile(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.PiercingMissile));
+class PiercingMissile(BossModule module) : Components.SingleTargetCast(module, (uint)AID.PiercingMissile);
 
 class D073BigCheeseStates : StateMachineBuilder
 {
@@ -63,8 +48,7 @@ class D073BigCheeseStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<LevelingMissile2>()
-            //.ActivateOnEnter<RightDisassembler>()
-            //.ActivateOnEnter<LeftDisassembler>()
+            .ActivateOnEnter<Disassembler>()
             .ActivateOnEnter<ElectricArc>()
             .ActivateOnEnter<PiercingMissile>()
             .ActivateOnEnter<IronKiss>()

@@ -2,7 +2,6 @@ namespace BossMod.Shadowbringers.Dungeon.D11HeroesGauntlet.D111SpectralThief;
 
 public enum OID : uint
 {
-
     Boss = 0x2DEC, // R0.875
     SpectralThief = 0x2DED, // R0.875
     Marker = 0x1EAED9,
@@ -41,28 +40,31 @@ public enum SID : uint
     Dash = 2193 // none->Boss/SpectralThief, extra=0xB0/0xB1/0xB4/0xB3/0xB2/0xB5
 }
 
-class SpectralWhirlwind(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SpectralWhirlwind));
-class SpectralDream(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.SpectralDream));
-class SpectralGust(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SpectralGust), 5);
-class CowardsCunning(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CowardsCunning), new AOEShapeRect(55, 1, 5));
+class SpectralWhirlwind(BossModule module) : Components.RaidwideCast(module, (uint)AID.SpectralWhirlwind);
+class SpectralDream(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.SpectralDream);
+class SpectralGust(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.SpectralGust, 5f);
+class CowardsCunning(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CowardsCunning, new AOEShapeRect(60f, 1f));
 
 class VacuumBladePapercutter(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly CowardsCunning _aoe = module.FindComponent<CowardsCunning>()!;
 
-    private static readonly AOEShapeCircle circle = new(15);
-    private static readonly AOEShapeRect rect = new(40, 7, 40);
+    private static readonly AOEShapeCircle circle = new(15f);
+    private static readonly AOEShapeRect rect = new(40f, 7f, 40f);
     private readonly List<AOEInstance> _aoes = [];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((OID)actor.OID == OID.Boss && (SID)status.ID == SID.Dash)
+        if (actor == Module.PrimaryActor && status.ID == (uint)SID.Dash)
         {
-            var activation = WorldState.FutureTime(8.1f);
-            foreach (var e in Module.Enemies(OID.Marker))
+            var activation = WorldState.FutureTime(8.1d);
+            var marker = Module.Enemies((uint)OID.Marker);
+            var count = marker.Count;
+            for (var i = 0; i < count; ++i)
             {
+                var e = marker[i];
                 switch (status.Extra)
                 {
                     case 0xB0:
@@ -81,13 +83,13 @@ class VacuumBladePapercutter(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.Papercutter1 or AID.Papercutter2 or AID.VacuumBlade1 or AID.VacuumBlade2)
+        if (spell.Action.ID is (uint)AID.Papercutter1 or (uint)AID.Papercutter2 or (uint)AID.VacuumBlade1 or (uint)AID.VacuumBlade2)
             _aoes.Clear();
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (_aoe.ActiveCasters.Any())
+        if (_aoe.ActiveCasters.Length != 0)
         { }
         else
             base.AddAIHints(slot, actor, assignment, hints);
@@ -108,4 +110,4 @@ class D111SpectralThiefStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 737, NameID = 9505)]
-public class D111SpectralThief(WorldState ws, Actor primary) : BossModule(ws, primary, new(-680, 450), new ArenaBoundsSquare(19.5f));
+public class D111SpectralThief(WorldState ws, Actor primary) : BossModule(ws, primary, new(-680f, 450f), new ArenaBoundsSquare(19.5f));

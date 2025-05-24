@@ -1,8 +1,8 @@
 ﻿namespace BossMod.Endwalker.Ultimate.DSW1;
 
-class HeavensflameAOE(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.HeavensflameAOE));
+class HeavensflameAOE(BossModule module) : Components.CastCounter(module, (uint)AID.HeavensflameAOE);
 
-class HeavensflameKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.FaithUnmoving), 16)
+class HeavensflameKnockback(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.FaithUnmoving, 16)
 {
     private readonly WPos[] _playerAdjustedPositions = new WPos[PartyState.MaxPartySize];
     private readonly int[] _playerIcons = new int[PartyState.MaxPartySize]; // 0 = unassigned, 1 = circle/red, 2 = triangle/green, 3 = cross/blue, 4 = square/purple
@@ -13,7 +13,7 @@ class HeavensflameKnockback(BossModule module) : Components.KnockbackFromCastTar
 
     public override void Update()
     {
-        foreach (var (slot, player) in Raid.WithSlot())
+        foreach (var (slot, player) in Raid.WithSlot(false, true, true))
             _playerAdjustedPositions[slot] = AwayFromSource(player.Position, Casters.FirstOrDefault(), Distance);
     }
 
@@ -29,7 +29,7 @@ class HeavensflameKnockback(BossModule module) : Components.KnockbackFromCastTar
         if (!Module.InBounds(actorAdjPos))
             hints.Add("About to be knocked into wall!");
 
-        if (Raid.WithSlot().Exclude(actor).WhereSlot(s => _playerAdjustedPositions[s].InCircle(actorAdjPos, _aoeRadius)).Any())
+        if (Raid.WithSlot(false, true, true).Exclude(actor).WhereSlot(s => _playerAdjustedPositions[s].InCircle(actorAdjPos, _aoeRadius)).Any())
             hints.Add("Spread!");
 
         var partner = FindTetheredPartner(slot);
@@ -54,7 +54,7 @@ class HeavensflameKnockback(BossModule module) : Components.KnockbackFromCastTar
             Arena.AddCircle(hint, 1, Colors.Safe);
             //var dir = Vector3.Normalize(pos.Value - _knockbackSource.Position);
             //var adjPos = Arena.ClampToBounds(_knockbackSource.Position + 50 * dir);
-            //Arena.AddLine(Module.Center, adjPos, Colors.Safe);
+            //Arena.AddLine(Arena.Center, adjPos, Colors.Safe);
         }
 
         var partner = FindTetheredPartner(pcSlot);
@@ -63,7 +63,7 @@ class HeavensflameKnockback(BossModule module) : Components.KnockbackFromCastTar
 
         DrawKnockback(pc, _playerAdjustedPositions[pcSlot], Arena);
 
-        foreach (var (slot, _) in Raid.WithSlot().Exclude(pc))
+        foreach (var (slot, _) in Raid.WithSlot(false, true, true).Exclude(pc))
             Arena.AddCircle(_playerAdjustedPositions[slot], _aoeRadius, Colors.Danger);
     }
 
@@ -126,21 +126,21 @@ class HeavensflameKnockback(BossModule module) : Components.KnockbackFromCastTar
                     switch (icon)
                     {
                         case 1: // circle - both on DPS, show both E and W and let players adjust
-                            yield return Module.Center + offset;
-                            yield return Module.Center - offset;
+                            yield return Arena.Center + offset;
+                            yield return Arena.Center - offset;
                             break;
                         case 2: // triangle - healer SE, dps NW
                         case 3: // cross - healer S, tank N
                             if (Raid[slot]?.Role == Role.Healer)
-                                yield return Module.Center + offset;
+                                yield return Arena.Center + offset;
                             else
-                                yield return Module.Center - offset;
+                                yield return Arena.Center - offset;
                             break;
                         case 4: // square - tank NE, dps SW
                             if (Raid[slot]?.Role == Role.Tank)
-                                yield return Module.Center - offset;
+                                yield return Arena.Center - offset;
                             else
-                                yield return Module.Center + offset;
+                                yield return Arena.Center + offset;
                             break;
                     }
                 }

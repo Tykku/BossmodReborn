@@ -12,7 +12,7 @@ public enum AID : uint
     BeeBeHere = 39483, // Boss->self, 4.0s cast, range 10-40 donut
     ResonantBuzz = 39486, // Boss->self, 5.0s cast, range 40 circle
     StingingVenom = 39488, // Boss->player, no cast, single-target
-    FrenziedSting = 39489, // Boss->player, 5.0s cast, tankbuster.
+    FrenziedSting = 39489, // Boss->player, 5.0s cast, tankbuster
     StraightSpindle = 39490 // Boss->self, 4.0s cast, rect 50 range 5 width
 }
 
@@ -26,71 +26,60 @@ public enum SID : uint
     AboutFace = 2162
 }
 
-class ResonantBuzz(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ResonantBuzz), new AOEShapeCircle(40));
-
-class ResonantBuzzMarch(BossModule module) : Components.StatusDrivenForcedMarch(module, 13, (uint)SID.ForwardMarch, (uint)SID.AboutFace, (uint)SID.LeftFace, (uint)SID.RightFace) // TODO: AI still doesn't seem to always get the correct safe spot when BeeBeAOE is a donut.
+class ResonantBuzz(BossModule module) : Components.RaidwideCast(module, (uint)AID.ResonantBuzz, "Apply forced march!");
+class ResonantBuzzMarch(BossModule module) : Components.StatusDrivenForcedMarch(module, 3f, (uint)SID.ForwardMarch, (uint)SID.AboutFace, (uint)SID.LeftFace, (uint)SID.RightFace)
 {
-    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => Module.FindComponent<BeeBeAOE>()?.ActiveAOEs(slot, actor).Any(a => a.Shape.Check(pos, a.Origin, a.Rotation)) ?? false;
+    private readonly BeeBeAOE _aoe = module.FindComponent<BeeBeAOE>()!;
 
-    public override void AddGlobalHints(GlobalHints hints)
+    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos)
     {
-        if (Module.PrimaryActor.CastInfo?.IsSpell(AID.ResonantBuzz) ?? false)
-            hints.Add("Forced March! Check debuff and aim inside safe zone!");
+        if (_aoe.AOE is Components.GenericAOEs.AOEInstance aoe)
+        {
+            if (aoe.Check(pos))
+                return true;
+        }
+        return false;
+    }
+
+    public override void AddHints(int slot, Actor actor, TextHints hints)
+    {
+        var movements = ForcedMovements(actor);
+        var count = movements.Count;
+        if (count == 0)
+            return;
+        var last = movements[count - 1];
+        if (last.from != last.to && DestinationUnsafe(slot, actor, last.to))
+            hints.Add("Aim outside of the AOE!");
     }
 }
 
-class StraightSpindle(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.StraightSpindle), new AOEShapeRect(50, 2.5f));
-class FrenziedSting(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.FrenziedSting));
+class StraightSpindle(BossModule module) : Components.SimpleAOEs(module, (uint)AID.StraightSpindle, new AOEShapeRect(50f, 2.5f));
+class FrenziedSting(BossModule module) : Components.SingleTargetCast(module, (uint)AID.FrenziedSting);
 
 class BeeBeAOE(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _activeAOEs = [];
-    private static readonly AOEShapeCircle _shapeCircle = new(12);
-    private static readonly AOEShapeDonut _shapeDonut = new(10, 40);
+    public AOEInstance? AOE;
+    private static readonly AOEShapeCircle _shapeCircle = new(12f);
+    private static readonly AOEShapeDonut _shapeDonut = new(10f, 40f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _activeAOEs;
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref AOE);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (caster != Module.PrimaryActor)
-            return;
-
-        switch ((AID)spell.Action.ID)
+        AOEShape? shape = spell.Action.ID switch
         {
-            case AID.BeeBeGone:
-                _activeAOEs.Add(new(_shapeCircle, caster.Position, default, WorldState.FutureTime(15)));
-                break;
-            case AID.BeeBeHere:
-                _activeAOEs.Add(new(_shapeDonut, caster.Position, default, WorldState.FutureTime(15)));
-                break;
-        }
+            (uint)AID.BeeBeGone => _shapeCircle,
+            (uint)AID.BeeBeHere => _shapeDonut,
+            _ => null
+        };
+        if (shape != null)
+            AOE = new(shape, spell.LocXZ, default, Module.CastFinishAt(spell, 0.8f));
     }
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if (caster != Module.PrimaryActor)
-            return;
 
-        switch ((AID)spell.Action.ID)
-        {
-            case AID.BeeBeGone:
-            case AID.BeeBeHere:
-                var currentAOE = _activeAOEs[0];
-                _activeAOEs[0] = new(currentAOE.Shape, currentAOE.Origin, currentAOE.Rotation, currentAOE.Activation, Colors.Danger);
-                break;
-        }
-    }
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if (actor != Module.PrimaryActor)
-            return;
-
-        switch ((SID)status.ID)
-        {
-            case SID.BeeBeGone:
-            case SID.BeeBeHere:
-                _activeAOEs.Clear();
-                break;
-        }
+        if (status.ID is (uint)SID.BeeBeGone or (uint)SID.BeeBeHere)
+            AOE = null;
     }
 }
 
@@ -99,13 +88,13 @@ class QueenHawkStates : StateMachineBuilder
     public QueenHawkStates(BossModule module) : base(module)
     {
         TrivialPhase()
+            .ActivateOnEnter<BeeBeAOE>()
             .ActivateOnEnter<ResonantBuzz>()
             .ActivateOnEnter<ResonantBuzzMarch>()
             .ActivateOnEnter<StraightSpindle>()
-            .ActivateOnEnter<FrenziedSting>()
-            .ActivateOnEnter<BeeBeAOE>();
+            .ActivateOnEnter<FrenziedSting>();
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "Shinryin", GroupType = BossModuleInfo.GroupType.Hunt, GroupID = (uint)BossModuleInfo.HuntRank.A, NameID = 13361)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Shinryin, Malediktus", GroupType = BossModuleInfo.GroupType.Hunt, GroupID = (uint)BossModuleInfo.HuntRank.A, NameID = 13361)]
 public class QueenHawk(WorldState ws, Actor primary) : SimpleBossModule(ws, primary);

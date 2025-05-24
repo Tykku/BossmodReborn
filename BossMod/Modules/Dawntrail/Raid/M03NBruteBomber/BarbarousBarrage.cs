@@ -2,44 +2,60 @@ namespace BossMod.Dawntrail.Raid.M03NBruteBomber;
 
 class BarbarousBarrageTower(BossModule module) : Components.GenericTowers(module)
 {
-    private static readonly WPos[] positions = [new(106, 94), new(94, 106), new(106, 106), new(94, 94)];
+    private static readonly WPos[] positions = [new(106f, 94f), new(94f, 106f), new(106f, 106f), new(94f, 94f)];
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index == 0x01 && state == 0x00020004)
-            foreach (var p in positions)
-                Towers.Add(new(p, 4, 1, 1, default, WorldState.FutureTime(10)));
+        if (index == 0x01u && state == 0x00020004u)
+            for (var i = 0; i < 4; ++i)
+                Towers.Add(new(positions[i], 4f, 1, 1, default, WorldState.FutureTime(10d)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.Explosion)
+        if (spell.Action.ID == (uint)AID.Explosion)
             Towers.Clear();
     }
 }
 
-class BarbarousBarrageKnockback(BossModule module) : Components.Knockback(module)
+class BarbarousBarrageKnockback(BossModule module) : Components.GenericKnockback(module)
 {
-    private static readonly AOEShapeCircle circle = new(4);
+    private static readonly AOEShapeCircle circle = new(4f);
+    private readonly BarbarousBarrageTower _tower = module.FindComponent<BarbarousBarrageTower>()!;
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
-        var towers = Module.FindComponent<BarbarousBarrageTower>()!.Towers;
-        if (towers.Count != 0)
-            foreach (var t in towers)
-                yield return new(t.Position, 22, t.Activation, circle);
+        var towers = _tower.Towers;
+        var count = towers.Count;
+        if (count == 0)
+            return [];
+        var sources = new Knockback[count];
+        for (var i = 0; i < count; ++i)
+        {
+            var t = towers[i];
+            sources[i] = new(t.Position, 22f, t.Activation, circle);
+        }
+        return sources;
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
-        var towers = Module.FindComponent<BarbarousBarrageTower>()!.Towers;
-        var isDelayDeltaLow = (towers.FirstOrDefault().Activation - WorldState.CurrentTime).TotalSeconds < 5;
-        var isActorInsideTower = towers.Any(x => x.IsInside(actor));
-        if (towers.Count > 0 && isDelayDeltaLow && isActorInsideTower)
+        var towers = _tower.Towers;
+        var count = towers.Count;
+        if (count == 0)
+            return;
+        if ((towers[0].Activation - WorldState.CurrentTime).TotalSeconds < 5d)
         {
-            hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.ArmsLength), actor, ActionQueue.Priority.High);
-            hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Surecast), actor, ActionQueue.Priority.High);
+            for (var i = 0; i < count; ++i)
+            {
+                if (towers[i].IsInside(actor))
+                {
+                    hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.ArmsLength), actor, ActionQueue.Priority.High);
+                    hints.ActionsToExecute.Push(ActionID.MakeSpell(ClassShared.AID.Surecast), actor, ActionQueue.Priority.High);
+                    return;
+                }
+            }
         }
     }
 }

@@ -21,33 +21,33 @@ public enum AID : uint
     TheLastSong = 4995 // ChymeOfTheMountain->self, 12.0s cast, range 60 circle
 }
 
-class ThirdLegForward(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ThirdLegForward), new AOEShapeCone(10.9f, 60.Degrees()))
+class ThirdLegForward(BossModule module) : Components.Cleave(module, (uint)AID.ThirdLegForward, new AOEShapeCone(10.9f, 60f.Degrees()))
 {
     private readonly MadDashStack _stack = module.FindComponent<MadDashStack>()!;
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (!_stack.ActiveStacks.Any())
+        if (_stack.ActiveStacks.Count == 0)
             base.AddHints(slot, actor, hints);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!_stack.ActiveStacks.Any())
+        if (_stack.ActiveStacks.Count == 0)
             base.AddAIHints(slot, actor, assignment, hints);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        if (!_stack.ActiveStacks.Any())
+        if (_stack.ActiveStacks.Count == 0)
             base.DrawArenaForeground(pcSlot, pc);
     }
 }
 
-class RazorScales(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RazorScales), new AOEShapeCone(64.9f, 30.Degrees()));
-class PrimordialRoar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.PrimordialRoar));
-class MadDashSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.MadDash), 6);
-class MadDashStack(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.MadDashStack), 6, 4, 4);
+class RazorScales(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RazorScales, new AOEShapeCone(64.9f, 30f.Degrees()));
+class PrimordialRoar(BossModule module) : Components.RaidwideCast(module, (uint)AID.PrimordialRoar);
+class MadDashSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.MadDash, 6f);
+class MadDashStack(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.MadDashStack, 6f, 4, 4);
 
 class D022MyathStates : StateMachineBuilder
 {
@@ -89,17 +89,18 @@ public class D022Myath(WorldState ws, Actor primary) : BossModule(ws, primary, a
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.ChymeOfTheMountain));
+        Arena.Actors(Enemies((uint)OID.ChymeOfTheMountain));
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
-            e.Priority = (OID)e.Actor.OID switch
+            var e = hints.PotentialTargets[i];
+            e.Priority = e.Actor.OID switch
             {
-                OID.ChymeOfTheMountain => 2,
-                OID.Boss => 1,
+                (uint)OID.ChymeOfTheMountain => 1,
                 _ => 0
             };
         }

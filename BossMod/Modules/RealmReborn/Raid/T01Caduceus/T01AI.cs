@@ -5,7 +5,7 @@ class T01AI(BossModule module) : BossComponent(module)
     private readonly Platforms? _platforms = module.FindComponent<Platforms>();
     private readonly HoodSwing? _hoodSwing = module.FindComponent<HoodSwing>();
     private readonly CloneMerge? _clone = module.FindComponent<CloneMerge>();
-    private readonly IReadOnlyList<Actor> _slimes = module.Enemies(OID.DarkMatterSlime);
+    private readonly List<Actor> _slimes = module.Enemies(OID.DarkMatterSlime);
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -54,7 +54,7 @@ class T01AI(BossModule module) : BossComponent(module)
                     case PartyRolesConfig.Assignment.OT:
                         // when clone is about to spawn, have OT move closer to tank position
                         if (cloneSpawningSoon)
-                            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Platforms.HexaPlatformCenters[6], 20), DateTime.MaxValue);
+                            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(Platforms.hexaPlatformCenters[6], 20), DateTime.MaxValue);
                         //else if (clone != null)
                         //    SetPreferredPlatform(hints, 6);
                         break;
@@ -87,7 +87,7 @@ class T01AI(BossModule module) : BossComponent(module)
                 {
                     e.Priority = 1; // this is a baseline; depending on whether we want to prioritize clone vs boss, clone's priority changes
                     if (cloneSpawningSoon && e.Actor.FindStatus(SID.SteelScales) != null)
-                        e.Priority = AIHints.Enemy.PriorityForbidAI; // stop dps until stack can be dropped
+                        e.Priority = AIHints.Enemy.PriorityPointless; // stop dps until stack can be dropped
                 }
                 else
                 {
@@ -103,7 +103,7 @@ class T01AI(BossModule module) : BossComponent(module)
                     e.ShouldBeTanked = assignment == PartyRolesConfig.Assignment.OT;
                     e.PreferProvoking = true;
                     if ((e.Actor.Position - Module.PrimaryActor.Position).LengthSq() < 625)
-                        e.DesiredPosition = Platforms.HexaPlatformCenters[6];
+                        e.DesiredPosition = Platforms.hexaPlatformCenters[6];
                     e.DesiredRotation = -90.Degrees();
                 }
                 e.AttackStrength = _hoodSwing!.SecondsUntilNextCast() < 3 ? 0.5f : 0.2f;
@@ -112,9 +112,9 @@ class T01AI(BossModule module) : BossComponent(module)
             else if ((OID)e.Actor.OID == OID.DarkMatterSlime)
             {
                 // for now, let kiter damage it until 20%
-                var predictedHP = (int)e.Actor.HPMP.CurHP + WorldState.PendingEffects.PendingHPDifference(e.Actor.InstanceID);
+                var predictedHP = e.Actor.PendingHPRaw;
                 //e.Priority = predictedHP > 0.7f * e.Actor.HPMP.MaxHP ? (actor.Role is Role.Ranged or Role.Melee ? 3 : AIHints.Enemy.PriorityForbidAI) : AIHints.Enemy.PriorityForbidAI;
-                e.Priority = predictedHP > 0.2f * e.Actor.HPMP.MaxHP ? (e.Actor.TargetID == actor.InstanceID ? 3 : AIHints.Enemy.PriorityForbidAI) : AIHints.Enemy.PriorityForbidAI;
+                e.Priority = predictedHP > 0.2f * e.Actor.HPMP.MaxHP ? (e.Actor.TargetID == actor.InstanceID ? 3 : AIHints.Enemy.PriorityPointless) : AIHints.Enemy.PriorityPointless;
                 e.ShouldBeTanked = false;
                 e.ForbidDOTs = true;
             }

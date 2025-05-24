@@ -9,18 +9,18 @@ public sealed class WorldState
     public ulong QPF;
     public string GameVersion;
     public FrameState Frame;
-    public ushort CurrentZone { get; private set; }
-    public ushort CurrentCFCID { get; private set; }
+    public ushort CurrentZone;
+    public ushort CurrentCFCID;
     public readonly Dictionary<string, string> RSVEntries = [];
     public readonly WaymarkState Waymarks = new();
     public readonly ActorState Actors = new();
     public readonly PartyState Party;
     public readonly ClientState Client = new();
+    public readonly DeepDungeonState DeepDungeon = new();
     public readonly NetworkState Network = new();
-    public readonly PendingEffects PendingEffects = new();
 
     public DateTime CurrentTime => Frame.Timestamp;
-    public DateTime FutureTime(float deltaSeconds) => Frame.Timestamp.AddSeconds(deltaSeconds);
+    public DateTime FutureTime(double deltaSeconds) => Frame.Timestamp.AddSeconds(deltaSeconds);
 
     public WorldState(ulong qpf, string gameVersion)
     {
@@ -52,26 +52,30 @@ public sealed class WorldState
     }
 
     // generate a set of operations that would turn default-constructed state into current state
-    public IEnumerable<Operation> CompareToInitial()
+    public List<Operation> CompareToInitial()
     {
-        if (CurrentTime != default)
-            yield return new OpFrameStart(Frame, default, Client.GaugePayload, Client.CameraAzimuth);
-        if (CurrentZone != 0 || CurrentCFCID != 0)
-            yield return new OpZoneChange(CurrentZone, CurrentCFCID);
-        foreach (var (k, v) in RSVEntries)
-            yield return new OpRSVData(k, v);
-        foreach (var o in Waymarks.CompareToInitial())
-            yield return o;
-        foreach (var o in Actors.CompareToInitial())
-            yield return o;
-        foreach (var o in Party.CompareToInitial())
-            yield return o;
-        foreach (var o in Client.CompareToInitial())
-            yield return o;
-        foreach (var o in Network.CompareToInitial())
-            yield return o;
-    }
+        var waymarks = Waymarks.CompareToInitial();
+        var actors = Actors.CompareToInitial();
+        var party = Party.CompareToInitial();
+        var client = Client.CompareToInitial();
+        // var network = Network.CompareToInitial();
+        var deepdungeon = DeepDungeon.CompareToInitial();
+        List<Operation> ops = new(RSVEntries.Count + waymarks.Count + actors.Count + party.Count + client.Count + deepdungeon.Count + 2); // todo add network back
 
+        if (CurrentTime != default)
+            ops.Add(new OpFrameStart(Frame, default, Client.GaugePayload, Client.CameraAzimuth));
+        if (CurrentZone != default || CurrentCFCID != default)
+            ops.Add(new OpZoneChange(CurrentZone, CurrentCFCID));
+        foreach (var (k, v) in RSVEntries)
+            ops.Add(new OpRSVData(k, v));
+        ops.AddRange(waymarks);
+        ops.AddRange(actors);
+        ops.AddRange(party);
+        ops.AddRange(client);
+        // ops.AddRange(network);
+        ops.AddRange(deepdungeon);
+        return ops;
+    }
     // implementation of operations
     public Event<OpFrameStart> FrameStarted = new();
     public sealed record class OpFrameStart(FrameState Frame, TimeSpan PrevUpdateTime, ClientState.Gauge GaugePayload, Angle CameraAzimuth) : Operation
@@ -82,7 +86,7 @@ public sealed class WorldState
             ws.Client.CameraAzimuth = CameraAzimuth;
             ws.Client.GaugePayload = GaugePayload;
             ws.Client.Tick(Frame.Duration);
-            ws.Actors.Tick(Frame.Duration);
+            ws.Actors.Tick(Frame);
             ws.FrameStarted.Fire(this);
         }
         public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("FRAM"u8)
@@ -110,9 +114,7 @@ public sealed class WorldState
     {
         protected override void Exec(WorldState ws)
         {
-            // TODO: reconsider...
-            //lock (Service.LuminaRSVLock)
-            //    Service.LuminaGameData?.Excel.RsvProvider.Add(Key, Value);
+            Service.LuminaRSV[Key] = Encoding.UTF8.GetBytes(Value); // TODO: reconsider...
             ws.RSVEntries[Key] = Value;
             ws.RSVDataReceived.Fire(this);
         }
@@ -144,5 +146,20 @@ public sealed class WorldState
     {
         protected override void Exec(WorldState ws) => ws.EnvControl.Fire(this);
         public override void Write(ReplayRecorder.Output output) => output.EmitFourCC("ENVC"u8).Emit(Index, "X2").Emit(State, "X8");
+    }
+
+    public Event<OpSystemLogMessage> SystemLogMessage = new();
+    public sealed record class OpSystemLogMessage(uint MessageId, int[] Args) : Operation
+    {
+        public readonly int[] Args = Args;
+
+        protected override void Exec(WorldState ws) => ws.SystemLogMessage.Fire(this);
+        public override void Write(ReplayRecorder.Output output)
+        {
+            output.EmitFourCC("SLOG"u8).Emit(MessageId);
+            output.Emit(Args.Length);
+            foreach (var arg in Args)
+                output.Emit(arg);
+        }
     }
 }

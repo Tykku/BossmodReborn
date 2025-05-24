@@ -1,35 +1,35 @@
 namespace BossMod.Dawntrail.Savage.M04SWickedThunder;
 
-class BewitchingFlight(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BewitchingFlightAOE), new AOEShapeRect(40, 2.5f));
-class WickedJolt(BossModule module) : Components.TankSwap(module, ActionID.MakeSpell(AID.WickedJolt), ActionID.MakeSpell(AID.WickedJolt), ActionID.MakeSpell(AID.WickedJoltSecond), 3.2f, new AOEShapeRect(60, 2.5f), false);
-class Soulshock(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Soulshock));
-class Impact(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Impact));
-class Cannonbolt(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Cannonbolt));
+class BewitchingFlight(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BewitchingFlightAOE, new AOEShapeRect(40, 2.5f));
+class WickedJolt(BossModule module) : Components.TankSwap(module, (uint)AID.WickedJolt, (uint)AID.WickedJolt, (uint)AID.WickedJoltSecond, 3.2f, new AOEShapeRect(60f, 2.5f), false);
+class Soulshock(BossModule module) : Components.CastCounter(module, (uint)AID.Soulshock);
+class Impact(BossModule module) : Components.CastCounter(module, (uint)AID.Impact);
+class Cannonbolt(BossModule module) : Components.CastCounter(module, (uint)AID.Cannonbolt);
 
-class CannonboltKB(BossModule module) : Components.Knockback(module, ignoreImmunes: true)
+class CannonboltKB(BossModule module) : Components.GenericKnockback(module, ignoreImmunes: true)
 {
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
-        yield return new(Module.PrimaryActor.Position, 50);
+        return new Knockback[1] { new(Module.PrimaryActor.Position, 50f) };
     }
 }
 
-class CrossTailSwitch(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.CrossTailSwitchAOE));
-class CrossTailSwitchLast(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.CrossTailSwitchLast));
-class WickedSpecialCenter(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WickedSpecialCenterAOE), new AOEShapeRect(40, 10));
-class WickedSpecialSides(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WickedSpecialSidesAOE), new AOEShapeRect(40, 7.5f));
+class CrossTailSwitch(BossModule module) : Components.CastCounter(module, (uint)AID.CrossTailSwitchAOE);
+class CrossTailSwitchLast(BossModule module) : Components.CastCounter(module, (uint)AID.CrossTailSwitchLast);
+class WickedSpecialCenter(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WickedSpecialCenterAOE, new AOEShapeRect(40f, 10f));
+class WickedSpecialSides(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WickedSpecialSidesAOE, new AOEShapeRect(40f, 7.5f));
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn, Malediktus", PrimaryActorOID = (uint)OID.BossP1, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 992, NameID = 13057, PlanLevel = 100)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", PrimaryActorOID = (uint)OID.BossP1, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 992, NameID = 13057, PlanLevel = 100)]
 public class M04SWickedThunder(WorldState ws, Actor primary) : BossModule(ws, primary, P1DefaultCenter, P1DefaultBounds)
 {
-    public static readonly WPos P1DefaultCenter = new(100, 100);
-    public static readonly WPos P2Center = new(100, 165);
-    public static readonly ArenaBoundsSquare P1DefaultBounds = new(20);
-    public static readonly ArenaBoundsRect IonClusterBounds = new(5, 20);
-    public static readonly ArenaBoundsRect P2DefaultBounds = new(20, 15);
-    public static readonly ArenaBoundsComplex TransitionBounds = new([new Square(P1DefaultCenter, 20), new Rectangle(P2Center, 20, 15)]);
-    public static readonly ArenaBoundsCircle P2CircleBounds = new(15);
-    public static readonly ArenaBoundsCustom P2TowersBounds = new(20, P2DefaultBounds.Clipper.Union(new((ReadOnlySpan<WDir>)CurveApprox.Rect(new WDir(+15, 0), new(0, 1), 5, 15)), new((ReadOnlySpan<WDir>)CurveApprox.Rect(new WDir(-15, 0), new(0, 1), 5, 15))));
+    public static readonly WPos P1DefaultCenter = new(100f, 100f);
+    public static readonly WPos P2Center = new(100f, 165f);
+    public static readonly ArenaBoundsSquare P1DefaultBounds = new(20f);
+    public static readonly ArenaBoundsRect IonClusterBounds = new(5f, 20f);
+    public static readonly ArenaBoundsRect P2DefaultBounds = new(20f, 15f);
+    public static readonly ArenaBoundsComplex TransitionBounds = new([new Square(P1DefaultCenter, 20f), new Rectangle(P2Center, 20f, 15f)]);
+    public static readonly ArenaBoundsComplex P2CircleBounds = new([new Polygon(P2Center, 15f, 50, 3.6f.Degrees())]);
+    public static readonly ArenaBoundsComplex P2TowersBounds = new([new Rectangle(new(115f, 100f), 5f, 15f), new Rectangle(new(85f, 100f), 5f, 15f)]);
 
     public Actor? BossP1() => PrimaryActor.IsDestroyed ? null : PrimaryActor;
     public Actor? BossP2() => _bossP2;
@@ -40,7 +40,11 @@ public class M04SWickedThunder(WorldState ws, Actor primary) : BossModule(ws, pr
     {
         // TODO: this is an ugly hack, think how multi-actor fights can be implemented without it...
         // the problem is that on wipe, any actor can be deleted and recreated in the same frame
-        _bossP2 ??= StateMachine.ActivePhaseIndex >= 0 ? Enemies(OID.BossP2).FirstOrDefault() : null;
+        if (_bossP2 == null)
+        {
+            var b = Enemies((uint)OID.BossP2);
+            _bossP2 = b.Count != 0 ? b[0] : null;
+        }
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)

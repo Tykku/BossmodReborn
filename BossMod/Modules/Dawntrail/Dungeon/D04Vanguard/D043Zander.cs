@@ -49,13 +49,13 @@ public enum AID : uint
 
 class ElectrothermiaArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donut = new(17, 20);
+    private static readonly AOEShapeDonut donut = new(17f, 20f);
     private AOEInstance? _aoe;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Electrothermia && Arena.Bounds == D043Zander.StartingBounds)
+        if (spell.Action.ID == (uint)AID.Electrothermia && Arena.Bounds == D043Zander.StartingBounds)
             _aoe = new(donut, Arena.Center, default, Module.CastFinishAt(spell, 0.5f));
     }
 
@@ -64,6 +64,7 @@ class ElectrothermiaArenaChange(BossModule module) : Components.GenericAOEs(modu
         if (state == 0x00020001 && index == 0x00)
         {
             Arena.Bounds = D043Zander.DefaultBounds;
+            Arena.Center = D043Zander.DefaultBounds.Center;
             _aoe = null;
         }
     }
@@ -72,74 +73,87 @@ class ElectrothermiaArenaChange(BossModule module) : Components.GenericAOEs(modu
 class SlitherbaneBurstCombo(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
-    private static readonly Angle offset = 180.Degrees();
-    private static readonly AOEShapeCone cone = new(20, 90.Degrees());
-    private static readonly AOEShapeRect rect = new(20, 40);
+    private static readonly Angle a180 = 180f.Degrees();
+    private static readonly AOEShapeCone cone = new(20f, 90f.Degrees());
+    private static readonly AOEShapeRect rect = new(20f, 40f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (_aoes.Count > 1)
-            yield return _aoes[1] with { Risky = !_aoes[0].Rotation.AlmostEqual(_aoes[1].Rotation + offset, Angle.DegToRad) };
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
+        for (var i = 0; i < max; ++i)
+        {
+            ref var aoe = ref aoes[i];
+            if (i == 0)
+            {
+                if (count > 1)
+                    aoe.Color = Colors.Danger;
+                aoe.Risky = true;
+            }
+            else
+            {
+                if (aoes[0].Rotation.AlmostEqual(aoe.Rotation + a180, Angle.DegToRad))
+                    aoe.Risky = false;
+            }
+        }
+        return aoes[..max];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        void AddAOE(AOEShape shape)
         {
-            case AID.SlitherbaneRearguardCone:
-            case AID.SlitherbaneForeguardCone:
-                AddAOE(cone, caster.Position, spell.Rotation, Module.CastFinishAt(spell));
+            _aoes.Add(new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
+            _aoes.SortBy(x => x.Activation);
+        }
+        switch (spell.Action.ID)
+        {
+            case (uint)AID.SlitherbaneRearguardCone:
+            case (uint)AID.SlitherbaneForeguardCone:
+                AddAOE(cone);
                 break;
-            case AID.Burst2:
-                AddAOE(rect, caster.Position, spell.Rotation, Module.CastFinishAt(spell));
+            case (uint)AID.Burst2:
+                AddAOE(rect);
                 break;
         }
     }
 
-    private void AddAOE(AOEShape shape, WPos position, Angle rotation, DateTime activation)
-    {
-        _aoes.Add(new(shape, position, rotation, activation));
-        _aoes.SortBy(x => x.Activation);
-    }
-
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoes.Count > 0)
-            switch ((AID)spell.Action.ID)
+        if (_aoes.Count != 0)
+            switch (spell.Action.ID)
             {
-                case AID.SlitherbaneRearguardCone:
-                case AID.SlitherbaneForeguardCone:
-                case AID.Burst2:
+                case (uint)AID.SlitherbaneRearguardCone:
+                case (uint)AID.SlitherbaneForeguardCone:
+                case (uint)AID.Burst2:
                     _aoes.RemoveAt(0);
                     break;
             }
     }
 }
 
-class Electrothermia(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Electrothermia));
-class Screech(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Screech));
-class Burst1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Burst1), new AOEShapeRect(20, 20));
-class SaberRush(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.SaberRush));
-class ShadeShot(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ShadeShot));
-class SoulbaneShock(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.SoulbaneShock), 5);
+class Electrothermia(BossModule module) : Components.RaidwideCast(module, (uint)AID.Electrothermia);
+class Screech(BossModule module) : Components.RaidwideCast(module, (uint)AID.Screech);
+class Burst1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Burst1, new AOEShapeRect(20f, 20f));
+class SaberRush(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.SaberRush)
+{
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    {
+        base.OnEventCast(caster, spell);
+        if (spell.Action.ID == (uint)AID.PhaseChangeVisual1) // tankbuster will be cancelled on phase change
+            Targets.Clear();
+    }
+}
 
-class Slitherbane(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(20, 2));
-class SlitherbaneForeguardRect(BossModule module) : Slitherbane(module, AID.SlitherbaneForeguardRect);
-class SlitherbaneRearguardRect(BossModule module) : Slitherbane(module, AID.SlitherbaneRearguardRect);
-class SoulbaneSaber(BossModule module) : Slitherbane(module, AID.SoulbaneSaber);
+class ShadeShot(BossModule module) : Components.SingleTargetCast(module, (uint)AID.ShadeShot);
+class SoulbaneShock(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.SoulbaneShock, 5f);
 
-class Syntheslither(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(19, 45.Degrees()));
-class Syntheslean(BossModule module) : Syntheslither(module, AID.Syntheslean);
-class Syntheslither1(BossModule module) : Syntheslither(module, AID.Syntheslither1);
-class Syntheslither2(BossModule module) : Syntheslither(module, AID.Syntheslither2);
-class Syntheslither3(BossModule module) : Syntheslither(module, AID.Syntheslither3);
-class Syntheslither4(BossModule module) : Syntheslither(module, AID.Syntheslither4);
-class Syntheslither5(BossModule module) : Syntheslither(module, AID.Syntheslither5);
-class Syntheslither6(BossModule module) : Syntheslither(module, AID.Syntheslither6);
-class Syntheslither7(BossModule module) : Syntheslither(module, AID.Syntheslither7);
-class Syntheslither8(BossModule module) : Syntheslither(module, AID.Syntheslither8);
+class SlitherbaneSoulbaneSaber(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.SlitherbaneForeguardRect, (uint)AID.SlitherbaneRearguardRect, (uint)AID.SoulbaneSaber], new AOEShapeRect(20f, 2f));
+class Syntheslither(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.Syntheslean, (uint)AID.Syntheslither1, (uint)AID.Syntheslither2,
+(uint)AID.Syntheslither3, (uint)AID.Syntheslither4, (uint)AID.Syntheslither5, (uint)AID.Syntheslither6, (uint)AID.Syntheslither7, (uint)AID.Syntheslither8], new AOEShapeCone(19f, 45f.Degrees()));
 
 class D043ZanderStates : StateMachineBuilder
 {
@@ -152,32 +166,23 @@ class D043ZanderStates : StateMachineBuilder
             .ActivateOnEnter<Burst1>()
             .ActivateOnEnter<SaberRush>()
             .ActivateOnEnter<ShadeShot>()
-            .ActivateOnEnter<SlitherbaneForeguardRect>()
-            .ActivateOnEnter<SlitherbaneRearguardRect>()
+            .ActivateOnEnter<SlitherbaneSoulbaneSaber>()
             .ActivateOnEnter<SlitherbaneBurstCombo>()
-            .ActivateOnEnter<SoulbaneSaber>()
             .ActivateOnEnter<SoulbaneShock>()
-            .ActivateOnEnter<Syntheslean>()
-            .ActivateOnEnter<Syntheslither1>()
-            .ActivateOnEnter<Syntheslither2>()
-            .ActivateOnEnter<Syntheslither3>()
-            .ActivateOnEnter<Syntheslither4>()
-            .ActivateOnEnter<Syntheslither5>()
-            .ActivateOnEnter<Syntheslither6>()
-            .ActivateOnEnter<Syntheslither7>()
-            .ActivateOnEnter<Syntheslither8>();
+            .ActivateOnEnter<Syntheslither>();
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 831, NameID = 12752, SortOrder = 6)]
-public class D043Zander(WorldState ws, Actor primary) : BossModule(ws, primary, new(90, -430), StartingBounds)
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 831, NameID = 12752, SortOrder = 7)]
+public class D043Zander(WorldState ws, Actor primary) : BossModule(ws, primary, StartingBounds.Center, StartingBounds)
 {
-    public static readonly ArenaBoundsCircle StartingBounds = new(19.5f);
-    public static readonly ArenaBoundsCircle DefaultBounds = new(17);
+    private static readonly WPos ArenaCenter = new(90f, -430f);
+    public static readonly ArenaBoundsComplex StartingBounds = new([new Polygon(ArenaCenter, 19.5f, 40)], [new Rectangle(new(90f, -410f), 20f, 0.85f)]);
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Polygon(ArenaCenter, 17f, 40)]);
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.BossP2));
+        Arena.Actors(Enemies((uint)OID.BossP2));
     }
 }

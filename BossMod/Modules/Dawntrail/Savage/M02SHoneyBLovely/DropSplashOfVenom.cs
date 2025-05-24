@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Savage.M02SHoneyBLovely;
 
-class DropSplashOfVenom(BossModule module) : Components.UniformStackSpread(module, 6, 6, 2, 2, alwaysShowSpreads: true)
+class DropSplashOfVenom(BossModule module) : Components.UniformStackSpread(module, 6f, 6f, 2, 2, alwaysShowSpreads: true)
 {
     public enum Mechanic { None, Pairs, Spread }
 
@@ -15,14 +15,14 @@ class DropSplashOfVenom(BossModule module) : Components.UniformStackSpread(modul
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.SplashOfVenom:
-            case AID.SpreadLove:
+            case (uint)AID.SplashOfVenom:
+            case (uint)AID.SpreadLove:
                 NextMechanic = Mechanic.Spread;
                 break;
-            case AID.DropOfVenom:
-            case AID.DropOfLove:
+            case (uint)AID.DropOfVenom:
+            case (uint)AID.DropOfLove:
                 NextMechanic = Mechanic.Pairs;
                 break;
         }
@@ -30,29 +30,29 @@ class DropSplashOfVenom(BossModule module) : Components.UniformStackSpread(modul
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.TemptingTwistAOE:
-            case AID.HoneyBeelineAOE:
-            case AID.TemptingTwistBeatAOE:
-            case AID.HoneyBeelineBeatAOE:
+            case (uint)AID.TemptingTwistAOE:
+            case (uint)AID.HoneyBeelineAOE:
+            case (uint)AID.TemptingTwistBeatAOE:
+            case (uint)AID.HoneyBeelineBeatAOE:
                 switch (NextMechanic)
                 {
                     case Mechanic.Pairs:
                         // note: it's random whether dd or supports are hit, select supports arbitrarily
                         Activation = WorldState.FutureTime(4.5f);
-                        AddStacks(Raid.WithoutSlot(true).Where(p => p.Class.IsSupport()), Activation);
+                        AddStacks(Raid.WithoutSlot(true, true, true).Where(p => p.Class.IsSupport()), Activation);
                         break;
                     case Mechanic.Spread:
                         Activation = WorldState.FutureTime(4.5f);
-                        AddSpreads(Raid.WithoutSlot(true), Activation);
+                        AddSpreads(Raid.WithoutSlot(true, true, true), Activation);
                         break;
                 }
                 break;
-            case AID.SplashOfVenomAOE:
-            case AID.DropOfVenomAOE:
-            case AID.SpreadLoveAOE:
-            case AID.DropOfLoveAOE:
+            case (uint)AID.SplashOfVenomAOE:
+            case (uint)AID.DropOfVenomAOE:
+            case (uint)AID.SpreadLoveAOE:
+            case (uint)AID.DropOfLoveAOE:
                 Spreads.Clear();
                 Stacks.Clear();
                 NextMechanic = Mechanic.None;
@@ -61,14 +61,14 @@ class DropSplashOfVenom(BossModule module) : Components.UniformStackSpread(modul
     }
 }
 
-class Twist(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(7, 30));
-class TemptingTwist(BossModule module) : Twist(module, AID.TemptingTwistAOE);
-class TemptingTwistBeat(BossModule module) : Twist(module, AID.TemptingTwistBeatAOE);
+class Twist(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonut(7f, 30f));
+class TemptingTwist(BossModule module) : Twist(module, (uint)AID.TemptingTwistAOE);
+class TemptingTwistBeat(BossModule module) : Twist(module, (uint)AID.TemptingTwistBeatAOE);
 
-class Beeline(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(30, 7, 30));
-class HoneyBeeline(BossModule module) : Beeline(module, AID.HoneyBeelineAOE);
-class HoneyBeelineBeat(BossModule module) : Beeline(module, AID.HoneyBeelineBeatAOE);
+class Beeline(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(60f, 7f));
+class HoneyBeeline(BossModule module) : Beeline(module, (uint)AID.HoneyBeelineAOE);
+class HoneyBeelineBeat(BossModule module) : Beeline(module, (uint)AID.HoneyBeelineBeatAOE);
 
-class Splinter(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(8));
-class PoisonCloudSplinter(BossModule module) : Splinter(module, AID.PoisonCloudSplinter);
-class SweetheartSplinter(BossModule module) : Splinter(module, AID.SweetheartSplinter);
+class Splinter(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 8f);
+class PoisonCloudSplinter(BossModule module) : Splinter(module, (uint)AID.PoisonCloudSplinter);
+class SweetheartSplinter(BossModule module) : Splinter(module, (uint)AID.SweetheartSplinter);

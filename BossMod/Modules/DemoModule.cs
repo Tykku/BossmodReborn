@@ -22,12 +22,12 @@ public class DemoModule : BossModule
 
         public override void DrawArenaBackground(int pcSlot, Actor pc)
         {
-            Arena.ZoneCircle(Module.Center, 10, Colors.AOE);
+            Arena.ZoneCircle(Arena.Center, 10, Colors.AOE);
         }
 
         public override void DrawArenaForeground(int pcSlot, Actor pc)
         {
-            Arena.Actor(Module.Center, 0.Degrees(), Colors.PC);
+            Arena.Actor(Arena.Center, default, Colors.PC);
         }
     }
 

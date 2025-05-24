@@ -13,12 +13,12 @@ class AetherExplosion(BossModule module) : BossComponent(module)
     public override void Update()
     {
         if (_memberWithSOT != null)
-            _explodingCells = CellFromOffset(_memberWithSOT.Position - Module.Center);
+            _explodingCells = CellFromOffset(_memberWithSOT.Position - Arena.Center);
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (actor != _memberWithSOT && _explodingCells != Cell.None && _explodingCells == CellFromOffset(actor.Position - Module.Center))
+        if (actor != _memberWithSOT && _explodingCells != Cell.None && _explodingCells == CellFromOffset(actor.Position - Arena.Center))
         {
             hints.Add("Hit by aether explosion!");
         }
@@ -29,7 +29,7 @@ class AetherExplosion(BossModule module) : BossComponent(module)
         if (_explodingCells == Cell.None || pc == _memberWithSOT)
             return; // nothing to draw
 
-        if (Module.Bounds is not ArenaBoundsCircle)
+        if (Arena.Bounds is not ArenaBoundsCircle)
         {
             ReportError("Trying to draw aether AOE when cells mode is not active...");
             return;
@@ -38,8 +38,8 @@ class AetherExplosion(BossModule module) : BossComponent(module)
         var start = _explodingCells == Cell.Blue ? 0.Degrees() : 45.Degrees();
         for (var i = 0; i < 4; ++i)
         {
-            Arena.ZoneCone(Module.Center, 0, P1S.InnerCircleRadius, start + 22.5f.Degrees(), 22.5f.Degrees(), Colors.AOE);
-            Arena.ZoneCone(Module.Center, P1S.InnerCircleRadius, Module.Bounds.Radius, start + 67.5f.Degrees(), 22.5f.Degrees(), Colors.AOE);
+            Arena.ZoneCone(Arena.Center, 0, P1S.InnerCircleRadius, start + 22.5f.Degrees(), 22.5f.Degrees(), Colors.AOE);
+            Arena.ZoneCone(Arena.Center, P1S.InnerCircleRadius, Arena.Bounds.Radius, start + 67.5f.Degrees(), 22.5f.Degrees(), Colors.AOE);
             start += 90.Degrees();
         }
     }

@@ -24,7 +24,7 @@ class Planets(BossModule module) : BossComponent(module)
         }
         if (_planetsAzure.Count > 0)
         {
-            var offsetLocation = Components.Knockback.AwayFromSource(actor.Position, _planetsAzure[0], _knockbackDistance);
+            var offsetLocation = Components.GenericKnockback.AwayFromSource(actor.Position, _planetsAzure[0], _knockbackDistance);
             if (!Module.InBounds(offsetLocation))
             {
                 hints.Add("About to be knocked into wall!");
@@ -45,7 +45,7 @@ class Planets(BossModule module) : BossComponent(module)
     {
         if (_planetsAzure.Count > 0)
         {
-            var offsetLocation = Components.Knockback.AwayFromSource(pc.Position, _planetsAzure[0], _knockbackDistance);
+            var offsetLocation = Components.GenericKnockback.AwayFromSource(pc.Position, _planetsAzure[0], _knockbackDistance);
             Arena.AddLine(pc.Position, offsetLocation, Colors.Danger);
             Arena.Actor(offsetLocation, pc.Rotation, Colors.Danger);
         }
@@ -100,7 +100,7 @@ class Planets(BossModule module) : BossComponent(module)
 
     private void AddPlanet(Actor caster, bool azure, bool firstOfPair)
     {
-        var origin = Module.Center + _planetOffset * caster.Rotation.ToDirection();
+        var origin = Arena.Center + _planetOffset * caster.Rotation.ToDirection();
         var planets = azure ? _planetsAzure : _planetsFiery;
         var index = firstOfPair ? 0 : planets.Count;
         planets.Insert(index, origin);

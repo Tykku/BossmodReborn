@@ -9,40 +9,53 @@ class ThunderPlatform(BossModule module) : Components.GenericAOEs(module)
 
     private static readonly AOEShapeRect rect = new(5, 5, 5);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (requireHint[slot])
+        if (!requireHint[slot])
+            return [];
+
+        var highlightLevitate = requireLevitating[slot];
+        var aoes = new AOEInstance[12];
+        var index = 0;
+        var center = Arena.Center;
+        for (var x = 0; x < 2; ++x)
         {
-            var highlightLevitate = requireLevitating[slot];
-            for (var x = 0; x < 2; ++x)
+            for (var z = 0; z < 3; ++z)
             {
-                for (var z = 0; z < 3; ++z)
+                var cellLevitating = ((x ^ z) & 1) != 0;
+                if (cellLevitating != highlightLevitate)
                 {
-                    var cellLevitating = ((x ^ z) & 1) != 0;
-                    if (cellLevitating != highlightLevitate)
-                    {
-                        yield return new(rect, Arena.Center + new WDir(-5 - 10 * x, -10 + 10 * z), default, activation);
-                        yield return new(rect, Arena.Center + new WDir(+5 + 10 * x, -10 + 10 * z), default, activation);
-                    }
+                    aoes[index++] = new(rect, center + new WDir(-5f - 10f * x, -10f + 10f * z), default, activation);
+                    aoes[index++] = new(rect, center + new WDir(+5f + 10f * x, -10f + 10f * z), default, activation);
                 }
             }
         }
+
+        return aoes.AsSpan()[..index];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ThunderousBreath)
+        if (spell.Action.ID == (uint)AID.ThunderousBreath)
         {
-            foreach (var (i, _) in Raid.WithSlot(true))
-                requireHint[i] = requireLevitating[i] = true;
+            var party = Module.Raid.WithSlot(true, true, true);
+            var len = party.Length;
+            for (var i = 0; i < len; ++i)
+            {
+                var slot = party[i].Item1;
+                requireHint[slot] = requireLevitating[slot] = true;
+            }
             activation = Module.CastFinishAt(spell);
         }
-        else if ((AID)spell.Action.ID == AID.BlightedBoltVisual)
+        else if (spell.Action.ID == (uint)AID.BlightedBoltVisual)
         {
-            foreach (var (i, _) in Raid.WithSlot(true))
+            var party = Module.Raid.WithSlot(true, true, true);
+            var len = party.Length;
+            for (var i = 0; i < len; ++i)
             {
-                requireHint[i] = true;
-                requireLevitating[i] = false;
+                var slot = party[i].Item1;
+                requireHint[slot] = true;
+                requireLevitating[slot] = false;
             }
             activation = Module.CastFinishAt(spell);
         }
@@ -50,10 +63,10 @@ class ThunderPlatform(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.ThunderousBreath or AID.BlightedBolt2)
+        if (spell.Action.ID is (uint)AID.ThunderousBreath or (uint)AID.BlightedBolt2)
         {
-            requireHint.Reset();
-            requireLevitating.Reset();
+            requireHint = default;
+            requireLevitating = default;
         }
     }
 
@@ -65,14 +78,14 @@ class ThunderPlatform(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.Levitate)
-            levitating.Set(Raid.FindSlot(actor.InstanceID));
+        if (status.ID == (uint)SID.Levitate)
+            levitating[Raid.FindSlot(actor.InstanceID)] = true;
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.Levitate)
-            levitating.Clear(Raid.FindSlot(actor.InstanceID));
+        if (status.ID == (uint)SID.Levitate)
+            levitating[Raid.FindSlot(actor.InstanceID)] = false;
     }
 }
 
@@ -82,28 +95,49 @@ class BlightedBolt1(BossModule module) : Components.GenericAOEs(module)
     private static readonly AOEShapeCircle circle = new(3);
     private bool active;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (active)
-            foreach (var p in Raid.WithSlot().Exclude(actor))
+        if (!active)
+            return [];
+
+        var party = Raid.WithSlot(false, true, true);
+        var partyLen = party.Length;
+        var levitateSpan = _levitate.ActiveAOEs(slot, actor);
+        var levitateLen = levitateSpan.Length;
+        var index = 0;
+        var aoes = new AOEInstance[partyLen - 1];
+
+        for (var i = 0; i < partyLen; ++i)
+        {
+            ref readonly var player = ref party[i];
+            var pos = player.Item2.Position;
+            if (player.Item1 == slot)
+                continue;
+
+            for (var j = 0; j < levitateLen; j++)
             {
-                var pos = p.Item2.Position;
-                if (_levitate.ActiveAOEs(slot, actor).Any(c => c.Check(pos)))
-                    yield return new(circle, pos);
+                if (levitateSpan[j].Check(pos))
+                {
+                    aoes[index++] = new AOEInstance(circle, pos);
+                    break;
+                }
             }
+        }
+
+        return aoes.AsSpan()[..index];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.BlightedBoltVisual)
+        if (spell.Action.ID == (uint)AID.BlightedBoltVisual)
             active = true;
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.BlightedBoltVisual)
+        if (spell.Action.ID == (uint)AID.BlightedBoltVisual)
             active = false;
     }
 }
 
-class BlightedBolt2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BlightedBolt2), 7);
+class BlightedBolt2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlightedBolt2, 7f);

@@ -23,14 +23,32 @@ public enum AID : uint
     CarcharianVerve = 15879 // Boss/Doliodus->self, 2.0s cast, single-target, damage up after partner dies
 }
 
-class MarineMayhem(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MarineMayhem));
-class ProtolithicPuncture(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.ProtolithicPuncture));
-class PelagicCleaver1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PelagicCleaver1), new AOEShapeCone(40, 30.Degrees()));
-class PelagicCleaver2(BossModule module) : Components.LocationTargetedAOEsOther(module, ActionID.MakeSpell(AID.PelagicCleaver2), new AOEShapeCone(50, 30.Degrees()));
-class TidalGuillotine1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TidalGuillotine1), new AOEShapeCircle(13));
-class TidalGuillotine2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TidalGuillotine2), 13);
-class AquaticLance(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.AquaticLance), 8);
-class AquaticLanceVoidzone(BossModule module) : Components.PersistentVoidzone(module, 8, m => m.Enemies(OID.Voidzone).Where(x => x.EventState != 7));
+class MarineMayhem(BossModule module) : Components.RaidwideCast(module, (uint)AID.MarineMayhem);
+class ProtolithicPuncture(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.ProtolithicPuncture);
+class PelagicCleaver1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PelagicCleaver1, new AOEShapeCone(40f, 30f.Degrees()));
+class PelagicCleaver2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PelagicCleaver2, new AOEShapeCone(50f, 30f.Degrees()));
+class TidalGuillotine(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.TidalGuillotine1, (uint)AID.TidalGuillotine1], 13f);
+class AquaticLance(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.AquaticLance, 8f);
+class AquaticLanceVoidzone(BossModule module) : Components.Voidzone(module, 8f, GetVoidzones)
+{
+    private static Actor[] GetVoidzones(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.Voidzone);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
+
+        var voidzones = new Actor[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (z.EventState != 7)
+                voidzones[index++] = z;
+        }
+        return voidzones[..index];
+    }
+}
 
 class D081CladoselacheStates : StateMachineBuilder
 {
@@ -41,21 +59,31 @@ class D081CladoselacheStates : StateMachineBuilder
             .ActivateOnEnter<ProtolithicPuncture>()
             .ActivateOnEnter<PelagicCleaver1>()
             .ActivateOnEnter<PelagicCleaver2>()
-            .ActivateOnEnter<TidalGuillotine1>()
-            .ActivateOnEnter<TidalGuillotine2>()
+            .ActivateOnEnter<TidalGuillotine>()
             .ActivateOnEnter<AquaticLance>()
             .ActivateOnEnter<AquaticLanceVoidzone>()
-            .Raw.Update = () => module.Enemies(OID.Doliodus).Concat([module.PrimaryActor]).All(e => e.IsDeadOrDestroyed);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(D081Cladoselache.Bosses);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 661, NameID = 8235)]
 public class D081Cladoselache(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-305, 211.5f), 19.5f * CosPI.Pi60th, 60)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-305f, 211.5f), 19.5f * CosPI.Pi60th, 60)]);
+    public static readonly uint[] Bosses = [(uint)OID.Boss, (uint)OID.Doliodus];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Doliodus).Concat([PrimaryActor]));
+        Arena.Actors(Enemies(Bosses));
     }
 }

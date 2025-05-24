@@ -1,30 +1,82 @@
-﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.Normal.DRN6Queen;
+﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.DRN6Queen;
 
-abstract class Chess(BossModule module) : Components.GenericAOEs(module)
+class Chess(BossModule module) : Components.GenericAOEs(module)
 {
-    public struct GuardState
+    public readonly List<AOEInstance>[] AOEs = new List<AOEInstance>[PartyState.MaxAllianceSize];
+    private readonly int[] distancesPending = new int[PartyState.MaxAllianceSize];
+    private static readonly AOEShapeRect square = new(5f, 5f, 5f);
+    private DateTime _activation;
+    private readonly List<WPos> excludeCrosses = new(2);
+
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        public Actor? Actor;
-        public WPos FinalPosition;
+        if (slot is < 0 or > 23)
+            return [];
+        var aoesSlot = AOEs[slot];
+        if (aoesSlot != default && aoesSlot.Count != 0)
+            return CollectionsMarshal.AsSpan(aoesSlot);
+        var dist = distancesPending[slot];
+        if (dist == default)
+            return [];
+        var tiles = GetSquaresAtManhattanDistance(actor.Position, dist, excludeCrosses);
+        var count = tiles.Count;
+        var aoes = new List<AOEInstance>(count);
+        var color = Colors.SafeFromAOE;
+        for (var i = 0; i < count; ++i)
+        {
+            aoes.Add(new(square, tiles[i], default, _activation, color, false));
+        }
+        return CollectionsMarshal.AsSpan(aoes);
     }
 
-    protected GuardState[] GuardStates = new GuardState[4];
-    protected static readonly AOEShapeCross Shape = new(60, 5);
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public static List<WPos> GetSquaresAtManhattanDistance(WPos position, int distance, List<WPos> excluded)
     {
-        if (NumCasts >= 4)
-            yield break;
+        var positions = new List<WPos>();
 
-        var imminent = NumCasts < 2 ? GuardStates.Take(2) : GuardStates.Skip(2);
-        foreach (var g in imminent)
-            if (g.Actor != null)
-                yield return new(Shape, g.FinalPosition, g.Actor.Rotation);
+        var centerX = Queen.ArenaCenter.X;
+        var centerZ = Queen.ArenaCenter.Z;
+
+        // Align to nearest square center index
+        var originI = (int)Math.Round((position.X - centerX) / 10f);
+        var originJ = (int)Math.Round((position.Z - centerZ) / 10f);
+        var originExcludeI1 = -9f;
+        var originExcludeJ1 = -9f;
+        var originExcludeI2 = -9f;
+        var originExcludeJ2 = -9f;
+        if (excluded.Count == 2)
+        {
+            var exclude0 = excluded[0];
+            originExcludeI1 = (int)Math.Round((exclude0.X - centerX) / 10f);
+            originExcludeJ1 = (int)Math.Round((exclude0.Z - centerZ) / 10f);
+            var exclude1 = excluded[1];
+            originExcludeI2 = (int)Math.Round((exclude1.X - centerX) / 10f);
+            originExcludeJ2 = (int)Math.Round((exclude1.Z - centerZ) / 10f);
+        }
+
+        for (var dx = -5; dx <= 5; ++dx)
+        {
+            for (var dy = -5; dy <= 5; ++dy)
+            {
+                if (Math.Abs(dx) + Math.Abs(dy) != distance)
+                    continue;
+                var i = originI + dx;
+                var j = originJ + dy;
+                if (Math.Abs(i) > 2 || Math.Abs(j) > 2)
+                    continue; // 5x5 grid = -2 to +2
+
+                if (i != originExcludeI1 && i != originExcludeI2 && j != originExcludeJ1 && j != originExcludeJ2)
+                {
+                    positions.Add(new(centerX + i * 10f, centerZ + j * 10f));
+                }
+            }
+        }
+        return positions;
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.MovementIndicator)
+        var id = status.ID;
+        if (id == (uint)SID.MovementIndicator && excludeCrosses.Count != 2)
         {
             var distance = status.Extra switch
             {
@@ -33,171 +85,112 @@ abstract class Chess(BossModule module) : Components.GenericAOEs(module)
                 0xE4 => 3,
                 _ => 0
             };
-            var index = GuardIndex(actor);
-            if (distance != 0 && index >= 0 && GuardStates[index].Actor == null)
+            if (distance != 0)
             {
-                GuardStates[index] = new() { Actor = actor, FinalPosition = actor.Position + distance * 10 * actor.Rotation.ToDirection() };
+                excludeCrosses.Add(actor.Position + distance * 10f * actor.Rotation.ToDirection());
             }
         }
-    }
-
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
-    {
-        if ((AID)spell.Action.ID is AID.EndsKnight or AID.MeansWarrior or AID.EndsSoldier or AID.MeansGunner)
-            ++NumCasts;
-    }
-
-    protected int GuardIndex(Actor actor) => (OID)actor.OID switch
-    {
-        OID.QueensKnight => 0,
-        OID.QueensWarrior => 1,
-        OID.QueensSoldier => 2,
-        OID.QueensGunner => 3,
-        _ => -1
-    };
-}
-
-class QueensWill(BossModule module) : Chess(module) { }
-
-// TODO: enumerate all possible safespots instead? after first pair of casts, select still suitable second safespots
-class QueensEdict(BossModule module) : Chess(module)
-{
-    public class PlayerState
-    {
-        public int FirstEdict;
-        public int SecondEdict;
-        public List<WPos> Safespots = [];
-    }
-
-    public int NumStuns { get; private set; }
-    private readonly Dictionary<ulong, PlayerState> _playerStates = [];
-    private int _safespotZOffset;
-
-    public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
-    {
-        foreach (var m in GetSafeSpotMoves(actor))
-            movementHints.Add(m);
-    }
-
-    public override void DrawArenaForeground(int pcSlot, Actor pc)
-    {
-        foreach (var m in GetSafeSpotMoves(pc))
-            Arena.AddLine(m.from, m.to, m.color);
-    }
-
-    public override void OnStatusGain(Actor actor, ActorStatus status)
-    {
-        base.OnStatusGain(actor, status);
-        switch ((SID)status.ID)
+        else if (id is >= (uint)SID.MovementEdict2 and <= (uint)SID.MovementEdict4)
         {
-            case SID.Stun:
-                ++NumStuns;
-                break;
-            case SID.MovementEdictShort2:
-                _playerStates.GetOrAdd(actor.InstanceID).FirstEdict = 2;
-                break;
-            case SID.MovementEdictShort3:
-                _playerStates.GetOrAdd(actor.InstanceID).FirstEdict = 3;
-                break;
-            case SID.MovementEdictShort4:
-                _playerStates.GetOrAdd(actor.InstanceID).FirstEdict = 4;
-                break;
-            case SID.MovementEdictLong2:
-                _playerStates.GetOrAdd(actor.InstanceID).SecondEdict = 2;
-                break;
-            case SID.MovementEdictLong3:
-                _playerStates.GetOrAdd(actor.InstanceID).SecondEdict = 3;
-                break;
-            case SID.MovementEdictLong4:
-                _playerStates.GetOrAdd(actor.InstanceID).SecondEdict = 4;
-                break;
+            if (Raid.FindSlot(actor.InstanceID) is var slot && slot is < 0 or > 23)
+                return;
+            distancesPending[slot] = id switch
+            {
+                (uint)SID.MovementEdict2 => 2,
+                (uint)SID.MovementEdict3 => 3,
+                (uint)SID.MovementEdict4 => 4,
+                _ => default
+            };
+            _activation = WorldState.FutureTime(22d);
+        }
+        else if (id is >= (uint)SID.YourMove2Squares and <= (uint)SID.YourMove4Squares)
+        {
+            if (Raid.FindSlot(actor.InstanceID) is var slot && slot is < 0 or > 23)
+                return;
+
+            var distance = id switch
+            {
+                (uint)SID.YourMove2Squares => 2,
+                (uint)SID.YourMove3Squares => 3,
+                (uint)SID.YourMove4Squares => 4,
+                _ => default
+            };
+            var tiles = GetSquaresAtManhattanDistance(actor.Position, distance, excludeCrosses);
+            var count = tiles.Count;
+            var color = Colors.SafeFromAOE;
+            if (AOEs[slot] == null)
+                AOEs[slot] = new(count);
+            for (var i = 0; i < count; ++i)
+            {
+                AOEs[slot].Add(new(square, tiles[i], default, _activation, color));
+            }
         }
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.Stun)
-            --NumStuns;
-    }
-
-    public override void OnEventEnvControl(byte index, uint state)
-    {
-        if (index is 0x1C or 0x1D && state == 0x00020001)
-            _safespotZOffset = index == 0x1D ? 2 : -2;
-    }
-
-    private IEnumerable<(WPos from, WPos to, uint color)> GetSafeSpotMoves(Actor actor)
-    {
-        var state = _playerStates.GetValueOrDefault(actor.InstanceID);
-        if (state == null)
-            yield break;
-
-        if (state.Safespots.Count == 0)
+        var id = status.ID;
+        if (id is >= (uint)SID.MovementEdict2 and <= (uint)SID.MovementEdict4)
         {
-            // try initializing safespots on demand
-            if (_safespotZOffset == 0 || state.FirstEdict == 0 || state.SecondEdict == 0 || GuardStates.Any(g => g.Actor == null))
-                yield break; // not ready yet...
-
-            // initialize second safespot: select cells that are SecondEdict distance from safespot and not in columns clipped by second set of guards
-            var forbiddenCol1 = OffsetToCell(GuardStates[2].FinalPosition.X - Module.Center.X);
-            var forbiddenCol2 = OffsetToCell(GuardStates[3].FinalPosition.X - Module.Center.X);
-            var forbiddenRow1 = OffsetToCell(GuardStates[0].FinalPosition.Z - Module.Center.Z);
-            var forbiddenRow2 = OffsetToCell(GuardStates[1].FinalPosition.Z - Module.Center.Z);
-            foreach (var s2 in CellsAtManhattanDistance((0, _safespotZOffset), state.SecondEdict).Where(s2 => s2.x != forbiddenCol1 && s2.x != forbiddenCol2))
-            {
-                foreach (var s1 in CellsAtManhattanDistance(s2, state.FirstEdict).Where(s1 => s1.z != forbiddenRow1 && s1.z != forbiddenRow2))
-                {
-                    state.Safespots.Add(CellCenter(s1));
-                    state.Safespots.Add(CellCenter(s2));
-                    state.Safespots.Add(CellCenter((0, _safespotZOffset)));
-                    break;
-                }
-                if (state.Safespots.Count > 0)
-                    break;
-            }
+            if (Raid.FindSlot(actor.InstanceID) is var slot && slot is < 0 or > 23)
+                return;
+            distancesPending[slot] = default;
         }
-
-        var color = Colors.Safe;
-        var from = actor.Position;
-        foreach (var p in state.Safespots.Skip(NumCasts / 2))
+        else if (id is >= (uint)SID.YourMove2Squares and <= (uint)SID.YourMove4Squares)
         {
-            yield return (from, p, color);
-            from = p;
-            color = Colors.Danger;
+            if (Raid.FindSlot(actor.InstanceID) is var slot && slot is < 0 or > 23)
+                return;
+            AOEs[slot].Clear();
         }
     }
 
-    private int OffsetToCell(float offset) => offset switch
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        < -25 => -3,
-        < -15 => -2,
-        < -5 => -1,
-        < 5 => 0,
-        < 15 => 1,
-        < 25 => 2,
-        _ => 3
-    };
+        if (spell.Action.ID is (uint)AID.EndsKnight or (uint)AID.EndsSoldier or (uint)AID.MeansGunner or (uint)AID.MeansWarrior)
+            excludeCrosses.Clear();
+    }
 
-    private WPos CellCenter((int x, int z) cell) => Module.Center + 10 * new WDir(cell.x, cell.z);
-
-    private IEnumerable<(int x, int z)> CellsAtManhattanDistance((int x, int z) origin, int distance)
+    public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        for (var x = -2; x <= 2; ++x)
+        if (slot is < 0 or > 23)
+            return;
+        if (distancesPending[slot] != default)
         {
-            var dz = distance - Math.Abs(x - origin.x);
-            if (dz == 0)
+            hints.Add("Prepare for movement!", false);
+            return;
+        }
+        var aoes = ActiveAOEs(slot, actor);
+        var len = aoes.Length;
+        if (len == 0)
+            return;
+
+        var isInside = false;
+        for (var i = 0; i < len; ++i)
+        {
+            if (aoes[i].Check(actor.Position))
             {
-                yield return (x, origin.z);
-            }
-            else if (dz > 0)
-            {
-                var z1 = origin.z - dz;
-                var z2 = origin.z + dz;
-                if (z1 >= -2)
-                    yield return (x, z1);
-                if (z2 <= +2)
-                    yield return (x, z2);
+                isInside = true;
+                break;
             }
         }
+        hints.Add("Move to a safe tile!", !isInside);
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        var aoes = ActiveAOEs(slot, actor);
+        var len = aoes.Length;
+        if (len == 0)
+            return;
+        var forbidden = new List<Func<WPos, float>>(len);
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var aoe = ref aoes[i];
+            if (aoe.Risky)
+            {
+                forbidden.Add(ShapeDistance.InvertedRect(aoe.Origin, new WDir(default, 1f), 5f, 5f, 5f));
+            }
+        }
+        hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), aoes[0].Activation);
     }
 }

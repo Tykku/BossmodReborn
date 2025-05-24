@@ -12,7 +12,7 @@ class P6MortalVow : Components.UniformStackSpread
     public P6MortalVow(BossModule module) : base(module, 5, 5, 2, 2, true, false)
     {
         // prepare for initial application on random DD
-        AddSpreads(Raid.WithoutSlot(true).Where(p => p.Class.IsDD())); // TODO: activation
+        AddSpreads(Raid.WithoutSlot(true, true, true).Where(p => p.Class.IsDD())); // TODO: activation
     }
 
     public void ShowNextPass()
@@ -20,7 +20,7 @@ class P6MortalVow : Components.UniformStackSpread
         if (_vow == null)
             return;
         _target = DetermineNextPassTarget();
-        var forbidden = _target != null ? Raid.WithSlot(true).Exclude(_target).Mask() : Raid.WithSlot(true).WhereSlot(i => _atonementExpiration[i] < _vowExpiration).Mask();
+        var forbidden = _target != null ? Raid.WithSlot(true, true, true).Exclude(_target).Mask() : Raid.WithSlot(true, true, true).WhereSlot(i => _atonementExpiration[i] < _vowExpiration).Mask();
         AddStack(_vow, _vowExpiration, forbidden);
     }
 
@@ -34,7 +34,7 @@ class P6MortalVow : Components.UniformStackSpread
     {
         base.DrawArenaForeground(pcSlot, pc);
         if (_vow != null && _target != null && (pc == _vow || pc == _target))
-            Arena.AddCircle(Module.Center, 1, Colors.Safe);
+            Arena.AddCircle(Arena.Center, 1, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)

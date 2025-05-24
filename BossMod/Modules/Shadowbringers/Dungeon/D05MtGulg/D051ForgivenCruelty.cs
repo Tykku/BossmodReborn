@@ -10,6 +10,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // 27CA->player, no cast, single-target
+
     Rake = 15611, // 27CA->player, 3.0s cast, single-target
     LumenInfinitum = 16818, // 27CA->self, 3.7s cast, range 40 width 5 rect
     TyphoonWingVisual1 = 15615, // 27CA->self, 5.0s cast, single-target
@@ -23,14 +24,14 @@ public enum AID : uint
     HurricaneWing = 15619 // 233C->self, 5.0s cast, range 10 circle
 }
 
-class Rake(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.Rake));
-class CycloneWing(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CycloneWing));
-class LumenInfinitum(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LumenInfinitum), new AOEShapeRect(40, 2.5f));
-class HurricaneWing(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HurricaneWing), new AOEShapeCircle(10));
+class Rake(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.Rake);
+class CycloneWing(BossModule module) : Components.RaidwideCast(module, (uint)AID.CycloneWing);
+class LumenInfinitum(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LumenInfinitum, new AOEShapeRect(40f, 2.5f));
+class HurricaneWing(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HurricaneWing, 10f);
 
-class TyphoonWing(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(25, 30.Degrees()));
-class TyphoonWing1(BossModule module) : TyphoonWing(module, AID.TyphoonWing1);
-class TyphoonWing2(BossModule module) : TyphoonWing(module, AID.TyphoonWing2);
+class TyphoonWing(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(25f, 30f.Degrees()));
+class TyphoonWing1(BossModule module) : TyphoonWing(module, (uint)AID.TyphoonWing1);
+class TyphoonWing2(BossModule module) : TyphoonWing(module, (uint)AID.TyphoonWing2);
 
 class D051ForgivenCrueltyStates : StateMachineBuilder
 {
@@ -49,5 +50,6 @@ class D051ForgivenCrueltyStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 659, NameID = 8260)]
 public class D051ForgivenCruelty(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Circle(new(188, -170), 19.5f)], [new Rectangle(new(168.25f, -170), 20, 1, 90.Degrees()), new Rectangle(new(207.75f, -170), 20, 1, 90.Degrees())]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(188, -170), 19.5f, 36)], [new Rectangle(new(168, -170), 1.25f, 20f, 0.02f.Degrees()),
+    new Rectangle(new(208f, -170f), 1.25f, 20f, 0.02f.Degrees())]);
 }

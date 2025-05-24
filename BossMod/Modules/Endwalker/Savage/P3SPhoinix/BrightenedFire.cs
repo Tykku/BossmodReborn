@@ -1,8 +1,8 @@
 ﻿namespace BossMod.Endwalker.Savage.P3SPhoinix;
 
 // state related to brightened fire mechanic
-// this helper relies on waymarks 1-4, and assumes they don't change during fight - this is of course quite an assumption, but whatever...
-class BrightenedFire(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.BrightenedFireAOE))
+// this helper relies on waymarks 1-4
+class BrightenedFire(BossModule module) : Components.CastCounter(module, (uint)AID.BrightenedFireAOE)
 {
     private readonly int[] _playerOrder = new int[8]; // 0 if unknown, 1-8 otherwise
 
@@ -60,6 +60,6 @@ class BrightenedFire(BossModule module) : Components.CastCounter(module, ActionI
         // TODO: consider how this can be improved...
         var markID = (int)Waymark.N1 + (order - 1) % 4;
         var wm = WorldState.Waymarks[markID];
-        return wm != null ? new(wm.Value.XZ()) : Module.Center;
+        return wm != null ? new(wm.Value.XZ()) : Arena.Center;
     }
 }

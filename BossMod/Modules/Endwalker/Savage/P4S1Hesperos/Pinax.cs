@@ -25,7 +25,7 @@ class Pinax(BossModule module) : BossComponent(module)
             {
                 hints.Add("GTFO from acid square!");
             }
-            hints.Add("Spread!", Raid.WithoutSlot().InRadiusExcluding(actor, _acidAOERadius).Any());
+            hints.Add("Spread!", Raid.WithoutSlot(false, true, true).InRadiusExcluding(actor, _acidAOERadius).Any());
         }
         if (_fire != null)
         {
@@ -33,7 +33,7 @@ class Pinax(BossModule module) : BossComponent(module)
             {
                 hints.Add("GTFO from fire square!");
             }
-            hints.Add("Stack in fours!", Raid.WithoutSlot().Where(x => x.Role == Role.Healer).InRadius(actor.Position, _fireAOERadius).Count() != 1);
+            hints.Add("Stack in fours!", Raid.WithoutSlot(false, true, true).Where(x => x.Role == Role.Healer).InRadius(actor.Position, _fireAOERadius).Count() != 1);
         }
         if (_water != null)
         {
@@ -41,7 +41,7 @@ class Pinax(BossModule module) : BossComponent(module)
             {
                 hints.Add("GTFO from water square!");
             }
-            if (!Module.InBounds(Components.Knockback.AwayFromSource(actor.Position, Module.Center, _knockbackRadius)))
+            if (!Module.InBounds(Components.GenericKnockback.AwayFromSource(actor.Position, Arena.Center, _knockbackRadius)))
             {
                 hints.Add("About to be knocked into wall!");
             }
@@ -52,7 +52,7 @@ class Pinax(BossModule module) : BossComponent(module)
             {
                 hints.Add("GTFO from lighting square!");
             }
-            hints.Add("GTFO from center!", actor.Position.InRect(Module.Center, new WDir(1, 0), _lightingSafeDistance, _lightingSafeDistance, _lightingSafeDistance));
+            hints.Add("GTFO from center!", actor.Position.InRect(Arena.Center, new WDir(1, 0), _lightingSafeDistance, _lightingSafeDistance, _lightingSafeDistance));
         }
     }
 
@@ -88,7 +88,7 @@ class Pinax(BossModule module) : BossComponent(module)
         if (_lighting != null)
         {
             Arena.ZoneRect(_lighting.Position, new WDir(1, 0), 10, 10, 10, Colors.AOE);
-            Arena.ZoneRect(Module.Center, new WDir(1, 0), _lightingSafeDistance, _lightingSafeDistance, _lightingSafeDistance, Colors.AOE);
+            Arena.ZoneRect(Arena.Center, new WDir(1, 0), _lightingSafeDistance, _lightingSafeDistance, _lightingSafeDistance, Colors.AOE);
         }
     }
 
@@ -97,12 +97,12 @@ class Pinax(BossModule module) : BossComponent(module)
         if (_acid != null)
         {
             Arena.AddCircle(pc.Position, _acidAOERadius, Colors.Danger);
-            foreach (var player in Raid.WithoutSlot().Exclude(pc))
+            foreach (var player in Raid.WithoutSlot(false, true, true).Exclude(pc))
                 Arena.Actor(player, player.Position.InCircle(pc.Position, _acidAOERadius) ? Colors.PlayerInteresting : Colors.PlayerGeneric);
         }
         if (_fire != null)
         {
-            foreach (var player in Raid.WithoutSlot())
+            foreach (var player in Raid.WithoutSlot(false, true, true))
             {
                 if (player.Role == Role.Healer)
                 {
@@ -117,7 +117,7 @@ class Pinax(BossModule module) : BossComponent(module)
         }
         if (_water != null)
         {
-            var adjPos = Components.Knockback.AwayFromSource(pc.Position, Module.Center, _knockbackRadius);
+            var adjPos = Components.GenericKnockback.AwayFromSource(pc.Position, Arena.Center, _knockbackRadius);
             if (adjPos != pc.Position)
             {
                 Arena.AddLine(pc.Position, adjPos, Colors.Danger);

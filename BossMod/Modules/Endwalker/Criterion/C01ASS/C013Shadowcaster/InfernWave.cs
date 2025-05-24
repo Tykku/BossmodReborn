@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C01ASS.C013Shadowcaster;
 
-abstract class InfernWave(BossModule module, bool savage, bool showHints, int maxActive) : Components.CastCounter(module, ActionID.MakeSpell(savage ? AID.SInfernWaveAOE : AID.NInfernWaveAOE))
+abstract class InfernWave(BossModule module, bool savage, bool showHints, int maxActive) : Components.CastCounter(module, savage ? (uint)AID.SInfernWaveAOE : (uint)AID.NInfernWaveAOE)
 {
     private class Beacon(Actor source, DateTime activation)
     {
@@ -14,14 +14,14 @@ abstract class InfernWave(BossModule module, bool savage, bool showHints, int ma
     private readonly int _maxActive = maxActive;
     private readonly List<Beacon> _beacons = [];
 
-    private static readonly AOEShapeCone _shape = new(60, 45.Degrees());
+    private static readonly AOEShapeCone _shape = new(60f, 45f.Degrees());
 
     public override void Update()
     {
         // create entries for newly activated beacons
-        foreach (var s in Module.Enemies(_savage ? OID.SBeacon : OID.NBeacon).Where(s => s.ModelState.AnimState1 == 1 && !_beacons.Any(b => b.Source == s)))
+        foreach (var s in Module.Enemies(_savage ? (uint)OID.SBeacon : (uint)OID.NBeacon).Where(s => s.ModelState.AnimState1 == 1 && !_beacons.Any(b => b.Source == s)))
         {
-            _beacons.Add(new(s, WorldState.FutureTime(17.1f)));
+            _beacons.Add(new(s, WorldState.FutureTime(17.1d)));
         }
 
         // update beacon targets
@@ -30,7 +30,7 @@ abstract class InfernWave(BossModule module, bool savage, bool showHints, int ma
             foreach (var b in ActiveBeacons())
             {
                 b.Targets.Clear();
-                foreach (var t in Raid.WithoutSlot().SortedByRange(b.Source.Position).Take(2))
+                foreach (var t in Raid.WithoutSlot(false, true, true).SortedByRange(b.Source.Position).Take(2))
                     b.Targets.Add((t, Angle.FromDirection(t.Position - b.Source.Position)));
             }
         }
@@ -50,7 +50,7 @@ abstract class InfernWave(BossModule module, bool savage, bool showHints, int ma
                 if (t.target == actor)
                 {
                     ++numBaits;
-                    clipping |= Raid.WithoutSlot().Exclude(actor).InShape(_shape, b.Source.Position, t.dir).Any();
+                    clipping |= Raid.WithoutSlot(false, true, true).Exclude(actor).InShape(_shape, b.Source.Position, t.dir).Count != 0;
                 }
                 else
                 {
@@ -86,9 +86,9 @@ abstract class InfernWave(BossModule module, bool savage, bool showHints, int ma
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         base.OnEventCast(caster, spell);
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
-            var beacon = _beacons.Find(b => b.Source.Position.AlmostEqual(caster.Position, 1));
+            var beacon = _beacons.Find(b => b.Source.Position.AlmostEqual(caster.Position, 1f));
             if (beacon != null)
                 beacon.Activation = new();
         }

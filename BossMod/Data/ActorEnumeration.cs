@@ -100,24 +100,64 @@ public static class ActorEnumeration
     }
 
     // select actors in specified shape
-    public static IEnumerable<Actor> InShape(this IEnumerable<Actor> range, AOEShape shape, Actor origin)
+    public static List<Actor> InShape(this IEnumerable<Actor> range, AOEShape shape, Actor origin)
     {
-        return range.Where(actor => shape.Check(actor.Position, origin));
+        List<Actor> result = [];
+
+        foreach (var actor in range)
+        {
+            if (shape.Check(actor.Position, origin))
+            {
+                result.Add(actor);
+            }
+        }
+
+        return result;
     }
 
-    public static IEnumerable<(int, Actor)> InShape(this IEnumerable<(int, Actor)> range, AOEShape shape, Actor origin)
+    public static List<(int, Actor)> InShape(this IEnumerable<(int, Actor)> range, AOEShape shape, Actor origin)
     {
-        return range.WhereActor(actor => shape.Check(actor.Position, origin));
+        List<(int, Actor)> result = [];
+
+        foreach (var tuple in range)
+        {
+            if (shape.Check(tuple.Item2.Position, origin))
+            {
+                result.Add(tuple);
+            }
+        }
+
+        return result;
     }
 
-    public static IEnumerable<Actor> InShape(this IEnumerable<Actor> range, AOEShape shape, WPos origin, Angle rotation)
+    public static List<Actor> InShape(this IEnumerable<Actor> range, AOEShape shape, WPos origin, Angle rotation)
     {
-        return range.Where(actor => shape.Check(actor.Position, origin, rotation));
+        List<Actor> result = [];
+
+        foreach (var actor in range)
+        {
+            if (shape.Check(actor.Position, origin, rotation))
+            {
+                result.Add(actor);
+            }
+        }
+
+        return result;
     }
 
-    public static IEnumerable<(int, Actor)> InShape(this IEnumerable<(int, Actor)> range, AOEShape shape, WPos origin, Angle rotation)
+    public static List<(int, Actor)> InShape(this IEnumerable<(int, Actor)> range, AOEShape shape, WPos origin, Angle rotation)
     {
-        return range.WhereActor(actor => shape.Check(actor.Position, origin, rotation));
+        List<(int, Actor)> result = [];
+
+        foreach (var tuple in range)
+        {
+            if (shape.Check(tuple.Item2.Position, origin, rotation))
+            {
+                result.Add(tuple);
+            }
+        }
+
+        return result;
     }
 
     // select actors that have tether with specific ID
@@ -136,26 +176,94 @@ public static class ActorEnumeration
     // sort range by distance from point
     public static IEnumerable<Actor> SortedByRange(this IEnumerable<Actor> range, WPos origin)
     {
-        return range
-            .Select(actor => (actor, (actor.Position - origin).LengthSq()))
-            .OrderBy(actorDist => actorDist.Item2)
-            .Select(actorDist => actorDist.actor);
+        var actors = new List<(Actor actor, float distanceSq)>();
+
+        foreach (var a in range)
+        {
+            var distanceSq = (a.Position - origin).LengthSq();
+            actors.Add((a, distanceSq));
+        }
+
+        actors.Sort((a, b) => a.distanceSq.CompareTo(b.distanceSq));
+
+        for (var i = 0; i < actors.Count; ++i)
+        {
+            yield return actors[i].actor;
+        }
     }
 
     public static IEnumerable<(int, Actor)> SortedByRange(this IEnumerable<(int, Actor)> range, WPos origin)
     {
-        return range
-            .Select(indexPlayer => (indexPlayer.Item1, indexPlayer.Item2, (indexPlayer.Item2.Position - origin).LengthSq()))
-            .OrderBy(indexPlayerDist => indexPlayerDist.Item3)
-            .Select(indexPlayerDist => (indexPlayerDist.Item1, indexPlayerDist.Item2));
+        var actors = new List<(int index, Actor actor, float distanceSq)>();
+
+        foreach (var a in range)
+        {
+            var distanceSq = (a.Item2.Position - origin).LengthSq();
+            actors.Add((a.Item1, a.Item2, distanceSq));
+        }
+
+        actors.Sort((a, b) => a.distanceSq.CompareTo(b.distanceSq));
+
+        for (var i = 0; i < actors.Count; ++i)
+        {
+            var actor = actors[i];
+            yield return (actor.index, actor.actor);
+        }
     }
 
-    // find closest actor to point
-    public static Actor? Closest(this IEnumerable<Actor> range, WPos origin) => range.MinBy(a => (a.Position - origin).LengthSq());
-    public static (int, Actor) Closest(this IEnumerable<(int, Actor)> range, WPos origin) => range.MinBy(ia => (ia.Item2.Position - origin).LengthSq());
+    // Find closest actor to a given point
+    public static Actor? Closest(this IEnumerable<Actor> range, WPos origin)
+    {
+        Actor? closest = null;
+        var minDistSq = float.MaxValue;
 
-    // find farthest actor from point
-    public static Actor? Farthest(this IEnumerable<Actor> range, WPos origin) => range.MaxBy(a => (a.Position - origin).LengthSq());
+        foreach (var actor in range)
+        {
+            var distSq = (actor.Position - origin).LengthSq();
+            if (distSq < minDistSq)
+            {
+                minDistSq = distSq;
+                closest = actor;
+            }
+        }
+        return closest;
+    }
+
+    // Find closest actor (with index) to a given point
+    public static (int, Actor) Closest(this IEnumerable<(int, Actor)> range, WPos origin)
+    {
+        (int, Actor)? closest = null;
+        var minDistSq = float.MaxValue;
+
+        foreach (var (index, actor) in range)
+        {
+            var distSq = (actor.Position - origin).LengthSq();
+            if (distSq < minDistSq)
+            {
+                minDistSq = distSq;
+                closest = (index, actor);
+            }
+        }
+        return closest!.Value;
+    }
+
+    // Find farthest actor from a given point
+    public static Actor? Farthest(this IEnumerable<Actor> range, WPos origin)
+    {
+        Actor? farthest = null;
+        var maxDistSq = float.MinValue;
+
+        foreach (var actor in range)
+        {
+            var distSq = (actor.Position - origin).LengthSq();
+            if (distSq > maxDistSq)
+            {
+                maxDistSq = distSq;
+                farthest = actor;
+            }
+        }
+        return farthest;
+    }
 
     // count num actors matching and not matching a condition
     public static (int match, int mismatch) CountByCondition(this IEnumerable<Actor> range, Func<Actor, bool> condition)
@@ -184,5 +292,50 @@ public static class ActorEnumeration
         if (count > 0)
             sum /= count;
         return sum.ToWPos();
+    }
+
+    public static (int, Actor)[] ExcludedFromMask(this List<(int, Actor)> range, BitMask mask)
+    {
+        var count = range.Count;
+        var result = new List<(int, Actor)>(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var indexActor = range[i];
+            if (!mask[indexActor.Item1])
+            {
+                result.Add(indexActor);
+            }
+        }
+        return [.. result];
+    }
+
+    public static (int, Actor)[] WhereSlot(this List<(int, Actor)> range, Func<int, bool> predicate)
+    {
+        var count = range.Count;
+        var result = new List<(int, Actor)>(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var indexActor = range[i];
+            if (predicate(indexActor.Item1))
+            {
+                result.Add(indexActor);
+            }
+        }
+        return [.. result];
+    }
+
+    public static (int, Actor)[] InRadius(this List<(int, Actor)> range, WPos origin, float radius)
+    {
+        var count = range.Count;
+        var result = new List<(int, Actor)>(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var indexActor = range[i];
+            if (indexActor.Item2.Position.InCircle(origin, radius))
+            {
+                result.Add(indexActor);
+            }
+        }
+        return [.. result];
     }
 }

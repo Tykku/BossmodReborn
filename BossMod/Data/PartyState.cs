@@ -49,57 +49,119 @@ public sealed class PartyState
     }
 
     // select non-null and optionally alive raid members
-    public IEnumerable<Actor> WithoutSlot(bool includeDead = false, bool excludeAlliance = false, bool excludeNPCs = false)
+    public Actor[] WithoutSlot(bool includeDead = false, bool excludeAlliance = false, bool excludeNPCs = false)
     {
-        for (var i = 0; i < MaxAllies; ++i)
+        var limit = excludeNPCs ? MaxAllianceSize : MaxAllies;
+        var result = new Actor[limit];
+        var count = 0;
+
+        if (excludeAlliance)
         {
-            if (excludeNPCs && i >= MaxAllianceSize)
-                break;
-            if (excludeAlliance && i is >= MaxPartySize and < MaxAllianceSize)
-                continue;
-            var player = _actors[i];
-            if (player == null)
-                continue;
-            if (player.IsDead && !includeDead)
-                continue;
-            yield return player;
+            for (var i = 0; i < MaxPartySize; ++i)
+            {
+                ref readonly var player = ref _actors[i];
+                if (player == null || !includeDead && player.IsDead)
+                    continue;
+
+                result[count++] = player;
+            }
+            if (!excludeNPCs)
+                for (var i = MaxAllianceSize; i < limit; ++i)
+                {
+                    ref readonly var player = ref _actors[i];
+                    if (player == null || !includeDead && player.IsDead)
+                        continue;
+
+                    result[count++] = player;
+                }
         }
+        else
+        {
+            for (var i = 0; i < limit; ++i)
+            {
+                ref readonly var player = ref _actors[i];
+                if (player == null || !includeDead && player.IsDead)
+                    continue;
+
+                result[count++] = player;
+            }
+        }
+        return result[..count];
     }
 
-    public IEnumerable<(int, Actor)> WithSlot(bool includeDead = false, bool excludeAlliance = false)
+    public (int, Actor)[] WithSlot(bool includeDead = false, bool excludeAlliance = false, bool excludeNPCs = false)
     {
-        for (var i = 0; i < MaxAllies; ++i)
+        var limit = excludeNPCs ? MaxAllianceSize : MaxAllies;
+        var result = new (int, Actor)[limit];
+        var count = 0;
+
+        if (excludeAlliance)
         {
-            if (excludeAlliance && i is >= MaxPartySize and < MaxAllianceSize)
-                continue;
-            var player = _actors[i];
-            if (player == null)
-                continue;
-            if (player.IsDead && !includeDead)
-                continue;
-            yield return (i, player);
+            for (var i = 0; i < MaxPartySize; ++i)
+            {
+                ref readonly var player = ref _actors[i];
+                if (player == null || !includeDead && player.IsDead)
+                    continue;
+                result[count++] = (i, player);
+            }
+            if (!excludeNPCs)
+                for (var i = MaxAllianceSize; i < limit; ++i)
+                {
+                    ref readonly var player = ref _actors[i];
+                    if (player == null || !includeDead && player.IsDead)
+                        continue;
+
+                    result[count++] = (i, player);
+                }
         }
+        else
+        {
+            for (var i = 0; i < limit; ++i)
+            {
+                ref readonly var player = ref _actors[i];
+                if (player == null || !includeDead && player.IsDead)
+                    continue;
+
+                result[count++] = (i, player);
+            }
+        }
+        return result[..count];
     }
 
     // find a slot index containing specified player (by instance ID); returns -1 if not found
-    public int FindSlot(ulong instanceID) => instanceID != 0 ? Array.FindIndex(Members, m => m.InstanceId == instanceID) : -1;
+    public int FindSlot(ulong instanceID)
+    {
+        if (instanceID == 0)
+            return -1;
+        var len = Members.Length;
+        for (var i = 0; i < len; ++i)
+        {
+            if (Members[i].InstanceId == instanceID)
+                return i;
+        }
+        return -1;
+    }
 
     // find a slot index containing specified player (by name); returns -1 if not found
     public int FindSlot(ReadOnlySpan<char> name, StringComparison cmp = StringComparison.CurrentCultureIgnoreCase)
     {
-        for (var i = 0; i < Members.Length; ++i)
+        var length = Members.Length;
+        for (var i = 0; i < length; ++i)
             if (name.Equals(Members[i].Name, cmp))
                 return i;
         return -1;
     }
 
-    public IEnumerable<WorldState.Operation> CompareToInitial()
+    public List<WorldState.Operation> CompareToInitial()
     {
-        for (var i = 0; i < Members.Length; ++i)
+        var length = Members.Length;
+        List<WorldState.Operation> ops = new(length + 1);
+        for (var i = 0; i < length; ++i)
             if (Members[i].IsValid())
-                yield return new OpModify(i, Members[i]);
+                ops.Add(new OpModify(i, Members[i]));
         if (LimitBreakCur != 0 || LimitBreakMax != 10000)
-            yield return new OpLimitBreakChange(LimitBreakCur, LimitBreakMax);
+            ops.Add(new OpLimitBreakChange(LimitBreakCur, LimitBreakMax));
+        return ops;
     }
 
     // implementation of operations

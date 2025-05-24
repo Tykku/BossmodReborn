@@ -47,7 +47,7 @@ class RestraintCollar(BossModule module) : BossComponent(module)
 
     public override void Update()
     {
-        var fetters = chaintarget?.FindStatus(SID.Fetters) != null;
+        var fetters = chaintarget?.FindStatus((uint)SID.Fetters) != null;
         if (fetters)
             chainsactive = true;
         if (fetters && !chained)
@@ -70,9 +70,10 @@ class RestraintCollar(BossModule module) : BossComponent(module)
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var ironchain = Module.Enemies(OID.RestraintCollar).FirstOrDefault();
-        if (ironchain != null && !ironchain.IsDead)
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(ironchain.Position, ironchain.HitboxRadius + 3));
+        var collar = Module.Enemies((uint)OID.RestraintCollar);
+        var ironchain = collar.Count != 0 ? collar[0] : null;
+        if (ironchain != null && ironchain.IsTargetable && !ironchain.IsDead)
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(ironchain.Position, ironchain.HitboxRadius + 2.6f));
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
@@ -86,18 +87,19 @@ class RestraintCollar(BossModule module) : BossComponent(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.RestraintCollar)
+        if (spell.Action.ID == (uint)AID.RestraintCollar)
             casting = false;
     }
 }
 
-class BigBoot(BossModule module) : Components.Knockback(module, ActionID.MakeSpell(AID.BigBoot), true, stopAtWall: true)
+class BigBoot(BossModule module) : Components.GenericKnockback(module, (uint)AID.BigBoot, true, stopAtWall: true)
 {
     private Actor? _target;
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
         if (_target != null && _target == actor)
-            yield return new(Module.PrimaryActor.Position, 15);
+            return new Knockback[1] { new(Module.PrimaryActor.Position, 15f) };
+        return [];
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
@@ -108,36 +110,63 @@ class BigBoot(BossModule module) : Components.Knockback(module, ActionID.MakeSpe
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.BigBoot)
+        if (spell.Action.ID == (uint)AID.BigBoot)
             _target = null;
     }
 }
 
 class Corrosion(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCircle circle = new(9);
-    private readonly List<AOEInstance> _aoes = [];
+    private static readonly AOEShapeCircle circle = new(9f);
+    private readonly List<AOEInstance> _aoes = new(9);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Module.Enemies(OID.BladeOfTheGriffin).Count(x => !x.IsDead) < 9 ? _aoes : [];
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var blades = Module.Enemies((uint)OID.BladeOfTheGriffin);
+        var countB = blades.Count;
+        if (countB == 0)
+            return [];
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
+        if (countB < 9)
+            return aoes;
+        for (var i = 0; i < countB; ++i)
+        {
+            if (blades[i].IsDead)
+                return aoes;
+        }
+
+        return [];
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Corrosion)
-            _aoes.Add(new(circle, caster.Position, default, Module.CastFinishAt(spell)));
+        if (spell.Action.ID == (uint)AID.Corrosion)
+            _aoes.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Corrosion)
-            _aoes.RemoveAll(x => x.Origin == caster.Position);
+        if (spell.Action.ID == (uint)AID.Corrosion)
+        {
+            var count = _aoes.Count;
+            var id = caster.InstanceID;
+            for (var i = 0; i < count; ++i)
+            {
+                if (_aoes[i].ActorID == id)
+                {
+                    _aoes.RemoveAt(i);
+                    return;
+                }
+            }
+        }
     }
 }
 
-class SanguineBlade(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SanguineBlade), new AOEShapeCone(41.5f, 90.Degrees()));
-class ClawOfTheGriffin(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ClawOfTheGriffin));
-class BeakOfTheGriffin(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BeakOfTheGriffin));
-class Lionshead(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Lionshead));
-class FlashPowder(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.FlashPowder));
+class SanguineBlade(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SanguineBlade, new AOEShapeCone(41.5f, 90f.Degrees()));
+class ClawOfTheGriffin(BossModule module) : Components.SingleTargetCast(module, (uint)AID.ClawOfTheGriffin);
+class BeakOfTheGriffin(BossModule module) : Components.RaidwideCast(module, (uint)AID.BeakOfTheGriffin);
+class Lionshead(BossModule module) : Components.RaidwideCast(module, (uint)AID.Lionshead);
+class FlashPowder(BossModule module) : Components.CastGaze(module, (uint)AID.FlashPowder);
 
 class D173TheGriffinStates : StateMachineBuilder
 {
@@ -166,16 +195,18 @@ public class D173TheGriffin(WorldState ws, Actor primary) : BossModule(ws, prima
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.RestraintCollar), Colors.Vulnerable);
-        Arena.Actors(Enemies(OID.BladeOfTheGriffin).Concat([PrimaryActor]));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies((uint)OID.RestraintCollar), Colors.Vulnerable);
+        Arena.Actors(Enemies((uint)OID.BladeOfTheGriffin));
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
             var e = hints.PotentialTargets[i];
-            e.Priority = e.Actor.OID == (uint)OID.BladeOfTheGriffin ? e.Actor.Position.AlmostEqual(Arena.Center, 5) ? 2 : -1
+            e.Priority = e.Actor.OID == (uint)OID.BladeOfTheGriffin ? e.Actor.Position.AlmostEqual(Arena.Center, 5f) ? 2 : AIHints.Enemy.PriorityPointless
             : e.Actor.OID == (uint)OID.RestraintCollar ? 2 : 1;
         }
     }

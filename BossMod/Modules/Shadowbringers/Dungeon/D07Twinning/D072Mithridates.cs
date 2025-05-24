@@ -22,26 +22,26 @@ public enum AID : uint
     AllaganThunder = 15855, // Helper->player, 5.0s cast, range 5 circle
 }
 
-class ThunderBeam(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.ThunderBeam));
-class Laserblade(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Laserblade), new AOEShapeRect(25, 4, 25));
-class AllaganThunder(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.AllaganThunder), 5);
+class ThunderBeam(BossModule module) : Components.SingleTargetCast(module, (uint)AID.ThunderBeam);
+class Laserblade(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Laserblade, new AOEShapeRect(50f, 4f));
+class AllaganThunder(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.AllaganThunder, 5f);
 
 class Shock(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCircle circle = new(6);
-    private readonly List<AOEInstance> _aoes = [];
+    private static readonly AOEShapeCircle circle = new(6f);
+    private readonly List<AOEInstance> _aoes = new(8);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.Levinball)
-            _aoes.Add(new(circle, actor.Position, default, WorldState.FutureTime(7.7f)));
+        if (actor.OID == (uint)OID.Levinball)
+            _aoes.Add(new(circle, WPos.ClampToGrid(actor.Position), default, WorldState.FutureTime(7.7d)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.Shock)
+        if (spell.Action.ID == (uint)AID.Shock)
             _aoes.Clear();
     }
 }
@@ -61,6 +61,6 @@ class D072MithridatesStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 655, NameID = 8165)]
 public class D072Mithridates(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(200, 68), 19.5f * CosPI.Pi36th, 36)],
-    [new Rectangle(new(200, 88), 20, 1.25f), new Rectangle(new(200, 48), 20, 1.25f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(200f, 68f), 19.5f * CosPI.Pi36th, 36)],
+    [new Rectangle(new(200f, 88f), 20f, 1.25f), new Rectangle(new(200, 48), 20f, 1.25f)]);
 }

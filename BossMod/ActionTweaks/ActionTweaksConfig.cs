@@ -41,6 +41,10 @@ public sealed class ActionTweaksConfig : ConfigNode
     [PropertySlider(0, 10, Speed = 0.01f)]
     public float PyreticThreshold = 1.0f;
 
+    [PropertyDisplay("Auto misdirection: prevent movement under misdirection if angle between normal movement and misdirected is greater than this threshold (set to 180 to disable).")]
+    [PropertySlider(0, 180)]
+    public float MisdirectionThreshold = 180;
+
     [PropertyDisplay("Restore character orientation after action use")]
     public bool RestoreRotation = false;
 
@@ -52,6 +56,12 @@ public sealed class ActionTweaksConfig : ConfigNode
 
     [PropertyDisplay("Use custom queueing for manually pressed actions", tooltip: "This setting allows better integration with autorotations and will prevent you from triple-weaving or drifting GCDs if you press a healing ability while autorotation is going on")]
     public bool UseManualQueue = false;
+
+    [PropertyDisplay("Try to prevent dashing into AOEs", tooltip: "Prevent automatic use of targeted dashes (like WAR Onslaught) if they would move you into a dangerous area. May not work as expected in instances that do not have modules.\n\nThis option will also apply to manually pressed dashes if you have \"Use custom queueing for manually pressed actions\" enabled.")]
+    public bool DashSafety = true;
+
+    [PropertyDisplay("Apply the previous option to all dashes, not just gap closers", tooltip: "Includes backdashes (e.g. SAM Yaten), teleports (e.g. NIN Shukuchi), and fixed-length dashes (e.g. DRG Elusive Jump)")]
+    public bool DashSafetyExtra = true;
 
     [PropertyDisplay("Automatically manage auto attacks", tooltip: "This setting prevents starting autos early during countdown, starts them automatically at pull, when switching targets and when using any actions that don't explicitly cancel autos.")]
     public bool AutoAutos = false;
@@ -72,5 +82,6 @@ public sealed class ActionTweaksConfig : ConfigNode
     }
     [PropertyDisplay("Automatic target selection for ground-targeted abilities")]
     public GroundTargetingMode GTMode = GroundTargetingMode.Manual;
+
     public bool ActivateAnticheat = true;
 }

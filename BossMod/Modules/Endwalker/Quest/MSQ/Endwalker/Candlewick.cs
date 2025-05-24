@@ -2,25 +2,25 @@
 
 class Candlewick(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 {
-    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(10), new AOEShapeDonut(10, 30)];
+    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(10f), new AOEShapeDonut(10f, 30f)];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.CandlewickPointBlank)
-            AddSequence(caster.Position, Module.CastFinishAt(spell, 2));
+        if (spell.Action.ID == (uint)AID.CandlewickPointBlank)
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell, 2));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0)
+        if (Sequences.Count != 0)
         {
-            var order = (AID)spell.Action.ID switch
+            var order = spell.Action.ID switch
             {
-                AID.CandlewickPointBlank => 0,
-                AID.CandlewickDonut => 1,
+                (uint)AID.CandlewickPointBlank => 0,
+                (uint)AID.CandlewickDonut => 1,
                 _ => -1
             };
-            AdvanceSequence(order, caster.Position, WorldState.FutureTime(2));
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(2));
         }
     }
 }

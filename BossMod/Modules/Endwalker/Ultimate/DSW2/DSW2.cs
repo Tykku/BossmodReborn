@@ -1,22 +1,28 @@
 ﻿namespace BossMod.Endwalker.Ultimate.DSW2;
 
-class P2AscalonsMercyConcealed(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AscalonsMercyConcealedAOE), new AOEShapeCone(50, 15.Degrees()));
-class P2AscalonMight(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.AscalonsMight), new AOEShapeCone(50, 30.Degrees()), (uint)OID.BossP2);
-class P2UltimateEnd(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.UltimateEndAOE));
-class P3Drachenlance(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DrachenlanceAOE), new AOEShapeCone(13, 45.Degrees()));
-class P3SoulTether(BossModule module) : Components.TankbusterTether(module, ActionID.MakeSpell(AID.SoulTether), (uint)TetherID.HolyShieldBash, 5);
-class P4Resentment(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Resentment));
-class P5TwistingDive(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TwistingDive), new AOEShapeRect(60, 5));
-class P5Cauterize1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Cauterize1), new AOEShapeRect(48, 10));
-class P5Cauterize2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Cauterize2), new AOEShapeRect(48, 10));
-class P5SpearOfTheFury(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SpearOfTheFuryP5), new AOEShapeRect(50, 5));
-class P5AscalonMight(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.AscalonsMight), new AOEShapeCone(50, 30.Degrees()), (uint)OID.BossP5);
-class P5Surrender(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.Surrender));
-class P6SwirlingBlizzard(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SwirlingBlizzard), new AOEShapeDonut(20, 35));
-class P7Shockwave(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.ShockwaveP7));
-class P7AlternativeEnd(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.AlternativeEnd));
+class P2AscalonsMercyConcealed(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AscalonsMercyConcealedAOE, new AOEShapeCone(50, 15.Degrees()));
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", PrimaryActorOID = (uint)OID.BossP2, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 788, PlanLevel = 90)]
+abstract class AscalonMight(BossModule module, uint oid) : Components.Cleave(module, (uint)AID.AscalonsMight, new AOEShapeCone(50, 30.Degrees()), [oid]);
+class P2AscalonMight(BossModule module) : AscalonMight(module, (uint)OID.BossP2);
+
+class P2UltimateEnd(BossModule module) : Components.CastCounter(module, (uint)AID.UltimateEndAOE);
+class P3Drachenlance(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DrachenlanceAOE, new AOEShapeCone(13, 45.Degrees()));
+class P3SoulTether(BossModule module) : Components.TankbusterTether(module, (uint)AID.SoulTether, (uint)TetherID.HolyShieldBash, 5);
+class P4Resentment(BossModule module) : Components.CastCounter(module, (uint)AID.Resentment);
+class P5TwistingDive(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TwistingDive, new AOEShapeRect(60, 5));
+
+abstract class Cauterize(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(48, 10));
+class P5Cauterize1(BossModule module) : Cauterize(module, (uint)AID.Cauterize1);
+class P5Cauterize2(BossModule module) : Cauterize(module, (uint)AID.Cauterize2);
+
+class P5SpearOfTheFury(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SpearOfTheFuryP5, new AOEShapeRect(50, 5));
+class P5AscalonMight(BossModule module) : AscalonMight(module, (uint)OID.BossP5);
+class P5Surrender(BossModule module) : Components.CastCounter(module, (uint)AID.Surrender);
+class P6SwirlingBlizzard(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SwirlingBlizzard, new AOEShapeDonut(20, 35));
+class P7Shockwave(BossModule module) : Components.CastCounter(module, (uint)AID.ShockwaveP7);
+class P7AlternativeEnd(BossModule module) : Components.CastCounter(module, (uint)AID.AlternativeEnd);
+
+[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.BossP2, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 788, PlanLevel = 90)]
 public class DSW2(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), BoundsCircle)
 {
     public static readonly ArenaBoundsCircle BoundsCircle = new(21); // p2, intermission
@@ -49,22 +55,99 @@ public class DSW2(WorldState ws, Actor primary) : BossModule(ws, primary, new(10
     {
         // TODO: this is an ugly hack, think how multi-actor fights can be implemented without it...
         // the problem is that on wipe, any actor can be deleted and recreated in the same frame
-        ArenaFeatures ??= StateMachine.ActivePhaseIndex == 0 ? Enemies(OID.ArenaFeatures).FirstOrDefault() : null;
-        _bossP3 ??= StateMachine.ActivePhaseIndex == 1 ? Enemies(OID.BossP3).FirstOrDefault() : null;
-        _leftEyeP4 ??= StateMachine.ActivePhaseIndex == 2 ? Enemies(OID.LeftEye).FirstOrDefault() : null;
-        _rightEyeP4 ??= StateMachine.ActivePhaseIndex == 2 ? Enemies(OID.RightEye).FirstOrDefault() : null;
-        _nidhoggP4 ??= StateMachine.ActivePhaseIndex == 2 ? Enemies(OID.NidhoggP4).FirstOrDefault() : null;
-        _serCharibert ??= StateMachine.ActivePhaseIndex == 3 ? Enemies(OID.SerCharibert).FirstOrDefault() : null;
-        _spear ??= StateMachine.ActivePhaseIndex == 3 ? Enemies(OID.SpearOfTheFury).FirstOrDefault() : null;
-        _bossP5 ??= StateMachine.ActivePhaseIndex == 4 ? Enemies(OID.BossP5).FirstOrDefault() : null;
-        _nidhoggP6 ??= StateMachine.ActivePhaseIndex == 5 ? Enemies(OID.NidhoggP6).FirstOrDefault() : null;
-        _hraesvelgrP6 ??= StateMachine.ActivePhaseIndex == 5 ? Enemies(OID.HraesvelgrP6).FirstOrDefault() : null;
-        _bossP7 ??= StateMachine.ActivePhaseIndex == 6 ? Enemies(OID.DragonKingThordan).FirstOrDefault() : null;
+        if (ArenaFeatures == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 0)
+            {
+                var b = Enemies((uint)OID.ArenaFeatures);
+                ArenaFeatures = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_bossP3 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 1)
+            {
+                var b = Enemies((uint)OID.BossP3);
+                _bossP3 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_leftEyeP4 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 2)
+            {
+                var b = Enemies((uint)OID.LeftEye);
+                _leftEyeP4 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_rightEyeP4 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 2)
+            {
+                var b = Enemies((uint)OID.RightEye);
+                _rightEyeP4 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_nidhoggP4 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 2)
+            {
+                var b = Enemies((uint)OID.NidhoggP4);
+                _nidhoggP4 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_serCharibert == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 3)
+            {
+                var b = Enemies((uint)OID.SerCharibert);
+                _serCharibert = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_spear == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 3)
+            {
+                var b = Enemies((uint)OID.SpearOfTheFury);
+                _spear = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_bossP5 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 4)
+            {
+                var b = Enemies((uint)OID.BossP5);
+                _bossP5 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_nidhoggP6 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 5)
+            {
+                var b = Enemies((uint)OID.NidhoggP6);
+                _nidhoggP6 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_hraesvelgrP6 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 5)
+            {
+                var b = Enemies((uint)OID.HraesvelgrP6);
+                _hraesvelgrP6 = b.Count != 0 ? b[0] : null;
+            }
+        }
+        if (_bossP7 == null)
+        {
+            if (StateMachine.ActivePhaseIndex == 6)
+            {
+                var b = Enemies((uint)OID.DragonKingThordan);
+                _bossP7 = b.Count != 0 ? b[0] : null;
+            }
+        }
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor, Colors.Enemy, true);
+        Arena.Actor(PrimaryActor, allowDeadAndUntargetable: true);
         Arena.Actor(_bossP3);
         Arena.Actor(_leftEyeP4);
         Arena.Actor(_rightEyeP4);

@@ -1,9 +1,10 @@
 ﻿using BossMod.Autorotation;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
+using Dalamud.Utility;
 using ImGuiNET;
 using Lumina.Excel.Sheets;
-using Lumina.Text;
+using System.Text.RegularExpressions;
 using Lumina.Text.ReadOnly;
 using System.Data;
 using System.Globalization;
@@ -29,14 +30,16 @@ public sealed class ModuleViewer : IDisposable
     private readonly List<ModuleGroup>[,] _groups;
     private readonly Vector2 _iconSize = new(30, 30);
 
+    private string _searchText = "";
+
     public ModuleViewer(PlanDatabase? planDB, WorldState ws)
     {
         _planDB = planDB;
         _ws = ws;
 
         uint defaultIcon = 61762;
-        _expansions = Enum.GetNames<BossModuleInfo.Expansion>().Take((int)BossModuleInfo.Expansion.Count).Select(n => (n, defaultIcon)).ToArray();
-        _categories = Enum.GetNames<BossModuleInfo.Category>().Take((int)BossModuleInfo.Category.Count).Select(n => (n, defaultIcon)).ToArray();
+        _expansions = [.. Enum.GetNames<BossModuleInfo.Expansion>().Take((int)BossModuleInfo.Expansion.Count).Select(n => (n, defaultIcon))];
+        _categories = [.. Enum.GetNames<BossModuleInfo.Category>().Take((int)BossModuleInfo.Category.Count).Select(n => (n, defaultIcon))];
 
         var exVersion = Service.LuminaSheet<ExVersion>()!;
         Customize(BossModuleInfo.Expansion.RealmReborn, 61875, exVersion.GetRow(0).Name);
@@ -50,6 +53,7 @@ public sealed class ModuleViewer : IDisposable
         Customize(BossModuleInfo.Category.Dungeon, contentType.GetRow(2));
         Customize(BossModuleInfo.Category.Trial, contentType.GetRow(4));
         Customize(BossModuleInfo.Category.Raid, contentType.GetRow(5));
+        Customize(BossModuleInfo.Category.Chaotic, contentType.GetRow(37));
         Customize(BossModuleInfo.Category.PVP, contentType.GetRow(6));
         Customize(BossModuleInfo.Category.Quest, contentType.GetRow(7));
         Customize(BossModuleInfo.Category.FATE, contentType.GetRow(8));
@@ -132,6 +136,15 @@ public sealed class ModuleViewer : IDisposable
             return;
 
         ImGui.TableNextColumn();
+        ImGui.TableNextColumn(); //spacing with only one seemed to be a bit small on certain window sizes
+        ImGui.AlignTextToFramePadding();
+        ImGui.Text("Search:");
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(-1);
+        DrawSearchBar();
+        ImGui.TableNextColumn();
+
+        ImGui.TableNextColumn();
         ImGui.TableHeader("Expansion");
         ImGui.TableNextRow(ImGuiTableRowFlags.None);
         ImGui.TableNextColumn();
@@ -144,6 +157,18 @@ public sealed class ModuleViewer : IDisposable
         ImGui.TableNextRow(ImGuiTableRowFlags.None);
         ImGui.TableNextColumn();
         DrawContentTypeFilters();
+    }
+
+    private void DrawSearchBar()
+    {
+        ImGui.InputTextWithHint("##search", "e.g. \"Ultimate\"", ref _searchText, 100, ImGuiInputTextFlags.CallbackCompletion);
+
+        if (ImGui.IsItemHovered() && !ImGui.IsItemFocused())
+        {
+            ImGui.BeginTooltip();
+            ImGui.Text("Type here to search for any specific instance by its respective title.");
+            ImGui.EndTooltip();
+        }
     }
 
     private void DrawExpansionFilters()
@@ -199,6 +224,9 @@ public sealed class ModuleViewer : IDisposable
 
                 foreach (var group in _groups[i, j])
                 {
+                    if (!_searchText.IsNullOrEmpty() && !group.Info.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase))
+                        continue;
+
                     ImGui.TableNextRow();
                     ImGui.TableNextColumn();
                     UIMisc.Image(Service.Texture?.GetFromGameIcon(_expansions[i].icon), new(36));
@@ -245,8 +273,8 @@ public sealed class ModuleViewer : IDisposable
     private void Customize(BossModuleInfo.Category category, CharaCardPlayStyle ps) => Customize(category, (uint)ps.Icon, ps.Name);
 
     //private static IDalamudTextureWrap? GetIcon(uint iconId) => iconId != 0 ? Service.Texture?.GetIcon(iconId, Dalamud.Plugin.Services.ITextureProvider.IconFlags.HiRes) : null;
-    private static string FixCase(ReadOnlySeString str) => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(str.ToString());
-    private static string BNpcName(uint id) => FixCase(Service.LuminaRow<BNpcName>(id)!.Value.Singular);
+    public static string FixCase(ReadOnlySeString str) => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(str.ToString());
+    public static string BNpcName(uint id) => FixCase(Service.LuminaRow<BNpcName>(id)!.Value.Singular);
 
     private (ModuleGroupInfo, ModuleInfo) Classify(BossModuleRegistry.Info module)
     {
@@ -257,7 +285,9 @@ public sealed class ModuleViewer : IDisposable
                 groupId |= module.GroupID;
                 var cfcRow = Service.LuminaRow<ContentFinderCondition>(module.GroupID)!.Value;
                 var cfcSort = cfcRow.SortKey;
-                return (new(FixCase(cfcRow.Name), groupId, cfcSort != 0 ? cfcSort : groupId), new(module, BNpcName(module.NameID), module.SortOrder));
+                var fixedName = RegexHelper.RemoveTags(cfcRow.Name.ToString());
+                return (new(FixCase(fixedName), groupId, cfcSort != 0 ? cfcSort : groupId),
+                        new(module, BNpcName(module.NameID), module.SortOrder));
             case BossModuleInfo.GroupType.MaskedCarnivale:
                 groupId |= module.GroupID;
                 var mcRow = Service.LuminaRow<ContentFinderCondition>(module.GroupID)!.Value;
@@ -266,6 +296,16 @@ public sealed class ModuleViewer : IDisposable
                 return (new(mcName, groupId, mcSort), new(module, BNpcName(module.NameID), module.SortOrder));
             case BossModuleInfo.GroupType.RemovedUnreal:
                 return (new("Removed Content", groupId, groupId), new(module, BNpcName(module.NameID), module.SortOrder));
+            case BossModuleInfo.GroupType.BaldesionArsenal:
+                return (new("Baldesion Arsenal", groupId, groupId), new(module, BNpcName(module.NameID), module.SortOrder));
+            case BossModuleInfo.GroupType.CastrumLacusLitore:
+                return (new("Castrum Lacus Litore", groupId, groupId), new(module, BNpcName(module.NameID), module.SortOrder));
+            case BossModuleInfo.GroupType.TheDaldriada:
+                return (new("The Daldriada", groupId, groupId), new(module, BNpcName(module.NameID), module.SortOrder));
+            case BossModuleInfo.GroupType.BozjaSkirmish:
+                var fateRowBozjaSkirmish = Service.LuminaRow<Fate>(module.NameID)!.Value;
+                var skirmishName = $"{FixCase(Service.LuminaRow<ContentFinderCondition>(module.GroupID)!.Value.Name)} Skirmish";
+                return (new(skirmishName, groupId, groupId), new(module, $"{fateRowBozjaSkirmish.Name}", module.SortOrder));
             case BossModuleInfo.GroupType.Quest:
                 var questRow = Service.LuminaRow<Quest>(module.GroupID)!.Value;
                 groupId |= questRow.JournalGenre.RowId;
@@ -285,6 +325,10 @@ public sealed class ModuleViewer : IDisposable
                 groupId |= module.GroupID;
                 var duelName = $"{FixCase(Service.LuminaRow<ContentFinderCondition>(module.GroupID)!.Value.Name)} Duel";
                 return (new(duelName, groupId, groupId), new(module, Service.LuminaRow<DynamicEvent>(module.NameID)!.Value.Name.ToString(), module.SortOrder));
+            case BossModuleInfo.GroupType.EurekaNM:
+                groupId |= module.GroupID;
+                var nmName = FixCase(Service.LuminaRow<ContentFinderCondition>(module.GroupID)!.Value.Name);
+                return (new(nmName, groupId, groupId), new(module, Service.LuminaRow<Fate>(module.NameID)!.Value.Name.ToString(), module.SortOrder));
             case BossModuleInfo.GroupType.GoldSaucer:
                 return (new("Gold saucer", groupId, groupId), new(module, $"{Service.LuminaRow<GoldSaucerTextData>(module.GroupID)?.Text}: {BNpcName(module.NameID)}", module.SortOrder));
             default:
@@ -330,4 +374,12 @@ public sealed class ModuleViewer : IDisposable
             }
         }
     }
+}
+
+public static partial class RegexHelper
+{
+    [GeneratedRegex("<italic\\(\\d\\)>|<-->")]
+    private static partial Regex TagsRegex();
+
+    public static string RemoveTags(string input) => TagsRegex().Replace(input, string.Empty);
 }

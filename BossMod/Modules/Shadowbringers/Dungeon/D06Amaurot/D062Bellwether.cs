@@ -30,11 +30,11 @@ public enum AID : uint
     ExplosionEnrage = 15919, // Boss->self, no cast, range 50 circle, enrage
 }
 
-class ShrillShriek(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ShrillShriek));
-class Aetherspike(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Aetherspike), new AOEShapeRect(40, 4));
-class Comet(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Comet), 4);
-class SicklyInferno(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.SicklyInferno), 5);
-class Burst(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.BurstEnrage), "Enrage!", true);
+class ShrillShriek(BossModule module) : Components.RaidwideCast(module, (uint)AID.ShrillShriek);
+class Aetherspike(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Aetherspike, new AOEShapeRect(40, 4));
+class Comet(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Comet, 4);
+class SicklyInferno(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SicklyInferno, 5);
+class Burst(BossModule module) : Components.CastHint(module, (uint)AID.BurstEnrage, "Enrage!", true);
 
 class D062BellwetherStates : StateMachineBuilder
 {
@@ -52,11 +52,12 @@ class D062BellwetherStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 652, NameID = 8202)]
 public class D062Bellwether(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Circle(new(60, -361), 19.5f)], [new Rectangle(new(60, -341), 20, 1)]);
-
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(60f, -361f), 19.5f, 40)], [new Rectangle(new(60.024f, -340.815f), 20f, 1.25f)]);
+    private static readonly uint[] trash = [(uint)OID.TerminusRoiler, (uint)OID.TerminusShriver, (uint)OID.TerminusFlesher, (uint)OID.TerminusDetonator,
+    (uint)OID.TerminusBeholder, (uint)OID.TerminusCrier, (uint)OID.TerminusSprinter];
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.TerminusRoiler).Concat([PrimaryActor]).Concat(Enemies(OID.TerminusShriver)).Concat(Enemies(OID.TerminusFlesher))
-        .Concat(Enemies(OID.TerminusDetonator)).Concat(Enemies(OID.TerminusBeholder)).Concat(Enemies(OID.TerminusCrier)).Concat(Enemies(OID.TerminusSprinter)));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies(trash));
     }
 }

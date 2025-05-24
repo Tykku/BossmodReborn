@@ -18,20 +18,32 @@ class Stage05States : StateMachineBuilder
     public Stage05States(BossModule module) : base(module)
     {
         TrivialPhase()
-            .DeactivateOnEnter<Hints>();
+            .DeactivateOnEnter<Hints>()
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies((uint)OID.Boss);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.MaskedCarnivale, GroupID = 615, NameID = 8089)]
 public class Stage05 : BossModule
 {
-    public Stage05(WorldState ws, Actor primary) : base(ws, primary, new(100, 100), new ArenaBoundsCircle(16))
+    public Stage05(WorldState ws, Actor primary) : base(ws, primary, Layouts.ArenaCenter, Layouts.CircleSmall)
     {
         ActivateComponent<Hints>();
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Boss));
+        Arena.Actors(Enemies((uint)OID.Boss));
     }
 }

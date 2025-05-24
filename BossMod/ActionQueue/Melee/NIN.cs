@@ -194,6 +194,9 @@ public sealed class Definitions : IDisposable
     private void Customize(ActionDefinitions d)
     {
         d.RegisterChargeIncreaseTrait(AID.Shukuchi, TraitID.EnhancedShukuchiII);
+
+        d.Spell(AID.ForkedRaiju)!.ForbidExecute = ActionDefinitions.DashToTargetCheck;
+        d.Spell(AID.Shukuchi)!.ForbidExecute = ActionDefinitions.DashToPositionCheck;
     }
 }
 

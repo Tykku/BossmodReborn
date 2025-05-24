@@ -3,7 +3,6 @@ namespace BossMod.Dawntrail.Dungeon.D01Ihuykatumu.D012Drowsie;
 public enum OID : uint
 {
     Boss = 0x4195, // R5.0
-    Apollyon = 0x41B9, // R7.0
     IhuykatumuIvy = 0x419C, // R4.2-8.4
     BlueClot = 0x4197, // R2.0
     GreenClot = 0x4196, // R3.5
@@ -48,13 +47,13 @@ public enum AID : uint
     FlagrantSpread2 = 36485, // Mimiclot3/Mimiclot6->self, 5.0s cast, range 6 circle
 }
 
-class Uppercut(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Uppercut));
-class Arise(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Arise), new AOEShapeCircle(8));
-class Wallop1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wallop1), new AOEShapeRect(40, 5));
-class Wallop2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wallop2), new AOEShapeRect(40, 8));
-class SelfTargetSneezeedAOEs(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Sneeze), new AOEShapeCone(60, 75.Degrees()));
-class FlagrantSpread1(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FlagrantSpread1), 6);
-class FlagrantSpread2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FlagrantSpread2), new AOEShapeCircle(6));
+class Uppercut(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Uppercut);
+class Arise(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Arise, 8);
+class Wallop1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Wallop1, new AOEShapeRect(40, 5));
+class Wallop2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Wallop2, new AOEShapeRect(40, 8));
+class SelfTargetSneezeedAOEs(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Sneeze, new AOEShapeCone(60, 75.Degrees()));
+class FlagrantSpread1(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.FlagrantSpread1, 6);
+class FlagrantSpread2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FlagrantSpread2, 6);
 
 class D012DrowsieStates : StateMachineBuilder
 {
@@ -74,12 +73,12 @@ class D012DrowsieStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 826, NameID = 12716)]
 public class D012Drowsie(WorldState ws, Actor primary) : BossModule(ws, primary, DefaultBounds.Center, DefaultBounds)
 {
-    public static readonly ArenaBoundsComplex DefaultBounds = new([new Circle(new(80, 53), 19.5f)], [new Rectangle(new(65.5f, 38), 20, 1.75f, 130.Degrees()), new Rectangle(new(80, 74), 20, 2)]);
-
+    public static readonly ArenaBoundsComplex DefaultBounds = new([new Polygon(new(80, 53), 19.5f, 32)], [new Rectangle(new(65.5f, 38), 20, 1.8f, -130.Degrees()),
+    new Rectangle(new(80, 74), 20, 2.15f)]);
+    private static readonly uint[] adds = [(uint)OID.Mimiclot1, (uint)OID.Mimiclot2, (uint)OID.Mimiclot3, (uint)OID.Mimiclot4, (uint)OID.Mimiclot5, (uint)OID.Mimiclot6];
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Mimiclot1).Concat(Enemies(OID.Mimiclot2)).Concat(Enemies(OID.Mimiclot3)).Concat(Enemies(OID.Mimiclot4))
-        .Concat(Enemies(OID.Mimiclot5)).Concat(Enemies(OID.Mimiclot6)));
+        Arena.Actors(Enemies(adds));
     }
 }

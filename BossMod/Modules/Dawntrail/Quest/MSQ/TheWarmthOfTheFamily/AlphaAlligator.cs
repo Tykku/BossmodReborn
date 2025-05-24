@@ -7,26 +7,27 @@ public enum OID : uint
     Ceratoraptor = 0x4634, // R1.95
     HornedLizard = 0x4635, // R2.2
     AlphaAlligator = 0x4637, // R5.13
+    Alligator = 0x4636, // R2.7
 }
 
 public enum AID : uint
 {
-    AutoAttack1 = 870, // Yeheheceyaa/Ceratoraptor/AlphaAlligator->player/WukLamat/Koana/Boss, no cast, single-target
+    AutoAttack1 = 870, // Yeheheceyaa/Ceratoraptor/AlphaAlligator/Alligator->player/WukLamat/Koana/Boss, no cast, single-target
     AutoAttack2 = 872, // HornedLizard->player/WukLamat/Koana, no cast, single-target
 
     ToxicSpitVisual = 40561, // HornedLizard->self, 8.0s cast, single-target
     ToxicSpit = 40562, // HornedLizard->Boss/Koana/WukLamat, no cast, single-target
-    CriticalBite = 40563, // 4636->self, 25.0s cast, range 10 120-degree cone
+    CriticalBite = 40563, // Alligator->self, 25.0s cast, range 10 120-degree cone
 }
 
-class FeedingTime(BossModule module) : Components.InterceptTether(module, ActionID.MakeSpell(AID.ToxicSpit), excludedAllies: [(uint)OID.Boss])
+class FeedingTime(BossModule module) : Components.InterceptTether(module, (uint)AID.ToxicSpit, excludedAllies: [(uint)OID.Boss])
 {
     private DateTime _activation;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         base.OnCastStarted(caster, spell);
-        if ((AID)spell.Action.ID == AID.ToxicSpit)
+        if (spell.Action.ID == (uint)AID.ToxicSpit)
             _activation = Module.CastFinishAt(spell, 1.2f);
     }
 
@@ -34,17 +35,29 @@ class FeedingTime(BossModule module) : Components.InterceptTether(module, Action
     {
         if (Active)
         {
-            var source = Module.Enemies(OID.HornedLizard).FirstOrDefault(x => x.Position.AlmostEqual(new(403, -105), 1)); // NPCs always seem to ignore the middle tether
+            Actor? source = null;
+            var enemies = Module.Enemies((uint)OID.HornedLizard);
+            var sourcePosition = new WPos(403, -105); // NPCs always seem to ignore the middle tether
+            var count = enemies.Count;
+            for (var i = 0; i < count; ++i)
+            {
+                var enemy = enemies[i];
+                if (enemy.Position.AlmostEqual(sourcePosition, 1f))
+                {
+                    source = enemy;
+                    break;
+                }
+            }
             if (source == null)
                 return;
             var target = WorldState.Actors.Find(source.Tether.Target);
             if (target != null)
-                hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position - (source.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.5f), _activation);
+                hints.AddForbiddenZone(ShapeDistance.InvertedRect(target.Position + (target.HitboxRadius + 0.1f) * target.DirectionTo(source), source.Position, 0.5f), _activation);
         }
     }
 }
 
-class CriticalBite(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CriticalBite), new AOEShapeCone(10, 60.Degrees()));
+class CriticalBite(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CriticalBite, new AOEShapeCone(10, 60.Degrees()));
 
 class AlphaAlligatorStates : StateMachineBuilder
 {
@@ -53,8 +66,21 @@ class AlphaAlligatorStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<FeedingTime>()
             .ActivateOnEnter<CriticalBite>()
-            .Raw.Update = () => Module.WorldState.Actors.Where(x => !x.IsAlly && x.IsTargetable && x.Position.AlmostEqual(Module.Arena.Center, Module.Bounds.Radius))
-            .All(x => x.IsDestroyed) || Module.Enemies(OID.AlphaAlligator).Any(x => x.IsDead);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(AlphaAlligator.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDestroyed)
+                        return false;
+                }
+                var alpha = module.Enemies((uint)OID.AlphaAlligator);
+                if (alpha.Count != 0 && alpha[0].IsDead)
+                    return true;
+                return true;
+            };
     }
 }
 
@@ -74,11 +100,10 @@ public class AlphaAlligator(WorldState ws, Actor primary) : BossModule(ws, prima
     new(406.61f, -125.40f), new(407.32f, -126.66f), new(407.47f, -127.25f), new(407.42f, -127.82f), new(406.67f, -128.79f),
     new(406.44f, -129.39f), new(407.78f, -134.79f), new(408.15f, -135.35f), new(420.82f, -140.11f), new(423.33f, -140.59f)];
     private static readonly ArenaBoundsComplex arena = new([new PolygonCustom(vertices)]);
-
-    protected override bool CheckPull() => WorldState.Actors.Any(x => x.InCombat && x.Position.AlmostEqual(Arena.Center, Bounds.Radius));
+    public static readonly uint[] All = [(uint)OID.Yeheheceyaa, (uint)OID.AlphaAlligator, (uint)OID.HornedLizard, (uint)OID.Ceratoraptor, (uint)OID.Alligator];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(All));
     }
 }

@@ -2,17 +2,18 @@
 
 public enum OID : uint
 {
-    Boss = 0x31D0, // R7.500, x1
-    Helper = 0x233C, // R0.500, x18
-    AlkonostsShadow = 0x31D1, // R3.750-7.500, spawn during fight
-    VorticalOrb1 = 0x3239, // R0.500, spawn during fight
-    VorticalOrb2 = 0x323A, // R0.500, spawn during fight
-    VorticalOrb3 = 0x31D2, // R0.500, spawn during fight
+    Boss = 0x31D0, // R7.5
+    AlkonostsShadow = 0x31D1, // R3.75-7.5
+    VorticalOrb1 = 0x3239, // R0.5
+    VorticalOrb2 = 0x323A, // R0.5
+    VorticalOrb3 = 0x31D2, // R0.5
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttack = 6499, // Boss->player, no cast, single-target
+
     Stormcall = 24121, // Boss->self, 5.0s cast, single-target, visual
     Explosion = 24122, // VorticalOrb1/VorticalOrb2/VorticalOrb3->self, 1.5s cast, range 35 circle aoe
     BladedBeak = 24123, // Boss->player, 5.0s cast, single-target, tankbuster
@@ -27,123 +28,153 @@ public enum AID : uint
     PainfulGust = 24132, // Boss->self, 5.0s cast, range 20 circle aoe
     ForeshadowingPulse = 24133, // AlkonostsShadow->self, 5.0s cast, range 8-25 donut
     ForeshadowingStorm = 24134, // AlkonostsShadow->self, 5.0s cast, range 36 130-degree cone aoe
-    ForeshadowingGust = 24135, // AlkonostsShadow->self, 5.0s cast, range 20 circle aoe
+    ForeshadowingGust = 24135 // AlkonostsShadow->self, 5.0s cast, range 20 circle aoe
 }
 
 public enum SID : uint
 {
-    OrbMovement = 2234, // none->VorticalOrb1/VorticalOrb2/VorticalOrb3, extra=0x1E (fast)/0x49 (slow)
-    Transfiguration = 705, // AlkonostsShadow->AlkonostsShadow, extra=0x1A4
+    OrbMovement = 2234 // none->VorticalOrb1/VorticalOrb2/VorticalOrb3, extra=0x1E (fast)/0x49 (slow)
 }
 
-public enum TetherID : uint
+class Stormcall(BossModule module) : Components.GenericAOEs(module, (uint)AID.Explosion)
 {
-    Foreshadowing = 45, // AlkonostsShadow->Boss
-}
+    private readonly List<AOEInstance> _aoes = [];
+    private static readonly AOEShapeCircle _shape = new(35f);
 
-class Stormcall(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.Explosion))
-{
-    private readonly List<(Actor source, WPos dest, DateTime activation)> _sources = [];
-    private static readonly AOEShapeCircle _shape = new(35);
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        return _sources.Take(2).Select(e => new AOEInstance(_shape, e.dest, default, e.activation));
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        return CollectionsMarshal.AsSpan(_aoes)[..max];
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.OrbMovement)
+        if (status.ID == (uint)SID.OrbMovement)
         {
-            var dest = Module.Center + 29 * (actor.Position - Module.Center).Normalized();
-            _sources.Add((actor, dest, WorldState.FutureTime(status.Extra == 0x1E ? 9.7f : 19.9f)));
-            _sources.SortBy(x => x.activation);
+            _aoes.Add(new(_shape, Arena.Center + 29f * (actor.Position - Arena.Center).Normalized(), default, WorldState.FutureTime(status.Extra == 0x1E ? 9.7f : 19.9f), ActorID: actor.InstanceID));
+            if (_aoes.Count > 1)
+                _aoes.SortBy(x => x.Activation);
         }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction && _sources.FindIndex(e => e.source == caster) is var index && index >= 0)
-            _sources[index] = (caster, caster.Position, Module.CastFinishAt(spell));
+        if (spell.Action.ID == WatchedAction)
+        {
+            var count = _aoes.Count;
+            var id = caster.InstanceID;
+            for (var i = 0; i < count; ++i)
+            {
+                if (_aoes[i].ActorID == id)
+                {
+                    _aoes[i] = new(_shape, spell.LocXZ, default, Module.CastFinishAt(spell), ActorID: caster.InstanceID);
+                    return;
+                }
+            }
+        }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
-            _sources.RemoveAll(e => e.source == caster);
+        if (spell.Action.ID == WatchedAction)
+        {
+            var count = _aoes.Count;
+            var id = caster.InstanceID;
+            for (var i = 0; i < count; ++i)
+            {
+                if (_aoes[i].ActorID == id)
+                {
+                    _aoes.RemoveAt(i);
+                    return;
+                }
+            }
+        }
     }
 }
 
-class BladedBeak(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.BladedBeak));
-class NihilitysSong(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.NihilitysSong));
-class Fantod(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FantodAOE), 3);
+class BladedBeak(BossModule module) : Components.SingleTargetCast(module, (uint)AID.BladedBeak);
+class NihilitysSong(BossModule module) : Components.RaidwideCast(module, (uint)AID.NihilitysSong);
+class Fantod(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FantodAOE, 3f);
 
 class Foreshadowing(BossModule module) : Components.GenericAOEs(module)
 {
-    private AOEShape? _bossAOE;
+    private AOEShape? _bossShape;
+    private AOEInstance? _bossAOE;
     private readonly List<(Actor caster, AOEShape? shape)> _addAOEs = []; // shape is null if add starts cast slightly before boss
-    private DateTime _addActivation;
+    private readonly List<AOEInstance> _aoes = [];
 
-    private static readonly AOEShapeDonut _shapePulse = new(8, 25);
-    private static readonly AOEShapeCone _shapeStorm = new(36, 65.Degrees());
-    private static readonly AOEShapeCircle _shapeGust = new(20);
+    private static readonly AOEShapeDonut _shapePulse = new(8f, 25f);
+    private static readonly AOEShapeCone _shapeStorm = new(36f, 65f.Degrees());
+    private static readonly AOEShapeCircle _shapeGust = new(20f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_bossAOE != null)
-            yield return new(_bossAOE, Module.PrimaryActor.Position, Module.PrimaryActor.CastInfo!.Rotation, Module.CastFinishAt(Module.PrimaryActor.CastInfo));
-
-        if (_addActivation != default)
-            foreach (var add in _addAOEs)
-                if (add.shape != null)
-                    yield return new(add.shape, add.caster.Position, add.caster.CastInfo?.Rotation ?? add.caster.Rotation, Module.CastFinishAt(add.caster.CastInfo, 0, _addActivation));
+        if (_bossAOE is AOEInstance aoe)
+            return new AOEInstance[1] { aoe };
+        else if (_aoes.Count != 0)
+            return CollectionsMarshal.AsSpan(_aoes);
+        return [];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.FrigidPulse:
+            case (uint)AID.FrigidPulse:
                 StartBossCast(_shapePulse);
                 break;
-            case AID.PainStorm:
+            case (uint)AID.PainStorm:
                 StartBossCast(_shapeStorm);
                 break;
-            case AID.PainfulGust:
+            case (uint)AID.PainfulGust:
                 StartBossCast(_shapeGust);
                 break;
-            case AID.ShadowsCast:
-                _addAOEs.Add((caster, _bossAOE)); // depending on timings, this might be null - will be updated when boss aoe starts
+            case (uint)AID.ShadowsCast:
+                _addAOEs.Add((caster, _bossShape)); // depending on timings, this might be null - will be updated when boss aoe starts
                 break;
+        }
+        void StartBossCast(AOEShape shape)
+        {
+            _bossShape = shape;
+            _bossAOE = new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell));
+            var count = _addAOEs.Count;
+            for (var i = 0; i < count; ++i)
+            {
+                var a = _addAOEs[i];
+                if (a.shape == null)
+                    _addAOEs[i] = (a.caster, shape);
+            }
+            if (count != 4)
+                return;
+            var act = Module.CastFinishAt(spell, 11.1f);
+            for (var i = 0; i < count; ++i)
+            {
+                var a = _addAOEs[i];
+                _aoes.Add(new(a.shape!, WPos.ClampToGrid(a.caster.Position), a.caster.Rotation, act));
+            }
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.FrigidPulse:
-            case AID.PainStorm:
-            case AID.PainfulGust:
+            case (uint)AID.FrigidPulse:
+            case (uint)AID.PainStorm:
+            case (uint)AID.PainfulGust:
+                _bossShape = null;
                 _bossAOE = null;
-                if (_addAOEs.Count == 4)
-                    _addActivation = WorldState.FutureTime(11.1f);
                 break;
-            case AID.ForeshadowingPulse:
-            case AID.ForeshadowingStorm:
-            case AID.ForeshadowingGust:
-                _addAOEs.RemoveAll(e => e.caster == caster);
+            case (uint)AID.ForeshadowingPulse:
+            case (uint)AID.ForeshadowingStorm:
+            case (uint)AID.ForeshadowingGust:
+                _aoes.Clear();
+                _addAOEs.Clear();
                 break;
         }
-    }
-
-    private void StartBossCast(AOEShape shape)
-    {
-        _bossAOE = shape;
-        _addActivation = new();
-        for (var i = 0; i < _addAOEs.Count; ++i)
-            if (_addAOEs[i].shape == null)
-                _addAOEs[i] = (_addAOEs[i].caster, shape);
     }
 }
 
@@ -160,5 +191,8 @@ class CE63WornToShadowStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 28)] // bnpcname=9973
-public class CE63WornToShadow(WorldState ws, Actor primary) : BossModule(ws, primary, new(-480, -690), new ArenaBoundsCircle(30));
+[ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 28)] // bnpcname=9973
+public class CE63WornToShadow(WorldState ws, Actor primary) : BossModule(ws, primary, new(-480f, -690f), new ArenaBoundsCircle(30f))
+{
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InCircle(Arena.Center, 30f);
+}

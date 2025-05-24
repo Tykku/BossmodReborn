@@ -37,121 +37,116 @@ public enum AID : uint
     ClimateChangeStatusEffect = 39133 // Boss->self, no cast, single-target
 }
 
-class FloodConditions(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FloodConditions), 6);
-class GaleForceWinds(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GaleForceWinds), new AOEShapeRect(40, 20));
-class Hyperelectricity(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Hyperelectricity), new AOEShapeCircle(10));
-class WildfireConditions(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WildfireConditions), new AOEShapeDonut(5, 40));
-class BlizzardConditions(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlizzardConditions), new AOEShapeCross(40, 2.5f));
+class FloodConditions(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FloodConditions, 6f);
+class GaleForceWinds(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GaleForceWinds, new AOEShapeRect(40f, 20f));
+class Hyperelectricity(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Hyperelectricity, 10f);
+class WildfireConditions(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WildfireConditions, new AOEShapeDonut(5f, 40f));
+class BlizzardConditions(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlizzardConditions, new AOEShapeCross(40f, 2.5f));
 
 class ForecastClimateChange(BossModule module) : Components.GenericAOEs(module)
 {
-    private enum Forecast { None, HGW, GWH, WHB, BHG }
-    private Forecast currentForecast;
-    private enum ClimateChange { None, G2B, B2W, H2G, W2H }
-    private ClimateChange currentClimateChange;
-    private static readonly AOEShapeRect rect = new(40, 20);
-    private static readonly AOEShapeDonut donut = new(5, 40);
-    private static readonly AOEShapeCircle circle = new(10);
-    private static readonly AOEShapeCross cross = new(40, 2.5f);
-    private readonly List<AOEInstance> _aoes = [];
-    private static readonly HashSet<AID> castEnd = [AID.WeatherChannelFirstCircle, AID.WeatherChannelFirstCross, AID.WeatherChannelFirstDonut,
-    AID.WeatherChannelFirstRect, AID.WeatherChannelRestCircle, AID.WeatherChannelRestDonut, AID.WeatherChannelRestRect, AID.WeatherChannelRestCross];
+    private static readonly AOEShapeRect rect = new(40f, 20f);
+    private static readonly AOEShapeDonut donut = new(5f, 40f);
+    private static readonly AOEShapeCircle circle = new(10f);
+    private static readonly AOEShapeCross cross = new(40f, 2.5f);
+    private readonly List<AOEInstance> _aoes = new(3);
+    private AOEShape[] shapes = [];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = _aoes.Count;
-        if (count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (count > 1)
-            yield return _aoes[1] with { Risky = false };
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
+        var aoe0Shape = aoes[0].Shape;
+        for (var i = 0; i < max; ++i)
+        {
+            ref var aoe = ref aoes[i];
+            if (i == 0)
+            {
+                if (count > 1)
+                    aoe.Color = Colors.Danger;
+                aoe.Risky = true;
+            }
+            else if ((aoe0Shape == circle || aoe0Shape == donut) && (aoe.Shape == donut || aoe.Shape == circle))
+                aoe.Risky = false;
+        }
+        return aoes[..max];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.Forecast1:
-                currentForecast = Forecast.HGW;
+            case (uint)AID.Forecast1:
+                shapes = [circle, rect, donut];
                 break;
-            case AID.Forecast2:
-                currentForecast = Forecast.GWH;
+            case (uint)AID.Forecast2:
+                shapes = [rect, donut, circle];
                 break;
-            case AID.Forecast3:
-                currentForecast = Forecast.WHB;
+            case (uint)AID.Forecast3:
+                shapes = [donut, circle, cross];
                 break;
-            case AID.Forecast4:
-                currentForecast = Forecast.BHG;
+            case (uint)AID.Forecast4:
+                shapes = [cross, circle, rect];
                 break;
-            case AID.ClimateChange1:
-                currentClimateChange = ClimateChange.G2B;
+            case (uint)AID.ClimateChange1:
+                AdjustForClimateChange(rect, cross);
                 break;
-            case AID.ClimateChange2:
-                currentClimateChange = ClimateChange.B2W;
+            case (uint)AID.ClimateChange2:
+                AdjustForClimateChange(cross, donut);
                 break;
-            case AID.ClimateChange3:
-                currentClimateChange = ClimateChange.H2G;
+            case (uint)AID.ClimateChange3:
+                AdjustForClimateChange(circle, rect);
                 break;
-            case AID.ClimateChange4:
-                currentClimateChange = ClimateChange.W2H;
+            case (uint)AID.ClimateChange4:
+                AdjustForClimateChange(donut, circle);
                 break;
-            case AID.WeatherChannelFirstCircle:
-            case AID.WeatherChannelFirstCross:
-            case AID.WeatherChannelFirstDonut:
-            case AID.WeatherChannelFirstRect:
-                AddAOEs(spell);
+            case (uint)AID.WeatherChannelFirstCircle:
+            case (uint)AID.WeatherChannelFirstCross:
+            case (uint)AID.WeatherChannelFirstDonut:
+            case (uint)AID.WeatherChannelFirstRect:
+                if (shapes.Length == 0)  // if people join fight late, shapes might be empty
+                    return;
+                AddAOE(shapes[0]);
+                AddAOE(shapes[1], 3.1f);
+                AddAOE(shapes[2], 6.1f);
+                shapes = [];
                 break;
         }
-    }
-
-    private void AddAOEs(ActorCastInfo spell)
-    {
-        var position = Module.PrimaryActor.Position;
-        AOEShape[] shapes =
-        [
-            AdjustShape(GetShapeForForecast(currentForecast, 0)),
-            AdjustShape(GetShapeForForecast(currentForecast, 1)),
-            AdjustShape(GetShapeForForecast(currentForecast, 2)),
-        ];
-
-        _aoes.Add(new(shapes[0], position, spell.Rotation, Module.CastFinishAt(spell)));
-        _aoes.Add(new(shapes[1], position, spell.Rotation, Module.CastFinishAt(spell, 3.1f)));
-        _aoes.Add(new(shapes[2], position, spell.Rotation, Module.CastFinishAt(spell, 6.1f)));
-        currentClimateChange = ClimateChange.None;
-    }
-
-    private static AOEShape GetShapeForForecast(Forecast forecast, int index)
-    {
-        AOEShape[] hgwShapes = [circle, rect, donut];
-        AOEShape[] gwhShapes = [rect, donut, circle];
-        AOEShape[] whbShapes = [donut, circle, cross];
-        AOEShape[] bhgShapes = [cross, circle, rect];
-
-        return forecast switch
+        void AdjustForClimateChange(AOEShape shapeOld, AOEShape shapeNew)
         {
-            Forecast.HGW => hgwShapes[index],
-            Forecast.GWH => gwhShapes[index],
-            Forecast.WHB => whbShapes[index],
-            Forecast.BHG => bhgShapes[index],
-            _ => cross
-        };
-    }
-
-    private AOEShape AdjustShape(AOEShape shape)
-    {
-        return shape switch
-        {
-            AOEShapeRect when currentClimateChange == ClimateChange.G2B => cross,
-            AOEShapeCross when currentClimateChange == ClimateChange.B2W => donut,
-            AOEShapeCircle when currentClimateChange == ClimateChange.H2G => rect,
-            AOEShapeDonut when currentClimateChange == ClimateChange.W2H => circle,
-            _ => shape
-        };
+            if (shapes.Length == 0) // if people join fight late, shapes might be empty
+                return;
+            for (var i = 0; i < 3; ++i)
+            {
+                if (shapes[i] == shapeOld)
+                {
+                    shapes[i] = shapeNew;
+                    return;
+                }
+            }
+        }
+        void AddAOE(AOEShape shape, float delay = default) => _aoes.Add(new(shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell, delay)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count > 0 && castEnd.Contains((AID)spell.Action.ID))
-            _aoes.RemoveAt(0);
+        if (_aoes.Count != 0)
+            switch (spell.Action.ID)
+            {
+                case (uint)AID.WeatherChannelFirstCircle:
+                case (uint)AID.WeatherChannelFirstCross:
+                case (uint)AID.WeatherChannelFirstDonut:
+                case (uint)AID.WeatherChannelFirstRect:
+                case (uint)AID.WeatherChannelRestCircle:
+                case (uint)AID.WeatherChannelRestDonut:
+                case (uint)AID.WeatherChannelRestRect:
+                case (uint)AID.WeatherChannelRestCross:
+                    _aoes.RemoveAt(0);
+                    break;
+            }
     }
 }
 

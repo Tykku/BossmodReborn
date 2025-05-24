@@ -1,5 +1,4 @@
 ﻿using BossMod.Autorotation;
-using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.ImGuiFileDialog;
 using ImGuiNET;
@@ -13,7 +12,7 @@ public class ReplayManagementWindow : UIWindow
 {
     private readonly WorldState _ws;
     private DirectoryInfo _logDir;
-    private readonly ReplayManagementConfig _config;
+    private static readonly ReplayManagementConfig _config = Service.Config.Get<ReplayManagementConfig>();
     private readonly ReplayManager _manager;
     private readonly EventSubscriptions _subscriptions;
     private ReplayRecorder? _recorder;
@@ -30,7 +29,6 @@ public class ReplayManagementWindow : UIWindow
     {
         _ws = ws;
         _logDir = logDir;
-        _config = Service.Config.Get<ReplayManagementConfig>();
         _manager = new(rotationDB, logDir.FullName);
         _subscriptions = new
         (
@@ -137,9 +135,11 @@ public class ReplayManagementWindow : UIWindow
 
     private void UpdateTitle() => WindowName = $"Replay recording: {(_recorder != null ? "in progress..." : "idle")}{_windowID}";
 
+    public bool ShouldAutoRecord => _config.AutoRecord && (_config.AutoARR || !Service.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.DutyRecorderPlayback]);
+
     private bool OnZoneChange(uint cfcId)
     {
-        if (!_config.AutoRecord || _recordingManual)
+        if (!ShouldAutoRecord || _recordingManual)
             return false; // don't care
 
         var isDuty = cfcId != 0;
@@ -164,7 +164,7 @@ public class ReplayManagementWindow : UIWindow
 
     private void OnModuleActivation(BossModule m)
     {
-        if (!_config.AutoRecord || _recordingManual)
+        if (!ShouldAutoRecord || _recordingManual)
             return; // don't care
 
         ++_recordingActiveModules;
@@ -174,7 +174,7 @@ public class ReplayManagementWindow : UIWindow
 
     private void OnModuleDeactivation(BossModule m)
     {
-        if (!_config.AutoRecord || _recordingManual || _recordingActiveModules <= 0)
+        if (!ShouldAutoRecord || _recordingManual || _recordingActiveModules <= 0)
             return; // don't care
 
         --_recordingActiveModules;

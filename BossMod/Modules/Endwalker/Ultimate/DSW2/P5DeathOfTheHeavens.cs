@@ -2,7 +2,7 @@
 
 class P5DeathOfTheHeavensHeavyImpact(BossModule module) : HeavyImpact(module, 10.5f);
 
-class P5DeathOfTheHeavensGaze(BossModule module) : DragonsGaze(module, OID.BossP5);
+class P5DeathOfTheHeavensGaze(BossModule module) : DragonsGaze(module, OID.BossP5, 23.5f);
 
 // TODO: make more meaningful somehow
 class P5DeathOfTheHeavensDooms(BossModule module) : BossComponent(module)
@@ -18,29 +18,29 @@ class P5DeathOfTheHeavensDooms(BossModule module) : BossComponent(module)
     // note: we could also use status, but it appears slightly later
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.Deathstorm)
+        if (spell.Action.ID == (uint)AID.Deathstorm)
             foreach (var t in spell.Targets)
-                Dooms.Set(Raid.FindSlot(t.ID));
+                Dooms[Raid.FindSlot(t.ID)] = true;
     }
 }
 
 class P5DeathOfTheHeavensLightningStorm : Components.UniformStackSpread
 {
-    public P5DeathOfTheHeavensLightningStorm(BossModule module) : base(module, 0, 5)
+    public P5DeathOfTheHeavensLightningStorm(BossModule module) : base(module, default, 5f)
     {
-        AddSpreads(Raid.WithoutSlot(true));
+        AddSpreads(Raid.WithoutSlot(true, true, true));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.LightningStormAOE)
+        if (spell.Action.ID == (uint)AID.LightningStormAOE)
             Spreads.Clear();
     }
 }
 
-class P5DeathOfTheHeavensHeavensflame(BossModule module) : Components.Knockback(module, ActionID.MakeSpell(AID.HeavensflameAOE))
+class P5DeathOfTheHeavensHeavensflame(BossModule module) : Components.GenericKnockback(module, (uint)AID.HeavensflameAOE)
 {
-    public bool KnockbackDone { get; private set; }
+    public bool KnockbackDone;
     private readonly WPos[] _playerAdjustedPositions = new WPos[PartyState.MaxPartySize];
     private readonly int[] _playerIcons = new int[PartyState.MaxPartySize]; // 0 = unassigned, 1 = circle/red, 2 = triangle/green, 3 = cross/blue, 4 = square/purple
     private BitMask _brokenTethers;
@@ -48,19 +48,19 @@ class P5DeathOfTheHeavensHeavensflame(BossModule module) : Components.Knockback(
     private readonly List<WPos> _cleanses = [];
     private WDir _relSouth; // TODO: this is quite hacky, works for LPDU...
 
-    private const float _knockbackDistance = 16;
-    private const float _aoeRadius = 10;
-    private const float _tetherBreakDistance = 32; // TODO: verify...
+    private const float _knockbackDistance = 16f;
+    private const float _aoeRadius = 10f;
+    private const float _tetherBreakDistance = 32f; // TODO: verify...
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
-        yield return new(Module.Center, _knockbackDistance);
+        return new Knockback[1] { new(Arena.Center, _knockbackDistance) };
     }
 
     public override void Update()
     {
-        foreach (var (slot, player) in Raid.WithSlot())
-            _playerAdjustedPositions[slot] = !KnockbackDone ? AwayFromSource(player.Position, Module.Center, _knockbackDistance) : player.Position;
+        foreach (var (slot, player) in Raid.WithSlot(false, true, true))
+            _playerAdjustedPositions[slot] = !KnockbackDone ? AwayFromSource(player.Position, Arena.Center, _knockbackDistance) : player.Position;
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -75,7 +75,7 @@ class P5DeathOfTheHeavensHeavensflame(BossModule module) : Components.Knockback(
         if (!Module.InBounds(actorAdjPos))
             hints.Add("About to be knocked into wall!");
 
-        if (Raid.WithSlot().Exclude(actor).WhereSlot(s => _playerAdjustedPositions[s].InCircle(actorAdjPos, _aoeRadius)).Any())
+        if (Raid.WithSlot(false, true, true).Exclude(actor).WhereSlot(s => _playerAdjustedPositions[s].InCircle(actorAdjPos, _aoeRadius)).Any())
             hints.Add("Spread!");
 
         var partner = FindTetheredPartner(slot);
@@ -104,46 +104,46 @@ class P5DeathOfTheHeavensHeavensflame(BossModule module) : Components.Knockback(
 
         DrawKnockback(pc, _playerAdjustedPositions[pcSlot], Arena);
 
-        foreach (var (slot, _) in Raid.WithSlot().Exclude(pc))
+        foreach (var (slot, _) in Raid.WithSlot(false, true, true).Exclude(pc))
             Arena.AddCircle(_playerAdjustedPositions[slot], _aoeRadius, Colors.Danger);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.WingsOfSalvationAOE)
+        if (spell.Action.ID == (uint)AID.WingsOfSalvationAOE)
         {
             _cleanses.Add(spell.LocXZ);
-            _relSouth += spell.LocXZ - Module.Center;
+            _relSouth += spell.LocXZ - Arena.Center;
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         base.OnEventCast(caster, spell);
-        if ((AID)spell.Action.ID == AID.FaithUnmoving)
+        if (spell.Action.ID == (uint)AID.FaithUnmoving)
             KnockbackDone = true;
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.Doom)
-            _dooms.Set(Raid.FindSlot(actor.InstanceID));
+        if (status.ID == (uint)SID.Doom)
+            _dooms[Raid.FindSlot(actor.InstanceID)] = true;
     }
 
     public override void OnUntethered(Actor source, ActorTetherInfo tether)
     {
-        _brokenTethers.Set(Raid.FindSlot(source.InstanceID));
-        _brokenTethers.Set(Raid.FindSlot(tether.Target));
+        _brokenTethers[Raid.FindSlot(source.InstanceID)] = true;
+        _brokenTethers[Raid.FindSlot(tether.Target)] = true;
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
-        var icon = (IconID)iconID switch
+        var icon = iconID switch
         {
-            IconID.HeavensflameCircle => 1,
-            IconID.HeavensflameTriangle => 2,
-            IconID.HeavensflameCross => 3,
-            IconID.HeavensflameSquare => 4,
+            (uint)IconID.HeavensflameCircle => 1,
+            (uint)IconID.HeavensflameTriangle => 2,
+            (uint)IconID.HeavensflameCross => 3,
+            (uint)IconID.HeavensflameSquare => 4,
             _ => 0
         };
         if (icon != 0)
@@ -168,30 +168,33 @@ class P5DeathOfTheHeavensHeavensflame(BossModule module) : Components.Knockback(
 
     // note: assumes LPDU strat (circles on E/W cleanses, triangles on SE/NW, crosses on N/S, squares on SW/NE)
     // TODO: handle bad cleanse placements somehow? or even deaths?
-    private IEnumerable<WPos> PositionHints(int slot)
+    // TODO: support dooms plant strat (APD) - doom shapes don't move, partners adjust to opposite side
+    private List<WPos> PositionHints(int slot)
     {
         var icon = _playerIcons[slot];
         if (icon == 0)
-            yield break;
-
-        var angle = Angle.FromDirection(_relSouth) + 135.Degrees() - icon * 45.Degrees();
+            return [];
+        var center = Arena.Center;
+        var angle = Angle.FromDirection(_relSouth) + 135f.Degrees() - icon * 45f.Degrees();
         var offset = _tetherBreakDistance * 0.5f * angle.ToDirection();
+        var hints = new List<WPos>(2);
         switch (icon)
         {
             case 1: // circle - show two cleanses closest to E and W
-                yield return ClosestCleanse(Module.Center + offset);
-                yield return ClosestCleanse(Module.Center - offset);
+                hints.Add(ClosestCleanse(center + offset));
+                hints.Add(ClosestCleanse(center - offset));
                 break;
             case 2: // triangle/square - doom to closest cleanse to SE/SW, otherwise opposite
             case 4:
-                var cleanseSpot = ClosestCleanse(Module.Center + offset);
-                yield return _dooms[slot] ? cleanseSpot : Module.Center - (cleanseSpot - Module.Center);
+                var cleanseSpot = ClosestCleanse(center + offset);
+                hints.Add(_dooms[slot] ? cleanseSpot : center - (cleanseSpot - center));
                 break;
             case 3: // cross - show two spots to N and S
-                yield return Module.Center + offset;
-                yield return Module.Center - offset;
+                hints.Add(center + offset);
+                hints.Add(center - offset);
                 break;
         }
+        return hints;
     }
 
     private WPos ClosestCleanse(WPos p) => _cleanses.MinBy(c => (c - p).LengthSq());

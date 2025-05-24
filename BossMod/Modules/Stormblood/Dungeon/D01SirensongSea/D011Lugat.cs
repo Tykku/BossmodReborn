@@ -22,12 +22,12 @@ public enum IconID : uint
     Stackmarker = 62
 }
 
-class ConcussiveOscillationBoss(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ConcussiveOscillationBoss), 7);
-class ConcussiveOscillation(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ConcussiveOscillation), 8);
-class AmorphousApplause(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AmorphousApplause), new AOEShapeCone(24.5f, 90.Degrees()));
-class Hydroball(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.Hydroball), 5, 5, 4, 4);
-class SeaSwallowsAll(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SeaSwallowsAll));
-class Overtow(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Overtow));
+class ConcussiveOscillationBoss(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ConcussiveOscillationBoss, 7);
+class ConcussiveOscillation(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ConcussiveOscillation, 8);
+class AmorphousApplause(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AmorphousApplause, new AOEShapeCone(24.5f, 90.Degrees()));
+class Hydroball(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, (uint)AID.Hydroball, 5, 5, 4, 4);
+class SeaSwallowsAll(BossModule module) : Components.RaidwideCast(module, (uint)AID.SeaSwallowsAll);
+class Overtow(BossModule module) : Components.RaidwideCast(module, (uint)AID.Overtow);
 
 class D011LugatStates : StateMachineBuilder
 {
@@ -46,5 +46,5 @@ class D011LugatStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus), erdelf", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 238, NameID = 6071)]
 public class D011Lugat(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Circle(new(-2.7f, -217), 21.5f), new Rectangle(new(-0.9f, -237.7f), 5, 1, 5.Degrees())], [new Rectangle(new(-3, -195), 20, 1.25f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(-2.7f, -217), 21.5f), new Rectangle(new(-0.9f, -237.7f), 5, 1, -5.Degrees())], [new Rectangle(new(-3, -195), 20, 1.25f)]);
 }

@@ -29,17 +29,13 @@ public enum AID : uint
     Telega = 9630 // Mandragoras->self, no cast, single-target, bonus adds disappear
 }
 
-class Hypnotize(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.Hypnotize));
-class Ram(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.Ram));
-class SaibaiMandragora(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.SaibaiMandragora), "Calls adds");
-class LeafDagger(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LeafDagger), 3);
+class Hypnotize(BossModule module) : Components.CastGaze(module, (uint)AID.Hypnotize);
+class Ram(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.Ram);
+class SaibaiMandragora(BossModule module) : Components.CastHint(module, (uint)AID.SaibaiMandragora, "Calls adds");
+class LeafDagger(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LeafDagger, 3f);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 6.84f);
 
 class SecretKorriganStates : StateMachineBuilder
 {
@@ -50,39 +46,49 @@ class SecretKorriganStates : StateMachineBuilder
             .ActivateOnEnter<LeafDagger>()
             .ActivateOnEnter<SaibaiMandragora>()
             .ActivateOnEnter<Ram>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(OID.SecretMandragora).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.SecretEgg)).Concat(module.Enemies(OID.SecretQueen))
-            .Concat(module.Enemies(OID.SecretOnion)).Concat(module.Enemies(OID.SecretGarlic)).Concat(module.Enemies(OID.SecretTomato)).All(e => e.IsDeadOrDestroyed);
+            .ActivateOnEnter<MandragoraAOEs>()
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(SecretKorrigan.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 745, NameID = 9806)]
-public class SecretKorrigan(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19))
+public class SecretKorrigan(WorldState ws, Actor primary) : THTemplate(ws, primary)
 {
+    private static readonly uint[] bonusAdds = [(uint)OID.SecretEgg, (uint)OID.SecretGarlic, (uint)OID.SecretOnion, (uint)OID.SecretTomato,
+    (uint)OID.SecretQueen];
+    public static readonly uint[] All = [(uint)OID.Boss, (uint)OID.SecretMandragora, .. bonusAdds];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.SecretMandragora));
-        Arena.Actors(Enemies(OID.SecretEgg).Concat(Enemies(OID.SecretTomato)).Concat(Enemies(OID.SecretQueen)).Concat(Enemies(OID.SecretGarlic)).Concat(Enemies(OID.SecretOnion)), Colors.Vulnerable);
+        Arena.Actors(Enemies((uint)OID.SecretMandragora));
+        Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
-            e.Priority = (OID)e.Actor.OID switch
+            var e = hints.PotentialTargets[i];
+            e.Priority = e.Actor.OID switch
             {
-                OID.SecretOnion => 7,
-                OID.SecretEgg => 6,
-                OID.SecretGarlic => 5,
-                OID.SecretTomato => 4,
-                OID.SecretQueen => 3,
-                OID.SecretMandragora => 2,
-                OID.Boss => 1,
+                (uint)OID.SecretOnion => 6,
+                (uint)OID.SecretEgg => 5,
+                (uint)OID.SecretGarlic => 4,
+                (uint)OID.SecretTomato => 3,
+                (uint)OID.SecretQueen => 2,
+                (uint)OID.SecretMandragora => 1,
                 _ => 0
             };
         }

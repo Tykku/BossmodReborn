@@ -15,16 +15,34 @@ public enum AID : uint
     Icefall = 15064, // Imp->location, 2.5s cast, range 5 circle
     TheRamsVoice = 15079, // Boss->self, 4.0s cast, range 9 circle
     TheDragonsVoice = 15080, // Boss->self, 4.0s cast, range 8-30 donut
-    TheRamsKeeper = 15081, // Boss->location, 6.0s cast, range 9 circle
-
+    TheRamsKeeper = 15081 // Boss->location, 6.0s cast, range 9 circle
 }
 
-class TheRamsKeeper(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 9, ActionID.MakeSpell(AID.TheRamsKeeper), m => m.Enemies(OID.Voidzone).Where(e => e.EventState != 7), 0.9f);
-class TheRamsKeeperHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.TheRamsKeeper));
-class TheRamsVoice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheRamsVoice), new AOEShapeCircle(9));
-class TheDragonsVoice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheDragonsVoice), new AOEShapeDonut(8, 30));
-class Icefall(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Icefall), 5);
-class VoidBlizzard(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.VoidBlizzard));
+class TheRamsKeeper(BossModule module) : Components.VoidzoneAtCastTarget(module, 9f, (uint)AID.TheRamsKeeper, GetVoidzones, 0.9f)
+{
+    private static Actor[] GetVoidzones(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.Voidzone);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
+
+        var voidzones = new Actor[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (z.EventState != 7)
+                voidzones[index++] = z;
+        }
+        return voidzones[..index];
+    }
+}
+class TheRamsKeeperHint(BossModule module) : Components.CastInterruptHint(module, (uint)AID.TheRamsKeeper);
+class TheRamsVoice(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheRamsVoice, 9f);
+class TheDragonsVoice(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheDragonsVoice, new AOEShapeDonut(8f, 30f));
+class Icefall(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Icefall, 5f);
+class VoidBlizzard(BossModule module) : Components.CastInterruptHint(module, (uint)AID.VoidBlizzard);
 
 class Hints(BossModule module) : BossComponent(module)
 {
@@ -38,8 +56,17 @@ class Hints2(BossModule module) : BossComponent(module)
 {
     public override void AddGlobalHints(GlobalHints hints)
     {
-        if (!Module.Enemies(OID.ArenaImp).All(e => e.IsDead))
-            hints.Add("The imps are weak to fire spells and strong against ice.\nInterrupt Void Blizzard with Flying Sardine.");
+        var imps = Module.Enemies((uint)OID.ArenaImp);
+        var count = imps.Count;
+        if (count != 0)
+            for (var i = 0; i < count; ++i)
+            {
+                if (!imps[i].IsDead)
+                {
+                    hints.Add("The imps are weak to fire spells and strong against ice.\nInterrupt Void Blizzard with Flying Sardine.");
+                    return;
+                }
+            }
     }
 }
 
@@ -62,7 +89,7 @@ class Stage21Act2States : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.MaskedCarnivale, GroupID = 631, NameID = 8121, SortOrder = 2)]
 public class Stage21Act2 : BossModule
 {
-    public Stage21Act2(WorldState ws, Actor primary) : base(ws, primary, new(100, 100), new ArenaBoundsCircle(16))
+    public Stage21Act2(WorldState ws, Actor primary) : base(ws, primary, Layouts.ArenaCenter, Layouts.CircleSmall)
     {
         ActivateComponent<Hints>();
     }
@@ -70,6 +97,6 @@ public class Stage21Act2 : BossModule
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.ArenaImp), Colors.Object);
+        Arena.Actors(Enemies((uint)OID.ArenaImp), Colors.Object);
     }
 }

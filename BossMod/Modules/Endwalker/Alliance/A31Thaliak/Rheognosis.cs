@@ -1,20 +1,20 @@
 ﻿namespace BossMod.Endwalker.Alliance.A31Thaliak;
 
-class RheognosisKnockback(BossModule module) : Components.Knockback(module)
+class RheognosisKnockback(BossModule module) : Components.GenericKnockback(module)
 {
-    private Source? _knockback;
+    private Knockback? _knockback;
 
-    public override IEnumerable<Source> Sources(int slot, Actor actor) => Utils.ZeroOrOne(_knockback);
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor) => Utils.ZeroOrOne(ref _knockback);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.Rheognosis or AID.RheognosisPetrine)
-            _knockback = new(Module.Center, 25, Module.CastFinishAt(spell, 20.3f), Direction: spell.Rotation + 180.Degrees(), Kind: Kind.DirForward);
+        if (spell.Action.ID is (uint)AID.Rheognosis or (uint)AID.RheognosisPetrine)
+            _knockback = new(Arena.Center, 25f, Module.CastFinishAt(spell, 20.3f), Direction: spell.Rotation + 180f.Degrees(), Kind: Kind.DirForward);
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.RheognosisKnockback)
+        if (spell.Action.ID == (uint)AID.RheognosisKnockback)
         {
             _knockback = null;
             ++NumCasts;
@@ -24,7 +24,7 @@ class RheognosisKnockback(BossModule module) : Components.Knockback(module)
 
 public class RheognosisCrash : Components.Exaflare
 {
-    public RheognosisCrash(BossModule module) : base(module, new AOEShapeRect(10, 12.05f), ActionID.MakeSpell(AID.RheognosisCrash)) => ImminentColor = Colors.AOE;
+    public RheognosisCrash(BossModule module) : base(module, new AOEShapeRect(10f, 12f)) => ImminentColor = Colors.AOE;
 
     public override void OnEventEnvControl(byte index, uint state)
     {
@@ -34,23 +34,30 @@ public class RheognosisCrash : Components.Exaflare
             var right = state == 0x01000001;
             var south = west == right;
             var start = Arena.Center + new WDir(west ? -Arena.Bounds.Radius : +Arena.Bounds.Radius, (south ? +Arena.Bounds.Radius : -Arena.Bounds.Radius) * 0.5f);
-            var dir = (west ? 90 : -90).Degrees();
-            Lines.Add(new() { Next = start, Advance = 10 * dir.ToDirection(), Rotation = dir, NextExplosion = WorldState.FutureTime(4), TimeToMove = 0.2f, ExplosionsLeft = 5, MaxShownExplosions = 5 });
+            var dir = (west ? 90f : -90f).Degrees();
+            Lines.Add(new() { Next = start, Advance = 10f * dir.ToDirection(), Rotation = dir, NextExplosion = WorldState.FutureTime(4d), TimeToMove = 0.2f, ExplosionsLeft = 5, MaxShownExplosions = 5 });
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == (uint)AID.RheognosisCrash)
         {
             ++NumCasts;
-            var index = Lines.FindIndex(item => item.Next.AlmostEqual(caster.Position, 1));
-            if (index >= 0)
+            var count = Lines.Count;
+            var pos = caster.Position;
+            for (var i = 0; i < count; ++i)
             {
-                AdvanceLine(Lines[index], caster.Position);
-                if (Lines[index].ExplosionsLeft == 0)
-                    Lines.RemoveAt(index);
+                var line = Lines[i];
+                if (line.Next.AlmostEqual(pos, 1f))
+                {
+                    AdvanceLine(line, pos);
+                    if (line.ExplosionsLeft == 0)
+                        Lines.RemoveAt(i);
+                    return;
+                }
             }
+            ReportError($"Failed to find entry for {caster.InstanceID:X}");
         }
     }
 }

@@ -1,22 +1,30 @@
 namespace BossMod.Endwalker.VariantCriterion.V02MR.V022Moko;
 
-class Spiritflame(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Spiritflame), 6);
+class Spiritflame(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spiritflame, 6);
 class Spiritflames(BossModule module) : Components.GenericAOEs(module)
 {
     private const float Radius = 2.4f;
     private const int Length = 6;
     private static readonly AOEShapeCapsule capsule = new(Radius, Length);
-    private readonly HashSet<Actor> _flames = [];
+    private readonly List<Actor> _flames = [];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        foreach (var f in _flames)
-            yield return new(capsule, f.Position, f.Rotation);
+        var count = _flames.Count;
+        if (count == 0)
+            return [];
+        var aoes = new AOEInstance[count];
+        for (var i = 0; i < count; ++i)
+        {
+            var f = _flames[i];
+            aoes[i] = new(capsule, f.Position, f.Rotation);
+        }
+        return aoes;
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if ((OID)actor.OID == OID.Spiritflame)
+        if (actor.OID == (uint)OID.Spiritflame)
         {
             if (id == 0x1E46)
                 _flames.Add(actor);
@@ -27,11 +35,18 @@ class Spiritflames(BossModule module) : Components.GenericAOEs(module)
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (_flames.Count == 0)
+        var count = _flames.Count;
+        if (count == 0)
             return;
-        var forbidden = new List<Func<WPos, float>>();
-        foreach (var f in _flames)
-            forbidden.Add(ShapeDistance.Capsule(f.Position, f.Rotation, Length, Radius));
-        hints.AddForbiddenZone(p => forbidden.Min(f => f(p)));
+        var forbiddenImminent = new Func<WPos, float>[count];
+        var forbiddenFuture = new Func<WPos, float>[count];
+        for (var i = 0; i < count; ++i)
+        {
+            var f = _flames[i];
+            forbiddenFuture[i] = ShapeDistance.Capsule(f.Position, f.Rotation, Length, Radius);
+            forbiddenImminent[i] = ShapeDistance.Circle(f.Position, Radius);
+        }
+        hints.AddForbiddenZone(ShapeDistance.Union(forbiddenFuture), WorldState.FutureTime(1.5d));
+        hints.AddForbiddenZone(ShapeDistance.Union(forbiddenImminent));
     }
 }

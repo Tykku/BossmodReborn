@@ -1,31 +1,34 @@
 ﻿namespace BossMod.Dawntrail.Savage.M03SBruteBomber;
 
-class OctoboomDiveProximity(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.OctoboomDiveProximityAOE), new AOEShapeCircle(20)); // TODO: verify falloff
-class OctoboomDiveKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.OctoboomDiveKnockbackAOE), 25);
-class QuadroboomDiveProximity(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.QuadroboomDiveProximityAOE), new AOEShapeCircle(20)); // TODO: verify falloff
-class QuadroboomDiveKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.QuadroboomDiveKnockbackAOE), 25);
+abstract class Proximity(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 20);  // TODO: verify falloff
+class OctoboomDiveProximity(BossModule module) : Proximity(module, (uint)AID.OctoboomDiveProximityAOE);
+class QuadroboomDiveProximity(BossModule module) : Proximity(module, (uint)AID.QuadroboomDiveProximityAOE);
 
-class Diveboom(BossModule module) : Components.UniformStackSpread(module, 5, 5, 2, 2, alwaysShowSpreads: true)
+abstract class DiveKB(BossModule module, uint aid) : Components.SimpleKnockbacks(module, aid, 25);
+class OctoboomDiveKnockback(BossModule module) : DiveKB(module, (uint)AID.OctoboomDiveKnockbackAOE);
+class QuadroboomDiveKnockback(BossModule module) : DiveKB(module, (uint)AID.QuadroboomDiveKnockbackAOE);
+
+class Diveboom(BossModule module) : Components.UniformStackSpread(module, 5f, 5f, 2, 2, alwaysShowSpreads: true)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.OctoboomDiveProximityAOE:
-            case AID.OctoboomDiveKnockbackAOE:
-                AddSpreads(Raid.WithoutSlot(true), Module.CastFinishAt(spell));
+            case (uint)AID.OctoboomDiveProximityAOE:
+            case (uint)AID.OctoboomDiveKnockbackAOE:
+                AddSpreads(Raid.WithoutSlot(true, true, true), Module.CastFinishAt(spell));
                 break;
-            case AID.QuadroboomDiveProximityAOE:
-            case AID.QuadroboomDiveKnockbackAOE:
+            case (uint)AID.QuadroboomDiveProximityAOE:
+            case (uint)AID.QuadroboomDiveKnockbackAOE:
                 // TODO: can target any role
-                AddStacks(Raid.WithoutSlot(true).Where(p => p.Class.IsSupport()), Module.CastFinishAt(spell));
+                AddStacks(Raid.WithoutSlot(true, true, true).Where(p => p.Class.IsSupport()), Module.CastFinishAt(spell));
                 break;
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.DiveboomSpread or AID.DiveboomPair)
+        if (spell.Action.ID is (uint)AID.DiveboomSpread or (uint)AID.DiveboomPair)
         {
             Spreads.Clear();
             Stacks.Clear();

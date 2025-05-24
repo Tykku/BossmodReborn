@@ -1,56 +1,69 @@
 ﻿namespace BossMod.Stormblood.Trial.T07Byakko;
 
-class StormPulse(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.StormPulse));
-class HeavenlyStrike(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.HeavenlyStrike));
-class HeavenlyStrikeSpread(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HeavenlyStrike), 3);
-class SweepTheLeg1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SweepTheLeg1), new AOEShapeCone(28.5f, 135.Degrees()));
-class SweepTheLeg3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SweepTheLeg3), new AOEShapeDonut(5, 30));
-class TheRoarOfThunder(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.TheRoarOfThunder));
-class ImperialGuard(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ImperialGuard), new AOEShapeRect(44.75f, 2.5f));
-class FireAndLightning1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FireAndLightning1), new AOEShapeRect(50, 10));
-class FireAndLightning2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.FireAndLightning2), new AOEShapeRect(50, 10));
-//class Aratama1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Aratama1), 4);
-class DistantClap(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DistantClap), new AOEShapeDonut(5, 30));
+class StormPulse(BossModule module) : Components.RaidwideCast(module, (uint)AID.StormPulse);
+class HeavenlyStrike(BossModule module) : Components.SingleTargetCast(module, (uint)AID.HeavenlyStrike);
+class HeavenlyStrikeSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.HeavenlyStrike, 3f);
+class SweepTheLeg1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SweepTheLeg1, new AOEShapeCone(28.5f, 135f.Degrees()));
+class SweepTheLeg3(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SweepTheLeg3, new AOEShapeDonut(5f, 30f));
+class TheRoarOfThunder(BossModule module) : Components.RaidwideCast(module, (uint)AID.TheRoarOfThunder);
+class ImperialGuard(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ImperialGuard, new AOEShapeRect(44.75f, 2.5f));
+class FireAndLightning(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.FireAndLightning1, (uint)AID.FireAndLightning2], new AOEShapeRect(50f, 10f));
 
-class HighestStakes(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, ActionID.MakeSpell(AID.HighestStakes2), 6, 5, 7, 7);
+class DistantClap(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DistantClap, new AOEShapeDonut(5f, 3f));
 
-class AratamaForce(BossModule module) : Components.GenericAOEs(module)
+class HighestStakes(BossModule module) : Components.StackWithIcon(module, (uint)IconID.Stackmarker, (uint)AID.HighestStakes2, 6f, 5f, 7, 7);
+
+class AratamaForce(BossModule module) : Components.Voidzone(module, 2f, GetVoidzones, 2)
 {
-    private readonly IReadOnlyList<Actor> _bubbles = module.Enemies(OID.AratamaForce);
+    private static Actor[] GetVoidzones(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.AratamaForce);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
 
-    private static readonly AOEShapeCircle _shape = new(2);
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _bubbles.Where(actor => !actor.IsDead).Select(b => new AOEInstance(_shape, b.Position));
+        var voidzones = new Actor[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (!z.IsDead)
+                voidzones[index++] = z;
+        }
+        return voidzones[..index];
+    }
 }
 
-class HundredfoldHavoc(BossModule module) : Components.Exaflare(module, 5)
+class HundredfoldHavoc(BossModule module) : Components.Exaflare(module, 5f)
 {
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.HundredfoldHavocFirst)
+        if (spell.Action.ID == (uint)AID.HundredfoldHavocFirst)
         {
-            Lines.Add(new() { Next = spell.LocXZ, Advance = 5 * caster.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1, ExplosionsLeft = 10, MaxShownExplosions = 2 });
+            Lines.Add(new() { Next = caster.Position, Advance = 5f * caster.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1f, ExplosionsLeft = 10, MaxShownExplosions = 2 });
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.HundredfoldHavocFirst or AID.HundredfoldHavocRest)
+        if (spell.Action.ID is (uint)AID.HundredfoldHavocFirst or (uint)AID.HundredfoldHavocRest)
         {
-            ++NumCasts;
-            var index = Lines.FindIndex(item => item.Next.AlmostEqual(spell.TargetXZ, 1));
-            if (index == -1)
+            var count = Lines.Count;
+            var pos = caster.Position;
+            for (var i = 0; i < count; ++i)
             {
-                ReportError($"Failed to find entry for {caster.InstanceID:X}");
-                return;
+                var line = Lines[i];
+                if (line.Next.AlmostEqual(pos, 1f))
+                {
+                    AdvanceLine(line, pos);
+                    if (line.ExplosionsLeft == 0)
+                        Lines.RemoveAt(i);
+                    return;
+                }
             }
-
-            AdvanceLine(Lines[index], spell.TargetXZ);
-            if (Lines[index].ExplosionsLeft == 0)
-                Lines.RemoveAt(index);
         }
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 290, NameID = 6221)]
-public class T07Byakko(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, 0), new ArenaBoundsCircle(20));
+public class T07Byakko(WorldState ws, Actor primary) : BossModule(ws, primary, default, new ArenaBoundsCircle(20f));

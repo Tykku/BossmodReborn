@@ -58,31 +58,27 @@ public enum AID : uint
     Telega = 9630 // Mandragoras->self, no cast, single-target, mandragoras disappear
 }
 
-abstract class InTheDark(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(20, 90.Degrees()));
-class LeftInTheDark1(BossModule module) : InTheDark(module, AID.LeftInTheDark1);
-class LeftInTheDark2(BossModule module) : InTheDark(module, AID.LeftInTheDark2);
-class RightInTheDark1(BossModule module) : InTheDark(module, AID.RightInTheDark1);
-class RightInTheDark2(BossModule module) : InTheDark(module, AID.RightInTheDark2);
+abstract class InTheDark(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(20f, 90f.Degrees()));
+class LeftInTheDark1(BossModule module) : InTheDark(module, (uint)AID.LeftInTheDark1);
+class LeftInTheDark2(BossModule module) : InTheDark(module, (uint)AID.LeftInTheDark2);
+class RightInTheDark1(BossModule module) : InTheDark(module, (uint)AID.RightInTheDark1);
+class RightInTheDark2(BossModule module) : InTheDark(module, (uint)AID.RightInTheDark2);
 
-abstract class QuakeCircle(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(10));
-class QuakeMeAwayCircle(BossModule module) : QuakeCircle(module, AID.QuakeMeAwayCircle);
-class QuakeInYourBootsCircle(BossModule module) : QuakeCircle(module, AID.QuakeInYourBootsCircle);
+abstract class QuakeCircle(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 10f);
+class QuakeMeAwayCircle(BossModule module) : QuakeCircle(module, (uint)AID.QuakeMeAwayCircle);
+class QuakeInYourBootsCircle(BossModule module) : QuakeCircle(module, (uint)AID.QuakeInYourBootsCircle);
 
-abstract class QuakeDonut(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeDonut(10, 20));
-class QuakeInYourBootsDonut(BossModule module) : QuakeDonut(module, AID.QuakeInYourBootsDonut);
-class QuakeMeAwayDonut(BossModule module) : QuakeDonut(module, AID.QuakeMeAwayDonut);
+abstract class QuakeDonut(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeDonut(10f, 20f));
+class QuakeInYourBootsDonut(BossModule module) : QuakeDonut(module, (uint)AID.QuakeInYourBootsDonut);
+class QuakeMeAwayDonut(BossModule module) : QuakeDonut(module, (uint)AID.QuakeMeAwayDonut);
 
-class HeartOnFireII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.HeartOnFireII), 6);
-class HeartOnFireIV(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.HeartOnFireIV));
-class HeartOnFireIII(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HeartOnFireIII), 6);
-class TempersFlare(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.TempersFlare));
+class HeartOnFireII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HeartOnFireII, 6f);
+class HeartOnFireIV(BossModule module) : Components.SingleTargetCast(module, (uint)AID.HeartOnFireIV);
+class HeartOnFireIII(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.HeartOnFireIII, 6f);
+class TempersFlare(BossModule module) : Components.RaidwideCast(module, (uint)AID.TempersFlare);
 
-abstract class Mandragoras(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6.84f));
-class PluckAndPrune(BossModule module) : Mandragoras(module, AID.PluckAndPrune);
-class TearyTwirl(BossModule module) : Mandragoras(module, AID.TearyTwirl);
-class HeirloomScream(BossModule module) : Mandragoras(module, AID.HeirloomScream);
-class PungentPirouette(BossModule module) : Mandragoras(module, AID.PungentPirouette);
-class Pollen(BossModule module) : Mandragoras(module, AID.Pollen);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 6.84f);
 
 class LuckyFaceStates : StateMachineBuilder
 {
@@ -101,37 +97,49 @@ class LuckyFaceStates : StateMachineBuilder
             .ActivateOnEnter<HeartOnFireII>()
             .ActivateOnEnter<HeartOnFireIII>()
             .ActivateOnEnter<HeartOnFireIV>()
-            .ActivateOnEnter<PluckAndPrune>()
-            .ActivateOnEnter<TearyTwirl>()
-            .ActivateOnEnter<HeirloomScream>()
-            .ActivateOnEnter<PungentPirouette>()
-            .ActivateOnEnter<Pollen>()
-            .Raw.Update = () => module.Enemies(OID.ExcitingTomato).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.ExcitingEgg)).Concat(module.Enemies(OID.ExcitingQueen))
-            .Concat(module.Enemies(OID.ExcitingOnion)).Concat(module.Enemies(OID.ExcitingGarlic)).All(e => e.IsDeadOrDestroyed);
+            .ActivateOnEnter<MandragoraAOEs>()
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(LuckyFace.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 819, NameID = 10831)]
-public class LuckyFace(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, -460), new ArenaBoundsCircle(20))
+public class LuckyFace(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(default, -460f), 19.5f, 32)], [new Rectangle(new(default, -440f), 20f, 1f)]);
+    private static readonly uint[] bonusAdds = [(uint)OID.ExcitingEgg, (uint)OID.ExcitingQueen, (uint)OID.ExcitingOnion, (uint)OID.ExcitingTomato,
+    (uint)OID.ExcitingGarlic];
+    public static readonly uint[] All = [(uint)OID.Boss, .. bonusAdds];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.ExcitingEgg).Concat(Enemies(OID.ExcitingTomato)).Concat(Enemies(OID.ExcitingQueen)).Concat(Enemies(OID.ExcitingGarlic)).Concat(Enemies(OID.ExcitingOnion)), Colors.Vulnerable);
+        Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
-            e.Priority = (OID)e.Actor.OID switch
+            var e = hints.PotentialTargets[i];
+            e.Priority = e.Actor.OID switch
             {
-                OID.ExcitingOnion => 6,
-                OID.ExcitingEgg => 5,
-                OID.ExcitingGarlic => 4,
-                OID.ExcitingTomato => 3,
-                OID.ExcitingQueen => 2,
-                OID.Boss => 1,
+                (uint)OID.ExcitingOnion => 6,
+                (uint)OID.ExcitingEgg => 5,
+                (uint)OID.ExcitingGarlic => 4,
+                (uint)OID.ExcitingTomato => 3,
+                (uint)OID.ExcitingQueen => 2,
+                (uint)OID.Boss => 1,
                 _ => 0
             };
         }

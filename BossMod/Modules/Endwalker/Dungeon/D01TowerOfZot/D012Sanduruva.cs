@@ -31,47 +31,50 @@ public enum SID : uint
     WhoIsShe2 = 2654 // none->BerserkerSphere, extra=0x1A8
 }
 
-class IsitvaSiddhi(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.IsitvaSiddhi));
+class IsitvaSiddhi(BossModule module) : Components.SingleTargetCast(module, (uint)AID.IsitvaSiddhi);
 
 class SphereShatter(BossModule module) : Components.GenericAOEs(module)
 {
-    private DateTime _activation;
-    private readonly List<Actor> _casters = [];
-    private static readonly AOEShapeCircle circle = new(15);
+    private readonly List<AOEInstance> _aoes = [];
+    private static readonly AOEShapeCircle circle = new(15f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_casters.Count > 0)
-            foreach (var c in _casters)
-                yield return new(circle, c.Position, default, _activation, Risky: _activation.AddSeconds(-7) < WorldState.CurrentTime);
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var aoes = new AOEInstance[count];
+        var time = _aoes[0].Activation.AddSeconds(-7d) > WorldState.CurrentTime;
+        for (var i = 0; i < count; ++i)
+        {
+            var aoe = _aoes[i];
+            aoes[i] = time ? aoe with { Risky = false } : aoe;
+        }
+        return aoes;
     }
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.BerserkerSphere)
+        if (actor.OID == (uint)OID.BerserkerSphere)
         {
-            _casters.Add(actor);
-            if (NumCasts == 0)
-                _activation = WorldState.FutureTime(10.8f);
-            else
-                _activation = WorldState.FutureTime(20);
+            _aoes.Add(new(circle, WPos.ClampToGrid(actor.Position), default, NumCasts == 0 ? WorldState.FutureTime(10.8d) : WorldState.FutureTime(20d)));
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.SphereShatter)
+        if (spell.Action.ID == (uint)AID.SphereShatter)
         {
-            _casters.Remove(caster);
+            _aoes.Clear();
             ++NumCasts;
         }
     }
 }
 
-class PraptiSiddhi(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PraptiSiddhi), new AOEShapeRect(40, 2));
-class PrakamyaSiddhi(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PrakamyaSiddhi), new AOEShapeCircle(5));
-class ManusyaConfuse(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.ManusyaConfuse), "Applies Manyusa Confusion");
-class ManusyaStop(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.ManusyaStop), "Applies Manyusa Stop");
+class PraptiSiddhi(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PraptiSiddhi, new AOEShapeRect(40f, 2f));
+class PrakamyaSiddhi(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PrakamyaSiddhi, 5f);
+class ManusyaConfuse(BossModule module) : Components.CastHint(module, (uint)AID.ManusyaConfuse, "Applies Manyusa Confusion");
+class ManusyaStop(BossModule module) : Components.CastHint(module, (uint)AID.ManusyaStop, "Applies Manyusa Stop");
 
 class D012SanduruvaStates : StateMachineBuilder
 {
@@ -87,17 +90,18 @@ class D012SanduruvaStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 783, NameID = 10257)]
-public class D012Sanduruva(WorldState ws, Actor primary) : BossModule(ws, primary, new(-258, -26), new ArenaBoundsCircle(20))
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 783, NameID = 10257)]
+public class D012Sanduruva(WorldState ws, Actor primary) : BossModule(ws, primary, new(-258f, -26f), new ArenaBoundsCircle(20f))
 {
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
-            e.Priority = (OID)e.Actor.OID switch
+            var e = hints.PotentialTargets[i];
+            e.Priority = e.Actor.OID switch
             {
-                OID.Boss => 1,
-                OID.BerserkerSphere => -1,
+                (uint)OID.BerserkerSphere => AIHints.Enemy.PriorityPointless,
                 _ => 0
             };
         }

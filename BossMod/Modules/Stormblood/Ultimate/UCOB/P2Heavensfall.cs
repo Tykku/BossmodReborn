@@ -1,10 +1,10 @@
 ﻿namespace BossMod.Stormblood.Ultimate.UCOB;
 
-class P2Heavensfall(BossModule module) : Components.Knockback(module, ActionID.MakeSpell(AID.Heavensfall), true)
+class P2Heavensfall(BossModule module) : Components.GenericKnockback(module, (uint)AID.Heavensfall, true)
 {
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
-        yield return new(Module.Center, 11); // TODO: activation
+        return new Knockback[1] { new(Arena.Center, 11f) }; // TODO: activation
     }
 }
 
@@ -12,13 +12,13 @@ class P2HeavensfallPillar(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
 
-    private static readonly AOEShapeRect _shape = new(5, 5, 5);
+    private static readonly AOEShapeRect _shape = new(5f, 5f, 5f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
-        if ((OID)actor.OID != OID.EventHelper)
+        if (actor.OID != (uint)OID.EventHelper)
             return;
         switch (state)
         {
@@ -37,32 +37,43 @@ class P2HeavensfallPillar(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class P2ThermionicBurst(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThermionicBurst), new AOEShapeCone(24.5f, 11.25f.Degrees()));
+class P2ThermionicBurst(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ThermionicBurst, new AOEShapeCone(24.5f, 11.25f.Degrees()));
 
 class P2MeteorStream : Components.UniformStackSpread
 {
     public int NumCasts;
 
-    public P2MeteorStream(BossModule module) : base(module, 0, 4, alwaysShowSpreads: true)
+    public P2MeteorStream(BossModule module) : base(module, default, 4f, alwaysShowSpreads: true)
     {
-        AddSpreads(Raid.WithoutSlot(true), WorldState.FutureTime(5.6f));
+        AddSpreads(Raid.WithoutSlot(true, true, true), WorldState.FutureTime(5.6d));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.MeteorStream)
+        if (spell.Action.ID == (uint)AID.MeteorStream)
         {
             ++NumCasts;
-            Spreads.RemoveAll(s => s.Target.InstanceID == spell.MainTargetID);
+            {
+                var count = Spreads.Count;
+                var id = spell.MainTargetID;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (Spreads[i].Target.InstanceID == id)
+                    {
+                        Spreads.RemoveAt(i);
+                        return;
+                    }
+                }
+            }
         }
     }
 }
 
-class P2HeavensfallDalamudDive(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.DalamudDive), true, true)
+class P2HeavensfallDalamudDive(BossModule module) : Components.GenericBaitAway(module, (uint)AID.DalamudDive, true, true)
 {
     private readonly Actor? _target = module.WorldState.Actors.Find(module.PrimaryActor.TargetID);
 
-    private static readonly AOEShapeCircle _shape = new(5);
+    private static readonly AOEShapeCircle _shape = new(5f);
 
     public void Show()
     {

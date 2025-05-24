@@ -2,55 +2,92 @@ namespace BossMod.Dawntrail.Savage.M04SWickedThunder;
 
 class WideningNarrowingWitchHunt(BossModule module) : Components.GenericAOEs(module)
 {
-    public readonly List<AOEInstance> AOEs = [];
+    public readonly List<AOEInstance> AOEs = new(4);
 
-    private static readonly AOEShapeCircle _shapeOut = new(10);
-    private static readonly AOEShapeDonut _shapeIn = new(10, 60);
+    private static readonly AOEShapeCircle _shapeOut = new(10f);
+    private static readonly AOEShapeDonut _shapeIn = new(10f, 60f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs.Skip(NumCasts).Take(1);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => AOEs.Count != 0 ? CollectionsMarshal.AsSpan(AOEs)[..1] : [];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        var (first, second) = (AID)spell.Action.ID switch
+        var (first, second) = spell.Action.ID switch
         {
-            AID.WideningWitchHunt => (_shapeOut, _shapeIn),
-            AID.NarrowingWitchHunt => (_shapeIn, _shapeOut),
+            (uint)AID.WideningWitchHunt => (_shapeOut, _shapeIn),
+            (uint)AID.NarrowingWitchHunt => (_shapeIn, _shapeOut),
             _ => ((AOEShape?)null, (AOEShape?)null)
         };
         if (first != null && second != null)
         {
-            AOEs.Add(new(first, caster.Position, spell.Rotation, Module.CastFinishAt(spell, 1.1f)));
-            AOEs.Add(new(second, caster.Position, spell.Rotation, Module.CastFinishAt(spell, 4.6f)));
-            AOEs.Add(new(first, caster.Position, spell.Rotation, Module.CastFinishAt(spell, 8.1f)));
-            AOEs.Add(new(second, caster.Position, spell.Rotation, Module.CastFinishAt(spell, 11.6f)));
+            var pos = spell.LocXZ;
+            AOEs.Add(new(first, pos, default, Module.CastFinishAt(spell, 1.1f)));
+            AOEs.Add(new(second, pos, default, Module.CastFinishAt(spell, 4.6f)));
+            AOEs.Add(new(first, pos, default, Module.CastFinishAt(spell, 8.1f)));
+            AOEs.Add(new(second, pos, default, Module.CastFinishAt(spell, 11.6f)));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.LightningVortexAOE or AID.ThunderingAOE)
+        if (spell.Action.ID is (uint)AID.LightningVortexAOE or (uint)AID.ThunderingAOE)
+        {
             ++NumCasts;
+            if (AOEs.Count != 0)
+                AOEs.RemoveAt(0);
+        }
     }
 }
 
-class WideningNarrowingWitchHuntBait(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.WitchHuntAOE), centerAtTarget: true)
+class WideningNarrowingWitchHuntBait(BossModule module) : Components.GenericBaitAway(module, (uint)AID.WitchHuntAOE, centerAtTarget: true)
 {
     public enum Mechanic { None, Near, Far }
 
     public Mechanic CurMechanic;
     private DateTime _activation;
 
-    private static readonly AOEShapeCircle _shape = new(6);
+    private static readonly AOEShapeCircle _shape = new(6f);
 
     public override void Update()
     {
+        if (CurMechanic == Mechanic.None)
+            return;
+
         CurrentBaits.Clear();
-        if (CurMechanic != Mechanic.None)
+
+        var party = Raid.WithoutSlot(false, true, true);
+        var len = party.Length;
+
+        Span<(Actor actor, float distSq)> distances = new (Actor, float)[len];
+        var center = Arena.Center;
+
+        for (var i = 0; i < len; ++i)
         {
-            var targets = Raid.WithoutSlot().SortedByRange(Module.Center);
-            targets = CurMechanic == Mechanic.Near ? targets.Take(2) : targets.TakeLast(2);
-            foreach (var t in targets)
-                CurrentBaits.Add(new(Module.PrimaryActor, t, _shape, _activation));
+            ref readonly var p = ref party[i];
+            var distSq = (p.Position - center).LengthSq();
+            distances[i] = (p, distSq);
+        }
+
+        var isNear = CurMechanic == Mechanic.Near;
+
+        var targets = Math.Min(2, len);
+        for (var i = 0; i < targets; ++i)
+        {
+            var selIdx = i;
+            for (var j = i + 1; j < len; ++j)
+            {
+                var distJSq = distances[j].distSq;
+                var distSelIdx = distances[selIdx].distSq;
+                var isBetter = isNear ? distJSq < distSelIdx : distJSq > distSelIdx;
+                if (isBetter)
+                    selIdx = j;
+            }
+
+            if (selIdx != i)
+            {
+                (distances[selIdx], distances[i]) = (distances[i], distances[selIdx]);
+            }
+
+            CurrentBaits.Add(new(Module.PrimaryActor, distances[i].actor, _shape, _activation));
         }
     }
 
@@ -62,9 +99,9 @@ class WideningNarrowingWitchHuntBait(BossModule module) : Components.GenericBait
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.Marker && CurMechanic == Mechanic.None)
+        if (status.ID == (uint)SID.Marker && CurMechanic == Mechanic.None)
         {
-            _activation = status.ExpireAt.AddSeconds(12.2f);
+            _activation = status.ExpireAt.AddSeconds(12.2d);
             CurMechanic = status.Extra switch
             {
                 0x2F6 => Mechanic.Near,
@@ -76,11 +113,11 @@ class WideningNarrowingWitchHuntBait(BossModule module) : Components.GenericBait
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             ++NumCasts;
-            ForbiddenPlayers.Set(Raid.FindSlot(spell.MainTargetID));
-            _activation = WorldState.FutureTime(3.5f);
+            ForbiddenPlayers[Raid.FindSlot(spell.MainTargetID)] = true;
+            _activation = WorldState.FutureTime(3.5d);
             if ((NumCasts & 1) == 0)
                 CurMechanic = CurMechanic == Mechanic.Near ? Mechanic.Far : Mechanic.Near;
         }

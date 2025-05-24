@@ -1,20 +1,20 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C02AMR.C023Moko;
 
-abstract class ScarletAuspice(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
-class NScarletAuspice(BossModule module) : ScarletAuspice(module, AID.NScarletAuspice);
-class SScarletAuspice(BossModule module) : ScarletAuspice(module, AID.SScarletAuspice);
+abstract class ScarletAuspice(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 6f);
+class NScarletAuspice(BossModule module) : ScarletAuspice(module, (uint)AID.NScarletAuspice);
+class SScarletAuspice(BossModule module) : ScarletAuspice(module, (uint)AID.SScarletAuspice);
 
-abstract class BoundlessScarletFirst(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(30, 5, 30));
-class NBoundlessScarletFirst(BossModule module) : BoundlessScarletFirst(module, AID.NBoundlessScarletAOE);
-class SBoundlessScarletFirst(BossModule module) : BoundlessScarletFirst(module, AID.SBoundlessScarletAOE);
+abstract class BoundlessScarletFirst(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(60f, 5f));
+class NBoundlessScarletFirst(BossModule module) : BoundlessScarletFirst(module, (uint)AID.NBoundlessScarletAOE);
+class SBoundlessScarletFirst(BossModule module) : BoundlessScarletFirst(module, (uint)AID.SBoundlessScarletAOE);
 
-abstract class BoundlessScarletRest(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(30, 15, 30), 2);
-class NBoundlessScarletRest(BossModule module) : BoundlessScarletRest(module, AID.NBoundlessScarletExplosion);
-class SBoundlessScarletRest(BossModule module) : BoundlessScarletRest(module, AID.SBoundlessScarletExplosion);
+abstract class BoundlessScarletRest(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeRect(60f, 15f), 2);
+class NBoundlessScarletRest(BossModule module) : BoundlessScarletRest(module, (uint)AID.NBoundlessScarletExplosion);
+class SBoundlessScarletRest(BossModule module) : BoundlessScarletRest(module, (uint)AID.SBoundlessScarletExplosion);
 
 class InvocationOfVengeance(BossModule module) : Components.UniformStackSpread(module, 3, 3, alwaysShowSpreads: true)
 {
-    public int NumMechanics { get; private set; }
+    public int NumMechanics;
     private readonly List<Actor> _spreadTargets = [];
     private readonly List<Actor> _stackTargets = [];
     private DateTime _spreadResolve;
@@ -30,14 +30,14 @@ class InvocationOfVengeance(BossModule module) : Components.UniformStackSpread(m
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        switch ((SID)status.ID)
+        switch (status.ID)
         {
-            case SID.VengefulFlame:
+            case (uint)SID.VengefulFlame:
                 _spreadTargets.Add(actor);
                 _spreadResolve = status.ExpireAt;
                 UpdateStackSpread();
                 break;
-            case SID.VengefulPyre:
+            case (uint)SID.VengefulPyre:
                 _stackTargets.Add(actor);
                 _stackResolve = status.ExpireAt;
                 UpdateStackSpread();
@@ -47,10 +47,10 @@ class InvocationOfVengeance(BossModule module) : Components.UniformStackSpread(m
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.NVengefulFlame:
-            case AID.SVengefulFlame:
+            case (uint)AID.NVengefulFlame:
+            case (uint)AID.SVengefulFlame:
                 if (_spreadResolve != default)
                 {
                     ++NumMechanics;
@@ -59,8 +59,8 @@ class InvocationOfVengeance(BossModule module) : Components.UniformStackSpread(m
                     UpdateStackSpread();
                 }
                 break;
-            case AID.NVengefulPyre:
-            case AID.SVengefulPyre:
+            case (uint)AID.NVengefulPyre:
+            case (uint)AID.SVengefulPyre:
                 if (_stackResolve != default)
                 {
                     ++NumMechanics;

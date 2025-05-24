@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Ultimate.DSW2;
 
-class P5WrathOfTheHeavensSkywardLeap(BossModule module) : Components.UniformStackSpread(module, 0, 24, alwaysShowSpreads: true, raidwideOnResolve: false)
+class P5WrathOfTheHeavensSkywardLeap(BossModule module) : Components.UniformStackSpread(module, default, 24f, alwaysShowSpreads: true, raidwideOnResolve: false)
 {
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
@@ -12,7 +12,7 @@ class P5WrathOfTheHeavensSkywardLeap(BossModule module) : Components.UniformStac
     {
         base.DrawArenaForeground(pcSlot, pc);
         if (IsSpreadTarget(pc) && SafeSpot() is var safespot && safespot != default)
-            Arena.AddCircle(safespot, 1, Colors.Safe);
+            Arena.AddCircle(safespot, 1f, Colors.Safe);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
@@ -23,22 +23,22 @@ class P5WrathOfTheHeavensSkywardLeap(BossModule module) : Components.UniformStac
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.SkywardLeapP5)
+        if (spell.Action.ID == (uint)AID.SkywardLeapP5)
             Spreads.Clear();
     }
 
     // note: this assumes LPDU strat
     private WPos SafeSpot()
     {
-        var relNorth = Module.Enemies(OID.Vedrfolnir).FirstOrDefault();
+        var relNorth = Module.Enemies((uint)OID.Vedrfolnir).FirstOrDefault();
         if (relNorth == null)
             return default;
-        var dirToNorth = Angle.FromDirection(relNorth.Position - Module.Center);
-        return Module.Center + 20 * (dirToNorth + 60.Degrees()).ToDirection();
+        var dirToNorth = Angle.FromDirection(relNorth.Position - Arena.Center);
+        return Arena.Center + 20f * (dirToNorth + 60f.Degrees()).ToDirection();
     }
 }
 
-class P5WrathOfTheHeavensSpiralPierce(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(50, 8), (uint)TetherID.SpiralPierce, ActionID.MakeSpell(AID.SpiralPierce))
+class P5WrathOfTheHeavensSpiralPierce(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeRect(50f, 8f), (uint)TetherID.SpiralPierce, (uint)AID.SpiralPierce)
 {
     public override void AddMovementHints(int slot, Actor actor, MovementHints movementHints)
     {
@@ -61,18 +61,18 @@ class P5WrathOfTheHeavensSpiralPierce(BossModule module) : Components.BaitAwayTe
             return default;
         WDir toMidpoint = default;
         foreach (var b in CurrentBaits)
-            toMidpoint += b.Source.Position - Module.Center;
+            toMidpoint += b.Source.Position - Arena.Center;
         var relSouthDir = Angle.FromDirection(-toMidpoint);
-        var offset = toMidpoint.OrthoL().Dot(bait.Source.Position - Module.Center) > 0 ? 20.Degrees() : -20.Degrees();
-        return Module.Center + 20 * (relSouthDir + offset).ToDirection();
+        var offset = toMidpoint.OrthoL().Dot(bait.Source.Position - Arena.Center) > 0f ? 20f.Degrees() : -20f.Degrees();
+        return Arena.Center + 20f * (relSouthDir + offset).ToDirection();
     }
 }
 
-class P5WrathOfTheHeavensChainLightning(BossModule module) : Components.UniformStackSpread(module, 0, 5, alwaysShowSpreads: true)
+class P5WrathOfTheHeavensChainLightning(BossModule module) : Components.UniformStackSpread(module, default, 5f, alwaysShowSpreads: true)
 {
     public BitMask Targets;
 
-    public void ShowSpreads(float delay) => AddSpreads(Raid.WithSlot(true).IncludedInMask(Targets).Actors(), WorldState.FutureTime(delay));
+    public void ShowSpreads(float delay) => AddSpreads(Raid.WithSlot(true, true, true).IncludedInMask(Targets).Actors(), WorldState.FutureTime(delay));
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
@@ -86,13 +86,13 @@ class P5WrathOfTheHeavensChainLightning(BossModule module) : Components.UniformS
     // note: this happens about a second before statuses appear
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.ChainLightning:
+            case (uint)AID.ChainLightning:
                 foreach (var t in spell.Targets)
                     Targets.Set(Raid.FindSlot(t.ID));
                 break;
-            case AID.ChainLightningAOE:
+            case (uint)AID.ChainLightningAOE:
                 Targets.Reset();
                 Spreads.Clear();
                 break;
@@ -102,24 +102,38 @@ class P5WrathOfTheHeavensChainLightning(BossModule module) : Components.UniformS
 
 class P5WrathOfTheHeavensTwister(BossModule module) : Components.GenericAOEs(module, default, "GTFO from twister!")
 {
-    private readonly List<WPos> _predicted = [.. module.Raid.WithoutSlot().Select(a => a.Position)];
-    private readonly IReadOnlyList<Actor> _voidzones = module.Enemies(OID.VoidzoneTwister);
+    private readonly List<WPos> _predicted = GetPositions(module);
+    private readonly List<Actor> _voidzones = module.Enemies((uint)OID.VoidzoneTwister);
 
-    private static readonly AOEShapeCircle _shape = new(2); // TODO: verify radius
+    private static readonly AOEShapeCircle _shape = new(2f); // TODO: verify radius
 
     public bool Active => _voidzones.Count > 0;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    private static List<WPos> GetPositions(BossModule module)
     {
-        foreach (var p in _predicted)
-            yield return new(_shape, p); // TODO: activation
-        foreach (var p in _voidzones)
-            yield return new(_shape, p.Position);
+        var party = module.Raid.WithoutSlot(false, true, true);
+        var len = party.Length;
+        var pos = new List<WPos>(len);
+        for (var i = 0; i < len; ++i)
+            pos.Add(party[i].Position);
+        return pos;
+    }
+
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var countP = _predicted.Count;
+        var countV = _voidzones.Count;
+        var aoes = new AOEInstance[countP + countV];
+        for (var i = 0; i < countP; ++i)
+            aoes[i] = new(_shape, _predicted[i]); // TODO: activation
+        for (var i = 0; i < countV; ++i)
+            aoes[i] = new(_shape, _voidzones[i].Position);
+        return aoes;
     }
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.VoidzoneTwister)
+        if (actor.OID == (uint)OID.VoidzoneTwister)
             _predicted.Clear();
     }
 }
@@ -146,7 +160,7 @@ class P5WrathOfTheHeavensCauterizeBait(BossModule module) : BossComponent(module
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (_target == pc)
-            Arena.AddCircle(SafeSpot(), 1, Colors.Safe);
+            Arena.AddCircle(SafeSpot(), 1f, Colors.Safe);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
@@ -157,22 +171,22 @@ class P5WrathOfTheHeavensCauterizeBait(BossModule module) : BossComponent(module
 
     private WPos SafeSpot()
     {
-        var charibert = Module.Enemies(OID.SerCharibert).FirstOrDefault();
+        var charibert = Module.Enemies((uint)OID.SerCharibert).FirstOrDefault();
         if (charibert == null)
             return default;
-        return Module.Center + 20 * (charibert.Position - Module.Center).Normalized();
+        return Arena.Center + 20f * (charibert.Position - Arena.Center).Normalized();
     }
 }
 
-class P5WrathOfTheHeavensAscalonsMercyRevealed(BossModule module) : Components.BaitAwayEveryone(module, module.Enemies(OID.BossP5).FirstOrDefault(), new AOEShapeCone(50, 15.Degrees()), ActionID.MakeSpell(AID.AscalonsMercyRevealedAOE));
+class P5WrathOfTheHeavensAscalonsMercyRevealed(BossModule module) : Components.BaitAwayEveryone(module, module.Enemies((uint)OID.BossP5).FirstOrDefault(), new AOEShapeCone(50f, 15f.Degrees()), (uint)AID.AscalonsMercyRevealedAOE);
 
 // TODO: detect baiter
-class P5WrathOfTheHeavensLiquidHeaven(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.LiquidHeaven), m => m.Enemies(OID.VoidzoneLiquidHeaven).Where(z => z.EventState != 7), 1.1f);
+class P5WrathOfTheHeavensLiquidHeaven(BossModule module) : Components.VoidzoneAtCastTarget(module, 6f, (uint)AID.LiquidHeaven, m => m.Enemies(OID.VoidzoneLiquidHeaven).Where(z => z.EventState != 7), 1.1f);
 
 // TODO: detect baiter
-class P5WrathOfTheHeavensAltarFlare(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AltarFlareAOE), 8);
+class P5WrathOfTheHeavensAltarFlare(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AltarFlareAOE, 8f);
 
-class P5WrathOfTheHeavensEmptyDimension(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.EmptyDimension), new AOEShapeDonut(6, 70))
+class P5WrathOfTheHeavensEmptyDimension(BossModule module) : Components.SimpleAOEs(module, (uint)AID.EmptyDimension, new AOEShapeDonut(6f, 70f))
 {
     private WPos _predicted;
 
@@ -181,12 +195,12 @@ class P5WrathOfTheHeavensEmptyDimension(BossModule module) : Components.SelfTarg
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         if (Casters.Count == 0 && KnowPosition)
-            Arena.AddCircle(_predicted, 6, Colors.Safe, 2);
+            Arena.AddCircle(_predicted, 6f, Colors.Safe, 2f);
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if ((OID)actor.OID == OID.SerGrinnaux && id == 0x1E43)
+        if (actor.OID == (uint)OID.SerGrinnaux && id == 0x1E43u)
             _predicted = actor.Position;
     }
 }

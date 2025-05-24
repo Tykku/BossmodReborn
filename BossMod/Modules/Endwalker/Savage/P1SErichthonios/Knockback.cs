@@ -28,7 +28,7 @@ class Knockback : BossComponent
             _knockbackPos = _knockbackTarget.Position;
             if (Module.PrimaryActor.CastInfo != null)
             {
-                _knockbackPos = Components.Knockback.AwayFromSource(_knockbackPos, Module.PrimaryActor, _kbDistance);
+                _knockbackPos = Components.GenericKnockback.AwayFromSource(_knockbackPos, Module.PrimaryActor, _kbDistance);
             }
         }
     }
@@ -51,7 +51,7 @@ class Knockback : BossComponent
                 {
                     hints.Add("GTFO from co-tank!");
                 }
-                if (Raid.WithoutSlot().InRadiusExcluding(actor, aoeRange).Count() < 7)
+                if (Raid.WithoutSlot(false, true, true).InRadiusExcluding(actor, aoeRange).Count() < 7)
                 {
                     hints.Add("Stack with raid!");
                 }
@@ -63,7 +63,7 @@ class Knockback : BossComponent
                 {
                     hints.Add("Press invul!");
                 }
-                if (Raid.WithoutSlot().InRadiusExcluding(actor, aoeRange).Any())
+                if (Raid.WithoutSlot(false, true, true).InRadiusExcluding(actor, aoeRange).Any())
                 {
                     hints.Add("GTFO from raid!");
                 }
@@ -113,7 +113,7 @@ class Knockback : BossComponent
         if (target == pc)
         {
             // there will be AOE around me, draw all players to help with positioning - note that we use position adjusted for knockback
-            foreach (var player in Raid.WithoutSlot())
+            foreach (var player in Raid.WithoutSlot(false, true, true))
                 Arena.Actor(player, player.Position.InCircle(targetPos, aoeRange) ? Colors.PlayerInteresting : Colors.PlayerGeneric);
         }
         else

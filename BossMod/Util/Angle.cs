@@ -8,6 +8,7 @@ public record struct Angle(float Rad)
     public const float DegToRad = (float)(Math.PI / 180);
     public const float HalfPi = (float)(Math.PI / 2);
     public const float DoublePI = (float)(2 * Math.PI);
+
     public static readonly Angle[] AnglesIntercardinals = [-45.003f.Degrees(), 44.998f.Degrees(), 134.999f.Degrees(), -135.005f.Degrees()];
     public static readonly Angle[] AnglesCardinals = [-90.004f.Degrees(), -0.003f.Degrees(), 180.Degrees(), 89.999f.Degrees()];
 
@@ -50,6 +51,25 @@ public record struct Angle(float Rad)
 
     public readonly bool AlmostEqual(Angle other, float epsRad) => Math.Abs((this - other).Normalized().Rad) <= epsRad;
 
+    // closest distance to move from this angle to destination (== 0 if equal, >0 if moving in positive/CCW dir, <0 if moving in negative/CW dir)
+    public readonly Angle DistanceToAngle(Angle other) => (other - this).Normalized();
+
+    // returns 0 if angle is within range, positive value if min is closest, negative if max is closest
+    public readonly Angle DistanceToRange(Angle min, Angle max)
+    {
+        var width = (max - min) * 0.5f;
+        var midDist = DistanceToAngle((min + max) * 0.5f);
+        return midDist.Rad > width.Rad ? midDist - width : midDist.Rad < -width.Rad ? midDist + width : default;
+    }
+
+    // closest direction in range to this angle
+    public readonly Angle ClosestInRange(Angle min, Angle max)
+    {
+        var width = (max - min) * 0.5f;
+        var midDist = DistanceToAngle((min + max) * 0.5f);
+        return midDist.Rad > width.Rad ? min : midDist.Rad < -width.Rad ? max : this;
+    }
+
     public override readonly string ToString() => Deg.ToString("f3");
 }
 
@@ -62,13 +82,15 @@ public static class AngleExtensions
 
 public static class CosPI
 {
-    public static readonly float Pi8th = (float)(1 / Math.Cos(Math.PI / 8));
-    public static readonly float Pi16th = (float)(1 / Math.Cos(Math.PI / 16));
-    public static readonly float Pi20th = (float)(1 / Math.Cos(Math.PI / 20));
-    public static readonly float Pi28th = (float)(1 / Math.Cos(Math.PI / 28));
-    public static readonly float Pi32th = (float)(1 / Math.Cos(Math.PI / 32));
-    public static readonly float Pi36th = (float)(1 / Math.Cos(Math.PI / 36));
-    public static readonly float Pi40th = (float)(1 / Math.Cos(Math.PI / 40));
-    public static readonly float Pi48th = (float)(1 / Math.Cos(Math.PI / 48));
-    public static readonly float Pi60th = (float)(1 / Math.Cos(Math.PI / 60));
+    public const float Pi8th = 1.082392f; // 1 / Math.Cos(Math.PI / 8)
+    public const float Pi16th = 1.019591f; // 1 / Math.Cos(Math.PI / 16)
+    public const float Pi20th = 1.012465f; // 1 / Math.Cos(Math.PI / 20)
+    public const float Pi28th = 1.006328f; // 1 / Math.Cos(Math.PI / 28)
+    public const float Pi32th = 1.004839f; // 1 / Math.Cos(Math.PI / 32)
+    public const float Pi36th = 1.00382f; // 1 / Math.Cos(Math.PI / 36)
+    public const float Pi40th = 1.0030922f; // 1 / Math.Cos(Math.PI / 40)
+    public const float Pi48th = 1.0021457f; // 1 / Math.Cos(Math.PI / 48)
+    public const float Pi60th = 1.0013723f; // 1 / Math.Cos(Math.PI / 60)
+    public const float Pi64th = 1.001206f; // 1 / Math.Cos(Math.PI / 64)
+    public const float Pi148th = 1.000225f; // 1 / Math.Cos(Math.PI / 148)
 }

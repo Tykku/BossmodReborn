@@ -96,6 +96,7 @@ public enum SID : uint
     Tengentsu = 3853, // applied by Tengentsu to self
     ZanshinReady = 3855, // applied by Ikishoten to self
     Tendo = 3856, // applied by Meikyo Shisui to self
+    TsubameReady = 4216, // applied by Midare Setsugekka to self
 
     //Shared
     Feint = ClassShared.SID.Feint, // applied by Feint to target
@@ -160,5 +161,11 @@ public sealed class Definitions : IDisposable
         // upgrades (TODO: don't think we actually care...)
         //d.Spell(AID.Iaijutsu)!.TransformAction = () => ActionID.MakeSpell(_state.BestIai);
         //d.Spell(AID.MeikyoShisui)!.Condition = _ => _state.MeikyoLeft == 0;
+
+        d.Spell(AID.HissatsuGyoten)!.ForbidExecute = ActionDefinitions.DashToTargetCheck;
+        d.Spell(AID.HissatsuYaten)!.ForbidExecute = ActionDefinitions.BackdashCheck(10);
+
+        // dont want accidental double meikyo
+        d.Spell(AID.MeikyoShisui)!.ForbidExecute = (_, player, _, _) => player.FindStatus(SID.MeikyoShisui) != null;
     }
 }

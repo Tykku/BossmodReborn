@@ -13,10 +13,12 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 870, // Boss->tank, no cast, single-target
+    AutoAttack1 = 870, // Boss->tank, no cast, single-target
     AutoAttack2 = 872, // EverkeepAerostat2->tank, no cast, single-target
     AutoAttack3 = 28538, // EverkeepTurret->tank, no cast, single-target
     AutoAttack4 = 36403, // EverkeepSentryR10->tank, no cast, single-target
+    AutoAttack5 = 873, // EverkeepSentryG10->tank, no cast, single-target
+
     Teleport = 38193, // Boss->location, no cast, single-target
     FormationAlpha = 38194, // Boss->self, 5.0s cast, single-target
     ThrownFlames = 38205, // EverkeepAerostat2->self, 6.0s cast, range 8 circle
@@ -37,46 +39,26 @@ public enum AID : uint
     ModelChange = 38204 // Boss->self, no cast, single-target
 }
 
-class StormlitShockwave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.StormlitShockwave));
-class ValorousAscension(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ValorousAscension));
-class RendPower(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RendPower), new AOEShapeCone(40, 15.Degrees()), 6);
-class ThrownFlames(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ThrownFlames), new AOEShapeCircle(8));
-class BastionBreaker(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BastionBreaker), 6);
-class HolyBlade(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.HolyBlade), 6);
-class SearingSlash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SearingSlash), new AOEShapeCircle(8));
-class Electrobeam(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Electrobeam), new AOEShapeRect(40, 2));
+class StormlitShockwave(BossModule module) : Components.RaidwideCast(module, (uint)AID.StormlitShockwave);
+class ValorousAscension(BossModule module) : Components.RaidwideCast(module, (uint)AID.ValorousAscension);
+class RendPower(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RendPower, new AOEShapeCone(40f, 15f.Degrees()), 6);
 
-class Rush(BossModule module) : Components.GenericAOEs(module)
+class BastionBreaker(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.BastionBreaker, 6f);
+class HolyBlade(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.HolyBlade, 6f);
+
+class SearingSlashThrownFlames(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.SearingSlash, (uint)AID.ThrownFlames], 8f);
+
+class Electrobeam(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Electrobeam, new AOEShapeRect(40f, 2f));
+
+class Rush : Components.SimpleChargeAOEGroups
 {
-    private readonly List<AOEInstance> _aoes = [];
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public Rush(BossModule module) : base(module, [(uint)AID.Rush], 2.5f, 4)
     {
-        var count = _aoes.Count;
-        if (count > 0)
-            for (var i = 0; i < Math.Clamp(count, 0, 2); ++i)
-                yield return _aoes[i] with { Color = Colors.Danger };
-        if (count > 2)
-            for (var i = 2; i < 4; ++i)
-                yield return _aoes[i];
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if ((AID)spell.Action.ID == AID.Rush)
-        {
-            var dir = spell.LocXZ - caster.Position;
-            _aoes.Add(new(new AOEShapeRect(dir.Length(), 2.5f), caster.Position, Angle.FromDirection(dir), Module.CastFinishAt(spell)));
-        }
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if (_aoes.Count > 0 && (AID)spell.Action.ID == AID.Rush)
-            _aoes.RemoveAt(0);
+        MaxDangerColor = 2;
+        MaxRisky = 2;
     }
 }
-class SteadfastWill(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SteadfastWill));
+class SteadfastWill(BossModule module) : Components.SingleTargetCast(module, (uint)AID.SteadfastWill);
 
 class OtisOathbrokenStates : StateMachineBuilder
 {
@@ -86,9 +68,8 @@ class OtisOathbrokenStates : StateMachineBuilder
             .ActivateOnEnter<StormlitShockwave>()
             .ActivateOnEnter<ValorousAscension>()
             .ActivateOnEnter<RendPower>()
-            .ActivateOnEnter<ThrownFlames>()
+            .ActivateOnEnter<SearingSlashThrownFlames>()
             .ActivateOnEnter<BastionBreaker>()
-            .ActivateOnEnter<SearingSlash>()
             .ActivateOnEnter<Electrobeam>()
             .ActivateOnEnter<SteadfastWill>()
             .ActivateOnEnter<HolyBlade>()
@@ -97,12 +78,18 @@ class OtisOathbrokenStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.Quest, GroupID = 70478, NameID = 13168)]
-public class OtisOathbroken(WorldState ws, Actor primary) : BossModule(ws, primary, new(349, -14), new ArenaBoundsCircle(19.5f))
+public class OtisOathbroken(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, ArenaBounds)
 {
-    protected override bool CheckPull() => Raid.WithoutSlot().Any(x => x.InCombat);
+    public static readonly WPos ArenaCenter = new(349f, -14f);
+    public static readonly ArenaBoundsComplex ArenaBounds = new([new Polygon(ArenaCenter, 19.5f, 20)]);
+
+    protected override bool CheckPull() => Raid.Player()!.InCombat;
+
+    private static readonly uint[] all = [(uint)OID.Boss, (uint)OID.EverkeepTurret, (uint)OID.EverkeepAerostat, (uint)OID.EverkeepAerostat2, (uint)OID.EverkeepSentryG10,
+    (uint)OID.EverkeepSentryR10];
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(WorldState.Actors.Where(x => !x.IsAlly));
+        Arena.Actors(Enemies(all));
     }
 }

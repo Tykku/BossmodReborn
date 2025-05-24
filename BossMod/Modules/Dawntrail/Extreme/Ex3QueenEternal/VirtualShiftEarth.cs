@@ -4,9 +4,9 @@ class VirtualShiftEarth(BossModule module) : BossComponent(module)
 {
     public BitMask Flying;
 
-    public static readonly WPos Midpoint = new(100, 94);
-    public static readonly WDir CenterOffset = new(8, 0);
-    public static readonly WDir HalfExtent = new(4, 8);
+    public static readonly WPos Midpoint = new(100f, 94f);
+    public static readonly WDir CenterOffset = new(8f, default);
+    public static readonly WDir HalfExtent = new(4f, 8f);
 
     public static bool OnPlatform(WPos p)
     {
@@ -19,31 +19,44 @@ class VirtualShiftEarth(BossModule module) : BossComponent(module)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.AddRect(Midpoint + CenterOffset, new(0, 1), HalfExtent.Z, HalfExtent.Z, HalfExtent.X, Colors.Border, 2);
-        Arena.AddRect(Midpoint - CenterOffset, new(0, 1), HalfExtent.Z, HalfExtent.Z, HalfExtent.X, Colors.Border, 2);
+        var halfExtentZ = HalfExtent.Z;
+        var halfExtentX = HalfExtent.X;
+        var color = Colors.Border;
+        Arena.AddRect(Midpoint + CenterOffset, new(default, 1f), halfExtentZ, halfExtentZ, halfExtentX, color, 2f);
+        Arena.AddRect(Midpoint - CenterOffset, new(default, 1f), halfExtentZ, halfExtentZ, halfExtentX, color, 2f);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.GravitationalAnomaly)
-            Flying.Set(Raid.FindSlot(actor.InstanceID));
+        if (status.ID == (uint)SID.GravitationalAnomaly)
+            Flying[Raid.FindSlot(actor.InstanceID)] = true;
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.GravitationalAnomaly)
-            Flying.Clear(Raid.FindSlot(actor.InstanceID));
+        if (status.ID == (uint)SID.GravitationalAnomaly)
+            Flying[Raid.FindSlot(actor.InstanceID)] = false;
     }
 }
 
-abstract class LawsOfEarthBurst(BossModule module) : Components.GenericTowers(module, ActionID.MakeSpell(AID.LawsOfEarthBurst))
+abstract class LawsOfEarthBurst(BossModule module) : Components.GenericTowers(module, (uint)AID.LawsOfEarthBurst)
 {
     private readonly VirtualShiftEarth? _virtualShift = module.FindComponent<VirtualShiftEarth>();
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (_virtualShift != null && _virtualShift.Flying[slot] && Towers.Any(t => !t.ForbiddenSoakers[slot]))
-            hints.Add("Go to ground!");
+        if (_virtualShift != null && _virtualShift.Flying[slot])
+        {
+            var count = Towers.Count;
+            for (var i = 0; i < count; ++i)
+            {
+                if (!Towers[i].ForbiddenSoakers[slot])
+                {
+                    hints.Add("Go to ground!");
+                    break;
+                }
+            }
+        }
         base.AddHints(slot, actor, hints);
     }
 
@@ -52,7 +65,7 @@ abstract class LawsOfEarthBurst(BossModule module) : Components.GenericTowers(mo
     {
         if (offsets.Length == 0)
         {
-            Towers.Add(new(center, 2, activation: activation));
+            Towers.Add(new(center, 2f, activation: activation));
         }
         else
         {
@@ -66,7 +79,7 @@ class LawsOfEarthBurst1 : LawsOfEarthBurst
 {
     public LawsOfEarthBurst1(BossModule module) : base(module)
     {
-        AddTowers(WorldState.FutureTime(5), VirtualShiftEarth.Midpoint, VirtualShiftEarth.CenterOffset, new(0, 6), new(2, 0));
+        AddTowers(WorldState.FutureTime(5d), VirtualShiftEarth.Midpoint, VirtualShiftEarth.CenterOffset, new(default, 6f), new(2f, default));
     }
 }
 
@@ -74,28 +87,40 @@ class LawsOfEarthBurst2 : LawsOfEarthBurst
 {
     public LawsOfEarthBurst2(BossModule module) : base(module)
     {
-        AddTowers(WorldState.FutureTime(8.8f), VirtualShiftEarth.Midpoint, VirtualShiftEarth.CenterOffset, new(0, 5));
+        AddTowers(WorldState.FutureTime(8.8d), VirtualShiftEarth.Midpoint, VirtualShiftEarth.CenterOffset, new(default, 5f));
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.GravityPillar)
-            foreach (ref var t in Towers.AsSpan())
-                t.ForbiddenSoakers.Set(Raid.FindSlot(spell.TargetID));
+        if (spell.Action.ID == (uint)AID.GravityPillar)
+        {
+            var towers = CollectionsMarshal.AsSpan(Towers);
+            var len = towers.Length;
+            for (var i = 0; i < len; ++i)
+            {
+                towers[i].ForbiddenSoakers[Raid.FindSlot(spell.TargetID)] = true;
+            }
+        }
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
         if (tether.ID == (uint)TetherID.GravityRay)
-            foreach (ref var t in Towers.AsSpan())
-                t.ForbiddenSoakers.Set(Raid.FindSlot(source.InstanceID));
+        {
+            var towers = CollectionsMarshal.AsSpan(Towers);
+            var len = towers.Length;
+            for (var i = 0; i < len; ++i)
+            {
+                towers[i].ForbiddenSoakers[Raid.FindSlot(source.InstanceID)] = true;
+            }
+        }
     }
 }
 
-class GravityPillar(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.GravityPillar), new AOEShapeCircle(10), true);
+class GravityPillar(BossModule module) : Components.BaitAwayCast(module, (uint)AID.GravityPillar, 10f);
 
 // note: the tethers appear before target is created; the target is at the same location as the boss
-class GravityRay(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(50, 30.Degrees()), (uint)TetherID.GravityRay, ActionID.MakeSpell(AID.GravityRay)) // TODO: verify angle
+class GravityRay(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCone(50f, 30f.Degrees()), (uint)TetherID.GravityRay, (uint)AID.GravityRay) // TODO: verify angle
 {
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
@@ -109,7 +134,14 @@ class GravityRay(BossModule module) : Components.BaitAwayTethers(module, new AOE
     {
         if (tether.ID == TID)
         {
-            CurrentBaits.RemoveAll(b => b.Target == source);
+            var count = CurrentBaits.Count - 1;
+            for (var i = count; i >= 0; --i)
+            {
+                if (CurrentBaits[i].Target == source)
+                {
+                    CurrentBaits.RemoveAt(i);
+                }
+            }
         }
     }
 }
@@ -124,11 +156,21 @@ class MeteorImpact(BossModule module) : Components.CastCounter(module, default)
     private BitMask _meteorsAbovePlatforms;
     private int _numPlacedMeteors;
 
-    public bool Active => _activeMeteors.Any();
+    public bool Active => _activeMeteors != default;
 
     public override void Update()
     {
-        _meteorsAbovePlatforms = Raid.WithSlot().IncludedInMask(_activeMeteors).WhereActor(p => VirtualShiftEarth.OnPlatform(p.Position)).Mask();
+        var party = Raid.WithSlot(false, true, true);
+        var len = party.Length;
+        _meteorsAbovePlatforms = default;
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var p = ref party[i];
+            if (_activeMeteors[p.Item1] && VirtualShiftEarth.OnPlatform(p.Item2.Position))
+            {
+                _meteorsAbovePlatforms[p.Item1] = true;
+            }
+        }
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -140,8 +182,39 @@ class MeteorImpact(BossModule module) : Components.CastCounter(module, default)
         if (_meteorsAbovePlatforms[slot] != shouldBeAbovePlatform)
             hints.Add(shouldBeAbovePlatform ? "Fly above platform!" : "GTFO from platform!");
 
-        var shouldNotBeStacked = _meteorsAbovePlatforms[slot] ? Raid.WithoutSlot() : Raid.WithSlot().IncludedInMask(_meteorsAbovePlatforms).Actors();
-        if (shouldNotBeStacked.InRadiusExcluding(actor, 4).Any())
+        var showHint = false;
+        var origin = actor.Position;
+        if (_meteorsAbovePlatforms[slot])
+        {
+            var partyWithoutSlot = Raid.WithoutSlot(false, true, true);
+            var lenPWithoutSlot = partyWithoutSlot.Length;
+            for (var i = 0; i < lenPWithoutSlot; ++i)
+            {
+                ref readonly var p = ref partyWithoutSlot[i];
+                if (p == actor)
+                    continue;
+                if (p.Position.InCircle(origin, 4f))
+                {
+                    showHint = true;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            var partyWithSlot = Raid.WithSlot(true, true, true);
+            var len = partyWithSlot.Length;
+            for (var i = 0; i < len; ++i)
+            {
+                ref readonly var p = ref partyWithSlot[i];
+                if (_meteorsAbovePlatforms[p.Item1] && p.Item2.Position.InCircle(origin, 4f))
+                {
+                    showHint = true;
+                    break;
+                }
+            }
+        }
+        if (showHint)
             hints.Add("Spread!");
 
         // TODO: don't overlap with previous meteors?..
@@ -151,33 +224,41 @@ class MeteorImpact(BossModule module) : Components.CastCounter(module, default)
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        foreach (var p in Raid.WithSlot().IncludedInMask(_meteorsAbovePlatforms).Actors())
-            Arena.AddCircle(p.Position, 4, Colors.Danger);
+        var partyWithSlot = Raid.WithSlot(true, true, true);
+        var len = partyWithSlot.Length;
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var p = ref partyWithSlot[i];
+            if (_meteorsAbovePlatforms[p.Item1])
+            {
+                Arena.AddCircle(p.Item2.Position, 4f);
+            }
+        }
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
         if (iconID == (uint)IconID.MeteorImpact)
         {
-            _activeMeteors.Set(Raid.FindSlot(actor.InstanceID));
+            _activeMeteors[Raid.FindSlot(actor.InstanceID)] = true;
             NumCasts = 0;
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.MeteorImpactPlatform or AID.MeteorImpactFall)
+        if (spell.Action.ID is (uint)AID.MeteorImpactPlatform or (uint)AID.MeteorImpactFall)
         {
-            _activeMeteors.Reset(); // assume all meteors fall at the same time
+            _activeMeteors = default; // assume all meteors fall at the same time
             ++NumCasts;
-            if ((AID)spell.Action.ID == AID.MeteorImpactPlatform)
+            if (spell.Action.ID == (uint)AID.MeteorImpactPlatform)
                 ++_numPlacedMeteors;
         }
     }
 }
 
 // TODO: how targeting / safe zones really work? what if <8 meteors are placed?
-class WeightyBlow(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.WeightyBlowAOE))
+class WeightyBlow(BossModule module) : Components.CastCounter(module, (uint)AID.WeightyBlowAOE)
 {
     private readonly VirtualShiftEarth? _virtualShift = module.FindComponent<VirtualShiftEarth>();
     private readonly List<Actor> _boulders = [];
@@ -194,8 +275,15 @@ class WeightyBlow(BossModule module) : Components.CastCounter(module, ActionID.M
             hints.Add("Go to ground!");
 
         var origin = BaitSource(actor);
-        if (!_boulders.Any(b => b.Position.InRect(origin, actor.Position - origin, HalfWidth)))
-            hints.Add("Hide behind boulder!");
+        var count = _boulders.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            if (_boulders[i].Position.InRect(origin, actor.Position - origin, HalfWidth))
+            {
+                return;
+            }
+        }
+        hints.Add("Hide behind boulder!");
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
@@ -212,25 +300,25 @@ class WeightyBlow(BossModule module) : Components.CastCounter(module, ActionID.M
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.WeightyBlow)
+        if (spell.Action.ID == (uint)AID.WeightyBlow)
             _activeBaits = true;
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.MeteorImpactPlatform:
+            case (uint)AID.MeteorImpactPlatform:
                 _boulders.Add(caster);
                 break;
-            case AID.WeightyBlowDestroy:
+            case (uint)AID.WeightyBlowDestroy:
                 _boulders.Remove(caster);
                 break;
-            case AID.WeightyBlowAOE:
+            case (uint)AID.WeightyBlowAOE:
                 ++NumCasts;
                 break;
         }
     }
 
-    private WPos BaitSource(Actor player) => new(player.Position.X < Ex3QueenEternal.ArenaCenter.X ? 92 : 108, 79.5f);
+    private WPos BaitSource(Actor player) => new(player.Position.X < Ex3QueenEternal.ArenaCenter.X ? 92f : 108f, 79.5f);
 }

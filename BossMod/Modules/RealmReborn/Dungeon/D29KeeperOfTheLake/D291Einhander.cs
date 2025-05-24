@@ -20,11 +20,11 @@ public enum AID : uint
     MarkXLIIIMiniCannon = 29272 // Boss->location, 5.0s cast, range 31 circle, damage fall off AOE
 }
 
-class AeroBlast(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.AeroBlast));
-class MarkXLIQuickFiringCannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MarkXLIQuickFiringCannon), new AOEShapeRect(40, 2));
-class CeruleumExplosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CeruleumExplosion), new AOEShapeCircle(12));
-class HeavySwing(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.HeavySwing));
-class MarkXLIIIMiniCannon(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.MarkXLIIIMiniCannon), 15);
+class AeroBlast(BossModule module) : Components.RaidwideCast(module, (uint)AID.AeroBlast);
+class MarkXLIQuickFiringCannon(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MarkXLIQuickFiringCannon, new AOEShapeRect(40f, 2f));
+class CeruleumExplosion(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CeruleumExplosion, 12f);
+class HeavySwing(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.HeavySwing);
+class MarkXLIIIMiniCannon(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MarkXLIIIMiniCannon, 15f);
 
 class D291EinhanderStates : StateMachineBuilder
 {
@@ -42,5 +42,5 @@ class D291EinhanderStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 32, NameID = 3369)]
 public class D291Einhander(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Circle(new(18.75f, -16.95f), 19.5f)], [new Rectangle(new(36.824f, -25.291f), 20, 1.25f, 67.333f.Degrees()), new Rectangle(new(1, -8.1f), 20, 1.4f, 65f.Degrees())]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(18.75f, -16.95f), 19.5f)], [new Rectangle(new(36.824f, -25.291f), 20, 1.25f, -67.333f.Degrees()), new Rectangle(new(1, -8.1f), 20, 1.4f, -65f.Degrees())]);
 }

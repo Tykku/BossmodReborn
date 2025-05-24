@@ -38,6 +38,7 @@ public static class BossModuleInfo
         Ultimate,
         Unreal,
         Alliance,
+        Chaotic,
         Foray,
         VariantCriterion,
         DeepDungeon,
@@ -58,11 +59,16 @@ public static class BossModuleInfo
         CFC, // group id is ContentFinderCondition row
         MaskedCarnivale, // group id is ContentFinderCondition row
         RemovedUnreal, // group id is ContentFinderCondition row
+        BaldesionArsenal, // group id is ContentFinderCondition row
+        CastrumLacusLitore, // group id is ContentFinderCondition row
+        TheDaldriada, // group id is ContentFinderCondition row
+        BozjaSkirmish, // group id is Fate row
         Quest, // group id is Quest row
         Fate, // group id is Fate row
         Hunt, // group id is HuntRank
         BozjaCE, // group id is ContentFinderCondition row, name id is DynamicEvent row
         BozjaDuel, // group id is ContentFinderCondition row, name id is DynamicEvent row
+        EurekaNM, // group id is ContentFinderCondition row, name id is Fate row
         GoldSaucer, // group id is GoldSaucerTextData row
     }
 

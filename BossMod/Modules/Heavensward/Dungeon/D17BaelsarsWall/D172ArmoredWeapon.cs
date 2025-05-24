@@ -26,32 +26,30 @@ public enum AID : uint
     DistressBeacon = 7358, // Boss->self, 3.0s cast, single-target
 
     MagitekBit = 7357, // Boss->self, 3.0s cast, single-target
-    AssaultCannon = 7360, // MagitekBit->self, 4.0s cast, range 40+R width 2 rect
+    AssaultCannon = 7360 // MagitekBit->self, 4.0s cast, range 40+R width 2 rect
 }
 
 public enum SID : uint
 {
-    ExtremeCaution = 1132, // none->player, extra=0x0
+    ExtremeCaution = 1132 // none->player, extra=0x0
 }
 
-class Launcher(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Launcher));
-class AssaultCannon(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AssaultCannon), new AOEShapeRect(40.94f, 1));
+class Launcher(BossModule module) : Components.RaidwideCast(module, (uint)AID.Launcher);
+class AssaultCannon(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AssaultCannon, new AOEShapeRect(40.94f, 1f));
 
-abstract class DiffractiveLaser(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 5);
-class DiffractiveLaser1(BossModule module) : DiffractiveLaser(module, AID.DiffractiveLaser1);
-class DiffractiveLaser2(BossModule module) : DiffractiveLaser(module, AID.DiffractiveLaser2);
+class DiffractiveLaser(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.DiffractiveLaser1, (uint)AID.DiffractiveLaser2], 5f);
 
-class DynamicSensoryJammer(BossModule module) : Components.StayMove(module, 3)
+class DynamicSensoryJammer(BossModule module) : Components.StayMove(module, 3f)
 {
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.ExtremeCaution && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
+        if (status.ID == (uint)SID.ExtremeCaution && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
             PlayerStates[slot] = new(Requirement.Stay, status.ExpireAt);
     }
 
     public override void OnStatusLose(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.ExtremeCaution && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
+        if (status.ID == (uint)SID.ExtremeCaution && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
             PlayerStates[slot] = default;
     }
 }
@@ -62,8 +60,7 @@ class D172ArmoredWeaponStates : StateMachineBuilder
     {
         TrivialPhase()
             .ActivateOnEnter<DynamicSensoryJammer>()
-            .ActivateOnEnter<DiffractiveLaser1>()
-            .ActivateOnEnter<DiffractiveLaser2>()
+            .ActivateOnEnter<DiffractiveLaser>()
             .ActivateOnEnter<Launcher>()
             .ActivateOnEnter<AssaultCannon>();
     }
@@ -74,6 +71,7 @@ public class D172ArmoredWeapon(WorldState ws, Actor primary) : BossModule(ws, pr
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.MagitekSlasher).Concat([PrimaryActor]));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies((uint)OID.MagitekSlasher));
     }
 }

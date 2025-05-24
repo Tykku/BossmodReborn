@@ -41,28 +41,28 @@ class TerminusEst(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
 
-    private static readonly AOEShapeRect rect = new(40, 2);
+    private static readonly AOEShapeRect rect = new(40f, 2f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.TerminusEst)
-            _aoes.Add(new(rect, actor.Position, actor.Rotation, WorldState.FutureTime(6)));
+        if (actor.OID == (uint)OID.TerminusEst)
+            _aoes.Add(new(rect, WPos.ClampToGrid(actor.Position), actor.Rotation, WorldState.FutureTime(6d)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.TerminusEstTriple or AID.TerminusEstQuintuple)
+        if (spell.Action.ID is (uint)AID.TerminusEstTriple or (uint)AID.TerminusEstQuintuple)
             _aoes.Clear();
     }
 }
 
-class HandOfTheEmpire(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.HandOfTheEmpireAOE), 5);
-class FestinaLente(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.FestinaLente), 6, 4, 4);
-class Innocence(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Innocence));
-class HorridaBella(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.HorridaBella));
-class Ductus(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.DuctusAOE), 8);
+class HandOfTheEmpire(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.HandOfTheEmpireAOE, 5f);
+class FestinaLente(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.FestinaLente, 6f, 4, 4);
+class Innocence(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Innocence);
+class HorridaBella(BossModule module) : Components.RaidwideCast(module, (uint)AID.HorridaBella);
+class Ductus(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DuctusAOE, 8f);
 
 class AddEnrage(BossModule module) : BossComponent(module)
 {
@@ -74,14 +74,18 @@ class AddEnrage(BossModule module) : BossComponent(module)
             hints.Add($"Enrage in {(_enrage - WorldState.CurrentTime).TotalSeconds:f1}s");
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void Update()
     {
-        if ((AID)spell.Action.ID == AID.AddPhaseStart)
-            _enrage = WorldState.FutureTime(91);
+        var primary = Module.PrimaryActor.IsTargetable;
+        var enrage = _enrage == default;
+        if (enrage && !primary)
+            _enrage = WorldState.FutureTime(92.4d);
+        else if (!enrage && primary)
+            _enrage = default;
     }
 }
 
-class Heirsbane(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Innocence), "");
+class Heirsbane(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Innocence, "");
 
 class D143GaiusStates : StateMachineBuilder
 {
@@ -99,11 +103,12 @@ class D143GaiusStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 16, NameID = 2136)]
-public class D143Gaius(WorldState ws, Actor primary) : BossModule(ws, primary, new(-562, 220), new ArenaBoundsRect(14.5f, 19.5f))
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 16, NameID = 2136)]
+public class D143Gaius(WorldState ws, Actor primary) : BossModule(ws, primary, new(-562f, 220f), new ArenaBoundsRect(14.5f, 19.5f))
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.PhantomGaiusAdd).Concat([PrimaryActor]));
+        Arena.Actor(PrimaryActor);
+        Arena.Actors(Enemies((uint)OID.PhantomGaiusAdd));
     }
 }

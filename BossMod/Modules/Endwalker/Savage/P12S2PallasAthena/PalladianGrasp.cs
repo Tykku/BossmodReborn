@@ -18,7 +18,7 @@ class PalladianGrasp(BossModule module) : Components.CastCounter(module, default
         {
             if (actor.InstanceID == target.InstanceID)
             {
-                if (Raid.WithoutSlot().Exclude(actor).InShape(_shape, Origin(target), default).Any())
+                if (Raid.WithoutSlot(false, true, true).Exclude(actor).InShape(_shape, Origin(target), default).Count != 0)
                     hints.Add("Bait away from raid!");
             }
             else
@@ -50,5 +50,5 @@ class PalladianGrasp(BossModule module) : Components.CastCounter(module, default
     }
 
     private Actor? Target() => WorldState.Actors.Find(NumCasts == 0 ? _firstPrimaryTarget : Module.PrimaryActor.TargetID);
-    private WPos Origin(Actor target) => Module.Center + new WDir(target.Position.X < Module.Center.X ? -_shape.HalfWidth : +_shape.HalfWidth, 0);
+    private WPos Origin(Actor target) => Arena.Center + new WDir(target.Position.X < Arena.Center.X ? -_shape.HalfWidth : +_shape.HalfWidth, 0);
 }

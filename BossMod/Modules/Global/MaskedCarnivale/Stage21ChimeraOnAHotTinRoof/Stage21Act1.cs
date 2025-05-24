@@ -2,18 +2,18 @@ namespace BossMod.Global.MaskedCarnivale.Stage21.Act1;
 
 public enum OID : uint
 {
-    Boss = 0x272F, //R=0.45
+    Boss = 0x272F //R=0.45
 }
 
 public enum AID : uint
 {
     Blizzard = 14267, // Boss->player, 1.0s cast, single-target
     VoidBlizzard = 15063, // Boss->player, 6.0s cast, single-target
-    Icefall = 15064, // Boss->location, 2.5s cast, range 5 circle
+    Icefall = 15064 // Boss->location, 2.5s cast, range 5 circle
 }
 
-class Icefall(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Icefall), 5);
-class VoidBlizzard(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.VoidBlizzard));
+class Icefall(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Icefall, 5f);
+class VoidBlizzard(BossModule module) : Components.CastInterruptHint(module, (uint)AID.VoidBlizzard);
 
 class Hints(BossModule module) : BossComponent(module)
 {
@@ -40,20 +40,31 @@ class Stage21Act1States : StateMachineBuilder
             .ActivateOnEnter<Icefall>()
             .ActivateOnEnter<Hints2>()
             .DeactivateOnEnter<Hints>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies((uint)OID.Boss);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.MaskedCarnivale, GroupID = 631, NameID = 8120, SortOrder = 1)]
 public class Stage21Act1 : BossModule
 {
-    public Stage21Act1(WorldState ws, Actor primary) : base(ws, primary, new(100, 100), new ArenaBoundsCircle(25))
+    public Stage21Act1(WorldState ws, Actor primary) : base(ws, primary, Layouts.ArenaCenter, Layouts.CircleBig)
     {
         ActivateComponent<Hints>();
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Boss));
+        Arena.Actors(Enemies((uint)OID.Boss));
     }
 }

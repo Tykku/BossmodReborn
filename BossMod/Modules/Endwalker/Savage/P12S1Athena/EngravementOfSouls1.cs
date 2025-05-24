@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Savage.P12S1Athena;
 
-class EngravementOfSouls1Spread(BossModule module) : Components.UniformStackSpread(module, 0, 3, alwaysShowSpreads: true, raidwideOnResolve: false, includeDeadTargets: true)
+class EngravementOfSouls1Spread(BossModule module) : Components.UniformStackSpread(module, default, 3f, alwaysShowSpreads: true, raidwideOnResolve: false, includeDeadTargets: true)
 {
     public enum DebuffType { None, Light, Dark }
 
@@ -20,7 +20,7 @@ class EngravementOfSouls1Spread(BossModule module) : Components.UniformStackSpre
 
         var safespot = CalculateSafeSpot(pcSlot);
         if (safespot != default)
-            Arena.AddCircle(safespot, 1, Colors.Safe);
+            Arena.AddCircle(safespot, 1f, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -34,13 +34,13 @@ class EngravementOfSouls1Spread(BossModule module) : Components.UniformStackSpre
         if (type != DebuffType.None && Raid.FindSlot(actor.InstanceID) is var slot && slot >= 0)
         {
             _states[slot].Debuff = type;
-            AddSpread(actor, WorldState.FutureTime(10.1f));
+            AddSpread(actor, WorldState.FutureTime(10.1d));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.UmbralGlow or AID.AstralGlow)
+        if (spell.Action.ID is (uint)AID.UmbralGlow or (uint)AID.AstralGlow)
             Spreads.Clear();
     }
 
@@ -54,8 +54,8 @@ class EngravementOfSouls1Spread(BossModule module) : Components.UniformStackSpre
                     WDir[] offsets = [new(+1, -1), new(+1, +1), new(-1, +1), new(-1, -1)]; // CW from N
                     var relevantTether = _states[slot].Debuff == DebuffType.Light ? EngravementOfSoulsTethers.TetherType.Dark : EngravementOfSoulsTethers.TetherType.Light;
                     var expectedPositions = _tethers.States.Where(s => s.Source != null).Select(s => (s.Source!.Position + 40 * s.Source.Rotation.ToDirection(), s.Tether == relevantTether)).ToList();
-                    var offsetsOrdered = (Raid[slot]?.Class.IsSupport() ?? false) ? offsets.AsEnumerable() : offsets.Reverse();
-                    var positionsOrdered = offsetsOrdered.Select(d => Module.Center + 7 * d);
+                    var offsetsOrdered = (Raid[slot]?.Class.IsSupport() ?? false) ? offsets.AsEnumerable() : offsets.AsEnumerable().Reverse();
+                    var positionsOrdered = offsetsOrdered.Select(d => Arena.Center + 7f * d);
                     var firstMatch = positionsOrdered.First(p => expectedPositions.MinBy(ep => (ep.Item1 - p).LengthSq()).Item2);
                     _states[slot].CachedSafespot = firstMatch;
                     break;

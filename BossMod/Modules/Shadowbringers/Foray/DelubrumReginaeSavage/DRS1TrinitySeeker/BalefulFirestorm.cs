@@ -3,24 +3,37 @@
 // TODO: consider showing something before clones jump?
 class BalefulFirestorm(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<(Actor caster, AOEInstance aoe)> _casters = [];
-    private static readonly AOEShapeRect _shape = new(50, 10);
+    private static readonly AOEShapeRect _shape = new(50f, 10f);
+    public readonly List<AOEInstance> AOEs = [];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        return _casters.Take(3).Select(c => c.aoe);
+        var count = AOEs.Count;
+        if (count == 0)
+            return [];
+        var max = count > 3 ? 3 : count;
+        return CollectionsMarshal.AsSpan(AOEs)[..max];
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.BalefulComet:
-                var delay = 7.6f + _casters.Count * 1.0f;
-                _casters.Add((caster, new(_shape, caster.Position, caster.Rotation, WorldState.FutureTime(delay))));
+            case (uint)AID.BalefulComet:
+                var delay = 7.6d + AOEs.Count;
+                AOEs.Add(new(_shape, WPos.ClampToGrid(caster.Position), caster.Rotation, WorldState.FutureTime(delay), ActorID: caster.InstanceID));
                 break;
-            case AID.BalefulFirestorm:
-                _casters.RemoveAll(c => c.caster == caster);
+            case (uint)AID.BalefulFirestorm:
+                var count = AOEs.Count;
+                var id = caster.InstanceID;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (AOEs[i].ActorID == id)
+                    {
+                        AOEs.RemoveAt(i);
+                        return;
+                    }
+                }
                 ++NumCasts;
                 break;
         }

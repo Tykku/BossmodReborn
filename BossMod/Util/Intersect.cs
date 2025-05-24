@@ -91,7 +91,20 @@ public static class Intersect
         var u = lineDir.Dot(p - oa);
         return u >= 0 && u <= lineDir.LengthSq() ? t : float.MaxValue;
     }
-    public static float RaySegments(WDir rayOriginOffset, WDir rayDir, IEnumerable<(WDir, WDir)> edges) => edges.Min(e => RaySegment(rayOriginOffset, rayDir, e.Item1, e.Item2));
+
+    public static float RaySegments(WDir rayOriginOffset, WDir rayDir, ReadOnlySpan<(WDir, WDir)> edges)
+    {
+        var minValue = float.MaxValue;
+        var len = edges.Length;
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var edge = ref edges[i];
+            var result = RaySegment(rayOriginOffset, rayDir, edge.Item1, edge.Item2);
+            if (result < minValue)
+                minValue = result;
+        }
+        return minValue;
+    }
 
     public static float RaySegment(WPos rayOrigin, WDir rayDir, WPos vertexA, WPos vertexB)
     {
@@ -104,14 +117,33 @@ public static class Intersect
         var u = lineDir.Dot(p - vertexA);
         return u >= 0 && u <= lineDir.LengthSq() ? t : float.MaxValue;
     }
+
     public static float RayPolygon(WDir rayOriginOffset, WDir rayDir, RelPolygonWithHoles poly)
     {
         var dist = RaySegments(rayOriginOffset, rayDir, poly.ExteriorEdges);
-        foreach (var h in poly.Holes)
-            dist = Math.Min(dist, RaySegments(rayOriginOffset, rayDir, poly.InteriorEdges(h)));
+        var len = poly.Holes.Length;
+        for (var i = 0; i < len; ++i)
+        {
+            dist = Math.Min(dist, RaySegments(rayOriginOffset, rayDir, poly.InteriorEdges(poly.Holes[i])));
+        }
         return dist;
     }
-    public static float RayPolygon(WDir rayOriginOffset, WDir rayDir, RelSimplifiedComplexPolygon poly) => poly.Parts.Min(part => RayPolygon(rayOriginOffset, rayDir, part));
+
+    public static float RayPolygon(WDir rayOriginOffset, WDir rayDir, RelSimplifiedComplexPolygon poly)
+    {
+        var minDistance = float.MaxValue;
+        var parts = poly.Parts;
+        var count = parts.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var distance = RayPolygon(rayOriginOffset, rayDir, parts[i]);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+            }
+        }
+        return minDistance;
+    }
 
     // circle-shape intersections; they return true if shapes intersect or touch, false otherwise
     // these are used e.g. for player-initiated aoes
@@ -138,7 +170,7 @@ public static class Intersect
         var normal = coneDir.OrthoL();
         var sin = halfAngle.Sin();
         var distFromAxis = circleOffset.Dot(normal);
-        var originInCone = (halfAngle.Rad - MathF.PI * 0.5f) switch
+        var originInCone = (halfAngle.Rad - Angle.HalfPi) switch
         {
             < 0 => correctSide && distFromAxis * distFromAxis <= lsq * sin * sin,
             > 0 => correctSide || distFromAxis * distFromAxis >= lsq * sin * sin,
@@ -167,4 +199,67 @@ public static class Intersect
         return (circleOffset - corner).LengthSq() <= rsq;
     }
     public static bool CircleCone(WPos circleCenter, float circleRadius, WPos coneCenter, float coneRadius, WDir coneDir, Angle halfAngle) => CircleCone(circleCenter - coneCenter, circleRadius, coneRadius, coneDir, halfAngle);
+
+    public static bool CircleAARect(WDir circleOffset, float circleRadius, float halfExtentX, float halfExtentZ)
+    {
+        circleOffset = circleOffset.Abs(); // symmetrical along X/Z, consider only positive quadrant
+        var cornerOffset = circleOffset - new WDir(halfExtentX, halfExtentZ); // relative to corner
+        if (cornerOffset.X > circleRadius || cornerOffset.Z > circleRadius)
+            return false; // circle is too far from one of the edges, so can't intersect
+        if (cornerOffset.X <= 0 || cornerOffset.Z <= 0)
+            return true; // circle center is inside/on the edge, or close enough to one of the edges to intersect
+        return cornerOffset.LengthSq() <= circleRadius * circleRadius; // check whether circle touches the corner
+    }
+    public static bool CircleAARect(WPos circleCenter, float circleRadius, WPos rectCenter, float halfExtentX, float halfExtentZ) => CircleAARect(circleCenter - rectCenter, circleRadius, halfExtentX, halfExtentZ);
+
+    public static bool CircleRect(WDir circleOffset, float circleRadius, WDir rectZDir, float halfExtentX, float halfExtentZ) => CircleAARect(circleOffset.Rotate(rectZDir.MirrorX()), circleRadius, halfExtentX, halfExtentZ);
+    public static bool CircleRect(WPos circleCenter, float circleRadius, WPos rectCenter, WDir rectZDir, float halfExtentX, float halfExtentZ) => CircleRect(circleCenter - rectCenter, circleRadius, rectZDir, halfExtentX, halfExtentZ);
+
+    public static bool CircleDonutSector(WDir circleOffset, float circleRadius, float innerRadius, float outerRadius, WDir sectorDir, Angle halfAngle)
+    {
+        var distSq = circleOffset.LengthSq();
+        var maxR = outerRadius + circleRadius;
+        var minR = MathF.Max(0, innerRadius - circleRadius);
+
+        if (distSq > maxR * maxR || distSq < minR * minR)
+            return false;
+
+        if (halfAngle.Rad >= MathF.PI)
+            return true;
+
+        // Ensure sectorDir is normalized
+        sectorDir = sectorDir.Normalized();
+
+        // angle to center
+        var angleToCenter = Angle.Acos(Math.Clamp(circleOffset.Normalized().Dot(sectorDir), -1f, 1f));
+        if (angleToCenter <= halfAngle)
+            return true;
+
+        // sample side arcs: left/right boundary rays of sector
+        var sideDirL = sectorDir.Rotate(halfAngle);
+        var sideDirR = sectorDir.Rotate(-halfAngle);
+
+        static float DistToRay(WDir dir, WDir pt)
+            // vector rejection = cross product length / length of ray dir (==1)
+            => MathF.Abs(pt.Cross(dir));
+
+        // check if circle intersects side rays
+        var dL = DistToRay(sideDirL, circleOffset);
+        var dR = DistToRay(sideDirR, circleOffset);
+        var projL = circleOffset.Dot(sideDirL);
+        var projR = circleOffset.Dot(sideDirR);
+
+        if (projL >= 0 && projL <= outerRadius && dL <= circleRadius ||
+            projR >= 0 && projR <= outerRadius && dR <= circleRadius)
+            return true;
+
+        // check corners
+        var cornerL = sideDirL * outerRadius;
+        var cornerR = sideDirR * outerRadius;
+
+        return (circleOffset - cornerL).LengthSq() <= circleRadius * circleRadius || (circleOffset - cornerR).LengthSq() <= circleRadius * circleRadius;
+    }
+
+    public static bool CircleDonutSector(WPos circleCenter, float circleRadius, WPos sectorCenter, float innerRadius, float outerRadius, WDir sectorDir, Angle halfAngle)
+    => CircleDonutSector(circleCenter - sectorCenter, circleRadius, innerRadius, outerRadius, sectorDir, halfAngle);
 }

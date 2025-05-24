@@ -10,6 +10,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 15574, // Boss->player, no cast, single-target
+
     ShadowWreck = 15587, // Boss->self, 4.0s cast, range 100 circle
     ApokalypsisFirst = 15575, // Boss->self, 6.0s cast, range 76 width 20 rect
     ApokalypsisRest = 15577, // Helper->self, no cast, range 76 width 20 rect
@@ -25,55 +26,78 @@ public enum AID : uint
     DeathlyRayFacesRest = 15581, // Helper->self, no cast, range 60 width 6 rect
     DeathlyRayThereionFirst = 15583, // Helper->self, no cast, range 60 width 6 rect
     DeathlyRayThereionRest = 15585, // Helper->self, no cast, range 60 width 6 rect
-    Misfortune = 15586, // Helper->location, 3.0s cast, range 6 circle
+    Misfortune = 15586 // Helper->location, 3.0s cast, range 6 circle
 }
 
-class ShadowWreck(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ShadowWreck));
-class Misfortune(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Misfortune), 6);
+class ShadowWreck(BossModule module) : Components.RaidwideCast(module, (uint)AID.ShadowWreck);
+class Misfortune(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Misfortune, 6f);
+class ThereionCharge(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TherionCharge, 20f);
 
 class Border(BossModule module) : Components.GenericAOEs(module, warningText: "Platform will be removed during next Apokalypsis!")
 {
-    private const int SquareHalfWidth = 2;
-    private const float RectangleHalfWidth = 10.1f;
-    private const int MaxError = 5;
-    private const float PathfindingOffset = -0.5f;
-    private static readonly AOEShapeRect _square = new(2, 2, 2);
+    private const float MaxError = 5f;
+    private static readonly AOEShapeRect _square = new(2f, 2f, 2f);
 
-    public readonly List<AOEInstance> BreakingPlatforms = [];
+    public readonly List<AOEInstance> BreakingPlatforms = new(2);
 
-    public static readonly WPos[] positions = [new(-12, -71), new(12, -71), new(-12, -51),
-    new(12, -51), new(-12, -31), new(12, -31), new(-12, -17), new(12, -17), new(0, -65), new(0, -45)];
+    private static readonly WPos[] positions = [new(-12f, -71f), new(12f, -71f), new(-12f, -51f),
+    new(12f, -51f), new(-12f, -31f), new(12f, -31f), new(-12f, -17f), new(12f, -17f), new(default, -65f), new(default, -45f)];
 
-    private static readonly Square[] shapes = [new(positions[0], SquareHalfWidth), new(positions[1], SquareHalfWidth), new(positions[2], SquareHalfWidth),
-    new(positions[3], SquareHalfWidth), new(positions[4], SquareHalfWidth), new(positions[5], SquareHalfWidth), new(positions[6], SquareHalfWidth),
-    new(positions[7], SquareHalfWidth), new(positions[8], RectangleHalfWidth), new(positions[9], RectangleHalfWidth)];
+    private static readonly Rectangle[] alcoves = Squares();
+    private static readonly Square[] differences = [new(positions[8], 10.01f), new(positions[9], 10.01f)];
 
-    private static readonly Shape[] rect = [new Rectangle(new WPos(0, -45), 10, 30)];
-    public readonly List<Shape> unionRefresh = new(rect.Concat(shapes.Take(8)));
-    private readonly List<Shape> difference = [];
-    public static readonly ArenaBoundsComplex DefaultArena = new([.. rect, .. shapes.Take(8)], Offset: PathfindingOffset);
+    private static readonly Rectangle[] rect = [new(new(default, -45f), 10f, 30f)];
+    public readonly List<Shape> UnionRefresh = Union();
+    private readonly List<Shape> difference = new(8);
+    public static readonly ArenaBoundsComplex DefaultArena = new([.. Union()]);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    private static Rectangle[] Squares()
     {
-        foreach (var p in BreakingPlatforms)
-            yield return new(_square, p.Origin, Color: Colors.FutureVulnerable, Risky: Module.FindComponent<Apokalypsis>()!.NumCasts == 0);
+        var squares = new Rectangle[8];
+        for (var i = 0; i < 8; ++i)
+        {
+            squares[i] = new Rectangle(positions[i], 2f, 1.99f); // small offset to account for rounding errors
+        }
+        return squares;
+    }
+
+    private static List<Shape> Union()
+    {
+        var union = new List<Shape>(rect);
+        for (var i = 0; i < 8; ++i)
+            union.Add(alcoves[i]);
+        return union;
+    }
+
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = BreakingPlatforms.Count;
+        if (count == 0)
+            return [];
+        var aoes = new AOEInstance[count];
+        for (var i = 0; i < count; ++i)
+        {
+            var p = BreakingPlatforms[i];
+            aoes[i] = p with { Risky = Module.FindComponent<Apokalypsis>()?.NumCasts == 0 };
+        }
+        return aoes;
     }
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
-        if (state == 0x00040008)
+        if (state == 0x00040008u)
         {
             for (var i = 0; i < 8; ++i)
             {
                 if (actor.Position.AlmostEqual(positions[i], MaxError))
                 {
-                    if (unionRefresh.Remove(shapes[i]))
+                    if (UnionRefresh.Remove(alcoves[i]))
                     {
-                        if (unionRefresh.Count == 7)
-                            difference.Add(shapes[8]);
-                        else if (unionRefresh.Count == 5)
-                            difference.Add(shapes[9]);
-                        ArenaBoundsComplex arena = new([.. unionRefresh], [.. difference], Offset: PathfindingOffset);
+                        if (UnionRefresh.Count == 7)
+                            difference.Add(differences[0]);
+                        else if (UnionRefresh.Count == 5)
+                            difference.Add(differences[1]);
+                        ArenaBoundsComplex arena = new([.. UnionRefresh], [.. difference]);
                         Arena.Bounds = arena;
                         Arena.Center = arena.Center;
                     }
@@ -81,7 +105,7 @@ class Border(BossModule module) : Components.GenericAOEs(module, warningText: "P
                 }
             }
         }
-        if (state == 0x00100020)
+        else if (state == 0x00100020u)
         {
             for (var i = 0; i < 8; ++i)
             {
@@ -94,30 +118,32 @@ class Border(BossModule module) : Components.GenericAOEs(module, warningText: "P
 
 class Apokalypsis(BossModule module) : Components.GenericAOEs(module)
 {
-    private DateTime _activation;
-    private static readonly AOEShapeRect _rect = new(76, 10);
+    private AOEInstance? _aoe;
+    private static readonly AOEShapeRect _rect = new(76f, 10f);
+    private readonly Border _arena = module.FindComponent<Border>()!;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_activation != default)
-            yield return new(_rect, Module.PrimaryActor.Position, Module.PrimaryActor.Rotation, _activation, Risky: (Module.FindComponent<Border>()!.unionRefresh.Count - Module.FindComponent<Border>()!.BreakingPlatforms.Count) > 1);
+        if (_aoe is AOEInstance aoe && (_arena.UnionRefresh.Count - _arena.BreakingPlatforms.Count) > 1)
+            return new AOEInstance[1] { aoe };
+        return [];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ApokalypsisFirst)
-            _activation = Module.CastFinishAt(spell);
+        if (spell.Action.ID == (uint)AID.ApokalypsisFirst)
+            _aoe = new(_rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.ApokalypsisFirst:
-            case AID.ApokalypsisRest:
+            case (uint)AID.ApokalypsisFirst:
+            case (uint)AID.ApokalypsisRest:
                 if (++NumCasts == 5)
                 {
-                    _activation = default;
+                    _aoe = null;
                     NumCasts = 0;
                 }
                 break;
@@ -125,47 +151,25 @@ class Apokalypsis(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class ThereionCharge(BossModule module) : Components.GenericAOEs(module)
-{
-    private static readonly AOEShapeRect _rect = new(10, 20, 100);
-    private AOEInstance? _aoe;
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if ((AID)spell.Action.ID == AID.TherionCharge)
-            _aoe = new(_rect, NumCasts == 0 ? Border.positions[8] : Border.positions[9], default, Module.CastFinishAt(spell));
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if ((AID)spell.Action.ID == AID.TherionCharge)
-        {
-            ++NumCasts;
-            _aoe = null;
-        }
-    }
-}
-
 class DeathlyRayThereion(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
+    private static readonly AOEShapeRect rect = new(60f, 3f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.DeathlyRayVisualThereion1)
-            _aoe = new(new AOEShapeRect(60, 3), caster.Position, spell.Rotation, Module.CastFinishAt(spell));
+        if (spell.Action.ID == (uint)AID.DeathlyRayVisualThereion1)
+            _aoe = new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.DeathlyRayThereionFirst:
-            case AID.DeathlyRayThereionRest:
+            case (uint)AID.DeathlyRayThereionFirst:
+            case (uint)AID.DeathlyRayThereionRest:
                 if (++NumCasts == 5)
                 {
                     _aoe = null;
@@ -178,30 +182,43 @@ class DeathlyRayThereion(BossModule module) : Components.GenericAOEs(module)
 
 class DeathlyRayFaces(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeRect _rect = new(60, 3);
-    private readonly List<AOEInstance> _aoesFirst = [], _aoesRest = [];
+    private static readonly AOEShapeRect _rect = new(60f, 3f);
+    private readonly List<AOEInstance> _aoesFirst = new(5), _aoesRest = new(5);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        for (var i = 0; i < _aoesFirst.Count; ++i)
-            yield return _aoesFirst[i];
-        for (var i = 0; i < _aoesRest.Count; ++i)
-            yield return _aoesRest[i] with { Color = _aoesFirst.Count > 0 ? Colors.AOE : Colors.Danger, Risky = _aoesFirst.Count == 0 };
-
+        var countFirst = _aoesFirst.Count;
+        var countRest = _aoesRest.Count;
+        var total = countFirst + countRest;
+        if (total == 0)
+            return [];
+        var aoes = new AOEInstance[total];
+        var risk = countFirst == 0;
+        for (var i = 0; i < countFirst; ++i)
+            aoes[i] = _aoesFirst[i];
+        for (var i = 0; i < countRest; ++i)
+            aoes[countFirst + i] = _aoesRest[i] with { Risky = risk };
+        return aoes;
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         var countFirst = _aoesFirst.Count;
         var countRest = _aoesRest.Count;
-        if ((AID)spell.Action.ID == AID.DeathlyRayFacesFirst && countFirst == 0 && countRest == 0)
+        if (spell.Action.ID == (uint)AID.DeathlyRayFacesFirst && countFirst == 0 && countRest == 0)
         {
-            foreach (var c in Module.Enemies(OID.TheFaceOfTheBeast).Where(x => x.Rotation.AlmostEqual(caster.Rotation, Angle.DegToRad)))
-                _aoesFirst.Add(new(_rect, c.Position, c.Rotation, default, Colors.Danger));
-            foreach (var c in Module.Enemies(OID.TheFaceOfTheBeast).Where(x => !x.Rotation.AlmostEqual(caster.Rotation, Angle.DegToRad)))
-                _aoesRest.Add(new(_rect, c.Position, c.Rotation, WorldState.FutureTime(8.5f)));
+            var faces = Module.Enemies((uint)OID.TheFaceOfTheBeast);
+            var count = faces.Count;
+            for (var i = 0; i < count; ++i)
+            {
+                var f = faces[i];
+                if (f.Rotation.AlmostEqual(caster.Rotation, Angle.DegToRad))
+                    _aoesFirst.Add(new(_rect, f.Position, f.Rotation, default, Colors.Danger));
+                else
+                    _aoesRest.Add(new(_rect, f.Position, f.Rotation, WorldState.FutureTime(8.5d)));
+            }
         }
-        if ((AID)spell.Action.ID is AID.DeathlyRayFacesFirst or AID.DeathlyRayFacesRest)
+        if (spell.Action.ID is (uint)AID.DeathlyRayFacesFirst or (uint)AID.DeathlyRayFacesRest)
         {
             ++NumCasts;
             if (NumCasts == 5 * countFirst)
@@ -223,14 +240,13 @@ class D063TherionStates : StateMachineBuilder
     public D063TherionStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
             .ActivateOnEnter<ThereionCharge>()
             .ActivateOnEnter<Misfortune>()
             .ActivateOnEnter<ShadowWreck>()
-            .ActivateOnEnter<Apokalypsis>()
             .ActivateOnEnter<DeathlyRayFaces>()
             .ActivateOnEnter<DeathlyRayThereion>()
-            .ActivateOnEnter<Border>();
+            .ActivateOnEnter<Border>()
+            .ActivateOnEnter<Apokalypsis>();
     }
 }
 

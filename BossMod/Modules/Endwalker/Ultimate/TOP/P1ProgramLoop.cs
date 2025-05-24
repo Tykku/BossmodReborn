@@ -2,8 +2,8 @@
 
 class P1ProgramLoop(BossModule module) : P1CommonAssignments(module)
 {
-    public int NumTowersDone { get; private set; }
-    public int NumTethersDone { get; private set; }
+    public int NumTowersDone;
+    public int NumTethersDone;
     private readonly List<Actor> _towers = [];
     private BitMask _tethers;
 
@@ -35,14 +35,14 @@ class P1ProgramLoop(BossModule module) : P1CommonAssignments(module)
         {
             if (_tethers[slot])
                 hints.Add("Pass the tether!");
-            if (Raid.WithSlot().IncludedInMask(_tethers).InRadiusExcluding(actor, _tetherRadius).Any())
+            if (Raid.WithSlot(false, true, true).IncludedInMask(_tethers).InRadiusExcluding(actor, _tetherRadius).Any())
                 hints.Add("GTFO from tether targets!");
         }
         else if (_tethers.Any())
         {
             if (!_tethers[slot])
                 hints.Add("Grab the tether!");
-            else if (Raid.WithoutSlot().InRadiusExcluding(actor, _tetherRadius).Any())
+            else if (Raid.WithoutSlot(false, true, true).InRadiusExcluding(actor, _tetherRadius).Any())
                 hints.Add("GTFO from raid!");
         }
     }
@@ -70,7 +70,7 @@ class P1ProgramLoop(BossModule module) : P1CommonAssignments(module)
 
         var grabThisTether = ps.Order == NextTethersOrder();
         var grabNextTether = ps.Order == NextTethersOrder(1);
-        foreach (var (s, t) in Raid.WithSlot().IncludedInMask(_tethers))
+        foreach (var (s, t) in Raid.WithSlot(false, true, true).IncludedInMask(_tethers))
         {
             var ts = PlayerStates[s];
             var correctSoaker = ts.Order == NextTethersOrder();
@@ -90,19 +90,19 @@ class P1ProgramLoop(BossModule module) : P1CommonAssignments(module)
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.Tower2)
+        if (actor.OID == (uint)OID.Tower2)
             _towers.Add(actor);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.StorageViolation1:
-            case AID.StorageViolationObliteration:
+            case (uint)AID.StorageViolation1:
+            case (uint)AID.StorageViolationObliteration:
                 ++NumTowersDone;
                 break;
-            case AID.BlasterAOE:
+            case (uint)AID.BlasterAOE:
                 ++NumTethersDone;
                 break;
         }
@@ -135,7 +135,7 @@ class P1ProgramLoop(BossModule module) : P1CommonAssignments(module)
     // 0 = N, 1 = E, ... (CW)
     private int ClassifyTower(Actor tower)
     {
-        var offset = tower.Position - Module.Center;
+        var offset = tower.Position - Arena.Center;
         if (Math.Abs(offset.Z) > Math.Abs(offset.X))
             return offset.Z < 0 ? 0 : 2;
         else
@@ -163,6 +163,6 @@ class P1ProgramLoop(BossModule module) : P1CommonAssignments(module)
         safeSpots.Clear(ClassifyTower(_towers[NumTowersDone]));
         safeSpots.Clear(ClassifyTower(_towers[NumTowersDone + 1]));
         var spot = group == 1 ? safeSpots.LowestSetBit() : safeSpots.HighestSetBit();
-        return Module.Center + 18 * (180.Degrees() - 90.Degrees() * spot).ToDirection();
+        return Arena.Center + 18 * (180.Degrees() - 90.Degrees() * spot).ToDirection();
     }
 }

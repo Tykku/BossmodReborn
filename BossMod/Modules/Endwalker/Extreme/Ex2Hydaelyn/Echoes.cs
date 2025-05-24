@@ -2,7 +2,7 @@
 
 class Echoes(BossModule module) : Components.UniformStackSpread(module, 6, 0, 8)
 {
-    public int NumCasts { get; private set; }
+    public int NumCasts;
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {

@@ -2,51 +2,56 @@
 
 class LegitimateForce(BossModule module) : Components.GenericAOEs(module)
 {
-    public readonly List<AOEInstance> AOEs = [];
-    private static readonly HashSet<AID> castEnds = [AID.LegitimateForceFirstL, AID.LegitimateForceFirstR, AID.LegitimateForceSecondL, AID.LegitimateForceSecondR];
-    private static readonly AOEShapeRect rect = new(20, 40);
+    public readonly List<AOEInstance> AOEs = new(2);
+    private static readonly AOEShapeRect rect = new(20f, 40f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         var count = AOEs.Count;
         if (count == 0)
-            yield break;
+            return [];
+        var aoes = new AOEInstance[count];
         for (var i = 0; i < count; ++i)
         {
             var aoe = AOEs[i];
             if (i == 0)
-                yield return count != 1 ? aoe with { Color = Colors.Danger } : aoe;
-            else if (i == 1)
-                yield return aoe with { Risky = false };
+                aoes[i] = count != 1 ? aoe with { Color = Colors.Danger } : aoe;
+            else
+                aoes[i] = aoe with { Risky = false };
         }
+        return aoes;
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.LegitimateForceFirstR:
-                AddAOEs(caster, spell, -90, 90);
+            case (uint)AID.LegitimateForceFirstR:
+                AddAOEs(caster, -90f, 90f);
                 break;
-            case AID.LegitimateForceFirstL:
-                AddAOEs(caster, spell, 90, -90);
+            case (uint)AID.LegitimateForceFirstL:
+                AddAOEs(caster, 90f, -90f);
                 break;
         }
-    }
-
-    private void AddAOEs(Actor caster, ActorCastInfo spell, float first, float second)
-    {
-        AOEs.Add(new(rect, caster.Position, spell.Rotation + first.Degrees(), Module.CastFinishAt(spell)));
-        AOEs.Add(new(rect, caster.Position, spell.Rotation + second.Degrees(), Module.CastFinishAt(spell, 3.1f)));
+        void AddAOEs(Actor caster, float first, float second)
+        {
+            AOEs.Add(new(rect, caster.Position, spell.Rotation + first.Degrees(), Module.CastFinishAt(spell)));
+            AOEs.Add(new(rect, caster.Position, spell.Rotation + second.Degrees(), Module.CastFinishAt(spell, 3.1f)));
+        }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (castEnds.Contains((AID)spell.Action.ID))
+        switch (spell.Action.ID)
         {
-            ++NumCasts;
-            if (AOEs.Count != 0)
-                AOEs.RemoveAt(0);
+            case (uint)AID.LegitimateForceFirstL:
+            case (uint)AID.LegitimateForceFirstR:
+            case (uint)AID.LegitimateForceSecondL:
+            case (uint)AID.LegitimateForceSecondR:
+                ++NumCasts;
+                if (AOEs.Count != 0)
+                    AOEs.RemoveAt(0);
+                break;
         }
     }
 }

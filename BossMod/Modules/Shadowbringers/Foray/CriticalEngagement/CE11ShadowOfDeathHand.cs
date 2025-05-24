@@ -2,19 +2,20 @@
 
 public enum OID : uint
 {
-    Boss = 0x2DA7, // R4.320, x1
-    TamedCarrionCrow = 0x2DA8, // R1.800, spawn during fight
-    Beastmaster = 0x2DA9, // R0.500, x1
-    Whirlwind = 0x2DAA, // R1.000, spawn during fight
-    Deathwall = 0x2EE8, // R0.500, x1
-    Helper = 0x233C, // R0.500, x10
-    DeathwallEvent = 0x1EB02E, // R0.500, EventObj type, spawn during fight
+    Boss = 0x2DA7, // R4.32
+    TamedCarrionCrow = 0x2DA8, // R1.8
+    Beastmaster = 0x2DA9, // R0.5
+    Whirlwind = 0x2DAA, // R1.0
+    DeathwallHelper = 0x2EE8, // R0.5
+    Deathwall = 0x1EB02E, // R0.5
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttackBeastmaster = 6497, // Beastmaster->player, no cast, single-target
     AutoAttackBossCrow = 6498, // Boss/TamedCarrionCrow->player, no cast, single-target
+
     FastBlade = 20155, // Beastmaster->player, no cast, single-target, micro tankbuster
     SavageBlade = 20156, // Beastmaster->player, no cast, single-target, micro tankbuster
     RippingBlade = 20157, // Beastmaster->player, no cast, single-target, micro tankbuster
@@ -45,47 +46,116 @@ public enum AID : uint
     WestWindAOE = 20187, // Helper->self, no cast, range 10 width 60 rect 'knock-forward' 30
 
     HardBeakCrow = 20190, // TamedCarrionCrow->player, 4.0s cast, single-target, micro tankbuster
-    PiercingBarrageCrow = 20191, // TamedCarrionCrow->self, 3.0s cast, range 40 width 8 rect
+    PiercingBarrageCrow = 20191 // TamedCarrionCrow->self, 3.0s cast, range 40 width 8 rect
 }
 
-class BestialLoyalty(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.BestialLoyalty), "Summon crows");
-class RunWild(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.RunWild), showNameInHint: true);
-class HardBeak(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.HardBeak));
-class PiercingBarrageBoss(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PiercingBarrageBoss), new AOEShapeRect(40, 4));
-class Helldive(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Helldive), 6);
-class BroadsideBarrage(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BroadsideBarrage), new AOEShapeRect(40, 20));
-class BlindsideBarrage(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BlindsideBarrage), "Raidwide + deathwall appears");
-class RollingBarrage(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RollingBarrageAOE), new AOEShapeCircle(8));
-class Whirlwind(BossModule module) : Components.PersistentVoidzone(module, 4, m => m.Enemies(OID.Whirlwind));
-class Wind(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.WindVisual), 30, kind: Kind.DirForward);
-class PiercingBarrageCrow(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PiercingBarrageCrow), new AOEShapeRect(40, 4));
+class ArenaChange(BossModule module) : Components.GenericAOEs(module)
+{
+    private static readonly AOEShapeDonut donut = new(20f, 30f);
+    private AOEInstance? _aoe;
+
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
+
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    {
+        if (spell.Action.ID == (uint)AID.BestialLoyaltyAOE)
+            _aoe = new(donut, Arena.Center, default, Module.CastFinishAt(spell, 0.8f));
+    }
+
+    public override void OnActorCreated(Actor actor)
+    {
+        if (actor.OID == (uint)OID.Deathwall)
+        {
+            Arena.Bounds = CE11ShadowOfDeathHand.DefaultArena;
+            Arena.Center = WPos.ClampToGrid(Arena.Center);
+            _aoe = null;
+        }
+    }
+}
+
+class BestialLoyalty(BossModule module) : Components.CastHint(module, (uint)AID.BestialLoyalty, "Summon crows");
+class RunWild(BossModule module) : Components.CastInterruptHint(module, (uint)AID.RunWild, showNameInHint: true);
+class HardBeak(BossModule module) : Components.SingleTargetCast(module, (uint)AID.HardBeak);
+class Helldive(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.Helldive, 6f, 8);
+class BroadsideBarrage(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BroadsideBarrage, new AOEShapeRect(40f, 20f));
+class BlindsideBarrage(BossModule module) : Components.RaidwideCast(module, (uint)AID.BlindsideBarrage, "Raidwide + deathwall appears");
+class RollingBarrage(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RollingBarrageAOE, 8f);
+class Whirlwind(BossModule module) : Components.Voidzone(module, 4f, GetWhirlwind, 3f)
+{
+    private static List<Actor> GetWhirlwind(BossModule module) => module.Enemies((uint)OID.Whirlwind);
+}
+class Wind(BossModule module) : Components.GenericKnockback(module)
+{
+    private Knockback? _kb;
+
+    public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor) => Utils.ZeroOrOne(ref _kb);
+
+    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    {
+        if (spell.Action.ID == (uint)AID.WindVisual)
+            _kb = new(spell.LocXZ, 30f, Module.CastFinishAt(spell, 0.1f), Direction: spell.Rotation, Kind: Kind.DirForward);
+    }
+
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    {
+        switch (spell.Action.ID)
+        {
+            case (uint)AID.WestWindAOE:
+            case (uint)AID.EastWindAOE:
+            case (uint)AID.NorthWindAOE:
+            case (uint)AID.SouthWindAOE:
+                _kb = null;
+                break;
+        }
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        if (_kb is Knockback kb)
+        {
+            var act = kb.Activation;
+            if (!IsImmune(slot, act))
+            {
+                var dir = kb.Direction;
+                hints.AddForbiddenZone(ShapeDistance.Cone(Arena.Center - 10f * dir.ToDirection(), 30f, dir, 135f.Degrees()), act);
+            }
+        }
+    }
+}
+
+class PiercingBarrage(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PiercingBarrageBoss, (uint)AID.PiercingBarrageCrow], new AOEShapeRect(40f, 4f));
 
 class CE11ShadowOfDeathHandStates : StateMachineBuilder
 {
     public CE11ShadowOfDeathHandStates(BossModule module) : base(module)
     {
         TrivialPhase()
+            .ActivateOnEnter<ArenaChange>()
             .ActivateOnEnter<BestialLoyalty>()
             .ActivateOnEnter<RunWild>()
             .ActivateOnEnter<HardBeak>()
-            .ActivateOnEnter<PiercingBarrageBoss>()
+            .ActivateOnEnter<PiercingBarrage>()
             .ActivateOnEnter<Helldive>()
             .ActivateOnEnter<BroadsideBarrage>()
             .ActivateOnEnter<BlindsideBarrage>()
             .ActivateOnEnter<RollingBarrage>()
             .ActivateOnEnter<Whirlwind>()
-            .ActivateOnEnter<Wind>()
-            .ActivateOnEnter<PiercingBarrageCrow>();
+            .ActivateOnEnter<Wind>();
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn, Malediktus", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 735, NameID = 5)] // bnpcname=9400
-public class CE11ShadowOfDeathHand(WorldState ws, Actor primary) : BossModule(ws, primary, new(825, 640), new ArenaBoundsCircle(20))
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 735, NameID = 5)] // bnpcname=9400
+public class CE11ShadowOfDeathHand(WorldState ws, Actor primary) : BossModule(ws, primary, startingArena.Center, startingArena)
 {
+    private static readonly ArenaBoundsComplex startingArena = new([new Polygon(new(825f, 640f), 29.5f, 32)]);
+    public static readonly ArenaBoundsCircle DefaultArena = new(20f); // default arena got no extra collision, just a donut aoe
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(Enemies(OID.Beastmaster));
-        Arena.Actors(Enemies(OID.TamedCarrionCrow));
+        Arena.Actors(Enemies((uint)OID.Beastmaster));
+        Arena.Actors(Enemies((uint)OID.TamedCarrionCrow));
     }
+
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InCircle(Arena.Center, 30f);
 }

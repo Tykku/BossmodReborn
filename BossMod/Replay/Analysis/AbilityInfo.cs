@@ -61,9 +61,10 @@ class AbilityInfo : CommonEnumInfo
             _plot.TickAdvance = new(45, 5);
             foreach (var i in infos)
             {
-                var sourcePosRot = i.Action.Source.PosRotAt(i.Action.Timestamp);
+                var cast = i.Action.Source.Casts.LastOrDefault(c => c.ID == i.Action.ID && c.Time.Start < i.Action.Timestamp);
+                var sourcePosRot = cast == null ? i.Action.Source.PosRotAt(i.Action.Timestamp) : new Vector4(cast.Location, cast.Rotation.Rad);
                 var sourcePos = new WPos(sourcePosRot.XZ());
-                var targetPos = new WPos(i.Action.TargetPos.XZ());
+                var targetPos = new WPos((cast?.Location ?? i.Action.TargetPos).XZ());
                 if (targetPos == sourcePos && i.Action.Targets.Count > 0)
                     targetPos = new(i.Action.Targets[0].Target.PosRotAt(i.Action.Timestamp).XZ());
                 var origin = targeting != Targeting.TargetPosSourceRot ? sourcePos : targetPos;
@@ -203,7 +204,7 @@ class AbilityInfo : CommonEnumInfo
         private record struct Point(Instance Inst, Replay.ActionTarget Target);
 
         private readonly Dictionary<int, List<Point>> _byDistance = [];
-        private readonly Dictionary<Knockback.Kind, List<Point>> _byKind = [];
+        private readonly Dictionary<GenericKnockback.Kind, List<Point>> _byKind = [];
         private readonly List<Point> _immuneIgnores = [];
         private readonly List<Point> _immuneMisses = [];
         private readonly List<Point> _transcendentIgnores = [];
@@ -225,25 +226,27 @@ class AbilityInfo : CommonEnumInfo
                                 var kbData = Service.LuminaRow<Lumina.Excel.Sheets.Knockback>(eff.Value);
                                 var kind = kbData != null ? (KnockbackDirection)kbData.Value.Direction switch
                                 {
-                                    KnockbackDirection.AwayFromSource => Knockback.Kind.AwayFromOrigin,
-                                    KnockbackDirection.SourceForward => Knockback.Kind.DirForward,
-                                    KnockbackDirection.SourceRight => Knockback.Kind.DirRight,
-                                    KnockbackDirection.SourceLeft => Knockback.Kind.DirLeft,
-                                    _ => Knockback.Kind.None
-                                } : Knockback.Kind.None;
+                                    KnockbackDirection.AwayFromSource => GenericKnockback.Kind.AwayFromOrigin,
+                                    KnockbackDirection.SourceForward => GenericKnockback.Kind.DirForward,
+                                    KnockbackDirection.SourceRight => GenericKnockback.Kind.DirRight,
+                                    KnockbackDirection.SourceLeft => GenericKnockback.Kind.DirLeft,
+                                    KnockbackDirection.AwayFromSource2 => GenericKnockback.Kind.AwayFromOrigin,
+                                    _ => GenericKnockback.Kind.None
+                                } : GenericKnockback.Kind.None;
                                 AddPoint(i, target, (kbData?.Distance ?? 0) + eff.Param0, kind);
                                 hasKnockbacks = true;
                                 break;
                             case ActionEffectType.Attract1:
                             case ActionEffectType.Attract2:
+
                                 var attrData = Service.LuminaRow<Lumina.Excel.Sheets.Attract>(eff.Value);
-                                AddPoint(i, target, attrData?.MaxDistance ?? 0, Knockback.Kind.TowardsOrigin);
+                                AddPoint(i, target, attrData?.MaxDistance ?? 0, GenericKnockback.Kind.TowardsOrigin);
                                 hasKnockbacks = true;
                                 break;
                             case ActionEffectType.AttractCustom1:
                             case ActionEffectType.AttractCustom2:
                             case ActionEffectType.AttractCustom3:
-                                AddPoint(i, target, eff.Value, Knockback.Kind.TowardsOrigin);
+                                AddPoint(i, target, eff.Value, GenericKnockback.Kind.TowardsOrigin);
                                 hasKnockbacks = true;
                                 break;
                         }
@@ -275,7 +278,7 @@ class AbilityInfo : CommonEnumInfo
             DrawPoints(tree, "Misses in other states", _otherMisses);
         }
 
-        private void AddPoint(Instance inst, Replay.ActionTarget target, int distance, Knockback.Kind kind)
+        private void AddPoint(Instance inst, Replay.ActionTarget target, int distance, GenericKnockback.Kind kind)
         {
             _byDistance.GetOrAdd(distance).Add(new(inst, target));
             _byKind.GetOrAdd(kind).Add(new(inst, target));
@@ -500,17 +503,17 @@ class AbilityInfo : CommonEnumInfo
         if (ImGui.MenuItem("Generate enum for boss module"))
         {
             var sb = new StringBuilder("public enum AID : uint\n{\n");
-            foreach (var (aid, data) in _data)
-                sb.Append($"    {EnumMemberString(aid, data)}\n");
-            sb.Append("}\n");
+            foreach (var (key, value) in Utils.DedupKeys(_data.Select(d => EnumMemberString(d.Key, d.Value))))
+                sb.AppendLine($"    {key} = {value}");
+            sb.AppendLine("}");
             ImGui.SetClipboardText(sb.ToString());
         }
 
         if (ImGui.MenuItem("Generate missing enum values for boss module"))
         {
             var sb = new StringBuilder();
-            foreach (var (aid, data) in _data.Where(kv => kv.Key.Type != ActionType.Spell || _aidType?.GetEnumName(kv.Key.ID) == null))
-                sb.AppendLine(EnumMemberString(aid, data));
+            foreach (var (key, value) in Utils.DedupKeys(_data.Where(kv => kv.Key.Type != ActionType.Spell || _aidType?.GetEnumName(kv.Key.ID) == null).Select(d => EnumMemberString(d.Key, d.Value))))
+                sb.AppendLine($"    {key} = {value}");
             ImGui.SetClipboardText(sb.ToString());
         }
     }
@@ -573,11 +576,11 @@ class AbilityInfo : CommonEnumInfo
     private static string CastTimeString(ActionData data, Lumina.Excel.Sheets.Action? ldata)
         => data.CastTime > 0 ? string.Create(CultureInfo.InvariantCulture, $"{data.CastTime:f1}{(ldata?.ExtraCastTime100ms > 0 ? $"+{ldata?.ExtraCastTime100ms * 0.1f:f1}" : "")}s cast") : "no cast";
 
-    private string EnumMemberString(ActionID aid, ActionData data)
+    private (string Name, string Value) EnumMemberString(ActionID aid, ActionData data)
     {
         var ldata = aid.Type == ActionType.Spell ? Service.LuminaRow<Lumina.Excel.Sheets.Action>(aid.ID) : null;
-        var name = aid.Type != ActionType.Spell ? $"// {aid}" : _aidType?.GetEnumName(aid.ID) ?? $"_{Utils.StringToIdentifier(ldata?.ActionCategory.ValueNullable?.Name.ToString() ?? "")}_{Utils.StringToIdentifier(ldata?.Name.ToString() ?? $"Ability{aid.ID}")}";
-        return $"{name} = {aid.ID}, // {OIDListString(data.CasterOIDs)}->{JoinStrings(ActionTargetStrings(data))}, {CastTimeString(data, ldata)}, {(ldata != null ? DescribeShape(ldata.Value) : "????")}";
+        string name = aid.Type != ActionType.Spell ? $"// {aid}" : _aidType?.GetEnumName(aid.ID) ?? $"_{Utils.StringToIdentifier(ldata?.ActionCategory.ValueNullable?.Name.ToString() ?? "")}_{Utils.StringToIdentifier(ldata?.Name.ToString() ?? $"Ability{aid.ID}")}";
+        return (name, $"{aid.ID}, // {OIDListString(data.CasterOIDs)}->{JoinStrings(ActionTargetStrings(data))}, {CastTimeString(data, ldata)}, {(ldata != null ? DescribeShape(ldata.Value) : "????")}");
     }
 
     private static string DescribeShape(Lumina.Excel.Sheets.Action data) => data.CastType switch

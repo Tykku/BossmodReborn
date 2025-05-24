@@ -1,14 +1,14 @@
 ﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.DRS1TrinitySeeker;
 
-class MercifulMoon(BossModule module) : Components.GenericGaze(module, ActionID.MakeSpell(AID.MercifulMoon))
+class MercifulMoon(BossModule module) : Components.GenericGaze(module, (uint)AID.MercifulMoon)
 {
     private Eye? _eye;
 
-    public override IEnumerable<Eye> ActiveEyes(int slot, Actor actor) => Utils.ZeroOrOne(_eye);
+    public override ReadOnlySpan<Eye> ActiveEyes(int slot, Actor actor) => Utils.ZeroOrOne(ref _eye);
 
-    public override void Update()
+    public override void OnActorCreated(Actor actor)
     {
-        if (_eye == null && Module.Enemies(OID.AetherialOrb).FirstOrDefault() is var orb && orb != null)
-            _eye = new(orb.Position, WorldState.FutureTime(5.8f)); // time from spawn to cast
+        if (actor.OID == (uint)OID.AetherialOrb)
+            _eye = new(actor.Position, WorldState.FutureTime(5.8d));
     }
 }

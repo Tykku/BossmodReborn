@@ -3,12 +3,12 @@ namespace BossMod.Global.MaskedCarnivale.Stage22.Act1;
 public enum OID : uint
 {
     Boss = 0x26FC, //R=1.2
-    BossAct2 = 0x26FE, //R=3.75, needed for pullcheck, otherwise it activates additional modules in act2
+    BossAct2 = 0x26FE //R=3.75, needed for pullcheck, otherwise it activates additional modules in act2
 }
 
 public enum AID : uint
 {
-    Fulmination = 14901, // 26FC->self, no cast, range 50+R circle, wipe if failed to kill grenade in one hit
+    Fulmination = 14901 // Boss->self, no cast, range 50+R circle, wipe if failed to kill grenade in one hit
 }
 
 class Hints(BossModule module) : BossComponent(module)
@@ -34,22 +34,44 @@ class Stage22Act1States : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<Hints2>()
             .DeactivateOnEnter<Hints>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies((uint)OID.Boss);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.MaskedCarnivale, GroupID = 632, NameID = 8122, SortOrder = 1)]
 public class Stage22Act1 : BossModule
 {
-    public Stage22Act1(WorldState ws, Actor primary) : base(ws, primary, new(100, 100), new ArenaBoundsCircle(25))
+    public Stage22Act1(WorldState ws, Actor primary) : base(ws, primary, Layouts.ArenaCenter, Layouts.CircleBig)
     {
         ActivateComponent<Hints>();
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Boss));
+        Arena.Actors(Enemies((uint)OID.Boss));
     }
 
-    protected override bool CheckPull() => (PrimaryActor.IsTargetable && PrimaryActor.InCombat || Enemies(OID.Boss).Any(e => e.IsDead)) && !Enemies(OID.BossAct2).Any(e => e.InCombat);
+    protected override bool CheckPull()
+    {
+        var enemies = Enemies((uint)OID.BossAct2);
+        var count = enemies.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.IsTargetable)
+                return false;
+        }
+        return base.CheckPull();
+    }
 }

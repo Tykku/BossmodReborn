@@ -20,11 +20,11 @@ public enum AID : uint
     GrandSword = 28473 // Boss->self, 5.0s cast, range 25 90-degree cone aoe
 }
 
-class CeruleumVent(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.CeruleumVent));
-class PrototypeLaserAlpha1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.IronKissAlpha1), 6);
-class PrototypeLaserAlpha2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.IronKissAlpha2), 6);
-class PrototypeLaserBeta(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.IronKissBeta), 5);
-class GrandSword(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GrandSword), new AOEShapeCone(25, 45.Degrees()));
+class CeruleumVent(BossModule module) : Components.RaidwideCast(module, (uint)AID.CeruleumVent);
+class PrototypeLaserAlpha1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.IronKissAlpha1, 6);
+class PrototypeLaserAlpha2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.IronKissAlpha2, 6);
+class PrototypeLaserBeta(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.IronKissBeta, 5);
+class GrandSword(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GrandSword, new AOEShapeCone(25, 45.Degrees()));
 
 class D141ColossusStates : StateMachineBuilder
 {
@@ -39,9 +39,9 @@ class D141ColossusStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 16, NameID = 2134)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 16, NameID = 2134)]
 public class D141Colossus(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     private static readonly ArenaBoundsComplex arena = new([new Polygon(new(192, 0), 14.5f * CosPI.Pi48th, 48)],
-    [new Rectangle(new(207, 0), 20, 1.25f, 90.Degrees()), new Rectangle(new(177, 0), 20, 1.8f, 90.Degrees())]);
+    [new Rectangle(new(207, 0), 1.25f, 20f), new Rectangle(new(177, 0), 1.8f, 20)]);
 }

@@ -3,49 +3,70 @@ namespace BossMod.Global.MaskedCarnivale.Stage18.Act2;
 public enum OID : uint
 {
     Boss = 0x2725, //R=3.0
-    Keg = 0x2726, //R=0.65
+    Keg = 0x2726 //R=0.65
 }
 
 public enum AID : uint
 {
-    WildCharge = 15055, // 2725->players, 3.5s cast, width 8 rect charge
-    Explosion = 15054, // 2726->self, 2.0s cast, range 10 circle
-    Fireball = 15051, // 2725->location, 4.0s cast, range 6 circle
-    RipperClaw = 15050, // 2725->self, 4.0s cast, range 5+R 90-degree cone
-    TailSmash = 15052, // 2725->self, 4.0s cast, range 12+R 90-degree cone
-    BoneShaker = 15053, // 2725->self, no cast, range 50 circle, harmless raidwide
+    WildCharge = 15055, // Boss->players, 3.5s cast, width 8 rect charge
+    Explosion = 15054, // Keg->self, 2.0s cast, range 10 circle
+    Fireball = 15051, // Boss->location, 4.0s cast, range 6 circle
+    RipperClaw = 15050, // Boss->self, 4.0s cast, range 5+R 90-degree cone
+    TailSmash = 15052, // Boss->self, 4.0s cast, range 12+R 90-degree cone
+    BoneShaker = 15053 // Boss->self, no cast, range 50 circle, harmless raidwide
 }
 
-class Explosion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Explosion), new AOEShapeCircle(10));
-class Fireball(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.Fireball), 6);
-class RipperClaw(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RipperClaw), new AOEShapeCone(8, 45.Degrees()));
-class TailSmash(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TailSmash), new AOEShapeCone(15, 45.Degrees()));
+class Explosion(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Explosion, 10f);
+class Fireball(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Fireball, 6f);
+class RipperClaw(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RipperClaw, new AOEShapeCone(8f, 45f.Degrees()));
+class TailSmash(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TailSmash, new AOEShapeCone(15f, 45f.Degrees()));
 
-class WildCharge(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.WildCharge), 4)
+class WildCharge(BossModule module) : Components.BaitAwayChargeCast(module, (uint)AID.WildCharge, 4f)
 {
+    public static List<Actor> GetKegs(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.Keg);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
+
+        var kegs = new List<Actor>(count);
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (!z.IsDead)
+                kegs.Add(z);
+        }
+        return kegs;
+    }
+
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (CurrentBaits.Count > 0 && !Module.Enemies(OID.Keg).All(e => e.IsDead))
+        if (CurrentBaits.Count != 0 && GetKegs(Module).Count != 0)
             hints.Add("Aim charge at a keg!");
     }
 }
-
-// knockback actually delayed by 0.5s to 1s, maybe it depends on the rectangle length of the charge
-class WildChargeKB(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.WildCharge), 10, kind: Kind.DirForward, stopAtWall: true);
 
 class KegExplosion(BossModule module) : Components.GenericStackSpread(module)
 {
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        foreach (var p in Module.Enemies(OID.Keg).Where(x => !x.IsDead))
-            Arena.AddCircle(p.Position, 10);
+        var kegs = WildCharge.GetKegs(Module);
+        var count = kegs.Count;
+        for (var i = 0; i < count; ++i)
+            Arena.AddCircle(kegs[i].Position, 10f);
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        foreach (var p in Module.Enemies(OID.Keg).Where(x => !x.IsDead))
-            if (actor.Position.InCircle(p.Position, 10))
+        var kegs = WildCharge.GetKegs(Module);
+        var count = kegs.Count;
+        for (var i = 0; i < count; ++i)
+            if (actor.Position.InCircle(kegs[i].Position, 10f))
+            {
                 hints.Add("In keg explosion radius!");
+                return;
+            }
     }
 }
 
@@ -68,36 +89,59 @@ class Stage18Act2States : StateMachineBuilder
             .ActivateOnEnter<RipperClaw>()
             .ActivateOnEnter<TailSmash>()
             .ActivateOnEnter<WildCharge>()
-            .ActivateOnEnter<WildChargeKB>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead) && module.Enemies(OID.Keg).All(e => e.IsDead);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(Stage18Act2.Kegs);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.MaskedCarnivale, GroupID = 628, NameID = 8116, SortOrder = 2)]
 public class Stage18Act2 : BossModule
 {
-    public Stage18Act2(WorldState ws, Actor primary) : base(ws, primary, new(100, 100), new ArenaBoundsCircle(25))
+    public Stage18Act2(WorldState ws, Actor primary) : base(ws, primary, Layouts.ArenaCenter, Layouts.CircleBig)
     {
         ActivateComponent<Hints>();
         ActivateComponent<KegExplosion>();
     }
+    public static readonly uint[] Kegs = [(uint)OID.Boss, (uint)OID.Keg];
 
-    protected override bool CheckPull() => PrimaryActor.IsTargetable && PrimaryActor.InCombat || Enemies(OID.Keg).Any(e => e.InCombat);
+    protected override bool CheckPull()
+    {
+        var enemies = Enemies(Kegs);
+        var count = enemies.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.InCombat)
+                return true;
+        }
+        return false;
+    }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Boss));
-        Arena.Actors(Enemies(OID.Keg), Colors.Object);
+        Arena.Actors(Enemies((uint)OID.Boss));
+        Arena.Actors(Enemies((uint)OID.Keg), Colors.Object);
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
-            e.Priority = (OID)e.Actor.OID switch
+            var e = hints.PotentialTargets[i];
+            e.Priority = e.Actor.OID switch
             {
-                OID.Boss => 1,
-                OID.Keg => 0,
+                (uint)OID.Boss => 1,
                 _ => 0
             };
         }

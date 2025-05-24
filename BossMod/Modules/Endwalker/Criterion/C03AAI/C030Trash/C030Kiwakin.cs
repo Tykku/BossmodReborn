@@ -1,18 +1,11 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C030Trash1;
 
-class LeadHook(BossModule module) : Components.CastCounter(module, default)
-{
-    private static readonly HashSet<AID> castEnd = [AID.NLeadHook, AID.NLeadHookAOE1, AID.NLeadHookAOE2, AID.SLeadHook, AID.SLeadHookAOE1, AID.SLeadHookAOE2];
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
-    {
-        if (castEnd.Contains((AID)spell.Action.ID))
-            ++NumCasts;
-    }
-}
+class LeadHook(BossModule module) : Components.CastCounterMulti(module, [(uint)AID.NLeadHook, (uint)AID.NLeadHookAOE1,
+(uint)AID.NLeadHookAOE2, (uint)AID.SLeadHook, (uint)AID.SLeadHookAOE1, (uint)AID.SLeadHookAOE2]);
 
-abstract class TailScrew(BossModule module, AID aid) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(aid), 4);
-class NTailScrew(BossModule module) : TailScrew(module, AID.NTailScrew);
-class STailScrew(BossModule module) : TailScrew(module, AID.STailScrew);
+abstract class TailScrew(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, 4f);
+class NTailScrew(BossModule module) : TailScrew(module, (uint)AID.NTailScrew);
+class STailScrew(BossModule module) : TailScrew(module, (uint)AID.STailScrew);
 
 class C030KiwakinStates : StateMachineBuilder
 {
@@ -41,7 +34,7 @@ class C030KiwakinStates : StateMachineBuilder
 
     private void LeadHook(uint id, float delay)
     {
-        Cast(id, _savage ? AID.SLeadHook : AID.NLeadHook, delay, 4)
+        Cast(id, _savage ? (uint)AID.SLeadHook : (uint)AID.NLeadHook, delay, 4)
             .ActivateOnEnter<LeadHook>();
         ComponentCondition<LeadHook>(id + 2, 0.1f, comp => comp.NumCasts > 0, "Mini tankbuster hit 1")
             .SetHint(StateMachine.StateHint.Tankbuster);
@@ -54,20 +47,20 @@ class C030KiwakinStates : StateMachineBuilder
 
     private void SharpStrike(uint id, float delay)
     {
-        Cast(id, _savage ? AID.SSharpStrike : AID.NSharpStrike, delay, 5, "Tankbuster")
+        Cast(id, _savage ? (uint)AID.SSharpStrike : (uint)AID.NSharpStrike, delay, 5f, "Tankbuster")
             .SetHint(StateMachine.StateHint.Tankbuster);
     }
 
     private void TailScrew(uint id, float delay)
     {
-        Cast(id, _savage ? AID.STailScrew : AID.NTailScrew, delay, 5, "AOE");
+        Cast(id, _savage ? (uint)AID.STailScrew : (uint)AID.NTailScrew, delay, 5f, "AOE");
     }
 }
 class C030NKiwakinStates(BossModule module) : C030KiwakinStates(module, false);
 class C030SKiwakinStates(BossModule module) : C030KiwakinStates(module, true);
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", PrimaryActorOID = (uint)OID.NKiwakin, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 979, NameID = 12632, SortOrder = 1)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.NKiwakin, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 979, NameID = 12632, SortOrder = 1)]
 public class C030NKiwakin(WorldState ws, Actor primary) : C030Trash1(ws, primary);
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", PrimaryActorOID = (uint)OID.SKiwakin, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 980, NameID = 12632, SortOrder = 1)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.SKiwakin, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 980, NameID = 12632, SortOrder = 1)]
 public class C030SKiwakin(WorldState ws, Actor primary) : C030Trash1(ws, primary);

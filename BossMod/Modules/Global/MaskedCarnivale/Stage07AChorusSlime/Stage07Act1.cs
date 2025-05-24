@@ -8,8 +8,8 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    Detonation = 14696, // 2703->self, no cast, range 6+R circle
-    Blizzard = 14709, // 2702->player, 1.0s cast, single-target
+    Detonation = 14696, // Boss->self, no cast, range 6+R circle
+    Blizzard = 14709, // Sprite->player, 1.0s cast, single-target
 }
 
 class SlimeExplosion(BossModule module) : Components.GenericStackSpread(module)
@@ -51,24 +51,47 @@ class Stage07Act1States : StateMachineBuilder
         TrivialPhase()
             .DeactivateOnEnter<Hints>()
             .ActivateOnEnter<Hints2>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead) && module.Enemies(OID.Sprite).All(e => e.IsDead);
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(Stage07Act1.Trash);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.MaskedCarnivale, GroupID = 617, NameID = 8094, SortOrder = 1)]
 public class Stage07Act1 : BossModule
 {
-    public Stage07Act1(WorldState ws, Actor primary) : base(ws, primary, new(100, 100), new ArenaBoundsCircle(25))
+    public Stage07Act1(WorldState ws, Actor primary) : base(ws, primary, Layouts.ArenaCenter, Layouts.CircleBig)
     {
         ActivateComponent<Hints>();
         ActivateComponent<SlimeExplosion>();
     }
+    public static readonly uint[] Trash = [(uint)OID.Boss, (uint)OID.Sprite];
 
-    protected override bool CheckPull() => PrimaryActor.IsTargetable && PrimaryActor.InCombat || Enemies(OID.Sprite).Any(e => e.InCombat);
+    protected override bool CheckPull()
+    {
+        var enemies = Enemies(Trash);
+        var count = enemies.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var enemy = enemies[i];
+            if (enemy.InCombat)
+                return true;
+        }
+        return false;
+    }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Sprite));
+        Arena.Actors(Enemies((uint)OID.Sprite));
     }
 }

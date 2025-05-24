@@ -14,24 +14,25 @@ public enum AID : uint
     Spite = 18037, // 288F->self, no cast, range 8 circle
 }
 
-class Torpedo(BossModule module) : Components.SingleTargetDelayableCast(module, ActionID.MakeSpell(AID.Torpedo));
-class BogBody(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BogBody), 5);
+class Torpedo(BossModule module) : Components.SingleTargetDelayableCast(module, (uint)AID.Torpedo);
+class BogBody(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.BogBody, 5f);
 
 class Spite(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
+    private static readonly AOEShapeCircle circle = new(8f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Gallop)
-            _aoe = new(new AOEShapeCircle(8), spell.LocXZ, default, Module.CastFinishAt(spell));
+        if (spell.Action.ID == (uint)AID.Gallop)
+            _aoe = new(circle, spell.LocXZ, default, Module.CastFinishAt(spell));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.Spite)
+        if (spell.Action.ID == (uint)AID.Spite)
             _aoe = null;
     }
 }
@@ -48,4 +49,4 @@ class NuckelaveeStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.Hunt, GroupID = (uint)BossModuleInfo.HuntRank.A, NameID = 8906)]
-public class Nuckelavee(WorldState ws, Actor primary) : SimpleBossModule(ws, primary) { }
+public class Nuckelavee(WorldState ws, Actor primary) : SimpleBossModule(ws, primary);

@@ -36,6 +36,8 @@ public record struct BitMask(ulong Raw)
     public static BitMask operator &(BitMask a, BitMask b) => new(a.Raw & b.Raw);
     public static BitMask operator |(BitMask a, BitMask b) => new(a.Raw | b.Raw);
     public static BitMask operator ^(BitMask a, BitMask b) => new(a.Raw ^ b.Raw);
+    public static BitMask operator <<(BitMask a, int bits) => new(a.Raw << bits);
+    public static BitMask operator >>(BitMask a, int bits) => new(a.Raw >> bits);
 
     public static BitMask Build<A>(params A[] bits) where A : Enum
     {
@@ -53,15 +55,24 @@ public record struct BitMask(ulong Raw)
         return res;
     }
 
-    public readonly IEnumerable<int> SetBits()
+    public readonly int[] SetBits()
     {
         var v = Raw;
+        var count = BitOperations.PopCount(v);
+        if (count == 0)
+            return [];
+
+        var indices = new int[count];
+        var index = 0;
+
         while (v != 0)
         {
-            var index = BitOperations.TrailingZeroCount(v);
-            yield return index;
-            v &= ~(1ul << index);
+            var bitIndex = BitOperations.TrailingZeroCount(v);
+            indices[index++] = bitIndex;
+            v &= ~(1ul << bitIndex);
         }
+
+        return indices;
     }
 
     private static ulong MaskForBit(int index) => (uint)index < 64 ? (1ul << index) : 0;

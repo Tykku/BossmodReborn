@@ -1,18 +1,19 @@
 ﻿namespace BossMod.Endwalker.Alliance.A14Naldthal;
 
-class GoldenTenet(BossModule module) : Components.CastSharedTankbuster(module, ActionID.MakeSpell(AID.GoldenTenetAOE), 6);
-class StygianTenet(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.StygianTenetAOE), 6);
+class GoldenTenet(BossModule module) : Components.CastSharedTankbuster(module, (uint)AID.GoldenTenetAOE, 6f);
+class StygianTenet(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.StygianTenetAOE, 6f);
 
-class HellOfFire(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(60, 90.Degrees()));
-class HellOfFireFront(BossModule module) : HellOfFire(module, AID.HellOfFireFrontAOE);
-class HellOfFireBack(BossModule module) : HellOfFire(module, AID.HellOfFireBackAOE);
+class HellOfFire(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(60f, 90f.Degrees()));
+class HellOfFireFront(BossModule module) : HellOfFire(module, (uint)AID.HellOfFireFrontAOE);
+class HellOfFireBack(BossModule module) : HellOfFire(module, (uint)AID.HellOfFireBackAOE);
 
-class WaywardSoul(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WaywardSoulAOE), new AOEShapeCircle(18), 3);
+class WaywardSoul(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WaywardSoulAOE, 18f, 3);
 class SoulVessel(BossModule module) : Components.Adds(module, (uint)OID.SoulVesselReal);
-class Twingaze(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Twingaze), new AOEShapeCone(60, 15.Degrees()));
-class MagmaticSpell(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.MagmaticSpellAOE), 6, 8);
-class TippedScales(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.TippedScalesAOE));
+class Twingaze(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Twingaze, new AOEShapeCone(60f, 15f.Degrees()));
+class MagmaticSpell(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.MagmaticSpellAOE, 6f, 8);
 
-// TODO: balancing counter
-[ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 866, NameID = 11286, SortOrder = 6)]
-public class A14Naldthal(WorldState ws, Actor primary) : BossModule(ws, primary, new(750, -750), new ArenaBoundsCircle(30));
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 866, NameID = 11286, SortOrder = 6, PlanLevel = 90)]
+public class A14Naldthal(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
+{
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(750f, -750f), 29f, 180)]);
+}

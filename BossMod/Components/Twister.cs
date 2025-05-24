@@ -2,16 +2,33 @@
 
 // generic 'twister' component: a set of aoes that appear under players, but can't be accurately predicted until it's too late
 // normally you'd predict them at the end (or slightly before the end) of some cast, or on component creation
-public class GenericTwister(BossModule module, float radius, uint oid, ActionID aid = default) : GenericAOEs(module, aid, "GTFO from twister!")
+public class GenericTwister(BossModule module, float radius, uint oid, uint aid = default) : GenericAOEs(module, aid, "GTFO from twister!")
 {
     private readonly AOEShapeCircle _shape = new(radius);
     private readonly uint _twisterOID = oid;
-    protected IReadOnlyList<Actor> Twisters = module.Enemies(oid);
+    protected readonly List<Actor> Twisters = module.Enemies(oid);
     protected DateTime PredictedActivation;
-    protected List<WPos> PredictedPositions = [];
+    protected readonly List<WPos> PredictedPositions = [];
 
-    public IEnumerable<Actor> ActiveTwisters => Twisters.Where(v => v.EventState != 7);
-    public bool Active => ActiveTwisters.Any();
+    public ReadOnlySpan<Actor> ActiveTwisters
+    {
+        get
+        {
+            var count = Twisters.Count;
+            var result = new Actor[count];
+            var index = 0;
+
+            for (var i = 0; i < count; ++i)
+            {
+                var twister = Twisters[i];
+                if (twister.EventState != 7)
+                    result[index++] = twister;
+            }
+            return result.AsSpan(0, index);
+        }
+    }
+
+    public bool Active => ActiveTwisters.Length != 0;
 
     public void AddPredicted(float activationDelay)
     {
@@ -20,12 +37,26 @@ public class GenericTwister(BossModule module, float radius, uint oid, ActionID 
         PredictedActivation = WorldState.FutureTime(activationDelay);
     }
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        foreach (var p in PredictedPositions)
-            yield return new(_shape, p, default, PredictedActivation);
-        foreach (var p in ActiveTwisters)
-            yield return new(_shape, p.Position);
+        var countPredictedPositions = PredictedPositions.Count;
+        var active = ActiveTwisters;
+        var lenActiveTwisters = active.Length;
+        var predictedSpan = CollectionsMarshal.AsSpan(PredictedPositions);
+
+        var count = countPredictedPositions + lenActiveTwisters;
+        if (count == 0)
+            return [];
+
+        var aoes = new AOEInstance[count];
+        var index = 0;
+
+        for (var i = 0; i < countPredictedPositions; ++i)
+            aoes[index++] = new AOEInstance(_shape, predictedSpan[i], default, PredictedActivation);
+        for (var i = 0; i < lenActiveTwisters; ++i)
+            aoes[index++] = new AOEInstance(_shape, active[i].Position);
+
+        return aoes;
     }
 
     public override void OnActorCreated(Actor actor)
@@ -45,7 +76,7 @@ public class ImmediateTwister : GenericTwister
 }
 
 // twister that activates on cast end, or slightly before
-public class CastTwister(BossModule module, float radius, uint oid, ActionID aid, float activationDelay, float predictBeforeCastEnd = 0) : GenericTwister(module, radius, oid, aid)
+public class CastTwister(BossModule module, float radius, uint oid, uint aid, float activationDelay, float predictBeforeCastEnd = 0) : GenericTwister(module, radius, oid, aid)
 {
     private readonly float _activationDelay = activationDelay; // from cast-end to twister spawn
     private readonly float _predictBeforeCastEnd = predictBeforeCastEnd;
@@ -62,7 +93,7 @@ public class CastTwister(BossModule module, float radius, uint oid, ActionID aid
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction && _predictStart == DateTime.MaxValue)
+        if (spell.Action.ID == WatchedAction && _predictStart == DateTime.MaxValue)
         {
             _predictStart = Module.CastFinishAt(spell, -_predictBeforeCastEnd);
         }
@@ -70,7 +101,7 @@ public class CastTwister(BossModule module, float radius, uint oid, ActionID aid
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction && _predictStart < DateTime.MaxValue)
+        if (spell.Action.ID == WatchedAction && _predictStart < DateTime.MaxValue)
         {
             // cast finished earlier than expected, just activate things now
             AddPredicted(_activationDelay);

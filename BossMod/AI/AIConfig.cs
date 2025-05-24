@@ -7,10 +7,10 @@ sealed class AIConfig : ConfigNode
     public bool ShowDTR = false;
 
     [PropertyDisplay("Show AI interface")]
-    public bool DrawUI = true;
+    public bool DrawUI = false;
 
     [PropertyDisplay("Focus target master")]
-    public bool FocusTargetLeader = true;
+    public bool FocusTargetMaster = false;
 
     [PropertyDisplay("Broadcast keypresses to other windows")]
     public bool BroadcastToSlaves = false;
@@ -20,6 +20,9 @@ sealed class AIConfig : ConfigNode
 
     [PropertyDisplay("Forbid actions")]
     public bool ForbidActions = false;
+
+    [PropertyDisplay("Manual targeting")]
+    public bool ManualTarget = false;
 
     [PropertyDisplay("Forbid movement")]
     public bool ForbidMovement = false;
@@ -49,8 +52,17 @@ sealed class AIConfig : ConfigNode
     [PropertyDisplay("Enable auto AFK", tooltip: "Enables auto AFK if out of combat. While AFK AI will not use autorotation or target anything")]
     public bool AutoAFK = false;
 
-    [PropertyDisplay("Enable out of combat AFK mode", tooltip: "Time in seconds out of combat until AFK mode enables. Any movement will reset timer or disable AFK mode if already active.")]
+    [PropertyDisplay("Auto AFK timer", tooltip: "Time in seconds out of combat until AFK mode enables. Any movement will reset timer or disable AFK mode if already active.")]
     public float AFKModeTimer = 10;
+
+    [PropertyDisplay("Disable loading obstacle maps", tooltip: "Might be required to be enabled for some some content such as deep dungeons.")]
+    public bool DisableObstacleMaps = false;
+
+    [PropertyDisplay("Movement decision delay", tooltip: "Only change this at your own risk and keep this value low! Too high and it won't move in time for some mechanics. Make sure to readjust the value for different content.")]
+    public double MoveDelay = 0;
+
+    [PropertyDisplay("Idle while mounted")]
+    public bool ForbidAIMovementMounted = false;
 
     public string? AIAutorotPresetName;
 }

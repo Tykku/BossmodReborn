@@ -9,6 +9,7 @@ public enum OID : uint
     TuraliTomato = 0x4303, // R0.84, icon 4, needs to be killed in order from 1 to 5 for maximum rewards
     TuligoraQueen = 0x4304, // R0.84, icon 5, needs to be killed in order from 1 to 5 for maximum rewards
     UolonOfFortune = 0x42FF, // R3.5
+    AlpacaOfFortune = 0x42FE, // R1.8
     Helper = 0x233C
 }
 
@@ -36,25 +37,33 @@ public enum AID : uint
 
     BlazingBlastVisual = 38259, // Boss->self, 3s cast, single-target visual
     BlazingBlast = 38260, // Helper->location, 3s cast, range 6 circle
+
+    Inhale = 38280, // UolonOfFortune->self, 0.5s cast, range 27 120-degree cone
+    Spin = 38279, // UolonOfFortune->self, 3.0s cast, range 11 circle
+    RottenSpores = 38277, // UolonOfFortune->location, 3.0s cast, range 6 circle
+    TearyTwirl = 32301, // TuraliOnion->self, 3.5s cast, range 7 circle
+    HeirloomScream = 32304, // TuraliTomato->self, 3.5s cast, range 7 circle
+    PungentPirouette = 32303, // TuraliGarlic->self, 3.5s cast, range 7 circle
+    PluckAndPrune = 32302, // TuraliEggplant->self, 3.5s cast, range 7 circle
+    Pollen = 32305, // TuligoraQueen->self, 3.5s cast, range 7 circle
+    Telega = 9630 // BonusAdds->self, no cast, single-target, bonus adds disappear
 }
 
-class Blade(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.Blade));
-class Pyreburst(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Pyreburst));
+class Blade(BossModule module) : Components.SingleTargetCast(module, (uint)AID.Blade);
+class Pyreburst(BossModule module) : Components.RaidwideCast(module, (uint)AID.Pyreburst);
 
-abstract class RectWide(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 5, 40));
-class FlameBlade1(BossModule module) : RectWide(module, AID.FlameBlade1);
-class FlameBlade2(BossModule module) : RectWide(module, AID.FlameBlade2);
+class FlameBlade1and2(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.FlameBlade1, (uint)AID.FlameBlade2], new AOEShapeRect(40f, 5f));
+class CrossfireBlade3FlameBlade3(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.CrossfireBlade3, (uint)AID.FlameBlade3], new AOEShapeRect(40f, 2.5f));
+class CrossfireBlade1and2(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.CrossfireBlade1, (uint)AID.CrossfireBlade2], new AOEShapeCross(20f, 5f));
 
-abstract class RectNarrow(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeRect(40, 2.5f, 40));
-class CrossfireBlade3(BossModule module) : RectNarrow(module, AID.CrossfireBlade3);
-class FlameBlade3(BossModule module) : RectNarrow(module, AID.FlameBlade3);
+class BlazingBreath(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlazingBreath, new AOEShapeRect(44f, 5f));
+class BlazingBlast(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BlazingBlast, 6f);
 
-abstract class Crosses(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCross(20, 5));
-class CrossfireBlade1(BossModule module) : Crosses(module, AID.CrossfireBlade1);
-class CrossfireBlade2(BossModule module) : Crosses(module, AID.CrossfireBlade2);
+class Spin(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Spin, 11f);
+class RottenSpores(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RottenSpores, 6f);
 
-class BlazingBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BlazingBreath), new AOEShapeRect(44, 5));
-class BlazingBlast(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.BlazingBlast), 6);
+class MandragoraAOEs(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PluckAndPrune, (uint)AID.TearyTwirl,
+(uint)AID.HeirloomScream, (uint)AID.PungentPirouette, (uint)AID.Pollen], 7f);
 
 class BullApollyonStates : StateMachineBuilder
 {
@@ -63,26 +72,57 @@ class BullApollyonStates : StateMachineBuilder
         TrivialPhase()
             .ActivateOnEnter<Blade>()
             .ActivateOnEnter<Pyreburst>()
-            .ActivateOnEnter<FlameBlade1>()
-            .ActivateOnEnter<FlameBlade2>()
-            .ActivateOnEnter<FlameBlade3>()
+            .ActivateOnEnter<FlameBlade1and2>()
+            .ActivateOnEnter<CrossfireBlade3FlameBlade3>()
+            .ActivateOnEnter<CrossfireBlade1and2>()
             .ActivateOnEnter<BlazingBreath>()
-            .ActivateOnEnter<CrossfireBlade1>()
-            .ActivateOnEnter<CrossfireBlade2>()
-            .ActivateOnEnter<CrossfireBlade3>()
             .ActivateOnEnter<BlazingBlast>()
-            .Raw.Update = () => module.Enemies(OID.TuraliTomato).Concat([module.PrimaryActor]).Concat(module.Enemies(OID.TuraliEggplant)).Concat(module.Enemies(OID.TuligoraQueen))
-            .Concat(module.Enemies(OID.TuraliOnion)).Concat(module.Enemies(OID.TuraliGarlic)).Concat(module.Enemies(OID.UolonOfFortune)).All(e => e.IsDeadOrDestroyed);
+            .ActivateOnEnter<Spin>()
+            .ActivateOnEnter<RottenSpores>()
+            .ActivateOnEnter<MandragoraAOEs>()
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(BullApollyon.All);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "Kismet", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 993, NameID = 13247)]
-public class BullApollyon(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, -372), new ArenaBoundsCircle(20))
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Kismet, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 993, NameID = 13247)]
+public class BullApollyon(WorldState ws, Actor primary) : SharedBoundsBoss(ws, primary)
 {
+    private static readonly uint[] bonusAdds = [(uint)OID.TuraliEggplant, (uint)OID.TuraliTomato, (uint)OID.TuligoraQueen, (uint)OID.TuraliGarlic,
+    (uint)OID.TuraliOnion, (uint)OID.UolonOfFortune, (uint)OID.AlpacaOfFortune];
+    public static readonly uint[] All = [(uint)OID.Boss, .. bonusAdds];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.TuraliEggplant).Concat(Enemies(OID.TuraliTomato)).Concat(Enemies(OID.TuligoraQueen)).Concat(Enemies(OID.TuraliGarlic))
-        .Concat(Enemies(OID.TuraliOnion)).Concat(Enemies(OID.UolonOfFortune)), Colors.Vulnerable);
+        Arena.Actors(Enemies(bonusAdds), Colors.Vulnerable);
+    }
+
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var e = hints.PotentialTargets[i];
+            e.Priority = e.Actor.OID switch
+            {
+                (uint)OID.TuraliOnion => 6,
+                (uint)OID.TuraliEggplant => 5,
+                (uint)OID.TuraliGarlic => 4,
+                (uint)OID.TuraliTomato => 3,
+                (uint)OID.TuligoraQueen or (uint)OID.AlpacaOfFortune => 2,
+                (uint)OID.UolonOfFortune => 1,
+                _ => 0
+            };
+        }
     }
 }

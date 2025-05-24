@@ -51,7 +51,8 @@ sealed class DebugObstacles(ObstacleMapManager obstacles, IDalamudPluginInterfac
             ImGui.SameLine();
             if (ImGui.Button("Reload"))
             {
-                CheckpointNoClone(new(owner.Obstacles.RootPath + e.Filename));
+                using var stream = File.OpenRead(owner.Obstacles.RootPath + e.Filename);
+                CheckpointNoClone(new(stream));
             }
 
             ImGui.SetNextItemWidth(100);
@@ -96,7 +97,7 @@ sealed class DebugObstacles(ObstacleMapManager obstacles, IDalamudPluginInterfac
                 var py = (int)playerOffset.Z;
                 var playerDeepInObstacle = px >= 0 && py >= 0 && px < Bitmap.Width && py < Bitmap.Height && Bitmap[px, py]
                     && (px == 0 || Bitmap[px - 1, py]) && (py == 0 || Bitmap[px, py - 1]) && (px == (Bitmap.Width - 1) || Bitmap[px + 1, py]) && (py == (Bitmap.Height - 1) || Bitmap[px, py + 1]);
-                using var color = ImRaii.PushColor(ImGuiCol.Text, 0xff0000ff, playerDeepInObstacle);
+                using var color = ImRaii.PushColor(ImGuiCol.Text, Colors.TextColor3, playerDeepInObstacle);
                 ImGui.TextUnformatted($"Player cell: {px}x{py}");
                 if (playerDeepInObstacle)
                 {
@@ -110,10 +111,10 @@ sealed class DebugObstacles(ObstacleMapManager obstacles, IDalamudPluginInterfac
                 var y = player?.PosRot.Y ?? 0;
                 var tl = e.Origin + new WDir(HoveredPixel.x, HoveredPixel.y) * Bitmap.PixelSize;
                 var br = tl + new WDir(Bitmap.PixelSize, Bitmap.PixelSize);
-                Camera.Instance?.DrawWorldLine(new(tl.X, y, tl.Z), new(tl.X, y, br.Z), 0xff00ffff);
-                Camera.Instance?.DrawWorldLine(new(tl.X, y, br.Z), new(br.X, y, br.Z), 0xff00ffff);
-                Camera.Instance?.DrawWorldLine(new(br.X, y, br.Z), new(br.X, y, tl.Z), 0xff00ffff);
-                Camera.Instance?.DrawWorldLine(new(br.X, y, tl.Z), new(tl.X, y, tl.Z), 0xff00ffff);
+                Camera.Instance?.DrawWorldLine(new(tl.X, y, tl.Z), new(tl.X, y, br.Z), Colors.TextColor2);
+                Camera.Instance?.DrawWorldLine(new(tl.X, y, br.Z), new(br.X, y, br.Z), Colors.TextColor2);
+                Camera.Instance?.DrawWorldLine(new(br.X, y, br.Z), new(br.X, y, tl.Z), Colors.TextColor2);
+                Camera.Instance?.DrawWorldLine(new(br.X, y, tl.Z), new(tl.X, y, tl.Z), Colors.TextColor2);
             }
         }
 
@@ -123,15 +124,21 @@ sealed class DebugObstacles(ObstacleMapManager obstacles, IDalamudPluginInterfac
             if (player != null)
             {
                 var playerOffset = ((player.Position - e.Origin) / Bitmap.PixelSize).Floor();
-                yield return ((int)playerOffset.X, (int)playerOffset.Z, new(0xff00ff00));
+                yield return ((int)playerOffset.X, (int)playerOffset.Z, new(Colors.Safe));
             }
         }
     }
 
     internal readonly ObstacleMapManager Obstacles = obstacles;
     private readonly UITree _tree = new();
-    private readonly Func<Vector3, string, float, (Vector3, Vector3)> _createMap = (startingPos, filename, pixelSize) => dalamud.GetIpcSubscriber<Vector3, string, float, (Vector3, Vector3)>("vnavmesh.Nav.BuildBitmap").InvokeFunc(startingPos, filename, pixelSize);
+    private readonly Func<Vector3, string, float, Vector3, Vector3, (Vector3, Vector3)> _createMap = (startingPos, filename, pixelSize, minBounds, maxBounds) => dalamud.GetIpcSubscriber<Vector3, string, float, Vector3, Vector3, (Vector3, Vector3)>("vnavmesh.Nav.BuildBitmapBounded").InvokeFunc(startingPos, filename, pixelSize, minBounds, maxBounds);
     private bool _dbModified;
+
+    private static readonly Vector3 DefaultMinBounds = new(-1024);
+    private static readonly Vector3 DefaultMaxBounds = new(1024);
+
+    private Vector3 _minBounds = DefaultMinBounds;
+    private Vector3 _maxBounds = DefaultMaxBounds;
 
     public void Draw()
     {
@@ -151,6 +158,9 @@ sealed class DebugObstacles(ObstacleMapManager obstacles, IDalamudPluginInterfac
                 ReloadDatabase();
         }
 
+        ImGui.DragFloat3("Map min bounds", ref _minBounds, 1, -1024, 1024);
+        ImGui.DragFloat3("Map max bounds", ref _maxBounds, 1, -1024, 1024);
+
         foreach (var n in _tree.Node($"Current zone: {Obstacles.World.CurrentZone}.{Obstacles.World.CurrentCFCID}###curr", curZoneEntries == null || curZoneEntries.Count == 0))
             DrawEntries(curZoneEntries ?? []);
         foreach (var n in _tree.Nodes(Obstacles.Database.Entries, kv => new($"Zone {kv.Key >> 16}.{kv.Key & 0xFFFF}", kv.Value.Count == 0)))
@@ -162,6 +172,7 @@ sealed class DebugObstacles(ObstacleMapManager obstacles, IDalamudPluginInterfac
     private void DrawEntries(List<ObstacleMapDatabase.Entry> entries)
     {
         Action? modifications = null;
+        using var disableScope = ImRaii.Disabled(!Obstacles.CanEditDatabase());
         for (int i = 0; i < entries.Count; ++i)
         {
             using var id = ImRaii.PushId(i);
@@ -174,9 +185,8 @@ sealed class DebugObstacles(ObstacleMapManager obstacles, IDalamudPluginInterfac
                 if (ImGui.Button("Move down"))
                     modifications += () => (entries[index], entries[index + 1]) = (entries[index + 1], entries[index]);
             ImGui.SameLine();
-            using (ImRaii.Disabled(!Obstacles.CanEditDatabase()))
-                if (ImGui.Button("Delete"))
-                    modifications += () => DeleteMap(entries, index);
+            if (ImGui.Button("Delete"))
+                modifications += () => DeleteMap(entries, index);
             ImGui.SameLine();
             if (ImGui.Button("Edit"))
                 OpenEditor(entries[index]);
@@ -192,8 +202,9 @@ sealed class DebugObstacles(ObstacleMapManager obstacles, IDalamudPluginInterfac
     {
         var pos = Obstacles.World.Party.Player()?.PosRot.XYZ() ?? default;
         var filename = GenerateMapName();
-        var (min, max) = _createMap(pos, Obstacles.RootPath + filename, 0.5f);
-        var entry = new ObstacleMapDatabase.Entry(min - new Vector3(0, 1, 0), max + new Vector3(0, 10, 0), new(min.XZ()), 60, 60, filename); // account for jumping etc...
+        var (min, max) = _createMap(pos, Obstacles.RootPath + filename, 0.5f, _minBounds, _maxBounds);
+        var (tweakMin, tweakMax) = _minBounds == DefaultMinBounds && _maxBounds == DefaultMaxBounds ? (min - new Vector3(0, 1, 0), max + new Vector3(0, 10, 0)) : (min, max); // account for jumping etc...
+        var entry = new ObstacleMapDatabase.Entry(tweakMin, tweakMax, new(min.XZ()), 60, 60, filename);
         OpenEditor(entry);
         Obstacles.Database.Entries.GetOrAdd(Obstacles.CurrentKey()).Add(entry);
         _dbModified = true;
@@ -230,7 +241,8 @@ sealed class DebugObstacles(ObstacleMapManager obstacles, IDalamudPluginInterfac
 
     private void OpenEditor(ObstacleMapDatabase.Entry entry)
     {
-        var editor = new Editor(this, new(Obstacles.RootPath + entry.Filename), entry);
+        using var stream = File.OpenRead(Obstacles.RootPath + entry.Filename);
+        var editor = new Editor(this, new(stream), entry);
         _ = new UISimpleWindow($"Obstacle map {entry.Filename}", editor.Draw, true, new(1000, 1000));
     }
 }

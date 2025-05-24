@@ -36,6 +36,7 @@ public sealed class ReplayBuilder : IDisposable
             _ws.Actors.Renamed.Subscribe(ActorRenamed),
             _ws.Actors.IsTargetableChanged.Subscribe(ActorTargetable),
             _ws.Actors.IsDeadChanged.Subscribe(ActorDead),
+            _ws.Actors.IsAllyChanged.Subscribe(ActorAlly),
             _ws.Actors.Moved.Subscribe(ActorMoved),
             _ws.Actors.SizeChanged.Subscribe(ActorSize),
             _ws.Actors.HPMPChanged.Subscribe(ActorHPMP),
@@ -90,7 +91,7 @@ public sealed class ReplayBuilder : IDisposable
             if (enc.ActiveState != null)
             {
                 enc.Encounter.Phases.Add(new(enc.ActivePhaseIndex, enc.ActiveState.ID, _ws.CurrentTime));
-                enc.Encounter.States.Add(new(enc.ActiveState.ID, enc.ActiveState.Name, enc.ActiveState.Comment, enc.ActiveState.Duration, _ws.CurrentTime));
+                enc.Encounter.States.Add(new(enc.ActiveState.ID, enc.ActiveState.Name, enc.ActiveState.Comment, enc.ActiveState.Duration, [.. (enc.ActiveState.NextStates ?? []).Select(s => s.ID)], _ws.CurrentTime));
             }
             enc.Encounter.Time.End = _ws.CurrentTime;
         }
@@ -138,7 +139,7 @@ public sealed class ReplayBuilder : IDisposable
                     {
                         m.Encounter.Phases.Add(new(m.ActivePhaseIndex, m.ActiveState.ID, _ws.CurrentTime));
                     }
-                    m.Encounter.States.Add(new(m.ActiveState.ID, m.ActiveState.Name, m.ActiveState.Comment, m.ActiveState.Duration, _ws.CurrentTime));
+                    m.Encounter.States.Add(new(m.ActiveState.ID, m.ActiveState.Name, m.ActiveState.Comment, m.ActiveState.Duration, [.. (m.ActiveState.NextStates ?? []).Select(s => s.ID)], _ws.CurrentTime));
                 }
                 m.ActivePhaseIndex = m.Module.StateMachine?.ActivePhaseIndex ?? -1;
                 m.ActiveState = m.Module.StateMachine?.ActiveState;
@@ -214,11 +215,13 @@ public sealed class ReplayBuilder : IDisposable
         p.EffectiveExistence.End = DateTime.MaxValue; // until it is destroyed
         p.WorldExistence.Add(new(_ws.CurrentTime));
         if (p.NameHistory.Count == 0 ? (actor.Name.Length > 0 || actor.NameID != 0) : p.NameHistory.Values[^1] != (actor.Name, actor.NameID))
-            p.NameHistory.Add(_ws.CurrentTime, (actor.Name, actor.NameID));
+            p.NameHistory[_ws.CurrentTime] = (actor.Name, actor.NameID);
         if (actor.IsTargetable)
-            p.TargetableHistory.Add(_ws.CurrentTime, true);
-        p.PosRotHistory.Add(_ws.CurrentTime, actor.PosRot);
-        p.HPMPHistory.Add(_ws.CurrentTime, actor.HPMP);
+            p.TargetableHistory[_ws.CurrentTime] = true;
+        if (actor.IsAlly)
+            p.AllyHistory[_ws.CurrentTime] = true;
+        p.PosRotHistory[_ws.CurrentTime] = actor.PosRot;
+        p.HPMPHistory[_ws.CurrentTime] = actor.HPMP;
         p.MinRadius = Math.Min(p.MinRadius, actor.HitboxRadius);
         p.MaxRadius = Math.Max(p.MaxRadius, actor.HitboxRadius);
 
@@ -238,22 +241,27 @@ public sealed class ReplayBuilder : IDisposable
 
     private void ActorRenamed(Actor actor)
     {
-        _participants[actor.InstanceID].NameHistory.Add(_ws.CurrentTime, (actor.Name, actor.NameID));
+        _participants[actor.InstanceID].NameHistory[_ws.CurrentTime] = (actor.Name, actor.NameID);
     }
 
     private void ActorTargetable(Actor actor)
     {
-        _participants[actor.InstanceID].TargetableHistory.Add(_ws.CurrentTime, actor.IsTargetable);
+        _participants[actor.InstanceID].TargetableHistory[_ws.CurrentTime] = actor.IsTargetable;
     }
 
     private void ActorDead(Actor actor)
     {
-        _participants[actor.InstanceID].DeadHistory.Add(_ws.CurrentTime, actor.IsDead);
+        _participants[actor.InstanceID].DeadHistory[_ws.CurrentTime] = actor.IsDead;
+    }
+
+    private void ActorAlly(Actor actor)
+    {
+        _participants[actor.InstanceID].AllyHistory[_ws.CurrentTime] = actor.IsAlly;
     }
 
     private void ActorMoved(Actor actor)
     {
-        _participants[actor.InstanceID].PosRotHistory.Add(_ws.CurrentTime, actor.PosRot);
+        _participants[actor.InstanceID].PosRotHistory[_ws.CurrentTime] = actor.PosRot;
     }
 
     private void ActorSize(Actor actor)
@@ -265,7 +273,7 @@ public sealed class ReplayBuilder : IDisposable
 
     private void ActorHPMP(Actor actor)
     {
-        _participants[actor.InstanceID].HPMPHistory.Add(_ws.CurrentTime, actor.HPMP);
+        _participants[actor.InstanceID].HPMPHistory[_ws.CurrentTime] = actor.HPMP;
     }
 
     private void CastStart(Actor actor)
@@ -437,18 +445,19 @@ public sealed class ReplayBuilder : IDisposable
 
     private void ModuleLoaded(BossModule module)
     {
-        _modules.Add(module.PrimaryActor.InstanceID, new(module, new(module.PrimaryActor.InstanceID, module.PrimaryActor.OID, _ws.CurrentZone)));
+        _modules.TryAdd(module.PrimaryActor.InstanceID, new(module, new(module.PrimaryActor.InstanceID, module.PrimaryActor.OID, _ws.CurrentZone)));
     }
 
     private void ModuleUnloaded(BossModule module)
     {
         if (!_modules.Remove(module.PrimaryActor.InstanceID, out var data))
-            throw new InvalidOperationException($"Module unloaded without being loaded before");
-
+            Service.Log($"Module not found for {module.PrimaryActor.InstanceID}");
+        if (data == null)
+            return;
         if (data.ActiveState != null)
         {
             data.Encounter.Phases.Add(new(data.ActivePhaseIndex, data.ActiveState.ID, _ws.CurrentTime));
-            data.Encounter.States.Add(new(data.ActiveState.ID, data.ActiveState.Name, data.ActiveState.Comment, data.ActiveState.Duration, _ws.CurrentTime));
+            data.Encounter.States.Add(new(data.ActiveState.ID, data.ActiveState.Name, data.ActiveState.Comment, data.ActiveState.Duration, [.. (data.ActiveState.NextStates ?? []).Select(s => s.ID)], _ws.CurrentTime));
         }
         data.Encounter.Time.End = _ws.CurrentTime;
     }

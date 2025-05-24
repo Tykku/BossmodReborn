@@ -11,6 +11,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 870, // Serpent/Triton->player, no cast, single-target
+
     WaterIII = 35438, // Serpent->location, 4.0s cast, range 8 circle
     PelagicCleaver1 = 35439, // Triton->self, 5.0s cast, range 40 60-degree cone
     PelagicCleaver2 = 35852, // Triton->self, 5.0s cast, range 40 60-degree cone
@@ -21,18 +22,13 @@ public enum AID : uint
     DivineBurst = 35441 // DivineSprite->self, no cast, range 40 circle, raidwide when Divine Sprite dies
 }
 
-class WaterIII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.WaterIII), 8);
+class WaterIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WaterIII, 8f);
 
-class PelagicCleaver(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 30.Degrees()));
-class PelagicCleaver1(BossModule module) : PelagicCleaver(module, AID.PelagicCleaver1);
-class PelagicCleaver2(BossModule module) : PelagicCleaver(module, AID.PelagicCleaver2);
+class PelagicCleaver(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PelagicCleaver1, (uint)AID.PelagicCleaver2], new AOEShapeCone(40f, 30f.Degrees()));
+class PelagicCleaver1Hint(BossModule module) : Components.CastInterruptHint(module, (uint)AID.PelagicCleaver1);
+class PelagicCleaver2Hint(BossModule module) : Components.CastInterruptHint(module, (uint)AID.PelagicCleaver2);
 
-class PelagicCleaver1Hint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PelagicCleaver1));
-class PelagicCleaver2Hint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.PelagicCleaver2));
-
-class Flood(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCircle(6));
-class WaterFlood(BossModule module) : Flood(module, AID.WaterFlood);
-class DivineFlood(BossModule module) : Flood(module, AID.DivineFlood);
+class WaterDivineFlood(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.WaterFlood, (uint)AID.DivineFlood], 6f);
 
 public class A30Trash1States : StateMachineBuilder
 {
@@ -41,23 +37,44 @@ public class A30Trash1States : StateMachineBuilder
         // as soon as the last serpent dies, other adds are spawned; serpents are destroyed a bit later
         TrivialPhase()
             .ActivateOnEnter<WaterIII>()
-            .Raw.Update = () => module.Enemies(OID.Serpent).All(e => e.IsDeadOrDestroyed);
-        TrivialPhase(1)
-            .ActivateOnEnter<PelagicCleaver1>()
-            .ActivateOnEnter<PelagicCleaver2>()
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies((uint)OID.Serpent);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (!enemies[i].IsDeadOrDestroyed)
+                        return false;
+                }
+                return true;
+            };
+        TrivialPhase(1u)
+            .ActivateOnEnter<PelagicCleaver>()
             .ActivateOnEnter<PelagicCleaver1Hint>()
             .ActivateOnEnter<PelagicCleaver2Hint>()
-            .ActivateOnEnter<WaterFlood>()
-            .ActivateOnEnter<DivineFlood>()
-            .Raw.Update = () => module.Enemies(OID.Serpent).Count == 0 && module.Enemies(OID.Triton).Concat(module.Enemies(OID.DivineSprite)).Concat(module.Enemies(OID.WaterSprite)).All(e => e.IsDeadOrDestroyed);
+            .ActivateOnEnter<WaterDivineFlood>()
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies(A30Trash1.Trash);
+                for (var i = 0; i < enemies.Count; ++i)
+                {
+                    var e = enemies[i];
+                    if (!e.IsDeadOrDestroyed)
+                        return false;
+                }
+                return module.Enemies((uint)OID.Serpent).Count == 0;
+            };
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus, LTS, veyn", PrimaryActorOID = (uint)OID.Serpent, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 962, NameID = 12478, SortOrder = 1)]
-public class A30Trash1(WorldState ws, Actor primary) : BossModule(ws, primary, new(-800, -800), new ArenaBoundsCircle(20))
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus, LTS", PrimaryActorOID = (uint)OID.Serpent, GroupType = BossModuleInfo.GroupType.CFC, GroupID = 962, NameID = 12478, SortOrder = 1)]
+public class A30Trash1(WorldState ws, Actor primary) : BossModule(ws, primary, new(-800f, -800f), new ArenaBoundsCircle(20f))
 {
+    public static readonly uint[] Trash = [(uint)OID.Triton, (uint)OID.DivineSprite, (uint)OID.WaterSprite];
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Serpent).Concat(Enemies(OID.Triton)).Concat(Enemies(OID.DivineSprite)).Concat(Enemies(OID.WaterSprite)));
+        Arena.Actors(Enemies((uint)OID.Serpent));
+        Arena.Actors(Enemies(Trash));
     }
 }

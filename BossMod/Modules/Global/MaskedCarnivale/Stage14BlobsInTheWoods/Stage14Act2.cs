@@ -2,35 +2,35 @@ namespace BossMod.Global.MaskedCarnivale.Stage14.Act2;
 
 public enum OID : uint
 {
-    Boss = 0x271E, //R=2.0
+    Boss = 0x271E //R=2.0
 }
 
 public enum AID : uint
 {
-    Syrup = 14757, // 271E->player, no cast, range 4 circle, applies heavy to player
-    TheLastSong = 14756, // 271E->self, 6.0s cast, range 60 circle, heavy dmg, applies silence to player
+    Syrup = 14757, // Boss->player, no cast, range 4 circle, applies heavy to player
+    TheLastSong = 14756 // Boss->self, 6.0s cast, range 60 circle, heavy dmg, applies silence to player
 }
 
-class LastSong(BossModule module) : Components.GenericLineOfSightAOE(module, ActionID.MakeSpell(AID.TheLastSong), 60, true); //TODO: find a way to use the obstacles on the map and draw proper AOEs, this does nothing right now
+class LastSong(BossModule module) : Components.GenericLineOfSightAOE(module, (uint)AID.TheLastSong, 60f, true); //TODO: find a way to use the obstacles on the map and draw proper AOEs, this does nothing right now
 
 class LastSongHint(BossModule module) : BossComponent(module)
 {
-    public bool casting;
+    public bool Casting;
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.TheLastSong)
-            casting = true;
+        if (spell.Action.ID == (uint)AID.TheLastSong)
+            Casting = true;
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.TheLastSong)
-            casting = false;
+        if (spell.Action.ID == (uint)AID.TheLastSong)
+            Casting = false;
     }
     public override void AddGlobalHints(GlobalHints hints)
     {
-        if (casting)
+        if (Casting)
             hints.Add("Use the cube to take cover!");
     }
 }
@@ -51,20 +51,31 @@ class Stage14Act2States : StateMachineBuilder
             .DeactivateOnEnter<Hints>()
             // .ActivateOnEnter<LastSong>()
             .ActivateOnEnter<LastSongHint>()
-            .Raw.Update = () => module.Enemies(OID.Boss).All(e => e.IsDead) && !module.FindComponent<LastSongHint>()!.casting;
+            .Raw.Update = () =>
+            {
+                var enemies = module.Enemies((uint)OID.Boss);
+                var count = enemies.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    var enemy = enemies[i];
+                    if (!enemy.IsDeadOrDestroyed)
+                        return false;
+                }
+                return !module.FindComponent<LastSongHint>()!.Casting;
+            };
     }
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.MaskedCarnivale, GroupID = 624, NameID = 8108, SortOrder = 2)]
 public class Stage14Act2 : BossModule
 {
-    public Stage14Act2(WorldState ws, Actor primary) : base(ws, primary, new(100, 100), Layouts.LayoutBigQuad)
+    public Stage14Act2(WorldState ws, Actor primary) : base(ws, primary, Layouts.ArenaCenter, Layouts.LayoutBigQuad)
     {
         ActivateComponent<Hints>();
     }
 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actors(Enemies(OID.Boss));
+        Arena.Actors(Enemies((uint)OID.Boss));
     }
 }

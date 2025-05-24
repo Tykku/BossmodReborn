@@ -1,7 +1,7 @@
 ﻿namespace BossMod.Components;
 
 // generic 'wild charge': various mechanics that consist of charge aoe on some target that other players have to stay in; optionally some players can be marked as 'having to be closest to source' (usually tanks)
-public class GenericWildCharge(BossModule module, float halfWidth, ActionID aid = default, float fixedLength = 0) : CastCounter(module, aid)
+public class GenericWildCharge(BossModule module, float halfWidth, uint aid = default, float fixedLength = default) : CastCounter(module, aid)
 {
     public enum PlayerRole
     {
@@ -13,8 +13,8 @@ public class GenericWildCharge(BossModule module, float halfWidth, ActionID aid 
         Avoid, // player has to avoid aoe
     }
 
-    public float HalfWidth = halfWidth;
-    public float FixedLength = fixedLength; // if == 0, length is up to target
+    public readonly float HalfWidth = halfWidth;
+    public readonly float FixedLength = fixedLength; // if == 0, length is up to target
     public Actor? Source; // if null, mechanic is not active
     public DateTime Activation;
     public PlayerRole[] PlayerRoles = new PlayerRole[PartyState.MaxAllies];
@@ -64,6 +64,10 @@ public class GenericWildCharge(BossModule module, float halfWidth, ActionID aid 
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
+        if (Source == null)
+            return;
+        var forbiddenInverted = new List<Func<WPos, float>>();
+        var forbidden = new List<Func<WPos, float>>();
         switch (PlayerRoles[slot])
         {
             case PlayerRole.Ignore:
@@ -77,19 +81,27 @@ public class GenericWildCharge(BossModule module, float halfWidth, ActionID aid 
                     if (closest != null)
                     {
                         var stack = GetAOEForTarget(Source.Position, closest.Position);
-                        hints.AddForbiddenZone(ShapeDistance.InvertedRect(stack.origin, stack.dir, stack.length, 0, HalfWidth * 0.5f), Activation);
+                        forbiddenInverted.Add(ShapeDistance.InvertedRect(stack.origin, stack.dir, stack.length, 0, HalfWidth * 0.5f));
                     }
                 }
                 break;
             case PlayerRole.Share: // TODO: some hint to be first in line...
             case PlayerRole.ShareNotFirst:
                 foreach (var aoe in EnumerateAOEs())
-                    hints.AddForbiddenZone(ShapeDistance.InvertedRect(aoe.origin, aoe.dir, aoe.length, 0, HalfWidth), Activation);
+                    forbiddenInverted.Add(ShapeDistance.InvertedRect(aoe.origin, aoe.dir, aoe.length, 0, HalfWidth));
                 break;
             case PlayerRole.Avoid:
                 foreach (var aoe in EnumerateAOEs())
-                    hints.AddForbiddenZone(ShapeDistance.Rect(aoe.origin, aoe.dir, aoe.length, 0, HalfWidth), Activation);
+                    forbiddenInverted.Add(ShapeDistance.Rect(aoe.origin, aoe.dir, aoe.length, 0, HalfWidth));
                 break;
+        }
+        if (forbiddenInverted.Count != 0)
+        {
+            hints.AddForbiddenZone(ShapeDistance.Intersection(forbiddenInverted), Activation);
+        }
+        if (forbidden.Count != 0)
+        {
+            hints.AddForbiddenZone(ShapeDistance.Union(forbidden), Activation);
         }
     }
 
@@ -113,9 +125,9 @@ public class GenericWildCharge(BossModule module, float halfWidth, ActionID aid 
         return (sourcePos, dir, length);
     }
 
-    private bool InAOE((WPos origin, WDir dir, float length) aoe, Actor actor) => actor.Position.InRect(aoe.origin, aoe.dir, aoe.length, 0, HalfWidth);
+    protected bool InAOE((WPos origin, WDir dir, float length) aoe, Actor actor) => actor.Position.InRect(aoe.origin, aoe.dir, aoe.length, 0, HalfWidth);
 
-    private IEnumerable<(WPos origin, WDir dir, float length)> EnumerateAOEs(int targetSlotToSkip = -1)
+    protected IEnumerable<(WPos origin, WDir dir, float length)> EnumerateAOEs(int targetSlotToSkip = -1)
     {
         if (Source == null)
             yield break;
@@ -132,14 +144,14 @@ public class GenericWildCharge(BossModule module, float halfWidth, ActionID aid 
 // {
 //     public override void OnEventCast(Actor caster, ActorCastEvent spell)
 //     {
-//         if (spell.Action == aidTargetSelect)
+//         if (spell.Action.ID == aidTargetSelect)
 //         {
 //             Source = caster;
 //             Activation = WorldState.FutureTime(activationDelay);
 //             foreach (var (i, p) in Raid.WithSlot(true))
 //                 PlayerRoles[i] = p.InstanceID == spell.MainTargetID ? PlayerRole.Target : PlayerRole.Share;
 //         }
-//         else if (spell.Action == WatchedAction)
+//         else if (spell.Action.ID == WatchedAction)
 //         {
 //             ++NumCasts;
 //             Source = null;

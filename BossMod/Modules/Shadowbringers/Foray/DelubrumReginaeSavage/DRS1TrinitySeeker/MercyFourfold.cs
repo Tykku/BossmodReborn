@@ -1,60 +1,69 @@
 ﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.DRS1TrinitySeeker;
 
-class MercyFourfold(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.MercyFourfoldAOE))
+class MercyFourfold(BossModule module) : Components.GenericAOEs(module)
 {
-    public readonly List<AOEInstance> AOEs = [];
-    private readonly List<AOEInstance?> _safezones = [];
-    private static readonly AOEShapeCone _shapeAOE = new(50, 90.Degrees());
-    private static readonly AOEShapeCone _shapeSafe = new(50, 45.Degrees());
+    public readonly List<AOEInstance> AOEs = new(4);
+    private static readonly AOEShapeCone cone = new(50f, 90f.Degrees());
+    private static readonly Angle a180 = 180f.Degrees();
+    private BalefulFirestorm? _aoe1 = module.FindComponent<BalefulFirestorm>();
+    private IronSplitter? _aoe2 = module.FindComponent<IronSplitter>();
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (AOEs.Count > 0)
-            yield return AOEs[0];
-        if (_safezones.Count > 0 && _safezones[0] != null)
-            yield return _safezones[0]!.Value;
+        _aoe1 ??= Module.FindComponent<BalefulFirestorm>();
+        if (_aoe1 != null && _aoe1.AOEs.Count != 0)
+            return [];
+        _aoe2 ??= Module.FindComponent<IronSplitter>();
+        if (_aoe2 != null && _aoe2.AOEs.Count != 0)
+            return CollectionsMarshal.AsSpan(AOEs)[..1];
+        var count = AOEs.Count;
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        var aoes = CollectionsMarshal.AsSpan(AOEs);
+        for (var i = 0; i < max; ++i)
+        {
+            ref var aoe = ref aoes[i];
+            if (i == 0)
+            {
+                if (count > 1)
+                    aoe.Color = Colors.Danger;
+                aoe.Risky = true;
+            }
+            else
+            {
+                if (aoes[0].Rotation.AlmostEqual(aoe.Rotation + a180, Angle.DegToRad))
+                    aoe.Risky = false;
+            }
+        }
+        return aoes[..max];
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID != SID.Mercy)
+        if (status.ID != (uint)SID.Mercy)
             return;
 
         var dirOffset = status.Extra switch
         {
-            0xF7 => -45.Degrees(),
-            0xF8 => -135.Degrees(),
-            0xF9 => 45.Degrees(),
-            0xFA => 135.Degrees(),
-            _ => 0.Degrees()
+            0xF7 => -45f.Degrees(),
+            0xF8 => -135f.Degrees(),
+            0xF9 => 45f.Degrees(),
+            0xFA => 135f.Degrees(),
+            _ => default
         };
         if (dirOffset == default)
             return;
-
-        var dir = actor.Rotation + dirOffset;
-        if (AOEs.Count > 0)
-        {
-            // see whether there is a safezone for two contiguous aoes
-            var mid = dir.ToDirection() + AOEs[^1].Rotation.ToDirection(); // length should be either ~sqrt(2) or ~0
-            if (mid.LengthSq() > 1)
-                _safezones.Add(new(_shapeSafe, actor.Position, Angle.FromDirection(-mid), new(), Colors.SafeFromAOE, false));
-            else
-                _safezones.Add(null);
-        }
-
-        var activationDelay = 15 - 1.3f * AOEs.Count;
-        AOEs.Add(new(_shapeAOE, actor.Position, dir, WorldState.FutureTime(activationDelay)));
+        AOEs.Add(new(cone, WPos.ClampToGrid(actor.Position), (Module.PrimaryActor.CastInfo?.Rotation ?? actor.Rotation) + dirOffset, WorldState.FutureTime(13.4d + 1.7d * AOEs.Count)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        base.OnEventCast(caster, spell);
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == (uint)AID.MercyFourfoldAOE)
         {
-            if (AOEs.Count > 0)
+            ++NumCasts;
+            if (AOEs.Count != 0)
                 AOEs.RemoveAt(0);
-            if (_safezones.Count > 0)
-                _safezones.RemoveAt(0);
         }
     }
 }

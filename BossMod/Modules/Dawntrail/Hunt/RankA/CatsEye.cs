@@ -13,69 +13,51 @@ public enum AID : uint
     CatsEye2 = 38511, // Boss->location, 7.0s cast, range 40 circle, inverted gaze on end.
     Unknown = 38516, // Boss->self, no cast, single-target (lose Wandering Eyes)
     GravitationalWave = 39887, // Boss->self, 5.0s cast, range 40 circle
-    BloodshotGaze1 = 38515, // Boss->players, 5.0s cast, range 8 circle, non-inverted.
-    BloodshotGaze2 = 39668, // Boss->players, 5.0s cast, range 8 circle, inverted.
+    BloodshotGaze = 38515, // Boss->players, 5.0s cast, range 8 circle, non-inverted.
+    BloodshotGazeInverted = 39668, // Boss->players, 5.0s cast, range 8 circle, inverted.
 }
 
-class CatsEye1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.CatsEye1), 40);
-
-class CatsEye2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.CatsEye2), 40);
-
-class CatsEye1Gaze(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.CatsEye1))
+class CatsEyeGaze(BossModule module) : Components.CastGaze(module, (uint)AID.CatsEye1);
+class CatsEyeInvertedGaze(BossModule module) : Components.CastGaze(module, (uint)AID.CatsEye2, true);
+class GravitationalWave(BossModule module) : Components.RaidwideCast(module, (uint)AID.GravitationalWave);
+class BloodshotGaze(BossModule module) : Components.GenericGaze(module)
 {
-    public override IEnumerable<Eye> ActiveEyes(int slot, Actor actor) => _casters.Select(c => new Eye(c.CastInfo!.LocXZ, Module.CastFinishAt(c.CastInfo)));
-}
+    private readonly BloodshotStack _stack = module.FindComponent<BloodshotStack>()!;
+    private readonly BloodshotStackInverted _stackInv = module.FindComponent<BloodshotStackInverted>()!;
 
-class CatsEye2Gaze(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.CatsEye2), true)
-{
-    public override IEnumerable<Eye> ActiveEyes(int slot, Actor actor) => _casters.Select(c => new Eye(c.CastInfo!.LocXZ, Module.CastFinishAt(c.CastInfo)));
-}
-
-class GravitationalWave(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GravitationalWave), "Raidwide!");
-
-class BloodshotGaze1(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.BloodshotGaze1))
-{
-    public override IEnumerable<Eye> ActiveEyes(int slot, Actor actor)
+    public override ReadOnlySpan<Eye> ActiveEyes(int slot, Actor actor)
     {
-        var stackComponent = Module.FindComponent<BloodshotStack1>();
-
-        var targetPosition = stackComponent?.ActiveStackTargets.FirstOrDefault()?.Position;
-
-        return _casters.Select(c => new Eye(targetPosition ?? c.Position, Module.CastFinishAt(c.CastInfo)));
+        Eye[] TryGetEye(Components.GenericStackSpread comp, bool inverted)
+        {
+            var count = comp.Stacks.Count;
+            if (count == 0)
+                return [];
+            var stack = CollectionsMarshal.AsSpan(comp.Stacks)[0];
+            if (stack.Target == actor)
+                return [];
+            return [new(stack.Target.Position, stack.Activation, Inverted: inverted)];
+        }
+        var stack = TryGetEye(_stack, false);
+        return stack.Length != 0 ? stack : TryGetEye(_stackInv, true);
     }
 }
 
-class BloodshotGaze2(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.BloodshotGaze2), true)
-{
-    public override IEnumerable<Eye> ActiveEyes(int slot, Actor actor)
-    {
-        var stackComponent = Module.FindComponent<BloodshotStack2>();
-
-        var targetPosition = stackComponent?.ActiveStackTargets.FirstOrDefault()?.Position;
-
-        return _casters.Select(c => new Eye(targetPosition ?? c.Position, Module.CastFinishAt(c.CastInfo)));
-    }
-}
-
-class BloodshotStack1(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BloodshotGaze1), 8);
-class BloodshotStack2(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.BloodshotGaze2), 8);
+class BloodshotStack(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.BloodshotGaze, 8f, 8);
+class BloodshotStackInverted(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.BloodshotGazeInverted, 8f, 8);
 
 class CatsEyeStates : StateMachineBuilder
 {
     public CatsEyeStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<CatsEye1>()
-            .ActivateOnEnter<CatsEye2>()
-            .ActivateOnEnter<CatsEye1Gaze>()
-            .ActivateOnEnter<CatsEye2Gaze>()
+            .ActivateOnEnter<CatsEyeGaze>()
+            .ActivateOnEnter<CatsEyeInvertedGaze>()
             .ActivateOnEnter<GravitationalWave>()
-            .ActivateOnEnter<BloodshotGaze1>()
-            .ActivateOnEnter<BloodshotGaze2>()
-            .ActivateOnEnter<BloodshotStack1>()
-            .ActivateOnEnter<BloodshotStack2>();
+            .ActivateOnEnter<BloodshotStack>()
+            .ActivateOnEnter<BloodshotStackInverted>()
+            .ActivateOnEnter<BloodshotGaze>();
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Contributed, Contributors = "Shinryin", GroupType = BossModuleInfo.GroupType.Hunt, GroupID = (uint)BossModuleInfo.HuntRank.A, NameID = 13436)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Shinryin, Malediktus", GroupType = BossModuleInfo.GroupType.Hunt, GroupID = (uint)BossModuleInfo.HuntRank.A, NameID = 13436)]
 public class CatsEye(WorldState ws, Actor primary) : SimpleBossModule(ws, primary);

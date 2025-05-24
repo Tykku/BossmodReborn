@@ -13,13 +13,13 @@ class Exoterikos(BossModule module) : BossComponent(module)
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (ActiveSources().Any(actShape => actShape.Item2.Check(actor.Position, actShape.Item1)))
+        if (ActiveKnockbacks().Any(actShape => actShape.Item2.Check(actor.Position, actShape.Item1)))
             hints.Add("GTFO from exo aoe!");
     }
 
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
-        foreach (var (src, shape) in ActiveSources())
+        foreach (var (src, shape) in ActiveKnockbacks())
             shape.Draw(Arena, src);
     }
 
@@ -58,13 +58,13 @@ class Exoterikos(BossModule module) : BossComponent(module)
         };
     }
 
-    private IEnumerable<(Actor, AOEShape)> ActiveSources()
+    private IEnumerable<(Actor, AOEShape)> ActiveKnockbacks()
     {
         var hadSideSquare = false; // we don't show multiple side-squares, since that would cover whole arena and be useless
         DateTime lastRay = new(); // we only show first rays, otherwise triple rays would cover whole arena and be useless
         foreach (var (actor, shape) in _sources)
         {
-            if (shape == _aoeSquare && Math.Abs(actor.Position.X - Module.Center.X) > 10)
+            if (shape == _aoeSquare && Math.Abs(actor.Position.X - Arena.Center.X) > 10)
             {
                 if (hadSideSquare)
                     continue;

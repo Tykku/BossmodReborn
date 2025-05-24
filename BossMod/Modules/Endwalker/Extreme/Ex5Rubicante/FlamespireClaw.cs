@@ -1,11 +1,11 @@
 ﻿namespace BossMod.Endwalker.Extreme.Ex5Rubicante;
 
-class FlamespireClaw(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.FlamespireClawAOE))
+class FlamespireClaw(BossModule module) : Components.GenericBaitAway(module, (uint)AID.FlamespireClawAOE)
 {
     private readonly int[] _order = new int[PartyState.MaxPartySize];
     private readonly BitMask _tethers;
 
-    private static readonly AOEShapeCone _shape = new(20, 45.Degrees()); // TODO: verify angle
+    private static readonly AOEShapeCone _shape = new(20f, 45f.Degrees()); // TODO: verify angle
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
@@ -34,14 +34,14 @@ class FlamespireClaw(BossModule module) : Components.GenericBaitAway(module, Act
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
-        foreach (var (_, player) in Raid.WithSlot(true).IncludedInMask(_tethers))
+        foreach (var (_, player) in Raid.WithSlot(true, true, true).IncludedInMask(_tethers))
             Arena.AddLine(player.Position, Module.PrimaryActor.Position, Colors.Danger);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         base.OnEventCast(caster, spell);
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             CurrentBaits.Clear();
             var nextSlot = Array.IndexOf(_order, NumCasts + 1);

@@ -2,6 +2,7 @@
 
 public enum AID : uint
 {
+    #region PvE
     None = 0,
     Sprint = 3,
 
@@ -60,12 +61,25 @@ public enum AID : uint
     AethericSiphon = 9102,
     Shatterstone = 9823,
     Deflect = 10006,
-    DeflectVeryEasy = 18863
+    DeflectVeryEasy = 18863,
+    #endregion
+
+    #region PvP
+    Elixir = 29055,
+    Recuperate = 29711,
+    Purify = 29056,
+    Guard = 29054,
+    //Guard = 29735,
+    SprintPvP = 29057,
+    #endregion
 }
 
 public enum SID : uint
 {
+    #region PvE
     None = 0,
+
+    Sprint = 50, // applied by Sprint to self
 
     // Tank
     Reprisal = 1193, // applied by Reprisal to target
@@ -77,16 +91,47 @@ public enum SID : uint
     // PhysRanged
     Peloton = 1199, // applied by Peloton to self/party
 
-    // Caster/Healer
+    // Caster
     Addle = 1203, // applied by Addle to target
+
+    // Magical
+    LucidDreaming = 1204, // applied by Lucid Dreaming to self
+    Surecast = 160, // applied by Surecast to self
     Swiftcast = 167, // applied by Swiftcast to self
     Raise = 148, // applied by Raise to target
+
+    // Bozja
+    LostChainspell = 2560, // instant cast
+
+    MagicBurst = 1652, // magic damage buff
+    BannerOfNobleEnds = 2326, // damage buff + healing disable
+    BannerOfHonoredSacrifice = 2327, // damage buff + hp drain
+    LostFontOfPower = 2346, // damage/crit buff
+    ClericStance = 2484, // damage buff (from seraph strike)
+    LostExcellence = 2564, // damage buff + invincibility
+    Memorable = 2565, // damage buff
+    BloodRush = 2567, // damage buff + ability haste
+    #endregion
+
+    #region PvP
+    SprintPvP = 1342,
+    Guard = 3054,
+    Silence = 1347,
+    Bind = 1345,
+    StunPvP = 1343,
+    HalfAsleep = 3022,
+    Sleep = 1348,
+    DeepFreeze = 3219,
+    Heavy = 1344,
+    Unguarded = 3021,
+    #endregion
 }
 
 public sealed class Definitions : IDisposable
 {
     public Definitions(ActionDefinitions d)
     {
+        #region PvE
         d.RegisterSpell(AID.Sprint);
 
         // Tank
@@ -145,6 +190,15 @@ public sealed class Definitions : IDisposable
         d.RegisterSpell(AID.Shatterstone);
         d.RegisterSpell(AID.Deflect);
         d.RegisterSpell(AID.DeflectVeryEasy);
+        #endregion
+
+        #region PvP
+        d.RegisterSpell(AID.Elixir);
+        d.RegisterSpell(AID.Recuperate);
+        d.RegisterSpell(AID.Purify);
+        d.RegisterSpell(AID.Guard);
+        d.RegisterSpell(AID.SprintPvP);
+        #endregion
 
         Customize(d);
     }
@@ -153,7 +207,7 @@ public sealed class Definitions : IDisposable
 
     private void Customize(ActionDefinitions d)
     {
-        d.Spell(AID.Interject)!.ForbidExecute = (_, _, target, _) => !(target?.CastInfo?.Interruptible ?? false); // don't use interject if target is not casting interruptible spell
+        d.Spell(AID.Interject)!.ForbidExecute = (_, _, act, _) => !(act.Target?.CastInfo?.Interruptible ?? false); // don't use interject if target is not casting interruptible spell
         d.Spell(AID.Reprisal)!.ForbidExecute = (_, player, _, hints) => !hints.PotentialTargets.Any(e => e.Actor.Position.InCircle(player.Position, 5 + e.Actor.HitboxRadius)); // don't use reprisal if no one would be hit; TODO: consider checking only target?..
         d.Spell(AID.Shirk)!.SmartTarget = ActionDefinitions.SmartTargetCoTank;
 
@@ -165,7 +219,7 @@ public sealed class Definitions : IDisposable
         //d.Spell(AID.TrueNorth)!.EffectDuration = 10;
 
         d.Spell(AID.Peloton)!.ForbidExecute = (_, player, _, _) => player.InCombat;
-        d.Spell(AID.HeadGraze)!.ForbidExecute = (_, _, target, _) => !(target?.CastInfo?.Interruptible ?? false);
+        d.Spell(AID.HeadGraze)!.ForbidExecute = (_, _, act, _) => !(act.Target?.CastInfo?.Interruptible ?? false);
 
         //d.Spell(AID.Addle)!.EffectDuration = 10;
         //d.Spell(AID.Sleep)!.EffectDuration = 30;

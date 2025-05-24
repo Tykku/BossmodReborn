@@ -27,7 +27,7 @@ abstract class P4ForcedMarchDebuffs(BossModule module) : BossComponent(module)
             case Debuff.DarkFollow:
                 if (DarkBeacon != null)
                 {
-                    if (!Module.InBounds(Components.Knockback.AwayFromSource(actor.Position, DarkBeacon.Position, _forcedMarchDistance)))
+                    if (!Module.InBounds(Components.GenericKnockback.AwayFromSource(actor.Position, DarkBeacon.Position, _forcedMarchDistance)))
                         hints.Add("Aim away from wall!");
                     if ((actor.Position - DarkBeacon.Position).LengthSq() > _maxDarkDistance * _maxDarkDistance)
                         hints.Add("Move closer to dark beacon!");
@@ -40,7 +40,7 @@ abstract class P4ForcedMarchDebuffs(BossModule module) : BossComponent(module)
     {
         if (Done || Debuffs[slot] == Debuff.None)
             return;
-        movementHints.Add(actor.Position, Module.Center + SafeSpotDirection(slot), Colors.Safe);
+        movementHints.Add(actor.Position, Arena.Center + SafeSpotDirection(slot), Colors.Safe);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
@@ -54,19 +54,19 @@ abstract class P4ForcedMarchDebuffs(BossModule module) : BossComponent(module)
                 if (LightBeacon != null)
                 {
                     var pos = (pc.Position - LightBeacon.Position).LengthSq() <= _forcedMarchDistance * _forcedMarchDistance ? LightBeacon.Position : pc.Position + _forcedMarchDistance * (LightBeacon.Position - pc.Position).Normalized();
-                    Components.Knockback.DrawKnockback(pc, pos, Arena);
+                    Components.GenericKnockback.DrawKnockback(pc, pos, Arena);
                 }
                 break;
             case Debuff.DarkFollow:
                 if (DarkBeacon != null)
                 {
-                    var pos = Components.Knockback.AwayFromSource(pc.Position, DarkBeacon.Position, _forcedMarchDistance);
-                    Components.Knockback.DrawKnockback(pc, pos, Arena);
+                    var pos = Components.GenericKnockback.AwayFromSource(pc.Position, DarkBeacon.Position, _forcedMarchDistance);
+                    Components.GenericKnockback.DrawKnockback(pc, pos, Arena);
                 }
                 break;
         }
 
-        Arena.AddCircle(Module.Center + SafeSpotDirection(pcSlot), 1, Colors.Safe);
+        Arena.AddCircle(Arena.Center + SafeSpotDirection(pcSlot), 1, Colors.Safe);
     }
 
     protected abstract WDir SafeSpotDirection(int slot);

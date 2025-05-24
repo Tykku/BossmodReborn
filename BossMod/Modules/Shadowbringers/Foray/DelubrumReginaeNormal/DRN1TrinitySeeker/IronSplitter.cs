@@ -1,34 +1,37 @@
-﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.Normal.DRN1TrinitySeeker;
+﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.DRN1TrinitySeeker;
 
-class IronSplitter(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.IronSplitter))
+class IronSplitter(BossModule module) : Components.GenericAOEs(module, (uint)AID.IronSplitter)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(3);
+    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(4f), new AOEShapeDonut(8f, 12f), new AOEShapeDonut(16f, 20f),
+    new AOEShapeDonut(4f, 8f), new AOEShapeDonut(12f, 16f), new AOEShapeDonut(20f, 25f)];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
-            var distance = (caster.Position - Module.Center).Length();
+            var distance = (caster.Position - Arena.Center).Length();
+            var activation = Module.CastFinishAt(spell);
+            var pos = WPos.ClampToGrid(Arena.Center);
             if (distance is < 3 or > 9 and < 11 or > 17 and < 19) // tiles
             {
-                _aoes.Add(new(new AOEShapeCircle(4), Module.Center, new(), Module.CastFinishAt(spell)));
-                _aoes.Add(new(new AOEShapeDonut(8, 12), Module.Center, new(), Module.CastFinishAt(spell)));
-                _aoes.Add(new(new AOEShapeDonut(16, 20), Module.Center, new(), Module.CastFinishAt(spell)));
+                for (var i = 0; i < 3; ++i)
+                    AddAOE(i);
             }
             else
             {
-                _aoes.Add(new(new AOEShapeDonut(4, 8), Module.Center, new(), Module.CastFinishAt(spell)));
-                _aoes.Add(new(new AOEShapeDonut(12, 16), Module.Center, new(), Module.CastFinishAt(spell)));
-                _aoes.Add(new(new AOEShapeDonut(20, 25), Module.Center, new(), Module.CastFinishAt(spell)));
+                for (var i = 3; i < 6; ++i)
+                    AddAOE(i);
             }
+            void AddAOE(int index) => _aoes.Add(new(_shapes[index], pos, default, activation));
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             _aoes.Clear();
     }
 }

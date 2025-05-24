@@ -1,30 +1,47 @@
 ﻿namespace BossMod.Dawntrail.Extreme.Ex1Valigarmanda;
 
-class MountainFire(BossModule module) : Components.GenericTowers(module, ActionID.MakeSpell(AID.MountainFireTower))
+class MountainFire(BossModule module) : Components.GenericTowers(module, (uint)AID.MountainFireTower)
 {
-    private BitMask _nonTanks = module.Raid.WithSlot(true).WhereActor(p => p.Role != Role.Tank).Mask();
+    private BitMask _nonTanks = GetNonTanks(module);
     private BitMask _lastSoakers;
+
+    private static BitMask GetNonTanks(BossModule module)
+    {
+        var party = module.Raid.WithSlot(true, true, true);
+        var len = party.Length;
+        BitMask nontanks = new();
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var p = ref party[i];
+            if (p.Item2.Role != Role.Tank)
+            {
+                nontanks[p.Item1] = true;
+            }
+        }
+        return nontanks;
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
-            Towers.Add(new(caster.Position, 3, forbiddenSoakers: _nonTanks | _lastSoakers));
+        if (spell.Action.ID == WatchedAction)
+            Towers.Add(new(spell.LocXZ, 3f, forbiddenSoakers: _nonTanks | _lastSoakers));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             Towers.Clear();
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             ++NumCasts;
-            _lastSoakers.Reset();
-            foreach (var t in spell.Targets)
-                _lastSoakers.Set(Raid.FindSlot(t.ID));
+            _lastSoakers = default;
+            var count = spell.Targets.Count;
+            for (var i = 0; i < count; ++i)
+                _lastSoakers[Raid.FindSlot(spell.Targets[i].ID)] = true;
         }
     }
 }
@@ -34,24 +51,44 @@ class MountainFireCone(BossModule module) : Components.GenericAOEs(module)
     private readonly MountainFire? _tower = module.FindComponent<MountainFire>();
     private AOEInstance? _aoe;
 
-    private static readonly AOEShapeCone _shape = new(40, 165.Degrees());
+    private static readonly AOEShapeCone _shape = new(40f, 165f.Degrees());
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         // show aoe only if not (or not allowed to) soak the tower
-        if (_aoe != null && ((_tower?.Towers.Any(t => t.ForbiddenSoakers[slot]) ?? false) || !actor.Position.InCircle(_aoe.Value.Origin, 3)))
-            yield return _aoe.Value;
+        if (_aoe is AOEInstance aoe)
+        {
+            var isForbidden = false;
+            if (_tower != null)
+            {
+                var count = _tower.Towers.Count;
+                for (var i = 0; i < count; ++i)
+                {
+                    if (_tower.Towers[i].ForbiddenSoakers[slot])
+                    {
+                        isForbidden = true;
+                        break;
+                    }
+                }
+            }
+
+            if (isForbidden || !actor.Position.InCircle(aoe.Origin, 3f))
+            {
+                return new AOEInstance[1] { aoe };
+            }
+        }
+        return [];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.MountainFireTower)
-            _aoe = new(_shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell, 0.4f));
+        if (spell.Action.ID == (uint)AID.MountainFireTower)
+            _aoe = new(_shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell, 0.4f));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.MountainFireConeAOE)
+        if (spell.Action.ID == (uint)AID.MountainFireConeAOE)
         {
             _aoe = null;
             ++NumCasts;

@@ -4,10 +4,10 @@ class GunberdShot(BossModule module) : BossComponent(module)
 {
     private Actor? _gunberdCaster;
 
-    public bool DarkShotLoaded { get; private set; }
-    public bool WindslicerLoaded { get; private set; }
+    public bool DarkShotLoaded;
+    public bool WindslicerLoaded;
 
-    public bool Gunberding { get; private set; }
+    public bool Gunberding;
 
     public override void AddGlobalHints(GlobalHints hints)
     {
@@ -64,8 +64,8 @@ class GunberdShot(BossModule module) : BossComponent(module)
     {
         if (Gunberding && WindslicerLoaded)
         {
-            var adjPos = Components.Knockback.AwayFromSource(pc.Position, _gunberdCaster, 10);
-            Components.Knockback.DrawKnockback(pc, adjPos, Arena);
+            var adjPos = Components.GenericKnockback.AwayFromSource(pc.Position, _gunberdCaster, 10);
+            Components.GenericKnockback.DrawKnockback(pc, adjPos, Arena);
         }
     }
 }

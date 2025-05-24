@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Ultimate.DSW2;
 
-class P3Geirskogul(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Geirskogul), new AOEShapeRect(62, 4))
+class P3Geirskogul(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Geirskogul, new AOEShapeRect(62, 4))
 {
     private readonly List<Actor> _predicted = [];
 
@@ -9,7 +9,7 @@ class P3Geirskogul(BossModule module) : Components.SelfTargetedAOEs(module, Acti
         foreach (var p in _predicted)
         {
             Arena.Actor(p, Colors.Object, true);
-            var target = Raid.WithoutSlot().Closest(p.Position);
+            var target = Raid.WithoutSlot(false, true, true).Closest(p.Position);
             if (target != null)
                 Shape.Outline(Arena, p.Position, Angle.FromDirection(target.Position - p.Position));
         }
@@ -18,14 +18,14 @@ class P3Geirskogul(BossModule module) : Components.SelfTargetedAOEs(module, Acti
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         base.OnCastStarted(caster, spell);
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
             _predicted.Clear();
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         base.OnCastFinished(caster, spell);
-        if ((AID)spell.Action.ID == AID.DarkdragonDive)
+        if (spell.Action.ID == (uint)AID.DarkdragonDive)
             _predicted.Add(caster);
     }
 }
@@ -34,34 +34,34 @@ class P3GnashAndLash(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
 
-    private static readonly AOEShapeCircle _aoeGnash = new(8);
-    private static readonly AOEShapeDonut _aoeLash = new(8, 40);
+    private static readonly AOEShapeCircle _aoeGnash = new(8f);
+    private static readonly AOEShapeDonut _aoeLash = new(8f, 40f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(1);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Count != 0 ? CollectionsMarshal.AsSpan(_aoes)[..1] : [];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        (var first, var second) = (AID)spell.Action.ID switch
+        (var first, var second) = spell.Action.ID switch
         {
-            AID.GnashAndLash => (_aoeGnash, _aoeLash),
-            AID.LashAndGnash => (_aoeLash, _aoeGnash),
+            (uint)AID.GnashAndLash => (_aoeGnash, _aoeLash),
+            (uint)AID.LashAndGnash => (_aoeLash, _aoeGnash),
             _ => ((AOEShape?)null, (AOEShape?)null)
         };
         if (first != null && second != null)
         {
             _aoes.Clear(); // just a precaution, in one pull i had unfortunate cast time updates which 'restarted' the spell several times
             // note: marking aoes as non-risky, so that we don't spam warnings - reconsider (maybe mark as risky when cast ends?)
-            _aoes.Add(new(first, caster.Position, default, WorldState.FutureTime(3.7f), Risky: false));
-            _aoes.Add(new(second, caster.Position, default, WorldState.FutureTime(6.8f), Risky: false));
+            _aoes.Add(new(first, spell.LocXZ, default, WorldState.FutureTime(3.7d), Risky: false));
+            _aoes.Add(new(second, spell.LocXZ, default, WorldState.FutureTime(6.8d), Risky: false));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.GnashingWheel or AID.LashingWheel)
+        if (spell.Action.ID is (uint)AID.GnashingWheel or (uint)AID.LashingWheel)
         {
             ++NumCasts;
-            if (_aoes.Count > 0)
+            if (_aoes.Count != 0)
                 _aoes.RemoveAt(0);
         }
     }
@@ -72,7 +72,7 @@ class P3GnashAndLash(BossModule module) : Components.GenericAOEs(module)
 // 2. if there are forward/backward jumps at given order, forward takes W spot, backward takes E spot (center takes S) - this can be changed by config
 // 3. otherwise, no specific assignments are assumed until player baits or soaks the tower
 // TODO: split into towers & bait-away?
-class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.DarkdragonDive), 5)
+class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, (uint)AID.DarkdragonDive, 5f)
 {
     private struct PlayerState
     {
@@ -86,7 +86,7 @@ class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionI
         public readonly bool CanBait(int order, int spot) => JumpOrder == order && (AssignedSpot == 0 || AssignedSpot == spot);
     }
 
-    public int NumJumps { get; private set; }
+    public int NumJumps;
     private readonly DSW2Config _config = Service.Config.Get<DSW2Config>();
     private bool _haveDirections;
     private readonly PlayerState[] _playerStates = new PlayerState[PartyState.MaxPartySize];
@@ -126,17 +126,28 @@ class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionI
             hints.Add($"Arrows for: {(_ordersWithArrows.Any() ? string.Join(", ", _ordersWithArrows.SetBits()) : "none")}");
     }
 
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        base.AddAIHints(slot, actor, assignment, hints);
+
+        // TODO: forbidden directions
+    }
+
     public override PlayerPriority CalcPriority(int pcSlot, Actor pc, int playerSlot, Actor player, ref uint customColor) => _playerStates[playerSlot].JumpOrder == CurrentBaitOrder() ? PlayerPriority.Interesting : PlayerPriority.Normal;
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
-        foreach (var t in _predictedTowers)
-            DrawTower(Arena, t.Position, t.Radius, !t.ForbiddenSoakers[pcSlot]);
+        var count = _predictedTowers.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var t = _predictedTowers[i];
+            DrawTower(Arena, ref t, !t.ForbiddenSoakers[pcSlot]);
+        }
 
         // draw baited jumps
         var baitOrder = CurrentBaitOrder();
-        foreach (var (slot, player) in Raid.WithSlot(true).WhereSlot(i => _playerStates[i].JumpOrder == baitOrder))
+        foreach (var (slot, player) in Raid.WithSlot(true, true, true).WhereSlot(i => _playerStates[i].JumpOrder == baitOrder))
         {
             var pos = player.Position + _playerStates[slot].JumpDirection * player.Rotation.ToDirection() * _towerOffset;
             Arena.AddCircle(pos, Radius, Colors.Object);
@@ -151,24 +162,24 @@ class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionI
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        switch ((SID)status.ID)
+        switch (status.ID)
         {
-            case SID.Jump1:
+            case (uint)SID.Jump1:
                 AssignJumpOrder(actor, 1);
                 break;
-            case SID.Jump2:
+            case (uint)SID.Jump2:
                 AssignJumpOrder(actor, 2);
                 break;
-            case SID.Jump3:
+            case (uint)SID.Jump3:
                 AssignJumpOrder(actor, 3);
                 break;
-            case SID.JumpBackward:
+            case (uint)SID.JumpBackward:
                 AssignJumpDirection(actor, -1);
                 break;
-            case SID.JumpCenter:
+            case (uint)SID.JumpCenter:
                 AssignJumpDirection(actor, 0);
                 break;
-            case SID.JumpForward:
+            case (uint)SID.JumpForward:
                 AssignJumpDirection(actor, +1);
                 break;
         }
@@ -176,7 +187,7 @@ class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionI
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             _predictedTowers.Clear();
             Towers.Add(CreateTower(caster.Position));
@@ -185,19 +196,19 @@ class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionI
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.DarkdragonDive:
+            case (uint)AID.DarkdragonDive:
                 foreach (var t in spell.Targets)
                     AssignLateSpot(t.ID, caster.Position);
                 ++NumCasts;
                 break;
-            case AID.DarkHighJump:
-            case AID.DarkSpineshatterDive:
-            case AID.DarkElusiveJump:
+            case (uint)AID.DarkHighJump:
+            case (uint)AID.DarkSpineshatterDive:
+            case (uint)AID.DarkElusiveJump:
                 ++NumJumps;
                 AssignLateSpot(spell.MainTargetID, caster.Position);
-                var offset = (AID)spell.Action.ID != AID.DarkHighJump ? _towerOffset * caster.Rotation.ToDirection() : new();
+                var offset = spell.Action.ID != (uint)AID.DarkHighJump ? _towerOffset * caster.Rotation.ToDirection() : new();
                 _predictedTowers.Add(CreateTower(caster.Position + offset));
                 break;
         }
@@ -248,7 +259,7 @@ class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionI
 
     private int TowerSpot(WPos pos)
     {
-        var towerOffset = pos - Module.Center;
+        var towerOffset = pos - Arena.Center;
         var toStack = DirectionForStack();
         var dotForward = DirectionForForwardArrow().Dot(towerOffset);
         return -toStack.Dot(towerOffset) > Math.Abs(dotForward) ? 2 : dotForward > 0 ? 3 : 1;
@@ -264,36 +275,38 @@ class P3DiveFromGrace(BossModule module) : Components.CastTowers(module, ActionI
             < 8 => spot != 2 ? 2 : 1,
             _ => -1
         };
-        var forbidden = Raid.WithSlot(true).WhereSlot(i => !_playerStates[i].CanBait(soakerOrder, spot)).Mask();
+        var forbidden = Raid.WithSlot(true, true, true).WhereSlot(i => !_playerStates[i].CanBait(soakerOrder, spot)).Mask();
         return new(pos, Radius, forbiddenSoakers: forbidden);
     }
 
-    private WDir DirectionForStack() => new(0, -_spotOffset); // TODO: this is arbitrary
+    private static WDir DirectionForStack() => new(0, -_spotOffset); // TODO: this is arbitrary
     private WDir DirectionForForwardArrow() => _config.P3DiveFromGraceLookWest ? DirectionForStack().OrthoR() : DirectionForStack().OrthoL();
 
-    private IEnumerable<WPos> SafeSpots(int slot)
+    private List<WPos> SafeSpots(int slot)
     {
         if (!_haveDirections)
-            yield break;
+            return [];
 
         // show safespot hints only if there are no towers to soak (TODO: or geirskoguls to bait?..)
+        var safespots = new List<WPos>();
         var state = _playerStates[slot];
         if (state.JumpOrder == CurrentBaitOrder())
         {
-            var origin = Module.Center;
+            var origin = Arena.Center;
             if (state.JumpOrder == 2)
                 origin += DirectionForStack() * 0.8f; // TODO: the coefficient is arbitrary
 
             if (state.AssignedSpot is 0 or 1)
-                yield return origin - DirectionForForwardArrow();
+                safespots.Add(origin - DirectionForForwardArrow());
             if (state.AssignedSpot is 0 or 2 && state.JumpOrder != 2)
-                yield return origin - DirectionForStack();
+                safespots.Add(origin - DirectionForStack());
             if (state.AssignedSpot is 0 or 3)
-                yield return origin + DirectionForForwardArrow();
+                safespots.Add(origin + DirectionForForwardArrow());
         }
         else if (NumJumps < (state.JumpOrder == 3 ? 3 : 8))
         {
-            yield return Module.Center + DirectionForStack();
+            safespots.Add(Arena.Center + DirectionForStack());
         }
+        return safespots;
     }
 }

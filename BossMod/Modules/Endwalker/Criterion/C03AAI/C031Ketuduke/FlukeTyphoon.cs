@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.VariantCriterion.C03AAI.C031Ketuduke;
 
-class FlukeTyphoon(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.FlukeTyphoonAOE));
+class FlukeTyphoon(BossModule module) : Components.CastCounter(module, (uint)AID.FlukeTyphoonAOE);
 
 class FlukeTyphoonBurst(BossModule module) : Components.GenericTowers(module)
 {
@@ -19,7 +19,7 @@ class FlukeTyphoonBurst(BossModule module) : Components.GenericTowers(module)
                 _ => default
             };
             if (offset != default)
-                Towers.Add(new(Module.Center + offset, 4));
+                Towers.Add(new(Arena.Center + offset, 4));
         }
     }
 

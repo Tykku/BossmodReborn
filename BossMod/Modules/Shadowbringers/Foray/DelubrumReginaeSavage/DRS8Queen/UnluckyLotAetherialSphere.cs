@@ -1,20 +1,21 @@
 ﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.DRS8Queen;
 
-class UnluckyLotAetherialSphere(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.UnluckyLotAetherialSphere))
+class UnluckyLotAetherialSphere(BossModule module) : Components.GenericAOEs(module, (uint)AID.UnluckyLotAetherialSphere)
 {
     private AOEInstance? _aoe;
+    private static readonly AOEShapeCircle circle = new(20f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.OptimalOffensiveMoveSphere)
-            _aoe = new(new AOEShapeCircle(20), caster.Position, default, Module.CastFinishAt(spell, 2.6f));
+        if (spell.Action.ID == (uint)AID.OptimalOffensiveMoveSphere)
+            _aoe = new(circle, spell.LocXZ, default, Module.CastFinishAt(spell, 2.6f));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.UnluckyLotAetherialSphere)
+        if (spell.Action.ID == (uint)AID.UnluckyLotAetherialSphere)
             _aoe = null;
     }
 }

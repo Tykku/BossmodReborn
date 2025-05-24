@@ -25,41 +25,62 @@ public enum AID : uint
 
 class ExplosiveResonantFrequency(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCircle circleSmall = new(8);
-    private static readonly AOEShapeCircle circleBig = new(15);
-    private readonly List<AOEInstance> _aoes = [];
+    private static readonly AOEShapeCircle circleSmall = new(8f), circleBig = new(15f);
+    private readonly List<AOEInstance> _aoes = new(11);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            foreach (var a in _aoes)
-                if ((a.Activation - _aoes[0].Activation).TotalSeconds <= 1)
-                    yield return a;
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
+        var deadline = aoes[0].Activation.AddSeconds(1d);
+
+        var index = 0;
+        while (index < count && aoes[index].Activation < deadline)
+            ++index;
+
+        return aoes[..index];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ResonantFrequency)
-            _aoes.Add(new(circleSmall, caster.Position, default, Module.CastFinishAt(spell)));
-        else if ((AID)spell.Action.ID == AID.ExplosiveFrequency)
-            _aoes.Add(new(circleBig, caster.Position, default, Module.CastFinishAt(spell)));
+        var shape = spell.Action.ID switch
+        {
+            (uint)AID.ResonantFrequency => circleSmall,
+            (uint)AID.ExplosiveFrequency => circleBig,
+            _ => null
+        };
+        if (shape != null)
+        {
+            _aoes.Add(new(shape, spell.LocXZ, default, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
+            if (_aoes.Count == 11)
+                _aoes.SortBy(x => x.Activation);
+        }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ResonantFrequency)
-            _aoes.RemoveAll(x => x.Shape == circleSmall);
-        else if ((AID)spell.Action.ID == AID.ExplosiveFrequency)
-            _aoes.RemoveAll(x => x.Shape == circleBig);
+        if (spell.Action.ID is (uint)AID.ResonantFrequency or (uint)AID.ExplosiveFrequency)
+        {
+            for (var i = 0; i < _aoes.Count; ++i)
+            {
+                if (_aoes[i].ActorID == caster.InstanceID)
+                {
+                    _aoes.RemoveAt(i);
+                    break;
+                }
+            }
+        }
     }
 }
 
-class SonicBloop(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.SonicBloop));
-class Waterspout(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Waterspout), 5);
-class TidalBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TidalBreath), new AOEShapeCone(40, 90.Degrees()));
-class Tidalspout(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.Tidalspout), 6, 4, 4);
-class Upsweep(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Upsweep));
-class BodySlam(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BodySlam));
+class SonicBloop(BossModule module) : Components.SingleTargetCast(module, (uint)AID.SonicBloop);
+class Waterspout(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Waterspout, 5f);
+class TidalBreath(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TidalBreath, new AOEShapeCone(40f, 90f.Degrees()));
+class Tidalspout(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.Tidalspout, 6f, 4, 4);
+class Upsweep(BossModule module) : Components.RaidwideCast(module, (uint)AID.Upsweep);
+class BodySlam(BossModule module) : Components.RaidwideCast(module, (uint)AID.BodySlam);
 
 class D121LyngbakrStates : StateMachineBuilder
 {
@@ -76,8 +97,9 @@ class D121LyngbakrStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 822, NameID = 12336)]
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 822, NameID = 12336, SortOrder = 3)]
 public class D121Lyngbakr(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Circle(new(-322, 120), 19.75f)], [new Rectangle(new(-322, 99), 20, 2.25f), new Rectangle(new(-322, 140), 20, 1.25f)]);
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-322f, 120f), 19.5f * CosPI.Pi40th, 48)], [new Rectangle(new(-322f, 99f), 20f, 2.25f),
+    new Rectangle(new(-322f, 140f), 20f, 1.25f)]);
 }

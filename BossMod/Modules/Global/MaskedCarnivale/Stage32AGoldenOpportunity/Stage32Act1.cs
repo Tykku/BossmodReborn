@@ -5,12 +5,13 @@ public enum OID : uint
     Boss = 0x3FA5, //R=2.5
     GlitteringSlime = 0x3FAB, // R=2.0
     BallOfFire = 0x3FA6, // R=1.5
-    Helper = 0x233C,
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttack = 34444, // Boss->player, no cast, single-target
+
     GoldorFireIII = 34447, // Boss->self, 4.2s cast, single-target
     GoldorFireIII2 = 34448, // Helper->location, 5.0s cast, range 8 circle
     GoldorFireIII3 = 34449, // Helper->location, 2.5s cast, range 8 circle
@@ -30,7 +31,7 @@ public enum AID : uint
     GoldorThunderIII1 = 34454, // Helper->player, no cast, range 5 circle, applies cleansable electrocution
     GoldorThunderIII2 = 34455, // Helper->location, 2.5s cast, range 6 circle
     GoldorBlizzardIIIVisual = 34589, // Boss->self, 6.0s cast, single-target, interruptible, freezes player
-    GoldorBlizzardIII = 34590, // Helper->player, no cast, range 6 circle
+    GoldorBlizzardIII = 34590 // Helper->player, no cast, range 6 circle
 }
 
 public enum SID : uint
@@ -39,63 +40,85 @@ public enum SID : uint
     Electrocution = 3779, // Helper->player, extra=0x0
 }
 
-class SlimySummon(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.SlimySummon), "Prepare to kill add ASAP");
-class GoldorFireIII(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GoldorFireIII2), 8);
-class GoldorFireIII2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GoldorFireIII3), 8);
-class GoldorBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.GoldorBlast), new AOEShapeRect(60, 5));
-class Rupture(BossModule module) : Components.CastHint(module, ActionID.MakeSpell(AID.Rupture), "Kill slime ASAP! (The Ram's Voice + Ultravibration)", true);
+class SlimySummon(BossModule module) : Components.CastHint(module, (uint)AID.SlimySummon, "Prepare to kill add ASAP");
+class GoldorFireIII(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GoldorFireIII2, 8f);
+class GoldorFireIII2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GoldorFireIII3, 8f);
+class GoldorBlast(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GoldorBlast, new AOEShapeRect(60f, 5f));
+class Rupture(BossModule module) : Components.CastHint(module, (uint)AID.Rupture, "Kill slime ASAP! (The Ram's Voice + Ultravibration)", true);
 
 class GoldorQuake(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 {
-    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(10), new AOEShapeDonut(10, 20), new AOEShapeDonut(20, 30)];
+    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(10f), new AOEShapeDonut(10f, 20f), new AOEShapeDonut(20f, 30f)];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.GoldorQuake1)
-            AddSequence(Module.PrimaryActor.Position, Module.CastFinishAt(spell));
+        if (spell.Action.ID == (uint)AID.GoldorQuake1)
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0)
+        if (Sequences.Count != 0)
         {
-            var order = (AID)spell.Action.ID switch
+            var order = spell.Action.ID switch
             {
-                AID.GoldorQuake1 => 0,
-                AID.GoldorQuake2 => 1,
-                AID.GoldorQuake3 => 2,
+                (uint)AID.GoldorQuake1 => 0,
+                (uint)AID.GoldorQuake2 => 1,
+                (uint)AID.GoldorQuake3 => 2,
                 _ => -1
             };
-            AdvanceSequence(order, Module.PrimaryActor.Position, WorldState.FutureTime(1.5f));
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(1.5d));
         }
     }
 }
 
-class GoldorAeroIII(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.GoldorAeroIII), 10)
+class GoldorAeroIII(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.GoldorAeroIII, 10f)
 {
-    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<Burn>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || !Module.InBounds(pos);
+    private readonly Burn _aoe = module.FindComponent<Burn>()!;
+
+    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos)
+    {
+        var aoes = _aoe.ActiveAOEs(slot, actor);
+        var len = aoes.Length;
+        for (var i = 0; i < len; ++i)
+        {
+
+            if (aoes[i].Check(pos))
+                return true;
+        }
+        return !Module.InBounds(pos);
+    }
 }
 
-class GoldorAeroIIIRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.GoldorAeroIII));
-class Burn(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Burn), new AOEShapeCircle(10));
-class GoldorGravity(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.GoldorGravity), ActionID.MakeSpell(AID.GoldorGravity2), 0.8f, "Dmg + Heavy debuff");
-class GoldorThunderIII(BossModule module) : Components.RaidwideCastDelay(module, ActionID.MakeSpell(AID.GoldorThunderIIIVisual), ActionID.MakeSpell(AID.GoldorThunderIII1), 0.8f, "Prepare to cleanse Electrocution");
-class GoldorThunderIII2(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.GoldorThunderIII2), 6);
-class GoldorBlizzardIII(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.GoldorBlizzardIIIVisual));
+class GoldorAeroIIIRaidwide(BossModule module) : Components.RaidwideCast(module, (uint)AID.GoldorAeroIII);
+class Burn(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Burn, 10f);
+class GoldorGravity(BossModule module) : Components.RaidwideCastDelay(module, (uint)AID.GoldorGravity, (uint)AID.GoldorGravity2, 0.8f, "Dmg + Heavy debuff");
+class GoldorThunderIII(BossModule module) : Components.RaidwideCastDelay(module, (uint)AID.GoldorThunderIIIVisual, (uint)AID.GoldorThunderIII1, 0.8f, "Prepare to cleanse Electrocution");
+class GoldorThunderIII2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.GoldorThunderIII2, 6f);
+class GoldorBlizzardIII(BossModule module) : Components.CastInterruptHint(module, (uint)AID.GoldorBlizzardIIIVisual);
 
 class Hints2(BossModule module) : BossComponent(module)
 {
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        var electrocution = actor.FindStatus(SID.Electrocution);
-        if (electrocution != null)
+        if (actor.FindStatus((uint)SID.Electrocution) != null)
             hints.Add($"Cleanse Electrocution!");
-        var heavy = actor.FindStatus(SID.Heavy);
-        if (heavy != null)
+        if (actor.FindStatus((uint)SID.Heavy) != null)
             hints.Add("Use Loom to dodge AOEs!");
-        var fireballs = Module.Enemies(OID.BallOfFire).FirstOrDefault(x => !x.IsDead);
-        if (fireballs != null)
-            hints.Add("Destroy at least one fireball to create a safe spot!");
+
+        var fires = Module.Enemies((uint)OID.BallOfFire);
+        var count = fires.Count;
+        if (count == 0)
+            return;
+        for (var i = 0; i < count; ++i)
+        {
+            var fire = fires[i];
+            if (!fire.IsDead)
+            {
+                hints.Add("Destroy at least one fireball to create a safe spot!");
+                return;
+            }
+        }
     }
 }
 
@@ -122,10 +145,10 @@ class Stage32Act1States : StateMachineBuilder
             .ActivateOnEnter<GoldorFireIII2>()
             .ActivateOnEnter<GoldorBlast>()
             .ActivateOnEnter<Rupture>()
+            .ActivateOnEnter<Burn>()
             .ActivateOnEnter<GoldorQuake>()
             .ActivateOnEnter<GoldorAeroIII>()
             .ActivateOnEnter<GoldorAeroIIIRaidwide>()
-            .ActivateOnEnter<Burn>()
             .ActivateOnEnter<GoldorGravity>()
             .ActivateOnEnter<GoldorThunderIII>()
             .ActivateOnEnter<GoldorThunderIII2>()
@@ -138,7 +161,7 @@ class Stage32Act1States : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.MaskedCarnivale, GroupID = 948, NameID = 12471, SortOrder = 1)]
 public class Stage32Act1 : BossModule
 {
-    public Stage32Act1(WorldState ws, Actor primary) : base(ws, primary, new(100, 100), new ArenaBoundsCircle(16))
+    public Stage32Act1(WorldState ws, Actor primary) : base(ws, primary, Layouts.ArenaCenter, Layouts.CircleSmall)
     {
         ActivateComponent<Hints>();
     }
@@ -146,7 +169,7 @@ public class Stage32Act1 : BossModule
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.BallOfFire), Colors.Object);
-        Arena.Actors(Enemies(OID.GlitteringSlime), Colors.Object);
+        Arena.Actors(Enemies((uint)OID.BallOfFire), Colors.Object);
+        Arena.Actors(Enemies((uint)OID.GlitteringSlime), Colors.Object);
     }
 }

@@ -30,79 +30,50 @@ public enum AID : uint
 
     Strophe = 25693, // Boss->self, 3.0s cast, single-target
 
-    ThundagaForte1 = 25690, // Boss->location, 5.0s cast, range 40 circle, damage fall off AoE
-    ThundagaForte2 = 25691, // Helper->self, 5.0s cast, range 20 45-degree cone
-    ThundagaForte3 = 25692, // Helper->self, 11.0s cast, range 20 45-degree cone
+    ThundagaForteProximity = 25690, // Boss->location, 5.0s cast, range 40 circle, damage fall off AoE
+    ThundagaForteCone1 = 25691, // Helper->self, 5.0s cast, range 20 45-degree cone
+    ThundagaForteCone2 = 25692, // Helper->self, 11.0s cast, range 20 45-degree cone
 
     Visual = 25703 // YsaylesSpirit->self, no cast, single-target
 }
 
 class CurtainCallArenaChange(BossModule module) : BossComponent(module)
 {
-    private static readonly Shape[] circle = [new Polygon(new(11, -490), 6.4f * CosPI.Pi20th, 20, 9.Degrees())];
+    private static readonly Polygon[] circle = [new Polygon(new(11f, -490f), 6.5f, 20, 8.5f.Degrees())];
     public static readonly ArenaBoundsComplex CurtaincallArena = new(D053Amon.union, [.. D053Amon.difference, .. circle]);
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index == 0x05)
+        if (index == 0x05u)
         {
-            if (state == 0x00020001)
+            if (state == 0x00020001u)
                 Arena.Bounds = CurtaincallArena;
-            else if (state == 0x00080004)
+            else if (state == 0x00080004u)
                 Arena.Bounds = D053Amon.arena;
         }
     }
 }
 
-class Epode(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Epode), new AOEShapeRect(35, 6, 35));
-class EruptionForte(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.EruptionForte), 8);
-class LeftFiragaForte(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeftFiragaForte), new AOEShapeRect(40, 40, DirectionOffset: 90.Degrees()));
-class RightFiragaForte(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RightFiragaForte), new AOEShapeRect(40, 40, DirectionOffset: -90.Degrees()));
-class ThundagaForte1(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.ThundagaForte1), 15);
-class DarkForte(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.DarkForte));
-class Entracte(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Entracte));
-class DreamsOfIce(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DreamsOfIce), new AOEShapeCircle(6));
+class Epode(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Epode, new AOEShapeRect(70f, 6f));
+class EruptionForte(BossModule module) : Components.SimpleAOEs(module, (uint)AID.EruptionForte, 8f);
 
-class CurtainCall(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.CurtainCall), 60)
+class FiragaForte(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.LeftFiragaForte, (uint)AID.RightFiragaForte], new AOEShapeRect(40f, 10f));
+class ThundagaForteProximity(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ThundagaForteProximity, 15f);
+class DarkForte(BossModule module) : Components.SingleTargetCast(module, (uint)AID.DarkForte);
+class Entracte(BossModule module) : Components.RaidwideCast(module, (uint)AID.Entracte);
+class DreamsOfIce(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DreamsOfIce, 6f);
+
+class CurtainCall(BossModule module) : Components.CastLineOfSightAOE(module, (uint)AID.CurtainCall, 60f)
 {
-    public override IEnumerable<Actor> BlockerActors() => Module.Enemies(OID.Ice);
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<Actor> BlockerActors() => CollectionsMarshal.AsSpan(Module.Enemies((uint)OID.Ice));
+
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        return Arena.Bounds == CurtainCallArenaChange.CurtaincallArena ? Safezones : [];
+        return Arena.Bounds == CurtainCallArenaChange.CurtaincallArena ? CollectionsMarshal.AsSpan(Safezones) : [];
     }
 }
 
-class ThundagaForte2(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.Strophe))
-{
-    private readonly List<Actor> _castersThundagaForte2 = [];
-    private readonly List<Actor> _castersThundagaForte3 = [];
-
-    private static readonly AOEShape _cone = new AOEShapeCone(20, 22.5f.Degrees());
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        return _castersThundagaForte2.Count > 0
-            ? _castersThundagaForte2.Select(c => new AOEInstance(_cone, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo)))
-            : _castersThundagaForte3.Select(c => new AOEInstance(_cone, c.Position, c.CastInfo!.Rotation, Module.CastFinishAt(c.CastInfo)));
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        CastersForSpell(spell.Action)?.Add(caster);
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        CastersForSpell(spell.Action)?.Remove(caster);
-    }
-
-    private List<Actor>? CastersForSpell(ActionID spell) => (AID)spell.ID switch
-    {
-        AID.ThundagaForte2 => _castersThundagaForte2,
-        AID.ThundagaForte3 => _castersThundagaForte3,
-        _ => null
-    };
-}
+class ThundagaForteCone(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.ThundagaForteCone1, (uint)AID.ThundagaForteCone2], new AOEShapeCone(20f, 22.5f.Degrees()), 4, 8);
 
 class D053AmonStates : StateMachineBuilder
 {
@@ -114,10 +85,9 @@ class D053AmonStates : StateMachineBuilder
             .ActivateOnEnter<DreamsOfIce>()
             .ActivateOnEnter<Epode>()
             .ActivateOnEnter<EruptionForte>()
-            .ActivateOnEnter<LeftFiragaForte>()
-            .ActivateOnEnter<RightFiragaForte>()
-            .ActivateOnEnter<ThundagaForte1>()
-            .ActivateOnEnter<ThundagaForte2>()
+            .ActivateOnEnter<FiragaForte>()
+            .ActivateOnEnter<ThundagaForteProximity>()
+            .ActivateOnEnter<ThundagaForteCone>()
             .ActivateOnEnter<DarkForte>()
             .ActivateOnEnter<Entracte>();
     }
@@ -126,7 +96,7 @@ class D053AmonStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 786, NameID = 10293)]
 public class D053Amon(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    public static readonly Polygon[] union = [new Polygon(new(11, -490), 19.5f, 48)];
-    public static readonly Shape[] difference = [new Rectangle(new(11, -469), 20, 1.75f)];
+    public static readonly Polygon[] union = [new Polygon(new(11f, -490f), 19.5f, 48)];
+    public static readonly Rectangle[] difference = [new(new(11f, -469.521f), 20, 1.25f)];
     public static readonly ArenaBoundsComplex arena = new(union, difference);
 }

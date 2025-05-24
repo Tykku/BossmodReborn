@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Savage.P9SKokytos;
 
-class DualityOfDeath(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.DualityOfDeathFire), centerAtTarget: true)
+class DualityOfDeath(BossModule module) : Components.GenericBaitAway(module, (uint)AID.DualityOfDeathFire, centerAtTarget: true)
 {
     private ulong _firstFireTarget;
 
@@ -8,9 +8,9 @@ class DualityOfDeath(BossModule module) : Components.GenericBaitAway(module, Act
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (ActiveBaitsOn(actor).Any())
+        if (ActiveBaitsOn(actor).Count != 0)
         {
-            if (Raid.WithoutSlot().InRadiusExcluding(actor, _shape.Radius).Any())
+            if (Raid.WithoutSlot(false, true, true).InRadiusExcluding(actor, _shape.Radius).Any())
                 hints.Add("GTFO from raid!");
             if (Module.PrimaryActor.TargetID == _firstFireTarget)
                 hints.Add(actor.InstanceID != _firstFireTarget ? "Taunt!" : "Pass aggro!");

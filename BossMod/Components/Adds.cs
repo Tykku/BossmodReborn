@@ -1,10 +1,32 @@
 ﻿namespace BossMod.Components;
 
 // generic component used for drawing adds
-public class Adds(BossModule module, uint oid) : BossComponent(module)
+public class Adds(BossModule module, uint oid, int priority = 0) : BossComponent(module)
 {
-    public readonly IReadOnlyList<Actor> Actors = module.Enemies(oid);
-    public IEnumerable<Actor> ActiveActors => Actors.Where(a => a.IsTargetable && !a.IsDead);
+    public readonly List<Actor> Actors = module.Enemies(oid);
+    public List<Actor> ActiveActors
+    {
+        get
+        {
+            var count = Actors.Count;
+            var activeActors = new List<Actor>(count);
+            for (var i = 0; i < count; ++i)
+            {
+                var actor = Actors[i];
+                if (actor.IsTargetable && !actor.IsDead)
+                {
+                    activeActors.Add(actor);
+                }
+            }
+            return activeActors;
+        }
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        if (priority > 0)
+            hints.PrioritizeTargetsByOID(oid, priority);
+    }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
@@ -12,26 +34,48 @@ public class Adds(BossModule module, uint oid) : BossComponent(module)
     }
 }
 
+// component for adds that shouldn't be targeted at all, but should still be drawn
+public class AddsPointless(BossModule module, uint oid) : Adds(module, oid)
+{
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        var count = Actors.Count;
+        for (var i = 0; i < count; ++i)
+            hints.SetPriority(Actors[i], AIHints.Enemy.PriorityPointless);
+    }
+}
+
 // generic component used for drawing multiple adds with multiple oids, when it's not useful to distinguish between them
-public class AddsMulti(BossModule module, uint[] oids) : BossComponent(module)
+public class AddsMulti(BossModule module, uint[] oids, int priority = 0) : BossComponent(module)
 {
     public readonly uint[] OIDs = oids;
-    public readonly List<Actor> Actors = [];
-    public IEnumerable<Actor> ActiveActors => Actors.Where(a => a.IsTargetable && !a.IsDead);
+    public List<Actor> ActiveActors
+    {
+        get
+        {
+            var enemies = Module.Enemies(OIDs);
+            var count = enemies.Count;
+            List<Actor> activeActors = new(count);
+            for (var i = 0; i < count; ++i)
+            {
+                var actor = enemies[i];
+                if (actor.IsTargetable && !actor.IsDead)
+                {
+                    activeActors.Add(actor);
+                }
+            }
+            return activeActors;
+        }
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        if (priority > 0)
+            hints.PrioritizeTargetsByOID(OIDs, priority);
+    }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        Arena.Actors(Actors);
-    }
-
-    public override void OnActorCreated(Actor actor)
-    {
-        if (OIDs.Contains(actor.OID))
-            Actors.Add(actor);
-    }
-
-    public override void OnActorDestroyed(Actor actor)
-    {
-        Actors.Remove(actor);
+        Arena.Actors(Module.Enemies(OIDs));
     }
 }

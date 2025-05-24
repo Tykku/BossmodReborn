@@ -2,16 +2,26 @@
 
 class Spikesicle(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<AOEInstance> _aoes = [];
+    private readonly List<AOEInstance> _aoes = new(5);
 
-    private static readonly AOEShape[] _shapes = [new AOEShapeDonut(20, 25), new AOEShapeDonut(25, 30), new AOEShapeDonut(30, 35), new AOEShapeDonut(35, 40), new AOEShapeRect(40, 2.5f)]; // TODO: verify inner radius
+    private static readonly AOEShape[] _shapes = [new AOEShapeDonut(20f, 25f), new AOEShapeDonut(25f, 30f), new AOEShapeDonut(30f, 35f), new AOEShapeDonut(35f, 40f), new AOEShapeRect(40f, 2.5f)]; // TODO: verify inner radius
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (_aoes.Count > 1)
-            yield return _aoes[1];
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        var aoes = new AOEInstance[max];
+        for (var i = 0; i < max; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i == 0)
+                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
+            else
+                aoes[i] = aoe;
+        }
+        return aoes;
     }
 
     public override void OnEventEnvControl(byte index, uint state)
@@ -32,13 +42,13 @@ class Spikesicle(BossModule module) : Components.GenericAOEs(module)
             var odd = (index & 1) != 0;
             var x = index < 12 ? (odd ? -20 : +20) : (odd ? +17 : -17);
             var activationDelay = 11.3f + 0.2f * _aoes.Count;
-            _aoes.Add(new(shape, Module.PrimaryActor.Position + new WDir(x, 0), default, WorldState.FutureTime(activationDelay)));
+            _aoes.Add(new(shape, WPos.ClampToGrid(Module.PrimaryActor.Position + new WDir(x, 0)), default, WorldState.FutureTime(activationDelay)));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.SpikesicleAOE1 or AID.SpikesicleAOE2 or AID.SpikesicleAOE3 or AID.SpikesicleAOE4 or AID.SpikesicleAOE5)
+        if (spell.Action.ID is (uint)AID.SpikesicleAOE1 or (uint)AID.SpikesicleAOE2 or (uint)AID.SpikesicleAOE3 or (uint)AID.SpikesicleAOE4 or (uint)AID.SpikesicleAOE5)
         {
             ++NumCasts;
             _aoes.RemoveAt(0);
@@ -46,29 +56,39 @@ class Spikesicle(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class SphereShatter(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.SphereShatter))
+class SphereShatter(BossModule module) : Components.GenericAOEs(module, (uint)AID.SphereShatter)
 {
     private readonly List<AOEInstance> _aoes = [];
 
-    private static readonly AOEShapeCircle _shape = new(13);
+    private static readonly AOEShapeCircle _shape = new(13f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (_aoes.Count > 1)
-            yield return _aoes[1];
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        var aoes = new AOEInstance[max];
+        for (var i = 0; i < max; ++i)
+        {
+            var aoe = _aoes[i];
+            if (i == 0)
+                aoes[i] = count > 1 ? aoe with { Color = Colors.Danger } : aoe;
+            else
+                aoes[i] = aoe;
+        }
+        return aoes;
     }
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.IceBoulder)
-            _aoes.Add(new(_shape, actor.Position, default, WorldState.FutureTime(6.5f)));
+        if (actor.OID == (uint)OID.IceBoulder)
+            _aoes.Add(new(_shape, WPos.ClampToGrid(actor.Position), default, WorldState.FutureTime(6.5d)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.SphereShatter)
+        if (spell.Action.ID == (uint)AID.SphereShatter)
         {
             ++NumCasts;
             _aoes.RemoveAt(0);

@@ -251,7 +251,7 @@ public enum AID : uint
     DarkBreath = 27963, // Helper->self, no cast, range 50 ?-degree cone (fixed direction)
     HolyBreath = 27964, // Helper->self, no cast, range 50 ?-degree cone (fixed direction)
     StaggeringBreath = 27965, // Helper->player, no cast, range 15 circle solo tankbuster
-    //_Ability_ = 27951, // Helper->self, no cast, single-target
+    HraesvelgrVisual = 27951, // Helper->self, no cast, single-target
     MortalVowApply = 27952, // NidhoggP6->player, no cast, range 5 circle, apply debuff
     MortalVowPass = 27953, // Helper->self, no cast, range 5 circle, pass debuff
     AkhAfahN = 27971, // NidhoggP6->self, 8.0s cast, single-target
@@ -345,6 +345,7 @@ public enum SID : uint
     EntangledFlames = 2759, // none->player, extra=0x0
     Boiling = 2898, // Helper->player, extra=0x0
     Freezing = 2899, // Helper->player, extra=0x0
+    Pyretic = 960,
     GenericMechanic = 2056, // none->SerAdelphel/Haurchefant/DragonKingThordan, extra=0x1B6/0x127/0x12A (fire sword)/0x12B (ice sword)
 }
 

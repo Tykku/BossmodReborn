@@ -2,17 +2,46 @@
 
 class P5OmegaDoubleAOEs(BossModule module) : Components.GenericAOEs(module)
 {
-    public List<AOEInstance> AOEs = [];
+    public static readonly AOEShape[] Shapes = [new AOEShapeDonut(10f, 40f), new AOEShapeCircle(10f), new AOEShapeRect(40f, 40f, -4f), new AOEShapeCross(100f, 5f)];
+    public readonly List<AOEInstance> AOEs = [];
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        var midpoint = AOEs.FirstOrDefault().Activation.AddSeconds(2);
-        return NumCasts == 0 ? AOEs.TakeWhile(aoe => aoe.Activation <= midpoint) : AOEs.SkipWhile(aoe => aoe.Activation <= midpoint);
+        var count = AOEs.Count;
+        if (count == 0)
+            return [];
+
+        var midpoint = AOEs[0].Activation.AddSeconds(2d);
+        int startIndex = 0, endIndex = count;
+
+        if (NumCasts == 0)
+        {
+            for (var i = 0; i < count; ++i)
+            {
+                if (AOEs[i].Activation > midpoint)
+                {
+                    endIndex = i;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            for (var i = 0; i < count; ++i)
+            {
+                if (AOEs[i].Activation > midpoint)
+                {
+                    startIndex = i;
+                    break;
+                }
+            }
+        }
+        return CollectionsMarshal.AsSpan(AOEs)[startIndex..endIndex];
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.BeyondStrength or AID.EfficientBladework or AID.SuperliminalSteel or AID.OptimizedBlizzard)
+        if (spell.Action.ID is (uint)AID.BeyondStrength or (uint)AID.EfficientBladework or (uint)AID.SuperliminalSteel or (uint)AID.OptimizedBlizzard)
             ++NumCasts;
     }
 
@@ -20,27 +49,28 @@ class P5OmegaDoubleAOEs(BossModule module) : Components.GenericAOEs(module)
     {
         if (id != 0x1E43)
             return;
-        switch ((OID)actor.OID)
+        void AddAOE(AOEShape shape, Angle offset = default) => AOEs.Add(new(shape, WPos.ClampToGrid(actor.Position), actor.Rotation + offset, WorldState.FutureTime(13.2d)));
+        switch (actor.OID)
         {
-            case OID.OmegaMP5:
+            case (uint)OID.OmegaMP5:
                 if (actor.ModelState.ModelState == 4)
                 {
-                    AOEs.Add(new(new AOEShapeDonut(10, 40), actor.Position, actor.Rotation, WorldState.FutureTime(13.2f)));
+                    AddAOE(Shapes[0]);
                 }
                 else
                 {
-                    AOEs.Add(new(new AOEShapeCircle(10), actor.Position, actor.Rotation, WorldState.FutureTime(13.2f)));
+                    AddAOE(Shapes[1]);
                 }
                 break;
-            case OID.OmegaFP5:
+            case (uint)OID.OmegaFP5:
                 if (actor.ModelState.ModelState == 4)
                 {
-                    AOEs.Add(new(new AOEShapeRect(40, 40, -4), actor.Position, actor.Rotation + 90.Degrees(), WorldState.FutureTime(13.2f)));
-                    AOEs.Add(new(new AOEShapeRect(40, 40, -4), actor.Position, actor.Rotation - 90.Degrees(), WorldState.FutureTime(13.2f)));
+                    AddAOE(Shapes[0], 90.Degrees());
+                    AddAOE(Shapes[0], -90.Degrees());
                 }
                 else
                 {
-                    AOEs.Add(new(new AOEShapeCross(100, 5), actor.Position, actor.Rotation, WorldState.FutureTime(13.2f)));
+                    AddAOE(Shapes[3]);
                 }
                 break;
         }
@@ -51,25 +81,35 @@ class P5OmegaDiffuseWaveCannon(BossModule module) : Components.GenericAOEs(modul
 {
     private readonly List<AOEInstance> _aoes = [];
 
-    private static readonly AOEShapeCone _shape = new(100, 60.Degrees());
+    private static readonly AOEShapeCone _shape = new(100f, 60f.Degrees());
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes.Take(2);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 2 ? 2 : count;
+        return CollectionsMarshal.AsSpan(_aoes)[..max];
+    }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.OmegaDiffuseWaveCannonFront or AID.OmegaDiffuseWaveCannonSides)
+        if (spell.Action.ID is (uint)AID.OmegaDiffuseWaveCannonFront or (uint)AID.OmegaDiffuseWaveCannonSides)
         {
-            var first = spell.Rotation + ((AID)spell.Action.ID == AID.OmegaDiffuseWaveCannonFront ? 0 : 90).Degrees();
-            _aoes.Add(new(_shape, caster.Position, first, Module.CastFinishAt(spell, 1.1f)));
-            _aoes.Add(new(_shape, caster.Position, first + 180.Degrees(), Module.CastFinishAt(spell, 1.1f)));
-            _aoes.Add(new(_shape, caster.Position, first + 90.Degrees(), Module.CastFinishAt(spell, 5.2f)));
-            _aoes.Add(new(_shape, caster.Position, first - 90.Degrees(), Module.CastFinishAt(spell, 5.2f)));
+            var first = spell.Rotation + (spell.Action.ID == (uint)AID.OmegaDiffuseWaveCannonFront ? 0f : 90f).Degrees();
+            var pos = spell.LocXZ;
+            var act1st = Module.CastFinishAt(spell, 1.1f);
+            var act2nd = Module.CastFinishAt(spell, 5.2f);
+            _aoes.Add(new(_shape, pos, first, act1st));
+            _aoes.Add(new(_shape, pos, first + 180f.Degrees(), act1st));
+            _aoes.Add(new(_shape, pos, first + 90f.Degrees(), act2nd));
+            _aoes.Add(new(_shape, pos, first - 90f.Degrees(), act2nd));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.OmegaDiffuseWaveCannonAOE)
+        if (spell.Action.ID == (uint)AID.OmegaDiffuseWaveCannonAOE)
         {
             ++NumCasts;
             var count = _aoes.RemoveAll(aoe => aoe.Rotation.AlmostEqual(caster.Rotation, 0.1f));
@@ -95,20 +135,20 @@ class P5OmegaNearDistantWorld(BossModule module) : P5NearDistantWorld(module)
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        switch ((SID)status.ID)
+        switch (status.ID)
         {
-            case SID.HelloNearWorld:
-                _near.Set(Raid.FindSlot(actor.InstanceID));
+            case (uint)SID.HelloNearWorld:
+                _near[Raid.FindSlot(actor.InstanceID)] = true;
                 break;
-            case SID.HelloDistantWorld:
-                _distant.Set(Raid.FindSlot(actor.InstanceID));
+            case (uint)SID.HelloDistantWorld:
+                _distant[Raid.FindSlot(actor.InstanceID)] = true;
                 break;
-            case SID.InLine1:
-                _first.Set(Raid.FindSlot(actor.InstanceID));
+            case (uint)SID.InLine1:
+                _first[Raid.FindSlot(actor.InstanceID)] = true;
                 _firstActivation = status.ExpireAt;
                 break;
-            case SID.InLine2:
-                _second.Set(Raid.FindSlot(actor.InstanceID));
+            case (uint)SID.InLine2:
+                _second[Raid.FindSlot(actor.InstanceID)] = true;
                 _secondActivation = status.ExpireAt;
                 break;
         }
@@ -116,13 +156,13 @@ class P5OmegaNearDistantWorld(BossModule module) : P5NearDistantWorld(module)
 }
 
 // TODO: assign soakers
-class P5OmegaOversampledWaveCannon(BossModule module) : Components.UniformStackSpread(module, 0, 7)
+class P5OmegaOversampledWaveCannon(BossModule module) : Components.UniformStackSpread(module, default, 7f)
 {
     private readonly P5OmegaNearDistantWorld? _ndw = module.FindComponent<P5OmegaNearDistantWorld>();
     private Actor? _boss;
     private Angle _bossAngle;
 
-    private static readonly AOEShapeRect _shape = new(50, 50);
+    private static readonly AOEShapeRect _shape = new(50f, 50f);
 
     public bool IsActive => _boss != null;
 
@@ -130,29 +170,29 @@ class P5OmegaOversampledWaveCannon(BossModule module) : Components.UniformStackS
     {
         Spreads.Clear();
         if (_boss != null)
-            AddSpreads(Raid.WithoutSlot().InShape(_shape, _boss.Position, _boss.Rotation + _bossAngle));
+            AddSpreads(Raid.WithoutSlot(false, true, true).InShape(_shape, _boss.Position, _boss.Rotation + _bossAngle));
         base.Update();
     }
 
     public override void DrawArenaBackground(int pcSlot, Actor pc)
     {
         if (_boss != null)
-            _shape.Draw(Arena, _boss.Position, _boss.Rotation + _bossAngle, Colors.AOE);
+            _shape.Draw(Arena, _boss.Position, _boss.Rotation + _bossAngle);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
         foreach (var p in SafeSpots(pcSlot, pc))
-            Arena.AddCircle(p, 1, Colors.Safe);
+            Arena.AddCircle(p, 1f, Colors.Safe);
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        var angle = (AID)spell.Action.ID switch
+        var angle = spell.Action.ID switch
         {
-            AID.DeltaOversampledWaveCannonL => 90.Degrees(),
-            AID.DeltaOversampledWaveCannonR => -90.Degrees(),
+            (uint)AID.DeltaOversampledWaveCannonL => 90f.Degrees(),
+            (uint)AID.DeltaOversampledWaveCannonR => -90f.Degrees(),
             _ => default
         };
         if (angle == default)
@@ -163,35 +203,40 @@ class P5OmegaOversampledWaveCannon(BossModule module) : Components.UniformStackS
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.OversampledWaveCannonAOE)
+        if (spell.Action.ID == (uint)AID.OversampledWaveCannonAOE)
         {
             Spreads.Clear();
             _boss = null;
         }
     }
 
-    private IEnumerable<WPos> SafeSpots(int slot, Actor actor)
+    private List<WPos> SafeSpots(int slot, Actor actor)
     {
         if (_ndw == null || _boss == null)
-            yield break;
+            return [];
 
+        var center = Arena.Center;
+        var rot = _boss.Rotation;
         if (actor == _ndw.NearWorld)
         {
-            yield return Module.Center + 10 * (_boss.Rotation - _bossAngle).ToDirection();
+            return [center + 10f * (rot - _bossAngle).ToDirection()];
         }
         else if (actor == _ndw.DistantWorld)
         {
-            yield return Module.Center + 10 * (_boss.Rotation + 2.05f * _bossAngle).ToDirection();
+            return [center + 10f * (rot + 2.05f * _bossAngle).ToDirection()];
         }
         else
         {
-            // TODO: assignments...
-            yield return Module.Center + 19 * (_boss.Rotation - 0.05f * _bossAngle).ToDirection(); // '1' - first distant
-            yield return Module.Center + 19 * (_boss.Rotation - 0.95f * _bossAngle).ToDirection(); // '2' - first near
-            yield return Module.Center + 19 * (_boss.Rotation - 1.05f * _bossAngle).ToDirection(); // '3' - second near
-            yield return Module.Center + 19 * (_boss.Rotation - 1.95f * _bossAngle).ToDirection(); // '4' - second distant
-            yield return Module.Center + 15 * (_boss.Rotation + 0.50f * _bossAngle).ToDirection(); // first soaker
-            yield return Module.Center + 15 * (_boss.Rotation + 1.50f * _bossAngle).ToDirection(); // second soaker
+            return
+            [
+                // TODO: assignments...
+                center + 19f * (rot - 0.05f * _bossAngle).ToDirection(), // '1' - first distant
+                center + 19f * (rot - 0.95f * _bossAngle).ToDirection(), // '2' - first near
+                center + 19f * (rot - 1.05f * _bossAngle).ToDirection(), // '3' - second near
+                center + 19f * (rot - 1.95f * _bossAngle).ToDirection(), // '4' - second distant
+                center + 15f * (rot + 0.50f * _bossAngle).ToDirection(), // first soaker
+                center + 15f * (rot + 1.50f * _bossAngle).ToDirection(), // second soaker
+            ];
         }
     }
 }
@@ -201,9 +246,8 @@ class P5OmegaBlaster : Components.BaitAwayTethers
 {
     private readonly P5OmegaNearDistantWorld? _ndw;
 
-    public P5OmegaBlaster(BossModule module) : base(module, new AOEShapeCircle(15), (uint)TetherID.Blaster, ActionID.MakeSpell(AID.OmegaBlasterAOE))
+    public P5OmegaBlaster(BossModule module) : base(module, 15f, (uint)TetherID.Blaster, (uint)AID.OmegaBlasterAOE)
     {
-        CenterAtTarget = true;
         ForbiddenPlayers = new(0xFF);
         _ndw = module.FindComponent<P5OmegaNearDistantWorld>();
     }
@@ -212,44 +256,48 @@ class P5OmegaBlaster : Components.BaitAwayTethers
     {
         base.DrawArenaForeground(pcSlot, pc);
         foreach (var p in SafeSpots(pcSlot, pc))
-            Arena.AddCircle(p, 1, Colors.Safe);
+            Arena.AddCircle(p, 1f, Colors.Safe);
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.QuickeningDynamis && status.Extra >= 3)
-            ForbiddenPlayers.Clear(Raid.FindSlot(actor.InstanceID));
+        if (status.ID == (uint)SID.QuickeningDynamis && status.Extra >= 3)
+            ForbiddenPlayers[Raid.FindSlot(actor.InstanceID)] = false;
     }
 
-    private IEnumerable<WPos> SafeSpots(int slot, Actor actor)
+    private List<WPos> SafeSpots(int slot, Actor actor)
     {
         if (_ndw == null || CurrentBaits.Count == 0)
-            yield break;
+            return [];
 
-        var toBoss = (CurrentBaits[0].Source.Position - Module.Center).Normalized();
+        var center = Arena.Center;
+        var toBoss = (CurrentBaits[0].Source.Position - center).Normalized();
+        var toBossOrthoL = toBoss.OrthoL();
+        var toBossOrthoR = toBoss.OrthoR();
         if (actor == _ndw.NearWorld)
         {
-            yield return Module.Center - 10 * toBoss;
+            return [center - 10f * toBoss];
         }
         else if (actor == _ndw.DistantWorld)
         {
             // TODO: select one of the spots...
-            yield return Module.Center + 10 * toBoss.OrthoL();
-            yield return Module.Center + 10 * toBoss.OrthoR();
+            return [center + 10 * toBossOrthoL, center + 10 * toBossOrthoR];
         }
-        else if (CurrentBaits.Any(b => b.Target == actor))
+        else if (ActiveBaitsOn(actor).Count != 0)
         {
-            var p = Module.Center + 16 * toBoss;
-            yield return p + 10 * toBoss.OrthoL();
-            yield return p + 10 * toBoss.OrthoR();
+            var p = Arena.Center + 16 * toBoss;
+            return [p + 10 * toBossOrthoL, p + 10 * toBossOrthoR];
         }
         else
         {
             // TODO: assignments...
-            yield return Module.Center + 19 * toBoss.OrthoL(); // '1' - first distant
-            yield return Module.Center - 18 * toBoss + 5 * toBoss.OrthoL(); // '2' - first near
-            yield return Module.Center - 18 * toBoss + 5 * toBoss.OrthoR(); // '3' - second near
-            yield return Module.Center + 19 * toBoss.OrthoR(); // '4' - second distant
+            return
+            [
+                center + 19f * toBossOrthoL, // '1' - first distant
+                center - 18f * toBoss + 5f * toBossOrthoL, // '2' - first near
+                center - 18f * toBoss + 5f * toBossOrthoR, // '3' - second near
+                center + 19f * toBossOrthoR // '4' - second distant
+            ];
         }
     }
 }

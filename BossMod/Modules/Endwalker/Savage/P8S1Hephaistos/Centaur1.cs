@@ -1,17 +1,17 @@
 ﻿namespace BossMod.Endwalker.Savage.P8S1Hephaistos;
 
-class RearingRampageSecond(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.RearingRampageSecond));
-class RearingRampageLast(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.RearingRampageLast));
+class RearingRampageSecond(BossModule module) : Components.CastCounter(module, (uint)AID.RearingRampageSecond);
+class RearingRampageLast(BossModule module) : Components.CastCounter(module, (uint)AID.RearingRampageLast);
 
 class UpliftStompDead : Components.UniformStackSpread
 {
-    public int NumUplifts { get; private set; }
-    public int NumStomps { get; private set; }
+    public int NumUplifts;
+    public int NumStomps;
     public int[] OrderPerSlot = new int[PartyState.MaxPartySize]; // 0 means not yet known
 
     public UpliftStompDead(BossModule module) : base(module, 6, 6, 2, 2, true)
     {
-        AddSpreads(Raid.WithoutSlot(true));
+        AddSpreads(Raid.WithoutSlot(true, true, true));
     }
 
     public override void Update()

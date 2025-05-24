@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Savage.P9SKokytos;
 
-class Charibdys(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.CharybdisAOE), m => m.Enemies(OID.Charybdis).Where(v => v.EventState != 7), 0.6f);
+class Charibdys(BossModule module) : Components.VoidzoneAtCastTarget(module, 6, (uint)AID.CharybdisAOE, m => m.Enemies(OID.Charybdis).Where(v => v.EventState != 7), 0.6f);
 
 class Comet(BossModule module) : Components.Adds(module, (uint)OID.Comet)
 {
@@ -16,8 +16,8 @@ class Comet(BossModule module) : Components.Adds(module, (uint)OID.Comet)
     }
 }
 
-class CometImpact(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CometImpact), new AOEShapeCircle(10)); // TODO: verify falloff
-class CometBurst(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CometBurstLong), new AOEShapeCircle(10));
+class CometImpact(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CometImpact, 10); // TODO: verify falloff
+class CometBurst(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CometBurstLong, 10);
 
 class BeastlyBile(BossModule module) : Components.UniformStackSpread(module, 6, 0, 4)
 {
@@ -41,7 +41,7 @@ class BeastlyBile(BossModule module) : Components.UniformStackSpread(module, 6, 
     public override void Update()
     {
         Stacks.Clear();
-        var target = NumCasts < 2 ? Raid.WithoutSlot().Farthest(Module.PrimaryActor.Position) : null;
+        var target = NumCasts < 2 ? Raid.WithoutSlot(false, true, true).Farthest(Module.PrimaryActor.Position) : null;
         if (target != null)
             AddStack(target, _activation, _forbiddenPlayers);
         base.Update();
@@ -59,7 +59,7 @@ class BeastlyBile(BossModule module) : Components.UniformStackSpread(module, 6, 
     }
 }
 
-class Thunderbolt(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.ThunderboltAOE))
+class Thunderbolt(BossModule module) : Components.GenericBaitAway(module, (uint)AID.ThunderboltAOE)
 {
     private readonly Comet? _comet = module.FindComponent<Comet>();
 
@@ -68,7 +68,7 @@ class Thunderbolt(BossModule module) : Components.GenericBaitAway(module, Action
     public override void Update()
     {
         CurrentBaits.Clear();
-        foreach (var p in Raid.WithoutSlot().SortedByRange(Module.PrimaryActor.Position).Take(4))
+        foreach (var p in Raid.WithoutSlot(false, true, true).SortedByRange(Module.PrimaryActor.Position).Take(4))
             CurrentBaits.Add(new(Module.PrimaryActor, p, _shape));
     }
 
@@ -82,7 +82,7 @@ class Thunderbolt(BossModule module) : Components.GenericBaitAway(module, Action
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             ++NumCasts;
             foreach (var t in spell.Targets)
@@ -91,7 +91,7 @@ class Thunderbolt(BossModule module) : Components.GenericBaitAway(module, Action
     }
 }
 
-class EclipticMeteor(BossModule module) : Components.GenericLineOfSightAOE(module, ActionID.MakeSpell(AID.EclipticMeteorAOE), 60, safeInsideHitbox: false)
+class EclipticMeteor(BossModule module) : Components.GenericLineOfSightAOE(module, (uint)AID.EclipticMeteorAOE, 60, safeInsideHitbox: false)
 {
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {

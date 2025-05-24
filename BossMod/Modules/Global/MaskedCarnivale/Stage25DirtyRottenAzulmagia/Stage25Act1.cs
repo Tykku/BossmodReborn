@@ -3,34 +3,34 @@ namespace BossMod.Global.MaskedCarnivale.Stage25.Act1;
 public enum OID : uint
 {
     Boss = 0x2678, //R=1.2
-    Helper = 0x233C,
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
-    IceSpikes = 14762, // 2678->self, 2.0s cast, single-target, boss reflects all physical damage
-    ApocalypticBolt = 14766, // 2678->self, 3.0s cast, range 50+R width 8 rect
-    TheRamsVoice = 14763, // 2678->self, 3.5s cast, range 8 circle
-    TheDragonsVoice = 14764, // 2678->self, 3.5s cast, range 6-30 donut
-    Plaincracker = 14765, // 2678->self, 3.5s cast, range 6+R circle
-    TremblingEarth = 14774, // 233C->self, 3.5s cast, range 10-20 donut
-    TremblingEarth2 = 14775, // 233C->self, 3.5s cast, range 20-30 donut
-    ApocalypticRoar = 14767, // 2678->self, 5.0s cast, range 35+R 120-degree cone
+    IceSpikes = 14762, // Boss->self, 2.0s cast, single-target, boss reflects all physical damage
+    ApocalypticBolt = 14766, // Boss->self, 3.0s cast, range 50+R width 8 rect
+    TheRamsVoice = 14763, // Boss->self, 3.5s cast, range 8 circle
+    TheDragonsVoice = 14764, // Boss->self, 3.5s cast, range 6-30 donut
+    Plaincracker = 14765, // Boss->self, 3.5s cast, range 6+R circle
+    TremblingEarth1 = 14774, // Helper->self, 3.5s cast, range 10-20 donut
+    TremblingEarth2 = 14775, // Helper->self, 3.5s cast, range 20-30 donut
+    ApocalypticRoar = 14767 // Boss->self, 5.0s cast, range 35+R 120-degree cone
 }
 
 public enum SID : uint
 {
     IceSpikes = 1307, // Boss->Boss, extra=0x64
-    Doom = 910, // Boss->player, extra=0x0
+    Doom = 910 // Boss->player, extra=0x0
 }
 
-class ApocalypticBolt(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ApocalypticBolt), new AOEShapeRect(51.2f, 4));
-class ApocalypticRoar(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ApocalypticRoar), new AOEShapeCone(36.2f, 60.Degrees()));
-class TheRamsVoice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheRamsVoice), new AOEShapeCircle(8));
-class TheDragonsVoice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheDragonsVoice), new AOEShapeDonut(6, 30));
-class Plaincracker(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Plaincracker), new AOEShapeCircle(7.2f));
-class TremblingEarth(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TremblingEarth), new AOEShapeDonut(10, 20));
-class TremblingEarth2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TremblingEarth2), new AOEShapeDonut(20, 30));
+class ApocalypticBolt(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ApocalypticBolt, new AOEShapeRect(51.2f, 45f));
+class ApocalypticRoar(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ApocalypticRoar, new AOEShapeCone(36.2f, 60f.Degrees()));
+class TheRamsVoice(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheRamsVoice, 8f);
+class TheDragonsVoice(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheDragonsVoice, new AOEShapeDonut(6f, 30f));
+class Plaincracker(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Plaincracker, 7.2f);
+class TremblingEarth1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TremblingEarth1, new AOEShapeDonut(10f, 20f));
+class TremblingEarth2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TremblingEarth2, new AOEShapeDonut(20f, 30f));
 
 class Hints(BossModule module) : BossComponent(module)
 {
@@ -49,15 +49,13 @@ class Hints2(BossModule module) : BossComponent(module)
 {
     public override void AddGlobalHints(GlobalHints hints)
     {
-        var physicalreflect = Module.Enemies(OID.Boss).FirstOrDefault(x => x.FindStatus(SID.IceSpikes) != null);
-        if (physicalreflect != null)
+        if (Module.PrimaryActor.FindStatus((uint)SID.IceSpikes) != null)
             hints.Add($"{Module.PrimaryActor.Name} will reflect all physical damage!");
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        var doomed = actor.FindStatus(SID.Doom);
-        if (doomed != null)
+        if (actor.FindStatus((uint)SID.Doom) != null)
             hints.Add("You were doomed! Cleanse it with Exuviation or finish the act fast.");
     }
 }
@@ -72,7 +70,7 @@ class Stage25Act1States : StateMachineBuilder
             .ActivateOnEnter<TheRamsVoice>()
             .ActivateOnEnter<TheDragonsVoice>()
             .ActivateOnEnter<Plaincracker>()
-            .ActivateOnEnter<TremblingEarth>()
+            .ActivateOnEnter<TremblingEarth1>()
             .ActivateOnEnter<TremblingEarth2>()
             .ActivateOnEnter<Hints2>()
             .DeactivateOnEnter<Hints>();
@@ -82,7 +80,7 @@ class Stage25Act1States : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.MaskedCarnivale, GroupID = 635, NameID = 8129, SortOrder = 1)]
 public class Stage25Act1 : BossModule
 {
-    public Stage25Act1(WorldState ws, Actor primary) : base(ws, primary, new(100, 100), new ArenaBoundsCircle(25))
+    public Stage25Act1(WorldState ws, Actor primary) : base(ws, primary, Layouts.ArenaCenter, Layouts.CircleBig)
     {
         ActivateComponent<Hints>();
     }

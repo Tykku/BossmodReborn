@@ -1,6 +1,6 @@
 ﻿namespace BossMod;
 
-[ConfigDisplay(Name = "Smart character orientation", Parent = typeof(ActionTweaksConfig), Since = "7.2.0.146")]
+[ConfigDisplay(Name = "Smart character orientation", Parent = typeof(ActionTweaksConfig))]
 class SmartRotationConfig : ConfigNode
 {
     [PropertyDisplay("Enable the feature", tooltip: "Replace in-game 'auto face target' option with a smarter alternative.\nWhen using an action, changes direction only if target is not in frontal cone.\nDuring cast, keep character facing the target.")]
@@ -29,7 +29,7 @@ public sealed class SmartRotationTweak(WorldState ws, AIHints hints)
     public Angle? GetSpellOrientation(uint spellId, WPos playerPos, bool targetIsSelf, WPos? targetPos, WPos targetLoc)
     {
         var data = Service.LuminaRow<Lumina.Excel.Sheets.Action>(spellId);
-        if (data == null || !data.Value.NeedToFaceTarget) // does not require facing
+        if (data == null || !data.Value.NeedToFaceTarget || data.Value.Range == 0) // does not require facing
             return null;
         if (data.Value.TargetArea)
             return Angle.FromDirection(targetLoc - playerPos);

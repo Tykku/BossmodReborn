@@ -1,11 +1,13 @@
 ﻿using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
+using FFXIVClientStructs.FFXIV.Common.Component.BGCollision;
 using System.Runtime.InteropServices;
 using CSActionType = FFXIVClientStructs.FFXIV.Client.Game.ActionType;
 
@@ -42,10 +44,9 @@ public sealed unsafe class ActionManagerEx : IDisposable
     public Event<ClientActionRequest> ActionRequestExecuted = new();
     public Event<ulong, ActorCastEvent> ActionEffectReceived = new();
 
-    public ActionTweaksConfig Config = Service.Config.Get<ActionTweaksConfig>();
-    public ActionQueue.Entry AutoQueue { get; private set; }
-    public bool MoveMightInterruptCast { get; private set; } // if true, moving now might cause cast interruption (for current or queued cast)
-    public bool ForceCancelCastNextFrame;
+    public static readonly ActionTweaksConfig Config = Service.Config.Get<ActionTweaksConfig>();
+    public ActionQueue.Entry AutoQueue;
+    public bool MoveMightInterruptCast; // if true, moving now might cause cast interruption (for current or queued cast)
     private readonly ActionManager* _inst = ActionManager.Instance();
     private readonly WorldState _ws;
     private readonly AIHints _hints;
@@ -64,12 +65,17 @@ public sealed unsafe class ActionManagerEx : IDisposable
     private readonly HookAddress<ActionManager.Delegates.UseAction> _useActionHook;
     private readonly HookAddress<ActionManager.Delegates.UseActionLocation> _useActionLocationHook;
     private readonly HookAddress<PublicContentBozja.Delegates.UseFromHolster> _useBozjaFromHolsterDirectorHook;
+    private readonly HookAddress<InstanceContentDeepDungeon.Delegates.UsePomander> _usePomanderHook;
+    private readonly HookAddress<InstanceContentDeepDungeon.Delegates.UseStone> _useStoneHook;
     private readonly HookAddress<ActionEffectHandler.Delegates.Receive> _processPacketActionEffectHook;
+    private readonly HookAddress<AutoAttackState.Delegates.SetImpl> _setAutoAttackStateHook;
 
     private delegate void ExecuteCommandGTDelegate(uint commandId, Vector3* position, uint param1, uint param2, uint param3, uint param4);
     private readonly ExecuteCommandGTDelegate _executeCommandGT;
     private DateTime _nextAllowedExecuteCommand;
     private const uint InvalidEntityId = 0xE0000000;
+
+    private readonly unsafe delegate* unmanaged<TargetSystem*, TargetSystem*> _autoSelectTarget;
 
     public ActionManagerEx(WorldState ws, AIHints hints, MovementOverride movement)
     {
@@ -88,16 +94,26 @@ public sealed unsafe class ActionManagerEx : IDisposable
         _useActionHook = new(ActionManager.Addresses.UseAction, UseActionDetour);
         _useActionLocationHook = new(ActionManager.Addresses.UseActionLocation, UseActionLocationDetour);
         _useBozjaFromHolsterDirectorHook = new(PublicContentBozja.Addresses.UseFromHolster, UseBozjaFromHolsterDirectorDetour);
+        _usePomanderHook = new(InstanceContentDeepDungeon.Addresses.UsePomander, UsePomanderDetour);
+        _useStoneHook = new(InstanceContentDeepDungeon.Addresses.UseStone, UseStoneDetour);
         _processPacketActionEffectHook = new(ActionEffectHandler.Addresses.Receive, ProcessPacketActionEffectDetour);
+        _setAutoAttackStateHook = new(AutoAttackState.Addresses.SetImpl, SetAutoAttackStateDetour);
 
         var executeCommandGTAddress = Service.SigScanner.ScanText("E8 ?? ?? ?? ?? EB 1E 48 8B 53 08");
         Service.Log($"ExecuteCommandGT address: 0x{executeCommandGTAddress:X}");
         _executeCommandGT = Marshal.GetDelegateForFunctionPointer<ExecuteCommandGTDelegate>(executeCommandGTAddress);
+
+        var selectTargetAddress = Service.SigScanner.ScanText("E8 ?? ?? ?? ?? 48 8B CE E8 ?? ?? ?? ?? 48 3B C5");
+        Service.Log($"SelectTarget address: 0x{selectTargetAddress:X}");
+        _autoSelectTarget = (delegate* unmanaged<TargetSystem*, TargetSystem*>)selectTargetAddress;
     }
 
     public void Dispose()
     {
+        _setAutoAttackStateHook.Dispose();
         _processPacketActionEffectHook.Dispose();
+        _useStoneHook.Dispose();
+        _usePomanderHook.Dispose();
         _useBozjaFromHolsterDirectorHook.Dispose();
         _useActionLocationHook.Dispose();
         _useActionHook.Dispose();
@@ -120,11 +136,18 @@ public sealed unsafe class ActionManagerEx : IDisposable
             return;
 
         _oocActionsTweak.FillActions(player, _hints);
-        AutoQueue = _hints.ActionsToExecute.FindBest(_ws, player, _ws.Client.Cooldowns, EffectiveAnimationLock, _hints, _animLockTweak.DelayEstimate);
+        AutoQueue = _hints.ActionsToExecute.FindBest(_ws, player, _ws.Client.Cooldowns, EffectiveAnimationLock, _hints, _animLockTweak.DelayEstimate, _dismountTweak.AutoDismountEnabled);
         if (AutoQueue.Delay > 0)
             AutoQueue = default;
-        if (Config.PyreticThreshold > 0 && _hints.ImminentSpecialMode.mode == AIHints.SpecialMode.Pyretic && _hints.ImminentSpecialMode.activation < _ws.FutureTime(Config.PyreticThreshold) && AutoQueue.Priority < ActionQueue.Priority.ManualEmergency)
-            AutoQueue = default; // do not execute non-emergency actions when pyretic is imminent
+
+        if (AutoQueue.Priority < ActionQueue.Priority.ManualEmergency)
+        {
+            if (Config.PyreticThreshold > 0 && _hints.ImminentSpecialMode.mode == AIHints.SpecialMode.Pyretic && _hints.ImminentSpecialMode.activation < _ws.FutureTime(Config.PyreticThreshold))
+                AutoQueue = default; // do not execute non-emergency actions when pyretic is imminent
+
+            if (_hints.FindEnemy(AutoQueue.Target)?.Priority == AIHints.Enemy.PriorityForbidden)
+                AutoQueue = default; // or if selected target is forbidden
+        }
     }
 
     public Vector3? GetWorldPosUnderCursor()
@@ -133,12 +156,18 @@ public sealed unsafe class ActionManagerEx : IDisposable
         return _inst->GetGroundPositionForCursor(&res) ? res : null;
     }
 
-    public void FaceTarget(Vector3 position, ulong unkObjID = InvalidEntityId) => _inst->AutoFaceTargetPosition(&position, unkObjID);
-    public void FaceDirection(WDir direction)
+    public void FaceDirection(Angle direction)
     {
-        var player = GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
+        var player = (Character*)GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
         if (player != null)
-            FaceTarget(player->Position.ToSystem() + direction.ToVec3());
+        {
+            var position = player->Position.ToSystem() + direction.ToDirection().ToVec3();
+            _inst->AutoFaceTargetPosition(&position);
+
+            var pm = (PlayerMove*)player;
+            // if rotation interpolation is in progress, we have to reset desired rotation to avoid game rotating us away next frame
+            pm->Move.Interpolation.DesiredRotation = direction.Rad;
+        }
     }
 
     public void GetCooldown(ref Cooldown result, RecastDetail* data)
@@ -184,7 +213,7 @@ public sealed unsafe class ActionManagerEx : IDisposable
     {
         // TODO: 7.1: there are now 5 actions, but only 2 charges...
         var dm = DutyActionManager.GetInstanceIfReady();
-        return dm == null || !dm->ActionsPresent || slot >= dm->NumValidSlots
+        return dm == null || !dm->ActionActive[0] || slot >= dm->NumValidSlots
             ? default
             : new(new(ActionType.Spell, dm->ActionId[slot]), dm->CurCharges[slot], dm->MaxCharges[slot]);
     }
@@ -206,6 +235,16 @@ public sealed unsafe class ActionManagerEx : IDisposable
         => ActionManager.GetAdjustedCastTime((CSActionType)action.Type, action.ID, applyProcs, outOptProc);
 
     public int GetAdjustedRecastTime(ActionID action, bool applyClassMechanics = true) => ActionManager.GetAdjustedRecastTime((CSActionType)action.Type, action.ID, applyClassMechanics);
+
+    public bool CanMoveWhileCasting(ActionID action)
+    {
+        return action switch
+        {
+            { Type: ActionType.Spell, ID: 29391 or 29402 } => true, // phys ranged PVP actions
+            { Type: ActionType.Mount } => true,
+            _ => false
+        };
+    }
 
     public bool IsRecastTimerActive(ActionID action)
         => _inst->IsRecastTimerActive((CSActionType)action.Type, action.ID);
@@ -238,6 +277,11 @@ public sealed unsafe class ActionManagerEx : IDisposable
                     var id = level > 0 ? lb->GetActionId((Character*)GameObjectManager.Instance()->Objects.IndexSorted[0].Value, (byte)(level - 1)) : 0;
                     return id != 0 ? new(ActionType.Spell, id) : action;
                 }
+                // special case for lunar sprint, copied from UseGeneralAction
+                else if (action == ActionDefinitions.IDGeneralSprint && GameMain.Instance()->CurrentTerritoryIntendedUseId == 60)
+                {
+                    return new(ActionType.Spell, 43357);
+                }
                 else if (action == ActionDefinitions.IDGeneralSprint || action == ActionDefinitions.IDGeneralDuty1 || action == ActionDefinitions.IDGeneralDuty2)
                 {
                     return new(ActionType.Spell, GetSpellIdForAction(action));
@@ -254,35 +298,64 @@ public sealed unsafe class ActionManagerEx : IDisposable
     // skips queueing etc
     private bool ExecuteAction(ActionID action, ulong targetId, Vector3 targetPos)
     {
-        if (action.Type is ActionType.BozjaHolsterSlot0 or ActionType.BozjaHolsterSlot1)
+        switch (action.Type)
         {
-            // fake action type - using action from bozja holster
-            var state = PublicContentBozja.GetState(); // note: if it's non-null, the director instance can't be null too
-            var holsterIndex = state != null ? state->HolsterActions.IndexOf((byte)action.ID) : -1;
-            return holsterIndex >= 0 && PublicContentBozja.GetInstance()->UseFromHolster((uint)holsterIndex, action.Type == ActionType.BozjaHolsterSlot1 ? 1u : 0);
-        }
-        else if (action.Type == ActionType.PetAction && action.ID == 3)
-        {
-            // pet actions are special; TODO support actions other than place (3), these use different send-packet function
-            var now = DateTime.Now;
-            if (_nextAllowedExecuteCommand > now)
+            case ActionType.Spell:
+                // for spells, execute our UAL hook
+                // note that for 'summon carbuncle/eos/titan/ifrit/garuda' actions, extraParam can be used to select glamour; the function will return 0 for non-summon actions
+                return _inst->UseActionLocation(CSActionType.Action, action.ID, targetId, &targetPos, ActionManager.GetExtraParamForSummonAction(action.ID));
+            case ActionType.Item:
+                // note that for items extraParam should be 0xFFFF (since we want to use any item, not from first inventory slot)
+                return _inst->UseActionLocation(CSActionType.Item, action.ID, targetId, &targetPos, 0xFFFFu);
+            case ActionType.General:
+                // TODO: are there any general actions that require (or even work with) UAL?
+                // 23 Dismount does not, haven't tested others
+                return _useActionHook.Original(_inst, CSActionType.GeneralAction, action.ID, targetId, 0, ActionManager.UseActionMode.None, 0, null);
+            case ActionType.PetAction:
+                if (action.ID == 3)
+                {
+                    // pet action "Place" - uses location targeting but doesn't interact with UseActionLocation at all, meaning it requires its own send-packet function
+                    var now = DateTime.Now;
+                    if (_nextAllowedExecuteCommand > now)
+                        return false;
+                    _nextAllowedExecuteCommand = now.AddMilliseconds(100);
+                    _executeCommandGT(1800, &targetPos, action.ID, 0, 0, 0);
+                    return true;
+                }
+                else
+                {
+                    // all other pet actions can be used as normal through UA (not UAL)
+                    // TODO: consider calling UsePetAction instead?..
+                    return _useActionHook.Original(_inst, CSActionType.PetAction, action.ID, targetId, 0, ActionManager.UseActionMode.None, 0, null);
+                }
+
+            // fake action types
+            case ActionType.BozjaHolsterSlot0:
+            case ActionType.BozjaHolsterSlot1:
+                var state = PublicContentBozja.GetState(); // note: if it's non-null, the director instance can't be null too
+                var holsterIndex = state != null ? state->HolsterActions.IndexOf((byte)action.ID) : -1;
+                return holsterIndex >= 0 && PublicContentBozja.GetInstance()->UseFromHolster((uint)holsterIndex, action.Type == ActionType.BozjaHolsterSlot1 ? 1u : 0);
+            case ActionType.Pomander:
+                var dd = EventFramework.Instance()->GetInstanceContentDeepDungeon();
+                var slot = _ws.DeepDungeon.GetPomanderSlot((PomanderID)action.ID);
+                if (dd != null && slot >= 0)
+                {
+                    dd->UsePomander((uint)slot);
+                    return true;
+                }
                 return false;
-            _nextAllowedExecuteCommand = now.AddMilliseconds(100);
-            _executeCommandGT(1800, &targetPos, action.ID, 0, 0, 0);
-            return true;
-        }
-        else
-        {
-            // real action type, just execute our UAL hook
-            // note that for items extraParam should be 0xFFFF (since we want to use any item, not from first inventory slot)
-            // note that for 'summon carbuncle/eos/titan/ifrit/garuda' actions, extraParam can be used to select glamour
-            var extraParam = action.Type switch
-            {
-                ActionType.Spell => ActionManager.GetExtraParamForSummonAction(action.ID), // will return 0 for non-summon actions
-                ActionType.Item => 0xFFFFu,
-                _ => 0u
-            };
-            return _inst->UseActionLocation((CSActionType)action.Type, action.ID, targetId, &targetPos, extraParam);
+            case ActionType.Magicite:
+                dd = EventFramework.Instance()->GetInstanceContentDeepDungeon();
+                if (dd != null)
+                {
+                    dd->UseStone(action.ID);
+                    return true;
+                }
+                return false;
+
+            default:
+                // fall back to UAL hook for everything not covered explicitly
+                return _inst->UseActionLocation((CSActionType)action.Type, action.ID, targetId, &targetPos, 0);
         }
     }
 
@@ -330,7 +403,12 @@ public sealed unsafe class ActionManagerEx : IDisposable
 
         // check whether movement is safe; block movement if not and if desired
         MoveMightInterruptCast &= CastTimeRemaining > 0; // previous cast could have ended without action effect
-        MoveMightInterruptCast |= imminentActionAdj && CastTimeRemaining <= 0 && _inst->AnimationLock < 0.1f && GetAdjustedCastTime(imminentActionAdj) > 0 && GCD() < 0.1f; // if we're not casting, but will start soon, moving might interrupt future cast
+        // if we're not casting, but will start soon, moving might interrupt future cast
+        if (imminentActionAdj && CastTimeRemaining <= 0 && _inst->AnimationLock < 0.1f && GetAdjustedCastTime(imminentActionAdj) > 0 && !CanMoveWhileCasting(imminentActionAdj) && GCD() < 0.1f)
+        {
+            // check LoS on target; blocking movement can cause AI mode to get stuck behind a wall trying to cast a spell on an unreachable target forever
+            MoveMightInterruptCast |= CheckActionLoS(imminentAction, _inst->ActionQueued ? _inst->QueuedTargetId : (AutoQueue.Target?.InstanceID ?? 0));
+        }
         bool blockMovement = Config.PreventMovingWhileCasting && MoveMightInterruptCast && _ws.Party.Player()?.MountId == 0;
         blockMovement |= Config.PyreticThreshold > 0 && _hints.ImminentSpecialMode.mode == AIHints.SpecialMode.Pyretic && _hints.ImminentSpecialMode.activation < _ws.FutureTime(Config.PyreticThreshold);
 
@@ -344,7 +422,7 @@ public sealed unsafe class ActionManagerEx : IDisposable
         if (desiredRotation != null)
         {
             autoRotateConfig->Value.UInt = 1;
-            FaceDirection(desiredRotation.Value.ToDirection());
+            FaceDirection(desiredRotation.Value);
         }
 
         if (actionImminent)
@@ -375,12 +453,12 @@ public sealed unsafe class ActionManagerEx : IDisposable
         _cooldownTweak.StopAdjustment(); // clear any potential adjustments
         _movement.MovementBlocked = blockMovement;
 
-        if (_ws.Party.Player()?.CastInfo != null && _cancelCastTweak.ShouldCancel(_ws.CurrentTime, ForceCancelCastNextFrame))
+        // TODO: what's the reason to do it in AM update, rather than plugin's executehints?..
+        if (_ws.Party.Player()?.CastInfo != null && _cancelCastTweak.ShouldCancel(_ws.CurrentTime, _hints.ForceCancelCast))
             UIState.Instance()->Hotbar.CancelCast();
-        ForceCancelCastNextFrame = false;
 
-        var autosEnabled = UIState.Instance()->WeaponState.IsAutoAttacking;
-        if (_autoAutosTweak.GetDesiredState(autosEnabled) != autosEnabled)
+        var autosEnabled = UIState.Instance()->WeaponState.AutoAttackState.IsAutoAttacking;
+        if (_autoAutosTweak.GetDesiredState(autosEnabled, _ws.Party.Player()?.TargetID ?? 0) != autosEnabled)
             _inst->UseAction(CSActionType.GeneralAction, 1);
 
         if (_hints.WantDismount && _dismountTweak.AllowDismount())
@@ -393,15 +471,18 @@ public sealed unsafe class ActionManagerEx : IDisposable
         var action = new ActionID((ActionType)actionType, actionId);
         //Service.Log($"[AMEx] UA: {action} @ {targetId:X}: {extraParam} {mode} {comboRouteId}");
         action = NormalizeActionForQueue(action);
+        var spellId = GetSpellIdForAction(action);
+
+        var targetSystem = TargetSystem.Instance();
 
         // if mouseover mode is enabled AND target is a usual primary target AND current mouseover is valid target for action, then we override target to mouseover
-        var primaryTarget = TargetSystem.Instance()->Target;
+        var primaryTarget = targetSystem->Target;
         var primaryTargetId = primaryTarget != null ? primaryTarget->GetGameObjectId() : InvalidEntityId;
         var targetOverridden = targetId != primaryTargetId;
         if (Config.PreferMouseover && !targetOverridden)
         {
             var mouseoverTarget = PronounModule.Instance()->UiMouseOverTarget;
-            if (mouseoverTarget != null && ActionManager.CanUseActionOnTarget(GetSpellIdForAction(action), mouseoverTarget))
+            if (mouseoverTarget != null && ActionManager.CanUseActionOnTarget(spellId, mouseoverTarget))
             {
                 targetId = mouseoverTarget->GetGameObjectId();
                 targetOverridden = true;
@@ -411,9 +492,21 @@ public sealed unsafe class ActionManagerEx : IDisposable
         (ulong, Vector3?) getAreaTarget() => targetOverridden ? (targetId, null) :
             (Config.GTMode == ActionTweaksConfig.GroundTargetingMode.AtTarget ? targetId : InvalidEntityId, Config.GTMode == ActionTweaksConfig.GroundTargetingMode.AtCursor ? GetWorldPosUnderCursor() : null);
 
+        ulong findNearestTarget()
+        {
+            if (Framework.Instance()->SystemConfig.GetConfigOption((uint)ConfigOption.AutoNearestTarget)->Value.UInt == 1u)
+            {
+                _autoSelectTarget(targetSystem);
+                if (targetSystem->Target != null)
+                    return targetSystem->Target->GetGameObjectId();
+            }
+
+            return InvalidEntityId;
+        }
+
         // note: only standard mode can be filtered
         // note: current implementation introduces slight input lag (on button press, next autorotation update will pick state updates, which will be executed on next action manager update)
-        if (mode == ActionManager.UseActionMode.None && action.Type is ActionType.Spell or ActionType.Item && _manualQueue.Push(action, targetId, !targetOverridden, getAreaTarget))
+        if (mode == ActionManager.UseActionMode.None && action.Type is ActionType.Spell or ActionType.Item && _manualQueue.Push(action, targetId, GetAdjustedCastTime(action) * 0.001f, !targetOverridden, getAreaTarget, findNearestTarget))
             return false;
 
         var areaTargeted = false;
@@ -461,6 +554,17 @@ public sealed unsafe class ActionManagerEx : IDisposable
             HandleActionRequest(ActionID.MakeBozjaHolster(entry, (int)slot), 0, InvalidEntityId, default, prevRot, currRot);
         }
         return res;
+    }
+
+    // TODO add to manual queue (and also add holsters)
+    private void UsePomanderDetour(InstanceContentDeepDungeon* self, uint slot)
+    {
+        _usePomanderHook.Original(self, slot);
+    }
+
+    private void UseStoneDetour(InstanceContentDeepDungeon* self, uint slot)
+    {
+        _useStoneHook.Original(self, slot);
     }
 
     private void ProcessPacketActionEffectDetour(uint casterID, Character* casterObj, Vector3* targetPos, ActionEffectHandler.Header* header, ActionEffectHandler.TargetEffects* effects, GameObjectId* targets)
@@ -512,7 +616,7 @@ public sealed unsafe class ActionManagerEx : IDisposable
         _manualQueue.Pop(action);
         _animLockTweak.RecordRequest(seq, _inst->AnimationLock);
         _restoreRotTweak.Preserve(prevRot, currRot);
-        MoveMightInterruptCast = CastTimeRemaining > 0;
+        MoveMightInterruptCast = CastTimeRemaining > 0 && !CanMoveWhileCasting(action);
 
         var recast = _inst->GetRecastGroupDetail(GetRecastGroup(action));
 
@@ -528,5 +632,45 @@ public sealed unsafe class ActionManagerEx : IDisposable
         var (recastElapsed, recastTotal) = recast != null ? (recast->Elapsed, recast->Total) : (0, 0);
         Service.Log($"[AMEx] UAL #{seq} {action} @ {targetID:X} / {Utils.Vec3String(targetPos)}, ALock={_inst->AnimationLock:f3}, CTR={CastTimeRemaining:f3}, CD={recastElapsed:f3}/{recastTotal:f3}, GCD={GCD():f3}");
         ActionRequestExecuted.Fire(new(action, targetID, targetPos, seq, _inst->AnimationLock, castElapsed, castTotal, recastElapsed, recastTotal));
+    }
+
+    // note: we can't rely on worldstate target id, it might not be updated when this is called
+    // TODO: current implementation means that we'll check desired state twice (once before making a decision to start autos, then again in the hook)
+    private bool SetAutoAttackStateDetour(AutoAttackState* self, bool value, bool sendPacket, bool isInstant)
+    {
+        if (value && !_autoAutosTweak.GetDesiredState(true, TargetSystem.Instance()->GetTargetObjectId()))
+        {
+            Service.Log($"[AMEx] Prevented starting autoattacks");
+            return true;
+        }
+        return _setAutoAttackStateHook.Original(self, value, sendPacket, isInstant);
+    }
+
+    // just the LoS portion of ActionManager::GetActionInRangeOrLoS (which also checks range, which we don't care about, and also checks facing angle, which we don't care about)
+    private static bool CheckActionLoS(ActionID action, ulong targetID)
+    {
+        var row = action.Type == ActionType.Spell ? Service.LuminaRow<Lumina.Excel.Sheets.Action>(action.ID) : null;
+        if (row == null)
+            return true; // unknown action, assume nothing
+
+        if (!row.Value.RequiresLineOfSight)
+            return true;
+
+        var player = GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
+        var targetObj = GameObjectManager.Instance()->Objects.GetObjectByGameObjectId(targetID);
+        if (targetObj == null || targetObj->EntityId == player->EntityId)
+            return true;
+
+        var playerPos = *player->GetPosition();
+        var targetPos = *targetObj->GetPosition();
+
+        playerPos.Y += 2;
+        targetPos.Y += 2;
+
+        var offset = targetPos - playerPos;
+        var maxDist = offset.Magnitude;
+        var direction = offset / maxDist;
+
+        return !BGCollisionModule.RaycastMaterialFilter(playerPos, direction, out _, maxDist);
     }
 }

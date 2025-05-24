@@ -24,28 +24,27 @@ public enum AID : uint
     FrozenCircle = 29591, // Helper->self, 5.0s cast, range 10-40 donut
 
     FrozenSpikeVisual = 25583, // Boss->self, 4.5+0,5s cast, single-target
-    FrozenSpike = 29592, // Helper->player, 5.0s cast, range 6 circle
+    FrozenSpike = 29592 // Helper->player, 5.0s cast, range 6 circle
 }
 
-class FrozenSpike(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.FrozenSpike), 5);
-class HeavySnow(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HeavySnow), new AOEShapeCircle(15));
-class LightSnow(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LightSnow), new AOEShapeCircle(2));
-class Buffet(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Buffet), new AOEShapeCone(12, 60.Degrees()));
+class FrozenSpike(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.FrozenSpike, 5);
+class HeavySnow(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HeavySnow, 15);
+class LightSnow(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LightSnow, 2);
+class Buffet(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Buffet, new AOEShapeCone(12, 60.Degrees()));
 
 class SpinFrozenCircle(BossModule module) : Components.ConcentricAOEs(module, _shapes)
 {
     private static readonly AOEShape[] _shapes = [new AOEShapeCircle(11), new AOEShapeDonut(10, 40)];
-    private static readonly WPos origin = new(-98.528f, -115.526f);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if ((AID)spell.Action.ID == AID.Spin)
-            AddSequence(origin, Module.CastFinishAt(spell));
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
     }
 
-    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (Sequences.Count > 0)
+        if (Sequences.Count != 0)
         {
             var order = (AID)spell.Action.ID switch
             {
@@ -53,12 +52,12 @@ class SpinFrozenCircle(BossModule module) : Components.ConcentricAOEs(module, _s
                 AID.FrozenCircle => 1,
                 _ => -1
             };
-            AdvanceSequence(order, caster.Position, WorldState.FutureTime(3));
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(3));
         }
     }
 }
 
-class Northerlies(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Northerlies));
+class Northerlies(BossModule module) : Components.RaidwideCast(module, (uint)AID.Northerlies);
 
 class D262YetiStates : StateMachineBuilder
 {

@@ -1,20 +1,14 @@
 ﻿namespace BossMod.Stormblood.Ultimate.UCOB;
 
-class Hatch : Components.CastCounter
+class Hatch(BossModule module) : Components.CastCounter(module, (uint)AID.Hatch)
 {
     public bool Active = true;
-    public int NumNeurolinkSpawns { get; private set; }
-    public int NumTargetsAssigned { get; private set; }
-    private readonly IReadOnlyList<Actor> _orbs;
-    private readonly IReadOnlyList<Actor> _neurolinks;
+    public override bool KeepOnPhaseChange => true;
+    public int NumNeurolinkSpawns;
+    public int NumTargetsAssigned;
+    private readonly List<Actor> _orbs = module.Enemies(OID.Oviform);
+    private readonly List<Actor> _neurolinks = module.Enemies(OID.Neurolink);
     private BitMask _targets;
-
-    public Hatch(BossModule module) : base(module, ActionID.MakeSpell(AID.Hatch))
-    {
-        _orbs = module.Enemies(OID.Oviform);
-        _neurolinks = module.Enemies(OID.Neurolink);
-        KeepOnPhaseChange = true;
-    }
 
     public void Reset()
     {
@@ -64,7 +58,7 @@ class Hatch : Components.CastCounter
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             ++NumCasts;
             foreach (var t in spell.Targets)
@@ -74,7 +68,7 @@ class Hatch : Components.CastCounter
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
     {
-        if ((OID)actor.OID == OID.Twintania && id == 0x94)
+        if (actor.OID == (uint)OID.Twintania && id == 0x94)
             ++NumNeurolinkSpawns;
     }
 }

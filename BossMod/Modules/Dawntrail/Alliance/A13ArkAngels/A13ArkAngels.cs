@@ -1,29 +1,67 @@
 ﻿namespace BossMod.Dawntrail.Alliance.A13ArkAngels;
 
-class Cloudsplitter2(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Cloudsplitter2), 6);
+class Cloudsplitter(BossModule module) : Components.BaitAwayCast(module, (uint)AID.CloudsplitterAOE, 6f, tankbuster: true);
+class CriticalReaverRaidwide(BossModule module) : Components.CastCounter(module, (uint)AID.CriticalReaverRaidwide);
+class CriticalReaverEnrage(BossModule module) : Components.CastInterruptHint(module, (uint)AID.CriticalReaverEnrage);
+class Meteor(BossModule module) : Components.CastInterruptHint(module, (uint)AID.Meteor);
+class TachiGekko(BossModule module) : Components.CastGaze(module, (uint)AID.TachiGekko);
+class TachiKasha(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TachiKasha, 20f);
+class TachiYukikaze(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TachiYukikaze, new AOEShapeRect(50f, 2.5f));
+class Raiton(BossModule module) : Components.RaidwideCast(module, (uint)AID.Raiton);
+class Utsusemi(BossModule module) : Components.StretchTetherSingle(module, (uint)TetherID.Utsusemi, 10, needToKite: true);
 
-class TachiGekko(BossModule module) : Components.CastGaze(module, ActionID.MakeSpell(AID.TachiGekko));
-class TachiKasha(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TachiKasha), new AOEShapeCircle(4));
-class TachiYukikaze(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TachiYukikaze), new AOEShapeRect(70, 2.5f, 70));
-class ConcertedDissolution(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ConcertedDissolution), new AOEShapeCone(40, 15.Degrees()));
-class LightsChain(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LightsChain), new AOEShapeDonut(6, 60));
-class Guillotine1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Guillotine1), new AOEShapeCone(80, 135.Degrees()));
-class DominionSlash(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DominionSlash));
-class DivineDominion(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DivineDominion), new AOEShapeCircle(6));
-class CrossReaver2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CrossReaver2), new AOEShapeCross(50, 6));
-class Holy(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Holy));
-class SpiralFinish2(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.SpiralFinish2), 16, stopAtWall: true, kind: Kind.AwayFromOrigin);
-
-[ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team (LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1015, NameID = 13640)]
-public class A13ArkAngels(WorldState ws, Actor primary) : BossModule(ws, primary, new(865, -820), new ArenaBoundsCircle(30))
+[ModuleInfo(BossModuleInfo.Maturity.Verified, PrimaryActorOID = (uint)OID.BossGK, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 1015, NameID = 13640, SortOrder = 7, PlanLevel = 100)]
+public class A13ArkAngels(WorldState ws, Actor primary) : BossModule(ws, primary, new(865f, -820f), new ArenaBoundsCircle(34.5f))
 {
+    public static readonly ArenaBoundsCircle DefaultBounds = new(25f);
+    public static readonly uint[] Bosses = [(uint)OID.BossHM, (uint)OID.BossEV, (uint)OID.BossTT, (uint)OID.BossMR, (uint)OID.BossGK];
+
+    private Actor? _bossHM;
+    private Actor? _bossEV;
+    private Actor? _bossMR;
+    private Actor? _bossTT;
+    public Actor? BossHM() => _bossHM;
+    public Actor? BossEV() => _bossEV;
+    public Actor? BossMR() => _bossMR;
+    public Actor? BossTT() => _bossTT;
+    public Actor? BossGK() => PrimaryActor;
+
+    protected override void UpdateModule()
+    {
+        // TODO: this is an ugly hack, think how multi-actor fights can be implemented without it...
+        // the problem is that on wipe, any actor can be deleted and recreated in the same frame
+        _bossHM ??= Enemies((uint)OID.BossHM)[0];
+        _bossEV ??= Enemies((uint)OID.BossEV)[0];
+        _bossMR ??= Enemies((uint)OID.BossMR)[0];
+        _bossTT ??= Enemies((uint)OID.BossTT)[0];
+    }
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.ArkAngelGK));
-        Arena.Actors(Enemies(OID.ArkAngelHM));
-        Arena.Actors(Enemies(OID.ArkAngelEV));
-        Arena.Actors(Enemies(OID.ArkAngelTT));
-        Arena.Actors(Enemies(OID.ArkShield));
+        var comp = FindComponent<DecisiveBattle>();
+        if (comp != null)
+        {
+            var slot = comp.AssignedBoss[pcSlot];
+            if (slot != null)
+                Arena.Actor(slot);
+        }
+        else if (Enemies((uint)OID.ArkShield) is var shield && shield.Count != 0 && !shield[0].IsDead)
+            Arena.Actor(shield[0]);
+        else
+            Arena.Actors(Enemies(Bosses));
+    }
+
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var e = hints.PotentialTargets[i];
+            if (e.Actor.FindStatus((uint)SID.Invincibility) != null)
+            {
+                e.Priority = AIHints.Enemy.PriorityInvincible;
+                break;
+            }
+        }
     }
 }

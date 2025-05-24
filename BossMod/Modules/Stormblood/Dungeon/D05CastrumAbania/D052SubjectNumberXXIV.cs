@@ -45,28 +45,28 @@ public enum AID : uint
 
 class SparkingCurrent(BossModule module) : Components.GenericBaitAway(module)
 {
-    private static readonly AOEShapeRect rect = new(20, 3);
+    private static readonly AOEShapeRect rect = new(20f, 3f);
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.SparkingCurrentMarker)
-            CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.MainTargetID)!, rect, WorldState.FutureTime(5)));
-        else if ((AID)spell.Action.ID == AID.SparkingCurrent)
+        if (spell.Action.ID == (uint)AID.SparkingCurrentMarker)
+            CurrentBaits.Add(new(caster, WorldState.Actors.Find(spell.MainTargetID)!, rect, WorldState.FutureTime(5d)));
+        else if (spell.Action.ID == (uint)AID.SparkingCurrent)
             CurrentBaits.Clear();
     }
 }
 
-class ThunderII(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.ThunderII), 5);
-class FireII(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.FireII), 5, 4, 4);
-class BlizzardII(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.BlizzardII), 5);
-class IceGrid(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IceGrid), new AOEShapeRect(40, 2), 10);
-class Triflame(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Triflame), new AOEShapeCone(60, 30.Degrees()), 3);
-class ElementalOverload1(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ElementalOverload1));
-class ElementalOverload2(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ElementalOverload2));
-class ElementalOverload3(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ElementalOverload3));
-class ElementalOverload4(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ElementalOverload4));
-class ElementalOverload5(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ElementalOverload5));
-class ElementalOverload6(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.ElementalOverload6));
+class ThunderII(BossModule module) : Components.CastTowers(module, (uint)AID.ThunderII, 5f);
+class FireII(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.FireII, 5f, 4, 4);
+class BlizzardII(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.BlizzardII, 5f);
+class IceGrid(BossModule module) : Components.SimpleAOEs(module, (uint)AID.IceGrid, new AOEShapeRect(40f, 2f), 10);
+class Triflame(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Triflame, new AOEShapeCone(60f, 30f.Degrees()), 3);
+class ElementalOverload1(BossModule module) : Components.RaidwideCast(module, (uint)AID.ElementalOverload1);
+class ElementalOverload2(BossModule module) : Components.RaidwideCast(module, (uint)AID.ElementalOverload2);
+class ElementalOverload3(BossModule module) : Components.RaidwideCast(module, (uint)AID.ElementalOverload3);
+class ElementalOverload4(BossModule module) : Components.RaidwideCast(module, (uint)AID.ElementalOverload4);
+class ElementalOverload5(BossModule module) : Components.RaidwideCast(module, (uint)AID.ElementalOverload5);
+class ElementalOverload6(BossModule module) : Components.RaidwideCast(module, (uint)AID.ElementalOverload6);
 
 class D052SubjectNumberXXIVStates : StateMachineBuilder
 {
@@ -91,5 +91,5 @@ class D052SubjectNumberXXIVStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 242, NameID = 12392)]
 public class D052SubjectNumberXXIV(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Circle(new(10.5f, 186.5f), 19.55f)], [new Rectangle(new(11, 207), 20, 1.5f), new Rectangle(new(30, 187), 20, 1.1f, 90.Degrees())]);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(new(10.5f, 186.5f), 19.55f)], [new Rectangle(new(11, 207), 20, 1.5f), new Rectangle(new(30, 187), 1.1f, 20f)]);
 }

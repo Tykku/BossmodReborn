@@ -20,10 +20,22 @@ public enum RotationModuleQuality
     Count
 }
 
+public enum RotationModuleOrder
+{
+    [PropertyDisplay("[1] High-level strategy module. Responsible for targeting and enemy prioritization.")]
+    HighLevel = 1,
+
+    [PropertyDisplay("[2] Standard rotation/utility module. Responsible for deciding which actions to use and setting up goal zones.")]
+    Actions = 2,
+
+    [PropertyDisplay("[3] Movement module. Responsible for pathfinding and executing movement.")]
+    Movement = 3,
+}
+
 // the configuration part of the rotation module
 // importantly, it defines constraints (supported classes and level ranges) and strategy configs (with their sets of possible options) used by the module to make its decisions
 // rotation modules can optionally be constrained to a specific boss module, if they are used to implement custom encounter-specific logic - these would only be available in plans for that module
-public sealed record class RotationModuleDefinition(string DisplayName, string Description, string Category, string Author, RotationModuleQuality Quality, BitMask Classes, int MaxLevel, int MinLevel = 1, Type? RelatedBossModule = null, bool CanUseWhileRoleplaying = false)
+public sealed record class RotationModuleDefinition(string DisplayName, string Description, string Category, string Author, RotationModuleQuality Quality, BitMask Classes, int MaxLevel, int MinLevel = 1, RotationModuleOrder Order = RotationModuleOrder.Actions, Type? RelatedBossModule = null, bool CanUseWhileRoleplaying = false)
 {
     public readonly BitMask Classes = Classes;
     public readonly List<StrategyConfig> Configs = [];
@@ -96,6 +108,17 @@ public abstract class RotationModule(RotationModuleManager manager, Actor player
     // utility to check action/trait unlocks
     public bool ActionUnlocked(ActionID action) => ActionDefinitions.Instance[action]?.IsUnlocked(World, Player) ?? false;
 
+    public bool ActionUnlocked<AID>(AID aid) where AID : Enum => ActionUnlocked(ActionID.MakeSpell(aid));
+
+    public AID BestActionUnlocked<AID>(params AID[] aids) where AID : struct, Enum
+    {
+        foreach (var aid in aids)
+            if (ActionUnlocked(aid))
+                return aid;
+
+        return default;
+    }
+
     public bool TraitUnlocked(uint id)
     {
         var trait = Service.LuminaRow<Lumina.Excel.Sheets.Trait>(id);
@@ -107,6 +130,7 @@ public abstract class RotationModule(RotationModuleManager manager, Actor player
     // utility to resolve the target overrides; returns null on failure - in this case module is expected to run smart-targeting logic
     // expected usage is `ResolveTargetOverride(strategy) ?? CustomSmartTargetingLogic(...)`
     protected Actor? ResolveTargetOverride(in StrategyValue strategy) => Manager.ResolveTargetOverride(strategy.Target, strategy.TargetParam);
+    protected WPos ResolveTargetLocation(in StrategyValue strategy) => Manager.ResolveTargetLocation(strategy.Target, strategy.TargetParam, strategy.Offset1, strategy.Offset2);
 
     protected float StatusDuration(DateTime expireAt) => Math.Max((float)(expireAt - World.CurrentTime).TotalSeconds, 0.0f);
 
@@ -114,15 +138,11 @@ public abstract class RotationModule(RotationModuleManager manager, Actor player
     // note that we check pending statuses first - otherwise we get the same problem with double refresh if we try to refresh early (we find old status even though we have pending one)
     protected (float Left, int Stacks) StatusDetails(Actor? actor, uint sid, ulong sourceID, float pendingDuration = 1000)
     {
-        if (actor == null)
-            return (0, 0);
-        var pending = World.PendingEffects.PendingStatus(actor.InstanceID, sid, sourceID);
-        if (pending != null)
-            return (pendingDuration, pending.Value);
-        var status = actor.FindStatus(sid, sourceID);
+        var status = actor?.FindStatus(sid, sourceID, World.FutureTime(pendingDuration));
         return status != null ? (StatusDuration(status.Value.ExpireAt), status.Value.Extra & 0xFF) : (0, 0);
     }
     protected (float Left, int Stacks) StatusDetails<SID>(Actor? actor, SID sid, ulong sourceID, float pendingDuration = 1000) where SID : Enum => StatusDetails(actor, (uint)(object)sid, sourceID, pendingDuration);
+    protected (float Left, int Stacks) StatusDetails<SID>(AIHints.Enemy? enemy, SID sid, ulong sourceID, float pendingDuration = 1000) where SID : Enum => StatusDetails(enemy?.Actor, (uint)(object)sid, sourceID, pendingDuration);
     protected (float Left, int Stacks) SelfStatusDetails(uint sid, float pendingDuration = 1000) => StatusDetails(Player, sid, Player.InstanceID, pendingDuration);
     protected (float Left, int Stacks) SelfStatusDetails<SID>(SID sid, float pendingDuration = 1000) where SID : Enum => StatusDetails(Player, sid, Player.InstanceID, pendingDuration);
 
@@ -147,8 +167,8 @@ public abstract class RotationModule(RotationModuleManager manager, Actor player
 
     protected (float Left, float In) EstimateRaidBuffTimings(Actor? primaryTarget)
     {
-        if (primaryTarget?.OID != 0x385)
-            return (Bossmods.RaidCooldowns.DamageBuffLeft(Player), Bossmods.RaidCooldowns.NextDamageBuffIn());
+        if (primaryTarget == null || !primaryTarget.IsStrikingDummy)
+            return (Bossmods.RaidCooldowns.DamageBuffLeft(Player, primaryTarget), Bossmods.RaidCooldowns.NextDamageBuffIn());
 
         // hack for a dummy: expect that raidbuffs appear at 7.8s and then every 120s
         var cycleTime = (float)(Player.InCombat ? (World.CurrentTime - Manager.CombatStart).TotalSeconds : 0) - 7.8f;
@@ -161,9 +181,14 @@ public abstract class RotationModule(RotationModuleManager manager, Actor player
 
     protected (Actor? Target, P Priority) FindBetterTargetBy<P>(Actor? initial, float maxDistanceFromPlayer, Func<Actor, P> prioFunc, Func<AIHints.Enemy, bool>? filterFunc = null) where P : struct, IComparable
     {
+        bool inRange(Actor tar) => tar.Position.InCircle(Player.Position, maxDistanceFromPlayer + tar.HitboxRadius + 0.5f);
+
+        if (initial != null && !inRange(initial))
+            initial = null;
+
         var bestTarget = initial;
         var bestPrio = initial != null ? prioFunc(initial) : default;
-        foreach (var enemy in Hints.PriorityTargets.Where(x => x.Actor != initial && x.Actor.Position.InCircle(Player.Position, maxDistanceFromPlayer + x.Actor.HitboxRadius) && (filterFunc?.Invoke(x) ?? true)))
+        foreach (var enemy in Hints.PriorityTargets.Where(x => x.Actor != initial && inRange(x.Actor) && (filterFunc?.Invoke(x) ?? true)))
         {
             var newPrio = prioFunc(enemy.Actor);
             if (newPrio.CompareTo(bestPrio) > 0)

@@ -9,6 +9,7 @@ public enum OID : uint
 public enum AID : uint
 {
     AutoAttack = 872, // Boss->player, no cast, single-target
+
     Tornadogenesis = 8063, // Boss->self, no cast, range 8+R 120-degree cone
     Old = 8062, // Helper->self, no cast, range 4 circle, chest when polymorphing player
     Seduce = 8058, // Boss->self, 7.0s cast, range 50 circle
@@ -34,125 +35,169 @@ class SeduceOld(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCircle circle = new(2.5f);
     private bool active;
-    private bool addedCircles;
-    private readonly HashSet<Actor> chests = module.Enemies(OID.Helper).Where(x => x.NameID == 6274).ToHashSet();
-    private readonly HashSet<Circle> closedChests = [];
-    private readonly HashSet<Circle> openChests = [];
+    private readonly List<Actor> chests = new(4);
+    private readonly List<Circle> closedChests = [];
+    private readonly List<Circle> openChests = [];
+    private AOEShapeCustom? closedAOE;
 
-    public static bool IsOld(Actor actor) => actor.FindStatus(SID.Old) != null;
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        foreach (var c in openChests)
-            yield return new(circle, c.Center);
-        yield return new(new AOEShapeCustom(closedChests) with { InvertForbiddenZone = !IsOld(actor) && active }, Arena.Center, Color: IsOld(actor) || !active ? Colors.AOE : Colors.SafeFromAOE);
-    }
+    public static bool IsOld(Actor actor) => actor.FindStatus((uint)SID.Old) != null;
 
     public override void Update()
     {
-        if (closedChests.Count == 0 && !addedCircles)
+        if (closedAOE == null)
         {
-            foreach (var c in chests)
-                closedChests.Add(new(c.Position, 2.5f));
-            addedCircles = true;
+            var helpers = Module.Enemies((uint)OID.Helper);
+            var countH = helpers.Count;
+
+            for (var i = 0; i < countH; ++i)
+            {
+                var c = helpers[i];
+                if (c.NameID == 6274)
+                {
+                    chests.Add(c);
+                }
+            }
+            var count = chests.Count;
+            for (var i = 0; i < count; ++i)
+                closedChests.Add(new(chests[i].Position, 2.5f));
+            closedAOE = new AOEShapeCustom([.. closedChests]);
         }
+    }
+
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = openChests.Count;
+        var aoes = new AOEInstance[count + 1];
+        for (var i = 0; i < count; ++i)
+        {
+            aoes[i] = new(circle, openChests[i].Center);
+        }
+        if (closedAOE is AOEShapeCustom aoe)
+            aoes[count] = new(aoe with { InvertForbiddenZone = !IsOld(actor) && active }, Arena.Center, Color: IsOld(actor) || !active ? 0 : Colors.SafeFromAOE);
+        return aoes;
     }
 
     public override void OnActorEAnim(Actor actor, uint state)
     {
-        var chest = chests.FirstOrDefault(x => x.Position.AlmostEqual(actor.Position, 5));
-        if (chest != null)
+        var count = chests.Count;
+        for (var i = 0; i < count; ++i)
         {
-            if (state == 0x00040008)
+            var c = chests[i];
+            if (c.Position.AlmostEqual(actor.Position, 5f))
             {
-                closedChests.RemoveWhere(x => x.Center == chest.Position);
-                openChests.Add(new(chest.Position, 2.5f));
-            }
-            else if (state == 0x00100020)
-            {
-                closedChests.Add(new(chest.Position, 2.5f));
-                openChests.RemoveWhere(x => x.Center == chest.Position);
+                if (state == 0x00040008)
+                {
+                    var countC = closedChests.Count;
+                    for (var j = 0; j < countC; ++j)
+                    {
+                        if (c.Position == closedChests[j].Center)
+                        {
+                            closedChests.RemoveAt(j);
+                            openChests.Add(new(c.Position, 2.5f));
+                            break;
+                        }
+                    }
+                }
+                else if (state == 0x00100020)
+                {
+                    var countO = openChests.Count;
+                    for (var j = 0; j < countO; ++j)
+                    {
+                        if (c.Position == openChests[j].Center)
+                        {
+                            openChests.RemoveAt(j);
+                            closedChests.Add(new(c.Position, 2.5f));
+                            break;
+                        }
+                    }
+                }
+                closedAOE = new AOEShapeCustom([.. closedChests]);
+                return;
             }
         }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Seduce)
+        if (spell.Action.ID == (uint)AID.Seduce)
             active = true;
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Seduce)
+        if (spell.Action.ID == (uint)AID.Seduce)
             active = false;
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if ((IsOld(actor) && active || !active) && ActiveAOEs(slot, actor).Any(c => c.Check(actor.Position) && c.Color != Colors.SafeFromAOE))
-            hints.Add("GTFO from chests!");
-        else if (!IsOld(actor) && active)
+        var isOld = IsOld(actor);
+        if (isOld && active || !active)
+        {
+            var aoes = ActiveAOEs(slot, actor);
+            ref readonly var aoe = ref aoes[0];
+            if (aoe.Color != Colors.SafeFromAOE && aoe.Check(actor.Position))
+                hints.Add("GTFO from chests!");
+        }
+        else if (!isOld && active)
             hints.Add("Get morphed!");
     }
 }
 
 class SeduceCoriolisKick(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCircle circle = new(13);
-    private AOEInstance _aoe;
+    private static readonly AOEShapeCircle circle = new(13f);
+    public AOEInstance? AOE;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        if (_aoe != default)
-            yield return _aoe with { Origin = Module.PrimaryActor.Position };
-    }
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref AOE);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Seduce)
-            _aoe = new(circle, default, default, Module.CastFinishAt(spell, 8));
+        if (spell.Action.ID == (uint)AID.Seduce)
+            AOE = new(circle, WPos.ClampToGrid(D022RubyPrincess.ArenaCenter), default, Module.CastFinishAt(spell, 8f));
+        else if (spell.Action.ID == (uint)AID.CoriolisKick)
+            AOE = new(circle, spell.LocXZ, default, Module.CastFinishAt(spell));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.CoriolisKick)
-            _aoe = default;
+        if (spell.Action.ID == (uint)AID.CoriolisKick)
+            AOE = null;
     }
 }
 
-class AbyssalVolcano(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.AbyssalVolcano), new AOEShapeCircle(7));
+class AbyssalVolcano(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AbyssalVolcano, 7f);
 
-class GeothermalFlatulence(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(4), ActionID.MakeSpell(AID.GeothermalFlatulenceFirst), ActionID.MakeSpell(AID.GeothermalFlatulenceRest), 3, 0.8f, 10, true, (uint)IconID.ChasingAOE)
+class GeothermalFlatulence(BossModule module) : Components.StandardChasingAOEs(module, new AOEShapeCircle(4f), (uint)AID.GeothermalFlatulenceFirst, (uint)AID.GeothermalFlatulenceRest, 3, 0.8f, 10, true, (uint)IconID.ChasingAOE)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         base.AddAIHints(slot, actor, assignment, hints);
         if (Actors.Contains(actor))
-            hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 18), Activation);
+            hints.AddForbiddenZone(ShapeDistance.Circle(Arena.Center, 18f), Activation);
     }
 }
 
-class Tornadogenesis(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.Tornadogenesis), new AOEShapeCone(9.6f, 60.Degrees()))
+class Tornadogenesis(BossModule module) : Components.Cleave(module, (uint)AID.Tornadogenesis, new AOEShapeCone(9.6f, 60f.Degrees()))
 {
     private readonly SeduceCoriolisKick _aoe = module.FindComponent<SeduceCoriolisKick>()!;
     private readonly GeothermalFlatulence _aoes = module.FindComponent<GeothermalFlatulence>()!;
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (!_aoe.ActiveAOEs(slot, actor).Any() && _aoes.Chasers.Count == 0)
+        if (_aoe.AOE == null && _aoes.Chasers.Count == 0)
             base.AddHints(slot, actor, hints);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!_aoe.ActiveAOEs(slot, actor).Any() && _aoes.Chasers.Count == 0)
+        if (_aoe.AOE == null && _aoes.Chasers.Count == 0)
             base.AddAIHints(slot, actor, assignment, hints);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        if (!_aoe.ActiveAOEs(pcSlot, pc).Any() && _aoes.Chasers.Count == 0)
+        if (_aoe.AOE == null && _aoes.Chasers.Count == 0)
             base.DrawArenaForeground(pcSlot, pc);
     }
 }
@@ -173,5 +218,6 @@ class D022RubyPrincessStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 235, NameID = 6241)]
 public class D022RubyPrincess(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly ArenaBoundsComplex arena = new([new Circle(new(-0.046f, -208.362f), 20)], [new Rectangle(new(-0.4f, -187.4f), 20, 2.5f), new Rectangle(new(-20, -208), 20, 1.5f, 90.Degrees())]);
+    public static readonly WPos ArenaCenter = new(-0.046f, -208.362f);
+    private static readonly ArenaBoundsComplex arena = new([new Circle(ArenaCenter, 20)], [new Rectangle(new(-0.4f, -187.4f), 20, 2.5f), new Rectangle(new(-20, -208), 1.5f, 20f)]);
 }

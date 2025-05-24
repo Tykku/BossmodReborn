@@ -32,7 +32,7 @@ public class BossComponent(BossModule module)
         Critical, // tracking this player's position is extremely important
     }
 
-    public bool KeepOnPhaseChange; // by default, all components are deactivated on phase change automatically (since phase change can happen at any time) - setting this to true prevents this
+    public virtual bool KeepOnPhaseChange { get; set; } // by default, all components are deactivated on phase change automatically (since phase change can happen at any time) - setting this to true prevents this
 
     public virtual void Update() { } // called every frame - it is a good place to update any cached values
     public virtual void AddHints(int slot, Actor actor, TextHints hints) { } // gather any relevant pieces of advice for specified raid member
@@ -46,6 +46,8 @@ public class BossComponent(BossModule module)
     // world state event handlers
     public virtual void OnActorCreated(Actor actor) { }
     public virtual void OnActorDestroyed(Actor actor) { }
+    public virtual void OnActorTargetable(Actor actor) { }
+    public virtual void OnActorUntargetable(Actor actor) { }
     public virtual void OnStatusGain(Actor actor, ActorStatus status) { } // note: also called for status-change events; if component needs to distinguish between lose+gain and change, it can use the fact that 'lose' is not called for change
     public virtual void OnStatusLose(Actor actor, ActorStatus status) { }
     public virtual void OnTethered(Actor source, ActorTetherInfo tether) { }

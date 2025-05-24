@@ -1,21 +1,21 @@
 ﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
-class AbsoluteAuthorityPuddles(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.AbsoluteAuthorityPuddlesAOE), 8);
+class AbsoluteAuthorityPuddles(BossModule module) : Components.SimpleAOEs(module, (uint)AID.AbsoluteAuthorityPuddlesAOE, 8f);
 
-class AbsoluteAuthorityExpansionBoot(BossModule module) : Components.UniformStackSpread(module, 6, 15, 4, alwaysShowSpreads: true) // TODO: verify falloff
+class AbsoluteAuthorityExpansionBoot(BossModule module) : Components.UniformStackSpread(module, 6f, 15f, 4, alwaysShowSpreads: true) // TODO: verify falloff
 {
     public int NumCasts;
     private readonly Ex3QueenEternalConfig _config = Service.Config.Get<Ex3QueenEternalConfig>();
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        switch ((SID)status.ID)
+        switch (status.ID)
         {
-            case SID.AuthoritysExpansion:
+            case (uint)SID.AuthoritysExpansion:
                 if (!_config.AbsoluteAuthorityIgnoreFlares)
                     AddSpread(actor, status.ExpireAt);
                 break;
-            case SID.AuthoritysBoot:
+            case (uint)SID.AuthoritysBoot:
                 AddStack(actor, status.ExpireAt);
                 break;
         }
@@ -23,7 +23,7 @@ class AbsoluteAuthorityExpansionBoot(BossModule module) : Components.UniformStac
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.AbsoluteAuthorityExpansion or AID.AbsoluteAuthorityBoot)
+        if (spell.Action.ID is (uint)AID.AbsoluteAuthorityExpansion or (uint)AID.AbsoluteAuthorityBoot)
         {
             ++NumCasts;
             Spreads.Clear();
@@ -32,31 +32,34 @@ class AbsoluteAuthorityExpansionBoot(BossModule module) : Components.UniformStac
     }
 }
 
-class AbsoluteAuthorityHeel(BossModule module) : Components.CastCounter(module, ActionID.MakeSpell(AID.AbsoluteAuthorityHeel))
+class AbsoluteAuthorityHeel(BossModule module) : Components.GenericStackSpread(module)
 {
-    private BitMask _targets;
+    public int NumCasts;
 
-    private const float Radius = 3; // TODO: verify
-
-    public override void AddHints(int slot, Actor actor, TextHints hints)
+    public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
-        if (_targets[slot] && !Raid.WithoutSlot().InRadiusExcluding(actor, Radius).Any())
-            hints.Add("Stack with someone!");
+        if (iconID == (uint)IconID.AuthoritysHeel && Stacks.Count == 0)
+            Stacks.Add(new(actor, 1.5f, 8, 8, activation: WorldState.FutureTime(5.1d)));
     }
 
-    public override void DrawArenaForeground(int pcSlot, Actor pc)
+    public override void Update()
     {
-        if (_targets[pcSlot])
-            Arena.AddCircle(pc.Position, Radius, Colors.Safe);
-    }
-
-    public override void OnStatusGain(Actor actor, ActorStatus status)
-    {
-        if ((SID)status.ID == SID.AuthoritysHeel)
+        if (Stacks.Count != 0)
         {
-            _targets.Set(Raid.FindSlot(actor.InstanceID));
+            var player = Raid.Player()!;
+            var actor = Raid.WithoutSlot(false, true, true).Exclude(player).OrderBy(a => (player.Position - a.Position).LengthSq()).First();
+            Stacks[0] = Stacks[0] with { Target = actor ?? player };
+        }
+    }
+
+    public override void OnEventCast(Actor caster, ActorCastEvent spell)
+    {
+        if (spell.Action.ID is (uint)AID.AbsoluteAuthorityHeel or (uint)AID.AbsoluteAuthorityHeelFail)
+        {
+            Stacks.Clear();
+            ++NumCasts;
         }
     }
 }
 
-class AbsoluteAuthorityKnockback(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.AbsoluteAuthorityKnockback), 30, kind: Kind.DirForward);
+class AbsoluteAuthorityKnockback(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.AbsoluteAuthorityKnockback, 30f, kind: Kind.DirForward);

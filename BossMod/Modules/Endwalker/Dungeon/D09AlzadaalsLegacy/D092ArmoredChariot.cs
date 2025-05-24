@@ -47,10 +47,10 @@ public enum SID : uint
 
 class Voidzone(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCircle circle = new(6);
+    private static readonly AOEShapeCircle circle = new(6f);
     private AOEInstance? _aoe;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnActorEState(Actor actor, ushort state)
     {
@@ -60,7 +60,7 @@ class Voidzone(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ArticulatedBits)
+        if (spell.Action.ID == (uint)AID.ArticulatedBits)
             _aoe = new(circle, Arena.Center, default, Module.CastFinishAt(spell, 0.8f));
     }
 }
@@ -72,16 +72,33 @@ class AssaultCannon(BossModule module) : Components.GenericAOEs(module)
     private readonly List<AOEInstance> _aoesCones = [];
     private readonly List<AOEInstance> _aoesRects = [];
     private readonly List<Actor> _activeDrudges = [];
-    private static readonly AOEShapeCone cone = new(30, 45.Degrees());
-    private static readonly AOEShapeRect rectShort = new(28, 4);
-    private static readonly AOEShapeRect rectLong = new(40, 4);
-    private static readonly HashSet<WPos> cornerPositions = [new(-20.5f, -202.5f), new(20.5f, -161.5f), new(-20.5f, -161.5f), new(20.5f, -202.5f)];
+    private static readonly AOEShapeCone cone = new(30f, 45f.Degrees());
+    private static readonly AOEShapeRect rectShort = new(28f, 4f);
+    private static readonly AOEShapeRect rectLong = new(40f, 4f);
+    private static readonly WPos[] cornerPositions = [new(-20.5f, -202.5f), new(20.5f, -161.5f), new(-20.5f, -161.5f), new(20.5f, -202.5f)];
     private int numCastsReflections;
     private int numCastsCannons;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        return currentType == Type.TwoWaves ? _aoesCones.Take(2).Concat(_aoesRects.Take(2)) : _aoesCones.Concat(_aoesRects);
+        var countCones = _aoesCones.Count;
+        var countRects = _aoesRects.Count;
+        var total = countCones + countRects;
+        if (total == 0)
+            return [];
+
+        var type = currentType == Type.TwoWaves;
+        var maxCone = type && countCones > 2 ? 2 : countCones;
+        var maxRect = type && countRects > 2 ? 2 : countRects;
+        var adjtotal = maxCone + maxRect;
+        var aoes = new AOEInstance[adjtotal];
+        var index = 0;
+
+        for (var i = 0; i < maxCone; ++i)
+            aoes[index++] = _aoesCones[i];
+        for (var i = 0; i < maxRect; ++i)
+            aoes[index++] = _aoesRects[i];
+        return aoes;
     }
 
     public override void OnActorPlayActionTimelineEvent(Actor actor, ushort id)
@@ -105,8 +122,8 @@ class AssaultCannon(BossModule module) : Components.GenericAOEs(module)
 
     private void AddTwoWaveAOEs(byte modelState)
     {
-        var activationFirst = WorldState.FutureTime(7.1f);
-        var activationSecond = WorldState.FutureTime(15);
+        var activationFirst = WorldState.FutureTime(7.1d);
+        var activationSecond = WorldState.FutureTime(15d);
 
         if (modelState == 4)
         {
@@ -122,7 +139,7 @@ class AssaultCannon(BossModule module) : Components.GenericAOEs(module)
 
     private void AddOneWaveAOEs(byte modelState)
     {
-        var activation = WorldState.FutureTime(6.9f);
+        var activation = WorldState.FutureTime(6.9d);
 
         if (modelState == 4)
             AddConeAOEs(activation, Angle.AnglesIntercardinals[2], Angle.AnglesIntercardinals[0]);
@@ -131,34 +148,34 @@ class AssaultCannon(BossModule module) : Components.GenericAOEs(module)
         foreach (var drudge in _activeDrudges)
         {
             var shape = cornerPositions.Contains(drudge.Position) ? rectShort : rectLong;
-            _aoesRects.Add(new(shape, drudge.Position, drudge.Rotation, activation));
+            _aoesRects.Add(new(shape, WPos.ClampToGrid(drudge.Position), drudge.Rotation, activation));
         }
     }
 
     private void AddConeAOEs(DateTime activation, params Angle[] angles)
     {
-        foreach (var angle in angles)
-            _aoesCones.Add(new(cone, Arena.Center, angle, activation));
+        for (var i = 0; i < 2; ++i)
+            _aoesCones.Add(new(cone, WPos.ClampToGrid(Arena.Center), angles[i], activation));
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.CannonOrder)
+        if (status.ID == (uint)SID.CannonOrder)
         {
-            var activation = status.Extra == 0x180 ? 6.9f : 15;
-            _aoesRects.Add(new(rectShort, actor.Position, actor.Rotation, WorldState.FutureTime(activation)));
+            var activation = status.Extra == 0x180 ? 6.9d : 15d;
+            _aoesRects.Add(new(rectShort, WPos.ClampToGrid(actor.Position), actor.Rotation, WorldState.FutureTime(activation)));
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.Assail1Wave)
+        if (spell.Action.ID == (uint)AID.Assail1Wave)
             currentType = Type.OneWave;
-        else if ((AID)spell.Action.ID == AID.Assail2Waves)
+        else if (spell.Action.ID == (uint)AID.Assail2Waves)
             currentType = Type.TwoWaves;
         else if (currentType == Type.TwoWaves)
         {
-            if ((AID)spell.Action.ID == AID.CannonReflection && _aoesCones.Count > 0)
+            if (spell.Action.ID == (uint)AID.CannonReflection && _aoesCones.Count > 0)
             {
                 if (++numCastsReflections == 14)
                 {
@@ -168,7 +185,7 @@ class AssaultCannon(BossModule module) : Components.GenericAOEs(module)
                         currentType = Type.None;
                 }
             }
-            else if ((AID)spell.Action.ID == AID.AssaultCannonShort && _aoesRects.Count > 0)
+            else if (spell.Action.ID == (uint)AID.AssaultCannonShort && _aoesRects.Count > 0)
                 if (++numCastsCannons == 14)
                 {
                     _aoesRects.RemoveRange(0, 2);
@@ -177,7 +194,7 @@ class AssaultCannon(BossModule module) : Components.GenericAOEs(module)
         }
         else if (currentType == Type.OneWave)
         {
-            if ((AID)spell.Action.ID == AID.CannonReflection)
+            if (spell.Action.ID == (uint)AID.CannonReflection)
             {
                 if (++numCastsReflections == 14)
                 {
@@ -191,9 +208,9 @@ class AssaultCannon(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class DiffusionRay(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.DiffusionRay));
-class RailCannon(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.RailCannon));
-class GravitonCannon(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.GravitonCannon), 6);
+class DiffusionRay(BossModule module) : Components.RaidwideCast(module, (uint)AID.DiffusionRay);
+class RailCannon(BossModule module) : Components.SingleTargetCast(module, (uint)AID.RailCannon);
+class GravitonCannon(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.GravitonCannon, 6f);
 
 class D092ArmoredChariotStates : StateMachineBuilder
 {
@@ -209,4 +226,4 @@ class D092ArmoredChariotStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 844, NameID = 11239)]
-public class D092ArmoredChariot(WorldState ws, Actor primary) : BossModule(ws, primary, new(0, -182), new ArenaBoundsSquare(19.5f));
+public class D092ArmoredChariot(WorldState ws, Actor primary) : BossModule(ws, primary, new(default, -182f), new ArenaBoundsSquare(19.5f));

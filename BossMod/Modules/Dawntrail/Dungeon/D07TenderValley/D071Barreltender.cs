@@ -30,21 +30,21 @@ public enum AID : uint
     TenderFury = 39242 // Boss->player, 5.0s cast, single-target, tankbuster
 }
 
-class HeavyweightNeedlesArenaChange(BossModule module) : Components.GenericAOEs(module)
+class ArenaChange(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeCustom square = new([new Square(D071Barreltender.ArenaCenter, 25)], [new Square(D071Barreltender.ArenaCenter, 20)]);
+    private static readonly AOEShapeCustom square = new([new Square(D071Barreltender.ArenaCenter, 25f)], [new Square(D071Barreltender.ArenaCenter, 20f)]);
     private AOEInstance? _aoe;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(_aoe);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.HeavyweightNeedlesVisual && Arena.Bounds == D071Barreltender.StartingBounds)
+        if (spell.Action.ID == (uint)AID.HeavyweightNeedlesVisual && Arena.Bounds == D071Barreltender.StartingBounds)
             _aoe = new(square, Arena.Center, default, Module.CastFinishAt(spell, 0.7f));
     }
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (state == 0x00020001 && index == 0x03)
+        if (state == 0x00020001u && index == 0x03u)
         {
             Arena.Bounds = D071Barreltender.DefaultBounds;
             _aoe = null;
@@ -52,130 +52,166 @@ class HeavyweightNeedlesArenaChange(BossModule module) : Components.GenericAOEs(
     }
 }
 
-class NeedleStormSuperstormHeavyWeightNeedles(BossModule module) : Components.GenericAOEs(module)
+class HeavyweightNeedles(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HeavyweightNeedles, new AOEShapeCone(36f, 25f.Degrees()))
 {
-    private List<AOEInstance> _aoesCircles = [];
-    private readonly List<AOEInstance> _aoesCones = [];
-    private static readonly AOEShapeCircle circleBig = new(11);
-    private static readonly AOEShapeCircle circleSmall = new(6);
-    private static readonly AOEShapeCone cone = new(36, 25.Degrees());
-    private bool cactiActive;
-    private bool cactiActive2;
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (cactiActive)
+        var count = Casters.Count;
+        if (count == 0)
+            return;
+        base.AddAIHints(slot, actor, assignment, hints);
+        if (NumCasts < 16)
+            return;
+        var aoe = Casters[0];
+        // stay close to the middle to switch safespots
+        hints.AddForbiddenZone(ShapeDistance.InvertedCircle(aoe.Origin, 3f), aoe.Activation);
+    }
+}
+
+class NeedleStormSuperstorm(BossModule module) : Components.GenericAOEs(module)
+{
+    private readonly List<AOEInstance> _aoes = new(16);
+    private static readonly AOEShapeCircle circleBig = new(11f), circleSmall = new(6f);
+
+    private readonly BarrelBreaker _kb = module.FindComponent<BarrelBreaker>()!;
+    private readonly HeavyweightNeedles _aoe = module.FindComponent<HeavyweightNeedles>()!;
+    private bool cactiActive;
+
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        if (_aoe.Casters.Count != 0)
+            return [];
+        var count = _aoes.Count;
+        var max = cactiActive ? (count > 8 ? 8 : count) : 0; // next wave of cactus helpers spawns immediately after first wave starts casting, so we need to limit to 8
+        if (max == 0)
+            return [];
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
+
+        var kb = _kb;
+        var isKnockback = kb.Casters.Count != 0;
+        var isKnockbackImmune = isKnockback && _kb.IsImmune(slot, Module.CastFinishAt(_kb.Casters[0].CastInfo));
+        var isKnockbackButImmune = isKnockback && isKnockbackImmune;
+        for (var i = 0; i < max; ++i)
         {
-            var component = Module.FindComponent<BarrelBreaker>()!;
-            var isKnockback = component.Sources(slot, actor).Any();
-            var isStillSafe = component.Activation != default && component.Activation > WorldState.CurrentTime;
-            var isKnockbackImmune = isKnockback && component.IsImmune(slot, component.Sources(slot, actor).First().Activation);
-            var isKnockbackButImmune = isKnockback && isKnockbackImmune;
-            var areConesActive = _aoesCones.Count > 0;
-            foreach (var a in _aoesCircles.Take(8))
-                yield return a with { Risky = cactiActive2 && !areConesActive && (isKnockbackButImmune || !isStillSafe) };
+            aoes[i].Risky = !isKnockback || isKnockbackButImmune;
         }
-        foreach (var a in _aoesCones)
-            yield return a with { Color = cactiActive ? Colors.Danger : Colors.AOE };
+        return aoes[..max];
     }
 
     public override void OnActorCreated(Actor actor)
     {
-        if ((OID)actor.OID == OID.CactusSmall)
-            _aoesCircles.Add(new(circleSmall, actor.Position));
-        else if ((OID)actor.OID == OID.CactusBig)
-            _aoesCircles.Add(new(circleBig, actor.Position));
+        AOEShape? shape = actor.OID switch
+        {
+            (uint)OID.CactusSmall => circleSmall,
+            (uint)OID.CactusBig => circleBig,
+            _ => null
+        };
+        if (shape != null)
+            _aoes.Add(new(shape, WPos.ClampToGrid(actor.Position)));
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.TenderDrop)
+        if (spell.Action.ID == (uint)AID.TenderDrop)
         {
             cactiActive = true;
-            var updatedAOEs = new List<AOEInstance>();
-            foreach (var a in _aoesCircles)
-                updatedAOEs.Add(a with { Activation = Module.CastFinishAt(spell, 13.7f) });
-            _aoesCircles = updatedAOEs;
+            var count = _aoes.Count;
+            var max = count > 8 ? 8 : count;
+            var aoes = CollectionsMarshal.AsSpan(_aoes)[..max];
+
+            for (var i = 0; i < max; ++i)
+            {
+                ref var aoe = ref aoes[i];
+                aoe.Activation = Module.CastFinishAt(spell, 13.7f);
+            }
         }
-        else if ((AID)spell.Action.ID == AID.HeavyweightNeedles)
-        {
-            _aoesCones.Add(new(cone, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
-            if (cactiActive)
-                cactiActive2 = true;
-        }
-        else if ((AID)spell.Action.ID == AID.BarrelBreaker)
-            cactiActive2 = true;
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (_aoesCircles.Count > 0 && (AID)spell.Action.ID is AID.NeedleStorm or AID.NeedleSuperstorm)
+        if (_aoes.Count != 0 && spell.Action.ID is (uint)AID.NeedleStorm or (uint)AID.NeedleSuperstorm)
         {
-            _aoesCircles.RemoveAt(0);
+            _aoes.RemoveAt(0);
             cactiActive = false;
-            cactiActive2 = false;
         }
-        else if ((AID)spell.Action.ID == AID.HeavyweightNeedles)
-            _aoesCones.Clear();
     }
 }
 
-abstract class Prickly(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(36, 165.Degrees()));
-class PricklyRight(BossModule module) : Prickly(module, AID.PricklyRight);
-class PricklyLeft(BossModule module) : Prickly(module, AID.PricklyLeft);
-
-class SucculentStomp(BossModule module) : Components.StackWithCastTargets(module, ActionID.MakeSpell(AID.SucculentStomp), 6, 4, 4);
-class BarrelBreaker(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.BarrelBreaker), 20)
+class Prickly(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.PricklyRight, (uint)AID.PricklyLeft], new AOEShapeCone(36f, 165f.Degrees()));
+class SucculentStomp(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.SucculentStomp, 6f, 4, 4);
+class BarrelBreaker(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.BarrelBreaker, 20f)
 {
-    private static readonly Angle a5 = 5.Degrees();
-    private static readonly Angle a135 = 135.Degrees();
-    private static readonly Angle a45 = 45.Degrees();
-    public DateTime Activation;
+    private static readonly Angle a10 = 10f.Degrees(), a135 = 135f.Degrees(), a45 = 45f.Degrees();
+    private enum Pattern { None, NESW, NWSE }
+    private Pattern CurrentPattern;
 
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
+    public override void OnActorEAnim(Actor actor, uint state)
     {
-        base.OnCastStarted(caster, spell);
-        if (spell.Action == WatchedAction)
-            Activation = Module.CastFinishAt(spell, 1);
-    }
-
-    public override void Update()
-    {
-        if (Activation != default && Activation < WorldState.CurrentTime)
-            Activation = default;
+        if (actor.OID == (uint)OID.CactusSmall && state == 0x00010002u)
+        {
+            var add = actor.Position.X + actor.Position.Z;
+            if (add == 400f) // new WPos(-55f, 455f)
+                CurrentPattern = Pattern.NESW;
+            else if (add == 430f) // new WPos(-55f, 485f)
+                CurrentPattern = Pattern.NWSE;
+        }
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        var source = Sources(slot, actor).FirstOrDefault();
-        var forbidden = new List<Func<WPos, float>>();
-        if (source != default)
+        if (Casters.Count != 0)
         {
-            var cactusSmall = Module.Enemies(OID.CactusSmall).FirstOrDefault(x => x.Position == new WPos(-55, 455));
-            forbidden.Add(ShapeDistance.InvertedDonutSector(source.Origin, 4, 5, cactusSmall != default ? a135 : -a135, a5));
-            forbidden.Add(ShapeDistance.InvertedDonutSector(source.Origin, 4, 5, cactusSmall != default ? -a45 : a45, a5));
+            var source = Casters[0];
+            var act = Module.CastFinishAt(source.CastInfo);
+            if (!IsImmune(slot, act))
+            {
+                var forbidden = new Func<WPos, float>[2];
+                var pattern = CurrentPattern == Pattern.NESW;
+                var castInfo = source.CastInfo;
+                var pos = castInfo!.LocXZ;
+                forbidden[0] = ShapeDistance.InvertedCone(pos, 4f, pattern ? a135 : -a135, a10);
+                forbidden[1] = ShapeDistance.InvertedCone(pos, 4f, pattern ? -a45 : a45, a10);
+                hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), act);
+            }
         }
-        if (forbidden.Count > 0)
-            hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), source.Activation);
     }
 
-    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos) => (Module.FindComponent<NeedleStormSuperstormHeavyWeightNeedles>()?.ActiveAOEs(slot, actor).Any(z => z.Shape.Check(pos, z.Origin, z.Rotation)) ?? false) || !Module.InBounds(pos);
+    public override bool DestinationUnsafe(int slot, Actor actor, WPos pos)
+    {
+        var aoe = Module.FindComponent<NeedleStormSuperstorm>();
+        if (aoe != null)
+        {
+            var aoes = aoe.ActiveAOEs(slot, actor);
+            var len = aoes.Length;
+            for (var i = 0; i < len; ++i)
+            {
+                if (aoes[i].Check(pos))
+                    return true;
+            }
+        }
+        return !Module.InBounds(pos);
+    }
+
+    public override void OnActorDestroyed(Actor actor)
+    {
+        if (actor.OID == (uint)OID.CactusSmall)
+            CurrentPattern = Pattern.None;
+    }
 }
 
-class TenderFury(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.TenderFury));
-class BarbedBellow(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.BarbedBellow));
+class TenderFury(BossModule module) : Components.SingleTargetCast(module, (uint)AID.TenderFury);
+class BarbedBellow(BossModule module) : Components.RaidwideCast(module, (uint)AID.BarbedBellow);
 
 class D071BarreltenderStates : StateMachineBuilder
 {
     public D071BarreltenderStates(BossModule module) : base(module)
     {
         TrivialPhase()
-            .ActivateOnEnter<Components.StayInBounds>()
-            .ActivateOnEnter<HeavyweightNeedlesArenaChange>()
-            .ActivateOnEnter<NeedleStormSuperstormHeavyWeightNeedles>()
-            .ActivateOnEnter<PricklyRight>()
-            .ActivateOnEnter<PricklyLeft>()
+            .ActivateOnEnter<ArenaChange>()
             .ActivateOnEnter<BarrelBreaker>()
+            .ActivateOnEnter<HeavyweightNeedles>()
+            .ActivateOnEnter<NeedleStormSuperstorm>()
+            .ActivateOnEnter<Prickly>()
             .ActivateOnEnter<TenderFury>()
             .ActivateOnEnter<SucculentStomp>()
             .ActivateOnEnter<BarbedBellow>();
@@ -185,7 +221,7 @@ class D071BarreltenderStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 834, NameID = 12889)]
 public class D071Barreltender(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, StartingBounds)
 {
-    public static readonly WPos ArenaCenter = new(-65, 470);
+    public static readonly WPos ArenaCenter = new(-65f, 470f);
     public static readonly ArenaBoundsSquare StartingBounds = new(24.5f);
-    public static readonly ArenaBoundsSquare DefaultBounds = new(20);
+    public static readonly ArenaBoundsSquare DefaultBounds = new(20f);
 }

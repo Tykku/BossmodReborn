@@ -6,59 +6,76 @@ class SurgingWaveCorridor(BossModule module) : BossComponent(module)
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index == 0x49 && state is 0x02000001 or 0x00200001 or 0x00800040 or 0x08000400)
+        if (index == 0x49u && state is 0x02000001u or 0x00200001u or 0x00800040u or 0x08000400u)
         {
             CorridorDir = state switch
             {
-                0x00800040 => new(-1, 0),
-                0x08000400 => new(+1, 0),
+                0x00800040u => new(-1f, default),
+                0x08000400u => new(1f, default),
                 _ => default
             };
         }
     }
 }
 
-class SurgingWaveAOE(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SurgingWaveAOE), new AOEShapeCircle(6));
-class SurgingWaveShockwave(BossModule module) : Components.KnockbackFromCastTarget(module, ActionID.MakeSpell(AID.SurgingWaveShockwave), 68, true);
-class SurgingWaveSeaFoam(BossModule module) : Components.PersistentVoidzone(module, 1.5f, m => m.Enemies(OID.SeaFoam).Where(x => !x.IsDead));
+class SurgingWaveAOE(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SurgingWaveAOE, 6f);
+class SurgingWaveShockwave(BossModule module) : Components.SimpleKnockbacks(module, (uint)AID.SurgingWaveShockwave, 68f, true);
+class SurgingWaveSeaFoam(BossModule module) : Components.Voidzone(module, 1.5f, GetVoidzones)
+{
+    private static Actor[] GetVoidzones(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.SeaFoam);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
+
+        var voidzones = new Actor[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (!z.IsDead)
+                voidzones[index++] = z;
+        }
+        return voidzones[..index];
+    }
+}
 
 public class SurgingWaveFrothingSea : Components.Exaflare
 {
-    public SurgingWaveFrothingSea(BossModule module) : base(module, new AOEShapeRect(6, 20, 80))
+    public SurgingWaveFrothingSea(BossModule module) : base(module, new AOEShapeRect(6f, 20f, 80f))
     {
         ImminentColor = Colors.AOE;
         FutureColor = Colors.Danger;
     }
 
-    private static readonly Angle _rot1 = 90.Degrees();
-    private static readonly Angle _rot2 = -90.Degrees();
-
     public override void OnEventEnvControl(byte index, uint state)
     {
-        var _activation = WorldState.FutureTime(30);
-        if (index == 0x49)
+        void AddLine(WPos first, Angle rot)
+        => Lines.Add(new() { Next = first, Advance = 2.3f * rot.ToDirection(), NextExplosion = WorldState.FutureTime(30d), TimeToMove = 0.9f, ExplosionsLeft = 13, MaxShownExplosions = 2, Rotation = rot });
+        if (index == 0x49u)
         {
-            if (state == 0x00800040)
-                Lines.Add(new() { Next = new(-80, -900), Advance = 2.3f * _rot1.ToDirection(), NextExplosion = _activation, TimeToMove = 0.9f, ExplosionsLeft = 13, MaxShownExplosions = 2, Rotation = _rot1 });
-            if (state == 0x08000400)
-                Lines.Add(new() { Next = new(80, -900), Advance = 2.3f * _rot2.ToDirection(), NextExplosion = _activation, TimeToMove = 0.9f, ExplosionsLeft = 13, MaxShownExplosions = 2, Rotation = _rot2 });
+            if (state == 0x00800040u)
+                AddLine(new(-80f, -900f), 90f.Degrees());
+            else if (state == 0x08000400u)
+                AddLine(new(80f, -900f), -90f.Degrees());
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.SurgingWaveFrothingSea)
+        if (spell.Action.ID == (uint)AID.SurgingWaveFrothingSea)
         {
             ++NumCasts;
-            if (Lines.Count > 0)
+            if (Lines.Count != 0)
             {
-                AdvanceLine(Lines[0], Lines[0].Next + 2.3f * Lines[0].Rotation.ToDirection());
-                if (Lines[0].ExplosionsLeft == 0)
+                var line = Lines[0];
+                AdvanceLine(line, line.Next + 2.3f * line.Rotation.ToDirection());
+                if (line.ExplosionsLeft == 0)
                     Lines.RemoveAt(0);
             }
         }
     }
 }
 
-class LeftStrait(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.LeftStrait), new AOEShapeCone(100, 90.Degrees()));
-class RightStrait(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.RightStrait), new AOEShapeCone(100, 90.Degrees()));
+class Strait(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.LeftStrait, (uint)AID.RightStrait], new AOEShapeCone(100f, 90f.Degrees()));

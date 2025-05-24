@@ -1,19 +1,19 @@
 ﻿namespace BossMod.RealmReborn.Raid.T05Twintania;
 
 // what happens here is marker appears -> 5 liquid hells drop at (0.6 + 1.7*N)s; each liquid hell cast does small damage and spawns voidzone 1.2s later
-class P5LiquidHell(BossModule module) : Components.PersistentVoidzoneAtCastTarget(module, 6, ActionID.MakeSpell(AID.LiquidHellBoss), m => m.Enemies(OID.LiquidHell).Where(z => z.EventState != 7), 1.5f)
+class P5LiquidHell(BossModule module) : Components.VoidzoneAtCastTarget(module, 6, (uint)AID.LiquidHellBoss, m => m.Enemies(OID.LiquidHell).Where(z => z.EventState != 7), 1.5f)
 {
-    public Actor? Target { get; private set; }
+    public Actor? Target;
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         base.OnEventCast(caster, spell);
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.LiquidHellMarker:
+            case (uint)AID.LiquidHellMarker:
                 Target = WorldState.Actors.Find(spell.MainTargetID);
                 break;
-            case AID.LiquidHellBoss:
+            case (uint)AID.LiquidHellBoss:
                 if (NumCasts % 5 == 0)
                     Target = null;
                 break;
@@ -23,9 +23,9 @@ class P5LiquidHell(BossModule module) : Components.PersistentVoidzoneAtCastTarge
 
 class P5Hatch(BossModule module) : BossComponent(module)
 {
-    public Actor? Target { get; private set; }
-    public IReadOnlyList<Actor> Orbs { get; private set; } = module.Enemies(OID.Oviform);
-    public IReadOnlyList<Actor> Neurolinks { get; private set; } = module.Enemies(OID.Neurolink);
+    public Actor? Target;
+    public readonly List<Actor> Orbs = module.Enemies((uint)OID.Oviform);
+    public readonly List<Actor> Neurolinks = module.Enemies((uint)OID.Neurolink);
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
@@ -49,12 +49,12 @@ class P5Hatch(BossModule module) : BossComponent(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.HatchMarker:
+            case (uint)AID.HatchMarker:
                 Target = WorldState.Actors.Find(spell.MainTargetID);
                 break;
-            case AID.Hatch:
+            case (uint)AID.Hatch:
                 Target = null;
                 break;
         }
@@ -76,15 +76,21 @@ class P5AI(BossModule module) : BossComponent(module)
             var neurolinkUnderBoss = _hatch.Neurolinks.FirstOrDefault(n => n.Position.InCircle(Module.PrimaryActor.Position, 1));
             // note: i've used to have extra logic if orb is being intercepted: in such case neither target would move anywhere nor others would give space
             // however, it's a bit finicky - instead, it's safer to just let everyone move, and if orb ends up being intercepted - oh well...
-            //var orbIntercepted = neurolinkUnderBoss != null && Raid.WithoutSlot().InRadius(neurolinkUnderBoss.Position, T05Twintania.NeurolinkRadius).Any();
+            //var orbIntercepted = neurolinkUnderBoss != null && Raid.WithoutSlot(false, true, true).InRadius(neurolinkUnderBoss.Position, T05Twintania.NeurolinkRadius).Any();
             if (actor == _hatch.Target)
             {
                 // hatch target should run to safe neurolink (except for neurolink under boss, this is unsafe) if orb is not being intercepted
                 //if (!orbIntercepted)
                 {
                     forbidNeurolinks = false;
-                    var forbidden = _hatch.Neurolinks.Exclude(neurolinkUnderBoss).Select(n => ShapeDistance.Circle(n.Position, T05Twintania.NeurolinkRadius));
-                    hints.AddForbiddenZone(p => -forbidden.Min(f => f(p)));
+                    var forbidden = new List<Func<WPos, float>>();
+                    for (var i = 0; i < _hatch.Neurolinks.Count; ++i)
+                    {
+                        var neurolink = _hatch.Neurolinks[i];
+                        if (neurolink != neurolinkUnderBoss)
+                            forbidden.Add(ShapeDistance.Circle(neurolink.Position, T05Twintania.NeurolinkRadius));
+                    }
+                    hints.AddForbiddenZone(ShapeDistance.InvertedUnion(forbidden));
                 }
             }
             else if (assignment == ((_deathSentence?.TankedByOT ?? false) ? PartyRolesConfig.Assignment.MT : PartyRolesConfig.Assignment.OT) && neurolinkUnderBoss != null && actor != _liquidHell?.Target)
@@ -116,7 +122,7 @@ class P5AI(BossModule module) : BossComponent(module)
         if (actor == _liquidHell?.Target)
         {
             // liquid hell target should gtfo from raid
-            foreach (var p in Raid.WithoutSlot().Exclude(actor))
+            foreach (var p in Raid.WithoutSlot(false, true, true).Exclude(actor))
                 hints.AddForbiddenZone(ShapeDistance.Circle(p.Position, _liquidHell.Shape.Radius));
         }
     }

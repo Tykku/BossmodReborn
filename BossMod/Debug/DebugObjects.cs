@@ -77,6 +77,12 @@ public class DebugObjects
                             _tree.LeafNode($"#{j}: {Utils.StatusString(s.StatusId)} ({s.Param:X}) from {Utils.ObjectString(s.SourceId)}, {s.RemainingTime:f3}s left");
                         }
                     }
+                    var fi = ((Character*)battleChara.Address)->GetForayInfo();
+                    if (fi != null)
+                    {
+                        _tree.LeafNode($"Foray level: {fi->Level}");
+                        _tree.LeafNode($"Foray ele: {fi->Element}");
+                    }
                 }
             }
 
@@ -147,7 +153,7 @@ public class DebugObjects
                 foreach (var status in chara!.StatusList)
                 {
                     var src = status.SourceObject != null ? Utils.ObjectString(status.SourceObject) : "none";
-                    res.Append($"\n  status {status.StatusId} '{status.GameData.Value.Name}': param={status.Param}, stacks={status.StackCount}, time={status.RemainingTime:f2}, source={src}");
+                    res.Append($"\n  status {status.StatusId} '{status.GameData.Value.Name}': param={status.Param}, stacks={status.Param}, time={status.RemainingTime:f2}, source={src}");
                 }
             }
         }

@@ -9,7 +9,8 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    Attack = 6499, // Boss->player, no cast, single-target
+    AutoAttack = 6499, // Boss->player, no cast, single-target
+
     SongsOfIceAndThunder = 31851, // Boss->self, 5.0s cast, range 9 circle
     SongsOfThunderAndIce = 31852, // Boss->self, 5.0s cast, range 8-40 donut
     TheRamsVoice1 = 31854, // Boss->self, no cast, range 9 circle
@@ -31,113 +32,154 @@ public enum TetherID : uint
 
 class RamsDragonVoice(BossModule module) : Components.GenericAOEs(module)
 {
-    private static readonly AOEShapeDonut donut = new(8, 40);
-    private static readonly AOEShapeCircle circle = new(9);
-    private readonly List<AOEInstance> _aoes = [];
-    private static readonly HashSet<AID> castEnd = [AID.TheRamsVoice1, AID.TheRamsVoice2, AID.TheDragonsVoice1,
-    AID.TheDragonsVoice2, AID.SongsOfIceAndThunder, AID.SongsOfThunderAndIce];
+    private static readonly AOEShapeDonut donut = new(8f, 40f);
+    private static readonly AOEShapeCircle circle = new(9f);
+    private readonly List<AOEInstance> _aoes = new(2);
+    private readonly List<(AOEShape, DateTime)> _shapes = new(2);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_aoes.Count > 0)
-            yield return _aoes[0] with { Color = Colors.Danger };
-        if (_aoes.Count > 1)
-            yield return _aoes[1] with { Risky = false };
+        var countA = _aoes.Count;
+        if (countA != 0)
+        {
+            var aoes = CollectionsMarshal.AsSpan(_aoes);
+            for (var i = 0; i < countA; ++i)
+            {
+                ref var aoe = ref aoes[i];
+                if (i == 0)
+                {
+                    if (countA > 1)
+                        aoe.Color = Colors.Danger;
+                    aoe.Risky = true;
+                }
+                else
+                    aoe.Risky = false;
+            }
+            return aoes;
+        }
+        var countS = _shapes.Count;
+        if (countS != 0)
+        {
+            var aoes = new AOEInstance[countS];
+            var shapes = CollectionsMarshal.AsSpan(_shapes);
+            var pos = WPos.ClampToGrid(Module.PrimaryActor.Position);
+            for (var i = 0; i < countS; ++i)
+            {
+                ref readonly var shape = ref shapes[i];
+                aoes[i] = new(shape.Item1, pos, default, shape.Item2, i == 0 && countS > 1 ? Colors.Danger : 0u, i != 0);
+            }
+            return aoes;
+        }
+        return [];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.SongsOfIceAndThunder:
-                AddAOEs(circle, donut, spell);
+            case (uint)AID.SongsOfIceAndThunder:
+                AddAOEs(circle, donut);
                 break;
-            case AID.SongsOfThunderAndIce:
-                AddAOEs(donut, circle, spell);
+            case (uint)AID.SongsOfThunderAndIce:
+                AddAOEs(donut, circle);
                 break;
+        }
+
+        void AddAOEs(AOEShape first, AOEShape second)
+        {
+            var position = spell.LocXZ;
+            _aoes.Add(new(first, position, default, Module.CastFinishAt(spell)));
+            _aoes.Add(new(second, position, default, Module.CastFinishAt(spell, 3f)));
         }
     }
 
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
+    public override void OnActorModelStateChange(Actor actor, byte modelState, byte animState1, byte animState2)
     {
-        switch ((AID)spell.Action.ID)
+        if (_aoes.Count != 0 || _shapes.Count != 0)
+            return;
+
+        if (modelState == 4)
+            AddAOEs(circle, donut);
+        else if (modelState == 5)
+            AddAOEs(donut, circle);
+        void AddAOEs(AOEShape first, AOEShape second)
         {
-            case AID.ColdThunder:
-                AddAOEs(circle, donut, spell);
-                break;
-            case AID.ThunderousCold:
-                AddAOEs(donut, circle, spell);
-                break;
+            _shapes.Add((first, WorldState.FutureTime(2.4d)));
+            _shapes.Add((second, WorldState.FutureTime(5.5d)));
         }
-    }
-
-    public override void Update()
-    {
-        var count = _aoes.Count;
-        if (count > 0)
-            for (var i = 0; i < count; ++i)
-                _aoes[i] = new(_aoes[i].Shape, Module.PrimaryActor.Position, default, _aoes[i].Activation);
-    }
-
-    private void AddAOEs(AOEShape first, AOEShape second, ActorCastInfo spell)
-    {
-        var position = Module.PrimaryActor.Position;
-        _aoes.Add(new(first, position, default, Module.CastFinishAt(spell)));
-        _aoes.Add(new(second, position, default, Module.CastFinishAt(spell, 3)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (_aoes.Count > 0 && castEnd.Contains((AID)spell.Action.ID))
-            _aoes.RemoveAt(0);
+        switch (spell.Action.ID)
+        {
+            case (uint)AID.TheDragonsVoice1:
+            case (uint)AID.TheRamsVoice1:
+            case (uint)AID.TheDragonsVoice2:
+            case (uint)AID.TheRamsVoice2:
+            case (uint)AID.SongsOfIceAndThunder:
+            case (uint)AID.SongsOfThunderAndIce:
+                if (_aoes.Count != 0)
+                    _aoes.RemoveAt(0);
+                else if (_shapes.Count != 0)
+                    _shapes.RemoveAt(0);
+                break;
+        }
     }
 }
 
-class TC(BossModule module, AID aid) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(aid), 4);
-class ThunderousCold(BossModule module) : TC(module, AID.ThunderousCold);
-class ColdThunder(BossModule module) : TC(module, AID.ColdThunder);
+class TC(BossModule module, uint aid) : Components.BaitAwayChargeCast(module, aid, 4f);
+class ThunderousCold(BossModule module) : TC(module, (uint)AID.ThunderousCold);
+class ColdThunder(BossModule module) : TC(module, (uint)AID.ColdThunder);
 
-class Breath(BossModule module, AID aid) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(aid), new AOEShapeCone(40, 90.Degrees()));
-class RightbreathedCold(BossModule module) : Breath(module, AID.RightbreathedCold);
-class LeftbreathedThunder(BossModule module) : Breath(module, AID.LeftbreathedThunder);
+class Breath(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(40f, 90f.Degrees()));
+class RightbreathedCold(BossModule module) : Breath(module, (uint)AID.RightbreathedCold);
+class LeftbreathedThunder(BossModule module) : Breath(module, (uint)AID.LeftbreathedThunder);
 
-class ChargeTether(BossModule module) : Components.StretchTetherDuo(module, 15, 5.1f);
+class ChargeTether(BossModule module) : Components.StretchTetherDuo(module, 15f, 5.1f);
 
 class Cacophony(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCircle circle = new(6);
-    private readonly List<Actor> _orbs = [];
+    private readonly List<Actor> _orbs = new(2);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        for (var i = 0; i < _orbs.Count; ++i)
-            yield return new(circle, _orbs[i].Position);
+        var count = _orbs.Count;
+        if (count == 0)
+            return [];
+        var aoes = new AOEInstance[count];
+        for (var i = 0; i < count; ++i)
+            aoes[i] = new(circle, _orbs[i].Position);
+        return aoes;
     }
 
-    public override void OnActorCreated(Actor actor)
+    public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
-        if ((OID)actor.OID == OID.Cacophony)
-            _orbs.Add(actor);
+        if (source.OID == (uint)OID.Cacophony)
+            _orbs.Add(source);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.ChaoticChorus)
+        if (spell.Action.ID == (uint)AID.ChaoticChorus)
             _orbs.Remove(caster);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        base.AddAIHints(slot, actor, assignment, hints);
-        for (var i = 0; i < _orbs.Count; ++i)
+        var count = _orbs.Count;
+        if (count == 0)
+            return;
+        for (var i = 0; i < count; ++i)
         {
             var w = _orbs[i];
-            hints.AddForbiddenZone(circle, w.Position + 2 * w.Rotation.ToDirection());
+            hints.AddForbiddenZone(ShapeDistance.Capsule(w.Position, w.Rotation, 10f, 6f));
         }
     }
 }
 
-class CacophonyTether(BossModule module) : Components.StretchTetherSingle(module, (uint)TetherID.OrbTether, 15, needToKite: true);
+class CacophonyTether(BossModule module) : Components.StretchTetherSingle(module, (uint)TetherID.OrbTether, 15f, needToKite: true);
 
 class DD50ServomechanicalChimera14XStates : StateMachineBuilder
 {
@@ -156,4 +198,4 @@ class DD50ServomechanicalChimera14XStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 901, NameID = 12265)]
-public class DD50ServomechanicalChimera14X(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300, -300), new ArenaBoundsCircle(19.5f));
+public class DD50ServomechanicalChimera14X(WorldState ws, Actor primary) : BossModule(ws, primary, new(-300f, -300f), new ArenaBoundsCircle(19.5f));

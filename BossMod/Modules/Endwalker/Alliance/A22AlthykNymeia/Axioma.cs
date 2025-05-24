@@ -5,7 +5,7 @@ class Axioma(BossModule module) : Components.GenericAOEs(module)
     private const string riskHint = "GTFO from rifts!";
     private const string risk2Hint = "Walk into a rift!";
     private const string stayHint = "Stay inside rift!";
-    public bool ShouldBeInZone { get; private set; }
+    public bool ShouldBeInZone;
     private bool active;
 
     private static readonly PolygonCustom shapeCustom1 = new([new(35.65f, -725), new(35.3f, -726.57f), new(35.25f, -726.83f), new(34.42f, -728.66f),
@@ -41,10 +41,12 @@ class Axioma(BossModule module) : Components.GenericAOEs(module)
     private static readonly Shape[] union = [shapeCustom1, shapeCustom2, shapeCustom3, shapeCustom4, shapeCustom5, shapeCustom6];
     private static readonly AOEShapeCustom voidzone = new(union);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (active)
-            yield return new(ShouldBeInZone ? voidzone with { InvertForbiddenZone = true } : voidzone, Arena.Center, Color: ShouldBeInZone ? Colors.SafeFromAOE : Colors.AOE);
+            return new AOEInstance[1] { new(ShouldBeInZone ? voidzone with { InvertForbiddenZone = true } : voidzone, Arena.Center, default, WorldState.FutureTime(2.5d), ShouldBeInZone ? Colors.SafeFromAOE : Colors.AOE) };
+        else
+            return [];
     }
 
     public override void OnEventEnvControl(byte index, uint state)
@@ -55,23 +57,43 @@ class Axioma(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.InexorablePullAOE)
+        if (spell.Action.ID == (uint)AID.InexorablePullAOE)
             ShouldBeInZone = true;
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.InexorablePullAOE)
+        if (spell.Action.ID == (uint)AID.InexorablePullAOE)
             ShouldBeInZone = false;
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (!ShouldBeInZone && ActiveAOEs(slot, actor).Any(c => c.Risky && c.Check(actor.Position)))
+        if (!active)
+            return;
+        var aoes = ActiveAOEs(slot, actor);
+        var riskyInZone = false;
+        var riskyOutZone = false;
+        var len = aoes.Length;
+        for (var i = 0; i < len; ++i)
+        {
+            ref readonly var c = ref aoes[i];
+            if (c.Risky)
+            {
+                if (c.Check(actor.Position))
+                    riskyInZone = true;
+                else
+                    riskyOutZone = true;
+            }
+            if (ShouldBeInZone && riskyInZone)
+                break;
+        }
+
+        if (!ShouldBeInZone && riskyInZone)
             hints.Add(riskHint);
-        else if (ShouldBeInZone && ActiveAOEs(slot, actor).Any(c => c.Risky && !c.Check(actor.Position)))
+        else if (ShouldBeInZone && riskyOutZone)
             hints.Add(risk2Hint);
-        else if (ShouldBeInZone && ActiveAOEs(slot, actor).Any(c => c.Risky && c.Check(actor.Position)))
+        else if (ShouldBeInZone && riskyInZone)
             hints.Add(stayHint, false);
     }
 }

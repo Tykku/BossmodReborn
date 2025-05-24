@@ -10,8 +10,9 @@ public enum OID : uint
 
 public enum AID : uint
 {
-    AutoAttack = 872, // Boss->player, no cast, single-target
+    AutoAttack1 = 872, // Boss->player, no cast, single-target
     AutoAttack2 = 870, // Leyak->player, no cast, single-target
+
     ElectricPredation = 3887, // Boss->self, no cast, range 8+R 90-degree cone
     ElectricCachexia = 3889, // Boss->self, 7.0s cast, range 8-60 donut
     IonosphericCharge = 3888, // Boss->self, 3.0s cast, single-target
@@ -24,66 +25,70 @@ public enum AID : uint
 
 public enum TetherID : uint
 {
-    Lightning = 6, // Boss->player/BlackenedStatue
+    Lightning = 6 // Boss->player/BlackenedStatue
 }
 
-class ElectricPredation(BossModule module) : Components.Cleave(module, ActionID.MakeSpell(AID.ElectricPredation), new AOEShapeCone(12.9f, 60.Degrees()));
+class ElectricPredation(BossModule module) : Components.Cleave(module, (uint)AID.ElectricPredation, new AOEShapeCone(12.9f, 60.Degrees()));
+
 class Electrocution(BossModule module) : Components.GenericBaitAway(module)
 {
     private static readonly AOEShapeRect rect = new(64.9f, 2.5f);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.ElectrocutionVisual)
-            foreach (var p in Module.Raid.WithoutSlot())
+        if (spell.Action.ID == (uint)AID.ElectrocutionVisual)
+            foreach (var p in Module.Raid.WithoutSlot(false, true, true))
                 CurrentBaits.Add(new(caster, p, rect, Module.CastFinishAt(spell, 0.9f)));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.Electrocution)
+        if (spell.Action.ID == (uint)AID.Electrocution)
         {
             ++NumCasts;
             if (NumCasts == 3 || NumCasts == CurrentBaits.Count) // hits upto 3 random players
+            {
                 CurrentBaits.Clear();
+                NumCasts = 0;
+            }
         }
     }
 }
 
-class IonosphericCharge(BossModule module) : Components.BaitAwayTethers(module, new AOEShapeCircle(0), (uint)TetherID.Lightning, activationDelay: 10.1f)
+class IonosphericCharge(BossModule module) : Components.BaitAwayTethers(module, 0f, (uint)TetherID.Lightning, activationDelay: 10.1f)
 {
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
-        if (!ActiveBaits.Any(x => x.Target == actor))
+        if (ActiveBaitsOn(actor).Count == 0)
             return;
         hints.Add("Pass the tether to a statue!");
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (!ActiveBaits.Any(x => x.Target == actor))
+        if (ActiveBaitsOn(actor).Count == 0)
             return;
         var forbidden = new List<Func<WPos, float>>();
         foreach (var a in Module.Enemies(OID.BlackenedStatue))
             forbidden.Add(ShapeDistance.InvertedCircle(a.Position, 4));
-        if (forbidden.Count > 0)
-            hints.AddForbiddenZone(p => forbidden.Max(f => f(p)), ActiveBaits.FirstOrDefault().Activation);
+        if (forbidden.Count != 0)
+            hints.AddForbiddenZone(ShapeDistance.Intersection(forbidden), ActiveBaits.FirstOrDefault().Activation);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        if (!ActiveBaits.Any(x => x.Target == pc))
+        if (ActiveBaitsOn(pc).Count == 0)
             return;
         base.DrawArenaForeground(pcSlot, pc);
         var statues = Module.Enemies(OID.BlackenedStatue);
         Arena.Actors(statues, Colors.Object, true);
         foreach (var a in statues)
-            Arena.AddCircle(a.Position, 4, Colors.Safe);
+            Arena.AddCircle(a.Position, 4f, Colors.Safe);
     }
 }
 
-class ElectricCachexia(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ElectricCachexia), new AOEShapeDonut(8, 60));
-class LightningBolt(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LightningBolt), 3);
+class ElectricCachexia(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ElectricCachexia, new AOEShapeDonut(8f, 60f));
+class LightningBolt(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LightningBolt, 3f);
 
 class D031RangdaStates : StateMachineBuilder
 {
@@ -119,17 +124,18 @@ public class D031Rangda(WorldState ws, Actor primary) : BossModule(ws, primary, 
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.Leyak));
+        Arena.Actors(Enemies((uint)OID.Leyak));
     }
 
     protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        foreach (var e in hints.PotentialTargets)
+        var count = hints.PotentialTargets.Count;
+        for (var i = 0; i < count; ++i)
         {
-            e.Priority = (OID)e.Actor.OID switch
+            var e = hints.PotentialTargets[i];
+            e.Priority = e.Actor.OID switch
             {
-                OID.Leyak => 2,
-                OID.Boss => 1,
+                (uint)OID.Leyak => 1,
                 _ => 0
             };
         }

@@ -1,31 +1,26 @@
 namespace BossMod.Endwalker.Trial.T08Asura;
 
-class LowerRealm(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.LowerRealm));
-class Ephemerality(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.Ephemerality));
+class LowerRealm(BossModule module) : Components.RaidwideCast(module, (uint)AID.LowerRealm);
+class Ephemerality(BossModule module) : Components.RaidwideCast(module, (uint)AID.Ephemerality);
 
-class CuttingJewel(BossModule module) : Components.BaitAwayCast(module, ActionID.MakeSpell(AID.CuttingJewel), new AOEShapeCircle(4), true)
-{
-    public override void AddGlobalHints(GlobalHints hints)
-    {
-        if (CurrentBaits.Count > 0)
-            hints.Add("Tankbuster cleave");
-    }
-}
+class CuttingJewel(BossModule module) : Components.BaitAwayCast(module, (uint)AID.CuttingJewel, 4f, tankbuster: true);
 
-class IconographyPedestalPurge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IconographyPedestalPurge), new AOEShapeCircle(10));
-class PedestalPurge(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.PedestalPurge), new AOEShapeCircle(27)); // Note, this is not a raidwide, origin is outside of the arena
-class IconographyWheelOfDeincarnation(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IconographyWheelOfDeincarnation), new AOEShapeDonut(8, 40));
-class WheelOfDeincarnation(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.WheelOfDeincarnation), new AOEShapeDonut(15, 96));
-class IconographyBladewise(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.IconographyBladewise), new AOEShapeRect(50, 3));
-class Bladewise(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Bladewise), new AOEShapeRect(100, 14));
-class Scattering(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Scattering), new AOEShapeRect(20, 3));
-class OrderedChaos(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.OrderedChaos), 5);
+class IconographyPedestalPurge(BossModule module) : Components.SimpleAOEs(module, (uint)AID.IconographyPedestalPurge, 10f);
+class PedestalPurge(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PedestalPurge, 60f);
+class IconographyWheelOfDeincarnation(BossModule module) : Components.SimpleAOEs(module, (uint)AID.IconographyWheelOfDeincarnation, new AOEShapeDonut(8f, 40f));
+class WheelOfDeincarnation(BossModule module) : Components.SimpleAOEs(module, (uint)AID.WheelOfDeincarnation, new AOEShapeDonut(48f, 96f));
+class IconographyBladewise(BossModule module) : Components.SimpleAOEs(module, (uint)AID.IconographyBladewise, new AOEShapeRect(50f, 3f));
+class Bladewise(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Bladewise, new AOEShapeRect(100f, 14f));
+class Scattering(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Scattering, new AOEShapeRect(20f, 3f));
+class OrderedChaos(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.OrderedChaos, 5f);
+class MyriadAspects(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.MyriadAspects1, (uint)AID.MyriadAspects2], new AOEShapeCone(40f, 15f.Degrees()), 6, 12);
 
 class T08AsuraStates : StateMachineBuilder
 {
     public T08AsuraStates(BossModule module) : base(module)
     {
         TrivialPhase()
+            .ActivateOnEnter<ArenaChange>()
             .ActivateOnEnter<Ephemerality>()
             .ActivateOnEnter<LowerRealm>()
             .ActivateOnEnter<AsuriChakra>()
@@ -51,4 +46,9 @@ class T08AsuraStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 944, NameID = 12351)]
-public class T08Asura(WorldState ws, Actor primary) : BossModule(ws, primary, new(100, 100), new ArenaBoundsCircle(19));
+public class T08Asura(WorldState ws, Actor primary) : BossModule(ws, primary, arenaCenter, StartingArena)
+{
+    private static readonly WPos arenaCenter = new(100, 100);
+    public static readonly ArenaBoundsComplex StartingArena = new([new Polygon(arenaCenter, 19.5f * CosPI.Pi32th, 32)]);
+    public static readonly ArenaBoundsComplex DefaultArena = new([new Polygon(arenaCenter, 19.165f, 32)]);
+}

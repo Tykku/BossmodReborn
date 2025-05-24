@@ -2,7 +2,7 @@ namespace BossMod.Shadowbringers.Hunt.RankS.Tyger;
 
 public enum OID : uint
 {
-    Boss = 0x288E, // R=5.92
+    Boss = 0x288E // R=5.92
 }
 
 public enum AID : uint
@@ -14,48 +14,39 @@ public enum AID : uint
     TheRamsBreath = 16958, // Boss->self, 4.0s cast, range 30 120-degree cone
     TheRamsEmbrace = 16960, // Boss->location, 3.0s cast, range 9 circle
     TheDragonsVoice = 16963, // Boss->self, 4.0s cast, range 8-30 donut, interruptible raidwide donut
-    TheRamsVoice = 16962, // Boss->self, 4.0s cast, range 9 circle
+    TheRamsVoice = 16962 // Boss->self, 4.0s cast, range 9 circle
 }
 
-class TheLionsBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheLionsBreath), new AOEShapeCone(30, 60.Degrees()));
+abstract class Breath(BossModule module, uint aid) : Components.SimpleAOEs(module, aid, new AOEShapeCone(30f, 60f.Degrees()));
+class TheDragonsBreath(BossModule module) : Breath(module, (uint)AID.TheDragonsBreath);
+class TheRamsBreath(BossModule module) : Breath(module, (uint)AID.TheRamsBreath);
+class TheLionsBreath(BossModule module) : Breath(module, (uint)AID.TheLionsBreath);
 
 class TheScorpionsSting(BossModule module) : Components.GenericAOEs(module)
 {
-    private DateTime _activation;
-    private static readonly AOEShapeCone cone = new(18, 45.Degrees());
+    private AOEInstance? _aoe;
+    private static readonly AOEShapeCone cone = new(18f, 45f.Degrees());
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
-    {
-        if (_activation != default)
-            yield return new(cone, Module.PrimaryActor.Position, Module.PrimaryActor.Rotation + 180.Degrees(), _activation);
-    }
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref _aoe);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.TheRamsVoice or AID.TheDragonsVoice)
-            _activation = Module.CastFinishAt(spell, 2.3f);
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if ((AID)spell.Action.ID is AID.TheRamsVoice or AID.TheDragonsVoice)
-            _activation = WorldState.FutureTime(2.3f); //timing varies, just used the lowest i could find, probably depends on interrupt status
+        if (spell.Action.ID is (uint)AID.TheRamsVoice or (uint)AID.TheDragonsVoice) // timing varies, just used the lowest I could find, probably depends on interrupt status
+            _aoe = new(cone, spell.LocXZ, spell.Rotation + 180f.Degrees(), Module.CastFinishAt(spell, 2.3f));
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.TheScorpionsSting)
-            _activation = default;
+        if (spell.Action.ID == (uint)AID.TheScorpionsSting)
+            _aoe = null;
     }
 }
 
-class TheDragonsBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheDragonsBreath), new AOEShapeCone(30, 60.Degrees()));
-class TheRamsBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheRamsBreath), new AOEShapeCone(30, 60.Degrees()));
-class TheRamsEmbrace(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.TheRamsEmbrace), 9);
-class TheRamsVoice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheRamsVoice), new AOEShapeCircle(9));
-class TheRamsVoiceHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.TheRamsVoice));
-class TheDragonsVoice(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheDragonsVoice), new AOEShapeDonut(8, 30));
-class TheDragonsVoiceHint(BossModule module) : Components.CastInterruptHint(module, ActionID.MakeSpell(AID.TheDragonsVoice), hintExtra: "Donut Raidwide");
+class TheRamsEmbrace(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheRamsEmbrace, 9f);
+class TheRamsVoice(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheRamsVoice, 9f);
+class TheRamsVoiceHint(BossModule module) : Components.CastInterruptHint(module, (uint)AID.TheRamsVoice);
+class TheDragonsVoice(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheDragonsVoice, new AOEShapeDonut(8f, 30f));
+class TheDragonsVoiceHint(BossModule module) : Components.CastInterruptHint(module, (uint)AID.TheDragonsVoice, hintExtra: "Donut Raidwide");
 
 class TygerStates : StateMachineBuilder
 {

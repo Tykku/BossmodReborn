@@ -3,98 +3,111 @@
 public enum OID : uint
 {
     Boss = 0x2DB5, // R=8.0
-    Helper = 0x233C, // R=0.500
     MagitekBit = 0x2DB6, // R=1.2
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
-    Attack = 6497, // Boss->player, no cast, single-target
-    MagitektBitTeleporting = 20192, // 2DB6->location, no cast, ???
+    AutoAttack = 6497, // Boss->player, no cast, single-target
+    Teleport = 20192, // MagitekBit->location, no cast, ???
+
     DiffractiveLaser = 20138, // Boss->self, 7.0s cast, range 60 150-degree cone
-    RefractedLaser = 20141, // 2DB6->self, no cast, range 100 width 6 rect
-    LaserShower = 20136, // Boss->self, 3.0s cast, single-target
-    LaserShower2 = 20140, // Helper->location, 5.0s cast, range 10 circle
+    RefractedLaser = 20141, // MagitekBit->self, no cast, range 100 width 6 rect
+    LaserShowerVisual = 20136, // Boss->self, 3.0s cast, single-target
+    LaserShower = 20140, // Helper->location, 5.0s cast, range 10 circle
     Rush = 20139, // Boss->player, 3.0s cast, width 14 rect charge
-    SatelliteLaser = 20137, // Boss->self, 10.0s cast, range 100 circle
+    SatelliteLaser = 20137 // Boss->self, 10.0s cast, range 100 circle
 }
 
 class MagitekBitLasers(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<DateTime> _times = [];
+    private DateTime[] _times = [];
     private Angle startrotation;
     public enum Types { None, SatelliteLaser, DiffractiveLaser, LaserShower }
-    public Types Type { get; private set; }
+    public Types Type;
+    private static readonly AOEShapeRect rect = new(100f, 3f);
+    private static readonly Angle a90 = 90f.Degrees(), a180 = 180f.Degrees();
 
-    private static readonly AOEShapeRect rect = new(100, 3);
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
-        if (_times.Count > 0)
-            foreach (var p in Module.Enemies(OID.MagitekBit))
+        if (Type == Types.None)
+            return [];
+
+        var bits = Module.Enemies((uint)OID.MagitekBit);
+        var count = bits.Count;
+        var aoes = new AOEInstance[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var p = bits[i];
+            var pos = WPos.ClampToGrid(p.Position);
+            var rot = p.Rotation;
+            var time = WorldState.CurrentTime > _times[0];
+            if (Type == Types.SatelliteLaser && time)
             {
-                if (Type == Types.SatelliteLaser && WorldState.CurrentTime > _times[0])
-                    yield return new(rect, p.Position, p.Rotation, _times[1]);
-                if (Type == Types.DiffractiveLaser && WorldState.CurrentTime > _times[0] || Type == Types.LaserShower)
+                aoes[index++] = new(rect, pos, rot, _times[1]);
+            }
+            else if (Type == Types.DiffractiveLaser && time || Type == Types.LaserShower)
+            {
+                if (NumCasts < 5)
                 {
-                    if (NumCasts < 5 && p.Rotation.AlmostEqual(startrotation, Angle.DegToRad))
-                        yield return new(rect, p.Position, p.Rotation, _times[1], Colors.Danger);
-                    if (NumCasts < 5 && (p.Rotation.AlmostEqual(startrotation + 90.Degrees(), Angle.DegToRad) || p.Rotation.AlmostEqual(startrotation - 90.Degrees(), Angle.DegToRad)))
-                        yield return new(rect, p.Position, p.Rotation, _times[2]);
-                    if (NumCasts >= 5 && NumCasts < 9 && (p.Rotation.AlmostEqual(startrotation + 90.Degrees(), Angle.DegToRad) || p.Rotation.AlmostEqual(startrotation - 90.Degrees(), Angle.DegToRad)))
-                        yield return new(rect, p.Position, p.Rotation, _times[2], Colors.Danger);
-                    if (NumCasts >= 5 && NumCasts < 9 && p.Rotation.AlmostEqual(startrotation + 180.Degrees(), Angle.DegToRad))
-                        yield return new(rect, p.Position, p.Rotation, _times[3]);
-                    if (NumCasts >= 9 && p.Rotation.AlmostEqual(startrotation + 180.Degrees(), Angle.DegToRad))
-                        yield return new(rect, p.Position, p.Rotation, _times[3], Colors.Danger);
+                    if (rot.AlmostEqual(startrotation, Angle.DegToRad))
+                        aoes[index++] = new(rect, pos, rot, _times[1], Colors.Danger);
+                    else if (rot.AlmostEqual(startrotation + a90, Angle.DegToRad) || rot.AlmostEqual(startrotation - a90, Angle.DegToRad))
+                        aoes[index++] = new(rect, pos, rot, _times[2]);
+                }
+                else
+                {
+                    if (rot.AlmostEqual(startrotation + a180, Angle.DegToRad))
+                        aoes[index++] = new(rect, pos, rot, _times[3]);
+                    else if (NumCasts < 9 && (rot.AlmostEqual(startrotation + a90, Angle.DegToRad) || rot.AlmostEqual(startrotation - a90, Angle.DegToRad)))
+                        aoes[index++] = new(rect, pos, rot, _times[2], Colors.Danger);
                 }
             }
+        }
+        return aoes.AsSpan()[..index];
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         var _time = WorldState.CurrentTime;
-        if ((AID)spell.Action.ID == AID.SatelliteLaser)
+        if (spell.Action.ID == (uint)AID.SatelliteLaser)
         {
             Type = Types.SatelliteLaser;
-            _times.Add(_time.AddSeconds(2.5f));
-            _times.Add(_time.AddSeconds(12.3f));
+            _times = [_time.AddSeconds(2.5d), _time.AddSeconds(12.3d)];
         }
-        if ((AID)spell.Action.ID == AID.DiffractiveLaser)
+        else if (spell.Action.ID == (uint)AID.DiffractiveLaser)
         {
-            DateTime[] times = [_time.AddSeconds(2), _time.AddSeconds(8.8f), _time.AddSeconds(10.6f), _time.AddSeconds(12.4f)];
-            startrotation = Angle.AnglesCardinals.FirstOrDefault(r => spell.Rotation.AlmostEqual(r, Angle.DegToRad)) + 180.Degrees();
+            startrotation = spell.Rotation + 180f.Degrees();
             Type = Types.DiffractiveLaser;
-            _times.AddRange(times);
+            _times = [_time.AddSeconds(2d), _time.AddSeconds(8.8d), _time.AddSeconds(10.6d), _time.AddSeconds(12.4d)];
         }
-        if ((AID)spell.Action.ID == AID.LaserShower2)
+        else if (spell.Action.ID == (uint)AID.LaserShower)
         {
-            DateTime[] times = [_time, _time.AddSeconds(6.5f), _time.AddSeconds(8.3f), _time.AddSeconds(10.1f)];
-            startrotation = Angle.AnglesCardinals.FirstOrDefault(r => caster.Rotation.AlmostEqual(r, Angle.DegToRad));
+            startrotation = caster.Rotation;
             Type = Types.LaserShower;
-            _times.AddRange(times);
+            _times = [_time, _time.AddSeconds(6.5d), _time.AddSeconds(8.3d), _time.AddSeconds(10.1d)];
         }
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.RefractedLaser)
+        if (spell.Action.ID == (uint)AID.RefractedLaser)
         {
-            ++NumCasts;
-            if (NumCasts == 14)
+            if (++NumCasts == 14)
             {
                 NumCasts = 0;
-                _times.Clear();
                 Type = Types.None;
             }
         }
     }
 }
 
-class Rush(BossModule module) : Components.BaitAwayChargeCast(module, ActionID.MakeSpell(AID.Rush), 7);
-class LaserShower(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.LaserShower2), 10);
-class DiffractiveLaser(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.DiffractiveLaser), new AOEShapeCone(60, 75.Degrees()));
-class SatelliteLaser(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.SatelliteLaser), "Raidwide + all lasers fire at the same time");
+class Rush(BossModule module) : Components.BaitAwayChargeCast(module, (uint)AID.Rush, 7f);
+class LaserShower(BossModule module) : Components.SimpleAOEs(module, (uint)AID.LaserShower, 10f);
+class DiffractiveLaser(BossModule module) : Components.SimpleAOEs(module, (uint)AID.DiffractiveLaser, new AOEShapeCone(60f, 75f.Degrees()));
+class SatelliteLaser(BossModule module) : Components.RaidwideCast(module, (uint)AID.SatelliteLaser, "Raidwide + all lasers fire at the same time");
 
 class CE31MetalFoxChaosStates : StateMachineBuilder
 {
@@ -110,11 +123,7 @@ class CE31MetalFoxChaosStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 735, NameID = 13)] // bnpcname=9424
-public class CE31MetalFoxChaos(WorldState ws, Actor primary) : BossModule(ws, primary, new(-234, 262), new ArenaBoundsSquare(30.2f))
+public class CE31MetalFoxChaos(WorldState ws, Actor primary) : BossModule(ws, primary, new(-234f, 262f), new ArenaBoundsSquare(29.5f))
 {
-    protected override void DrawEnemies(int pcSlot, Actor pc)
-    {
-        Arena.Actor(PrimaryActor);
-        Arena.Actors(Enemies(OID.MagitekBit), Colors.Vulnerable, true);
-    }
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InSquare(Arena.Center, 30f);
 }

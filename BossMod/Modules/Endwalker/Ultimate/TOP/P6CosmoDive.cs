@@ -12,12 +12,12 @@ class P6CosmoDive(BossModule module) : Components.UniformStackSpread(module, 6, 
         if (_source != null)
         {
             BitMask forbidden = new();
-            foreach (var (slot, actor) in Raid.WithSlot().SortedByRange(_source.Position).Take(2))
+            foreach (var (slot, actor) in Raid.WithSlot(false, true, true).SortedByRange(_source.Position).Take(2))
             {
                 AddSpread(actor, _activation);
                 forbidden.Set(slot);
             }
-            var farthest = Raid.WithoutSlot().Farthest(_source.Position);
+            var farthest = Raid.WithoutSlot(false, true, true).Farthest(_source.Position);
             if (farthest != null)
             {
                 AddStack(farthest, _activation, forbidden);
@@ -28,7 +28,7 @@ class P6CosmoDive(BossModule module) : Components.UniformStackSpread(module, 6, 
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.CosmoDive)
+        if (spell.Action.ID == (uint)AID.CosmoDive)
         {
             _source = caster;
             _activation = Module.CastFinishAt(spell, 2.5f);
@@ -37,7 +37,7 @@ class P6CosmoDive(BossModule module) : Components.UniformStackSpread(module, 6, 
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.CosmoDiveTankbuster or AID.CosmoDiveStack)
+        if (spell.Action.ID is (uint)AID.CosmoDiveTankbuster or (uint)AID.CosmoDiveStack)
         {
             _source = null;
             Spreads.Clear();

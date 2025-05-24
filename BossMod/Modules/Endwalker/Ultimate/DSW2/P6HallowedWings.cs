@@ -6,7 +6,7 @@ class P6HallowedWings(BossModule module) : Components.GenericAOEs(module)
 
     private static readonly AOEShapeRect _shape = new(50, 11);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(AOE);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref AOE);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
@@ -36,17 +36,17 @@ class P6CauterizeN : Components.GenericAOEs
 
     private static readonly AOEShapeRect _shape = new(80, 11);
 
-    public P6CauterizeN(BossModule module) : base(module, ActionID.MakeSpell(AID.CauterizeN))
+    public P6CauterizeN(BossModule module) : base(module, (uint)AID.CauterizeN)
     {
         var caster = module.Enemies(OID.NidhoggP6).FirstOrDefault();
         if (caster != null)
             AOE = new(_shape, caster.Position, caster.Rotation, WorldState.FutureTime(8.6f));
     }
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(AOE);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref AOE);
 }
 
-abstract class P6HallowedPlume(BossModule module) : Components.GenericBaitAway(module, ActionID.MakeSpell(AID.HallowedPlume), centerAtTarget: true)
+abstract class P6HallowedPlume(BossModule module) : Components.GenericBaitAway(module, (uint)AID.HallowedPlume, centerAtTarget: true)
 {
     protected P6HallowedWings? _wings = module.FindComponent<P6HallowedWings>();
     protected bool _far;
@@ -59,7 +59,7 @@ abstract class P6HallowedPlume(BossModule module) : Components.GenericBaitAway(m
         CurrentBaits.Clear();
         if (_caster != null)
         {
-            var players = Raid.WithoutSlot().SortedByRange(_caster.Position);
+            var players = Raid.WithoutSlot(false, true, true).SortedByRange(_caster.Position);
             var targets = _far ? players.TakeLast(2) : players.Take(2);
             foreach (var t in targets)
                 CurrentBaits.Add(new(_caster, t, _shape));
@@ -69,7 +69,7 @@ abstract class P6HallowedPlume(BossModule module) : Components.GenericBaitAway(m
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
         var shouldBait = actor.Role == Role.Tank;
-        var isBaiting = ActiveBaitsOn(actor).Any();
+        var isBaiting = ActiveBaitsOn(actor).Count != 0;
         var stayFar = shouldBait == _far;
         hints.Add(stayFar ? "Stay far!" : "Stay close!", shouldBait != isBaiting);
 
@@ -77,7 +77,7 @@ abstract class P6HallowedPlume(BossModule module) : Components.GenericBaitAway(m
         {
             if (shouldBait)
             {
-                if (ActiveBaitsOn(actor).Any(b => PlayersClippedBy(b).Any()))
+                if (ActiveBaitsOn(actor).Any(b => PlayersClippedBy(b).Count != 0))
                     hints.Add("Bait away from raid!");
             }
             else
@@ -134,9 +134,9 @@ class P6HallowedPlume1(BossModule module) : P6HallowedPlume(module)
         if (_wings?.AOE == null || _cauterize?.AOE == null)
             yield break;
 
-        var safeSpotCenter = Module.Center;
-        safeSpotCenter.Z -= _wings.AOE.Value.Origin.Z - Module.Center.Z;
-        safeSpotCenter.X -= _cauterize.AOE.Value.Origin.X - Module.Center.X;
+        var safeSpotCenter = Arena.Center;
+        safeSpotCenter.Z -= _wings.AOE.Value.Origin.Z - Arena.Center.Z;
+        safeSpotCenter.X -= _cauterize.AOE.Value.Origin.X - Arena.Center.X;
 
         var shouldBait = actor.Role == Role.Tank;
         var stayFar = shouldBait == _far;
@@ -169,8 +169,8 @@ class P6HallowedPlume2(BossModule module) : P6HallowedPlume(module)
             2 => 4.0f / 11,
             _ => 1
         };
-        var safeSpotCenter = Module.Center;
-        safeSpotCenter.Z -= zCoeff * (_wings.AOE.Value.Origin.Z - Module.Center.Z);
+        var safeSpotCenter = Arena.Center;
+        safeSpotCenter.Z -= zCoeff * (_wings.AOE.Value.Origin.Z - Arena.Center.Z);
 
         var shouldBait = actor.Role == Role.Tank;
         var stayFar = shouldBait == _far;

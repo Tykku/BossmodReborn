@@ -5,25 +5,25 @@ class VisceralWhirl(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = [];
 
-    private static readonly AOEShapeRect _shapeNormal = new(29, 14);
-    private static readonly AOEShapeRect _shapeOffset = new(60, 14);
+    private static readonly AOEShapeRect _shapeNormal = new(29f, 14f);
+    private static readonly AOEShapeRect _shapeOffset = new(60f, 14f);
 
-    public bool Active => _aoes.Count > 0;
+    public bool Active => _aoes.Count != 0;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _aoes;
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => CollectionsMarshal.AsSpan(_aoes);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        switch ((AID)spell.Action.ID)
+        switch (spell.Action.ID)
         {
-            case AID.VisceralWhirlRAOE1:
-            case AID.VisceralWhirlLAOE1:
+            case (uint)AID.VisceralWhirlRAOE1:
+            case (uint)AID.VisceralWhirlLAOE1:
                 _aoes.Add(new(_shapeNormal, caster.Position, spell.Rotation, Module.CastFinishAt(spell)));
                 break;
-            case AID.VisceralWhirlRAOE2:
+            case (uint)AID.VisceralWhirlRAOE2:
                 _aoes.Add(new(_shapeOffset, caster.Position + _shapeOffset.HalfWidth * spell.Rotation.ToDirection().OrthoL(), spell.Rotation, Module.CastFinishAt(spell)));
                 break;
-            case AID.VisceralWhirlLAOE2:
+            case (uint)AID.VisceralWhirlLAOE2:
                 _aoes.Add(new(_shapeOffset, caster.Position + _shapeOffset.HalfWidth * spell.Rotation.ToDirection().OrthoR(), spell.Rotation, Module.CastFinishAt(spell)));
                 break;
         }
@@ -31,25 +31,73 @@ class VisceralWhirl(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID is AID.VisceralWhirlRAOE1 or AID.VisceralWhirlRAOE2 or AID.VisceralWhirlLAOE1 or AID.VisceralWhirlLAOE2)
+        if (spell.Action.ID is (uint)AID.VisceralWhirlRAOE1 or (uint)AID.VisceralWhirlRAOE2 or (uint)AID.VisceralWhirlLAOE1 or (uint)AID.VisceralWhirlLAOE2)
             _aoes.RemoveAll(a => a.Rotation.AlmostEqual(spell.Rotation, 0.05f));
     }
 }
 
-class MiasmicBlast(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.MiasmicBlast), new AOEShapeCross(60, 5));
+class MiasmicBlast(BossModule module) : Components.SimpleAOEs(module, (uint)AID.MiasmicBlast, new AOEShapeCross(60f, 5f));
 
 class VoidBio(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly IReadOnlyList<Actor> _bubbles = module.Enemies(OID.ToxicBubble);
+    private static Actor[] GetVoidzones(BossModule module)
+    {
+        var enemies = module.Enemies((uint)OID.ToxicBubble);
+        var count = enemies.Count;
+        if (count == 0)
+            return [];
 
-    private static readonly AOEShapeCircle _shape = new(2); // TODO: verify explosion radius
+        var voidzones = new Actor[count];
+        var index = 0;
+        for (var i = 0; i < count; ++i)
+        {
+            var z = enemies[i];
+            if (!z.IsDead)
+                voidzones[index++] = z;
+        }
+        return voidzones[..index];
+    }
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _bubbles.Where(actor => !actor.IsDead).Select(b => new AOEInstance(_shape, b.Position));
+    private static readonly AOEShapeCapsule _shape = new(2f, 3f); // TODO: verify explosion radius
+
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var voidzones = GetVoidzones(Module);
+        var count = voidzones.Length;
+        if (count == 0)
+            return [];
+        var aoes = new AOEInstance[count];
+        for (var i = 0; i < count; ++i)
+        {
+            ref readonly var vz = ref voidzones[i];
+            aoes[i] = new(_shape, vz.Position);
+        }
+        return aoes;
+    }
+
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        var voidzones = GetVoidzones(Module);
+        var count = voidzones.Length;
+        if (count == 0)
+            return;
+        var forbiddenImminent = new Func<WPos, float>[count];
+        var forbiddenFuture = new Func<WPos, float>[count];
+        var angle = Angle.AnglesCardinals[1];
+        for (var i = 0; i < count; ++i)
+        {
+            ref var h = ref voidzones[i];
+            forbiddenFuture[i] = ShapeDistance.Capsule(h.Position, angle, 3f, 2f);
+            forbiddenImminent[i] = ShapeDistance.Circle(h.Position, 2f);
+        }
+        hints.AddForbiddenZone(ShapeDistance.Union(forbiddenFuture), WorldState.FutureTime(1.5d));
+        hints.AddForbiddenZone(ShapeDistance.Union(forbiddenImminent));
+    }
 }
 
 class BondsOfDarkness(BossModule module) : BossComponent(module)
 {
-    public int NumTethers { get; private set; }
+    public int NumTethers;
     private readonly int[] _partners = Utils.MakeArray(PartyState.MaxPartySize, -1);
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
@@ -102,13 +150,13 @@ class DarkDivides(BossModule module) : Components.UniformStackSpread(module, 0, 
 {
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if ((SID)status.ID == SID.DivisiveDark)
+        if (status.ID == (uint)SID.DivisiveDark)
             AddSpread(actor, status.ExpireAt);
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID == AID.DarkDivides)
+        if (spell.Action.ID == (uint)AID.DarkDivides)
             Spreads.Clear();
     }
 }

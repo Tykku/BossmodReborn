@@ -19,7 +19,7 @@ class WreathOfThorns4(BossModule module) : BossComponent(module)
             // build order for dark explosion; TODO: this is quite hacky right now, and probably should be configurable
             // current logic assumes we break N or NW tether first, and then move clockwise
             _darkOrder = [];
-            var c = Module.Center;
+            var c = Arena.Center;
             AddAOETargetToOrder(_darkOrder, p => p.Z < c.Z && p.X <= c.X);
             AddAOETargetToOrder(_darkOrder, p => p.X > c.X && p.Z <= c.Z);
             AddAOETargetToOrder(_darkOrder, p => p.Z > c.Z && p.X >= c.X);
@@ -53,7 +53,7 @@ class WreathOfThorns4(BossModule module) : BossComponent(module)
             if (_playerIcons[slot] == IconID.AkanthaiWater)
             {
                 hints.Add("Break tether!");
-                if (Raid.WithoutSlot().InRadiusExcluding(actor, _waterExplosionRange).Any())
+                if (Raid.WithoutSlot(false, true, true).InRadiusExcluding(actor, _waterExplosionRange).Any())
                 {
                     hints.Add("GTFO from others!");
                 }
@@ -102,7 +102,7 @@ class WreathOfThorns4(BossModule module) : BossComponent(module)
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         // draw other players
-        foreach ((var slot, var player) in Raid.WithSlot().Exclude(pc))
+        foreach ((var slot, var player) in Raid.WithSlot(false, true, true).Exclude(pc))
         {
             var icon = _playerIcons[slot];
             var nextBreaking = _doneTowers < 4 ? icon == IconID.AkanthaiWater : (icon == IconID.AkanthaiDark && NextAOE()?.Tether.Target == player.InstanceID);
@@ -115,7 +115,7 @@ class WreathOfThorns4(BossModule module) : BossComponent(module)
             return; // pc is not tethered anymore, nothing to draw...
 
         var pcIcon = _playerIcons[pcSlot];
-        Arena.AddLine(pc.Position, pcTetherSource.Position, pcIcon == IconID.AkanthaiWater ? 0xffff8000 : 0xffff00ff);
+        Arena.AddLine(pc.Position, pcTetherSource.Position, pcIcon == IconID.AkanthaiWater ? Colors.Other8 : Colors.Vulnerable);
 
         if (_doneTowers < 4)
         {
@@ -192,8 +192,8 @@ class WreathOfThorns4(BossModule module) : BossComponent(module)
 
     private WPos RotateCW(WPos pos, Angle angle, float radius)
     {
-        var dir = Angle.FromDirection(pos - Module.Center) - angle;
-        return Module.Center + radius * dir.ToDirection();
+        var dir = Angle.FromDirection(pos - Arena.Center) - angle;
+        return Arena.Center + radius * dir.ToDirection();
     }
 
     private WPos DetermineWaterSafeSpot(Actor source)
@@ -207,7 +207,7 @@ class WreathOfThorns4(BossModule module) : BossComponent(module)
     {
         var ccw = Service.Config.Get<P4S2Config>().Act4DarkSoakCCW;
         var pos = RotateCW(source.Position, (ccw ? -1 : 1) * 45.Degrees(), 18);
-        return _playerTetherSource.Where(x => x != null && x.Position.InCircle(pos, 4)).FirstOrDefault();
+        return _playerTetherSource.FirstOrDefault(x => x != null && x.Position.InCircle(pos, 4));
     }
 
     private Actor? NextAOE()

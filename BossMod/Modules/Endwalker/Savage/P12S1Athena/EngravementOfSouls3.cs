@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Endwalker.Savage.P12S1Athena;
 
-class EngravementOfSouls3Shock(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.Shock), 3)
+class EngravementOfSouls3Shock(BossModule module) : Components.CastTowers(module, (uint)AID.Shock, 3)
 {
     private BitMask _towers;
     private BitMask _plus;
@@ -25,7 +25,7 @@ class EngravementOfSouls3Shock(BossModule module) : Components.CastTowers(module
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             var forbidden = spell.Location.Z switch
             {
@@ -73,8 +73,8 @@ class EngravementOfSouls3Spread(BossModule module) : Components.UniformStackSpre
     }
 }
 
-class TheosCross(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheosCross), new AOEShapeCross(40, 3));
-class TheosSaltire(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TheosSaltire), new AOEShapeCross(40, 3));
+class TheosCross(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheosCross, new AOEShapeCross(40, 3));
+class TheosSaltire(BossModule module) : Components.SimpleAOEs(module, (uint)AID.TheosSaltire, new AOEShapeCross(40, 3));
 
 // TODO: this assumes standard strats, there could be variations i guess...
 class EngravementOfSouls3Hints(BossModule module) : BossComponent(module)
@@ -96,7 +96,7 @@ class EngravementOfSouls3Hints(BossModule module) : BossComponent(module)
             var color = Colors.Safe;
             foreach (var offset in chain)
             {
-                var to = Module.Center + offset;
+                var to = Arena.Center + offset;
                 movementHints.Add(from, to, color);
                 from = to;
                 color = Colors.Danger;
@@ -108,7 +108,7 @@ class EngravementOfSouls3Hints(BossModule module) : BossComponent(module)
     {
         foreach (var chain in PositionHints(pcSlot))
             foreach (var offset in chain.Take(1))
-                Arena.AddCircle(Module.Center + offset, 1, Colors.Safe);
+                Arena.AddCircle(Arena.Center + offset, 1, Colors.Safe);
     }
 
     // note: these statuses are assigned before any tethers
@@ -148,7 +148,7 @@ class EngravementOfSouls3Hints(BossModule module) : BossComponent(module)
             case TetherID.UnnaturalEnchainment:
                 if (source.Position.Z < 90)
                 {
-                    _topLeftSafe = source.Position.X > Module.Center.X;
+                    _topLeftSafe = source.Position.X > Arena.Center.X;
                     AdvanceMechanic(Mechanic.FixedTowers);
                 }
                 break;
@@ -206,8 +206,8 @@ class EngravementOfSouls3Hints(BossModule module) : BossComponent(module)
 
     private void AssignTether(Actor source, int slot, bool light)
     {
-        var stayLeft = source.Position.X > Module.Center.X;
-        var stayTop = source.Position.Z > Module.Center.Z;
+        var stayLeft = source.Position.X > Arena.Center.X;
+        var stayTop = source.Position.Z > Arena.Center.Z;
         SetState(slot, stayLeft ? (stayTop ? PlayerState.TetherTL : PlayerState.TetherBL) : (stayTop ? PlayerState.TetherTR : PlayerState.TetherBR));
 
         var lightStayLeft = stayLeft == light;

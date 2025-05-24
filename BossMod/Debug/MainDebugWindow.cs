@@ -1,13 +1,16 @@
 ﻿using BossMod.Autorotation;
+using BossMod.Autorotation.xan.AI;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin;
+using FFXIVClientStructs.FFXIV.Client.Game.Character;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using ImGuiNET;
 
 namespace BossMod;
 
-class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleManager zmm, ActionManagerEx amex, AIHintsBuilder hintBuilder, IDalamudPluginInterface dalamud) : UIWindow("Boss mod debug UI", false, new(300, 200))
+class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleManager zmm, ActionManagerEx amex, MovementOverride move, AIHintsBuilder hintBuilder, IDalamudPluginInterface dalamud) : UIWindow("Boss mod debug UI", false, new(300, 200))
 {
     private readonly DebugObstacles _debugObstacles = new(hintBuilder.Obstacles, dalamud);
     private readonly DebugObjects _debugObjects = new();
@@ -15,21 +18,21 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
     private readonly DebugEnvControl _debugEnvControl = new();
     private readonly DebugGraphics _debugGraphics = new();
     private readonly DebugAction _debugAction = new(ws, amex);
-    private readonly DebugHate _debugHate = new();
-    private readonly DebugInput _debugInput = new(autorot);
+    private readonly DebugHate _debugHate = new(ws);
+    private readonly DebugInput _debugInput = new(autorot, move);
     private readonly DebugAutorotation _debugAutorot = new(autorot);
     private readonly DebugAddon _debugAddon = new();
     private readonly DebugTiming _debugTiming = new();
-    // private readonly DebugCollision _debugCollision = new();
-    //private readonly DebugVfx _debugVfx = new();
+    private readonly DebugTeleport _debugTeleport = new();
+    private readonly DebugCollision _debugCollision = new();
+    private readonly DebugQuests _debugQuests = new();
 
     protected override void Dispose(bool disposing)
     {
         _debugAction.Dispose();
         _debugInput.Dispose();
         _debugAddon.Dispose();
-        // _debugCollision.Dispose();
-        // _debugVfx.Dispose();
+        _debugCollision.Dispose();
         base.Dispose(disposing);
     }
 
@@ -38,7 +41,7 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
         var playerCID = UIState.Instance()->PlayerState.ContentId;
         var player = Service.ClientState.LocalPlayer;
         ImGui.TextUnformatted($"Current zone: {ws.CurrentZone}, player=0x{(ulong)Utils.GameObjectInternal(player):X}, playerCID={playerCID:X}, pos = {Utils.Vec3String(player?.Position ?? new Vector3())}");
-        ImGui.TextUnformatted($"ID scramble: {Network.IDScramble.Delta} = {*Network.IDScramble.OffsetAdjusted} - {*Network.IDScramble.OffsetBaseFixed} - {*Network.IDScramble.OffsetBaseChanging}");
+        // ImGui.TextUnformatted($"ID scramble: {Network.IDScramble.Delta} = {*Network.IDScramble.OffsetAdjusted} - {*Network.IDScramble.OffsetBaseFixed} - {*Network.IDScramble.OffsetBaseChanging}");
         ImGui.TextUnformatted($"Player mode: {Utils.CharacterInternal(player)->Mode}");
 
         var eventFwk = FFXIVClientStructs.FFXIV.Client.Game.Event.EventFramework.Instance();
@@ -86,6 +89,10 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
         if (ImGui.CollapsingHeader("Autorotation"))
         {
             _debugAutorot.Draw();
+        }
+        if (ImGui.CollapsingHeader("Party health"))
+        {
+            DrawPartyHealth();
         }
         if (ImGui.CollapsingHeader("Solo duty module"))
         {
@@ -156,22 +163,42 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
         {
             DrawWindowSystem();
         }
-        // if (ImGui.CollapsingHeader("Collision"))
-        // {
-        //     _debugCollision.Draw();
-        // }
-        //if (ImGui.CollapsingHeader("VFX"))
-        //{
-        //    _debugVfx.Draw();
-        //}
+        if (ImGui.CollapsingHeader("Collision"))
+        {
+            _debugCollision.Draw();
+        }
         if (ImGui.CollapsingHeader("Limit break"))
         {
             DrawLimitBreak();
         }
+        if (ImGui.CollapsingHeader("Quests"))
+        {
+            _debugQuests.Draw();
+        }
+        if (ImGui.CollapsingHeader("Teleport"))
+        {
+            _debugTeleport.Draw();
+        }
     }
 
-    private void DrawStatuses()
+    private unsafe void DrawStatuses()
     {
+        ImGui.TextUnformatted($"Forced movement direction: {MovementOverride.ForcedMovementDirection->Radians()}");
+        ImGui.SameLine();
+        if (ImGui.Button("Add misdirection"))
+        {
+            var player = (Character*)GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
+            player->GetStatusManager()->SetStatus(20, 3909, 20.0f, 100, 0xE0000000, true);
+        }
+        ImGui.SameLine();
+        if (ImGui.Button("Add thin ice"))
+        {
+            var player = (Character*)GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
+            player->GetStatusManager()->SetStatus(20, 911, 20.0f, 50, 0xE0000000, true); // param = distance * 10
+        }
+
+        ImGui.TextUnformatted($"Player move speed: {ws.Client.MoveSpeed:f2}");
+
         foreach (var elem in ws.Actors)
         {
             var obj = (elem.InstanceID >> 32) == 0 ? Service.ObjectTable.SearchById((uint)elem.InstanceID) : null;
@@ -182,7 +209,7 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
                     foreach (var status in chara.StatusList)
                     {
                         var src = status.SourceObject != null ? Utils.ObjectString(status.SourceObject) : "none";
-                        ImGui.TextUnformatted($"{status.StatusId} '{status.GameData.Value.Name}': param={status.Param}, stacks={status.StackCount}, time={status.RemainingTime:f2}, source={src}");
+                        ImGui.TextUnformatted($"{status.StatusId} '{status.GameData.Value.Name}': param={status.Param}, stacks={status.Param}, time={status.RemainingTime:f2}, source={src}");
                     }
                 }
                 ImGui.TreePop();
@@ -221,6 +248,35 @@ class MainDebugWindow(WorldState ws, RotationModuleManager autorot, ZoneModuleMa
             ImGui.TextUnformatted(elem.Position.ToString());
             ImGui.TableNextColumn();
             ImGui.TextUnformatted(elem.CastInfo.Rotation.ToString());
+        }
+        ImGui.EndTable();
+    }
+
+    private readonly TrackPartyHealth _partyHealth = new(ws);
+
+    private void DrawPartyHealth()
+    {
+        _partyHealth.Update(autorot.Hints);
+
+        var overall = _partyHealth.PartyHealth;
+
+        ImGui.TextUnformatted($"Avg: {overall.AvgCurrent * 100:f1} (current) / {overall.AvgPredicted * 100:f1} (predicted)");
+        ImGui.TextUnformatted($"StD: {overall.StdDevCurrent:f3} (current) / {overall.StdDevCurrent:f3} (predicted)");
+
+        ImGui.BeginTable("partyhealth", 4, ImGuiTableFlags.Resizable);
+        ImGui.TableSetupColumn("Name");
+        ImGui.TableSetupColumn("HP");
+        ImGui.TableSetupColumn("Type");
+        ImGui.TableHeadersRow();
+        foreach (var (_, actor) in _partyHealth.TrackedMembers)
+        {
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted(actor.Name);
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted($"{actor.HPMP.CurHP} ({actor.PendingHPDifference:+#;-#;+0}) / {actor.HPMP.MaxHP} ({actor.HPRatio:#0.#%} / {actor.PendingHPRatio:#0.#%})");
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted($"{actor.Type}");
+            ImGui.TableNextRow();
         }
         ImGui.EndTable();
     }

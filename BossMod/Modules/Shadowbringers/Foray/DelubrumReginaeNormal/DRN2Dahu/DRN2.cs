@@ -1,43 +1,30 @@
-﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.Normal.DRN2Dahu;
+﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.DRN2Dahu;
 
-class FallingRock(BossModule module) : Components.LocationTargetedAOEs(module, ActionID.MakeSpell(AID.FallingRock), 4);
-class HotCharge(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.HotCharge), 4);
-class Firebreathe(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Firebreathe), new AOEShapeCone(60, 45.Degrees()));
-class HeadDown(BossModule module) : Components.ChargeAOEs(module, ActionID.MakeSpell(AID.HeadDown), 2);
-class HuntersClaw(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.HuntersClaw), new AOEShapeCircle(8));
-
-class FeralHowl(BossModule module) : Components.Knockback(module)
+class FallingRock(BossModule module) : Components.SimpleAOEs(module, (uint)AID.FallingRock, 4f);
+class HotCharge(BossModule module) : Components.ChargeAOEs(module, (uint)AID.HotCharge, 4f)
 {
-    private Actor? _source;
-
-    public override IEnumerable<Source> Sources(int slot, Actor actor)
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (_source != null)
-            yield return new(_source.Position, 30, Module.CastFinishAt(_source.CastInfo));
-    }
-
-    public override void OnCastStarted(Actor caster, ActorCastInfo spell)
-    {
-        if ((AID)spell.Action.ID is AID.FeralHowl)
-            _source = caster;
-    }
-
-    public override void OnCastFinished(Actor caster, ActorCastInfo spell)
-    {
-        if ((AID)spell.Action.ID is AID.FeralHowl)
-        {
-            _source = null;
-            ++NumCasts;
-        }
+        base.AddAIHints(slot, actor, assignment, hints);
+        if (NumCasts % 2 == 0)
+            return;
+        hints.GoalZones.Add(hints.GoalSingleTarget(Module.PrimaryActor.CastInfo?.LocXZ ?? Arena.Center, 5f, 5f)); // follow the charge
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.WIP, Contributors = "The Combat Reborn Team", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 760, NameID = 9751)]
-public class DRN2Dahu(WorldState ws, Actor primary) : BossModule(ws, primary, new(82, 138), new ArenaBoundsCircle(30))
+class Firebreathe(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Firebreathe, new AOEShapeCone(60f, 45f.Degrees()));
+class HeadDown(BossModule module) : Components.ChargeAOEs(module, (uint)AID.HeadDown, 2f);
+class HuntersClaw(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HuntersClaw, 8f);
+class HeatBreath(BossModule module) : Components.BaitAwayCast(module, (uint)AID.HeatBreath, new AOEShapeCone(10f, 45f.Degrees()), endsOnCastEvent: true, tankbuster: true);
+class RipperClaw(BossModule module) : Components.SimpleAOEs(module, (uint)AID.RipperClaw, new AOEShapeCone(10f, 45f.Degrees()));
+class TailSwing(BossModule module) : Components.SimpleAOEs(module, (uint)AID.HuntersClaw, 10f);
+
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 760, NameID = 9751)]
+public class DRN2Dahu(WorldState ws, Actor primary) : Dahu(ws, primary)
 {
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(Enemies(OID.Marchosias));
+        Arena.Actors(Enemies((uint)OID.Marchosias));
     }
 }

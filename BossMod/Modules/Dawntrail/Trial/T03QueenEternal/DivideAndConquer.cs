@@ -12,7 +12,7 @@ class DivideAndConquer(BossModule module) : Components.GenericBaitAway(module)
     {
         if ((IconID)iconID == IconID.LineBaits && CurrentBaits.Count == 0)
         {
-            foreach (var p in Raid.WithoutSlot(true))
+            foreach (var p in Raid.WithoutSlot(true, true, true))
                 CurrentBaits.Add(new(Module.PrimaryActor, p, rect, WorldState.FutureTime(3)));
             counter = 8;
         }

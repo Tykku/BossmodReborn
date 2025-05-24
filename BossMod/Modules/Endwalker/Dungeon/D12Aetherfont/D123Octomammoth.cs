@@ -27,15 +27,14 @@ public enum AID : uint
     Wallop = 33346 // MammothTentacle->self, 3.0s cast, range 22 width 8 rect
 }
 
-class Wallop(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Wallop), new AOEShapeRect(22, 4));
-class VividEyes(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.VividEyes), new AOEShapeDonut(20, 26));
-class Clearout(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Clearout), new AOEShapeCone(16, 60.Degrees()));
-class TidalBreath(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.TidalBreath), new AOEShapeCone(35, 90.Degrees()));
-class Breathstroke(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Breathstroke), new AOEShapeCone(35, 90.Degrees()));
-class TidalRoar(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.TidalRoar));
-class WaterDrop(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.WaterDrop), 6);
-class SalineSpit(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.SalineSpit2), new AOEShapeCircle(8));
-class Telekinesis(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Telekinesis2), new AOEShapeCircle(12));
+class Wallop(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Wallop, new AOEShapeRect(22f, 4f));
+class VividEyes(BossModule module) : Components.SimpleAOEs(module, (uint)AID.VividEyes, new AOEShapeDonut(20f, 26f));
+class Clearout(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Clearout, new AOEShapeCone(16f, 60f.Degrees()));
+class TidalBreathBreathstroke(BossModule module) : Components.SimpleAOEGroups(module, [(uint)AID.TidalBreath, (uint)AID.Breathstroke], new AOEShapeCone(35f, 90f.Degrees()));
+class TidalRoar(BossModule module) : Components.RaidwideCast(module, (uint)AID.TidalRoar);
+class WaterDrop(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.WaterDrop, 6f);
+class SalineSpit(BossModule module) : Components.SimpleAOEs(module, (uint)AID.SalineSpit2, 8f);
+class Telekinesis(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Telekinesis2, 12f);
 
 class D123OctomammothStates : StateMachineBuilder
 {
@@ -47,53 +46,37 @@ class D123OctomammothStates : StateMachineBuilder
             .ActivateOnEnter<VividEyes>()
             .ActivateOnEnter<WaterDrop>()
             .ActivateOnEnter<TidalRoar>()
-            .ActivateOnEnter<TidalBreath>()
+            .ActivateOnEnter<TidalBreathBreathstroke>()
             .ActivateOnEnter<Telekinesis>()
-            .ActivateOnEnter<Breathstroke>()
             .ActivateOnEnter<SalineSpit>();
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 822, NameID = 12334)]
-
+[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "dhoggpt, Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 822, NameID = 12334, SortOrder = 8)]
 public class D123Octomammoth(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
-    private static readonly Angle Angle225 = 22.5f.Degrees();
-    private static readonly Angle Angle675 = 67.5f.Degrees();
-    private static readonly Angle Angle0 = 0.Degrees();
-    private static readonly Angle Angle45 = 45.Degrees();
-    private const float CircleRadius = 7.5f;
-    private const int BridgeHalfWidth = 2;
-    private const int BridgeLength = 10;
-    private const int FillerLength = 2;
-    private const float FillerHalfWidth = 0.5f;
-    private static readonly Shape[] Circles = [
-            new Circle(new(-345, -368), CircleRadius),
-            new Circle(new(-387.678f, -350.322f), CircleRadius),
-            new Circle(new(-352.322f, -350.322f), CircleRadius),
-            new Circle(new(-370, -343), CircleRadius),
-            new Circle(new(-395, -368), CircleRadius)];
-    private static readonly Shape[] Bridges = [
-            new Rectangle(new(-347.71f, -359.78f), BridgeHalfWidth, BridgeLength, Angle225),
-            new Rectangle(new(-360.77f, -346.3f), BridgeHalfWidth, BridgeLength, Angle675),
-            new Rectangle(new(-392.29f, -359.78f), BridgeHalfWidth, BridgeLength, -Angle225),
-            new Rectangle(new(-379.22f, -346f), BridgeHalfWidth, BridgeLength, -Angle675)];
-    private static readonly Shape[] Fillers = [
-            new Rectangle(new(-390.8f, -361.7f), FillerLength, FillerHalfWidth, -Angle675),
-            new Rectangle(new(-394.5f, -360.4f), FillerLength, FillerHalfWidth, Angle225),
-            new Rectangle(new(-392.8f, -355.9f), FillerLength, FillerHalfWidth, -Angle675),
-            new Rectangle(new(-389.2f, -357.7f), FillerLength, FillerHalfWidth, Angle225),
-            new Rectangle(new(-382.3f, -345.1f), FillerLength, FillerHalfWidth, -Angle225),
-            new Rectangle(new(-380.2f, -348.6f), FillerLength, FillerHalfWidth, Angle675),
-            new Rectangle(new(-376.3f, -347.2f), FillerLength, FillerHalfWidth, -Angle225),
-            new Rectangle(new(-377.5f, -343.1f), FillerLength, FillerHalfWidth, Angle675),
-            new Rectangle(new(-363.9f, -347.3f), FillerLength, FillerHalfWidth, Angle225),
-            new Rectangle(new(-361.9f, -343.9f), FillerLength, FillerHalfWidth, -Angle45),
-            new Rectangle(new(-357.9f, -345.1f), FillerLength, FillerHalfWidth, Angle0),
-            new Rectangle(new(-359.7f, -348.9f), FillerLength, FillerHalfWidth, -Angle45),
-            new Rectangle(new(-351, -357.7f), FillerLength, FillerHalfWidth, -Angle45),
-            new Rectangle(new(-347.3f, -356.2f), FillerLength, FillerHalfWidth, Angle675),
-            new Rectangle(new(-345.4f, -360.4f), FillerLength, FillerHalfWidth, -Angle225),
-            new Rectangle(new(-349.1f, -361.8f), FillerLength, FillerHalfWidth, Angle675)];
-    private static readonly ArenaBoundsComplex arena = new([.. Bridges, .. Circles, .. Fillers]);
+    private static readonly WPos arenaCenter = new(-370f, -368f);
+    private static readonly WPos[] bridge1 = [new(-396.417f, -361.641f), new(-393.813f, -358.136f), new(-393.178f, -353.815f), new(-387.778f, -356.604f),
+    new(-390.071f, -359.686f), new(-390.630f, -363.486f)];
+    private static readonly WPos[] bridge5 = [new(-346.767f, -353.669f), new(-346.187f, -358.136f), new(-343.583f, -361.638f), new(-349.946f, -363.513f),
+    new(-349.929f, -359.686f), new(-352.302f, -356.647f)]; // coordinates seem to be slightly offset from calculated values, so hardcoding a 2nd bridge here
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-345f, -368f), 7.5f, 20), new Polygon(new(-352.322f, -350.322f), 7.5f, 20, 9f.Degrees()),
+    new Polygon(new(-370f, -343f), 7.5f, 20), new Polygon(new(-387.678f, -350.322f), 7.5f, 20, 9f.Degrees()), new Polygon(new(-395f, -368f), 7.5f, 20),
+    new PolygonCustomO(bridge1, -0.5f), new PolygonCustomO(WPos.GenerateRotatedVertices(arenaCenter, bridge1, -45f), -0.5f),
+    new PolygonCustomO(WPos.GenerateRotatedVertices(arenaCenter, bridge1, -90f), -0.5f), new PolygonCustomO(bridge5, -0.5f)]);
+
+    protected override bool CheckPull() => InBounds(Raid.Player()!.Position);
+
+    protected override void CalculateModuleAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        for (var i = 0; i < hints.PotentialTargets.Count; ++i)
+        {
+            var e = hints.PotentialTargets[i];
+            if (e.Actor.OID == (uint)OID.Boss)
+            {
+                e.Priority = 1;
+                break;
+            }
+        }
+    }
 }

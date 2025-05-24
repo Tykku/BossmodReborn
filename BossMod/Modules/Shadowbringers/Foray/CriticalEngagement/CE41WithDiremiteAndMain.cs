@@ -2,23 +2,24 @@
 
 public enum OID : uint
 {
-    Helper = 0x233C, // R0.500, x6
     Boss = 0x31CC, // R7.200, x1
     DimCrystal = 0x31CD, // R1.600, spawn during fight
     CorruptedCrystal = 0x31CE, // R1.600, spawn during fight
     SandSphere = 0x31CF, // R4.000, spawn during fight
+    Helper = 0x233C
 }
 
 public enum AID : uint
 {
     AutoAttack = 6499, // Boss->player, no cast, single-target
+    Teleport = 24090, // Boss->location, no cast, single-target
 
     Shardfall = 24071, // Boss->self, 2.0s cast, single-target, visual
     CrystallineFracture = 24072, // CorruptedCrystal/DimCrystal->self, 3.0s cast, range 4 circle aoe (cast on spawn)
-    ResonantFrequencyDim = 24073, // DimCrystal->self, 3.0s cast, range 6 circle, suicide, cast early if crystal is hit by shardstrike
-    ResonantFrequencyCorrupted = 24074, // CorruptedCrystal->self, 3.0s cast, range 6 circle, suicide, cast early if crystal is hit by shardstrike
-    ResonantFrequencyDimStinger = 24075, // DimCrystal->self, no cast, single-target, suicide, after aetherial stingers
-    ResonantFrequencyCorruptedStinger = 24076, // CorruptedCrystal->self, no cast, single-target, suicide, after crystalline stingers
+    ResonantFrequencyDim = 24073, // DimCrystal->self, 3.0s cast, range 6 circle, self-destruct, cast early if crystal is hit by shardstrike
+    ResonantFrequencyCorrupted = 24074, // CorruptedCrystal->self, 3.0s cast, range 6 circle, self-destruct, cast early if crystal is hit by shardstrike
+    ResonantFrequencyDimStinger = 24075, // DimCrystal->self, no cast, single-target, self-destruct, after aetherial stingers
+    ResonantFrequencyCorruptedStinger = 24076, // CorruptedCrystal->self, no cast, single-target, self-destruct, after crystalline stingers
     CrystallineStingers = 24077, // Boss->self, 5.0s cast, range 60 circle, hide behind dim
     AetherialStingers = 24078, // Boss->self, 5.0s cast, range 60 circle, hide behind corrupted
     SandSphere = 24079, // Boss->self, 5.0s cast, single-target, visual
@@ -32,8 +33,7 @@ public enum AID : uint
     Shardstrike = 24086, // Boss->self, 2.0s cast, single-target, visual
     ShardstrikeAOE = 24087, // Helper->players, 5.0s cast, range 5 circle spread
     Hailfire = 24088, // Boss->self, 8.0s cast, single-target, visual
-    HailfireAOE = 24089, // Boss->self, no cast, range 40 width 4 rect aoe
-    Teleport = 24090, // Boss->location, no cast, single-target
+    HailfireAOE = 24089 // Boss->self, no cast, range 40 width 4 rect aoe
 }
 
 public enum IconID : uint
@@ -42,104 +42,136 @@ public enum IconID : uint
     Hailfire1 = 79, // player
     Hailfire2 = 80, // player
     Hailfire3 = 81, // player
-    Hailfire4 = 82, // player
+    Hailfire4 = 82 // player
 }
 
-class CrystallineFracture(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.CrystallineFracture), new AOEShapeCircle(4));
-class ResonantFrequencyDim(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ResonantFrequencyDim), new AOEShapeCircle(6));
-class ResonantFrequencyCorrupted(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.ResonantFrequencyCorrupted), new AOEShapeCircle(6));
+class CrystallineFracture(BossModule module) : Components.SimpleAOEs(module, (uint)AID.CrystallineFracture, 4f);
+class ResonantFrequencyDim(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ResonantFrequencyDim, 6f);
+class ResonantFrequencyCorrupted(BossModule module) : Components.SimpleAOEs(module, (uint)AID.ResonantFrequencyCorrupted, 6f);
 
-class CrystallineStingers(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.CrystallineStingers), 60)
+class CrystallineStingers(BossModule module) : Components.CastLineOfSightAOE(module, (uint)AID.CrystallineStingers, 60f)
 {
-    public override IEnumerable<Actor> BlockerActors() => Module.Enemies(OID.DimCrystal).Where(a => !a.IsDead);
-}
-
-class AetherialStingers(BossModule module) : Components.CastLineOfSightAOE(module, ActionID.MakeSpell(AID.AetherialStingers), 60)
-{
-    public override IEnumerable<Actor> BlockerActors() => Module.Enemies(OID.CorruptedCrystal).Where(a => !a.IsDead);
-}
-
-class Subduction(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Subduction), new AOEShapeCircle(8));
-
-// next aoe starts casting slightly before previous, so use a custom component
-class Earthbreaker(BossModule module) : Components.GenericAOEs(module)
-{
-    private readonly List<(Actor caster, AOEShape shape)> _active = [];
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<Actor> BlockerActors()
     {
-        return _active.Take(1).Select(e => new AOEInstance(e.shape, e.caster.Position, e.caster.CastInfo!.Rotation, Module.CastFinishAt(e.caster.CastInfo)));
+        var crystals = Module.Enemies((uint)OID.DimCrystal);
+        var count = crystals.Count;
+        if (count == 0)
+            return [];
+        var actors = new List<Actor>();
+        for (var i = 0; i < count; ++i)
+        {
+            var c = crystals[i];
+            if (!c.IsDead)
+                actors.Add(c);
+        }
+        return CollectionsMarshal.AsSpan(actors);
     }
+}
+
+class AetherialStingers(BossModule module) : Components.CastLineOfSightAOE(module, (uint)AID.AetherialStingers, 60f)
+{
+    public override ReadOnlySpan<Actor> BlockerActors()
+    {
+        var crystals = Module.Enemies((uint)OID.CorruptedCrystal);
+        var count = crystals.Count;
+        if (count == 0)
+            return [];
+        var actors = new List<Actor>();
+        for (var i = 0; i < count; ++i)
+        {
+            var c = crystals[i];
+            if (!c.IsDead)
+                actors.Add(c);
+        }
+        return CollectionsMarshal.AsSpan(actors);
+    }
+}
+
+class Subduction(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Subduction, 8f);
+
+class Earthbreaker(BossModule module) : Components.ConcentricAOEs(module, _shapes)
+{
+    private static readonly AOEShape[] _shapes = [new AOEShapeCircle(10f), new AOEShapeDonut(10f, 20f), new AOEShapeDonut(20f, 30f)];
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        AOEShape? shape = (AID)spell.Action.ID switch
-        {
-            AID.EarthbreakerAOE1 => new AOEShapeCircle(10),
-            AID.EarthbreakerAOE2 => new AOEShapeDonut(10, 20),
-            AID.EarthbreakerAOE3 => new AOEShapeDonut(20, 30),
-            _ => null
-        };
-        if (shape != null)
-            _active.Add((caster, shape));
+        if (spell.Action.ID == (uint)AID.EarthbreakerAOE1)
+            AddSequence(spell.LocXZ, Module.CastFinishAt(spell));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        _active.RemoveAll(c => c.caster == caster);
+        if (Sequences.Count != 0)
+        {
+            var order = spell.Action.ID switch
+            {
+                (uint)AID.EarthbreakerAOE1 => 0,
+                (uint)AID.EarthbreakerAOE2 => 1,
+                (uint)AID.EarthbreakerAOE3 => 2,
+                _ => -1
+            };
+            AdvanceSequence(order, spell.LocXZ, WorldState.FutureTime(2d));
+        }
     }
 }
 
-class CrystalNeedle(BossModule module) : Components.SingleTargetCast(module, ActionID.MakeSpell(AID.CrystalNeedle));
-class Shardstrike(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.ShardstrikeAOE), 5);
-
-// TODO: this should probably be generalized
-class Hailfire(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.HailfireAOE))
+class CrystalNeedle(BossModule module) : Components.SingleTargetCast(module, (uint)AID.CrystalNeedle);
+class Shardstrike(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.ShardstrikeAOE, 5f)
 {
-    private readonly Actor?[] _targets = new Actor?[4];
-    private DateTime _activation;
-
-    private static readonly AOEShapeRect _shape = new(40, 2);
-
-    private Actor? NextTarget => NumCasts < _targets.Length ? _targets[NumCasts] : null;
-
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (NextTarget is var target && target != null && target != actor)
-            yield return new(_shape, Module.PrimaryActor.Position, Angle.FromDirection(target.Position - Module.PrimaryActor.Position), _activation);
+        base.AddAIHints(slot, actor, assignment, hints);
+        if (IsSpreadTarget(actor))
+        {
+            var crystals = Module.Enemies(CE41WithDiremiteAndMain.Crystals);
+            var count = crystals.Count;
+            if (count == 0)
+                return;
+            var forbidden = new Func<WPos, float>[count];
+            for (var i = 0; i < count; ++i)
+                forbidden[i] = ShapeDistance.Circle(crystals[i].Position, 6.6f);
+            if (forbidden.Length != 0)
+                hints.AddForbiddenZone(ShapeDistance.Union(forbidden), Spreads[0].Activation);
+        }
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
-        if (NextTarget == pc)
-            _shape.Outline(Arena, Module.PrimaryActor.Position, Angle.FromDirection(pc.Position - Module.PrimaryActor.Position), Colors.Danger);
+        base.DrawArenaForeground(pcSlot, pc);
+        if (!IsSpreadTarget(pc))
+            return;
+        var crystals = Module.Enemies(CE41WithDiremiteAndMain.Crystals);
+        var count = crystals.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var a = crystals[i];
+            Arena.AddCircle(a.Position, a.HitboxRadius);
+        }
     }
+
+    public override void AddHints(int slot, Actor actor, TextHints hints)
+    {
+        if (IsSpreadTarget(actor))
+            hints.Add("Spread, avoid intersecting cage hitboxes!");
+    }
+}
+
+class Hailfire(BossModule module) : Components.GenericBaitAway(module)
+{
+    private readonly AOEShapeRect rect = new(40f, 2f);
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action == WatchedAction && NumCasts < _targets.Length)
-        {
-            _targets[NumCasts] = null;
-            _activation = WorldState.FutureTime(2.3f);
-        }
-        base.OnEventCast(caster, spell);
+        if (CurrentBaits.Count != 0 && spell.Action.ID == (uint)AID.HailfireAOE)
+            CurrentBaits.RemoveAt(0);
     }
 
     public override void OnEventIcon(Actor actor, uint iconID, ulong targetID)
     {
-        var order = (IconID)iconID switch
+        if (iconID is >= (uint)IconID.Hailfire1 and <= (uint)IconID.Hailfire4)
         {
-            IconID.Hailfire1 => 0,
-            IconID.Hailfire2 => 1,
-            IconID.Hailfire3 => 2,
-            IconID.Hailfire4 => 3,
-            _ => -1
-        };
-        if (order >= 0)
-        {
-            NumCasts = 0;
-            _targets[order] = actor;
-            _activation = WorldState.FutureTime(8.2f);
+            CurrentBaits.Add(new(Module.PrimaryActor, actor, rect, WorldState.FutureTime(8.2d + (iconID - (uint)IconID.Hailfire1) * 2.1d)));
+            CurrentBaits.SortBy(aoe => aoe.Activation);
         }
     }
 }
@@ -162,22 +194,26 @@ class CE41WithDiremiteAndMainStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "veyn", GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 21)] // bnpcname=9969
-public class CE41WithDiremiteAndMain : BossModule
+[ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 21)] // bnpcname=9969
+public class CE41WithDiremiteAndMain(WorldState ws, Actor primary) : BossModule(ws, primary, new(-220f, 530f), new ArenaBoundsCircle(30f))
 {
-    private readonly IReadOnlyList<Actor> _dimCrystals;
-    private readonly IReadOnlyList<Actor> _corruptedCrystals;
-
-    public CE41WithDiremiteAndMain(WorldState ws, Actor primary) : base(ws, primary, new(-220, 530), new ArenaBoundsCircle(30))
-    {
-        _dimCrystals = Enemies(OID.DimCrystal);
-        _corruptedCrystals = Enemies(OID.CorruptedCrystal);
-    }
-
+    public static readonly uint[] Crystals = [(uint)OID.DimCrystal, (uint)OID.CorruptedCrystal];
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);
-        Arena.Actors(_dimCrystals.Where(c => !c.IsDead), Colors.Object, true);
-        Arena.Actors(_corruptedCrystals.Where(c => !c.IsDead), Colors.Object, true);
+
+        var crystals = Enemies(Crystals);
+        var count = crystals.Count;
+        var filteredcrystals = new List<Actor>(count);
+
+        for (var i = 0; i < count; ++i)
+        {
+            var c = crystals[i];
+            if (!c.IsDead)
+                filteredcrystals.Add(c);
+        }
+        Arena.Actors(filteredcrystals, Colors.Object, true);
     }
+
+    protected override bool CheckPull() => base.CheckPull() && Raid.Player()!.Position.InCircle(Arena.Center, 30f);
 }

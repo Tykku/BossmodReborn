@@ -74,7 +74,7 @@ class GhostlyGuise(BossModule module) : Components.GenericAOEs(module)
     private readonly IllIntentMaliciousMist _seek = module.FindComponent<IllIntentMaliciousMist>()!;
 
     private static readonly WPos[] positions = [new(137.5f, -443.5f), new(158.5f, -443.5f), new(137.5f, -422.5f), new(158.5f, -422.5f)];
-    private static readonly Circle[] circles = positions.Select(pos => new Circle(pos, 3)).ToArray();
+    private static readonly Circle[] circles = [.. positions.Select(pos => new Circle(pos, 3))];
     private static readonly AOEShapeCustom circlesInverted = new(circles, InvertForbiddenZone: true);
     private static readonly AOEShapeCustom circlesAvoid = new(circles, []);
     private bool activated;
@@ -85,28 +85,28 @@ class GhostlyGuise(BossModule module) : Components.GenericAOEs(module)
 
     public static bool IsGhostly(Actor actor) => actor.FindStatus(SID.GhostlyGuise) != null;
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (!activated)
-            yield break;
+            return [];
 
         var shape = circlesAvoid;
         DateTime activation = default;
 
-        if (_avoid.ActiveSpreads.Any())
+        if (_avoid.ActiveSpreads.Count != 0)
         {
             shape = IsGhostly(actor) ? circlesInverted : circlesAvoid;
-            activation = _avoid.ActiveSpreads.First().Activation;
+            activation = _avoid.ActiveSpreads[0].Activation;
         }
         else if (fleshbuster.isActive)
         {
             shape = IsGhostly(actor) ? circlesAvoid : circlesInverted;
             activation = fleshbuster.activation;
         }
-        else if (_seek.ActiveBaits.Any())
+        else if (_seek.ActiveBaits.Count != 0)
             shape = IsGhostly(actor) ? circlesAvoid : circlesInverted;
 
-        yield return new(shape, Module.Center, default, activation, shape == circlesInverted ? Colors.SafeFromAOE : Colors.AOE);
+        return new AOEInstance[1] { new(shape, Arena.Center, default, activation, shape == circlesInverted ? Colors.SafeFromAOE : 0) };
     }
 
     public override void OnEventEnvControl(byte index, uint state)
@@ -117,28 +117,28 @@ class GhostlyGuise(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Fleshbuster)
+        if (spell.Action.ID == (uint)AID.Fleshbuster)
             fleshbuster = (true, Module.CastFinishAt(spell));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if ((AID)spell.Action.ID == AID.Fleshbuster)
+        if (spell.Action.ID == (uint)AID.Fleshbuster)
             fleshbuster = default;
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
         var isGhostly = IsGhostly(actor);
-        if (fleshbuster.isActive || _seek.ActiveBaits.Any())
+        if (fleshbuster.isActive || _seek.ActiveBaits.Count != 0)
             hints.Add(GhostHint, !isGhostly);
-        else if (_avoid.ActiveSpreads.Any())
+        else if (_avoid.ActiveSpreads.Count != 0)
             hints.Add(FleshHint, isGhostly);
     }
 }
 
-class MaliciousMistRaidwide(BossModule module) : Components.RaidwideCast(module, ActionID.MakeSpell(AID.MaliciousMistRaidwide));
-class IllIntentMaliciousMist(BossModule module) : Components.StretchTetherDuo(module, 20, 10)
+class MaliciousMistRaidwide(BossModule module) : Components.RaidwideCast(module, (uint)AID.MaliciousMistRaidwide);
+class IllIntentMaliciousMist(BossModule module) : Components.StretchTetherDuo(module, 20f, 10f)
 {
     // ill intent seems to break after 17, malicious mist after 20, not worth the effort to differentiate
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
@@ -148,12 +148,12 @@ class IllIntentMaliciousMist(BossModule module) : Components.StretchTetherDuo(mo
     }
 }
 
-class BitterRegret1(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BitterRegret1), new AOEShapeRect(50, 8));
-class BitterRegret2(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BitterRegret2), new AOEShapeRect(50, 6));
-class BitterRegret3(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.BitterRegret3), new AOEShapeRect(40, 2), 5);
-class Impact(BossModule module) : Components.SelfTargetedAOEs(module, ActionID.MakeSpell(AID.Impact), new AOEShapeRect(40, 2));
-class Ghostcrusher(BossModule module) : Components.LineStack(module, ActionID.MakeSpell(AID.GhostcrusherMarker), ActionID.MakeSpell(AID.Ghostcrusher), 5, 80, maxStackSize: 4);
-class Ghostduster(BossModule module) : Components.SpreadFromCastTargets(module, ActionID.MakeSpell(AID.Ghostduster), 8)
+class BitterRegret1(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BitterRegret1, new AOEShapeRect(50f, 8f));
+class BitterRegret2(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BitterRegret2, new AOEShapeRect(50f, 6f));
+class BitterRegret3(BossModule module) : Components.SimpleAOEs(module, (uint)AID.BitterRegret3, new AOEShapeRect(40f, 2f), 5);
+class Impact(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Impact, new AOEShapeRect(40f, 2f));
+class Ghostcrusher(BossModule module) : Components.LineStack(module, aidMarker: (uint)AID.GhostcrusherMarker, (uint)AID.Ghostcrusher, 5f, 80f, maxStackSize: 4);
+class Ghostduster(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Ghostduster, 8f)
 {
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
@@ -183,7 +183,7 @@ class D083TräumereiStates : StateMachineBuilder
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "The Combat Reborn Team (Malediktus, LTS)", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 981, NameID = 12763)]
 public class D083Träumerei(WorldState ws, Actor primary) : BossModule(ws, primary, ArenaCenter, new ArenaBoundsSquare(19.5f))
 {
-    public static readonly WPos ArenaCenter = new(148, -433);
+    public static readonly WPos ArenaCenter = new(148f, -433f);
     public static readonly ArenaBoundsSquare DefaultBounds = new(19.5f);
-    public static readonly ArenaBoundsComplex CrossBounds = new([new Square(ArenaCenter, 19.5f)], [new Cross(ArenaCenter, 20, 1.5f)]); // for some reason the obstacle cross is smaller than the AOE
+    public static readonly ArenaBoundsComplex CrossBounds = new([new Square(ArenaCenter, 19.5f)], [new Cross(ArenaCenter, 20f, 1.5f)]); // for some reason the obstacle cross is smaller than the AOE
 }

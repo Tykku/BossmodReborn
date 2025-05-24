@@ -1,25 +1,25 @@
 namespace BossMod.Dawntrail.Savage.M04SWickedThunder;
 
-class FlameSlash(BossModule module) : Components.GenericAOEs(module, ActionID.MakeSpell(AID.FlameSlashAOE))
+class FlameSlash(BossModule module) : Components.GenericAOEs(module, (uint)AID.FlameSlashAOE)
 {
     public AOEInstance? AOE;
     public bool SmallArena;
 
-    private static readonly AOEShapeRect _shape = new(40, 10);
+    private static readonly AOEShapeRect _shape = new(40f, 10f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(AOE);
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor) => Utils.ZeroOrOne(ref AOE);
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
-            AOE = new(_shape, caster.Position, spell.Rotation, Module.CastFinishAt(spell));
+            AOE = new(_shape, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell));
         }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action == WatchedAction)
+        if (spell.Action.ID == WatchedAction)
         {
             AOE = null;
             SmallArena = true;
@@ -28,30 +28,41 @@ class FlameSlash(BossModule module) : Components.GenericAOEs(module, ActionID.Ma
 
     public override void OnEventEnvControl(byte index, uint state)
     {
-        if (index == 17 && state == 0x00400001)
+        if (index == 17 && state == 0x00400001u)
             SmallArena = false;
     }
 }
 
-class RainingSwords(BossModule module) : Components.CastTowers(module, ActionID.MakeSpell(AID.RainingSwordsAOE), 3);
+class RainingSwords(BossModule module) : Components.CastTowers(module, (uint)AID.RainingSwordsAOE, 3f);
 
 class ChainLightning(BossModule module) : Components.GenericAOEs(module)
 {
-    private readonly List<WPos> _explosions = [];
+    private readonly List<AOEInstance> _aoes = [];
 
-    private static readonly AOEShapeCircle _shape = new(7);
+    private static readonly AOEShapeCircle _shape = new(7f);
 
-    public override IEnumerable<AOEInstance> ActiveAOEs(int slot, Actor actor) => _explosions.Skip(NumCasts).Take(6).Select(p => new AOEInstance(_shape, p)); // TODO: activation
+    public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
+    {
+        var count = _aoes.Count;
+        if (count == 0)
+            return [];
+        var max = count > 6 ? 6 : count;
+        return CollectionsMarshal.AsSpan(_aoes)[..max];
+    }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
     {
-        if ((TetherID)tether.ID is TetherID.ChainLightning1 or TetherID.ChainLightning2)
-            _explosions.Add(source.Position);
+        if (tether.ID is (uint)TetherID.ChainLightning1 or (uint)TetherID.ChainLightning2)
+            _aoes.Add(new(_shape, WPos.ClampToGrid(source.Position))); // TODO: activation
     }
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if ((AID)spell.Action.ID is AID.ChainLightningAOEFirst or AID.ChainLightningAOERest)
+        if (spell.Action.ID is (uint)AID.ChainLightningAOEFirst or (uint)AID.ChainLightningAOERest)
+        {
             ++NumCasts;
+            if (_aoes.Count != 0)
+                _aoes.RemoveAt(0);
+        }
     }
 }

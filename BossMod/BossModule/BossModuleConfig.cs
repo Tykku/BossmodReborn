@@ -33,13 +33,17 @@ public class BossModuleConfig : ConfigNode
     [PropertySlider(0.1f, 10, Speed = 0.1f, Logarithmic = true)]
     public float ArenaScale = 1;
 
+    [PropertyDisplay("Radar element thickness scale factor", tooltip: "Globally scales the outline thickness of radar elements")]
+    [PropertySlider(0.1f, 10, Speed = 0.1f, Logarithmic = true)]
+    public float ThicknessScale = 1;
+
     [PropertyDisplay("Rotate radar to match camera orientation")]
     public bool RotateArena = true;
 
     [PropertyDisplay("Rotate map by 180° if rotating map is off")]
     public bool FlipArena = false;
 
-    [PropertyDisplay("Give radar extra space for rotations", tooltip: "If you are using the above setting, you can give the radar extra space on the sides before the edges are clipped in order to account for rotating your camera during an encounter or to give the cardinal directions space.", since: "7.2.0.169")]
+    [PropertyDisplay("Give radar extra space for rotations", tooltip: "If you are using the above setting, you can give the radar extra space on the sides before the edges are clipped in order to account for rotating your camera during an encounter or to give the cardinal directions space.")]
     [PropertySlider(1, 2, Speed = 0.1f, Logarithmic = true)]
     public float SlackForRotations = 1.5f;
 
@@ -79,6 +83,9 @@ public class BossModuleConfig : ConfigNode
     // hint window settings
     [PropertyDisplay("Show text hints in separate window", tooltip: "Separates the radar window from the hints window, allowing you to reposition the hints window")]
     public bool HintsInSeparateWindow = false;
+
+    [PropertyDisplay("Make separate hints window transparent")]
+    public bool HintsInSeparateWindowTransparent = false;
 
     [PropertyDisplay("Show mechanic sequence and timer hints")]
     public bool ShowMechanicTimers = true;
