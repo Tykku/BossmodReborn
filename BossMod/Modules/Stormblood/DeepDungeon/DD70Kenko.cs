@@ -23,11 +23,11 @@ public enum IconID : uint
     HoundOutOfHell = 1 // player->self
 }
 
-class PredatorClaws(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PredatorClaws, new AOEShapeCone(15f, 60f.Degrees()));
-class Slabber(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Slabber, 8f);
+sealed class PredatorClaws(BossModule module) : Components.SimpleAOEs(module, (uint)AID.PredatorClaws, new AOEShapeCone(15f, 60f.Degrees()));
+sealed class Slabber(BossModule module) : Components.SimpleAOEs(module, (uint)AID.Slabber, 8f);
 
-class InnerspaceSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Innerspace, 3f);
-class InnerspaceVoidzone(BossModule module) : Components.GenericAOEs(module)
+sealed class InnerspaceSpread(BossModule module) : Components.SpreadFromCastTargets(module, (uint)AID.Innerspace, 3f);
+sealed class InnerspaceVoidzone(BossModule module) : Components.GenericAOEs(module)
 {
     private AOEInstance? _aoe;
     private AOEInstance? _aoeTarget;
@@ -45,8 +45,14 @@ class InnerspaceVoidzone(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
-        if (spell.Action.ID == (uint)AID.Innerspace)
-            _aoe = new(circle, WPos.ClampToGrid(WorldState.Actors.Find(spell.MainTargetID)!.Position), default, WorldState.FutureTime(1.6d));
+        var id = spell.Action.ID;
+        if (id == (uint)AID.Innerspace)
+            _aoe = new(circle, WPos.ClampToGrid(WorldState.Actors.Find(spell.MainTargetID)!.Position), default, WorldState.FutureTime(7.2d));
+        else if (id == (uint)AID.Devour)
+        {
+            target = -1;
+            _aoeTarget = null;
+        }
     }
 
     public override void OnActorCreated(Actor actor)
@@ -75,12 +81,7 @@ class InnerspaceVoidzone(BossModule module) : Components.GenericAOEs(module)
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
-        if (spell.Action.ID == (uint)AID.HoundOutOfHell)
-        {
-            target = -1;
-            _aoeTarget = null;
-        }
-        else if (spell.Action.ID == (uint)AID.Ululation)
+        if (spell.Action.ID == (uint)AID.Ululation)
         {
             ululation = false;
         }
@@ -110,7 +111,7 @@ class InnerspaceVoidzone(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Devour(BossModule module) : Components.GenericBaitAway(module)
+sealed class Devour(BossModule module) : Components.GenericBaitAway(module)
 {
     private static readonly AOEShapeCone cone = new(10f, 45f.Degrees()); // TODO: verify angle
 
@@ -129,10 +130,18 @@ class Devour(BossModule module) : Components.GenericBaitAway(module)
     }
 }
 
-class Ululation(BossModule module) : Components.RaidwideCast(module, (uint)AID.Ululation);
-class HoundOutOfHell(BossModule module) : Components.BaitAwayChargeCast(module, (uint)AID.HoundOutOfHell, 7f);
+sealed class Ululation(BossModule module) : Components.RaidwideCast(module, (uint)AID.Ululation);
+sealed class HoundOutOfHell(BossModule module) : Components.BaitAwayChargeCast(module, (uint)AID.HoundOutOfHell, 7f)
+{
+    public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
+    {
+        if (ActiveBaitsOn(actor).Count == 0)
+            return;
+        base.AddAIHints(slot, actor, assignment, hints);
+    }
+}
 
-class DD70KenkoStates : StateMachineBuilder
+sealed class DD70KenkoStates : StateMachineBuilder
 {
     public DD70KenkoStates(BossModule module) : base(module)
     {
@@ -148,4 +157,4 @@ class DD70KenkoStates : StateMachineBuilder
 }
 
 [ModuleInfo(BossModuleInfo.Maturity.Verified, Contributors = "Malediktus", GroupType = BossModuleInfo.GroupType.CFC, GroupID = 546, NameID = 7489)]
-public class DD70Kenko(WorldState ws, Actor primary) : HoHArena2(ws, primary);
+public sealed class DD70Kenko(WorldState ws, Actor primary) : HoHArena2(ws, primary);

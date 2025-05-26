@@ -3,7 +3,7 @@ using System.IO;
 
 namespace BossMod.ReplayVisualization;
 
-class OpList(Replay replay, Replay.Encounter? enc, BossModuleRegistry.Info? moduleInfo, IEnumerable<WorldState.Operation> ops, Action<DateTime> scrollTo)
+sealed class OpList(Replay replay, Replay.Encounter? enc, BossModuleRegistry.Info? moduleInfo, IEnumerable<WorldState.Operation> ops, Action<DateTime> scrollTo)
 {
     public readonly Replay.Encounter? Encounter = enc;
     public readonly BossModuleRegistry.Info? ModuleInfo = moduleInfo;
@@ -33,7 +33,7 @@ class OpList(Replay replay, Replay.Encounter? enc, BossModuleRegistry.Info? modu
             field = value;
             _nodesUpToDate = false;
         }
-    } = true;
+    } = false;
 
     public void Draw(UITree tree, DateTime reference)
     {
