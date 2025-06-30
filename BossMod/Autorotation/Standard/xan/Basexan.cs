@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using BossMod.Data;
+using System.Diagnostics.CodeAnalysis;
 using static BossMod.AIHints;
 
 namespace BossMod.Autorotation.xan;
@@ -48,6 +49,13 @@ public abstract class Basexan<AID, TraitID>(RotationModuleManager manager, Actor
     protected float ReadyIn(AID action) => Unlocked(action) ? ActionDefinitions.Instance.Spell(action)!.ReadyIn(World.Client.Cooldowns, World.Client.DutyActions) : float.MaxValue;
     protected float MaxChargesIn(AID action) => Unlocked(action) ? ActionDefinitions.Instance.Spell(action)!.ChargeCapIn(World.Client.Cooldowns, World.Client.DutyActions, Player.Level) : float.MaxValue;
 
+    protected float PhantomReadyIn(PhantomID pid)
+    {
+        if (World.Client.DutyActions.Any(d => d.Action.ID == (uint)pid))
+            return ActionDefinitions.Instance.Spell(pid)!.ReadyIn(World.Client.Cooldowns, World.Client.DutyActions);
+        return float.MaxValue;
+    }
+
     protected abstract float GCDLength { get; }
 
     public bool CanFitGCD(float duration, int extraGCDs = 0) => GCD + GCDLength * extraGCDs < duration;
@@ -75,6 +83,9 @@ public abstract class Basexan<AID, TraitID>(RotationModuleManager manager, Actor
     protected AID NextGCD;
     protected int NextGCDPrio;
     protected uint MP;
+
+    public const float DefaultOGCDPriority = ActionQueue.Priority.Low + 1;
+    public const float DefaultGCDPriority = ActionQueue.Priority.High + 2;
 
     protected AID ComboLastMove => (AID)(object)World.Client.ComboState.Action;
 
@@ -402,7 +413,7 @@ public abstract class Basexan<AID, TraitID>(RotationModuleManager manager, Actor
 
         var pelo = Player.FindStatus(ClassShared.SID.Peloton);
         PelotonLeft = pelo != null ? StatusDuration(pelo.Value.ExpireAt) : 0;
-        SwiftcastLeft = MathF.Max(StatusLeft(ClassShared.SID.Swiftcast), StatusLeft(ClassShared.SID.LostChainspell));
+        SwiftcastLeft = Utils.MaxAll(StatusLeft(ClassShared.SID.Swiftcast), StatusLeft(ClassShared.SID.LostChainspell), StatusLeft(PhantomSID.OccultQuick));
         TrueNorthLeft = StatusLeft(ClassShared.SID.TrueNorth);
 
         AnimationLockDelay = estimatedAnimLockDelay;

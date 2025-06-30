@@ -1,6 +1,6 @@
-﻿namespace BossMod.Autorotation.xan.AI;
+﻿namespace BossMod.Autorotation.xan;
 
-public class TrackPartyHealth(WorldState World)
+public sealed class TrackPartyHealth(WorldState World)
 {
     public record struct PartyMemberState
     {
@@ -38,7 +38,7 @@ public class TrackPartyHealth(WorldState World)
     public const float AOEBreakpointHPVariance = 0.25f;
 
     public readonly PartyMemberState[] PartyMemberStates = new PartyMemberState[PartyState.MaxAllies];
-    public PartyHealthState PartyHealth { get; private set; } = new();
+    public PartyHealthState PartyHealth = new();
 
     private bool _haveRealPartyMembers;
     private BitMask _trackedActors;
@@ -144,7 +144,7 @@ public class TrackPartyHealth(WorldState World)
     public void Update(AIHints Hints)
     {
         // copied from veyn's HealerActions in EW bossmod - i am a thief
-        BitMask esunas = new();
+        BitMask esunas = default;
         foreach (var caster in World.Party.WithoutSlot(excludeAlliance: true).Where(a => a.CastInfo?.IsSpell(BossMod.WHM.AID.Esuna) ?? false))
             esunas.Set(World.Party.FindSlot(caster.CastInfo!.TargetID));
 
@@ -167,7 +167,8 @@ public class TrackPartyHealth(WorldState World)
             }
 
             var actor = World.Party[i];
-            _haveRealPartyMembers |= actor?.Type == ActorType.Player;
+            if (i > 0)
+                _haveRealPartyMembers |= actor?.Type == ActorType.Player;
 
             if (actor == null || actor.IsDead || actor.HPMP.MaxHP == 0 || actor.FateID > 0 || shouldSkip)
             {
@@ -228,7 +229,7 @@ public class TrackPartyHealth(WorldState World)
         }
 
         foreach (var predicted in Hints.PredictedDamage)
-            foreach (var bit in predicted.players.SetBits())
+            foreach (var bit in predicted.Players.SetBits())
                 PartyMemberStates[bit].PredictedHPRatio -= 0.30f;
 
         PartyHealth = CalculatePartyHealthState(_ => true);

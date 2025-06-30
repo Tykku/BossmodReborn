@@ -152,7 +152,7 @@ public sealed unsafe class ActionManagerEx : IDisposable
 
     public Vector3? GetWorldPosUnderCursor()
     {
-        Vector3 res = new();
+        Vector3 res = default;
         return _inst->GetGroundPositionForCursor(&res) ? res : null;
     }
 
@@ -185,20 +185,35 @@ public sealed unsafe class ActionManagerEx : IDisposable
 
     public void GetCooldowns(Span<Cooldown> cooldowns)
     {
-        // TODO: 7.1: there are now 87 cdgroups
-        // [0,80) are stored in actionmanager, [80,81) are stored in director
+        // [0, 80) are in ActionManager
         var rg = _inst->GetRecastGroupDetail(0);
-        for (var i = 0; i < 80; ++i)
+        var i = 0;
+        for (; i < 80; ++i)
             GetCooldown(ref cooldowns[i], rg++);
+
+        // 80, 81 are in DutyActionManager
         rg = _inst->GetRecastGroupDetail(80);
         if (rg != null)
         {
-            for (var i = 80; i < 82; ++i)
+            for (; i < 82; ++i)
                 GetCooldown(ref cooldowns[i], rg++);
         }
         else
         {
-            for (var i = 80; i < 82; ++i)
+            for (; i < 82; ++i)
+                cooldowns[i] = default;
+        }
+
+        // [82,87) are in MassivePcContentDirector
+        rg = _inst->GetRecastGroupDetail(82);
+        if (rg != null)
+        {
+            for (; i < 87; ++i)
+                GetCooldown(ref cooldowns[i], rg++);
+        }
+        else
+        {
+            for (; i < 87; ++i)
                 cooldowns[i] = default;
         }
     }
@@ -213,11 +228,16 @@ public sealed unsafe class ActionManagerEx : IDisposable
     {
         // TODO: 7.1: there are now 5 actions, but only 2 charges...
         var dm = DutyActionManager.GetInstanceIfReady();
-        return dm == null || !dm->ActionActive[0] || slot >= dm->NumValidSlots
-            ? default
-            : new(new(ActionType.Spell, dm->ActionId[slot]), dm->CurCharges[slot], dm->MaxCharges[slot]);
+
+        (byte cur, byte max) charges(ushort slot) => slot < 2 ? (dm->CurCharges[slot], dm->MaxCharges[slot]) : default;
+
+        if (dm == null || !dm->ActionActive[0] || slot >= dm->NumValidSlots)
+            return default;
+
+        var (cur, max) = charges(slot);
+        return new(new(ActionType.Spell, dm->ActionId[slot]), cur, max);
     }
-    public (ClientState.DutyAction, ClientState.DutyAction) GetDutyActions() => (GetDutyAction(0), GetDutyAction(1));
+    public ClientState.DutyAction[] GetDutyActions() => [GetDutyAction(0), GetDutyAction(1), GetDutyAction(2), GetDutyAction(3), GetDutyAction(4)];
 
     public uint GetAdjustedActionID(uint actionID) => _inst->GetAdjustedActionId(actionID);
 
@@ -374,9 +394,10 @@ public sealed unsafe class ActionManagerEx : IDisposable
 
         // gaze avoidance & targeting
         // note: to execute an oriented action (cast a spell or use instant), target has to be within 45 degrees of character orientation (reversed)
-        // to finish a spell without interruption, by the beginning of the slide-cast window target has to be within 75 degrees of character orientation (empyrical)
+        // to finish a spell without interruption, by the beginning of the slide-cast window target has to be within 75 degrees of character orientation (empirical)
         var castInfo = player->GetCastInfo();
-        var isCasting = castInfo != null && castInfo->IsCasting != 0;
+        // with <500ms remaining on cast timer, player can face and move wherever they want and still complete the cast successfully (slidecast)
+        var isCasting = castInfo != null && castInfo->IsCasting != 0 && castInfo->CurrentCastTime + 0.5f < castInfo->TotalCastTime;
         var currentAction = isCasting ? new((ActionType)castInfo->ActionType, castInfo->ActionId) : actionImminent ? AutoQueue.Action : default;
         var currentTargetId = isCasting ? (ulong)castInfo->TargetId : (AutoQueue.Target?.InstanceID ?? InvalidEntityId);
         var currentTargetSelf = currentTargetId == player->EntityId;

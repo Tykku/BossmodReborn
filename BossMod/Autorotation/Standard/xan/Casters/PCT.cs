@@ -20,7 +20,7 @@ public sealed class PCT(RotationModuleManager manager, Actor player) : Castxan<A
             .AddOption(MotifStrategy.Downtime, "Downtime", "Cast motifs in combat if there are no targets nearby")
             .AddOption(MotifStrategy.Instant, "Instant", "Only cast motifs when they are instant (out of combat)");
 
-        def.DefineSimple(Track.Holy, "Holy").AddAssociatedActions(AID.HolyInWhite);
+        def.DefineSimple(Track.Holy, "Holy").AddAssociatedActions(AID.HolyInWhite, AID.CometInBlack);
         def.DefineSimple(Track.Hammer, "Hammer").AddAssociatedActions(AID.HammerStamp);
 
         return def;
@@ -172,8 +172,8 @@ public sealed class PCT(RotationModuleManager manager, Actor player) : Castxan<A
         if (Player.InCombat && World.Actors.FirstOrDefault(x => x.OID is LeylinesOID && x.OwnerID == Player.InstanceID) is Actor ll)
             Hints.GoalZones.Add(p => p.InCircle(ll.Position, 8) ? 0.5f : 0);
 
-        if (!Player.InCombat && primaryTarget != null && Paint == 0)
-            PushGCD(AID.RainbowDrip, primaryTarget, GCDPriority.Standard);
+        //if (!Player.InCombat && primaryTarget != null && Paint == 0)
+        //    PushGCD(AID.RainbowDrip, primaryTarget, GCDPriority.Standard);
 
         if (Player.InCombat && primaryTarget != null)
         {
@@ -284,7 +284,7 @@ public sealed class PCT(RotationModuleManager manager, Actor player) : Castxan<A
 
     private void Hammer(StrategyValues strategy)
     {
-        if (HammerTime.Stacks == 0)
+        if (HammerTime.Stacks == 0 || strategy.Option(Track.Hammer).As<OffensiveStrategy>() == OffensiveStrategy.Delay)
             return;
 
         var prio = GCDPriority.HammerMove;
@@ -306,7 +306,7 @@ public sealed class PCT(RotationModuleManager manager, Actor player) : Castxan<A
 
     private void Holy(StrategyValues strategy)
     {
-        if (Paint == 0)
+        if (Paint == 0 || strategy.Option(Track.Holy).As<OffensiveStrategy>() == OffensiveStrategy.Delay)
             return;
 
         var prio = GCDPriority.HolyMove;

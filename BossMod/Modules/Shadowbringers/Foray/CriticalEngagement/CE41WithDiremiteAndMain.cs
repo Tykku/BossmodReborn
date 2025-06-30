@@ -171,7 +171,7 @@ class Hailfire(BossModule module) : Components.GenericBaitAway(module)
         if (iconID is >= (uint)IconID.Hailfire1 and <= (uint)IconID.Hailfire4)
         {
             CurrentBaits.Add(new(Module.PrimaryActor, actor, rect, WorldState.FutureTime(8.2d + (iconID - (uint)IconID.Hailfire1) * 2.1d)));
-            CurrentBaits.SortBy(aoe => aoe.Activation);
+            CurrentBaits.Sort((a, b) => a.Activation.CompareTo(b.Activation));
         }
     }
 }
@@ -194,10 +194,12 @@ class CE41WithDiremiteAndMainStates : StateMachineBuilder
     }
 }
 
-[ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.BozjaCE, GroupID = 778, NameID = 21)] // bnpcname=9969
-public class CE41WithDiremiteAndMain(WorldState ws, Actor primary) : BossModule(ws, primary, new(-220f, 530f), new ArenaBoundsCircle(30f))
+[ModuleInfo(BossModuleInfo.Maturity.Verified, GroupType = BossModuleInfo.GroupType.CriticalEngagement, GroupID = 778, NameID = 21)] // bnpcname=9969
+public class CE41WithDiremiteAndMain(WorldState ws, Actor primary) : BossModule(ws, primary, arena.Center, arena)
 {
     public static readonly uint[] Crystals = [(uint)OID.DimCrystal, (uint)OID.CorruptedCrystal];
+    private static readonly ArenaBoundsComplex arena = new([new Polygon(new(-220f, 530f), 29.5f, 32)]);
+
     protected override void DrawEnemies(int pcSlot, Actor pc)
     {
         base.DrawEnemies(pcSlot, pc);

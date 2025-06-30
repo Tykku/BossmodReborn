@@ -14,6 +14,8 @@ sealed class Adds(BossModule module) : Components.AddsMulti(module, [(uint)OID.M
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
+        if (!_config.EnablePriorityList)
+            return;
         var count = hints.PotentialTargets.Count;
         var config = _config.AddsPriorityOrder;
         Span<int> priorities = stackalloc int[9];
@@ -145,7 +147,7 @@ class ManxomeWindersnatch(BossModule module) : Components.SingleTargetInstant(mo
         if (iconID == (uint)IconID.ManxomeWindersnatch)
         {
             _target = actor;
-            Targets.Add((Raid.FindSlot(actor.InstanceID), WorldState.FutureTime(5d)));
+            Targets.Add((Raid.FindSlot(targetID), WorldState.FutureTime(5d), targetID));
         }
     }
 

@@ -213,9 +213,9 @@ public sealed record class AOEShapeCustom(IReadOnlyList<Shape> Shapes1, IReadOnl
     private bool isShapeDistanceInitialized;
     private readonly int hashkey = CreateCacheKey(Shapes1, Shapes2 ?? [], DifferenceShapes ?? [], Operand, Origin);
     private static readonly Dictionary<int, RelSimplifiedComplexPolygon> cache = [];
-    private static readonly LinkedList<int> cacheOrder = new();
+    private static readonly LinkedList<int> cacheOrder = [];
 
-    public void AddToCache(RelSimplifiedComplexPolygon value)
+    private void AddToCache(RelSimplifiedComplexPolygon value)
     {
         if (cache.Count >= 50)
         {
@@ -373,6 +373,7 @@ public sealed record class AOEShapeCustom(IReadOnlyList<Shape> Shapes1, IReadOnl
         ref readonly var distance = ref shapeDistance;
         return InvertForbiddenZone ? distance.InvertedDistance : distance.Distance;
     }
+
     public override Func<WPos, float> InvertedDistance(WPos origin, Angle rotation)
     {
         if (!isShapeDistanceInitialized)
