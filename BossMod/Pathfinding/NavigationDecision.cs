@@ -25,7 +25,7 @@ public struct NavigationDecision
 
     public const float ActivationTimeCushion = 1f; // reduce time between now and activation by this value in seconds; increase for more conservativeness
 
-    public static NavigationDecision Build(Context ctx, WorldState ws, AIHints hints, Actor player, float playerSpeed = 6f)
+    public static NavigationDecision Build(Context ctx, WorldState ws, AIHints hints, Actor player, float playerSpeed = 6f, float forbiddenZoneCushion = default)
     {
         // build a pathfinding map: rasterize all forbidden zones and goals
         hints.InitPathfindMap(ctx.Map);
@@ -34,8 +34,11 @@ public struct NavigationDecision
         Func<WPos, float>[] localGoalZones = [.. hints.GoalZones];
         if (hints.ForbiddenZones.Count != 0)
             RasterizeForbiddenZones(ctx.Map, localForbiddenZones, ws.CurrentTime, ctx.Scratch);
-        if (hints.GoalZones.Count != 0 && player.CastInfo == null)
+        if (hints.GoalZones.Count != 0)
             RasterizeGoalZones(ctx.Map, localGoalZones);
+
+        if (forbiddenZoneCushion > 0)
+            AvoidForbiddenZone(ctx.Map, forbiddenZoneCushion);
 
         // execute pathfinding
         ctx.ThetaStar.Start(ctx.Map, player.Position, 1.0f / playerSpeed);
@@ -43,6 +46,41 @@ public struct NavigationDecision
         ref var bestNode = ref ctx.ThetaStar.NodeByIndex(bestNodeIndex);
         var waypoints = GetFirstWaypoints(ctx.ThetaStar, ctx.Map, bestNodeIndex, player.Position);
         return new() { Destination = waypoints.first, NextWaypoint = waypoints.second, LeewaySeconds = bestNode.PathLeeway, TimeToGoal = bestNode.GScore };
+    }
+
+    private static void AvoidForbiddenZone(Map map, float forbiddenZoneCushion)
+    {
+        var d = (int)(forbiddenZoneCushion / map.Resolution);
+        map.MaxPriority = -1;
+        foreach (var (x, y, _) in map.EnumeratePixels())
+        {
+            var cellIndex = map.GridToIndex(x, y);
+            if (map.PixelMaxG[cellIndex] == float.MaxValue)
+            {
+                var hasDangerousNeighbour = false;
+                for (var ox = -1; ox <= 1 && !hasDangerousNeighbour; ++ox)
+                {
+                    for (var oy = -1; oy <= 1; ++oy)
+                    {
+                        if (ox == 0 && oy == 0)
+                            continue;
+
+                        var (nx, ny) = map.ClampToGrid((x + ox * d, y + oy * d));
+                        if (map.PixelMaxG[map.GridToIndex(nx, ny)] != float.MaxValue)
+                        {
+                            hasDangerousNeighbour = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (hasDangerousNeighbour)
+                {
+                    map.PixelPriority[cellIndex] -= 0.125f;
+                }
+            }
+            map.MaxPriority = Math.Max(map.MaxPriority, map.PixelPriority[cellIndex]);
+        }
     }
 
     public static void RasterizeForbiddenZones(Map map, (Func<WPos, float> shapeDistance, DateTime activation, ulong source)[] zones, DateTime current, float[] scratch)

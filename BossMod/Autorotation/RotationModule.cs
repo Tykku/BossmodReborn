@@ -92,13 +92,17 @@ public sealed record class RotationModuleDefinition(string DisplayName, string D
 
 // base class for rotation modules
 // each rotation module should contain a `public static RotationModuleDefinition Definition()` function
-public abstract class RotationModule(RotationModuleManager manager, Actor player)
+public abstract class RotationModule(RotationModuleManager manager, Actor player) : IDisposable
 {
     public readonly RotationModuleManager Manager = manager;
     public readonly Actor Player = player;
     public BossModuleManager Bossmods => Manager.Bossmods;
     public WorldState World => Manager.Bossmods.WorldState;
     public AIHints Hints => Manager.Hints;
+    public virtual void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
 
     // the main entry point of the module - given a set of strategy values, fill the queue with a set of actions to execute
     public abstract void Execute(StrategyValues strategy, Actor? primaryTarget, float estimatedAnimLockDelay, bool isMoving);
@@ -162,7 +166,11 @@ public abstract class RotationModule(RotationModuleManager manager, Actor player
         return slot >= 0 && World.Client.DutyActions[1 - slot].Action == other ? slot : -1;
     }
 
-    public float DutyActionCD(int slot) => slot is >= 0 and < 2 ? World.Client.Cooldowns[ActionDefinitions.DutyAction0CDGroup + slot].Remaining : float.MaxValue;
+    public int FindDutyActionSlot<AID>(AID aid) where AID : Enum => FindDutyActionSlot(ActionID.MakeSpell(aid));
+
+    public float DutyActionCD(int slot) => slot is >= 0 and < 7
+        ? (ActionDefinitions.Instance[World.Client.DutyActions[slot].Action]?.ReadyIn(World.Client.Cooldowns, World.Client.DutyActions) ?? float.MaxValue)
+        : float.MaxValue;
     public float DutyActionCD(ActionID action) => DutyActionCD(FindDutyActionSlot(action));
 
     protected (float Left, float In) EstimateRaidBuffTimings(Actor? primaryTarget)

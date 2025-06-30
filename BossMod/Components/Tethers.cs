@@ -15,7 +15,7 @@ public class TankbusterTether(BossModule module, uint aid, uint tetherID, AOESha
 
     public override void Update()
     {
-        _inAnyAOE = new();
+        _inAnyAOE = default;
 
         var count = _tethers.Count;
         if (count == 0)
@@ -225,7 +225,7 @@ public class InterceptTetherAOE(BossModule module, uint aid, uint tetherID, floa
 
     public override void Update()
     {
-        _inAnyAOE = new();
+        _inAnyAOE = default;
         foreach (var slot in _tetheredPlayers.SetBits())
         {
             var target = Raid[slot];
@@ -416,7 +416,7 @@ public class InterceptTether(BossModule module, uint aid, uint tetherIDBad = 84u
 
 // generic component for tethers that need to be stretched and switch between a "good" and "bad" tether
 // at the end of the mechanic various things are possible, eg. single target dmg, knockback/pull, AOE etc.
-public class StretchTetherDuo(BossModule module, float minimumDistance, float activationDelay, uint tetherIDBad = 57, uint tetherIDGood = 1, AOEShape? shape = null, uint aid = default, uint enemyOID = default, bool knockbackImmunity = false) : GenericBaitAway(module, aid)
+public class StretchTetherDuo(BossModule module, float minimumDistance, float activationDelay, uint tetherIDBad = 57u, uint tetherIDGood = 1u, AOEShape? shape = null, uint aid = default, uint enemyOID = default, bool knockbackImmunity = false) : GenericBaitAway(module, aid, damageType: AIHints.PredictedDamageType.Tankbuster)
 {
     public readonly AOEShape? Shape = shape;
     public readonly uint TIDGood = tetherIDGood;
@@ -451,16 +451,16 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
         if (slot >= 0)
             switch (status.ID)
             {
-                case 3054: //Guard in PVP
+                case 3054u: //Guard in PVP
                 case (uint)WHM.SID.Surecast:
                 case (uint)WAR.SID.ArmsLength:
                     PlayerImmunes[slot].RoleBuffExpire = status.ExpireAt;
                     break;
-                case 1722: //Bluemage Diamondback
+                case 1722u: //Bluemage Diamondback
                 case (uint)WAR.SID.InnerStrength:
                     PlayerImmunes[slot].JobBuffExpire = status.ExpireAt;
                     break;
-                case 2345: //Lost Manawall in Bozja
+                case 2345u: //Lost Manawall in Bozja
                     PlayerImmunes[slot].DutyBuffExpire = status.ExpireAt;
                     break;
             }
@@ -472,16 +472,16 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
         if (slot >= 0)
             switch (status.ID)
             {
-                case 3054: //Guard in PVP
+                case 3054u: //Guard in PVP
                 case (uint)WHM.SID.Surecast:
                 case (uint)WAR.SID.ArmsLength:
                     PlayerImmunes[slot].RoleBuffExpire = default;
                     break;
-                case 1722: //Bluemage Diamondback
+                case 1722u: //Bluemage Diamondback
                 case (uint)WAR.SID.InnerStrength:
                     PlayerImmunes[slot].JobBuffExpire = default;
                     break;
-                case 2345: //Lost Manawall in Bozja
+                case 2345u: //Lost Manawall in Bozja
                     PlayerImmunes[slot].DutyBuffExpire = default;
                     break;
             }
@@ -490,9 +490,12 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
     public override void DrawArenaForeground(int pcSlot, Actor pc)
     {
         base.DrawArenaForeground(pcSlot, pc);
-        if (ActiveBaits.Count == 0)
+        var baits = ActiveBaitsOn(pc);
+
+        if (baits.Count == 0)
             return;
-        if (!IsImmune(pcSlot, ActiveBaits.FirstOrDefault(x => x.Target == pc).Activation))
+
+        if (!IsImmune(pcSlot, baits[0].Activation))
         {
             if (IsTether(pc, TIDBad))
                 DrawTetherLines(pc);
@@ -503,10 +506,17 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
 
     protected bool IsTether(Actor actor, uint tetherID) => TetherOnActor.Contains((actor, tetherID));
 
-    private void DrawTetherLines(Actor target, uint color = 0)
+    private void DrawTetherLines(Actor target, uint color = default)
     {
-        foreach (var bait in ActiveBaits.Where(x => x.Target == target))
-            Arena.AddLine(bait.Source.Position, bait.Target.Position, color);
+        var count = CurrentBaits.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var bait = CurrentBaits[i];
+            if (bait.Target == target)
+            {
+                Arena.AddLine(bait.Source.Position, bait.Target.Position, color);
+            }
+        }
     }
 
     public override void OnTethered(Actor source, ActorTetherInfo tether)
@@ -530,7 +540,7 @@ public class StretchTetherDuo(BossModule module, float minimumDistance, float ac
             for (var i = 0; i < count; ++i)
             {
                 var a = ActivationDelayOnActor[i];
-                if (a.Item2.AddSeconds(1) <= WorldState.CurrentTime)
+                if (a.Item2.AddSeconds(1d) <= WorldState.CurrentTime)
                     actorsToRemove.Add(a);
             }
             for (var i = 0; i < actorsToRemove.Count; ++i)

@@ -1,10 +1,10 @@
 ﻿/*******************************************************************************
 * Author    :  Angus Johnson                                                   *
-* Date      :  15 October 2022                                                 *
-* Website   :  http://www.angusj.com                                           *
-* Copyright :  Angus Johnson 2010-2022                                         *
+* Date      :  10 October 2024                                                 *
+* Website   :  https://www.angusj.com                                          *
+* Copyright :  Angus Johnson 2010-2024                                         *
 * Purpose   :  Minkowski Sum and Difference                                    *
-* License   :  http://www.boost.org/LICENSE_1_0.txt                            *
+* License   :  https://www.boost.org/LICENSE_1_0.txt                           *
 *******************************************************************************/
 
 #nullable enable
@@ -12,28 +12,38 @@ using System;
 
 namespace Clipper2Lib
 {
-  public sealed class Minkowski
+  public static class Minkowski
   {
     private static Paths64 MinkowskiInternal(Path64 pattern, Path64 path, bool isSum, bool isClosed)
     {
       int delta = isClosed ? 0 : 1;
       int patLen = pattern.Count, pathLen = path.Count;
-      Paths64 tmp = new Paths64(pathLen);
-
-      foreach (Point64 pathPt in path)
+      var tmp = new Paths64(pathLen);
+      var pathC = path.Count;
+      var patternC = pattern.Count;
+      if (isSum)
       {
-        Path64 path2 = new Path64(patLen);
-        if (isSum)
+        for (var i = 0; i < pathC; ++i)
         {
-          foreach (Point64 basePt in pattern)
-            path2.Add(pathPt + basePt);
+          var path2 = new Path64(patLen);
+          for (var j = 0; j < patternC; ++j)
+          {
+            path2.Add(path[i] + pattern[j]);
+          }
+          tmp.Add(path2);
         }
-        else
+      }
+      else
+      {
+        for (var i = 0; i < pathC; ++i)
         {
-          foreach (Point64 basePt in pattern)
-            path2.Add(pathPt - basePt);
+          var path2 = new Path64(patLen);
+          for (var j = 0; j < patternC; ++j)
+          {
+            path2.Add(path[i] - pattern[j]);
+          }
+          tmp.Add(path2);
         }
-        tmp.Add(path2);
       }
 
       Paths64 result = new Paths64((pathLen - delta) * patLen);

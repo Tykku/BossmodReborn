@@ -104,7 +104,7 @@ sealed class Stonecarver(BossModule module) : Components.GenericAOEs(module)
             case (uint)AID.Stonecarver4:
                 AOEs.Add(new(rect, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
                 if (AOEs.Count == 2)
-                    AOEs.SortBy(x => x.Activation);
+                    AOEs.Sort((a, b) => a.Activation.CompareTo(b.Activation));
                 break;
         }
     }
@@ -262,7 +262,7 @@ sealed class DeepThunder2(BossModule module) : DeepThunder(module, (uint)AID.Dee
 
 sealed class WroughtFire(BossModule module) : Components.BaitAwayCast(module, (uint)AID.WroughtFire, 6f, tankbuster: true);
 sealed class BuildingHeat(BossModule module) : Components.StackWithCastTargets(module, (uint)AID.BuildingHeat, 6f, 4, 4);
-sealed class Ashlayer(BossModule module) : Components.RaidwideCast(module, (uint)AID.Ashlayer);
+sealed class Ashlayer(BossModule module) : Components.RaidwideCastDelay(module, (uint)AID.AshlayerVisual, (uint)AID.Ashlayer, 2.2d);
 
 sealed class D033MaulskullStates : StateMachineBuilder
 {

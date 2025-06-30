@@ -1,6 +1,6 @@
 namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA4ProtoOzma;
 
-class Ozmaspheres(BossModule module) : Components.GenericAOEs(module)
+sealed class Ozmaspheres(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCapsule capsule = new(6, 3);
 
@@ -75,6 +75,6 @@ class Ozmaspheres(BossModule module) : Components.GenericAOEs(module)
         if (count == 0)
             return;
         for (var i = 0; i < count; ++i)
-            Arena.AddCircle(orbs[i].Position, 1f, pc.Role == Role.Tank ? Colors.Safe : 0);
+            Arena.AddCircle(orbs[i].Position, 1f, pc.Role == Role.Tank ? Colors.Safe : default);
     }
 }

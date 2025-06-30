@@ -12,15 +12,14 @@ public class Dispel(BossModule module, uint statusID, uint action = default) : C
         for (var i = 0; i < count; ++i)
         {
             var enemy = hints.FindEnemy(Targets[i]);
-            if (enemy != null)
-                enemy.ShouldBeDispelled = true;
+            enemy?.ShouldBeDispelled = true;
         }
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)
     {
         if (Targets.Count != 0)
-            hints.Add("Dispel!");
+            hints.Add($"Dispel {Targets[0].Name}!");
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
@@ -33,5 +32,10 @@ public class Dispel(BossModule module, uint statusID, uint action = default) : C
     {
         if (status.ID == statusID)
             Targets.Remove(actor);
+    }
+
+    public override void DrawArenaForeground(int pcSlot, Actor pc)
+    {
+        Arena.Actors(Targets, Colors.Other1);
     }
 }

@@ -106,13 +106,13 @@ public abstract class BossModule : IDisposable
             if (actor.IsTargetable)
                 comp.OnActorTargetable(actor);
             ref var tether = ref actor.Tether;
-            if (tether.ID != 0)
+            if (tether.ID != default)
                 comp.OnTethered(actor, tether);
             var len = actor.Statuses.Length;
             for (var i = 0; i < len; ++i)
             {
                 ref var status = ref actor.Statuses[i];
-                if (status.ID != 0)
+                if (status.ID != default)
                     comp.OnStatusGain(actor, status);
             }
         }
@@ -331,7 +331,7 @@ public abstract class BossModule : IDisposable
         for (var i = 0; i < count; ++i)
             Components[i].AddAIHints(slot, actor, assignment, hints);
         CalculateModuleAIHints(slot, actor, assignment, hints);
-        if (!WindowConfig.AllowAutomaticActions && AI.AIManager.Instance?.Beh == null)
+        if (!WindowConfig.AllowAutomaticActions && AI.AIManager.Instance?.Beh == null && Autorotation.MiscAI.NormalMovement.Instance == null)
             hints.ActionsToExecute.Clear();
     }
 
@@ -343,7 +343,7 @@ public abstract class BossModule : IDisposable
 
     // utility to calculate expected time when cast finishes (plus an optional delay); returns fallback value if argument is null
     // for whatever reason, npc spells have reported remaining cast time consistently 0.3s smaller than reality - this delta is added automatically, in addition to optional delay
-    public DateTime CastFinishAt(ActorCastInfo? cast, float extraDelay = 0f, DateTime fallback = default) => cast != null ? WorldState.FutureTime(cast.NPCRemainingTime + extraDelay) : fallback;
+    public DateTime CastFinishAt(ActorCastInfo? cast, double extraDelay = default, DateTime fallback = default) => cast != null ? WorldState.FutureTime(cast.NPCRemainingTime + extraDelay) : fallback;
 
     // called during update if module is not yet active, should return true if it is to be activated
     // default implementation activates if primary target is both targetable and in combat
@@ -352,6 +352,9 @@ public abstract class BossModule : IDisposable
     // called during update if module is active; should return true if module is to be reset (i.e. deleted and new instance recreated for same actor)
     // default implementation never resets, but it's useful for outdoor bosses that can be leashed
     public virtual bool CheckReset() => false;
+
+    // return true if out-of-combat enemies should be set to priority 0 - useful for multi-phase encounters when player wants to use automatic targeting via cdplan
+    public virtual bool ShouldPrioritizeAllEnemies => false;
 
     protected virtual void UpdateModule() { }
     protected virtual void DrawArenaBackground(int pcSlot, Actor pc) { } // before modules background
@@ -554,16 +557,22 @@ public abstract class BossModule : IDisposable
 
     private void OnActorStatusGain(Actor actor, int index)
     {
-        var count = Components.Count;
-        for (var i = 0; i < count; ++i)
-            Components[i].OnStatusGain(actor, actor.Statuses[index]);
+        if (actor.Type != ActorType.Pet)
+        {
+            var count = Components.Count;
+            for (var i = 0; i < count; ++i)
+                Components[i].OnStatusGain(actor, actor.Statuses[index]);
+        }
     }
 
     private void OnActorStatusLose(Actor actor, int index)
     {
-        var count = Components.Count;
-        for (var i = 0; i < count; ++i)
-            Components[i].OnStatusLose(actor, actor.Statuses[index]);
+        if (actor.Type != ActorType.Pet)
+        {
+            var count = Components.Count;
+            for (var i = 0; i < count; ++i)
+                Components[i].OnStatusLose(actor, actor.Statuses[index]);
+        }
     }
 
     private void OnActorIcon(Actor actor, uint iconID, ulong targetID)

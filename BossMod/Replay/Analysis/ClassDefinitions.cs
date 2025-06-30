@@ -1,4 +1,5 @@
-﻿using ImGuiNET;
+using BossMod.Data;
+using ImGuiNET;
 
 namespace BossMod.ReplayAnalysis;
 
@@ -28,6 +29,7 @@ sealed class ClassDefinitions
         public bool PotentiallyRemoved;
         public bool ReplayOnly;
         public bool IsBozjaHolster;
+        public bool IsPhantomAction;
         public bool SeenDifferentInstantAnimLocks;
         public bool SeenDifferentCastAnimLocks;
         public Dictionary<int, List<Entry>> InstantByAnimLock = [];
@@ -92,7 +94,7 @@ sealed class ClassDefinitions
 
             bool traitIsInteresting(Lumina.Excel.Sheets.Trait t) => cjcSheet.GetRow(t.ClassJobCategory.RowId).ReadBoolColumn((int)i + 1);
             classData.Traits.AddRange(traitSheet.Where(traitIsInteresting));
-            classData.Traits.SortBy(e => e.Level);
+            classData.Traits.Sort((a, b) => a.Level.CompareTo(b.Level));
         }
         var nullOwner = _classData[Class.None] = new(Class.None, Class.None);
 
@@ -139,6 +141,10 @@ sealed class ClassDefinitions
         for (var i = BozjaHolsterID.None + 1; i < BozjaHolsterID.Count; ++i)
             _actionData[BozjaActionID.GetNormal(i)].IsBozjaHolster = true;
 
+        foreach (var id in typeof(PhantomID).GetEnumValues())
+            if ((uint)id > 0)
+                _actionData[ActionID.MakeSpell((PhantomID)id)].IsPhantomAction = true;
+
         // split actions by categories
         foreach (var (aid, data) in _actionData)
         {
@@ -153,6 +159,7 @@ sealed class ClassDefinitions
                     : data.IsRoleAction ? GroupRoleActions
                     : data.LimitBreakLevel > 0 && data.OwningClasses.NumSetBits() > 1 ? GroupLimitBreaks
                     : data.IsBozjaHolster ? "Bozja action"
+                    : data.IsPhantomAction ? "Phantom action"
                     : data.OwningClasses.Any() ? $"Class: {string.Join(" ", data.OwningClasses.SetBits().Select(i => (Class)i))}"
                     : "???",
                 ActionType.Item => "Item",
@@ -167,10 +174,11 @@ sealed class ClassDefinitions
             AddActionsToCDGroups(data, data.ExtraCDGroup);
         }
         foreach (var (_, list) in _byCategory)
-            list.SortBy(d => d.Row?.ClassJobLevel ?? 0);
+            list.Sort((a, b) => (a.Row?.ClassJobLevel ?? 0).CompareTo(b.Row?.ClassJobLevel ?? 0));
         foreach (var (_, cd) in _classData)
         {
-            cd.Actions.SortBy(d => d.Row?.ClassJobLevel ?? 0);
+            cd.Actions.Sort((a, b) => (a.Row?.ClassJobLevel ?? 0).CompareTo(b.Row?.ClassJobLevel ?? 0));
+
             foreach (var a in cd.Actions)
             {
                 foreach (var s in a.AppliedStatusesToSource)
