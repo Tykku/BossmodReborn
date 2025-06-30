@@ -1,8 +1,7 @@
 namespace BossMod.Shadowbringers.Foray.TheDalriada.DAL1Sartauvoir;
 
-class Pyroclysm(BossModule module) : Components.GenericTowersOpenWorld(module)
+sealed class Pyroclysm(BossModule module) : Components.GenericTowersOpenWorld(module)
 {
-
     public override void OnEventCast(Actor caster, ActorCastEvent spell)
     {
         if (spell.Action.ID is (uint)AID.Pyroclysm or (uint)AID.Pyroplexy)

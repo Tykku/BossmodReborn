@@ -8,7 +8,7 @@ using System.Text.Json;
 namespace BossMod;
 
 // a set of use columns that represent a single cooldown plan; note that it works on a private copy of a plan and reports modifications to whoever owns it
-public class CooldownPlannerColumns : Timeline.ColumnGroup
+public sealed class CooldownPlannerColumns : Timeline.ColumnGroup
 {
     public bool Modified;
     public Plan Plan; // note: this is a copy of the plan stored in database
@@ -20,7 +20,7 @@ public class CooldownPlannerColumns : Timeline.ColumnGroup
     private readonly List<List<ColumnPlannerTrackStrategy>> _colsStrategy = [];
     private readonly ColumnPlannerTrackTarget _colTarget;
 
-    private readonly float _trackWidth = 50 * ImGuiHelpers.GlobalScale;
+    private readonly float _trackWidth = 50f * ImGuiHelpers.GlobalScale;
 
     public Class PlanClass => Plan.Class;
 
@@ -268,7 +268,8 @@ public class CooldownPlannerColumns : Timeline.ColumnGroup
         _colsStrategy.Insert(index, cols);
         var m = Plan.Modules[index];
         List<int> uiOrder = [.. Enumerable.Range(0, m.Tracks.Count)];
-        uiOrder.SortByReverse(i => m.Definition.Configs[i].UIPriority);
+        uiOrder.Sort((b, a) => m.Definition.Configs[a].UIPriority.CompareTo(m.Definition.Configs[b].UIPriority));
+
         foreach (var i in uiOrder)
         {
             var config = m.Definition.Configs[i];

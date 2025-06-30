@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Savage.M07SBruteAbombinator;
 
-class ThornsOfDeath(BossModule module) : BossComponent(module)
+sealed class ThornsOfDeath(BossModule module) : BossComponent(module)
 {
     private readonly List<(Actor Player, Actor Source)> _tethers = new(4);
     public BitMask TetheredPlayers;
@@ -18,7 +18,7 @@ class ThornsOfDeath(BossModule module) : BossComponent(module)
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         if (TetheredPlayers != default)
-            hints.PredictedDamage.Add((TetheredPlayers, WorldState.FutureTime(1d)));
+            hints.AddPredictedDamage(TetheredPlayers, WorldState.FutureTime(1d), AIHints.PredictedDamageType.Tankbuster);
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)

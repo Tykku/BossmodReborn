@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Extreme.Ex1Valigarmanda;
 
-class HailOfFeathers : Components.SimpleAOEGroups
+sealed class HailOfFeathers : Components.SimpleAOEGroups
 {
     public HailOfFeathers(BossModule module) : base(module, [(uint)AID.HailOfFeathersAOE1, (uint)AID.HailOfFeathersAOE2, (uint)AID.HailOfFeathersAOE3,
     (uint)AID.HailOfFeathersAOE4, (uint)AID.HailOfFeathersAOE5, (uint)AID.HailOfFeathersAOE6], 20f, 2, 6)
@@ -9,9 +9,9 @@ class HailOfFeathers : Components.SimpleAOEGroups
     }
 }
 
-class FeatherOfRuin(BossModule module) : Components.Adds(module, (uint)OID.FeatherOfRuin);
+sealed class FeatherOfRuin(BossModule module) : Components.Adds(module, (uint)OID.FeatherOfRuin);
 
-class BlightedBolt : Components.GenericAOEs
+sealed class BlightedBolt : Components.GenericAOEs
 {
     private readonly List<Actor> _targets = [];
     private DateTime _activation;
@@ -46,13 +46,13 @@ class BlightedBolt : Components.GenericAOEs
 
         for (var i = 0; i < count; ++i)
         {
-            ref var span = ref targetsspan[i];
+            ref readonly var span = ref targetsspan[i];
             if (span.IsDead)
                 hasDead = true;
             else
                 aoes[index++] = new(_shape, span.Position, default, _activation);
         }
-        return hasDead ? aoes.AsSpan(0, index) : [];
+        return hasDead ? aoes[..index] : [];
     }
 
     public override void AddHints(int slot, Actor actor, TextHints hints)

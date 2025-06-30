@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Savage.M04SWickedThunder;
 
-class WideningNarrowingWitchHunt(BossModule module) : Components.GenericAOEs(module)
+sealed class WideningNarrowingWitchHunt(BossModule module) : Components.GenericAOEs(module)
 {
     public readonly List<AOEInstance> AOEs = new(4);
 
@@ -38,7 +38,7 @@ class WideningNarrowingWitchHunt(BossModule module) : Components.GenericAOEs(mod
     }
 }
 
-class WideningNarrowingWitchHuntBait(BossModule module) : Components.GenericBaitAway(module, (uint)AID.WitchHuntAOE, centerAtTarget: true)
+sealed class WideningNarrowingWitchHuntBait(BossModule module) : Components.GenericBaitAway(module, (uint)AID.WitchHuntAOE, centerAtTarget: true)
 {
     public enum Mechanic { None, Near, Far }
 
@@ -57,7 +57,7 @@ class WideningNarrowingWitchHuntBait(BossModule module) : Components.GenericBait
         var party = Raid.WithoutSlot(false, true, true);
         var len = party.Length;
 
-        Span<(Actor actor, float distSq)> distances = new (Actor, float)[len];
+        (Actor actor, float distSq)[] distances = new (Actor, float)[len];
         var center = Arena.Center;
 
         for (var i = 0; i < len; ++i)

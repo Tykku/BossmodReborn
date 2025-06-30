@@ -1,6 +1,6 @@
 namespace BossMod.Shadowbringers.Foray.Duel.Duel3Sartauvoir;
 
-class Meltdown(BossModule module) : Components.GenericAOEs(module)
+sealed class Meltdown(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = new(3);
     private static readonly AOEShapeCircle circle = new(5f);
@@ -28,7 +28,7 @@ class Meltdown(BossModule module) : Components.GenericAOEs(module)
             for (var i = 0; i < count; ++i)
             {
                 ref var aoe = ref aoes[i];
-                if (aoes[i].Origin == pos)
+                if (aoe.Origin == pos)
                 {
                     if (++aoe.ActorID == 8u)
                     {

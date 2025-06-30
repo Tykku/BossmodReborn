@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Shadowbringers.Foray.DelubrumReginae.DRS4QueensGuard;
 
-class AboveBoard(BossModule module) : Components.GenericAOEs(module)
+sealed class AboveBoard(BossModule module) : Components.GenericAOEs(module)
 {
     public enum State { Initial, ThrowUpDone, ShortExplosionsDone, LongExplosionsDone }
 

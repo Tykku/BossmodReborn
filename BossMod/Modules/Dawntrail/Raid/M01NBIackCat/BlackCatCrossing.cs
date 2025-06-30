@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Raid.M01NBlackCat;
 
-public class BlackCatCrossing(BossModule module) : Components.GenericAOEs(module)
+sealed class BlackCatCrossing(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = new(8);
     private static readonly AOEShapeCone cone = new(60f, 22.5f.Degrees());
@@ -13,14 +13,18 @@ public class BlackCatCrossing(BossModule module) : Components.GenericAOEs(module
         var count = _aoes.Count;
         if (count == 0)
             return [];
-        var aoes = new AOEInstance[count];
-        for (var i = 0; i < count; ++i)
+
+        var aoes = CollectionsMarshal.AsSpan(_aoes);
+        var color = Colors.Danger;
+        for (var i = 0; i < 4; ++i)
         {
-            var aoe = _aoes[i];
+            ref var aoe = ref aoes[i];
             if (i < 4)
-                aoes[i] = count > 4 ? aoe with { Color = Colors.Danger } : aoe;
-            else
-                aoes[i] = aoe with { Risky = false };
+            {
+                if (count == 8)
+                    aoe.Color = color;
+                aoe.Risky = true;
+            }
         }
         return aoes;
     }
@@ -31,15 +35,16 @@ public class BlackCatCrossing(BossModule module) : Components.GenericAOEs(module
         {
             case (uint)AID.BlackCatCrossingFirst:
             case (uint)AID.BlackCatCrossingRest:
-                _aoes.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell)));
-                _aoes.SortBy(x => x.Activation);
+                _aoes.Add(new(cone, spell.LocXZ, spell.Rotation, Module.CastFinishAt(spell), Risky: false));
+                if (_aoes.Count == 8)
+                    _aoes.Sort((a, b) => a.Activation.CompareTo(b.Activation));
                 break;
         }
     }
 
     public override void OnStatusGain(Actor actor, ActorStatus status)
     {
-        if (status.Extra != 0x307 && _currentPattern == Pattern.None)
+        if (status.Extra != 0x307u && _currentPattern == Pattern.None)
         {
             switch (status.ID)
             {

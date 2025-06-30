@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Extreme.Ex4Zelenia;
 
-class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
+sealed class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCircle circle = new(2f);
     private AOEInstance? _aoe;
@@ -136,7 +136,7 @@ class FloorTiles(BossModule module) : BossComponent(module)
 
     public static bool Find4ConnectedInactiveTiles(bool[] inner, bool[] outer, out int[] innerTiles, out int[] outerTiles)
     {
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < 8; ++i)
         {
             var next = (i + 1) % 8;
             if (!inner[i] && !outer[i] && !inner[next] && !outer[next])

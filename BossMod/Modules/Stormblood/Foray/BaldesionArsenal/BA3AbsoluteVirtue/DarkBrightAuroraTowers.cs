@@ -1,6 +1,6 @@
 namespace BossMod.Stormblood.Foray.BaldesionArsenal.BA3AbsoluteVirtue;
 
-class BrightDarkAuroraExplosion(BossModule module) : Components.GenericAOEs(module)
+sealed class BrightDarkAuroraExplosion(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCircle circle = new(8f);
     private readonly List<(Actor source, ulong target)> tetherByActor = new(8);
@@ -106,11 +106,12 @@ abstract class Towers(BossModule module, uint oid, uint tid) : Components.Generi
         if (isActorTarget)
         {
             var soakedIndex = -1;
-            for (var i = 0; i < Towers.Count; ++i)
+            var countT = Towers.Count;
+            for (var i = 0; i < countT; ++i)
             {
                 var t = Towers[i];
-                var allowedSoakers = t.AllowedSoakers ??= Tower.Soakers(Module);
-                if (allowedSoakers.Contains(actor) && t.IsInside(actor))
+                t.InitializeAllowedSoakers(Module);
+                if (t.AllowedSoakers!.Contains(actor) && t.IsInside(actor))
                 {
                     soakedIndex = i;
                     break;
@@ -159,9 +160,9 @@ abstract class Towers(BossModule module, uint oid, uint tid) : Components.Generi
         for (var i = 0; i < tetherByActor.Count; ++i)
             allowed.Add(tetherByActor[i].target);
         for (var i = 0; i < count; ++i)
-            Towers[i] = Towers[i] with { AllowedSoakers = allowed };
+            Towers[i].AllowedSoakers = allowed;
     }
 }
 
-class BrightAuroraTether(BossModule module) : Towers(module, (uint)OID.DarkAuroraHelper, (uint)TetherID.BrightAurora);
-class DarkAuroraTether(BossModule module) : Towers(module, (uint)OID.BrightAuroraHelper, (uint)TetherID.DarkAurora);
+sealed class BrightAuroraTether(BossModule module) : Towers(module, (uint)OID.DarkAuroraHelper, (uint)TetherID.BrightAurora);
+sealed class DarkAuroraTether(BossModule module) : Towers(module, (uint)OID.BrightAuroraHelper, (uint)TetherID.DarkAurora);

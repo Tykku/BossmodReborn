@@ -1,6 +1,6 @@
 namespace BossMod.Shadowbringers.Foray.CastrumLacusLitore.CLL1Brionac4thLegionHelldiver;
 
-class ChainCannon(BossModule module) : Components.GenericAOEs(module)
+sealed class ChainCannon(BossModule module) : Components.GenericAOEs(module)
 {
     private readonly List<AOEInstance> _aoes = new(4);
     private static readonly AOEShapeRect rect = new(60f, 2.5f);
@@ -32,7 +32,7 @@ class ChainCannon(BossModule module) : Components.GenericAOEs(module)
             for (var i = 0; i < count; ++i)
             {
                 ref var aoe = ref aoes[i];
-                if (aoes[i].Origin.AlmostEqual(pos, 0.1f))
+                if (aoe.Origin.AlmostEqual(pos, 0.1f))
                 {
                     if (++aoe.ActorID == 7u)
                     {

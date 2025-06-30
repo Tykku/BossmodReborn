@@ -8,7 +8,7 @@ using System.IO;
 
 namespace BossMod;
 
-public class ReplayManagementWindow : UIWindow
+public sealed class ReplayManagementWindow : UIWindow
 {
     private readonly WorldState _ws;
     private DirectoryInfo _logDir;
@@ -194,7 +194,7 @@ public class ReplayManagementWindow : UIWindow
             {
                 var replayFolder = new DirectoryInfo(_config.ReplayFolder);
                 var replays = replayFolder.GetFiles();
-                replays.SortBy(f => f.LastWriteTime);
+                replays.Sort((a, b) => a.LastWriteTime.CompareTo(b.LastWriteTime));
                 foreach (var f in replays.Take(replays.Length - _config.MaxReplays))
                     f.Delete();
             }

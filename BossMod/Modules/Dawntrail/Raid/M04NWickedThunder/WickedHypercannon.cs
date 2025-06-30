@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Raid.M04NWickedThunder;
 
-class WickedHypercannon(BossModule module) : Components.GenericAOEs(module)
+sealed class WickedHypercannon(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeRect rect = new(40f, 10f);
     private AOEInstance? _aoe;
@@ -36,7 +36,7 @@ class WickedHypercannon(BossModule module) : Components.GenericAOEs(module)
         if (_aoe != null)
         {
             var activation = _aoe?.Activation!;
-            hints.PredictedDamage.Add((Raid.WithSlot(false, true, true).Mask(), (DateTime)activation));
+            hints.AddPredictedDamage(Raid.WithSlot(false, true, true).Mask(), (DateTime)activation);
         }
     }
 }

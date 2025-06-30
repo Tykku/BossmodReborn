@@ -228,6 +228,15 @@ sealed class WorldStateGameSync : IDisposable
                 _ws.Execute(new WaymarkState.OpWaymarkChange(wm, pos));
             ++wm;
         }
+
+        var sgn = Sign.Attack1;
+        foreach (ref var marker in MarkingController.Instance()->Markers)
+        {
+            var id = SanitizedObjectID(marker.Id);
+            if (_ws.Waymarks[sgn] != id)
+                _ws.Execute(new WaymarkState.OpSignChange(sgn, id));
+            ++sgn;
+        }
     }
 
     private unsafe void UpdateActors()
@@ -247,6 +256,12 @@ sealed class WorldStateGameSync : IDisposable
                 Service.LogVerbose($"[WorldState] Skipping bad object #{i} with id {obj->EntityId:X}");
                 obj = null;
             }
+            if (actor != null && (obj == null || actor.InstanceID != obj->EntityId))
+            {
+                _actorsByIndex[i] = null;
+                RemoveActor(actor);
+                actor = null;
+            }
             if (obj != null)
             {
                 if (actor != _ws.Actors.Find(obj->EntityId))
@@ -254,12 +269,6 @@ sealed class WorldStateGameSync : IDisposable
                     Service.Log($"[WorldState] Actor position mismatch for #{i} {actor}");
                 }
                 UpdateActor(obj, i, actor);
-            }
-            if (actor != null && (obj == null || actor.InstanceID != obj->EntityId))
-            {
-                _actorsByIndex[i] = null;
-                RemoveActor(actor);
-                actor = null;
             }
         }
 
@@ -309,7 +318,7 @@ sealed class WorldStateGameSync : IDisposable
         if (act == null)
         {
             var type = (ActorType)(((int)obj->ObjectKind << 8) + obj->SubKind);
-            _ws.Execute(new ActorState.OpCreate(obj->EntityId, obj->BaseId, index, name, nameID, type, classID, level, posRot, radius, hpmp, targetable, friendly, SanitizedObjectID(obj->OwnerId), obj->FateId));
+            _ws.Execute(new ActorState.OpCreate(obj->EntityId, obj->BaseId, index, obj->LayoutId, name, nameID, type, classID, level, posRot, radius, hpmp, targetable, friendly, SanitizedObjectID(obj->OwnerId), obj->FateId));
             act = _actorsByIndex[index] = _ws.Actors.Find(obj->EntityId)!;
 
             // note: for now, we continue relying on network messages for tether changes, since sometimes multiple changes can happen in a single frame, and some components rely on seeing all of them...
@@ -385,7 +394,7 @@ sealed class WorldStateGameSync : IDisposable
                 {
                     var dur = Math.Min(Math.Abs(s.RemainingTime), 100000);
                     curStatus.ID = s.StatusId;
-                    curStatus.SourceID = SanitizedObjectID(s.SourceId);
+                    curStatus.SourceID = SanitizedObjectID(s.SourceObject);
                     curStatus.Extra = s.Param;
                     curStatus.ExpireAt = _ws.CurrentTime.AddSeconds(dur);
                 }
@@ -685,9 +694,9 @@ sealed class WorldStateGameSync : IDisposable
                 _ws.Execute(new ClientState.OpCooldown(false, CalcCooldownDifference(cooldowns, _ws.Client.Cooldowns.AsSpan())));
         }
 
-        var (dutyAction0, dutyAction1) = _amex.GetDutyActions();
-        if (_ws.Client.DutyActions[0] != dutyAction0 || _ws.Client.DutyActions[1] != dutyAction1)
-            _ws.Execute(new ClientState.OpDutyActionsChange(dutyAction0, dutyAction1));
+        var dutyActions = _amex.GetDutyActions();
+        if (!MemoryExtensions.SequenceEqual(_ws.Client.DutyActions.AsSpan(), dutyActions))
+            _ws.Execute(new ClientState.OpDutyActionsChange(dutyActions));
 
         Span<byte> bozjaHolster = stackalloc byte[_ws.Client.BozjaHolster.Length];
         bozjaHolster.Clear();
@@ -746,6 +755,10 @@ sealed class WorldStateGameSync : IDisposable
 
         if (hatePrimary != _ws.Client.CurrentTargetHate.InstanceID || !MemoryExtensions.SequenceEqual(hateTargets, _ws.Client.CurrentTargetHate.Targets))
             _ws.Execute(new ClientState.OpHateChange(hatePrimary, hateTargets));
+
+        var timers = actionManager->ProcTimers[1..];
+        if (!MemoryExtensions.SequenceEqual(timers, _ws.Client.ProcTimers))
+            _ws.Execute(new ClientState.OpProcTimersChange(timers.ToArray()));
     }
 
     private unsafe void UpdateDeepDungeon()
@@ -971,9 +984,10 @@ sealed class WorldStateGameSync : IDisposable
         _globalOps.Add(new WorldState.OpRSVData(MemoryHelper.ReadStringNullTerminated((nint)(packet + 4)), MemoryHelper.ReadString((nint)(packet + 0x34), *(int*)packet)));
     }
 
-    private unsafe void ProcessPacketOpenTreasureDetour(uint actorID, byte* packet)
+    private unsafe void ProcessPacketOpenTreasureDetour(uint playerID, byte* packet)
     {
-        _processPacketOpenTreasureHook.Original(actorID, packet);
+        _processPacketOpenTreasureHook.Original(playerID, packet);
+        var actorID = *(uint*)(packet + 16);
         _actorOps.GetOrAdd(actorID).Add(new ActorState.OpEventOpenTreasure(actorID));
     }
 

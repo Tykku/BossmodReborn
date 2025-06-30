@@ -3,11 +3,11 @@
 public enum OID : uint
 {
     Boss = 0x3250, // R0.5-5.1
-    BossP2 = 0x3252, // R4.5
     IgnisEst = 0x3253, // R1.0
     Huma = 0x3251, // R1.12
     TowerVisual1 = 0x1EB214, // R0.5
     TowerVisual2 = 0x1EB213, // R0.5
+    Helper2 = 0x3252, // R4.5
     Helper = 0x233C
 }
 
@@ -16,8 +16,8 @@ public enum AID : uint
     AutoAttack = 6497, // Boss->player, no cast, single-target
     AutoAttackP2 = 25022, // Boss->player, no cast, single-target
 
-    Burn = 24191, // BossP2->self, no cast, range 60 circle
-    Immolate = 24192, // BossP2->self, no cast, range 60 circle
+    Burn = 24191, // Helper2->self, no cast, range 60 circle
+    Immolate = 24192, // Helper2->self, no cast, range 60 circle
     BurningBlade = 24208, // Boss->player, 5.0s cast, single-target
     DoubleCast = 24205, // Boss->self, 4.0s cast, single-target
     Flamedive = 24179, // Huma->self, 4.0s cast, range 55 width 5 rect
@@ -62,8 +62,7 @@ public enum AID : uint
     ThermalGust = 24180, // Boss->self, 4.0s cast, single-target
     ThermalGustAOE = 24181, // Helper->self, 4.0s cast, range 44 width 10 rect
 
-    UnknownWeaponskill1 = 24185, // Boss->location, no cast, single-target
-    UnknownWeaponskill2 = 24190, // Boss->self, no cast, single-target
-    UnknownWeaponskill3 = 24193, // Boss->self, no cast, single-target
-
+    Visual1 = 24185, // Boss->location, no cast, single-target
+    Visual2 = 24190, // Boss->self, no cast, single-target
+    Visual3 = 24193 // Boss->self, no cast, single-target
 }

@@ -1,13 +1,13 @@
 ﻿namespace BossMod.Dawntrail.Alliance.A13ArkAngels;
 
-class A13ArkAngelsStates : StateMachineBuilder
+sealed class A13ArkAngelsStates : StateMachineBuilder
 {
     private readonly A13ArkAngels _module;
 
     public A13ArkAngelsStates(A13ArkAngels module) : base(module)
     {
         _module = module;
-        DeathPhase(0, SinglePhase)
+        DeathPhase(default, SinglePhase)
             .ActivateOnEnter<DecisiveBattle>()
             .ActivateOnEnter<ArenaChange>()
             .ActivateOnEnter<Cloudsplitter>()

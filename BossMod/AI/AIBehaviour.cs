@@ -23,8 +23,12 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
     private DateTime _navStartTime; // if current time is < this, navigation won't start
     private static readonly SemaphoreSlim _semaphore = new(1, 1);
     private static readonly Random random = new();
+    private bool cancel; // used to cancel autorotation AI preset during async
 
-    public void Dispose() { }
+    public void Dispose()
+    {
+        cancel = true;
+    }
 
     public async Task Execute(Actor player, Actor master)
     {
@@ -47,7 +51,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
                 var forbidTargeting = _config.ForbidActions || _afkMode || gazeImminent || pyreticImminent;
                 var hadNavi = _naviDecision.Destination != null;
 
-                Targeting target = new();
+                Targeting target = default;
                 if (!forbidTargeting && AIPreset != null && (!_config.ForbidAIMovementMounted || _config.ForbidAIMovementMounted && player.MountId == 0))
                 {
                     target = SelectPrimaryTarget(player, master);
@@ -57,7 +61,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
                         if (t != null)
                             target.Target = new AIHints.Enemy(t, 100, false);
                         else
-                            target = new();
+                            target = default;
                     }
                     if (target.Target != null || TargetIsForbidden(player.TargetID))
                         autorot.Hints.ForcedTarget ??= target.Target?.Actor;
@@ -87,7 +91,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
                 if (_config.MoveDelay != 0d && !hadNavi && _naviDecision.Destination != null)
                     _navStartTime = WorldState.FutureTime(_config.MoveDelay);
 
-                if (!forbidTargeting)
+                if (!forbidTargeting && !cancel)
                 {
                     autorot.Preset = target.Target != null ? AIPreset : null;
                 }
@@ -115,7 +119,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
 
         // if the previous line returned no target, there aren't any priority targets at all - give up
         if (target == null)
-            return new();
+            return default;
 
         // TODO: rethink all this... ai module should set forced target if it wants to switch... figure out positioning and stuff
         // now give class module a chance to improve targeting
@@ -157,10 +161,8 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
 
         if (autorot.Hints.ImminentSpecialMode.mode == AIHints.SpecialMode.Freezing && autorot.Hints.ImminentSpecialMode.activation <= WorldState.FutureTime(2.1d))
         {
-#pragma warning disable CA5394 // Do not use insecure randomness
             var randomO1 = random.NextSingle() * 2f - 1f;
             var randomO2 = random.NextSingle() * 2f - 1f;
-#pragma warning restore CA5394
             autorot.Hints.ForcedMovement = new WPos(player.Position.X * randomO1, player.Position.Z * randomO2).ToVec3();
             return new() { LeewaySeconds = float.MaxValue };
         }
@@ -188,17 +190,28 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
             else if (_config.FollowTarget && target != null && AIPreset == null)
             {
                 var positional = _config.DesiredPositional;
+                var mindist = _config.MinDistance;
+                var maxdist = _config.MaxDistanceToTarget;
                 if (positional is Positional.Rear or Positional.Flank && (target.CastInfo == null && target.NameID != 541u && target.TargetID == player.InstanceID || target.Omnidirectional)) // if player is target, rear/flank is usually impossible unless target is casting
                     positional = Positional.Any;
-                autorot.Hints.GoalZones.Add(autorot.Hints.GoalSingleTarget(master, positional, positional != Positional.Any ? 2.6f : _config.MaxDistanceToTarget));
+                autorot.Hints.GoalZones.Add(autorot.Hints.GoalSingleTarget(master, positional, positional != Positional.Any ? 2.6f : maxdist));
+
+                if (mindist != default && target.InstanceID != player.InstanceID && interactTarget == null)
+                {
+                    var hitboxradius = target.HitboxRadius;
+                    var maxAdj = hitboxradius + maxdist;
+                    var min = hitboxradius + mindist;
+                    var max = maxAdj > min ? maxAdj : min + 1f;
+                    autorot.Hints.GoalZones.Add(autorot.Hints.GoalDonut(target.Position, min, max, 2f));
+                }
             }
-            return await Task.Run(() => NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player)).ConfigureAwait(false);
+            return await Task.Run(() => NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player, autorot.Bossmods.WorldState.Client.MoveSpeed, forbiddenZoneCushion: _config.PreferredDistance)).ConfigureAwait(false);
         }
 
         // TODO: remove this once all rotation modules are fixed
         if (autorot.Hints.GoalZones.Count == 0 && targeting.Target != null)
             autorot.Hints.GoalZones.Add(autorot.Hints.GoalSingleTarget(targeting.Target.Actor, targeting.PreferredPosition, targeting.PreferredRange));
-        return await Task.Run(() => NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player)).ConfigureAwait(false);
+        return await Task.Run(() => NavigationDecision.Build(_naviCtx, WorldState, autorot.Hints, player, autorot.Bossmods.WorldState.Client.MoveSpeed, _config.PreferredDistance)).ConfigureAwait(false);
     }
 
     private void FocusMaster(Actor master)
@@ -289,7 +302,7 @@ sealed class AIBehaviour(AIController ctrl, RotationModuleManager autorot, Prese
         }
         else
         {
-            var toDest = _naviDecision.Destination != null ? _naviDecision.Destination.Value - player.Position : new();
+            var toDest = _naviDecision.Destination != null ? _naviDecision.Destination.Value - player.Position : default;
             var distSq = toDest.LengthSq();
             ctrl.NaviTargetPos = WorldState.CurrentTime >= _navStartTime ? _naviDecision.Destination : null;
             ctrl.NaviTargetVertical = master != player ? master.PosRot.Y : null;

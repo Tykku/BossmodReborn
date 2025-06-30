@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Savage.M06SSugarRiot;
 
-class HeatingBurningUp(BossModule module) : Components.GenericStackSpread(module, true, true, true)
+sealed class HeatingBurningUp(BossModule module) : Components.GenericStackSpread(module, true, true, true)
 {
     private readonly (Actor, DateTime)[] defamation = new (Actor, DateTime)[8];
     private (Actor, DateTime)? _stack;
@@ -11,7 +11,7 @@ class HeatingBurningUp(BossModule module) : Components.GenericStackSpread(module
     {
         if (Spreads.Count < 2 || Stacks.Count == 0)
         {
-            BitMask forbidden = new();
+            BitMask forbidden = default;
             var act = WorldState.FutureTime(8d);
             for (var i = 0; i < 8; ++i)
             {

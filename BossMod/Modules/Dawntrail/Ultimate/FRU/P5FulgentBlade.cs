@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Ultimate.FRU;
 
-class P5FulgentBlade : Components.Exaflare
+sealed class P5FulgentBlade : Components.Exaflare
 {
     private readonly List<(Actor actor, WDir dir)> _lines = []; // before first line starts, it is sorted either in correct or reversed order - i don't think we can predict it?..
     private WDir _initialSafespot;
@@ -47,7 +47,7 @@ class P5FulgentBlade : Components.Exaflare
             if (_lines.Count == 6)
             {
                 // sort in arbitrary order (say, CW), until we know better
-                _lines.SortBy(l => l.dir.Cross(_initialSafespot));
+                _lines.Sort((a, b) => a.dir.Cross(_initialSafespot).CompareTo(b.dir.Cross(_initialSafespot)));
             }
         }
     }

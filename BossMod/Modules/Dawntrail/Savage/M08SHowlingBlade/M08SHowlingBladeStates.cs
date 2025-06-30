@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Savage.M08SHowlingBlade;
 
-class M08SHowlingBladeStates : StateMachineBuilder
+sealed class M08SHowlingBladeStates : StateMachineBuilder
 {
     private readonly M08SHowlingBlade _module;
 
@@ -8,7 +8,7 @@ class M08SHowlingBladeStates : StateMachineBuilder
     {
         _module = module;
         SimplePhase(default, Phase1, "P1")
-            .Raw.Update = () => Module.PrimaryActor.IsDestroyed || Module.PrimaryActor.HPMP.CurHP == 1;
+            .Raw.Update = () => Module.PrimaryActor.IsDestroyed || Module.PrimaryActor.HPMP.CurHP <= 1u;
         SimplePhase(1u, Phase2, "P2")
             .SetHint(StateMachine.PhaseHint.StartWithDowntime)
             .Raw.Update = () => Module.PrimaryActor.IsDeadOrDestroyed && (_module.BossP2()?.IsDeadOrDestroyed ?? true);
@@ -27,15 +27,15 @@ class M08SHowlingBladeStates : StateMachineBuilder
         TerrestrialTitans(id + 0x80000u, 14.8f);
         WolvesReign(id + 0x90000u, 0.5f);
         TacticalPack(id + 0xA0000u, 9.2f);
-        TerrestrialRage1(id + 0xB0000u, 14.5f);
+        TerrestrialRage(id + 0xB0000u, 14.5f);
         WolvesReign3(id + 0xC0000u, 4.1f);
         GreatDivide(id + 0xD0000u, 5.4f);
         BeckonMoonlight(id + 0xE0000u, 11.3f);
         WindfangStonefang2(id + 0xF0000u, 3.3f);
         TrackingTremors(id + 0x100000u, 10f);
         ExtraplanarPursuit(id + 0x110000u, 1.8f);
-        ExtraplanarPursuit(id + 0x120000u, 10.8f);
-        SimpleState(id + 0x130000u, 7.4f, "Enrage");
+        ExtraplanarPursuit(id + 0x120000u, 10.8f, true);
+        SimpleState(id + 0x130000u, 1.5f, "Enrage"); // timing varies depending on length of add phase, boss becomes untargetable after 406 seconds
     }
 
     private void Phase2(uint id)
@@ -62,16 +62,21 @@ class M08SHowlingBladeStates : StateMachineBuilder
         HerosBlow(id + 0x100000u, 9.4f);
         UltraviolentRay(id + 0x110000u, 12.3f);
         HowlingEight(id + 0x120000u, 16f);
-        SimpleState(id + 0x130000u, 11.3f, "Enrage");
+        SimpleState(id + 0x130000u, 1.5f, "Enrage");
     }
 
-    private void ExtraplanarPursuit(uint id, float delay)
+    private void ExtraplanarPursuit(uint id, float delay, bool last = false)
     {
         Cast(id, (uint)AID.ExtraplanarPursuitVisual, delay, 1.6f)
             .ActivateOnEnter<ExtraplanarPursuit>();
-        ComponentCondition<ExtraplanarPursuit>(id + 0x10u, 2.4f, comp => comp.NumCasts != 0, "Raidwide")
+        var cond = ComponentCondition<ExtraplanarPursuit>(id + 0x10u, 2.4f, comp => comp.NumCasts != 0, "Raidwide")
             .SetHint(StateMachine.StateHint.Raidwide)
             .DeactivateOnExit<ExtraplanarPursuit>();
+        if (last)
+        {
+            cond
+                .SetHint(StateMachine.StateHint.GroupWithNext);
+        }
     }
 
     private void GreatDivide(uint id, float delay)
@@ -107,10 +112,10 @@ class M08SHowlingBladeStates : StateMachineBuilder
     private void WolvesReign(uint id, float delay)
     {
         CastStartMulti(id, [(uint)AID.RevolutionaryReignVisual1, (uint)AID.RevolutionaryReignVisual2, (uint)AID.EminentReignVisual1, (uint)AID.EminentReignVisual2], delay, "Wolvesreign")
+            .ActivateOnExit<WolvesReignConeCircle>()
             .ActivateOnEnter<WolvesReignCircle>();
         ComponentCondition<WolvesReignCircle>(id + 0x10u, 7f, comp => comp.NumCasts == 4, "Circles resolve")
             .DeactivateOnExit<WolvesReignCircle>()
-            .ActivateOnExit<WolvesReignConeCircle>()
             .ActivateOnExit<WolvesReignRect>()
             .ActivateOnExit<ReignsEnd>()
             .ActivateOnExit<SovereignScar>();
@@ -201,9 +206,9 @@ class M08SHowlingBladeStates : StateMachineBuilder
             .DeactivateOnExit<RavenousSaber>();
     }
 
-    private void TerrestrialRage1(uint id, float delay)
+    private void TerrestrialRage(uint id, float delay)
     {
-        Cast(id, (uint)AID.TerrestrialRage, delay, 3f, "Terrestial Rage 1")
+        Cast(id, (uint)AID.TerrestrialRage, delay, 3f, "Terrestial Rage")
             .ActivateOnExit<FangedCharge>()
             .ActivateOnExit<Heavensearth>()
             .ActivateOnExit<SuspendedStone>();
@@ -224,12 +229,12 @@ class M08SHowlingBladeStates : StateMachineBuilder
     private void WolvesReign3(uint id, float delay)
     {
         CastStartMulti(id, [(uint)AID.RevolutionaryReignVisual1, (uint)AID.RevolutionaryReignVisual2, (uint)AID.EminentReignVisual1, (uint)AID.EminentReignVisual2], delay, "Wolvesreign")
+            .ActivateOnExit<WolvesReignConeCircle>()
             .ActivateOnEnter<WolvesReignCircle>();
         ComponentCondition<RoaringWind>(id + 0x10u, 0.5f, comp => comp.NumCasts != 0, "Line AOEs 1")
             .DeactivateOnExit<RoaringWind>();
         ComponentCondition<WolvesReignCircle>(id + 0x20u, 6.5f, comp => comp.NumCasts == 4, "Circles resolve")
             .DeactivateOnExit<WolvesReignCircle>()
-            .ActivateOnExit<WolvesReignConeCircle>()
             .ActivateOnExit<WolvesReignRect>()
             .ActivateOnExit<ReignsEnd>()
             .ActivateOnExit<SovereignScar>();

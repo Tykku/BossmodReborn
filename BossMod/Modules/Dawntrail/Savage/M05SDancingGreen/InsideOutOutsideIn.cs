@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Savage.M05SDancingGreen;
 
-class InsideOutOutsideIn(BossModule module) : Components.GenericAOEs(module)
+sealed class InsideOutOutsideIn(BossModule module) : Components.GenericAOEs(module)
 {
     private static readonly AOEShapeCircle circle = new(7f);
     private static readonly AOEShapeDonut donut = new(5f, 40f);
@@ -15,7 +15,7 @@ class InsideOutOutsideIn(BossModule module) : Components.GenericAOEs(module)
         {
             var sb = new StringBuilder(9);
             var aoes = CollectionsMarshal.AsSpan(AOEs);
-            for (var i = 0; i < count; i++)
+            for (var i = 0; i < count; ++i)
             {
                 var shapeHint = aoes[i].Shape switch
                 {

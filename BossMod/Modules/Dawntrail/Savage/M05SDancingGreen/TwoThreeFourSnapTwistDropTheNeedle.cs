@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Savage.M05SDancingGreen;
 
-class TwoThreeFourSnapTwistDropTheNeedle(BossModule module) : Components.GenericAOEs(module)
+sealed class TwoThreeFourSnapTwistDropTheNeedle(BossModule module) : Components.GenericAOEs(module)
 {
     public readonly List<AOEInstance> AOEs = new(2);
     private static readonly AOEShapeRect rect = new(20f, 20f);
@@ -12,7 +12,7 @@ class TwoThreeFourSnapTwistDropTheNeedle(BossModule module) : Components.Generic
         {
             var sb = new StringBuilder(12);
             var aoes = CollectionsMarshal.AsSpan(AOEs);
-            for (var i = 0; i < count; i++)
+            for (var i = 0; i < count; ++i)
             {
                 var roundedrot = MathF.Round(aoes[i].Rotation.Normalized().Deg);
                 var shapeHint = roundedrot switch
@@ -122,7 +122,7 @@ class TwoThreeFourSnapTwistDropTheNeedle(BossModule module) : Components.Generic
     }
 }
 
-class FlipToABSide(BossModule module) : Components.GenericBaitAway(module, default)
+sealed class FlipToABSide(BossModule module) : Components.GenericBaitAway(module, default)
 {
     public Actor? Source;
     private bool _lightparty;

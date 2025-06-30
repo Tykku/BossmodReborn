@@ -1,6 +1,6 @@
 ﻿namespace BossMod.Dawntrail.Extreme.Ex3QueenEternal;
 
-class Aethertithe(BossModule module) : Components.GenericAOEs(module)
+sealed class Aethertithe(BossModule module) : Components.GenericAOEs(module)
 {
     public AOEInstance? AOE;
 
@@ -15,7 +15,7 @@ class Aethertithe(BossModule module) : Components.GenericAOEs(module)
         Angle? dir = state switch
         {
             0x04000100u => -55f.Degrees(),
-            0x08000100u => new(),
+            0x08000100u => (Angle)default,
             0x10000100u => 55f.Degrees(),
             _ => null
         };
@@ -35,9 +35,9 @@ class Aethertithe(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-class Retribute : Components.GenericWildCharge
+sealed class Retribute : Components.GenericWildCharge
 {
-    public Retribute(BossModule module) : base(module, 4, (uint)AID.RetributeAOE, 60)
+    public Retribute(BossModule module) : base(module, 4f, (uint)AID.RetributeAOE, 60f)
     {
         Source = module.PrimaryActor;
         foreach (var (i, p) in module.Raid.WithSlot(true, true, true))

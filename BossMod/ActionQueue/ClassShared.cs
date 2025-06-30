@@ -1,4 +1,13 @@
-﻿namespace BossMod.ClassShared;
+﻿using BossMod.Data;
+
+namespace BossMod.ClassShared;
+
+[ConfigDisplay(Name = "Cross-class actions", Parent = typeof(ActionTweaksConfig), Order = -5)]
+public sealed class SharedActionsConfig : ConfigNode
+{
+    [PropertyDisplay("Align dash actions with camera direction (Lost Swift, Occult Featherfoot, etc)")]
+    public bool AlignDashToCamera = false;
+}
 
 public enum AID : uint
 {
@@ -62,6 +71,17 @@ public enum AID : uint
     Shatterstone = 9823,
     Deflect = 10006,
     DeflectVeryEasy = 18863,
+
+    // Variant actions
+    VariantCure1 = 29729, // available in sil'dih
+    VariantUltimatum = 29730,
+    VariantRaise = 29731,
+    VariantSpiritDart1 = 29732, // available in sil'dih
+    VariantRampart1 = 29733, // available in sil'dih
+    VariantRaiseII = 29734,
+    VariantCure2 = 33862, // available in mount rokkon and aloalo island
+    VariantSpiritDart2 = 33863, // available in mount rokkon and aloalo island
+    VariantRampart2 = 33864, // available in mount rokkon and aloalo island
     #endregion
 
     #region PvP
@@ -100,6 +120,9 @@ public enum SID : uint
     Swiftcast = 167, // applied by Swiftcast to self
     Raise = 148, // applied by Raise to target
 
+    // Variant
+    VulnerabilityDown = 3360, // applied by Variant Rampart to self
+
     // Bozja
     LostChainspell = 2560, // instant cast
 
@@ -129,6 +152,8 @@ public enum SID : uint
 
 public sealed class Definitions : IDisposable
 {
+    private readonly SharedActionsConfig _config = Service.Config.Get<SharedActionsConfig>();
+
     public Definitions(ActionDefinitions d)
     {
         #region PvE
@@ -190,6 +215,17 @@ public sealed class Definitions : IDisposable
         d.RegisterSpell(AID.Shatterstone);
         d.RegisterSpell(AID.Deflect);
         d.RegisterSpell(AID.DeflectVeryEasy);
+
+        // variant actions
+        d.RegisterSpell(AID.VariantCure1);
+        d.RegisterSpell(AID.VariantUltimatum);
+        d.RegisterSpell(AID.VariantRaise);
+        d.RegisterSpell(AID.VariantSpiritDart1);
+        d.RegisterSpell(AID.VariantRampart1);
+        d.RegisterSpell(AID.VariantRaiseII);
+        d.RegisterSpell(AID.VariantCure2);
+        d.RegisterSpell(AID.VariantSpiritDart2);
+        d.RegisterSpell(AID.VariantRampart2);
         #endregion
 
         #region PvP
@@ -198,6 +234,12 @@ public sealed class Definitions : IDisposable
         d.RegisterSpell(AID.Purify);
         d.RegisterSpell(AID.Guard);
         d.RegisterSpell(AID.SprintPvP);
+        #endregion
+
+        #region Phantom actions
+        foreach (var action in typeof(PhantomID).GetEnumValues())
+            if ((uint)action > 0)
+                d.RegisterSpell((PhantomID)action);
         #endregion
 
         Customize(d);
@@ -227,5 +269,23 @@ public sealed class Definitions : IDisposable
         //d.Spell(AID.LucidDreaming)!.EffectDuration = 21;
         //d.Spell(AID.Swiftcast)!.EffectDuration = 10;
         //d.Spell(AID.Surecast)!.EffectDuration = 6;
+
+        // regular dash check doesn't work since this one is awkwardly fixed distance
+        d.Spell(PhantomID.PhantomKick)!.ForbidExecute = (_, player, action, hints) =>
+        {
+            var cfg = Service.Config.Get<ActionTweaksConfig>();
+            var target = action.Target;
+            if (target == null || !cfg.DashSafety)
+                return false;
+
+            if (player.PendingKnockbacks.Count > 0)
+                return true;
+
+            var dir = player.DirectionTo(target).Normalized() * 15;
+            return ActionDefinitions.IsDashDangerous(player.Position, player.Position + dir, hints);
+        };
+
+        d.Spell(PhantomID.OccultFeatherfoot)!.ForbidExecute = ActionDefinitions.DashFixedDistanceCheck(15);
+        d.Spell(PhantomID.OccultFeatherfoot)!.TransformAngle = (ws, _, _, _) => _config.AlignDashToCamera ? ws.Client.CameraAzimuth + 180.Degrees() : null;
     }
 }

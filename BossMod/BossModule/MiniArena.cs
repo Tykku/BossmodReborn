@@ -433,7 +433,7 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
     {
         var center = ScreenCenter;
         var fontSetting = Config.CardinalsFontSize;
-        var offCenterSizeOffset = (ScreenHalfSize + ScreenMarginSize * 0.5f) * Bounds.ScaleFactor + fontSetting - 17;
+        var offCenterSizeOffset = (ScreenHalfSize + ScreenMarginSize * 0.5f) * Bounds.ScaleFactor + fontSetting - 17f;
         var offS = RotatedCoords(new(default, offCenterSizeOffset));
         var offE = RotatedCoords(new(offCenterSizeOffset, default));
         TextScreen(center - offS, "N", Colors.CardinalN, fontSetting);
@@ -512,8 +512,6 @@ public sealed class MiniArena(WPos center, ArenaBounds bounds)
     public void Actors(List<Actor> actors, uint color = default, bool allowDeadAndUntargetable = false)
     {
         var count = actors.Count;
-        if (count == 0)
-            return;
         for (var i = 0; i < count; ++i)
         {
             Actor(actors[i], color == default ? Colors.Enemy : color, allowDeadAndUntargetable);

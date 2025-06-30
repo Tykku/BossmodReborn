@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Extreme.Ex4Zelenia;
 
-class Emblazon(BossModule module) : Components.GenericTowers(module, (uint)AID.Emblazon)
+sealed class Emblazon(BossModule module) : Components.GenericTowers(module, (uint)AID.Emblazon)
 {
     private readonly FloorTiles _tiles = module.FindComponent<FloorTiles>()!;
     public BitMask Allowed;
@@ -97,7 +97,7 @@ class Emblazon(BossModule module) : Components.GenericTowers(module, (uint)AID.E
                 if (Mechanic == null)
                 {
                     FloorTiles.AnalyzeTilesForOuterTowers(_tiles.InnerActiveTiles, out var mid, out var o1, out var o2, out var oMid);
-                    Span<int> tiles = [mid, o1, o2, oMid];
+                    int[] tiles = [mid, o1, o2, oMid];
                     for (var i = 0; i < 4; ++i)
                     {
                         AddTower(FloorTiles.DonutSIn, FloorTiles.TileAngles[tiles[i]]);
