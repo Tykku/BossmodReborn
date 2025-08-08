@@ -3,7 +3,7 @@ using FFXIVClientStructs.FFXIV.Client.LayoutEngine;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Common.Component.BGCollision;
 using FFXIVClientStructs.FFXIV.Common.Component.BGCollision.Math;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using Vector3 = System.Numerics.Vector3;
 using Vector4 = System.Numerics.Vector4;
 
@@ -260,7 +260,7 @@ public sealed unsafe class DebugCollision() : IDisposable
                 color = Colors.TextColor3;
         }
         using var n = _tree.Node2($"{type} {(nint)coll:X}, layers={coll->LayerMask:X8}, layout-id={coll->LayoutObjectId:X16}, refs={coll->NumRefs}, material={coll->ObjectMaterialValue:X}/{coll->ObjectMaterialMask:X}, flags={flagsText}###{(nint)coll:X}", false, color);
-        if (ImGui.BeginPopupContextItem())
+        if (ImGui.BeginPopupContextItem($"###{(nint)coll:X}"))
         {
             ContextCollider(coll);
             ImGui.EndPopup();
@@ -423,14 +423,14 @@ public sealed unsafe class DebugCollision() : IDisposable
             // Render vertices in sorted order
             foreach (var (vertex, index, type) in vertices)
             {
-                var vertexStr = $"new({vertex.X.ToString("F3", System.Globalization.CultureInfo.InvariantCulture)}f, {vertex.Z.ToString("F3", System.Globalization.CultureInfo.InvariantCulture)}f)";
+                var vertexStr = $"new({vertex.X.ToString("F5", System.Globalization.CultureInfo.InvariantCulture)}f, {vertex.Z.ToString("F5", System.Globalization.CultureInfo.InvariantCulture)}f)";
                 using var node2 = _tree.Node2($"[{index}] ({type}): {Vec3Str(vertex)}");
                 if (node2.SelectedOrHovered)
                 {
                     VisualizeVertex(vertex, Colors.CollisionColor2);
                 }
 
-                if (ImGui.BeginPopupContextItem())
+                if (ImGui.BeginPopupContextItem($"##popup_vertex_{index}"))
                 {
                     if (ImGui.MenuItem("Copy to Clipboard"))
                     {
@@ -627,7 +627,7 @@ public sealed unsafe class DebugCollision() : IDisposable
     }
 
     private string SphereStr(Vector4 s) => $"[{s.X:f3}, {s.Y:f3}, {s.Z:f3}] R{s.W:f3}";
-    private string Vec3Str(Vector3 v) => $"[{v.X:f3}, {v.Y:f3}, {v.Z:f3}]";
+    private string Vec3Str(Vector3 v) => $"[{v.X:f5}, {v.Y:f3}, {v.Z:f5}]";
     private string AABBStr(AABB bb) => $"{Vec3Str(bb.Min)} - {Vec3Str(bb.Max)}";
 
     private void DrawMat4x3(string tag, ref Matrix4x3 mat)

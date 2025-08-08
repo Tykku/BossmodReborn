@@ -47,13 +47,13 @@ public sealed class ManualActionQueueTweak(WorldState ws, AIHints hints)
         if (_emergencyMode)
         {
             ref var entry = ref _queue.Ref(0);
-            queue.Push(entry.Action, entry.Target, ActionQueue.Priority.ManualEmergency, 0, 0, 0, entry.TargetPos, entry.FacingAngle);
+            queue.Push(entry.Action, entry.Target, ActionQueue.Priority.ManualEmergency, 0, 0, 0, entry.TargetPos, entry.FacingAngle, true);
         }
         else
         {
             float expireOrder = 0; // we don't actually care about values, only ordering...
             foreach (ref var e in _queue.AsSpan())
-                queue.Push(e.Action, e.Target, e.Definition.IsGCD ? ActionQueue.Priority.ManualGCD : ActionQueue.Priority.ManualOGCD, expireOrder++, 0, e.CastTime, e.TargetPos, e.FacingAngle);
+                queue.Push(e.Action, e.Target, e.Definition.IsGCD ? ActionQueue.Priority.ManualGCD : ActionQueue.Priority.ManualOGCD, expireOrder++, 0, e.CastTime, e.TargetPos, e.FacingAngle, true);
         }
     }
 
@@ -188,7 +188,7 @@ public sealed class ManualActionQueueTweak(WorldState ws, AIHints hints)
         }
 
         target = ws.Actors.Find(targetId);
-        if (target == null && targetId is not 0 and not 0xE0000000)
+        if (target == null && targetId is not 0u and not 0xE0000000)
             return false; // target is valid, but not found in world, bail... (TODO this shouldn't be happening really)
 
         // custom smart-targeting

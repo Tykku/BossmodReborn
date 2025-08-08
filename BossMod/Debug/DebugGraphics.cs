@@ -1,6 +1,6 @@
 using Dalamud.Interface.Utility.Raii;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 namespace BossMod;
 
@@ -219,7 +219,7 @@ sealed class DebugGraphics
                 sb.Append(' ');
             sb.AppendFormat("{0:X8}", w.Data[start++]);
 
-            if ((start % 16) == 0)
+            if ((start & 15) == 0)
             {
                 ImGui.TextUnformatted(sb.ToString());
                 sb.Clear();

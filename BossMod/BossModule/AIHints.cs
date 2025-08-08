@@ -44,12 +44,14 @@ public sealed class AIHints
         Shared, // cast is expected to hit multiple players; modules might have special behavior when intentionally taking this damage solo
     }
 
-    public record struct DamagePrediction(BitMask Players, DateTime Activation, PredictedDamageType Type = PredictedDamageType.None)
+    public readonly struct DamagePrediction(BitMask players, DateTime activation, PredictedDamageType type = PredictedDamageType.None)
     {
-        public readonly BitMask Players = Players;
+        public readonly BitMask Players = players;
+        public readonly DateTime Activation = activation;
+        public readonly PredictedDamageType Type = type;
     }
 
-    public static readonly ArenaBounds DefaultBounds = new ArenaBoundsSquare(30);
+    public static readonly ArenaBounds DefaultBounds = new ArenaBoundsSquare(30f, AllowObstacleMap: true);
 
     // information needed to build base pathfinding map (onto which forbidden/goal zones are later rasterized), if needed (lazy, since it's somewhat expensive and not always needed)
     public WPos PathfindMapCenter;
@@ -72,6 +74,9 @@ public sealed class AIHints
 
     // low-level forced movement - if set, character will move in specified direction (ignoring casts, uptime, forbidden zones, etc), or stay in place if set to default
     public Vector3? ForcedMovement;
+
+    // which direction should we point during the Spinning status in Alzadaal's Legacy? (yes, this is a bespoke movement gimmick for one dungeon boss)
+    public Angle? SpinDirection;
 
     // indicates to AI mode that it should try to interact with some object
     public Actor? InteractWithTarget;
@@ -237,11 +242,36 @@ public sealed class AIHints
         {
             var offX = -PathfindMapObstacles.Rect.Left;
             var offY = -PathfindMapObstacles.Rect.Top;
-            var r = PathfindMapObstacles.Rect.Clamped(PathfindMapObstacles.Bitmap.FullRect).Clamped(new(0, 0, map.Width, map.Height), offX, offY);
-            for (var y = r.Top; y < r.Bottom; ++y)
-                for (var x = r.Left; x < r.Right; ++x)
-                    if (PathfindMapObstacles.Bitmap[x, y])
-                        map.PixelMaxG[(y + offY) * map.Width + x + offX] = -900f;
+            var r = PathfindMapObstacles.Rect.Clamped(PathfindMapObstacles.Bitmap.FullRect);
+            var height = map.Height;
+            var width = map.Width;
+            var rTop = r.Top;
+            var rBottom = r.Bottom;
+            var rLeft = r.Left;
+            var rRight = r.Right;
+
+            for (var y = rTop; y < rBottom; ++y)
+            {
+                var my = y + offY;
+                if (my < 0 || my >= height)
+                {
+                    continue;
+                }
+                for (var x = rLeft; x < rRight; ++x)
+                {
+                    if (!PathfindMapObstacles.Bitmap[x, y])
+                    {
+                        continue;
+                    }
+
+                    var mx = x + offX;
+                    if (mx < 0 || mx >= width)
+                    {
+                        continue;
+                    }
+                    map.PixelMaxG[map.GridToIndex(mx, my)] = -900f;
+                }
+            }
         }
     }
 
@@ -264,7 +294,7 @@ public sealed class AIHints
         }
     }
 
-    public IEnumerable<Enemy> ForbiddenTargets
+    public List<Enemy> ForbiddenTargets
     {
         get
         {

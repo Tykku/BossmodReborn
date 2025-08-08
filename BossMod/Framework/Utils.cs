@@ -1,9 +1,7 @@
 ﻿using Dalamud.Game.ClientState.Objects.Types;
-using PInvoke;
 using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Runtime.CompilerServices;
 
 namespace BossMod;
 
@@ -213,22 +211,6 @@ public static partial class Utils
         return value != null ? new T[1] { value.Value } : [];
     }
 
-    // enumerate pairs of neighbouring elements
-    public static IEnumerable<(T, T)> Pairwise<T>(this IEnumerable<T> source)
-    {
-        using var e = source.GetEnumerator();
-        if (!e.MoveNext())
-            yield break;
-
-        var prev = e.Current;
-        while (e.MoveNext())
-        {
-            var curr = e.Current;
-            yield return (prev, curr);
-            prev = curr;
-        }
-    }
-
     // swap two values
     public static void Swap<T>(ref T l, ref T r) => (r, l) = (l, r);
 
@@ -330,16 +312,16 @@ public static partial class Utils
     /// <returns>Whether the key is currently pressed</returns>
     public static bool IsKeyPressed(int key)
     {
-        if (key == 0)
+        // if (key == 0)
             return false;
-        if (UseAsyncKeyCheck)
-        {
-            return Bitmasks.IsBitSet(User32.GetKeyState(key), 15);
-        }
-        else
-        {
-            return Bitmasks.IsBitSet(User32.GetAsyncKeyState(key), 15);
-        }
+        // if (UseAsyncKeyCheck)
+        // {
+        //     return Bitmasks.IsBitSet(User32.GetKeyState(key), 15);
+        // }
+        // else
+        // {
+        //     return Bitmasks.IsBitSet(User32.GetAsyncKeyState(key), 15);
+        // }
     }
 
     /// <summary>

@@ -16,7 +16,7 @@ sealed class P2IcicleImpact(BossModule module) : Components.GenericAOEs(module, 
         if (spell.Action.ID == WatchedAction)
         {
             // initially all aoes start as non-risky
-            AOEs.Add(new(_shape, spell.LocXZ, default, Module.CastFinishAt(spell), Risky: false));
+            AOEs.Add(new(_shape, spell.LocXZ, default, Module.CastFinishAt(spell), risky: false));
         }
     }
 
@@ -70,9 +70,10 @@ sealed class P2DiamondDustHouseOfLight(BossModule module) : Components.GenericBa
     {
         CurrentBaits.Clear();
 
-        if (_source == null || ForbiddenPlayers != default)
+        if (_source == null || ForbiddenPlayers == default)
+        {
             return;
-
+        }
         var party = Raid.WithoutSlot(false, true, true);
         var len = party.Length;
 
@@ -81,7 +82,7 @@ sealed class P2DiamondDustHouseOfLight(BossModule module) : Components.GenericBa
 
         for (var i = 0; i < len; ++i)
         {
-            ref readonly var p = ref party[i];
+            var p = party[i];
             var distSq = (p.Position - sourcePos).LengthSq();
             distances[i] = (p, distSq);
         }
@@ -120,7 +121,7 @@ sealed class P2DiamondDustHouseOfLight(BossModule module) : Components.GenericBa
         {
             if (baitIndex < 0)
                 hints.Add("Stay closer to bait!");
-            else if (PlayersClippedBy(CurrentBaits[baitIndex]).Count != 0)
+            else if (PlayersClippedBy(ref CurrentBaits.Ref(baitIndex)).Count != 0)
                 hints.Add("Bait cone away from raid!");
         }
 
@@ -253,7 +254,7 @@ sealed class P2HeavenlyStrike(BossModule module) : Components.GenericKnockback(m
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
         if (_safeDirs[slot] != default)
-            hints.AddForbiddenZone(ShapeDistance.PrecisePosition(Arena.Center + 6f * _safeDirs[slot], new(1, 0), Arena.Bounds.MapResolution, actor.Position, 0.25f), _activation);
+            hints.AddForbiddenZone(ShapeDistance.PrecisePosition(Arena.Center + 6f * _safeDirs[slot], new(1f, default), Arena.Bounds.MapResolution, actor.Position, 0.25f), _activation);
     }
 
     public override void DrawArenaForeground(int pcSlot, Actor pc)
@@ -269,7 +270,7 @@ sealed class P2HeavenlyStrike(BossModule module) : Components.GenericKnockback(m
         var icicle = module.FindComponent<P2IcicleImpact>();
         if (icicle?.AOEs.Count > 0)
         {
-            var safeDir = (icicle.AOEs[0].Origin - module.Center).Normalized();
+            var safeDir = (icicle.AOEs.Ref(0).Origin - module.Center).Normalized();
             if (safeDir.X > 0.5f || safeDir.Z > 0.8f)
                 safeDir = -safeDir; // G1
             foreach (var (slot, group) in Service.Config.Get<FRUConfig>().P2DiamondDustKnockbacks.Resolve(module.Raid))
@@ -560,7 +561,7 @@ sealed class P2TwinStillnessSilence(BossModule module) : Components.GenericAOEs(
         if (shape1 != null && shape2 != null)
         {
             AOEs.Add(new(shape1, spell.LocXZ, spell.Rotation + off1, Module.CastFinishAt(spell)));
-            AOEs.Add(new(shape2, spell.LocXZ, spell.Rotation + off2, Module.CastFinishAt(spell, 2.1f)));
+            AOEs.Add(new(shape2, spell.LocXZ, spell.Rotation + off2, Module.CastFinishAt(spell, 2.1d)));
         }
     }
 
@@ -583,17 +584,22 @@ sealed class P2TwinStillnessSilence(BossModule module) : Components.GenericAOEs(
 
 sealed class P2ThinIce(BossModule module) : Components.ThinIce(module, 32f)
 {
+    private P2TwinStillnessSilence? _aoe = module.FindComponent<P2TwinStillnessSilence>();
+
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos)
     {
-        var comp = Module.FindComponent<P2TwinStillnessSilence>();
-        if (comp != null)
+        _aoe ??= Module.FindComponent<P2TwinStillnessSilence>();
+        if (_aoe != null)
         {
-            var aoes = comp.ActiveAOEs(slot, actor);
+            var aoes = _aoe.ActiveAOEs(slot, actor);
             var len = aoes.Length;
             for (var i = 0; i < len; ++i)
             {
-                if (aoes[i].Check(pos))
+                ref readonly var aoe = ref aoes[i];
+                if (aoe.Check(pos))
+                {
                     return true;
+                }
             }
         }
         return !Module.InBounds(pos);

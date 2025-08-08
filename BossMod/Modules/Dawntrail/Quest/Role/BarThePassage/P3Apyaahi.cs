@@ -67,7 +67,7 @@ sealed class ArenaChanges(BossModule module) : Components.GenericAOEs(module)
             Arena.Bounds = bounds;
             Arena.Center = bounds.Center;
         }
-        if (index == 0x06u)
+        if (index == 0x06)
         {
             if (state == 0x00020001u)
             {
@@ -96,21 +96,26 @@ sealed class PathogenicPowerAOE(BossModule module) : Components.GenericAOEs(modu
             return [];
         }
         var aoes = CollectionsMarshal.AsSpan(_aoes);
-        var act0 = aoes[0].Activation;
+        ref var aoe0 = ref aoes[0];
+        ref var aoeL = ref aoes[^1];
+        var act0 = aoe0.Activation;
         var deadline1 = act0.AddSeconds(2d);
         var deadline2 = act0.AddSeconds(1d);
-        var actLast = aoes[^1].Activation.AddSeconds(-1d);
+        var actLast = aoeL.Activation.AddSeconds(-1d);
 
         var index = 0;
         var color = Colors.Danger;
-        while (index < count && aoes[index].Activation < deadline1)
+        while (index < count)
         {
             ref var cur = ref aoes[index];
             var curAct = cur.Activation;
-            if (curAct < deadline2)
+            if (curAct < deadline1)
             {
-                cur.Risky = true;
-                cur.Color = curAct < actLast ? color : default;
+                if (curAct < deadline2)
+                {
+                    cur.Risky = true;
+                    cur.Color = curAct < actLast ? color : default;
+                }
             }
             ++index;
         }
@@ -120,13 +125,17 @@ sealed class PathogenicPowerAOE(BossModule module) : Components.GenericAOEs(modu
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action.ID == (uint)AID.PathogenicPowerAOE)
-            _aoes.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell), Risky: false));
+        {
+            _aoes.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell), risky: false));
+        }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
     {
         if (_aoes.Count != 0 && spell.Action.ID == (uint)AID.PathogenicPowerAOE)
+        {
             _aoes.RemoveAt(0);
+        }
     }
 }
 
@@ -136,8 +145,8 @@ sealed class PathogenicPowerKB(BossModule module) : Components.SimpleKnockbacks(
     {
         if (Casters.Count != 0)
         {
-            var source = Casters[0].CastInfo!;
-            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(source.LocXZ, 6f), Module.CastFinishAt(source));
+            ref readonly var c = ref Casters.Ref(0);
+            hints.AddForbiddenZone(ShapeDistance.InvertedCircle(c.Origin, 6f), c.Activation);
         }
     }
 }
@@ -153,7 +162,9 @@ sealed class Burst(BossModule module) : Components.Exaflare(module, 6f)
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
     {
         if (spell.Action.ID == (uint)AID.BurstFirst)
-            Lines.Add(new() { Next = caster.Position, Advance = 5f * spell.Rotation.ToDirection(), NextExplosion = Module.CastFinishAt(spell), TimeToMove = 1.2f, ExplosionsLeft = 9, MaxShownExplosions = 4 });
+        {
+            Lines.Add(new(caster.Position, 5f * spell.Rotation.ToDirection(), Module.CastFinishAt(spell), 1.2d, 9, 4));
+        }
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
@@ -169,7 +180,9 @@ sealed class Burst(BossModule module) : Components.Exaflare(module, 6f)
                 {
                     AdvanceLine(line, pos);
                     if (line.ExplosionsLeft == 0)
+                    {
                         Lines.RemoveAt(i);
+                    }
                     break;
                 }
             }
