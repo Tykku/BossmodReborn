@@ -43,7 +43,7 @@ public sealed class ActionTweaksConfig : ConfigNode
 
     [PropertyDisplay("Auto misdirection: prevent movement under misdirection if angle between normal movement and misdirected is greater than this threshold (set to 180 to disable).")]
     [PropertySlider(0, 180)]
-    public float MisdirectionThreshold = 180;
+    public float MisdirectionThreshold = 180f;
 
     [PropertyDisplay("Restore character orientation after action use")]
     public bool RestoreRotation = false;

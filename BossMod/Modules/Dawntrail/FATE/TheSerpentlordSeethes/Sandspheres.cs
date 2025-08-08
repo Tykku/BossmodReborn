@@ -10,13 +10,22 @@ sealed class Sandspheres(BossModule module) : Components.GenericAOEs(module)
     {
         var count = _aoes.Count;
         if (count == 0)
+        {
             return [];
+        }
         var aoes = CollectionsMarshal.AsSpan(_aoes);
         var deadline = aoes[0].Activation.AddSeconds(4.5d);
 
         var index = 0;
-        while (index < count && aoes[index].Activation < deadline)
+        while (index < count)
+        {
+            ref readonly var aoe = ref aoes[index];
+            if (aoe.Activation >= deadline)
+            {
+                break;
+            }
             ++index;
+        }
 
         return aoes[..index];
     }
@@ -33,7 +42,7 @@ sealed class Sandspheres(BossModule module) : Components.GenericAOEs(module)
                 AddAOE(circleBig);
                 break;
         }
-        void AddAOE(AOEShape circle) => _aoes.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell), ActorID: caster.InstanceID));
+        void AddAOE(AOEShape circle) => _aoes.Add(new(circle, spell.LocXZ, default, Module.CastFinishAt(spell), actorID: caster.InstanceID));
     }
 
     public override void OnCastFinished(Actor caster, ActorCastInfo spell)
