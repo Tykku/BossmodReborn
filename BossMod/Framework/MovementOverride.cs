@@ -1,11 +1,10 @@
-using BossMod.AI;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game.Config;
 using Dalamud.Plugin;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.System.Input;
 using FFXIVClientStructs.FFXIV.Client.UI;
-using ImGuiNET;
 
 namespace BossMod;
 
@@ -21,10 +20,17 @@ public unsafe struct PlayerMoveControllerFlyInput
     [FieldOffset(0x15)] public byte HaveBackwardOrStrafe;
 }
 
+[StructLayout(LayoutKind.Explicit, Size = 0x140)]
+public unsafe struct MoveControllerSubMemberForMine
+{
+    [FieldOffset(0x94)] public byte Spinning;
+}
+
 public sealed unsafe class MovementOverride : IDisposable
 {
     public Vector3? DesiredDirection;
     public Angle MisdirectionThreshold;
+    public Angle? DesiredSpinDirection;
 
     public WDir UserMove; // unfiltered movement direction, as read from input
     public WDir ActualMove; // actual movement direction, as of last input read
@@ -60,7 +66,7 @@ public sealed unsafe class MovementOverride : IDisposable
     private readonly RMIWalkIsInputEnabled _rmiWalkIsInputEnabled1;
     private readonly RMIWalkIsInputEnabled _rmiWalkIsInputEnabled2;
 
-    private delegate void RMIWalkDelegate(void* self, float* sumLeft, float* sumForward, float* sumTurnLeft, byte* haveBackwardOrStrafe, byte* a6, byte bAdditiveUnk);
+    private delegate void RMIWalkDelegate(MoveControllerSubMemberForMine* self, float* sumLeft, float* sumForward, float* sumTurnLeft, byte* haveBackwardOrStrafe, byte* a6, byte bAdditiveUnk);
     private readonly HookAddress<RMIWalkDelegate> _rmiWalkHook;
 
     private delegate void RMIFlyDelegate(void* self, PlayerMoveControllerFlyInput* result);
@@ -97,11 +103,10 @@ public sealed unsafe class MovementOverride : IDisposable
         _mcIsInputActiveHook.Dispose();
         _rmiWalkHook.Dispose();
         _rmiFlyHook.Dispose();
-        if (Instance == this)
-            Instance = null;
+        Instance = null;
     }
 
-    private bool FollowpathActive()
+    public bool FollowPathActive()
     {
         if (_navmeshPathIsRunning == null && _dalamud.TryGetData<bool[]>("vnav.PathIsRunning", out var data))
             _navmeshPathIsRunning = data;
@@ -109,13 +114,28 @@ public sealed unsafe class MovementOverride : IDisposable
         return _navmeshPathIsRunning != null && _navmeshPathIsRunning[0];
     }
 
-    private void RMIWalkDetour(void* self, float* sumLeft, float* sumForward, float* sumTurnLeft, byte* haveBackwardOrStrafe, byte* a6, byte bAdditiveUnk)
+    private void RMIWalkDetour(MoveControllerSubMemberForMine* self, float* sumLeft, float* sumForward, float* sumTurnLeft, byte* haveBackwardOrStrafe, byte* a6, byte bAdditiveUnk)
     {
         _forcedControlState = null;
         _rmiWalkHook.Original(self, sumLeft, sumForward, sumTurnLeft, haveBackwardOrStrafe, a6, bAdditiveUnk);
 
+        // handling the Spinning status, during which we can only steer toward a desired safe spot
+        // all vanilla movement input is ignored in this state so we skip the rest of the override logic
+        if (self->Spinning == 1 && bAdditiveUnk == 1)
+        {
+            if (DesiredSpinDirection is { } dir && *sumLeft == 0 && *sumForward == 0)
+            {
+                var turnDir = (dir - ForwardMovementDirection()).ToDirection();
+                *sumLeft = turnDir.X;
+                *sumForward = turnDir.Z;
+                _forcedControlState = true;
+            }
+
+            return;
+        }
+
         // TODO: we really need to introduce some extra checks that PlayerMoveController::readInput does - sometimes it skips reading input, and returning something non-zero breaks stuff...
-        var movementAllowed = bAdditiveUnk == 0 && _rmiWalkIsInputEnabled1(self) && _rmiWalkIsInputEnabled2(self) && !FollowpathActive();
+        var movementAllowed = bAdditiveUnk == 0 && _rmiWalkIsInputEnabled1(self) && _rmiWalkIsInputEnabled2(self) && !FollowPathActive();
         var misdirectionMode = PlayerHasMisdirection();
         if (!movementAllowed && misdirectionMode)
         {
@@ -170,7 +190,7 @@ public sealed unsafe class MovementOverride : IDisposable
         _rmiFlyHook.Original(self, result);
 
         // do nothing while followpath is running
-        if (FollowpathActive())
+        if (FollowPathActive())
             return;
 
         // TODO: we really need to introduce some extra checks that PlayerMoveController::readInput does - sometimes it skips reading input, and returning something non-zero breaks stuff...

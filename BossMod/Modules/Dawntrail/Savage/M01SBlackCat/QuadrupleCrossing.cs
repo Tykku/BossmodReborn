@@ -22,7 +22,7 @@ sealed class QuadrupleCrossingProtean(BossModule module) : Components.GenericBai
 
             for (var i = 0; i < len; ++i)
             {
-                ref readonly var p = ref party[i];
+                var p = party[i];
                 var distSq = (p.Position - origin).LengthSq();
                 distances[i] = (p, distSq);
             }
@@ -79,7 +79,7 @@ sealed class QuadrupleCrossingProtean(BossModule module) : Components.GenericBai
                 break;
             case (uint)AID.NailchipperAOE:
                 if (NumCasts == 8)
-                    ForbiddenPlayers[Raid.FindSlot(spell.TargetID)] = true;
+                    ForbiddenPlayers.Set(Raid.FindSlot(spell.TargetID));
                 break;
         }
     }
@@ -94,9 +94,13 @@ sealed class QuadrupleCrossingProtean(BossModule module) : Components.GenericBai
             }
 
             _activation = WorldState.FutureTime(3d);
-            var count = spell.Targets.Count;
-            for (var i = 0; i < count; ++i)
-                ForbiddenPlayers[Raid.FindSlot(spell.Targets[i].ID)] = true;
+            var targets = CollectionsMarshal.AsSpan(spell.Targets);
+            var len = targets.Length;
+            for (var i = 0; i < len; ++i)
+            {
+                ref readonly var targ = ref targets[i];
+                ForbiddenPlayers.Set(Raid.FindSlot(targ.ID));
+            }
 
             if (++NumCasts is 8 or 16)
             {
@@ -151,7 +155,7 @@ sealed class QuadrupleCrossingAOE(BossModule module) : Components.GenericAOEs(mo
             case (uint)AID.QuadrupleCrossingProtean:
             case (uint)AID.LeapingQuadrupleCrossingBossProtean:
             case (uint)AID.LeapingQuadrupleCrossingShadeProtean:
-                _aoes.Add(new(_shape, WPos.ClampToGrid(caster.Position), caster.Rotation, WorldState.FutureTime(5.9d), _aoes.Count < 4 ? Colors.Danger : default, Risky: false));
+                _aoes.Add(new(_shape, caster.Position.Quantized(), caster.Rotation, WorldState.FutureTime(5.9d), _aoes.Count < 4 ? Colors.Danger : default, risky: false));
                 break;
             case (uint)AID.QuadrupleCrossingAOE:
             case (uint)AID.LeapingQuadrupleCrossingBossAOE:

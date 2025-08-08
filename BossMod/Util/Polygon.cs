@@ -16,9 +16,10 @@ public readonly struct RelTriangle(WDir a, WDir b, WDir c)
 
 // a complex polygon that is a single simple-polygon exterior minus 0 or more simple-polygon holes; all edges are assumed to be non intersecting
 // hole-starts list contains starting index of each hole
-public sealed class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStarts)
+public sealed class RelPolygonWithHoles(List<WDir> vertices, List<int> HoleStarts)
 {
     // constructor for simple polygon
+    public readonly List<WDir> Vertices = vertices;
     public RelPolygonWithHoles(List<WDir> simpleVertices) : this(simpleVertices, []) { }
     public ReadOnlySpan<WDir> AllVertices => CollectionsMarshal.AsSpan(Vertices);
     public ReadOnlySpan<WDir> Exterior => AllVertices[..ExteriorEnd];
@@ -57,17 +58,18 @@ public sealed class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
     {
         var vertexCount = Vertices.Count;
         Span<double> pts = vertexCount <= 256 ? stackalloc double[vertexCount * 2] : new double[vertexCount * 2];
+        var verticesSpan = CollectionsMarshal.AsSpan(Vertices);
         for (int i = 0, j = 0; i < vertexCount; ++i, j += 2)
         {
-            var v = Vertices[i];
+            ref readonly var v = ref verticesSpan[i];
             pts[j] = v.X;
             pts[j + 1] = v.Z;
         }
-        var tess = Earcut.Tessellate(pts[..(vertexCount * 2)], HoleStarts);
-        var count = tess.Count;
+        var tess = CollectionsMarshal.AsSpan(Earcut.Tessellate(pts[..(vertexCount * 2)], HoleStarts));
+        var count = tess.Length;
         for (var i = 0; i < count; i += 3)
         {
-            result.Add(new(Vertices[tess[i]], Vertices[tess[i + 1]], Vertices[tess[i + 2]]));
+            result.Add(new(verticesSpan[tess[i]], verticesSpan[tess[i + 1]], verticesSpan[tess[i + 2]]));
         }
 
         return count > 0;
@@ -216,7 +218,7 @@ public sealed class RelPolygonWithHoles(List<WDir> Vertices, List<int> HoleStart
             x1 = bx;
             y1 = by;
             var dy = by - ay;
-            var invDy = dy != 0 ? 1f / dy : 0;
+            var invDy = dy != 0 ? 1f / dy : default;
             slopeX = (x1 - x0) * invDy;
         }
     }
@@ -751,5 +753,147 @@ public readonly struct PolygonWithHolesDistanceFunction
             minDistanceSq = Math.Min(minDistanceSq, distX * distX + distY * distY);
         }
         return MathF.Sqrt(minDistanceSq);
+    }
+}
+
+// used to create a visibility polygon of a point source and a RelSimplifiedComplexPolygon
+public static class Visibility
+{
+    public static WDir[] Compute(WDir origin, RelSimplifiedComplexPolygon polygon)
+    {
+        List<(WDir A, WDir B)> blockingEdges = [];
+        var parts = polygon.Parts;
+        var countParts = polygon.Parts.Count;
+
+        for (var i = 0; i < countParts; ++i)
+        {
+            var part = parts[i];
+            blockingEdges.AddRange(part.ExteriorEdges);
+            var holes = part.Holes;
+            var len = holes.Length;
+            for (var j = 0; j < len; ++j)
+            {
+                blockingEdges.AddRange(part.InteriorEdges(holes[j]));
+            }
+        }
+
+        // get all unique vertices
+        HashSet<WDir> uniqueVertices = [];
+        for (var i = 0; i < countParts; ++i)
+        {
+            var part = parts[i];
+            var countV = part.Vertices.Count;
+            for (var j = 0; j < countV; ++j)
+            {
+                uniqueVertices.Add(part.Vertices[j]);
+            }
+        }
+
+        // cast rays toward each vertex, slightly offset left/right
+        List<(float angle, WDir intersection)> hits = [];
+        float[] offsets = [-1e-4f, 0f, 1e-4f];
+        var originX = origin.X;
+        var originZ = origin.Z;
+        foreach (var pt in uniqueVertices)
+        {
+            var baseAngle = MathF.Atan2(pt.Z - originZ, pt.X - originX);
+            for (var i = 0; i < 3; ++i)
+            {
+                var rayAngle = baseAngle + offsets[i];
+                var (sin, cos) = ((float, float))Math.SinCos(rayAngle);
+                var dir = new WDir(cos, sin);
+                var hit = Raycast(origin, dir, blockingEdges);
+                if (hit.HasValue)
+                {
+                    var intersection = hit.Value;
+                    var angle = MathF.Atan2(intersection.Z - originZ, intersection.X - originX);
+                    hits.Add((angle, intersection));
+                }
+            }
+        }
+
+        // sort points counterclockwise around the light origin
+        hits.Sort((a, b) => a.angle.CompareTo(b.angle));
+
+        var count = hits.Count;
+        var visibilityPolygon = new WDir[count];
+        for (var i = 0; i < count; ++i)
+        {
+            visibilityPolygon[i] = hits[i].intersection;
+        }
+        return visibilityPolygon;
+    }
+
+    private static WDir? Raycast(WDir origin, WDir dir, List<(WDir A, WDir B)> edges)
+    {
+        WDir? closest = null;
+        var minT = float.MaxValue;
+        var count = edges.Count;
+        for (var i = 0; i < count; ++i)
+        {
+            var edge = edges[i];
+            if (TryIntersectRaySegment(origin, dir, edge.A, edge.B, out var intersection, out var t))
+            {
+                if (t < minT)
+                {
+                    minT = t;
+                    closest = intersection;
+                }
+            }
+        }
+        return closest;
+    }
+
+    private static bool TryIntersectRaySegment(in WDir o, in WDir d, in WDir a, in WDir b, out WDir intersection, out float tRay)
+    {
+        intersection = default;
+        tRay = float.MaxValue;
+
+        float dx1 = d.X, dy1 = d.Z;
+        float dx2 = b.X - a.X, dy2 = b.Z - a.Z;
+        var det = dx1 * dy2 - dy1 * dx2;
+        float dx3 = a.X - o.X, dy3 = a.Z - o.Z;
+
+        if (MathF.Abs(det) < 1e-6f)
+        {
+            var dd = dx1 * dx1 + dy1 * dy1;
+            var invdd = 1f / dd;
+
+            if (dd < 1e-8f)
+            {
+                return false;
+            }
+
+            float ox = o.X, oz = o.Z;
+            var any = false;
+
+            var tA = ((a.X - ox) * dx1 + (a.Z - oz) * dy1) * invdd;
+            if (tA >= 0)
+            {
+                any = true;
+                tRay = tA;
+                intersection = o + tA * d;
+            }
+
+            var tB = ((b.X - ox) * dx1 + (b.Z - oz) * dy1) * invdd;
+            if (tB >= 0f && tB < tRay)
+            {
+                tRay = tB;
+                intersection = o + tB * d;
+            }
+            return any;
+        }
+
+        var invDet = 1f / det;
+        var t1 = (dx3 * dy2 - dy3 * dx2) * invDet;
+        var t2 = (dx3 * dy1 - dy3 * dx1) * invDet;
+
+        if (t1 >= 0 && t2 >= 0 && t2 <= 1)
+        {
+            tRay = t1;
+            intersection = o + t1 * d;
+            return true;
+        }
+        return false;
     }
 }

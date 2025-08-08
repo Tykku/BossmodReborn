@@ -11,9 +11,13 @@ sealed class OrbsAOE(BossModule module) : Components.GenericAOEs(module)
     public override ReadOnlySpan<AOEInstance> ActiveAOEs(int slot, Actor actor)
     {
         if (_arena.IsBrionacArena)
+        {
             return CollectionsMarshal.AsSpan(AOEs);
+        }
         else
+        {
             return [];
+        }
     }
 
     public override void OnCastStarted(Actor caster, ActorCastInfo spell)
@@ -55,7 +59,7 @@ sealed class OrbsAOE(BossModule module) : Components.GenericAOEs(module)
         }
     }
 
-    private void AddAOE(AOEShape shape, Actor actor, DateTime activation) => AOEs.Add(new(shape, WPos.ClampToGrid(actor.Position), default, activation));
+    private void AddAOE(AOEShape shape, Actor actor, DateTime activation) => AOEs.Add(new(shape, actor.Position.Quantized(), default, activation));
 
     public override void OnActorCreated(Actor actor)
     {
@@ -79,7 +83,7 @@ sealed class OrbsAOE(BossModule module) : Components.GenericAOEs(module)
     }
 }
 
-sealed class Magnetism(BossModule module) : Components.GenericKnockback(module, ignoreImmunes: true)
+sealed class Magnetism(BossModule module) : Components.GenericKnockback(module)
 {
     private readonly Knockback?[] _sources = new Knockback?[8];
     private readonly byte[] playerPoles = new byte[8];
@@ -91,7 +95,7 @@ sealed class Magnetism(BossModule module) : Components.GenericKnockback(module, 
 
     public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
-        if (slot is < 0 or > 7) // we don't support the random allied NPCs
+        if (slot > 7) // we don't support the random allied NPCs
             return [];
         if (_sources[slot] is Knockback source)
         {
@@ -153,11 +157,14 @@ sealed class Magnetism(BossModule module) : Components.GenericKnockback(module, 
     public override bool DestinationUnsafe(int slot, Actor actor, WPos pos)
     {
         var count = _aoe.AOEs.Count;
+        var aoes = CollectionsMarshal.AsSpan(_aoe.AOEs);
         for (var i = 0; i < count; ++i)
         {
-            var aoe = _aoe.AOEs[i];
+            ref readonly var aoe = ref aoes[i];
             if (aoe.Check(pos))
+            {
                 return true;
+            }
         }
         return false;
     }
@@ -253,12 +260,12 @@ sealed class Magnetism(BossModule module) : Components.GenericKnockback(module, 
                 }
             }
         }
-        void AddSource(int slot, WPos position, bool isKnockback) => _sources[slot] = new(position, 30f, WorldState.FutureTime(8.2d), Kind: isKnockback ? Kind.AwayFromOrigin : Kind.TowardsOrigin);
+        void AddSource(int slot, WPos position, bool isKnockback) => _sources[slot] = new(position, 30f, WorldState.FutureTime(8.2d), kind: isKnockback ? Kind.AwayFromOrigin : Kind.TowardsOrigin, ignoreImmunes: true);
     }
 
     public override void AddAIHints(int slot, Actor actor, PartyRolesConfig.Assignment assignment, AIHints hints)
     {
-        if (slot is < 0 or > 7) // we don't support the random allied NPCs
+        if (slot > 7) // we don't support the random allied NPCs
             return;
         if (_sources[slot] is Knockback source)
         {

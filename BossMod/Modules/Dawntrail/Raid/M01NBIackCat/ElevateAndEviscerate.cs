@@ -1,6 +1,6 @@
 namespace BossMod.Dawntrail.Raid.M01NBlackCat;
 
-sealed class ElevateAndEviscerate(BossModule module) : Components.GenericKnockback(module, ignoreImmunes: true)
+sealed class ElevateAndEviscerate(BossModule module) : Components.GenericKnockback(module)
 {
     public DateTime Activation;
     public (Actor source, Actor target) Tether;
@@ -13,7 +13,7 @@ sealed class ElevateAndEviscerate(BossModule module) : Components.GenericKnockba
     public override ReadOnlySpan<Knockback> ActiveKnockbacks(int slot, Actor actor)
     {
         if (Tether != default && actor == Tether.target)
-            return new Knockback[1] { new(Tether.source.Position, 10f, Activation) };
+            return new Knockback[1] { new(Tether.source.Position, 10f, Activation, ignoreImmunes: true) };
         return [];
     }
 
@@ -71,16 +71,22 @@ sealed class ElevateAndEviscerate(BossModule module) : Components.GenericKnockba
         var len = aoes.Length;
         for (var i = 0; i < len; ++i)
         {
-            if (aoes[i].Check(pos))
+            ref readonly var aoe = ref aoes[i];
+            if (aoe.Check(pos))
+            {
                 return true;
+            }
         }
         _aoe ??= Module.FindComponent<ElevateAndEviscerateImpact>();
         var aoes2 = _aoe!.ActiveAOEs(slot, actor);
         var len2 = aoes2.Length;
         for (var i = 0; i < len2; ++i)
         {
-            if (aoes2[i].Check(pos))
+            ref readonly var aoe = ref aoes2[i];
+            if (aoe.Check(pos))
+            {
                 return true;
+            }
         }
         return !Module.InBounds(pos);
     }
@@ -149,7 +155,7 @@ sealed class ElevateAndEviscerateHint(BossModule module) : Components.GenericAOE
             for (var i = 0; i < len; ++i)
             {
                 var tile = tiles[damagedCells[i]];
-                aoes.Add(new(Rect, tile.Center, Color: Colors.FutureVulnerable, Risky: false));
+                aoes.Add(new(Rect, tile.Center, color: Colors.FutureVulnerable, risky: false));
             }
             return CollectionsMarshal.AsSpan(aoes);
         }
